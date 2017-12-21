@@ -1,9 +1,10 @@
-Breakdown of the Pipeline Into Steps
-====================================
+Pipeline Steps
+==============
 
 The pipeline operations can be broken down into 5 big steps each of which is
 further broken down into multiple smaller steps:
 
+--------------------------------------------------------------------------------
 ## 1. Image calibration: 
 
 Take the raw data and calibrate it for various instrumental effects.
@@ -30,33 +31,94 @@ Take the raw data and calibrate it for various instrumental effects.
     the optical system between frames which may produce better results if
     processed independently.
 
-### 1.2 Generate master frames:
+### 1.2 Image Calibration
 
-Master frames are stacks of individual calibration frames. As a result their
-signal to noise ratio is greatly increased, compared to individual un-stacked
-frames, allowing for much better calibration.
+Before raw images are used, they need to be calibrated. The sequence of steps
+is: 
+  - calibrate raw bias frames
+  - generate master bias frames
+  - calibrate raw dark frames using the master biases
+  - generate master dark frames
+  - calibrate raw flat frames using the master biases and master darks
+  - generate master flat frames
+  - calibrate raw object frames
 
-1.2.1. Split the list of raw bias frames into groups, discard suspicious frames, and
-       generate a master bias frame from each group.
+Calibration above means:
 
-1.2.2 For each raw dark frame figure out the best master bias to apply and create a
-      calibrated dark frame.
+#### 1.2.1 Overscan corrections
 
-1.2.3. Split the calibrated dark frames into groups, discard suspicious frames, and
-       generate a master dark frame from each group.
+In many instances, the imaging device provides extra areas that attempt to
+measure bias level and dark current, e.g. by continuing to read pixels past the
+physical number of pixels in the device, thus measuring the bias or by having an
+area of pixels which are somehow shielded from light, thus measuring the dark
+level in real time. Such corrections are supierior to the master frames in that
+they measure the instantaneous bias and dark level, which may vary over time due
+to for example the temperature of the detector varying. However, bias level and
+dark current in particular can vary from pixel to pixel, which is not captured
+by these real-time areas. Hence, the best strategy is a combination of both, and
+is different for different detectors.
 
-1.2.4. For each raw flat frame figure out the best master bias and master dark to
-       apply and generate calibrated flat frames.
+The pipeline allows (but does not require) such areas to be used to estimate
+some smooth function of image position to subtract from each raw image, and then
+the masters are applied to the result. This works mathematically, because the
+masters will also have their values corrected for the bias and dark measured by
+these areas from the individual frames that were used to construct them. In this
+scheme, the master frames are used only to capture the pixel to pixel
+differences in bias and dark current. We refer to these areas as "overscan",
+although that term really means only one type of such area.
 
-1.2.5. Split the calibrated flat frames into groups, discard suspicious frames,
-       and generate a master flat frame from each group.
+While overscan corrections are applied to all raw frames,
 
-### 1.3 Calibrate the object frames:
+#### 1.2.2. Bias level and dark current is subtracted
 
-For each raw object frame find the most suitabel master bias, dark and flat and
-create a calibrated version of the frame. Basically, subtract the bias and dark,
-and divide by the flat.
+This step simply subtracts the master bias and the master dark from the target
+image.
 
+The master bias is not subtracted from raw bias frames (since the reason for
+calibrating those is to generate the master bias), and for raw dark frames,
+master bias corrections are applied, but master dark are not. All other image
+types get the full set of corrections.
+
+#### 1.2.2. Flat field corrections are applied
+
+This is a very simple step which simply takes the ratio of the bias and dark
+corrected frame and the master flat, pixel by pixel.
+
+This step is skipped for raw bias, dark and flat frames, and applied to all
+object frames.
+
+#### 1.2.3. The image is trimmed to only the image area
+
+This step removes overscan, dark and other areas that are used during the
+calibration process, but lose their meaning afterwards.
+
+This step is apllied to all raw frames.
+
+#### 1.2.4. Individual pixel errors are calculated
+
+In the original image, the error in the value of each pixel is simply given by
+(pixel value / gain)<sup>0.5</sup>. However, once the above corrections are
+applied this is no longer true. The de-biasing and de-darking adds the (small)
+noise in the master frames (and the overscan corrections), the scaling by the
+flat introduces the error in the master flat, but also changes the "gain"
+differently for ecah pixel. In order to properly handle all those, calibrating
+raw frames in the pipeline produces two images: the calibrated image and an
+error estimate image giving the so called 1-sigma error estimate (in 68% of the
+cases the true amount of light that fell on the detector deviates no more than
+the given amount from the reported value).
+
+This is done for all raw frames.
+
+### 1.3 Generate master frames:
+
+Master frames are stacks of individual calibrated calibration frames. As a
+result their signal to noise ratio is greatly increased, compared to individual
+un-stacked frames, allowing for much better calibration. In each case, the
+frames are split into groups in which the effect being measured is not expected
+to var and the individual frames are stacked, with suspicious (outlier in some
+way) frames are discarded.
+
+--------------------------------------------------------------------------------
 ## 2. Astrometry:
 
 Find a transformation that allows you to map sky coordinates (RA, Dec) into
@@ -86,6 +148,7 @@ determined to very high accuracy and precision, thus providing more precise
 image positions than source extraction by transforming high precision catalogue
 positions through this high S/N transformation.
 
+--------------------------------------------------------------------------------
 ## 3. Photometry:
 
 For each calibrated object frames, extract flux measuruments for catalogue
@@ -138,6 +201,7 @@ This taks is again carried out by
 [SuperPhot](https://github.com/kpenev/SuperPhot). See the
 [documentation](https://kpenev.github.io/SuperPhot/) for further details.
 
+--------------------------------------------------------------------------------
 ## 4. Magnitude fitting:
 
 In ground based applications, the night sky is imaged through variable amount of
@@ -161,6 +225,7 @@ much highe signal to noise "master reference frame", which is then used in a
 second iteration of the magnitude fitting process to generate the final fitted
 magnitudes.
 
+--------------------------------------------------------------------------------
 ## 5. Dumping lightcurves:
 
 This is a simple transpose operation. In all previous steps, the photometry is
@@ -172,6 +237,7 @@ available measurements from the individual frames are collected in a file,
 possibly combined with earlier measurements from say a different but overlapping
 pointing of the telescope or with another instrumental set-up.
 
+--------------------------------------------------------------------------------
 ## 6. Lightcurve post-processing:
 
 Even though we have tried hard to eliminate as many "instrumental" effects as
