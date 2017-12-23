@@ -21,7 +21,7 @@ class Calibrator :
             overscans = [dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
 
             #Overscan corrections should subtract the median of the values.
-            overscan_method = OverscanMethos.median,
+            overscan_method = OverscanMethods.Median(),
 
             #The master bias frame to use.
             master_bias = 'masters/master_bias1.fits',
@@ -84,12 +84,8 @@ class Calibrator :
                    ...]
             The areas in the raw image to use for overscan corrections.
 
-        overscan_method: callable
-            A callable which returns the overscan correction (a 2-D numpy array)
-            to apply to the input image, and an estimate of its variance, given
-            the image and the overscan area. Should also define an id()
-            method, returning a unique identifier to place in the calibrated
-            image header to identify the method.
+        overscan_method:
+            See OverscanMethods.OverscanMethodBase.
 
         image_area: dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
             The area in the raw image which actually contains the useful image
@@ -382,13 +378,14 @@ class Calibrator :
                     %(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d with the
                     sibustition dictionary given directly by the corresponding
                     overscan area.
-                OVSCNMTD: The overscan method used, as returned by the
-                    id() method of the overscan_method calibration parameter.
                 IMAGAREA: '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
                     subsituted with the image are as specified during
                     calibration.
                 CALBGAIN: The gain assumed during calibration.
                 CLIBSHA: Sha-1 chacksum of the Calibrator.py blob per Git.
+
+            In addition, the overscan method describes itself in the header in
+            any way it sees fit.
 
             Args:
                 header:
@@ -399,14 +396,16 @@ class Calibrator :
 
             for master_type in 'bias', 'dark', 'flat' :
                 if calibration_params['master_' + master_type] is not None :
-                    raw_header['M' + master_type.upper() + 'FNM'] = (
-                        calibration_params['master_' + master_type]
+                    header['M' + master_type.upper() + 'FNM'] = (
+                        calibration_params['master_' + master_type],
+                        'Master ' + master_type + ' frame applied'
                     )
                     with open(calibration_params['master_bias'], 'r') as master :
                         hasher = sha1()
                         hasher.update(master.read().encode('ascii'))
-                        raw_header['M' + master_type.upper() + 'SHA'] = (
-                            hasher.hexdigest()
+                        header['M' + master_type.upper() + 'SHA'] = (
+                            hasher.hexdigest(),
+                            'SHA-1 checksum of the master ' + master_type
                         )
 
             area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
@@ -415,23 +414,24 @@ class Calibrator :
                     in
                     enumerate(calibration_params['overscans'])
             ) :
-                raw_header['OVRSCN%02d' % overscan_id] = (area_pattern
-                                                          %
-                                                          overscan_area)
+                header['OVRSCN%02d' % overscan_id] = (
+                    area_pattern % overscan_area,
+                    'Overscan area #' + str(overscan_id)
+                )
 
-            raw_header['OVSCNMTD'] = (
-                calibration_params['overscan_method'].id()
-            )
+            calibration_params['overscan_method'].document_in_fits_header(header)
 
-            raw_header['IMAGAREA'] = (area_pattern
-                                      %
-                                      calibration_params['image_area'])
+            header['IMAGAREA'] = (
+                area_pattern % calibration_params['image_area'],
+                'Image region in raw frame'
 
-            raw_header['CALIBGAIN'] = calibration_params['gain']
+            raw_header['CALIBGAIN'] = (calibration_params['gain'],
+                                       'Electrons/ADU assumed during calib')
 
             assert(calibrator_sha[:4] = '$Id:')
             assert(calibrator_sha[-1] = '$')
-            raw_header['CALIBSHA'] = calibrator_sha[4:-1].strip()
+            header['CALIBSHA'] = (calibrator_sha[4:-1].strip(),
+                                  'Git Id of Calibrator.py used in calib')
 
         def create_result(calibrated_image, variance_image, header) :
             """
@@ -443,7 +443,7 @@ class Calibrator :
                 variance_image:
                     An estiamte of the variance of each pixel of the calibrated
                     image. Saved as a second extension.
-                raw_header:
+                header:
                     The header of the raw image. Everything gets copied ot the
                     reduced image and further keywords are added to document the
                     calibration.
@@ -505,7 +505,9 @@ class Calibrator :
                 apply_subtractive_correction(
                     *calibration_params['overscan_method'](
                         raw_image,
-                        calibration_params['overscans']
+                        calibration_params['overscans'],
+                        calibration_params['image_area'],
+                        calibration_params['gain']
                     ),
                     calibrated_image,
                     variance_image
