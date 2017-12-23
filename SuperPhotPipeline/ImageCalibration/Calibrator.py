@@ -2,8 +2,9 @@
 
 from astropy.io import fits
 from numpy import isfinite, sqrt
+from hashlib import sha1
 
-calibrator_sha = $Id$
+calibrator_sha = '$Id$'
 
 class Calibrator :
     """
@@ -41,21 +42,43 @@ class Calibrator :
         #applied, since a master flat was never specified.
         calibrate(raw = 'raw1.fits', calibrated = 'calib1.fits')
 
-        #Calibrate an image, changing the gain assumed for this image only.
-        calibrate(raw = 'raw2.fits', calibrated = 'calib2.fits', gain = 8.0)
+        #Calibrate an image, changing the gain assumed for this image only and
+        #disabling overscan correction for this image only.
+        calibrate(raw = 'raw2.fits',
+                  calibrated = 'calib2.fits',
+                  gain = 8.0,
+                  overscans = None)
 
     Attributes:
-        master_bias: numpy 2-D array like
-            The currently set default master bias to use if not overwritten when
-            calling the calibrator.
+        master_bias: The filename of the master bias frame used in the
+            calibrations.
+        
+        master_bias_correction: numpy 2-D array like containing the currently
+            set default master bias to use if not overwritten when calling the
+            calibrator.
 
-        master_dark: numpy 2-D array like
-            The currently set default master dark to use if not overwritten when
-            calling the calibrator.
+        master_bias_variance: numpy 2-D array like, containing the variance
+            estiamet of the default master bias correction.
 
-        master_flat: numpy 2-D array like
-            The currently set default master flat to use if not overwritten when
-            calling the calibrator.
+        master_dark: The filename of the master dark frame used in the
+            calibrations.
+        
+        master_dark: numpy 2-D array like containing the currently
+            set default master dark to use if not overwritten when calling the
+            calibrator.
+
+        master_dark: numpy 2-D array like, containing the variance
+            estiamet of the default master dark correction.
+
+        master_flat: The filename of the master flat frame used in the
+            calibrations.
+        
+        master_flat: numpy 2-D array like containing the currently
+            set default master flat to use if not overwritten when calling the
+            calibrator.
+
+        master_flat: numpy 2-D array like, containing the variance
+            estiamet of the default master flat correction.
 
         oversans: [dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>),
                    ...]
@@ -64,13 +87,19 @@ class Calibrator :
         overscan_method: callable
             A callable which returns the overscan correction (a 2-D numpy array)
             to apply to the input image, and an estimate of its variance, given
-            the image and the overscan area.
+            the image and the overscan area. Should also define an id()
+            method, returning a unique identifier to place in the calibrated
+            image header to identify the method.
 
         image_area: dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
             The area in the raw image which actually contains the useful image
             of the night sky. The dimensions must match the dimensions of the
             masters to apply an of the overscan correction retured by
             overscan_method.
+
+        gain:
+            The gain to assume for the input image (electrons/ADU). Only useful
+            when estimating errors and could be used by the overscan_method.
     """
 
     def _check_calib_params(self, raw_image, calib_params) :
@@ -202,38 +231,26 @@ class Calibrator :
         Create a calibrator and define some default calibration parameters.
 
         Args:
-            master_bias: 
-                The name of the file containing the master bias frame to use. If
-                None, no master bias correction is applied.
+            master_bias:
+                See same name attribute to Calibrator class.
 
             master_dark: 
-                The name of the file containing the master dark frame to use. If
-                None, no master dark correction is applied.
+                See same name attribute to Calibrator class.
 
             master_flat: 
-                The name of the file containing the master flat frame to use. If
-                None, no master flat correction is applied.
+                See same name attribute to Calibrator class.
 
             overscans:
-                List of the overscan areas to use. Each overscan area is
-                dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>).
+                See same name attribute to Calibrator class.
                
             overscan_method:
-                A callable that given an overscan area and an image returns the
-                overscan correction to apply as a numpy 2-D array (or
-                compatible). None or emply list disables overscan corrections).
-                See OverscanMethods for functions that can be used for this
-                argument.
+                See same name attribute to Calibrator class.
             
             image_area:
-                The area on the image which will be made part of the final
-                image. The same format as an overscan region. If None, defaults
-                to the entire image.
+                See same name attribute to Calibrator class.
 
             gain:
-                The gain to assume for the input image (electrons/ADU). Only
-                useful when estimating errors and could be used by the
-                overscan_method.
+                See same name attribute to Calibrator class.
 
         Returns: None
         """
@@ -276,6 +293,7 @@ class Calibrator :
     def __call__(self,
                  raw,
                  calibrated,
+                 compress_calibrated = True,
                  **calibration_params) :
         """
         Calibrate the raw frame, save result to calibrated.
@@ -285,6 +303,8 @@ class Calibrator :
                The filename of the raw frame to calibrate.
             calibrated:
                 The filename under which to save the calibrated frame.
+            compress_calibrated:
+                Should the calibrated image be compressed.
             **calibration_params:
                 Keyword only arguments allowing one of the calibration
                 parameters to be switched for this calibration only. Should be
@@ -345,16 +365,103 @@ class Calibrator :
                 flat_variance * calibrated_image**2 / flat_correction**4
             )
 
-        def create_result() :
+        def document_in_header(header) :
+            """
+            Update the given header to document how the calibration was done.
+
+            The following keywords are added or overwritten:
+                MBIASFNM: Filename of the master bias used
+                MBIASSHA: Sha-1 checksum of the master bias frame used.
+                MDARKFNM: Filename of the master dark used
+                MDARKSHA: Sha-1 checksum of the master dark frame used.
+                MFLATFNM: Filename of the master flat used
+                MFLATSHA: Sha-1 checksum of the master flat frame used.
+                OVRSCN%02d: The overscan regions get consecutive IDs and for
+                    each one, the id gets substituted in the keyword as given.
+                    The value describes the overscan region like: 
+                    %(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d with the
+                    sibustition dictionary given directly by the corresponding
+                    overscan area.
+                OVSCNMTD: The overscan method used, as returned by the
+                    id() method of the overscan_method calibration parameter.
+                IMAGAREA: '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
+                    subsituted with the image are as specified during
+                    calibration.
+                CALBGAIN: The gain assumed during calibration.
+                CLIBSHA: Sha-1 chacksum of the Calibrator.py blob per Git.
+
+            Args:
+                header:
+                    The header to update with the calibration information.
+            
+            Returns: None
+            """
+
+            for master_type in 'bias', 'dark', 'flat' :
+                if calibration_params['master_' + master_type] is not None :
+                    raw_header['M' + master_type.upper() + 'FNM'] = (
+                        calibration_params['master_' + master_type]
+                    )
+                    with open(calibration_params['master_bias'], 'r') as master :
+                        hasher = sha1()
+                        hasher.update(master.read().encode('ascii'))
+                        raw_header['M' + master_type.upper() + 'SHA'] = (
+                            hasher.hexdigest()
+                        )
+
+            area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
+            for (
+                    ovescan_id, overscan_area
+                    in
+                    enumerate(calibration_params['overscans'])
+            ) :
+                raw_header['OVRSCN%02d' % overscan_id] = (area_pattern
+                                                          %
+                                                          overscan_area)
+
+            raw_header['OVSCNMTD'] = (
+                calibration_params['overscan_method'].id()
+            )
+
+            raw_header['IMAGAREA'] = (area_pattern
+                                      %
+                                      calibration_params['image_area'])
+
+            raw_header['CALIBGAIN'] = calibration_params['gain']
+
+            assert(calibrator_sha[:4] = '$Id:')
+            assert(calibrator_sha[-1] = '$')
+            raw_header['CALIBSHA'] = calibrator_sha[4:-1].strip()
+
+        def create_result(calibrated_image, variance_image, header) :
             """
             Create the calibarted FITS file documenting calibration in header.
 
-            Args: None
+            Args:
+                calibrated_image:
+                    The calibrated image data to write to the output file.
+                variance_image:
+                    An estiamte of the variance of each pixel of the calibrated
+                    image. Saved as a second extension.
+                raw_header:
+                    The header of the raw image. Everything gets copied ot the
+                    reduced image and further keywords are added to document the
+                    calibration.
 
             Returns: None
             """
 
-            <++>
+            if compress_cralibrated :
+                fits.HDUList([
+                    fits.CompImageHDU(calibrated_image, header),
+                    fits.CompImageHDU(variance_image)
+                ])
+            else :
+                fits.HDUList([
+                    fits.PrimaryHDU(calibrated_image, header),
+                    fits.ImageHDU(variance_image)
+                ])
+            hdu_list.writeto(calibrated)
 
         for master_type in ['bias', 'dark', 'flat'] :
             if 'master_' + master_type in calibration_params :
@@ -423,3 +530,6 @@ class Calibrator :
                                       calibration_params['master_flat_variance'],
                                       calibrated_image,
                                       calibrated_variance)
+
+            document_in_header(raw_header)
+            create_result(calibrated_image, variance_image, raw_header)
