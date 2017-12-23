@@ -16,7 +16,9 @@ The ImageCalibration python module defines a class (Calibrator) that provides
 the lowest level interface for performing calibrations. The calibration requires
 specifying overscan area(s) to use, overscan correction method(s), master
 bias/dark/flat, and gain to assume for the input raw frames (single floating
-point value). We will refer to these as calibration parameters from now on. 
+point value), the area in the image which actually contains image pixels (must
+match the dimensions of the masters). We will refer to these as calibration
+parameters from now on. 
 
 The typical work flow is as follows:
   1. Create a Calibrator instance, optionally specifying calibration parameters.
@@ -24,9 +26,9 @@ The typical work flow is as follows:
      parameters as attributes to the object.
   3. Call the object with the  filename of the image to calibrate and the output
      filename for the calibrated image. All calibration parameters can be
-     overwritten through additional keyword arguments. Any masters not specified
-     or set to None are not applied. Hence to calibrate a raw flat frame, set
-     master_flat = None.
+     replaced, for this image only, through additional keyword arguments. Any
+     masters not specified or set to None are not applied. Hence to calibrate a
+     raw flat frame, set master_flat = None.
   4. Repeat steps 2 and 3 for all images which need calibrating. 
 
 For example, in order to calibrate flat frames called raw1.fits and raw2.fits
@@ -36,11 +38,14 @@ rows applied by subtracting a simple median:
 ```
 from SuperPhotPipeline.ImageCalibration import Calibrator, OverscanMethods
 
-calibrate = Calibrator(overscans = [dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
-                       overscan_method = OverscanMethos.median,
-                       master_bias = 'masters/master_bias1.fits',
-                       gain = 16.0)
-calibrate.master_dark = 'masters/master_dark3.fits'
+calibrate = Calibrator(
+    overscans = [dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
+    overscan_method = OverscanMethos.median,
+    master_bias = 'masters/master_bias1.fits',
+    gain = 16.0,
+    image_area = dict(xmin = 0, xmax = 4096, ymin = 20, ymax = 4116
+)
+calibrate.set_masters(dark = 'masters/master_dark3.fits')
 calibrate(raw = 'raw1.fits', calibrated = 'calib1.fits')
 calibrate(raw = 'raw2.fits', calibrated = 'calib2.fits', gain = 8.0)
 ```
