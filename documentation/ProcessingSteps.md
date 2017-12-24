@@ -1,4 +1,4 @@
-Pipeline Steps
+Pipeline Steps {#mainpage}
 ==============
 
 The pipeline operations can be broken down into 5 big steps each of which is
@@ -8,6 +8,8 @@ further broken down into multiple smaller steps:
 ## 1. Image calibration: 
 
 Take the raw data and calibrate it for various instrumental effects.
+
+See \ref ImageCalibrationImplementation_page for implementation documentation.
 
 ### 1.1 Split raw frames by type:
 
@@ -42,8 +44,6 @@ is:
   - calibrate raw flat frames using the master biases and master darks
   - generate master flat frames
   - calibrate raw object frames
-
-Calibration above means:
 
 #### 1.2.1 Overscan corrections
 

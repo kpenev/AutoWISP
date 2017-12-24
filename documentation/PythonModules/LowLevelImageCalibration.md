@@ -1,5 +1,5 @@
-Image Calibration Interface
-===========================
+Low Level Image Calibration Interface {#LowLevelImageCalibration_page}
+=====================================
 
 In the first release of the pipeline all images are assumed to be in FITS format
 and only FITS images are produced. As described in the image calibration step of

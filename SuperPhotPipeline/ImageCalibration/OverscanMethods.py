@@ -15,30 +15,27 @@ class Base(ABC) :
         Return the overscan correction and its variance for the given image.
 
         Args:
-            raw_image:
-                The raw image for which to find the overscan correction.
+            raw_image:    The raw image for which to find the
+                overscan correction.
 
-            overscans:
-                A list of the areas on the image to use when determining the
-                overscan correction. Each area is specified as
+            overscans:    A list of the areas on the image to use when
+                determining the overscan correction. Each area is specified as
                 dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
 
-            image_area:
-                The area in raw_image for which to calculate the overscan
-                correction. The format is the same as a single overscan area.
+            image_area:    The area in raw_image for which to calculate the
+                overscan correction. The format is the same as a single
+                overscan area.
 
-            gain:
-                The value of the gain to assume for the raw image
+            gain:    The value of the gain to assume for the raw image
                 (electrons/ADU).
 
         Returns:
-            overscan_correction:
-                A 2-D numpy array with the same resolution as the image_area
-                giving the correction to subtract from each pixel.
+            overscan_correction:    A 2-D numpy array with the same resolution
+                as the image_area giving the correction to subtract from
+                each pixel.
 
-            overscan_variance:
-                An estimate of the variance in the overscan_correction entries
-                (in ADU).
+            overscan_variance:    An estimate of the variance in the
+                overscan_correction entries (in ADU).
         """
 
 class Median(Base) :
@@ -50,24 +47,7 @@ class Median(Base) :
     from the beginning until no pixels are rejected or the maximum number of
     rejection iterations is reached.
 
-    Attributes:
-        reject_threshold:
-            Pixels that differ by more than reject_threshold standard deviations
-            from the median are rejected at each iteration.
-
-        max_reject_iterations:
-            The maximum number of outlier rejection iterations to perform. If
-            this limit is reached, either the latest result is accepted, or an
-            exception is raised depending on accept_unconverged.
-
-        require_convergence:
-            If this is False and the maximum number of rejection iterations is
-            reached, the last median computed is the accepted result. If this is
-            True, hitting the max_reject_iterations limit throws an exception.
-
-        min_pixels:
-            If iterative rejection drives the number of acceptable pixels below
-            this value an exception is raised.
+    Public attributes exactly match the  __init__ arguments.
     """
 
     def __init__(self, 
@@ -78,9 +58,26 @@ class Median(Base) :
         """
         Create a median ovescan correction method.
 
-        Args: See same name class attributes.
+        Args:
+            reject_threshold:    Pixels that differ by more than
+                reject_threshold standard deviations from the median are
+                rejected at each iteration.
 
-        Returns: None
+            max_reject_iterations:    The maximum number of outlier rejection
+                iterations to perform. If this limit is reached, either the
+                latest result is accepted, or an exception is raised depending
+                on accept_unconverged.
+
+            require_convergence:    If this is False and the maximum number of
+                rejection iterations is reached, the last median computed is the
+                accepted result. If this is True, hitting the
+                max_reject_iterations limit throws an exception.
+
+            min_pixels:    If iterative rejection drives the number of
+                acceptable pixels below this value an exception is raised.
+
+        Returns:
+            None
         """
 
         self.reject_threshold = reject_threshold
@@ -92,26 +89,29 @@ class Median(Base) :
         """
         Document the last calculated overscan correction to header.
 
-        Adds the following keywords to the header:
-            OVSCNMTD = Iterative rejection median
-                       / Overscan correction method
-            OVSCREJM = ###
-                       / Maximum number of allowed overscan rejection
-                       iterations.
-            OVSCMINP = ###
-                       / Minimum number of pixels to base correction on
-            OVSCREJI = ###
-                       / Number of overscan rejection iterations applied
-            OVSCNPIX = ###
-                       / Actual number of pixels used to calc overscan
-            OVSCCONV = T/F
-                       / Did the last overscan correction converge
+        Notes:
+            Adds the following keywords to the header:
+            \verbatim
+                OVSCNMTD = Iterative rejection median
+                           / Overscan correction method
+                OVSCREJM = ###
+                           / Maximum number of allowed overscan rejection
+                           iterations.
+                OVSCMINP = ###
+                           / Minimum number of pixels to base correction on
+                OVSCREJI = ###
+                           / Number of overscan rejection iterations applied
+                OVSCNPIX = ###
+                           / Actual number of pixels used to calc overscan
+                OVSCCONV = T/F
+                           / Did the last overscan correction converge
+            \endverbatim
 
         Args:
-            header:
-                The FITS header to add the keywords to.
+            header:    The FITS header to add the keywords to.
 
-        Returns: None
+        Returns:
+            None
         """
 
         header['OVSCNMTD'] = ('Iterative rejection median',
@@ -135,18 +135,21 @@ class Median(Base) :
                               'Did the last overscan correction converge')
 
     def __call__(self, raw_image, overscans, image_area, gain) :
+        """
+        See Base.__call__
+        """
 
         def get_overscan_pixel_values() :
             """
             Return a numpy array of the pixel values to base correctiono on.
 
-            Args: None
+            Args:
+                None
 
             Retruns:
-                overscan_values:
-                    The values of the pixels to use when calculating the
-                    overscan correction. Even if overscan areas overlap only a
-                    single copy of each pixel is included.
+                overscan_values:    The values of the pixels to use when
+                    calculating the overscan correction. Even if overscan areas
+                    overlap only a single copy of each pixel is included.
             """
 
             not_included = numpy.full(raw_image.shape, True)
