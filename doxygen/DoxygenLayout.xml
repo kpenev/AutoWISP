@@ -10,7 +10,10 @@
              title="Image Calibration">
             <tab type="user"
                  url="@ref LowLevelImageCalibration_page"
-                 title="Low Level Interface"/>
+                 title="Low Level Calibration Interface"/>
+            <tab type="user"
+                 url="@ref LowLevelMasterStack_page"
+                 title="Low Level Master Stacking Interface"/>
         </tab>
 
         <tab type="usergroup"
