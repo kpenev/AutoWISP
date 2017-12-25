@@ -1,16 +1,22 @@
 """A collection of overscan correction methods (see Calibrator class docs)."""
 
 from abc import ABC, abstractmethod
+import numpy
 
-class Base(ABC) :
+from superphot_pipeline.pipeline_exceptions import ConvergenceError
+
+#pylint: disable=too-few-public-methods
+#It still makes sense to make a class with two methods (including __call__).
+
+class Base(ABC):
     """The minimal intefrace that must be provided by overscan methods."""
 
     @abstractmethod
-    def document_in_fits_header(self, header) :
+    def document_in_fits_header(self, header):
         """Document last overscan correction by updating given FITS header."""
 
     @abstractmethod
-    def __call__(self, raw_image, overscans, image_area, gain) :
+    def __call__(self, raw_image, overscans, image_area, gain):
         """
         Return the overscan correction and its variance for the given image.
 
@@ -38,7 +44,7 @@ class Base(ABC) :
                 overscan_correction entries (in ADU).
         """
 
-class Median(Base) :
+class Median(Base):
     """
     Correction is median of all overscan pixels with iterative outlier reject.
 
@@ -50,11 +56,11 @@ class Median(Base) :
     Public attributes exactly match the  __init__ arguments.
     """
 
-    def __init__(self, 
-                 reject_threshold = 5.0,
-                 max_reject_iterations = 10,
-                 min_pixels = 100,
-                 require_convergence = False) :
+    def __init__(self,
+                 reject_threshold=5.0,
+                 max_reject_iterations=10,
+                 min_pixels=100,
+                 require_convergence=False):
         """
         Create a median ovescan correction method.
 
@@ -78,6 +84,19 @@ class Median(Base) :
 
         Returns:
             None
+
+        Notes:
+            Initializes the following private attributes to None, which indicate
+            the state of the last overscan correction calculation:
+
+            _last_num_reject_iter:    The number of rejection iterations used by
+                the last overscan correction calculation.
+
+            _last_num_pixels:    The number of unrejected pixels the last
+                overscan correction was based on.
+
+            _last_converged:    Did the last overscan calculation converge?
+
         """
 
         self.reject_threshold = reject_threshold
@@ -85,7 +104,13 @@ class Median(Base) :
         self.min_pixels = min_pixels
         self.require_convergence = require_convergence
 
-    def document_in_fits_header(self, header) :
+        self._last_num_reject_iter = None
+        self._last_num_pixels = None
+        self._last_converged = None
+
+    #pylint: disable=anomalous-backslash-in-string
+    #Triggers on doxygen commands.
+    def document_in_fits_header(self, header):
         """
         Document the last calculated overscan correction to header.
 
@@ -125,21 +150,21 @@ class Median(Base) :
         header['OVSCMINP'] = (self.min_pixels,
                               'Minimum number of pixels to base correction on')
 
-        header['OVSCREJI'] = (self.last_num_reject_iter,
+        header['OVSCREJI'] = (self._last_num_reject_iter,
                               'Number of overscan rejection iterations applied')
 
-        header['OVSCNPIX'] = (self.last_num_pixels,
+        header['OVSCNPIX'] = (self._last_num_pixels,
                               'Actual number of pixels used to calc overscan')
 
-        header['OVSCCONV'] = (self.last_converged,
+        header['OVSCCONV'] = (self._last_converged,
                               'Did the last overscan correction converge')
 
-    def __call__(self, raw_image, overscans, image_area, gain) :
+    def __call__(self, raw_image, overscans, image_area, gain):
         """
         See Base.__call__
         """
 
-        def get_overscan_pixel_values() :
+        def get_overscan_pixel_values():
             """
             Return a numpy array of the pixel values to base correctiono on.
 
@@ -161,7 +186,7 @@ class Median(Base) :
             overscan_values = numpy.empty(num_overscan_pixels)
             new_value_start = 0
 
-            for overscan_area in overscans :
+            for overscan_area in overscans:
                 new_pixels = raw_image[
                     overscan_area['ymin'] : overscan_area['ymax'],
                     overscan_area['xmin'] : overscan_area['xmax'],
@@ -185,44 +210,44 @@ class Median(Base) :
             return overscan_values
 
         overscan_values = get_overscan_pixel_values()
-        self.last_num_reject_iter = 0
+        self._last_num_reject_iter = 0
         num_rejected = 1
         while (
                 num_rejected > 0
                 and
-                self.last_num_reject_iter <= self.max_reject_iterations
+                self._last_num_reject_iter <= self.max_reject_iterations
                 and
                 overscan_values.size >= self.min_pixels
-        ) :
+        ):
             start_num_values = overscan_values.size
             correction = numpy.median(overscan_values)
             median_deviations = numpy.abs(overscan_values - correction)
             deviation_scale = numpy.sqrt(numpy.sum(median_deviations**2)
                                          /
-                                         (start_num_pixels - 1))
+                                         (start_num_values - 1))
             overscan_values = overscan_values[
                 median_deviations
                 <=
-                self.reject_threshold * deviatoin_scale
+                self.reject_threshold * deviation_scale
             ]
-            rum_rejected = start_num_values - overscan_values.size
-            self.last_num_reject_iter += 1
+            num_rejected = start_num_values - overscan_values.size
+            self._last_num_reject_iter += 1
 
-        if overscan_values.size < self.min_pixels :
+        if overscan_values.size < self.min_pixels:
             raise ConvergenceError(
                 ('Median overscan: Too few pixels remain (%d) after %d rejection'
                  'iterations.')
                 %
-                (overscan_values.size, rejection_iter + 1)
+                (overscan_values.size, self._last_num_reject_iter)
             )
-        if num_rejected > 0 and require_convergence :
-            assert(self.last_num_reject_iter > self.max_reject_iterations)
+        if num_rejected > 0 and self.require_convergence:
+            assert self._last_num_reject_iter > self.max_reject_iterations
             raise ConvergenceError(
                 ('Median overscan correction iterative rejection exceeded the '
                  'maximum number (%d) of iteratons allowed')
                 %
-                max_reject_iterations
+                self.max_reject_iterations
             )
 
-        self.last_num_pixels = overscan_values.size
-        self.last_converged = True
+        self._last_num_pixels = overscan_values.size
+        self._last_converged = True

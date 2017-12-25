@@ -1,4 +1,4 @@
-from SuperPhotPipeline.ImageCalibration import *
+from astropy.io import fits
 
-print(repr(dir()))
-print(type(Calibrator))
+with fits.open('average_psfmap.fits', mode='readonly') as fits:
+    print(fits[0].header)
