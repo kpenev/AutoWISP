@@ -26,63 +26,65 @@ frames there is always the possibility of clouds, so there needs to be an
 automated procedure for detecting clouds in individual frames and discarding
 them, or of detecting cloudy flat collections and refusing to generate a master
 flat altogether. The procedure used by HATSouth is as follows:
-
     1. For each flat a mean and standard devation are calculated:
 
         1.1. A central stamp is cut-off from each flat
 
         1.2. The stamp is smoothed by 
-             \code{.sh} 
-                 fitrans", stamp_fname, "--smooth",\
-                 "polynomial,order=2,iterations=1,sigma=3,detrend"
-             \endcode
-             Translation:
-             1.2.1 A second order polynomial is fit to the pixel values.
-             1.2.2 More than 3-sigma outliers are rejected and the fit is repeated. 
-             1.2.3 The image is then divided by the best-fit surface.
+            \code{.sh} 
+                fitrans", stamp_fname, "--smooth",\
+                "polynomial,order=2,iterations=1,sigma=3,detrend"
+            \endcode
+            Translation:
+
+            * A second order polynomial is fit to the pixel values.
+
+            * More than 3-sigma outliers are rejected and the fit is repeated. 
+
+            * The image is then divided by the best-fit surface.
 
         1.3. The number of non-saturated (actually completely clean) pixels is
-             calculated:
-             \code{.sh}
-                 fiinfo stamp_fname -m
-             \endcode
-             find a line starting with 8 dashes ('-') and use the number of pixels
-             fiinfo reports for that line.
+            calculated:
+            \code{.sh}
+                fiinfo stamp_fname -m
+            \endcode
+            find a line starting with 8 dashes ('-') and use the number of pixels
+            fiinfo reports for that line.
 
         1.4. if 1 - (number of pixels from step 4) / (total pixels in stamp) is bigger
-             than some number reject the frame.
+            than some number reject the frame.
 
         1.5. If the frame is not rejected, iteratively rejected mean and
-             standard deviation are calculated:
-             \code{.sh}
-                 "fiinfo", "--statistics", "mean,iterations=3,sigma=3"
-             \endcode
+            standard deviation are calculated:
+            \code{.sh}
+                "fiinfo", "--statistics", "mean,iterations=3,sigma=3"
+            \endcode
 
     2. A check is performed for clouds:
 
         2.1. Fit a quadratic to the standard deviation vs mean from step 1
-             above.
-             \code{.sh}
-                lfit -c 'm:1,s:2' -v 'a,b,c' -f 'a*m^2+b*m+c' -y 's^2' -r '2.0'\
-                -n 2 --residual
-             \endcode
-             Translation:
+            above.
+            \code{.sh}
+               lfit -c 'm:1,s:2' -v 'a,b,c' -f 'a*m^2+b*m+c' -y 's^2' -r '2.0'\
+               -n 2 --residual
+            \endcode
+            Translation:
 
-             2.1.1. Fit a quadratic to (standard deviation)^2 vs (mean) from
-                    step 1.
-             
-             2.1.2. Discard all points more than two sigma away from the fit go
-                    back to 2.1.1, for up to two iterations.
+            * Fit a quadratic to (standard deviation)^2 vs (mean) from
+              step 1.
+         
+            * Discard all points more than two sigma away from the fit go
+              back to 2.1.1, for up to two iterations.
 
-             2.1.3. Get the best fit coefficients and the residual from the last
-                    fit.
+            * Get the best fit coefficients and the residual from the last
+              fit.
 
         2.2. If the fit residual as reported by lfit is larger than some
-             critical value, the entire group of flats is discarded and no
-             master is generated.
+            critical value, the entire group of flats is discarded and no
+            master is generated.
 
         2.3. If the fit is acceptable, but a frame is too far away from the
-             best-fit line, the frame is discarded.
+            best-fit line, the frame is discarded.
 
     3. Flats are split into low and high:
 
@@ -114,6 +116,7 @@ flat altogether. The procedure used by HATSouth is as follows:
        \endcode
 
        Translation:
+
        Each pixel of the preliminary_master.fits image is the median of the
        corresponding pixels of the individual frames, with a single iteration of
        rejecting pixels more than 4 standard devitaions away and re-fitting.
@@ -135,29 +138,27 @@ flat altogether. The procedure used by HATSouth is as follows:
 
        For each individual calibrated flat (target):
 
-       7.1. Calculate the ratio of the preliminary master to the target.
+       * Calculate the ratio of the preliminary master to the target.
 
-       7.2. Take each 4x4 array of pixels and average all their values into a
-            single pixels of the output image, thus reducing the resolution by a
-            factor of 4 in each direction.
+       * Take each 4x4 array of pixels and average all their values into a
+         single pixels of the output image, thus reducing the resolution by a
+         factor of 4 in each direction.
 
-       7.3. Perform median box-filtering with a box half-size of 6 pixels,
-            somehow combined with cubic spline fitting, with a single iteration
-            of discarding pixels more than 5 sigma discrepant. The resulting
-            image is the fit scaled to have a mean of 1.
+       * Perform median box-filtering with a box half-size of 6 pixels,
+         somehow combined with cubic spline fitting, with a single iteration
+         of discarding pixels more than 5 sigma discrepant. The resulting
+         image is the fit scaled to have a mean of 1.
 
-       7.4. Expand the image back up by a factor of 4, using 
-       
-            \verbatim
-                a biquadratic subpixel-level interpolation and therefore exact
-                flux  conservation.
-            \endverbatim
+       * Expand the image back up by a factor of 4, using 
+         \verbatim
+             a biquadratic subpixel-level interpolation and therefore exact
+             flux  conservation.
+         \endverbatim
+         To quote from the fitrans --long-help message.
 
-            To quote from the fitrans --long-help message.
-
-       7.5. The individual flat is multiplied by the expanded image and by an
-            additional factor of 4 to make its large scale structure the same as
-            the preliminary master flat.
+       * The individual flat is multiplied by the expanded image and by an
+         additional factor of 4 to make its large scale structure the same as
+         the preliminary master flat.
 
     8. Calculate the maximum deviation between each scaled frame and the
        preliminary master in a stamp near the center spanning 75% of each
@@ -174,21 +175,22 @@ flat altogether. The procedure used by HATSouth is as follows:
        The deviation is the maximum in absolute value of the two values
        returned.
 
-       8.1. Create an image with each pixel being the fractional difference
-            between the scaled flat from step 7 and the preliminary master from
-            step 6.
+       Translation
+       * Create an image with each pixel being the fractional difference
+         between the scaled flat from step 7 and the preliminary master from
+         step 6.
 
-       8.2. Shrink the image by a factor of four along each dimension.
+       * Shrink the image by a factor of four along each dimension.
 
-       8.3. Cut-out the central 75% of the relusting frame.
+       * Cut-out the central 75% of the relusting frame.
 
-       8.4. Smooth the cut-out by median box-filter with a box half-size of 4
-            pixels, with a single iteration of rejecting more than 3-sigma
-            outliers and re-smoothing.
+       * Smooth the cut-out by median box-filter with a box half-size of 4
+         pixels, with a single iteration of rejecting more than 3-sigma
+         outliers and re-smoothing.
 
-       8.5. The result is zoomed back up using bi-quadratic interpolation.
+       * The result is zoomed back up using bi-quadratic interpolation.
 
-       8.6. Get the largest absolute value of the smoothed image.
+       * Get the largest absolute value of the smoothed image.
 
     9. If the deviation from step 8 is bigger than some critical value (0.05 for
        HATSouth) the frame is rejected as cloudy.
