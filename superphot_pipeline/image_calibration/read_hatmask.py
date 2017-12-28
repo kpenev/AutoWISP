@@ -14,13 +14,7 @@ Examples:
                                     mask_flags[flag_name]).astype(bool)
 
         #Print number of pixels for which the OVERSATURATED flag is raised
-        print(
-            flag_name
-            +
-            ': '
-            +
-            repr(matched.sum())
-        )
+        print(flag_name + ': ' + repr(matched.sum()))
 
         #Output x, y, flux for the pixels flagged as OVERSATURATED
         for y, x in zip(*numpy.nonzero(matched)) :
