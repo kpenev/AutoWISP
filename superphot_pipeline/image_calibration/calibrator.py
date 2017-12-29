@@ -1,9 +1,14 @@
 """Define a class (Calibrator) for low-level image calibration."""
 
 from hashlib import sha1
-from numpy import isfinite
 from astropy.io import fits
 
+import numpy
+
+from superphot_pipeline.image_calibration.mask_utilities import\
+    combine_masks,\
+    get_saturation_mask
+from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
     ImageMismatchError
@@ -11,6 +16,8 @@ from superphot_pipeline.pipeline_exceptions import\
 calibrator_sha = '$Id$'
 
 class Calibrator:
+    #pylint: disable=anomalous-backslash-in-string
+    #Triggers on doxygen commands.
     """
     Provide basic calibration operations (bias/dark/flat) fully tracking noise.
 
@@ -20,49 +27,53 @@ class Calibrator:
         be overwritten on a one-time basis for each frame being calibrated by
         passing arguments to __call__.
 
-        master_bias:    The filename of the master bias frame used in the
-            calibrations.
+        master_bias:    A dictionary containing:
 
-        master_bias_correction:    numpy 2-D array like containing the currently
-            set default master bias to use if not overwritten when calling the
-            calibrator.
+            * filename: The filename of the master bias frame to use in subsequent
+                calibrations (if not overwritten).
 
-        master_bias_variance:    numpy 2-D array like, containing the variance
-            estimate of the default master bias correction.
+            * correction:    The correction to apply (if not overwritten).
 
-        master_dark:    The filename of the master dark frame used in the
-            calibrations.
+            * variance:    An estimate of the variance of the `correction` entry.
 
-        master_dark_correction:    numpy 2-D array like containing the currently
-            set default master dark to use if not overwritten when calling the
-            calibrator.
+            * mask:    The bitmask the pixel indicating the combination of flags
+                raised for each pixel. The individual flages are defined by
+                `superphot_pipeline.image_calibration.read_hatmask.mask_flags`
 
-        master_dark_variance:    numpy 2-D array like, containing the variance
-            estimate of the default master dark correction.
+        master_dark:    Analogous to `master_bias` but contaning the information
+            about the default master dark.
 
-        master_flat:    The filename of the master flat frame used in the
-            calibrations.
+        master_flat:    Analogous to `master_bias` but contaning the information
+            about the default master flat.
 
-        master_flat_correction:    numpy 2-D array like containing the currently
-            set default master flat to use if not overwritten when calling the
-            calibrator.
+        masks:    A dictionary contaning:
 
-        master_flat_variance:    numpy 2-D array like, containing the variance
-            estimate of the default master flat correction.
+            * filenames: A list of the files from which this mask was
+                constructed.
 
-        oversans:    The areas in the raw image to use for overscan corrections.
-            The format is
+            * image: The combined mask image (bitwise OR) of all masks in
+                `filenames`
 
-            [dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>), ...]
+        overscan:   A dictionary containing:
 
-        overscan_method:    See OverscanMethods.OverscanMethodBase.
+            * areas:    The areas in the raw image to use for overscan corrections.
+                The format is
+                \code
+                [
+                    dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>),
+                    ...
+                ]
+                \endcode
+
+            * method:    See OverscanMethods.OverscanMethodBase.
 
         image_area:    The area in the raw image which actually contains the
             useful image of the night sky. The dimensions must match the
             dimensions of the masters to apply an of the overscan correction
             retured by overscan_method. The format is:
-
+            \code
             dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
+            \endcode
 
         gain:
             The gain to assume for the input image (electrons/ADU). Only useful
@@ -107,6 +118,7 @@ class Calibrator:
         >>>          gain = 8.0,
         >>>          overscans = None)
     """
+    #pylint: enable=anomalous-backslash-in-string
 
     @staticmethod
     def check_calib_params(raw_image, calib_params):
@@ -129,8 +141,7 @@ class Calibrator:
               * Any master resolution does not match image area.
               * Image or overscan areas have inverted boundaries, e.g. xmin > xmax
               * gain is not a finite positive number
-
-
+              * leak_directions is not an iterable of 2-element iterables
         """
 
         def check_area(area, area_name):
@@ -172,6 +183,7 @@ class Calibrator:
                         +
                         'of ' + str(resolution)
                     )
+
         def check_master_resolution():
             """
             Raise exception if any master has resolution not that of image area.
@@ -196,10 +208,13 @@ class Calibrator:
                 )
             )
             for master_type in ['bias', 'dark', 'flat']:
-                for master_component in ['correction', 'variance']:
+                for master_component in ['correction', 'variance', 'mask']:
                     master_shape = calib_params[
-                        'master_' + master_type + master_component
+                        master_type
+                    ][
+                        master_component
                     ].shape
+
                     if master_shape != expected_master_shape:
                         raise ImageMismatchError(
                             'Master ' + master_type
@@ -218,17 +233,31 @@ class Calibrator:
                                              calib_params['image_area']['ymax']))
                         )
 
-
         check_area(calib_params['image_area'], 'image_area')
         if calib_params['overscans'] is not None:
-            for overscan_area in calib_params['overscans']:
+            for overscan_area in calib_params['overscans']['areas']:
                 check_area(overscan_area, 'overscan')
 
         check_master_resolution()
-        if calib_params['gain'] < 0 or not isfinite(calib_params['gain']):
+        if calib_params['gain'] <= 0 or not numpy.isfinite(calib_params['gain']):
             raise ValueError('Invalid gain specified during calibration: '
                              +
                              repr(calib_params['gain']))
+
+        try:
+            for x_offset, y_offset in calib_params['leak_directions']:
+                if (
+                        not isinstance(x_offset, int)
+                        or
+                        not isinstance(y_offset, int)
+                ):
+                    raise ValueError('Invalid leak direction: (%s, %s)'
+                                     %
+                                     (x_offset, y_offset))
+        except:
+            raise ValueError('Malformatted list of leak directions: '
+                             +
+                             repr(calib_params['leak_directions']))
 
     #pylint: disable=anomalous-backslash-in-string
     #Triggers on doxygen commands.
@@ -309,8 +338,7 @@ class Calibrator:
     #pylint: enable=anomalous-backslash-in-string
 
     @staticmethod
-    def _create_result(calibrated_image,
-                       variance_image,
+    def _create_result(image_list,
                        header,
                        calibrated_fname,
                        compressed):
@@ -318,15 +346,12 @@ class Calibrator:
         Create the calibarted FITS file documenting calibration in header.
 
         Args:
-            calibrated_image:    The calibrated image data to write to the
-                output file.
+            image_list:   A list with 3 entries of image data for the output
+                file: The calibrated image, an estimate of the error and a
+                mask image. The images are saved as extensions in this same
+                order.
 
-            variance_image:    An estiamte of the variance of each pixel of
-                the calibrated image. Saved as a second extension.
-
-            header:    The header of the raw image. Everything gets copied
-                ot the reduced image and further keywords are added to
-                document the calibration.
+            header:    The header to use for the the primary (calibrated) image.
 
             calibrated_fname:    The filename under which to save the
                 craeted image.
@@ -337,38 +362,35 @@ class Calibrator:
             None
         """
 
+        header_list = [header, fits.Header(), fits.Header()]
+        header_list[1]['IMAGETYP'] = 'error'
+        header_list[2]['IMAGETYP'] = 'mask'
+
         if compressed:
-            hdu_list = fits.HDUList([
-                fits.CompImageHDU(calibrated_image, header),
-                fits.CompImageHDU(variance_image)
-            ])
+            hdu_list = fits.HDUList(
+                fits.CompImageHDU(i, h)
+                for i, h in zip(image_list, header_list)
+            )
         else:
             hdu_list = fits.HDUList([
-                fits.PrimaryHDU(calibrated_image, header),
-                fits.ImageHDU(variance_image)
+                fits.PrimaryHDU(image_list[0], header),
+                fits.ImageHDU(image_list[1], header_list[1]),
+                fits.ImageHDU(image_list[2], header_list[2])
             ])
         hdu_list.writeto(calibrated_fname)
 
-    #pylint: disable=too-many-arguments
-    #Makes sense to allow all calibration parameters to be specified.
     def __init__(self,
-                 master_bias=None,
-                 master_dark=None,
-                 master_flat=None,
+                 *,
                  overscans=None,
                  overscan_method=None,
                  image_area=None,
-                 gain=1.0):
+                 gain=1.0,
+                 leak_directions=[],
+                 **masters):
         """
         Create a calibrator and define some default calibration parameters.
 
         Args:
-            master_bias:    See same name attribute to Calibrator class.
-
-            master_dark:    See same name attribute to Calibrator class.
-
-            master_flat:    See same name attribute to Calibrator class.
-
             overscans:    See same name attribute to Calibrator class.
 
             overscan_method:    See same name attribute to Calibrator class.
@@ -377,48 +399,70 @@ class Calibrator:
 
             gain:    See same name attribute to Calibrator class.
 
+            leak_directions:    Directions in which the charge could leak from
+                saturated pixels. See
+                `superphot_pipeline.image_calibration.mask_utilities.get_saturation_mask`
+
+        KWargs: See set_masters.
+
         Returns:
             None
         """
 
-        self.set_masters(bias=master_bias,
-                         dark=master_dark,
-                         flat=master_flat)
-        self.overscans = overscans
-        self.overscan_method = overscan_method
+        self.set_masters(**masters)
+        self.overscans = dict(areas=overscans,
+                              method=overscan_method)
         self.image_area = image_area
         self.gain = gain
-    #pylint: enable=too-many-arguments
+        self.leak_directions = leak_directions
 
-    def set_masters(self, **kwargs):
+    def set_masters(self, **masters):
         """
         Define the default masterts to use for calibrations.
 
         Kwargs:
-            kwargs:    Keyword only arguments defining the master to use for
-                each kind of calibratin step. Must be one of 'bias', 'dark' or
-                'flat'. Everything else is ignored.
+            bias:    The filename of the master bias to use.
+
+            dark:    The filename of the master dark to use.
+
+            flat:    The filename of the master flat to use.
+
+            masks:    Either a single filename or a list of the mask files
+                to use.
 
         Returns:
             None
         """
 
+        if 'masks' in masters:
+            if isinstance(masters['masks'], str):
+                dict(filenames=[masters['masks']],
+                     image=read_image_components(masters['masks'])[2])
+            else:
+                self.masks = dict(filenames=masters['masks'],
+                                  image=combine_masks(masters['masks']))
+        else:
+            self.masks = None
+
         for master_type in ['bias', 'dark', 'flat']:
-            if master_type in kwargs:
-                master_fname = kwargs[master_type]
-                setattr(self, 'master_' + master_type, master_fname)
+            if master_type in masters:
+                master_fname = masters[master_type]
                 if master_fname is None:
-                    setattr(self, 'master_' + master_type + '_correction', None)
-                    setattr(self, 'master_' + master_type + '_variance', None)
+                    setattr(self, 'master_' + master_type, None)
                 else:
-                    with fits.open(master_fname, mode='readonly') as image:
-                        #pylint: disable=no-member
-                        #pylint false positive.
-                        setattr(self, 'master_' + master_type + '_correction',
-                                image[0].data)
-                        setattr(self, 'master_' + master_type + '_variance',
-                                image[1].data**2)
-                        #pylint: enable=no-member
+                    image, error, mask = read_image_components(master_fname)[:3]
+                    setattr(
+                        self,
+                        'master_' + master_type,
+                        dict(
+                            filename=master_fname,
+                            correction=image,
+                            variance=numpy.square(error),
+                            mask=mask
+                        )
+                    )
+            else:
+                setattr(self, 'master_' + master_type, None)
 
     def __call__(self,
                  raw,
@@ -440,106 +484,136 @@ class Calibrator:
 
             calibration_params:    Keyword only arguments allowing one of the
                 calibration parameters to be switched for this calibration only.
-                Should be one of the arguments of __init__, with the
-                same meaning.
+                Should be one of the positions arguments of __init__ or
+                set_masters, with the same meaning.
 
         Returns:
             None
         """
 
-        def apply_subtractive_correction(correction_image,
-                                         correction_variance,
-                                         calibrated_image,
-                                         variance_image):
+        def fill_calibration_params():
+            """Set-up calibration params using defaults where appropriate."""
+
+            if 'overscans' in calibration_params:
+                calibration_params['overscans'] = dict(
+                    areas=calibration_params['overscans'],
+                    method=(
+                        calibration_params['overscan_method']
+                        if 'overscan_method' in calibration_params else
+                        self.overscans['method']
+                    )
+                )
+            else:
+                calibration_params['overscans'] = self.overscans
+
+            for param in ['image_area', 'gain']:
+                if param not in calibration_params:
+                    calibration_params[param] = getattr(self, param)
+
+            for master_type in ['bias', 'dark', 'flat']:
+                if master_type in calibration_params:
+                    image, error, mask = read_image_components(
+                        calibration_params['master_type']
+                    )[:3]
+                    calibration_params[master_type] = dict(
+                        filename=calibration_params[master_type],
+                        correction=image,
+                        variance=numpy.square(error),
+                        mask=mask
+                    )
+                else:
+                    calibration_params[master_type] = getattr(self, master_type)
+
+            if 'masks' in calibration_params:
+                if isinstance(calibration_params['masks'], str):
+                    calibration_params['masks'] = dict(
+                        filenames=[calibration_params['masks']],
+                        image=read_image_components(
+                            calibration_params['masks']
+                        )[2]
+                    )
+                else:
+                    calibration_params['masks'] = dict(
+                        filenames=calibration_params['masks'],
+                        image=combine_masks(calibration_params['masks'])[2]
+                    )
+            else:
+                calibration_params['masks'] = self.masks
+
+
+        def apply_subtractive_correction(correction,
+                                         calibrated_images):
             """
-            Subtract a correction from calibrated_image, also update variance.
+            Subtract correction from calibrated_image & update variance & mask.
 
             Args:
-                correction_image:    The correction to subtract from the image.
+                correction:    The correction to subtract from the image, same
+                    format as the master_bias or master_dark class attributes.
 
-                correction_variance:    An estimate of the variance of the
-                    correction_image entries.
-
-                calibrated_image:    The image to subtract
-                    correction_image from.
-
-                variance_image:    An estimate of the variance in the calibrated
-                    image. Also updated accordingly.
+                calibrated_images:    A list of the three images constituting
+                    the reduced FITS file (image, error, mask).
 
             Returns:
                 None
             """
 
-            calibrated_image -= correction_image
-            variance_image += correction_variance
+            calibrated_images[0] -= correction['correction']
+            calibrated_images[1] += correction['variance']
+            if 'mask' in correction and correction['mask'] is not None:
+                calibrated_images[2] = numpy.bitwise_or(calibrated_images[2],
+                                                        correction['mask'])
 
-        def apply_flat_correction(flat_image,
-                                  flat_variance,
-                                  calibrated_image,
-                                  calibrated_variance):
+        def apply_flat_correction(master_flat,
+                                  calibrated_images):
             """
             Apply flat-field correction to calibrated image and update variance.
 
             Args:
-                flat_image:    The flat-field correction to divide the image by.
+                master_flat:    The master flat to divide the image by, same
+                    format as the `self.master_flat` attribute.
 
-                correction_variance:    An estimate of the variance of the
-                    flat_image entries.
-
-                calibrated_image:    The image to apply the correction to.
-
-                variance_image:    An estimate of the variance in the calibrated
-                    image. Also updated accordingly.
+                calibrated_images:    A list of the three images constituting
+                    the reduced FITS file (image, error, mask).
 
             Returns:
                 None
             """
 
-            calibrated_image /= flat_image
-            calibrated_variance = (
-                calibrated_variance / flat_image**2
+            calibrated_images[0] /= master_flat['correction']
+            calibrated_images[1] = (
+                calibrated_images[1]
+                /
+                master_flat['correction']**2
                 +
-                flat_variance * calibrated_image**2 / flat_image**4
+                master_flat['variance']
+                *
+                calibrated_images[0]**2
+                /
+                master_flat['correction']**4
             )
+            calibrated_images[2] = numpy.bitwise_or(calibrated_images[2],
+                                                    master_flat['mask'])
 
-        for master_type in ['bias', 'dark', 'flat']:
-            if 'master_' + master_type in calibration_params:
-                with fits.open(calibration_params['master_' + master_type],
-                               mode='readonly') as image:
-                    #pylint: disable=no-member
-                    #pylint false positive.
-                    calibration_params[
-                        'master_' + master_type + '_correction'
-                    ] = image[0].data
-                    calibration_params[
-                        'master_' + master_type + '_variance'
-                    ] = image[1].data
-                    #pylint: enable=no-member
-
-        for param in (
-                [
-                    'master_' + master_type + suffix
-                    for master_type in ['bias', 'dark', 'flat']
-                    for suffix in ['_correction', '_variance', '']
-                ]
-                +
-                ['overscans', 'overscan_method', 'image_area', 'gain']
-        ):
-            if param not in calibration_params:
-                calibration_params[param] = getattr(self, param)
+        fill_calibration_params()
 
         with fits.open(raw, 'readonly') as raw_image:
             #pylint: disable=no-member
             #pylint false positive.
             self.check_calib_params(raw_image[0].data, calibration_params)
 
-            calibrated_image = raw_image[0].data[
+            trimmed_image = raw_image[0].data[
                 calibration_params['ymin']: calibration_params['ymax'],
                 calibration_params['xmin']: calibration_params['xmax'],
             ]
-            #pylint: enable=no-member
+            calibrated_images = [
+                trimmed_image,
+                trimmed_image / calibration_params['gain'],
+                get_saturation_mask(trimmed_image,
+                                    calibration_params['saturation_threshold'],
+                                    calibration_params['leak_directions'])
+            ]
 
-            variance_image = calibrated_image / calibration_params['gain']
+            #pylint: enable=no-member
 
             if (
                     calibration_params['overscan_method'] is not None
@@ -547,45 +621,33 @@ class Calibrator:
                     calibration_params['overscans'] is not None
             ):
                 apply_subtractive_correction(
-                    *calibration_params['overscan_method'](
+                    calibration_params['overscan_method'](
                         raw_image,
                         calibration_params['overscans'],
                         calibration_params['image_area'],
                         calibration_params['gain']
                     ),
-                    calibrated_image,
-                    variance_image
+                    calibrated_images
                 )
 
-            for master_type in ['master_bias', 'master_dark']:
-                if (
-                        calibration_params[
-                            master_type + '_correction'
-                        ] is not None
-                ):
-                    assert(calibration_params[master_type + '_variance']
-                           is not None)
+            for master_type in ['bias', 'dark']:
+                if calibration_params[master_type] is not None:
                     apply_subtractive_correction(
-                        calibration_params[master_type + '_correction'],
-                        calibration_params[master_type + '_variance'],
-                        calibrated_image,
-                        variance_image
+                        calibration_params[master_type],
+                        calibrated_images
                     )
 
-            if calibration_params['master_flat_correction'] is not None:
-                assert calibration_params['master_flat_variance'] is not None
-                apply_flat_correction(calibration_params['master_flat_correction'],
-                                      calibration_params['master_flat_variance'],
-                                      calibrated_image,
-                                      variance_image)
+            if calibration_params['flat'] is not None:
+                apply_flat_correction(calibration_params['flat'], calibrated_images)
 
             #pylint: disable=no-member
             #pylint false positive.
             raw_header = raw_image[0].header
             #pylint: enable=no-member
             self._document_in_header(calibration_params, raw_header)
-            self._create_result(calibrated_image,
-                                variance_image,
-                                raw_header,
-                                calibrated,
-                                compress_calibrated)
+            calibrated_images[1] = numpy.sqrt(calibrated_images[1])
+
+            self._create_result(image_list=calibrated_images,
+                                header=raw_header,
+                                calibrated_fname=calibrated,
+                                compressed=compress_calibrated)

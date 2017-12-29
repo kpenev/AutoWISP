@@ -45,6 +45,13 @@ is:
   - generate master flat frames
   - calibrate raw object frames
 
+#### 1.2.1 Create mask
+
+Create a mask image noting pixels which are saturated (i.e. near the full-well
+capacity). Also marks pixels neighboring saturatied pixels in the leak direction
+as recipients of leaked charge. Also transfers any masks in the masters used,
+including taking separate mask-only files.
+
 #### 1.2.1 Overscan corrections
 
 In many instances, the imaging device provides extra areas that attempt to

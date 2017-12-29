@@ -36,12 +36,14 @@ class Base(ABC):
                 (electrons/ADU).
 
         Returns:
-            overscan_correction:    A 2-D numpy array with the same resolution
-                as the image_area giving the correction to subtract from
-                each pixel.
+            overscan:    Dictionary with items:
 
-            overscan_variance:    An estimate of the variance in the
-                overscan_correction entries (in ADU).
+                * correction:    A 2-D numpy array with the same resolution
+                    as the image_area giving the correction to subtract from
+                    each pixel.
+
+                * variance:    An estimate of the variance in the
+                    overscan_correction entries (in ADU).
         """
 
 class Median(Base):
@@ -221,14 +223,12 @@ class Median(Base):
         ):
             start_num_values = overscan_values.size
             correction = numpy.median(overscan_values)
-            median_deviations = numpy.abs(overscan_values - correction)
-            deviation_scale = numpy.sqrt(numpy.sum(median_deviations**2)
-                                         /
-                                         (start_num_values - 1))
+            median_deviations = numpy.square(overscan_values - correction)
+            deviation_scale = median_deviations.sum() / (start_num_values - 1)
             overscan_values = overscan_values[
                 median_deviations
                 <=
-                self.reject_threshold * deviation_scale
+                self.reject_threshold**2 * deviation_scale
             ]
             num_rejected = start_num_values - overscan_values.size
             self._last_num_reject_iter += 1
@@ -251,3 +251,11 @@ class Median(Base):
 
         self._last_num_pixels = overscan_values.size
         self._last_converged = True
+
+        image_shape = (image_area['ymax'] - image_area['ymin'],
+                       image_area['xmax'] - image_area['xmin'])
+        return dict(
+            correction=numpy.full(image_shape, correction),
+            variance=numpy.full(image_shape,
+                                deviation_scale / overscan_values.size)
+        )

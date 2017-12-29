@@ -6,5 +6,8 @@ class OutsideImageError(IndexError):
 class ImageMismatchError(ValueError):
     """Attempt to combine incompatible images in some way."""
 
+class BadImageError(ValueError):
+    """An image does not look like it is expected to."""
+
 class ConvergenceError(RuntimeError):
     """Some iterative procedure failed to converge."""
