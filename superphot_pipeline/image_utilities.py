@@ -6,6 +6,8 @@ import numpy
 
 from superphot_pipeline.pipeline_exceptions import BadImageError
 
+git_id = '$Id$'
+
 def read_image_components(fits_fname):
     """
     Read image, its error estimate, mask and header from pipeline FITS file.

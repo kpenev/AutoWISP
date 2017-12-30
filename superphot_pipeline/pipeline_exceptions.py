@@ -1,5 +1,7 @@
 """Collection of non-standard exceptions raised by the pipeline."""
 
+git_id = '$Id$'
+
 class OutsideImageError(IndexError):
     """Attempt to access image data outside the bounds of the image."""
 

@@ -4,6 +4,8 @@ import numpy
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
 
+git_id = '$Id$'
+
 #Too many arguments indeed, but most would never be needed.
 #pylint: disable=too-many-arguments
 def iterative_rejection_average(array,
