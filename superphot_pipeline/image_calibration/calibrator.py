@@ -19,7 +19,6 @@ from superphot_pipeline.image_calibration.mask_utilities import\
 from superphot_pipeline.image_calibration.overscan_methods import\
     git_id as overscan_methods_git_id
 
-
 git_id = '$Id$'
 
 class Calibrator:
@@ -92,42 +91,42 @@ class Calibrator:
 
     Examples:
 
-        >>> from SuperPhotPipeline.ImageCalibration import Calibrator,\
-        >>> OverscanMethods
+        >>> from superphot_pipeline.image_calibration import Calibrator,\
+        >>>     overscan_methods
 
         >>> #Create a calibrator callable instance
         >>> calibrate = Calibrator(
-        >>>    #The first 20 lines of the image are overscan area.
-        >>>    overscans = [dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
+        >>>     #The first 20 lines of the image are overscan area.
+        >>>     overscans=[dict(xmin=0, xmax=4096, ymin=0, ymax=20)],
 
-        >>>    #Overscan corrections should subtract the median of the values.
-        >>>    overscan_method = OverscanMethods.Median(),
+        >>>     #Overscan corrections should subtract the median of the values.
+        >>>     overscan_method=overscan_methods.Median(),
 
-        >>>    #The master bias frame to use.
-        >>>    master_bias = 'masters/master_bias1.fits',
+        >>>     #The master bias frame to use.
+        >>>     master_bias='masters/master_bias1.fits',
 
-        >>>    #The gain (electrons/ADU) to assume for the input images.
-        >>>    gain = 16.0,
+        >>>     #The gain (electrons/ADU) to assume for the input images.
+        >>>     gain=16.0,
 
-        >>>    #The area within the raw frame containing the image:
-        >>>    image_area = dict(xmin = 0, xmax = 4096, ymin = 20, ymax = 4116
+        >>>     #The area within the raw frame containing the image:
+        >>>     image_area=dict(xmin=0, xmax=4096, ymin=20, ymax=4116)
         >>> )
 
         >>> #Specify a master dark after construction.
-        >>> calibrate.set_masters(dark = 'masters/master_dark3.fits')
+        >>> calibrate.set_masters(dark='masters/master_dark3.fits')
 
         >>> #Calibrate an image called 'raw1.fits', producing (or overwriting a
         >>> #calibrated file called 'calib1.fits' using the previously specified
         >>> #calibration parameters. Note that no flat correction is going to be
         >>> #applied, since a master flat was never specified.
-        >>> calibrate(raw = 'raw1.fits', calibrated = 'calib1.fits')
+        >>> calibrate(raw='raw1.fits', calibrated='calib1.fits')
 
         >>> #Calibrate an image, changing the gain assumed for this image only and
         >>> #disabling overscan correction for this image only.
-        >>> calibrate(raw = 'raw2.fits',
-        >>>          calibrated = 'calib2.fits',
-        >>>          gain = 8.0,
-        >>>          overscans = None)
+        >>> calibrate(raw='raw2.fits',
+        >>>           calibrated='calib2.fits',
+        >>>           gain=8.0,
+        >>>           overscans=None)
     """
     #pylint: enable=anomalous-backslash-in-string
 
