@@ -7,7 +7,8 @@ import numpy
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     combine_masks,\
-    get_saturation_mask
+    get_saturation_mask,\
+    mask_flags
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
@@ -273,6 +274,34 @@ class Calibrator:
                              +
                              repr(calib_params['leak_directions']))
 
+    @staticmethod
+    def _calib_mask_from_master(mask):
+        """
+        Overwrite a master mask with what should be used for a calibrated frame.
+
+        Args:
+            mask:    The mask of the master frame. On exit, gets overwritten by
+                the mask with which the calibrated image mask should be combined
+                to account for imperfections in the master.
+
+        Returns:
+            None
+        """
+
+        for flag in ['OVERSATURATED', 'LEAKED']:
+            match_flag = numpy.bitwise_and(
+                mask,
+                mask_flags[flag]
+            ).astype(bool)
+            mask[match_flag] = numpy.bitwise_and(
+                mask[match_flag],
+                numpy.bitwise_not(mask_flags[flag])
+            )
+            mask[match_flag] = numpy.bitwise_or(
+                mask[match_flag],
+                mask_flags['FAULT']
+            )
+
     #pylint: disable=anomalous-backslash-in-string
     #Triggers on doxygen commands.
     @staticmethod
@@ -471,6 +500,7 @@ class Calibrator:
                     setattr(self, 'master_' + master_type, None)
                 else:
                     image, error, mask = read_image_components(master_fname)[:3]
+                    self._calib_mask_from_master(mask)
                     setattr(
                         self,
                         'master_' + master_type,
@@ -535,6 +565,7 @@ class Calibrator:
                     image, error, mask = read_image_components(
                         calibration_params['master_type']
                     )[:3]
+                    self._calib_mask_from_master(mask)
                     calibration_params[master_type] = dict(
                         filename=calibration_params[master_type],
                         correction=image,
