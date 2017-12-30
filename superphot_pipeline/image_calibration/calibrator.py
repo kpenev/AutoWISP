@@ -13,7 +13,13 @@ from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
     ImageMismatchError
 
-calibrator_sha = '$Id$'
+from superphot_pipeline.image_calibration.mask_utilities import\
+    git_id as mask_utilities_git_id
+from superphot_pipeline.image_calibration.overscan_methods import\
+    git_id as overscan_methods_git_id
+
+
+git_id = '$Id$'
 
 class Calibrator:
     #pylint: disable=anomalous-backslash-in-string
@@ -75,9 +81,13 @@ class Calibrator:
             dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
             \endcode
 
-        gain:
-            The gain to assume for the input image (electrons/ADU). Only useful
-            when estimating errors and could be used by the overscan_method.
+        gain:    The gain to assume for the input image (electrons/ADU). Only
+            useful when estimating errors and could be used by the
+            overscan_method.
+
+        module_git_ids:    A collection of Git Id values (sha1 checksums of the
+            git blobs) for each module used by the calibration. Those get added
+            to the header to ensure reprobducability.
 
     Examples:
 
@@ -119,6 +129,10 @@ class Calibrator:
         >>>          overscans = None)
     """
     #pylint: enable=anomalous-backslash-in-string
+
+    module_git_ids = dict(calibrator=git_id,
+                          overscan_methods=overscan_methods_git_id,
+                          mask_utilities=mask_utilities_git_id)
 
     @staticmethod
     def check_calib_params(raw_image, calib_params):
@@ -300,12 +314,13 @@ class Calibrator:
         """
 
         for master_type in 'bias', 'dark', 'flat':
-            if calibration_params['master_' + master_type] is not None:
+            if calibration_params[master_type] is not None:
                 header['M' + master_type.upper() + 'FNM'] = (
-                    calibration_params['master_' + master_type],
+                    calibration_params[master_type]['filename'],
                     'Master ' + master_type + ' frame applied'
                 )
-                with open(calibration_params['master_bias'], 'r') as master:
+                with open(calibration_params[master_type]['filename'],
+                          'r') as master:
                     hasher = sha1()
                     hasher.update(master.read().encode('ascii'))
                     header['M' + master_type.upper() + 'SHA'] = (
@@ -315,13 +330,15 @@ class Calibrator:
 
         area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
         for overscan_id, overscan_area in \
-                enumerate(calibration_params['overscans']):
+                enumerate(calibration_params['overscans']['areas']):
             header['OVRSCN%02d' % overscan_id] = (
                 area_pattern % overscan_area,
                 'Overscan area #' + str(overscan_id)
             )
 
-        calibration_params['overscan_method'].document_in_fits_header(header)
+        calibration_params['overscans']['method'].document_in_fits_header(
+            header
+        )
 
         header['IMAGAREA'] = (
             area_pattern % calibration_params['image_area'],
@@ -331,10 +348,13 @@ class Calibrator:
         header['CALIBGAIN'] = (calibration_params['gain'],
                                'Electrons/ADU assumed during calib')
 
-        assert calibrator_sha[:4] == '$Id:'
-        assert calibrator_sha[-1] == '$'
-        header['CALIBSHA'] = (calibrator_sha[4:-1].strip(),
-                              'Git Id of Calibrator.py used in calib')
+        for module_name, module_git_id in Calibrator.module_git_ids.items():
+            assert module_git_id[:4] == '$Id:'
+            assert module_git_id[-1] == '$'
+            header['CALGITID'] = (
+                module_name + ':' + module_git_id[4:-1].strip(),
+                'Git ID of calib module.'
+            )
     #pylint: enable=anomalous-backslash-in-string
 
     @staticmethod
@@ -522,7 +542,10 @@ class Calibrator:
                         mask=mask
                     )
                 else:
-                    calibration_params[master_type] = getattr(self, master_type)
+                    calibration_params[master_type] = getattr(
+                        self,
+                        'master_' + master_type
+                    )
 
             if 'masks' in calibration_params:
                 if isinstance(calibration_params['masks'], str):

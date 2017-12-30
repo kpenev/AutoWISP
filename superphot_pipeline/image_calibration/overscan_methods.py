@@ -5,6 +5,8 @@ import numpy
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
 
+git_id = '$Id$'
+
 #pylint: disable=too-few-public-methods
 #It still makes sense to make a class with two methods (including __call__).
 

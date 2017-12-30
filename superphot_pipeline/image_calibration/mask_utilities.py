@@ -8,6 +8,8 @@ import numpy
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import ImageMismatchError
 
+git_id = '$Id$'
+
 mask_flags = dict()
 
 def initialize_library():
@@ -60,23 +62,24 @@ def parse_hat_mask(header):
             any bad-pixel flags raised per the header.
 
     Examples:
-        from astropy.io import fits
 
-        with fits.open('/Users/kpenev/tmp/1-447491_4.fits.fz',
-                       mode='readonly') as f:
-            image_mask = parse_hat_mask(f[1].header)
+        >>> from astropy.io import fits
 
-            flag_name = 'OVERSATURATED'
+        >>> with fits.open('/Users/kpenev/tmp/1-447491_4.fits.fz',
+        >>>                mode='readonly') as f:
+        >>>     image_mask = parse_hat_mask(f[1].header)
 
-            matched = numpy.bitwise_and(image_mask,
-                                        mask_flags[flag_name]).astype(bool)
+        >>>     flag_name = 'OVERSATURATED'
 
-            #Print number of pixels for which the OVERSATURATED flag is raised
-            print(flag_name + ': ' + repr(matched.sum()))
+        >>>     matched = numpy.bitwise_and(image_mask,
+        >>>                                 mask_flags[flag_name]).astype(bool)
 
-            #Output x, y, flux for the pixels flagged as OVERSATURATED
-            for y, x in zip(*numpy.nonzero(matched)):
-                print('%4d %4d %15d' % (x, y, f[1].data[y, x]))
+        >>>     #Print number of pixels for which the OVERSATURATED flag is raised
+        >>>     print(flag_name + ': ' + repr(matched.sum()))
+
+        >>>     #Output x, y, flux for the pixels flagged as OVERSATURATED
+        >>>     for y, x in zip(*numpy.nonzero(matched)):
+        >>>         print('%4d %4d %15d' % (x, y, f[1].data[y, x]))
     """
 
     mask_string = ''.join((c[1] + ' ') if c[0] == 'MASKINFO' else ''
