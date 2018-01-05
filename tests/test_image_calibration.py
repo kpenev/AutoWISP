@@ -4,10 +4,10 @@ import os.path
 import sys
 import unittest
 
-from superphot_pipeline.image_calibration import Calibrator, overscan_methods
-
 sys.path.insert(0,
                 os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 
 
 git_id = '$Id$'
