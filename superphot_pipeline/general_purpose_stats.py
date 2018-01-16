@@ -7,7 +7,9 @@ from superphot_pipeline.pipeline_exceptions import ConvergenceError
 git_id = '$Id$'
 
 #Too many arguments indeed, but most would never be needed.
+#Breaking up into smaller pieces will decrease readability
 #pylint: disable=too-many-arguments
+#pylint: disable=too-many-locals
 def iterative_rejection_average(array,
                                 outlier_threshold,
                                 average_func=numpy.nanmedian,
@@ -50,6 +52,15 @@ def iterative_rejection_average(array,
         average:    An array with all axes of a other than axis being the same
             and the dimension along the axis-th axis being 1. Each entry if of
             average is independently computed from all other entries.
+
+        stdev:    An empirical estimate of the standard deviation around the
+            returned `average` for each pixel. Calculated as RMS of the
+            difference between individual values and the average divided by one
+            less than the number of pixels contributing to that particular
+            pixel's average. Has the same shape as `average`.
+
+        num_averaged:    The number of non-rejected non-NaN values included
+            in the average of each pixel. Same shape as `average`.
     """
 
     working_array = (array if mangle_input else numpy.copy(array))
@@ -86,5 +97,23 @@ def iterative_rejection_average(array,
             ' iterations!'
         )
 
-    return average if keepdims else numpy.squeeze(average, axis)
+    num_averaged = numpy.sum(numpy.logical_not(numpy.isnan(working_array)),
+                             axis=axis,
+                             keepdims=keepdims)
+
+    stdev = (
+        numpy.sqrt(
+            numpy.nanmean(numpy.square(working_array - average),
+                          axis=axis,
+                          keepdims=keepdims)
+            /
+            (num_averaged - 1)
+        )
+    )
+
+    if not keepdims:
+        average = numpy.squeeze(average, axis)
+
+    return average, stdev, num_averaged
 #pylint: enable=too-many-arguments
+#pylint: enable=too-many-locals

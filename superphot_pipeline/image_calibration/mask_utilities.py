@@ -156,7 +156,7 @@ def get_saturation_mask(raw_image,
             in a direction in which a charge could leak.
     """
 
-    mask = numpy.full(raw_image.shape(), mask_flags['CLEAR'])
+    mask = numpy.full(raw_image.shape(), mask_flags['CLEAR'], dtype='int8')
 
     mask[raw_image > saturation_threshold] = mask_flags['OVERSATURATED']
 
