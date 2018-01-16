@@ -22,18 +22,18 @@ def stack_to_master(frame_list,
         average_func:    See same name argument to
             `general_purpose_stats.iterative_rejection_average`
 
-        **stacking_options:    Keyword only arguments controlling how stacking
+        stacking_options:    Keyword only arguments controlling how stacking
             is performed. The following are currently supported:
-                - min_valid_values: The minimum number of valid values to average
-                    for each pixel. If outlier rejection or masks results in
-                    fewer than this, the corresponding pixel gets a bad pixel
-                    mask.
-                - exclude_mask: A bitwise or of mask flags, any of which result
-                    in the corresponding pixels being excluded from the
-                    averaging. Other mask flags in the input frames are ignored,
-                    treated as clean.
-                - max_iter: See same name argument to
-                    `general_purpose_stats.iterative_rejection_average`
+              - min_valid_values: The minimum number of valid values to average
+                  for each pixel. If outlier rejection or masks results in
+                  fewer than this, the corresponding pixel gets a bad
+                  pixel mask.
+              - exclude_mask: A bitwise or of mask flags, any of which result
+                  in the corresponding pixels being excluded from the
+                  averaging. Other mask flags in the input frames are ignored,
+                  treated as clean.
+              - max_iter: See same name argument to
+                  `general_purpose_stats.iterative_rejection_average`
 
     Returns:
         master_values:    The best estimate for the values of the maseter at

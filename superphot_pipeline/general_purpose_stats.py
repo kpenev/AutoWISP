@@ -36,8 +36,8 @@ def iterative_rejection_average(array,
 
         axis:    The axis along which to compute the average.
 
-        max_iter:    The maximum number of rejection - re-fitting iterations to
-            perform.
+        max_iter:    The maximum number of rejection - re-fitting iterations
+            to perform.
 
         require_convergence:    If the maximum number of iterations is reached
             and still there are entries that should be rejected this argument
