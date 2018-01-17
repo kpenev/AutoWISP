@@ -29,9 +29,9 @@ class Calibrator:
 
     Attrs:
 
-        Public attributes provide defaults for calibration parameters that can
-        be overwritten on a one-time basis for each frame being calibrated by
-        passing arguments to __call__.
+        Public attributes, set through __init__, provide defaults for
+        calibration parameters that can be overwritten on a one-time basis for
+        each frame being calibrated by passing arguments to __call__.
 
         master_bias:    A dictionary containing:
 

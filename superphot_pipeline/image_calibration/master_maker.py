@@ -23,6 +23,18 @@ class MasterMaker:
             only arguments of the `stack_to_master` method.
 
     Examples:
+
+        >>> #Create an object for stacking frames to masters, overwriting the
+        >>> #default outlier threshold
+        >>> make_master = MasterMaker(outlier_threshold=10.0)
+
+        >>> #Stack a set of frames to a master, allowing no more than 3
+        >>> #averaging/outlier rejection iterations and allowing a minimum of 3
+        >>> #valid source pixels to make a master, for this master only.
+        >>> make_master(['f1.fits', 'f2.fits', 'f3.fits', 'f4.fits'],
+        >>>             'master.fits',
+        >>>             max_iter=3,
+        >>>             min_valid_values=3)
     """
 
     @staticmethod
@@ -98,8 +110,8 @@ class MasterMaker:
         Create a master by stacking a list of frames.
 
         Args:
-            frame_list:    The frames to stack. Should be a list of FITS
-                filenames.
+            frame_list:    The frames to stack. Should be a list of
+                FITS filenames.
 
             outlier_threshold:    See same name argument to
                 `general_purpose_stats.iterative_rejection_average`
@@ -113,8 +125,8 @@ class MasterMaker:
 
             exclude_mask:    A bitwise or of mask flags, any of which result in
                 the corresponding pixels being excluded from the averaging.
-                Other mask flags in the input frames are ignored, treated as
-                clean.
+                Other mask flags in the input frames are ignored, treated
+                as clean.
 
             max_iter:    See same name argument to
                 `general_purpose_stats.iterative_rejection_average`
@@ -128,8 +140,8 @@ class MasterMaker:
 
             master_mask:    The pixel quality mask for the master.
 
-            master_header:    The header to use for the newly created master
-                frame.
+            master_header:    The header to use for the newly created
+                master frame.
         """
 
         #pylint triggers on doxygen commands.
@@ -246,6 +258,15 @@ class MasterMaker:
                      | mask_flags['BAD']
                      | mask_flags['NAN']
                  )):
+        """
+        Create a master maker with the given default stacking configuration.
+
+        Args:
+            See the keyword only arguments to the `stack` method.
+
+        Returns:
+            None
+        """
 
         print('Number positional arguments: '
               +
@@ -278,8 +299,8 @@ class MasterMaker:
             compress:    Should the final result be compressed?
 
             stacking_options:    Keyword only arguments allowing overriding the
-                stacking configuration specified at construction for this stack
-                only.
+                stacking configuration specified at construction for this
+                stack only.
 
         Returns:
             None
