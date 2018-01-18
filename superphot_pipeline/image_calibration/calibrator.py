@@ -230,7 +230,8 @@ class Calibrator:
                 )
             )
             for master_type in ['bias', 'dark', 'flat']:
-                if calib_params[master_type] is None: continue
+                if calib_params[master_type] is None:
+                    continue
                 for master_component in ['correction', 'variance', 'mask']:
                     master_shape = calib_params[
                         master_type
@@ -693,7 +694,7 @@ class Calibrator:
 
             trimmed_image = raw_image[calibration_params['raw_hdu']].data[
                 calibration_params['image_area']['ymin']
-                : 
+                :
                 calibration_params['image_area']['ymax']
                 ,
                 calibration_params['image_area']['xmin']

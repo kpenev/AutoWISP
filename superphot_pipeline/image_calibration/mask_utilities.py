@@ -165,7 +165,7 @@ def get_saturation_mask(raw_image,
     y_resolution, x_resolution = raw_image.shape
     for x_offset, y_offset in leak_directions:
         shifted_mask = mask[
-            max(y_offset, 0): y_resolution + min(0, y_offset), 
+            max(y_offset, 0): y_resolution + min(0, y_offset),
             max(x_offset, 0): x_resolution + min(0, x_offset)
         ]
         print('Shifted mask shape:' + repr(shifted_mask.shape))
@@ -177,7 +177,7 @@ def get_saturation_mask(raw_image,
             ==
             mask_flags['OVERSATURATED']
         )
-        shifted_mask[leaked_pixels] =numpy.bitwise_or(
+        shifted_mask[leaked_pixels] = numpy.bitwise_or(
             shifted_mask[leaked_pixels],
             mask_flags['LEAKED']
         )
