@@ -146,9 +146,9 @@ def get_saturation_mask(raw_image,
             Generally speaking this should be where the response of the pixel
             starts to deviate from linear.
 
-            leak_directions:    Directions in which charge overflows out of
-                satuarted pixels. Should be a list of 2-tuples giving the x and
-                y offset to which charge is leaked.
+        leak_directions:    Directions in which charge overflows out of
+            satuarted pixels. Should be a list of 2-tuples giving the x and
+            y offset to which charge is leaked.
 
     Returns:
         mask:    A 2-D numpy bitmask array flagging pixels which are above
@@ -156,17 +156,31 @@ def get_saturation_mask(raw_image,
             in a direction in which a charge could leak.
     """
 
-    mask = numpy.full(raw_image.shape(), mask_flags['CLEAR'], dtype='int8')
+    print('Raw image shape: ' + repr(raw_image.shape))
+    mask = numpy.full(raw_image.shape, mask_flags['CLEAR'], dtype='int8')
 
     mask[raw_image > saturation_threshold] = mask_flags['OVERSATURATED']
+    print('Mask shape: ' + repr(mask.shape))
 
     y_resolution, x_resolution = raw_image.shape
     for x_offset, y_offset in leak_directions:
-        shifted_mask = mask[y_offset:, x_offset:]
-        shifted_mask[
-            mask[: y_resolution - y_offset,
-                 : x_resolution - x_offset] == mask_flags['OVERSATURATED'],
-        ] = numpy.bitwise_or(shifted_mask, mask_flags['LEAKED'])
+        shifted_mask = mask[
+            max(y_offset, 0): y_resolution + min(0, y_offset), 
+            max(x_offset, 0): x_resolution + min(0, x_offset)
+        ]
+        print('Shifted mask shape:' + repr(shifted_mask.shape))
+        leaked_pixels = (
+            mask[
+                max(-y_offset, 0) : y_resolution + min(0, -y_offset),
+                max(-x_offset, 0) : x_resolution + min(0, -x_offset)
+            ]
+            ==
+            mask_flags['OVERSATURATED']
+        )
+        shifted_mask[leaked_pixels] =numpy.bitwise_or(
+            shifted_mask[leaked_pixels],
+            mask_flags['LEAKED']
+        )
 
     return mask
 

@@ -33,6 +33,14 @@ class Calibrator:
         calibration parameters that can be overwritten on a one-time basis for
         each frame being calibrated by passing arguments to __call__.
 
+        raw_hdu:    Which hdu of the raw frame contains the image to
+            calibrate. Note that the header is always taken from the first
+            non-trivial hdu. For compressed frames, this should never be
+            zero.
+
+        saturation_threshold:    The value (in ADU) above which the pixel is
+            considered saturated.
+
         master_bias:    A dictionary containing:
 
             * filename: The filename of the master bias frame to use in subsequent
@@ -173,7 +181,7 @@ class Calibrator:
             Returns: None
             """
 
-            for direction, resolution in zip(['x', 'y'], raw_image.shape):
+            for direction, resolution in zip(['y', 'x'], raw_image.shape):
                 area_min, area_max = area[direction + 'min'], area[direction + 'max']
                 if area_min > area_max:
                     raise ValueError(
@@ -222,6 +230,7 @@ class Calibrator:
                 )
             )
             for master_type in ['bias', 'dark', 'flat']:
+                if calib_params[master_type] is None: continue
                 for master_component in ['correction', 'variance', 'mask']:
                     master_shape = calib_params[
                         master_type
@@ -357,24 +366,30 @@ class Calibrator:
                     )
 
         area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
-        for overscan_id, overscan_area in \
-                enumerate(calibration_params['overscans']['areas']):
-            header['OVRSCN%02d' % overscan_id] = (
-                area_pattern % overscan_area,
-                'Overscan area #' + str(overscan_id)
-            )
 
-        calibration_params['overscans']['method'].document_in_fits_header(
-            header
-        )
+        if (
+                calibration_params['overscans']['method'] is not None
+                and
+                calibration_params['overscans']['areas'] is not None
+        ):
+            for overscan_id, overscan_area in \
+                    enumerate(calibration_params['overscans']['areas']):
+                header['OVRSCN%02d' % overscan_id] = (
+                    area_pattern % overscan_area,
+                    'Overscan area #' + str(overscan_id)
+                )
+
+            calibration_params['overscans']['method'].document_in_fits_header(
+                header
+            )
 
         header['IMAGAREA'] = (
             area_pattern % calibration_params['image_area'],
             'Image region in raw frame'
         )
 
-        header['CALIBGAIN'] = (calibration_params['gain'],
-                               'Electrons/ADU assumed during calib')
+        header['CALBGAIN'] = (calibration_params['gain'],
+                              'Electrons/ADU assumed during calib')
 
         for module_name, module_git_id in Calibrator.module_git_ids.items():
             assert module_git_id[:4] == '$Id:'
@@ -410,25 +425,38 @@ class Calibrator:
             None
         """
 
+
         header_list = [header, fits.Header(), fits.Header()]
         header_list[1]['IMAGETYP'] = 'error'
         header_list[2]['IMAGETYP'] = 'mask'
 
+        header['BITPIX'] = header_list[1]['BITPIX'] = -32
+        header_list[2]['BITPIX'] = 8
+
+        hdu_list = fits.HDUList([
+            fits.PrimaryHDU(image_list[0], header),
+            fits.ImageHDU(image_list[1], header_list[1]),
+            fits.ImageHDU(image_list[2].astype('uint8'), header_list[2])
+        ])
+        for hdu in hdu_list:
+            hdu.update_header()
+
         if compressed:
             hdu_list = fits.HDUList(
-                fits.CompImageHDU(i, h)
-                for i, h in zip(image_list, header_list)
+                [fits.PrimaryHDU()]
+                +
+                [
+                    fits.CompImageHDU(hdu.data, hdu.header)
+                    for hdu in hdu_list
+                ]
             )
-        else:
-            hdu_list = fits.HDUList([
-                fits.PrimaryHDU(image_list[0], header),
-                fits.ImageHDU(image_list[1], header_list[1]),
-                fits.ImageHDU(image_list[2], header_list[2])
-            ])
+
         hdu_list.writeto(calibrated_fname)
 
     def __init__(self,
                  *,
+                 saturation_threshold,
+                 raw_hdu=1,
                  overscans=None,
                  overscan_method=None,
                  image_area=None,
@@ -463,6 +491,8 @@ class Calibrator:
         self.image_area = image_area
         self.gain = gain
         self.leak_directions = leak_directions
+        self.raw_hdu = raw_hdu
+        self.saturation_threshold = saturation_threshold
 
     def set_masters(self, **masters):
         """
@@ -555,7 +585,11 @@ class Calibrator:
             else:
                 calibration_params['overscans'] = self.overscans
 
-            for param in ['image_area', 'gain']:
+            for param in ['raw_hdu',
+                          'image_area',
+                          'gain',
+                          'leak_directions',
+                          'saturation_threshold']:
                 if param not in calibration_params:
                     calibration_params[param] = getattr(self, param)
 
@@ -652,11 +686,19 @@ class Calibrator:
         with fits.open(raw, 'readonly') as raw_image:
             #pylint: disable=no-member
             #pylint false positive.
-            self.check_calib_params(raw_image[0].data, calibration_params)
+            self.check_calib_params(
+                raw_image[calibration_params['raw_hdu']].data,
+                calibration_params
+            )
 
-            trimmed_image = raw_image[0].data[
-                calibration_params['ymin']: calibration_params['ymax'],
-                calibration_params['xmin']: calibration_params['xmax'],
+            trimmed_image = raw_image[calibration_params['raw_hdu']].data[
+                calibration_params['image_area']['ymin']
+                : 
+                calibration_params['image_area']['ymax']
+                ,
+                calibration_params['image_area']['xmin']
+                :
+                calibration_params['image_area']['xmax'],
             ]
             calibrated_images = [
                 trimmed_image,
@@ -669,14 +711,14 @@ class Calibrator:
             #pylint: enable=no-member
 
             if (
-                    calibration_params['overscan_method'] is not None
+                    calibration_params['overscans']['method'] is not None
                     and
-                    calibration_params['overscans'] is not None
+                    calibration_params['overscans']['areas'] is not None
             ):
                 apply_subtractive_correction(
-                    calibration_params['overscan_method'](
+                    calibration_params['overscans']['method'](
                         raw_image,
-                        calibration_params['overscans'],
+                        calibration_params['overscans']['areas'],
                         calibration_params['image_area'],
                         calibration_params['gain']
                     ),
@@ -695,7 +737,10 @@ class Calibrator:
 
             #pylint: disable=no-member
             #pylint false positive.
-            raw_header = raw_image[0].header
+            for hdu in raw_image:
+                if hdu.data is not None:
+                    raw_header = hdu.header
+                    break
             #pylint: enable=no-member
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
