@@ -12,7 +12,8 @@ from superphot_pipeline.image_calibration.mask_utilities import\
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
-    ImageMismatchError
+    ImageMismatchError,\
+    BadImageError
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     git_id as mask_utilities_git_id
@@ -405,7 +406,8 @@ class Calibrator:
     def _create_result(image_list,
                        header,
                        calibrated_fname,
-                       compressed):
+                       compressed,
+                       allow_overwrite=False):
         """
         Create the calibarted FITS file documenting calibration in header.
 
@@ -452,7 +454,32 @@ class Calibrator:
                 ]
             )
 
-        hdu_list.writeto(calibrated_fname)
+        hdu_list.writeto(calibrated_fname, overwrite=allow_overwrite)
+
+    @staticmethod
+    def _get_raw_header(raw_image):
+        """
+        Return the header to the first non-trivial HDU in raw_image.
+
+        Args:
+            raw_image:    An open fits file to search for a header.
+
+        Returns:
+            raw_header:    The header of the first non-trivial extension in the
+                fits file.
+        """
+
+        #pylint: disable=no-member
+        #pylint false positive.
+        for hdu in raw_image:
+            if hdu.data is not None:
+                return hdu.header
+
+        raise BadImageError("None of the extensions in %s contain any data!"
+                            %
+                            raw_image.filename())
+        #pylint: enable=no-member
+
 
     def __init__(self,
                  *,
@@ -548,6 +575,7 @@ class Calibrator:
                  raw,
                  calibrated,
                  compress_calibrated=True,
+                 allow_overwrite=False,
                  **calibration_params):
         """
         Calibrate the raw frame, save result to calibrated.
@@ -559,8 +587,6 @@ class Calibrator:
                 calibrated frame.
 
             compress_calibrated:    Should the calibrated image be compressed.
-
-        Kwargs:
 
             calibration_params:    Keyword only arguments allowing one of the
                 calibration parameters to be switched for this calibration only.
@@ -736,17 +762,13 @@ class Calibrator:
             if calibration_params['flat'] is not None:
                 apply_flat_correction(calibration_params['flat'], calibrated_images)
 
-            #pylint: disable=no-member
-            #pylint false positive.
-            for hdu in raw_image:
-                if hdu.data is not None:
-                    raw_header = hdu.header
-                    break
-            #pylint: enable=no-member
+            raw_header = self._get_raw_header(raw_image)
+
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
             self._create_result(image_list=calibrated_images,
                                 header=raw_header,
                                 calibrated_fname=calibrated,
-                                compressed=compress_calibrated)
+                                compressed=compress_calibrated,
+                                allow_overwrite=allow_overwrite)
