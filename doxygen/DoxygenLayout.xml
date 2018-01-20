@@ -4,7 +4,15 @@
   <navindex>
     <tab type="mainpage" visible="yes" title="Home"/>
     <tab type="pages" visible="no" title="" intro=""/>
-    <tab type="usergroup" title="Implementation Documentation">
+    <tab type="usergroup" 
+         url="@ref PipelineDesign_page"
+         title="Implementation Documentation">
+        <tab type="usergroup"
+             url="@ref Logging_page"
+             title="Logging"/>
+        <tab type="usergroup"
+             url="@ref CrashRecovery_page"
+             title="Crash Recovery"/>
         <tab type="usergroup"
              url="@ref ImageCalibrationImplementation_page"
              title="Image Calibration">
