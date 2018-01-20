@@ -348,6 +348,9 @@ class Calibrator(Processor):
         any way it sees fit.
 
         Args:
+            calibration_params:    The parameters used when calibrating (see
+                calibration_params argument to __call__.
+
             header:    The header to update with the
                 calibration information.
 
@@ -444,6 +447,14 @@ class Calibrator(Processor):
         Create a calibrator and define some default calibration parameters.
 
         Args:
+            saturation_threshold:    The critical pixel value in ADU above which
+                a pixel is considered saturated (i.e.non-linear response and
+                suspect charge leaking to neighboring pixels).
+
+            raw_hdu:    The index of the HDU within the raw frames which to
+                calibrate. The default of 1 is meant to handle compressed
+                single-extension images.
+
             overscans:    See same name attribute to Calibrator class.
 
             overscan_method:    See same name attribute to Calibrator class.
@@ -456,7 +467,7 @@ class Calibrator(Processor):
                 saturated pixels. See
                 `superphot_pipeline.image_calibration.mask_utilities.get_saturation_mask`
 
-        KWargs: See set_masters.
+            masters: See set_masters.
 
         Returns:
             None
@@ -471,11 +482,11 @@ class Calibrator(Processor):
         self.raw_hdu = raw_hdu
         self.saturation_threshold = saturation_threshold
 
-    def set_masters(self, **masters):
+    def set_masters(self, *, bias=None, dark=None, flat=None, masks=None):
         """
         Define the default masterts to use for calibrations.
 
-        Kwargs:
+        Args:
             bias:    The filename of the master bias to use.
 
             dark:    The filename of the master dark to use.
@@ -489,34 +500,30 @@ class Calibrator(Processor):
             None
         """
 
-        if 'masks' in masters:
-            if isinstance(masters['masks'], str):
-                dict(filenames=[masters['masks']],
-                     image=read_image_components(masters['masks'])[2])
+        if masks is not None:
+            if isinstance(masks, str):
+                dict(filenames=[masks], image=read_image_components(masks)[2])
             else:
-                self.masks = dict(filenames=masters['masks'],
-                                  image=combine_masks(masters['masks']))
+                self.masks = dict(filenames=masks, image=combine_masks(masks))
         else:
             self.masks = None
 
-        for master_type in ['bias', 'dark', 'flat']:
-            if master_type in masters:
-                master_fname = masters[master_type]
-                if master_fname is None:
-                    setattr(self, 'master_' + master_type, None)
-                else:
-                    image, error, mask = read_image_components(master_fname)[:3]
-                    self._calib_mask_from_master(mask)
-                    setattr(
-                        self,
-                        'master_' + master_type,
-                        dict(
-                            filename=master_fname,
-                            correction=image,
-                            variance=numpy.square(error),
-                            mask=mask
-                        )
+        for master_type, master_fname in [('bias', bias),
+                                          ('dark', dark),
+                                          ('flat', flat)]:
+            if master_fname is not None:
+                image, error, mask = read_image_components(master_fname)[:3]
+                self._calib_mask_from_master(mask)
+                setattr(
+                    self,
+                    'master_' + master_type,
+                    dict(
+                        filename=master_fname,
+                        correction=image,
+                        variance=numpy.square(error),
+                        mask=mask
                     )
+                )
             else:
                 setattr(self, 'master_' + master_type, None)
 
@@ -537,10 +544,13 @@ class Calibrator(Processor):
 
             compress_calibrated:    Should the calibrated image be compressed.
 
+            allow_overwrite:    If a file matching the calibrated image name
+                exists, should it be overwritten (otherwise raises exception).
+
             calibration_params:    Keyword only arguments allowing one of the
                 calibration parameters to be switched for this calibration only.
-                Should be one of the positions arguments of __init__ or
-                set_masters, with the same meaning.
+                Should be one of the keyword arguments of __init__, with the
+                same meaning.
 
         Returns:
             None

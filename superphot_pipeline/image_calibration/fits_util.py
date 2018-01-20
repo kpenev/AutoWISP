@@ -18,16 +18,19 @@ def create_result(image_list,
     'IMAGETYP'='mask' and 'IMAGETYP'='error' respectively.
 
     Args:
-        image_list:   A list with 3 entries of image data for the output
-            file: The calibrated image, an estimate of the error and a
-            mask image. The images are saved as extensions in this same
-            order.
+        image_list:    A list with 3 entries of image data for the output
+            file. Namely, the calibrated image, an estimate of the error and a
+            mask image. The images are saved as extensions in this
+            same order.
 
         header:    The header to use for the the primary (calibrated) image.
 
         result_fname:    The filename under which to save the craeted image.
 
         compress:    Should the created image be compressed?
+
+        allow_overwrite:    If a file named `result_fname` already exists,
+            should it be overwritten (otherwise throw an exception).
 
     Returns:
         None

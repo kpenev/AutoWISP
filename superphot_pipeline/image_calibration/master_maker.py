@@ -309,6 +309,9 @@ class MasterMaker(Processor):
 
             compress:    Should the final result be compressed?
 
+            allow_overwrite:    See same name argument
+                to superphot_pipeline.image_calibration.fits_util.create_result.
+
             stacking_options:    Keyword only arguments allowing overriding the
                 stacking configuration specified at construction for this
                 stack only.
