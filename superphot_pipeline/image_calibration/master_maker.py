@@ -210,7 +210,7 @@ class MasterMaker:
         for frame_index, frame_fname in enumerate(frame_list):
             image, mask, header = read_image_components(frame_fname,
                                                         read_error=False,
-                                                        read_header=False)
+                                                        read_header=True)
             MasterMaker._update_stack_header(master_header, header, frame_fname)
 
             if pixel_values is None:
