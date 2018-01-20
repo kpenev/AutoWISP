@@ -365,9 +365,9 @@ class Calibrator(Processor):
                     'Master ' + master_type + ' frame applied'
                 )
                 with open(calibration_params[master_type]['filename'],
-                          'r') as master:
+                          'rb') as master:
                     hasher = sha1()
-                    hasher.update(master.read().encode('ascii'))
+                    hasher.update(master.read())
                     header['M' + master_type.upper() + 'SHA'] = (
                         hasher.hexdigest(),
                         'SHA-1 checksum of the master ' + master_type
@@ -582,7 +582,7 @@ class Calibrator(Processor):
             for master_type in ['bias', 'dark', 'flat']:
                 if master_type in calibration_params:
                     image, error, mask = read_image_components(
-                        calibration_params['master_type']
+                        calibration_params[master_type]
                     )[:3]
                     self._calib_mask_from_master(mask)
                     calibration_params[master_type] = dict(
@@ -685,7 +685,7 @@ class Calibrator(Processor):
                 calibration_params['image_area']['xmin']
                 :
                 calibration_params['image_area']['xmax'],
-            ]
+            ].astype('float64')
             calibrated_images = [
                 trimmed_image,
                 trimmed_image / calibration_params['gain'],
