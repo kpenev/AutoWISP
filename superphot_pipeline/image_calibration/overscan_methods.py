@@ -4,13 +4,14 @@ from abc import ABC, abstractmethod
 import numpy
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
+from superphot_pipeline import Processor
 
 git_id = '$Id$'
 
 #pylint: disable=too-few-public-methods
 #It still makes sense to make a class with two methods (including __call__).
 
-class Base(ABC):
+class Base(ABC, Processor):
     """The minimal intefrace that must be provided by overscan methods."""
 
     @abstractmethod
@@ -142,6 +143,7 @@ class Median(Base):
         Returns:
             None
         """
+    #pylint: enable=anomalous-backslash-in-string
 
         header['OVSCNMTD'] = ('Iterative rejection median',
                               'Overscan correction method')
@@ -261,3 +263,5 @@ class Median(Base):
             variance=numpy.full(image_shape,
                                 deviation_scale / overscan_values.size)
         )
+
+#pylint: enable=too-few-public-methods

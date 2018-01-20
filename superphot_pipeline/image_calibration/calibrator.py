@@ -9,11 +9,14 @@ from superphot_pipeline.image_calibration.mask_utilities import\
     combine_masks,\
     get_saturation_mask,\
     mask_flags
+from superphot_pipeline.image_calibration.fits_util import create_result
+
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
     ImageMismatchError,\
     BadImageError
+from superphot_pipeline import Processor
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     git_id as mask_utilities_git_id
@@ -22,7 +25,7 @@ from superphot_pipeline.image_calibration.overscan_methods import\
 
 git_id = '$Id$'
 
-class Calibrator:
+class Calibrator(Processor):
     #pylint: disable=anomalous-backslash-in-string
     #Triggers on doxygen commands.
     """
@@ -403,60 +406,6 @@ class Calibrator:
     #pylint: enable=anomalous-backslash-in-string
 
     @staticmethod
-    def _create_result(image_list,
-                       header,
-                       calibrated_fname,
-                       compressed,
-                       allow_overwrite=False):
-        """
-        Create the calibarted FITS file documenting calibration in header.
-
-        Args:
-            image_list:   A list with 3 entries of image data for the output
-                file: The calibrated image, an estimate of the error and a
-                mask image. The images are saved as extensions in this same
-                order.
-
-            header:    The header to use for the the primary (calibrated) image.
-
-            calibrated_fname:    The filename under which to save the
-                craeted image.
-
-            compressed:    Should the created image be compressed?
-
-        Returns:
-            None
-        """
-
-
-        header_list = [header, fits.Header(), fits.Header()]
-        header_list[1]['IMAGETYP'] = 'error'
-        header_list[2]['IMAGETYP'] = 'mask'
-
-        header['BITPIX'] = header_list[1]['BITPIX'] = -32
-        header_list[2]['BITPIX'] = 8
-
-        hdu_list = fits.HDUList([
-            fits.PrimaryHDU(image_list[0], header),
-            fits.ImageHDU(image_list[1], header_list[1]),
-            fits.ImageHDU(image_list[2].astype('uint8'), header_list[2])
-        ])
-        for hdu in hdu_list:
-            hdu.update_header()
-
-        if compressed:
-            hdu_list = fits.HDUList(
-                [fits.PrimaryHDU()]
-                +
-                [
-                    fits.CompImageHDU(hdu.data, hdu.header)
-                    for hdu in hdu_list
-                ]
-            )
-
-        hdu_list.writeto(calibrated_fname, overwrite=allow_overwrite)
-
-    @staticmethod
     def _get_raw_header(raw_image):
         """
         Return the header to the first non-trivial HDU in raw_image.
@@ -767,8 +716,8 @@ class Calibrator:
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
-            self._create_result(image_list=calibrated_images,
-                                header=raw_header,
-                                calibrated_fname=calibrated,
-                                compressed=compress_calibrated,
-                                allow_overwrite=allow_overwrite)
+            create_result(image_list=calibrated_images,
+                          header=raw_header,
+                          result_fname=calibrated,
+                          compress=compress_calibrated,
+                          allow_overwrite=allow_overwrite)

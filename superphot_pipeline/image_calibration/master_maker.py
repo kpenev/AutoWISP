@@ -7,13 +7,16 @@ from astropy.io import fits
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.general_purpose_stats import iterative_rejection_average
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
+from superphot_pipeline.image_calibration.fits_util import create_result
+
 from superphot_pipeline.pipeline_exceptions import\
     ImageMismatchError,\
     BadImageError
+from superphot_pipeline import Processor
 
 #pylint does not count __call__ but should.
 #pylint: disable=too-few-public-methods
-class MasterMaker:
+class MasterMaker(Processor):
     """
     Implement the simplest & fully generalizable procedure for making a master.
 
@@ -66,17 +69,15 @@ class MasterMaker:
         """
 
         if master_header:
+            print('Checking master header against ' + filename)
+
             delete_indices = []
             for card_index, master_card in enumerate(master_header.cards):
-                delete = True
-                for frame_card in frame_header.cards:
-                    if (
-                            frame_card[0] == master_card[0]
-                            and
-                            frame_card[1] == master_card[1]
-                    ):
-                        delete = False
-                        break
+                delete = next(
+                    (False for frame_card in frame_header.cards
+                     if frame_card[:2] == master_card[:2]),
+                    True
+                )
                 if delete:
                     if master_card[0] == 'IMAGETYP':
                         raise ImageMismatchError(
@@ -88,9 +89,19 @@ class MasterMaker:
                             (master_card[1], frame_header['IMAGETYP'])
                         )
                     delete_indices.insert(0, card_index)
-            map(master_header.pop, delete_indices)
+            print('Deleting:\n'
+                  +
+                  '\n'.join([
+                      repr(master_header.cards[i][0]) for i in delete_indices
+                  ]))
+            print('Starting with %d cards' % len(master_header.cards))
+            for index in delete_indices:
+                del master_header[index]
+            print('%d cards remain' % len(master_header.cards))
         else:
-            master_header.extend(frame_header.cards)
+            master_header.extend(
+                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
+            )
             if 'IMAGETYP' not in master_header:
                 raise BadImageError('Image %s does not define IMAGETYP'
                                     %
@@ -146,7 +157,6 @@ class MasterMaker:
 
         #pylint triggers on doxygen commands.
         #pylint: disable=anomalous-backslash-in-string
-        @staticmethod
         def document_in_header(header):
             """
             Document how the stacking was done in the given header.
@@ -154,7 +164,7 @@ class MasterMaker:
             The following extra keywords are added:
             \verbatim
                 NUMFCOMB: The number of frames combined in this master.
-                ORIGF%(04)d: The base filename of each original frame added. The
+                ORIGF%04d: The base filename of each original frame added. The
                     keyword will get %-substituted with the frame index.
                 OUTLTHRS: The threshold for marking pixel values as outliers in
                     units of RMS deviation from final value.
@@ -178,7 +188,7 @@ class MasterMaker:
             header['NUMFCOMB'] = (len(frame_list),
                                   'Number frames combined in master')
             for index, fname in enumerate(frame_list):
-                header['ORIGF%(04)d' % index] = (
+                header['ORIGF%03d' % index] = (
                     fname,
                     'Original frame contributing to master'
                 )
@@ -195,7 +205,7 @@ class MasterMaker:
                 'The minimum number of valid pixels required.'
             )
             header['MAXREJIT'] = (
-                max_iter,
+                max_iter if numpy.isfinite(max_iter) else str(max_iter),
                 'Max number of rejection/averaging iterations'
             )
             header['XCLUDMSK'] = (
@@ -231,7 +241,7 @@ class MasterMaker:
                                         keepdims=False)
         )
 
-        master_mask = numpy.full(pixel_values.shape(),
+        master_mask = numpy.full(pixel_values[0].shape,
                                  mask_flags['CLEAR'],
                                  dtype='int8')
         master_mask[master_num_averaged < min_valid_values] = mask_flags['BAD']
@@ -283,6 +293,7 @@ class MasterMaker:
                  frame_list,
                  output_fname,
                  compress=True,
+                 allow_overwrite=False,
                  **stacking_options):
         """
         Create a master by stacking the given frames.
@@ -315,22 +326,11 @@ class MasterMaker:
         values, stdev, mask, header = self.stack(frame_list, **stacking_options)
         #pylint: enable=missing-kwoa
 
-        header_list = [header,
-                       fits.Header([('IMAGETYP', 'error')]),
-                       fits.Header([('IMAGETYP', 'mask')])]
-        if compress:
-            image_list = [values, stdev, mask]
-            hdulist = fits.HDUList(
-                fits.CompImageHDU(data, header)
-                for data, header in zip(image_list, header_list)
-            )
-        else:
-            hdulist = [
-                fits.PrimaryHDU(data=values, header=header),
-                fits.ImageHDU(data=stdev, header=header_list[1]),
-                fits.ImageHDU(data=mask, header=header_list[2]),
-            ]
-        hdulist.writeto(output_fname)
+        create_result(image_list=[values, stdev, mask],
+                      header=header,
+                      result_fname=output_fname,
+                      compress=compress,
+                      allow_overwrite=allow_overwrite)
 #pylint: enable=too-few-public-methods
 
 if __name__ == '__main__':
