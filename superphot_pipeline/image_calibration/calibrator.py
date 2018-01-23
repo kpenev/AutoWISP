@@ -9,10 +9,14 @@ from superphot_pipeline.image_calibration.mask_utilities import\
     combine_masks,\
     get_saturation_mask,\
     mask_flags
+from superphot_pipeline.image_calibration.fits_util import create_result
+
 from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
-    ImageMismatchError
+    ImageMismatchError,\
+    BadImageError
+from superphot_pipeline import Processor
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     git_id as mask_utilities_git_id
@@ -21,7 +25,7 @@ from superphot_pipeline.image_calibration.overscan_methods import\
 
 git_id = '$Id$'
 
-class Calibrator:
+class Calibrator(Processor):
     #pylint: disable=anomalous-backslash-in-string
     #Triggers on doxygen commands.
     """
@@ -29,9 +33,17 @@ class Calibrator:
 
     Attrs:
 
-        Public attributes provide defaults for calibration parameters that can
-        be overwritten on a one-time basis for each frame being calibrated by
-        passing arguments to __call__.
+        Public attributes, set through __init__, provide defaults for
+        calibration parameters that can be overwritten on a one-time basis for
+        each frame being calibrated by passing arguments to __call__.
+
+        raw_hdu:    Which hdu of the raw frame contains the image to
+            calibrate. Note that the header is always taken from the first
+            non-trivial hdu. For compressed frames, this should never be
+            zero.
+
+        saturation_threshold:    The value (in ADU) above which the pixel is
+            considered saturated.
 
         master_bias:    A dictionary containing:
 
@@ -173,7 +185,7 @@ class Calibrator:
             Returns: None
             """
 
-            for direction, resolution in zip(['x', 'y'], raw_image.shape):
+            for direction, resolution in zip(['y', 'x'], raw_image.shape):
                 area_min, area_max = area[direction + 'min'], area[direction + 'max']
                 if area_min > area_max:
                     raise ValueError(
@@ -222,6 +234,8 @@ class Calibrator:
                 )
             )
             for master_type in ['bias', 'dark', 'flat']:
+                if calib_params[master_type] is None:
+                    continue
                 for master_component in ['correction', 'variance', 'mask']:
                     master_shape = calib_params[
                         master_type
@@ -334,6 +348,9 @@ class Calibrator:
         any way it sees fit.
 
         Args:
+            calibration_params:    The parameters used when calibrating (see
+                calibration_params argument to __call__.
+
             header:    The header to update with the
                 calibration information.
 
@@ -348,33 +365,39 @@ class Calibrator:
                     'Master ' + master_type + ' frame applied'
                 )
                 with open(calibration_params[master_type]['filename'],
-                          'r') as master:
+                          'rb') as master:
                     hasher = sha1()
-                    hasher.update(master.read().encode('ascii'))
+                    hasher.update(master.read())
                     header['M' + master_type.upper() + 'SHA'] = (
                         hasher.hexdigest(),
                         'SHA-1 checksum of the master ' + master_type
                     )
 
         area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
-        for overscan_id, overscan_area in \
-                enumerate(calibration_params['overscans']['areas']):
-            header['OVRSCN%02d' % overscan_id] = (
-                area_pattern % overscan_area,
-                'Overscan area #' + str(overscan_id)
-            )
 
-        calibration_params['overscans']['method'].document_in_fits_header(
-            header
-        )
+        if (
+                calibration_params['overscans']['method'] is not None
+                and
+                calibration_params['overscans']['areas'] is not None
+        ):
+            for overscan_id, overscan_area in \
+                    enumerate(calibration_params['overscans']['areas']):
+                header['OVRSCN%02d' % overscan_id] = (
+                    area_pattern % overscan_area,
+                    'Overscan area #' + str(overscan_id)
+                )
+
+            calibration_params['overscans']['method'].document_in_fits_header(
+                header
+            )
 
         header['IMAGAREA'] = (
             area_pattern % calibration_params['image_area'],
             'Image region in raw frame'
         )
 
-        header['CALIBGAIN'] = (calibration_params['gain'],
-                               'Electrons/ADU assumed during calib')
+        header['CALBGAIN'] = (calibration_params['gain'],
+                              'Electrons/ADU assumed during calib')
 
         for module_name, module_git_id in Calibrator.module_git_ids.items():
             assert module_git_id[:4] == '$Id:'
@@ -386,49 +409,34 @@ class Calibrator:
     #pylint: enable=anomalous-backslash-in-string
 
     @staticmethod
-    def _create_result(image_list,
-                       header,
-                       calibrated_fname,
-                       compressed):
+    def _get_raw_header(raw_image):
         """
-        Create the calibarted FITS file documenting calibration in header.
+        Return the header to the first non-trivial HDU in raw_image.
 
         Args:
-            image_list:   A list with 3 entries of image data for the output
-                file: The calibrated image, an estimate of the error and a
-                mask image. The images are saved as extensions in this same
-                order.
-
-            header:    The header to use for the the primary (calibrated) image.
-
-            calibrated_fname:    The filename under which to save the
-                craeted image.
-
-            compressed:    Should the created image be compressed?
+            raw_image:    An open fits file to search for a header.
 
         Returns:
-            None
+            raw_header:    The header of the first non-trivial extension in the
+                fits file.
         """
 
-        header_list = [header, fits.Header(), fits.Header()]
-        header_list[1]['IMAGETYP'] = 'error'
-        header_list[2]['IMAGETYP'] = 'mask'
+        #pylint: disable=no-member
+        #pylint false positive.
+        for hdu in raw_image:
+            if hdu.data is not None:
+                return hdu.header
 
-        if compressed:
-            hdu_list = fits.HDUList(
-                fits.CompImageHDU(i, h)
-                for i, h in zip(image_list, header_list)
-            )
-        else:
-            hdu_list = fits.HDUList([
-                fits.PrimaryHDU(image_list[0], header),
-                fits.ImageHDU(image_list[1], header_list[1]),
-                fits.ImageHDU(image_list[2], header_list[2])
-            ])
-        hdu_list.writeto(calibrated_fname)
+        raise BadImageError("None of the extensions in %s contain any data!"
+                            %
+                            raw_image.filename())
+        #pylint: enable=no-member
+
 
     def __init__(self,
                  *,
+                 saturation_threshold,
+                 raw_hdu=1,
                  overscans=None,
                  overscan_method=None,
                  image_area=None,
@@ -439,6 +447,14 @@ class Calibrator:
         Create a calibrator and define some default calibration parameters.
 
         Args:
+            saturation_threshold:    The critical pixel value in ADU above which
+                a pixel is considered saturated (i.e.non-linear response and
+                suspect charge leaking to neighboring pixels).
+
+            raw_hdu:    The index of the HDU within the raw frames which to
+                calibrate. The default of 1 is meant to handle compressed
+                single-extension images.
+
             overscans:    See same name attribute to Calibrator class.
 
             overscan_method:    See same name attribute to Calibrator class.
@@ -451,7 +467,7 @@ class Calibrator:
                 saturated pixels. See
                 `superphot_pipeline.image_calibration.mask_utilities.get_saturation_mask`
 
-        KWargs: See set_masters.
+            masters: See set_masters.
 
         Returns:
             None
@@ -463,12 +479,14 @@ class Calibrator:
         self.image_area = image_area
         self.gain = gain
         self.leak_directions = leak_directions
+        self.raw_hdu = raw_hdu
+        self.saturation_threshold = saturation_threshold
 
-    def set_masters(self, **masters):
+    def set_masters(self, *, bias=None, dark=None, flat=None, masks=None):
         """
         Define the default masterts to use for calibrations.
 
-        Kwargs:
+        Args:
             bias:    The filename of the master bias to use.
 
             dark:    The filename of the master dark to use.
@@ -482,34 +500,30 @@ class Calibrator:
             None
         """
 
-        if 'masks' in masters:
-            if isinstance(masters['masks'], str):
-                dict(filenames=[masters['masks']],
-                     image=read_image_components(masters['masks'])[2])
+        if masks is not None:
+            if isinstance(masks, str):
+                dict(filenames=[masks], image=read_image_components(masks)[2])
             else:
-                self.masks = dict(filenames=masters['masks'],
-                                  image=combine_masks(masters['masks']))
+                self.masks = dict(filenames=masks, image=combine_masks(masks))
         else:
             self.masks = None
 
-        for master_type in ['bias', 'dark', 'flat']:
-            if master_type in masters:
-                master_fname = masters[master_type]
-                if master_fname is None:
-                    setattr(self, 'master_' + master_type, None)
-                else:
-                    image, error, mask = read_image_components(master_fname)[:3]
-                    self._calib_mask_from_master(mask)
-                    setattr(
-                        self,
-                        'master_' + master_type,
-                        dict(
-                            filename=master_fname,
-                            correction=image,
-                            variance=numpy.square(error),
-                            mask=mask
-                        )
+        for master_type, master_fname in [('bias', bias),
+                                          ('dark', dark),
+                                          ('flat', flat)]:
+            if master_fname is not None:
+                image, error, mask = read_image_components(master_fname)[:3]
+                self._calib_mask_from_master(mask)
+                setattr(
+                    self,
+                    'master_' + master_type,
+                    dict(
+                        filename=master_fname,
+                        correction=image,
+                        variance=numpy.square(error),
+                        mask=mask
                     )
+                )
             else:
                 setattr(self, 'master_' + master_type, None)
 
@@ -517,6 +531,7 @@ class Calibrator:
                  raw,
                  calibrated,
                  compress_calibrated=True,
+                 allow_overwrite=False,
                  **calibration_params):
         """
         Calibrate the raw frame, save result to calibrated.
@@ -529,12 +544,13 @@ class Calibrator:
 
             compress_calibrated:    Should the calibrated image be compressed.
 
-        Kwargs:
+            allow_overwrite:    If a file matching the calibrated image name
+                exists, should it be overwritten (otherwise raises exception).
 
             calibration_params:    Keyword only arguments allowing one of the
                 calibration parameters to be switched for this calibration only.
-                Should be one of the positions arguments of __init__ or
-                set_masters, with the same meaning.
+                Should be one of the keyword arguments of __init__, with the
+                same meaning.
 
         Returns:
             None
@@ -555,14 +571,18 @@ class Calibrator:
             else:
                 calibration_params['overscans'] = self.overscans
 
-            for param in ['image_area', 'gain']:
+            for param in ['raw_hdu',
+                          'image_area',
+                          'gain',
+                          'leak_directions',
+                          'saturation_threshold']:
                 if param not in calibration_params:
                     calibration_params[param] = getattr(self, param)
 
             for master_type in ['bias', 'dark', 'flat']:
                 if master_type in calibration_params:
                     image, error, mask = read_image_components(
-                        calibration_params['master_type']
+                        calibration_params[master_type]
                     )[:3]
                     self._calib_mask_from_master(mask)
                     calibration_params[master_type] = dict(
@@ -652,12 +672,20 @@ class Calibrator:
         with fits.open(raw, 'readonly') as raw_image:
             #pylint: disable=no-member
             #pylint false positive.
-            self.check_calib_params(raw_image[0].data, calibration_params)
+            self.check_calib_params(
+                raw_image[calibration_params['raw_hdu']].data,
+                calibration_params
+            )
 
-            trimmed_image = raw_image[0].data[
-                calibration_params['ymin']: calibration_params['ymax'],
-                calibration_params['xmin']: calibration_params['xmax'],
-            ]
+            trimmed_image = raw_image[calibration_params['raw_hdu']].data[
+                calibration_params['image_area']['ymin']
+                :
+                calibration_params['image_area']['ymax']
+                ,
+                calibration_params['image_area']['xmin']
+                :
+                calibration_params['image_area']['xmax'],
+            ].astype('float64')
             calibrated_images = [
                 trimmed_image,
                 trimmed_image / calibration_params['gain'],
@@ -669,14 +697,14 @@ class Calibrator:
             #pylint: enable=no-member
 
             if (
-                    calibration_params['overscan_method'] is not None
+                    calibration_params['overscans']['method'] is not None
                     and
-                    calibration_params['overscans'] is not None
+                    calibration_params['overscans']['areas'] is not None
             ):
                 apply_subtractive_correction(
-                    calibration_params['overscan_method'](
+                    calibration_params['overscans']['method'](
                         raw_image,
-                        calibration_params['overscans'],
+                        calibration_params['overscans']['areas'],
                         calibration_params['image_area'],
                         calibration_params['gain']
                     ),
@@ -693,14 +721,13 @@ class Calibrator:
             if calibration_params['flat'] is not None:
                 apply_flat_correction(calibration_params['flat'], calibrated_images)
 
-            #pylint: disable=no-member
-            #pylint false positive.
-            raw_header = raw_image[0].header
-            #pylint: enable=no-member
+            raw_header = self._get_raw_header(raw_image)
+
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
-            self._create_result(image_list=calibrated_images,
-                                header=raw_header,
-                                calibrated_fname=calibrated,
-                                compressed=compress_calibrated)
+            create_result(image_list=calibrated_images,
+                          header=raw_header,
+                          result_fname=calibrated,
+                          compress=compress_calibrated,
+                          allow_overwrite=allow_overwrite)
