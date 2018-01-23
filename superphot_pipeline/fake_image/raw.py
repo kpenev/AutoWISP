@@ -141,9 +141,9 @@ class FakeRawImage:
 
         dark_rate_multiplier = (1.0 if units == 'ADU' else 1.0 / self._gain)
 
-        self._dark_rate = numpy.zeros(self._pixels.shape) #18: shape() changed to shape 
+        self._dark_rate = numpy.zeros(self._pixels.shape)
         image_y_res, image_x_res = self._image.shape
-        self._dark_rate[	
+        self._dark_rate[
             self._image_offset['y'] : self._image_offset['y'] + image_y_res,
             self._image_offset['x'] : self._image_offset['x'] + image_x_res,
         ] = dark_rate_multiplier
