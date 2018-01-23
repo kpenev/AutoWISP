@@ -78,7 +78,7 @@ class FakeRawImage:
         Args:
             full_resolution:    The full resolution of the image to create,
                 including the light sensitive area, but also overscan areas etc.
-                Should be dict(x=<int>, y=<ynt>).
+                Should be dict(x=<int>, y=<int>).
 
             image_area:    The light sensitivy part of the image. The format is:
                 `dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)`
@@ -141,7 +141,7 @@ class FakeRawImage:
 
         dark_rate_multiplier = (1.0 if units == 'ADU' else 1.0 / self._gain)
 
-        self._dark_rate = numpy.zeros(self._pixels.shape())
+        self._dark_rate = numpy.zeros(self._pixels.shape)
         image_y_res, image_x_res = self._image.shape
         self._dark_rate[
             self._image_offset['y'] : self._image_offset['y'] + image_y_res,
