@@ -34,10 +34,12 @@ class MasterMaker(Processor):
         >>> #Stack a set of frames to a master, allowing no more than 3
         >>> #averaging/outlier rejection iterations and allowing a minimum of 3
         >>> #valid source pixels to make a master, for this master only.
-        >>> make_master(['f1.fits', 'f2.fits', 'f3.fits', 'f4.fits'],
-        >>>             'master.fits',
-        >>>             max_iter=3,
-        >>>             min_valid_values=3)
+        >>> make_master(
+        >>>     ['f1.fits.fz', 'f2.fits.fz', 'f3.fits.fz', 'f4.fits.fz'],
+        >>>     'master.fits.fz',
+        >>>     max_iter=3,
+        >>>     min_valid_values=3
+        >>> )
     """
 
     @staticmethod
