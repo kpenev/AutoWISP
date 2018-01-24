@@ -23,8 +23,9 @@ class ImageSmoother(ABC):
 
         Args:
             image:    The image to smooth.
-            kwargs:    Any arguments configuring how smoothing is to be
-                performed.
+
+            kwargs:    Any arguments configuring how smoothing is to
+                be performed.
 
         Returns:
             smooth_image:    The smoothed version of the image per the currently
@@ -81,8 +82,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
         """
         Return matrix giving flattened smooth image when applied to fit params.
 
-        Args:
-            See __init__().
+        Args:    See __init__().
 
         Returns:
             matrix:    An (x_res * y_res) by (num_x_terms * num_y_terms) matrix
@@ -261,8 +261,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         """
         Return integrals of the param_ind-th x direction spline basis function.
 
-        Args:
-            See SeparableLinearImageSmoother.get_x_pixel_integrals()
+        Args:    See SeparableLinearImageSmoother.get_x_pixel_integrals()
 
         Returns:
             See SeparableLinearImageSmoother.get_x_pixel_integrals()
@@ -276,8 +275,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         """
         Return integrals of the param_ind-th y direction spline basis function.
 
-        Args:
-            See SeparableLinearImageSmoother.get_y_pixel_integrals()
+        Args:    See SeparableLinearImageSmoother.get_y_pixel_integrals()
 
         Returns:
             See SeparableLinearImageSmoother.get_y_pixel_integrals()
@@ -320,8 +318,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         """
         Handle change in interpolation nodes needed by integrals functions.
 
-        Args:
-            See SeparableLinearImageSmoother.smooth() except the names of
+        Args:    See SeparableLinearImageSmoother.smooth() except the names of
             num_x_terms and num_y_terms have been changed to num_x_nodes and
             num_y_nodes respectively.
 
