@@ -5,7 +5,7 @@ import numpy
 from astropy.io import fits
 
 from superphot_pipeline.image_utilities import read_image_components
-from superphot_pipeline.general_purpose_stats import iterative_rejection_average
+from superphot_pipeline.iterative_rejection_util import iterative_rejection_average
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_calibration.fits_util import create_result
 
@@ -127,10 +127,10 @@ class MasterMaker(Processor):
                 FITS filenames.
 
             outlier_threshold:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
+                `iterative_rejection_util.iterative_rejection_average`
 
             average_func:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
+                `iterative_rejection_util.iterative_rejection_average`
 
             min_valid_values:    The minimum number of valid values to average
                 for each pixel. If outlier rejection or masks results in fewer
@@ -142,7 +142,7 @@ class MasterMaker(Processor):
                 as clean.
 
             max_iter:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
+                `iterative_rejection_util.iterative_rejection_average`
 
         Returns:
             master_values:    The best estimate for the values of the maseter at

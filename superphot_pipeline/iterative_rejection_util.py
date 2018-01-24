@@ -1,6 +1,7 @@
-"""A collection of general purpose statistical manipulations of numpy arrays."""
+"""A collection of general purpose statistical manipulations of scipy arrays."""
 
-import numpy
+import scipy
+import scipy.linalg
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
 
@@ -12,8 +13,8 @@ git_id = '$Id$'
 #pylint: disable=too-many-locals
 def iterative_rejection_average(array,
                                 outlier_threshold,
-                                average_func=numpy.nanmedian,
-                                max_iter=numpy.inf,
+                                average_func=scipy.nanmedian,
+                                max_iter=scipy.inf,
                                 axis=0,
                                 require_convergence=False,
                                 mangle_input=False,
@@ -32,7 +33,7 @@ def iterative_rejection_average(array,
             always outliers.
 
         average_func:    A function which returns the average to compute (e.g.
-            numpy.nanmean or numpy.nanmedian), must ignore nan values.
+            scipy.nanmean or scipy.nanmedian), must ignore nan values.
 
         axis:    The axis along which to compute the average.
 
@@ -46,7 +47,7 @@ def iterative_rejection_average(array,
 
         mangle_input:    Is this function allowed to mangle the input array.
 
-        keepdims:    See the keepdims argument of numpy.mean
+        keepdims:    See the keepdims argument of scipy.mean
 
     Returns:
         average:    An array with all axes of a other than axis being the same
@@ -63,7 +64,7 @@ def iterative_rejection_average(array,
             in the average of each pixel. Same shape as `average`.
     """
 
-    working_array = (array if mangle_input else numpy.copy(array))
+    working_array = (array if mangle_input else scipy.copy(array))
 
     threshold2 = outlier_threshold**2
 
@@ -72,17 +73,17 @@ def iterative_rejection_average(array,
     while found_outliers and iteration < max_iter:
         average = average_func(working_array, axis=axis, keepdims=True)
 
-        square_difference = numpy.square(working_array - average)
+        square_difference = scipy.square(working_array - average)
         outliers = (
             square_difference
             >
-            threshold2 * numpy.mean(square_difference, axis=axis, keepdims=True)
+            threshold2 * scipy.mean(square_difference, axis=axis, keepdims=True)
         )
 
-        found_outliers = numpy.any(outliers)
+        found_outliers = scipy.any(outliers)
 
         if found_outliers:
-            working_array[outliers] = numpy.nan
+            working_array[outliers] = scipy.nan
 
     if found_outliers and require_convergence:
         raise ConvergenceError(
@@ -97,13 +98,13 @@ def iterative_rejection_average(array,
             ' iterations!'
         )
 
-    num_averaged = numpy.sum(numpy.logical_not(numpy.isnan(working_array)),
+    num_averaged = scipy.sum(scipy.logical_not(scipy.isnan(working_array)),
                              axis=axis,
                              keepdims=keepdims)
 
     stdev = (
-        numpy.sqrt(
-            numpy.nanmean(numpy.square(working_array - average),
+        scipy.sqrt(
+            scipy.nanmean(scipy.square(working_array - average),
                           axis=axis,
                           keepdims=keepdims)
             /
@@ -112,8 +113,57 @@ def iterative_rejection_average(array,
     )
 
     if not keepdims:
-        average = numpy.squeeze(average, axis)
+        average = scipy.squeeze(average, axis)
 
     return average, stdev, num_averaged
 #pylint: enable=too-many-arguments
 #pylint: enable=too-many-locals
+
+def iterative_rej_linear_leastsq(matrix,
+                                 rhs,
+                                 outlier_threshold,
+                                 max_iterations=scipy.inf):
+    """
+    Perform linear leasts squares fit iteratively rejecting outliers.
+
+    The returned function finds vector x that minimizes the square difference
+    between matrix.dot(x) and rhs, iterating between fitting and  rejecting RHS
+    entries which are too far from the fit.
+
+    Args:
+        matrix:    The matrix defining the linear least squares problem.
+
+        rhs:    The RHS of the least squares problem.
+
+        outlier_threshold:    The RHS entries are considered outliers if they
+            devite from the fit by more than this values times the root mean
+            square of the fit residuals.
+
+        max_iterations:    The maximum number of rejection/re-fitting iterations
+            allowed. Zero for simple fit with no rejections.
+
+    Returns:
+        solution:    The best fit coefficients.
+
+        residual:    The root mean square residual of the latest fit iteration.
+    """
+
+    num_surviving = rhs.size
+    iteration = 0
+    fit_rhs = scipy.copy(rhs)
+    fit_matrix = scipy.copy(matrix)
+    while True:
+        fit_coef, residual = scipy.linalg.lstsq(fit_matrix, fit_rhs)[:2]
+        residual /= num_surviving
+        if iteration == max_iterations:
+            break
+        outliers = (scipy.square(fit_rhs - fit_matrix.dot(fit_coef))
+                    >
+                    outlier_threshold**2 * residual)
+        num_surviving -= outliers.sum()
+        fit_rhs[outliers] = 0
+        fit_matrix[outliers, :] = 0
+        if not outliers.any():
+            break
+        iteration += 1
+    return fit_coef, scipy.sqrt(residual)
