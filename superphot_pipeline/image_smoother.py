@@ -32,9 +32,12 @@ class ImageSmoother(ABC):
                 defined smoothing.
         """
 
-    @abstractmethod
     def detrend(self, image, **kwargs):
         """De-trend the input image by its smooth version (see smooth)."""
+
+        smooth_image = self.smooth(image, **kwargs)
+        return image / smooth_image
+
 
 class SeparableLinearImageSmoother(ImageSmoother):
     """
@@ -178,12 +181,6 @@ class SeparableLinearImageSmoother(ImageSmoother):
         smooth_image = matrix.dot(fit_coef).reshape(image.shape)
         return smooth_image
     #pylint: enable=arguments-differ
-
-    def detrend(self, image, **kwargs):
-        """See ImageSmoother.detrend()."""
-
-        smooth_image = self.smooth(image, **kwargs)
-        return image / smooth_image
 
 class PolynomialImageSmoother(SeparableLinearImageSmoother):
     """
@@ -335,4 +332,87 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                               num_x_terms=num_x_nodes,
                               num_y_terms=num_y_nodes,
                               **kwargs)
+    #pylint: enable=arguments-differ
+
+class ChainSmoother(ImageSmoother):
+    """
+    Combine more than one smoothers, each is applied sequentially.
+
+    Works much like a list of smoothers, except it adds smooth and detrend
+    methods.
+
+    Attrs:
+        smoothing_chain:    The current list of smoothers and the order in which
+            they are applied. The first will be applied to the input image, the
+            second will be applied to the result of the first etc.
+    """
+
+    def __init__(self, *smoothers):
+        """
+        Create a chain combining the given smoothers in the given order.
+
+        Args:
+            smoothers:    A list of the image smoothers to combine.
+        """
+
+
+        self.smoothing_chain = []
+        self.extend(smoothers)
+
+    def append(self, smoother):
+        """Add a new smoother to the end of the sequence."""
+
+        assert isinstance(ImageSmoother, smoother)
+        self.smoothing_chain.append(smoother)
+
+    def extend(self, smoothers):
+        """Add multiple smoothers to the end of the chain."""
+
+        if isinstance(ChainSmoother, smoothers):
+            self.smoothing_chain.extend(smoothers.smoothing_chain)
+        else:
+            for smth in smoothers:
+                assert isinstance(ImageSmoother, smth)
+            self.smoothing_chain.extend(smoothers)
+
+    def insert(self, position, smoother):
+        """Like list insert."""
+
+        assert isinstance(ImageSmoother, smoother)
+        self.smoothing_chain.insert(position, smoother)
+
+    def remove(self, smoother):
+        """Like list remove."""
+
+        self.smoothing_chain.remove(smoother)
+
+    def pop(self, position=-1):
+        """Like list pop."""
+
+        self.smoothing_chain.pop(position)
+
+    def clear(self):
+        """Like list clear."""
+
+        self.smoothing_chain.clear()
+
+    def __delitem__(self, position):
+        """Delete smoothe at position."""
+
+        del self.smoothing_chain[position]
+
+    def __setitem__(self, position, smoother):
+        """Replace the smoother at position."""
+
+        self.smoothing_chain[position] = smoother
+
+    #It makes no sense to take configuration argumens.
+    #pylint: disable=arguments-differ
+    def smooth(self, image):
+        """Smooth the given image using the current chain of smoothers."""
+
+        smooth_image = image
+        for smoother in self.smoothing_chain:
+            smooth_image = smoother.smooth(smooth_image)
+        return smooth_image
     #pylint: enable=arguments-differ
