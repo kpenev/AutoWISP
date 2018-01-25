@@ -334,6 +334,41 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                               **kwargs)
     #pylint: enable=arguments-differ
 
+class WrapFilterAsSmoother(ImageSmoother):
+    """Wrap one of the scipy or astropy image filters in a smoother."""
+
+    def __init__(self, smoothing_filter, **filter_config):
+        """
+        Apply the given filter through the ImageSmoother interface.
+
+        Args:
+            smoothing_filter:    The filter to apply to smooth images.
+
+            filter_config:    Any arguments to pass to the filter when applying,
+                unless overwritten by arguments to smooth() or detrend().
+
+        Returns:
+            None
+        """
+
+        self.filter_config = filter_config
+        self.filter = smoothing_filter
+
+    def smooth(self, image, **kwargs):
+        """
+        Smooth the given image with the filter supplied on construction.
+
+        Args:
+            image:    The image to smooth.
+
+            kwargs:    Additional or replacement arguments to pass to the filter
+                when applying.
+        """
+
+        filter_kwargs = self.filter_config
+        filter_kwargs.update(kwargs)
+        return self.filter(image, **filter_kwargs)
+
 class ChainSmoother(ImageSmoother):
     """
     Combine more than one smoothers, each is applied sequentially.
@@ -362,7 +397,7 @@ class ChainSmoother(ImageSmoother):
     def append(self, smoother):
         """Add a new smoother to the end of the sequence."""
 
-        assert isinstance(ImageSmoother, smoother)
+        assert isinstance(smoother, ImageSmoother)
         self.smoothing_chain.append(smoother)
 
     def extend(self, smoothers):
