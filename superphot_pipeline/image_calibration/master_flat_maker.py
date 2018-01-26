@@ -2,7 +2,14 @@
 
 #TODO: pythonize
 
+import numpy
+
 from superphot_pipeline.image_calibration import MasterMaker
+from superphot_pipeline.image_calibration.mask_utilities import mask_flags
+from superphot_pipeline.image_smoothing import\
+    ImageSmoother
+from superphot_pipeline.iterative_rejection_util import\
+    iterative_rejection_average
 
 class MasterFlatMaker(MasterMaker):
     """
@@ -12,28 +19,35 @@ class MasterFlatMaker(MasterMaker):
         min_pointing_offset:    The minimum offset in pointing between flats to
             avoid overlapping stars.
 
-        stamp_config:    Dictionary configuring how stamps statistics for
-            stamp-based selection are extracted from the frames.
+        stamp_statistics_config:    Dictionary configuring how stamps statistics
+            for stamp-based selection are extracted from the frames.
 
         stamp_select_config:    Dictionary configuring how stamp-based selection
             is performed. See keyword only arguments of _check_central_stamp for
             details.
 
-        smoothing_config:    Dictionary configuring how to smooth the ratio of a
-            frame to the reference large scale structure before applying it to
-            the frame. See keyword only arguments of
-            _smooth_image for details.
+        large_scale_smoother:    An ImageSmoother instance applied  to the ratio
+            of a frame to the reference large scale structure before applying it
+            to the frame. See keyword only arguments of _smooth_image for
+            details.
 
-        cloud_check_smoothing_config:    Dictionary configuring how smoothing
-            for the purposes of cloud detection is performed on the full flat
-            frames after smoothing to the master large scale structure. See
-            keyword only arguments of _smooth_image for details.
+        cloud_check_smoother:    ImageSmoother instance used for cloud detection
+            performed on the full flat frames after smoothing to the master
+            large scale structure. See keyword only arguments of _smooth_image
+            for details.
 
         large_scale_deviation_threshold:    The threshold on the cloud-check
             image for considering the frame cloudy (in addition to stamp-based
             cloud detection).
 
     Examples:
+
+        >>> import scipy.ndimage.filters
+        >>> from superphot_pipeline.image_smoothing import\
+        >>>     PolynomialImageSmoother,\
+        >>>     SplineImageSmoother,\
+        >>>     ChainSmoother,\
+        >>>     WrapFilterAsSmoother
 
         >>> #Stamp statistics configuration:
         >>> #  * stamps span half the frame along each dimension
@@ -42,11 +56,16 @@ class MasterFlatMaker(MasterMaker):
         >>> #  * for each stamp a iterative rejection mean and variance are
         >>> #    calculated with up to 3 iterations rejecting three or more
         >>> #    sigma outliers.
-        >>> stamp_statistics_config = dict(fraction=0.5,
-        >>>                                detrend_order=2,
-        >>>                                average='mean',
-        >>>                                outlier_threshold=3.0,
-        >>>                                max_iter=3)
+        >>> stamp_statistics_config = dict(
+        >>>     fraction=0.5,
+        >>>     smoother=PolynomialImageSmoother(num_x_terms=3,
+        >>>                                      num_y_terms=3,
+        >>>                                      outlier_threshold=3.0,
+        >>>                                      max_iterations=3),
+        >>>     average='mean',
+        >>>     outlier_threshold=3.0,
+        >>>     max_iter=3
+        >>> )
 
         >>> #Stamp statistics based selection configuration:
         >>> #  * Stamps with more than 0.1% of their pixels saturated are
@@ -77,14 +96,20 @@ class MasterFlatMaker(MasterMaker):
         >>> #    box-filtered image.
         >>> #  * Discard more than 5-sigma outliers if any and re-smooth (no
         >>> #    further iterations allowed)
+        >>> #  * Re-interpolate the image back to its original size, using
+        >>> #    bicubic interpolation (see zoom_image()).
         >>> #  * The resulting image is scaled to have a mean of 1 (no
         >>> #    configuration for that).
-        >>> large_scale_smoothing_config = dict(shrink_factor=4,
-        >>>                                     box_filter='median',
-        >>>                                     box_half_size=6,
-        >>>                                     spline_order=3,
-        >>>                                     outlier_threshold=5.0,
-        >>>                                     max_iter=1)
+        >>> large_scale_smoother = ChainSmoother(
+        >>>     WrapFilterAsSmoother(scipy.ndimage.filters.median_filter,
+        >>>                          size=12),
+        >>>     SplineImageSmoother(num_x_nodes=3,
+        >>>                         num_y_nodes=3,
+        >>>                         outlier_threshold=5.0,
+        >>>                         max_iter=1),
+        >>>     bin_factor=4,
+        >>>     zoom_interp_order=3
+        >>> )
 
         >>> #Configuration for smoothnig for the purposes of checking for clouds.
         >>> #After smoothing to the master large scale structure:
@@ -94,17 +119,15 @@ class MasterFlatMaker(MasterMaker):
         >>> #    by a factor of 4 in each dimension
         >>> #  * smooth by median box-filtering with half size of 4 shrunk
         >>> #    pixels
-        >>> #  * Perform at most 1 rejection re-smoothing iteration rejecting
-        >>> #    outliers of more than 3-sigma.
         >>> #  * zoom the frame back out by a factor of 4 in each dimension
         >>> #    (same factor as shrinking, no separater config), using
         >>> #    bi-quadratic interpolation.
-        >>> cloud_check_smoothing_config = dict(shrink_factor=4,
-        >>>                                     box_filter='median',
-        >>>                                     box_half_size=4,
-        >>>                                     spline_order=None,
-        >>>                                     outlier_threshold=3.0,
-        >>>                                     max_iter=1)
+        >>> cloud_check_smoother = WrapFilterAsSmoother(
+        >>>     scipy.ndimage.filters.median_filter,
+        >>>     size=8,
+        >>>     bin_factor=4,
+        >>>     zoom_interp_order=3
+        >>> )
 
         >>> #Create an object for stacking calibrated flat frames to master
         >>> #flats. In addition to the stamp-based rejections:
@@ -116,8 +139,8 @@ class MasterFlatMaker(MasterMaker):
         >>>     large_scale_deviation_threshold=0.05,
         >>>     stamp_statistics_config=stamp_statistics_config,
         >>>     stamp_select_config=stamp_select_config,
-        >>>     large_scale_smoothing_config=large_scale_smoothing_config,
-        >>>     cloud_check_smoothing_config=cloud_check_smoothing_config
+        >>>     large_scale_smoother=large_scale_smoother,
+        >>>     cloud_check_smoother=cloud_check_smoother
         >>> )
 
         >>> #Create master flat(s) from the given raw flat frames. Note that
@@ -131,66 +154,58 @@ class MasterFlatMaker(MasterMaker):
         >>> )
     """
 
-    @staticmethod
-    def _configure_smoothing(smoothing_config,
-                             *,
-                             shrink_factor=None,
-                             box_filter=None,
-                             box_half_size=None,
-                             spline_order=None,
-                             outlier_threshold=None,
-                             max_iter=None):
+    def _get_stamp_statistics(self, image, mask):
         """
-        Verify that a set of smoothing args make sense and update configuration.
+        Get relevant information from the stamp of a single input flat frame.
 
         Args:
-            smoothing_config:    The dictionary with the smoothing configuration
-                to update.
+            image:    The image data of the calibrated flat frame considered for
+                inclusion in a master flat.
 
-            shrink_factor:    The factor by which to shrink the frame in each
-                dimension before smoothing.
-
-            box_filter:    The averaging to use for the box-filter smoothing.
-                Should be either mean or median.
-
-            box_half_size:    The half-size in pixels of the box-filter.
-
-            spline_order:    After box filtering smooth using this order spline.
-
-            outlier_threshold:    Pixels that are outliers of more than this
-                from the corresponding smoothed value are discarded and
-                smoothing is repeated.
-
-            max_iter:    The maximum number of rejection/smoothing iterations
-                to perform.
+            mask:    The pixel quality mask associate with `image`.
 
         Returns:
-            None
+            average:    The average (mean or median as configured) of the
+                smoothed stamp of this frame. None if the stamp has too many
+                saturated pixels.
+
+            stdev:    The standard deviation around the average of the smoothed
+                stamp of this frame. None if the stamp has too many saturated
+                pixels.
         """
 
-        if shrink_factor is not None:
-            assert isinstance(shrink_factor, int)
-            smoothing_config['shrink_factor'] = shrink_factor
+        y_size = int(image.shape[0] * self.stamp_statistics_config['fraction'])
+        x_size = int(image.shape[1] * self.stamp_statistics_config['fraction'])
+        x_off = (image.shape[1] - x_size) // 2
+        y_off = (image.shape[0] - y_size) // 2
+        num_saturated = numpy.bitwise_and(
+            mask[y_off : y_off + y_size, x_off : x_off + x_size],
+            numpy.bitwise_or(mask_flags['OVERSATURATED'],
+                             mask_flags['LEAKED'],
+                             mask_flags['SATURATED'])
+        ).astype(bool).sum()
 
-        if box_filter is not None:
-            assert box_filter in ['mean', 'median']
-            smoothing_config['box_filter'] = box_filter
+        if (
+                num_saturated
+                >
+                (
+                    self.stamp_select_config['max_saturated_fraction']
+                    *
+                    (x_size * y_size)
+                )
+        ):
+            return None, None
 
-        if box_half_size is not None:
-            assert isinstance(box_half_size, int)
-            smoothing_config['box_half_size'] = box_half_size
-
-        if spline_order is not None:
-            assert isinstance(spline_order, int)
-            smoothing_config['spline_order'] = spline_order
-
-        if outlier_threshold is not None:
-            assert isinstance(outlier_threshold, (float, int))
-            smoothing_config['outlier_threshold'] = outlier_threshold
-
-        if max_iter is not None:
-            assert isinstance(max_iter, int)
-            smoothing_config['max_iter'] = max_iter
+        smooth_stamp = self.stamp_statistics_config['smoother'].detrend(
+            image[y_off : y_off + y_size, x_off : x_off + x_size]
+        )
+        return iterative_rejection_average(
+            smooth_stamp.flatten(),
+            average_func=self.stamp_statistics_config['average'],
+            max_iter=self.stamp_statistics_config['max_iter'],
+            outlier_threshold=self.stamp_statistics_config['outlier_threshold'],
+            mangle_input=True
+        )[:2]
 
     def __init__(self,
                  *,
@@ -199,13 +214,13 @@ class MasterFlatMaker(MasterMaker):
                  large_scale_deviation_threshold=None,
                  stamp_statistics_config=None,
                  stamp_select_config=None,
-                 large_scale_smoothing_config=None,
-                 cloud_check_smoothing_config=None):
+                 large_scale_smoother=None,
+                 cloud_check_smoother=None):
         """
         Create object for creating master flats out of calibrated flat frames.
 
         Args:
-            stacking_config:    The arguments to pass to MasterMake.__init__
+            stacking_config:    The arguments to pass to MasterMaker.__init__()
                 configuring how stacking of the final set of selected and
                 prepared frames is perfcormed.
 
@@ -222,11 +237,11 @@ class MasterFlatMaker(MasterMaker):
             stamp_select_cofig:    A dictionary with arguments to pass
                 to configure_stamp_selection.
 
-            large_scale_smoothing_config:    A dictionary with arguments to pass
-                to configure_large_scale_smoothing.
+            large_scale_smoother:    An ImageSmoother instance used when
+                matching large scale structure of individual flats to master.
 
-            cloud_check_smoothing_config:    A dictionary with arguments to pass
-                to configure_cloud_check_smoothing.
+            cloud_check_smoother:    An ImageSmoother instance used when checkng
+                the full frames for clouds (after stamps are checked).
 
         Returns:
             None
@@ -238,8 +253,8 @@ class MasterFlatMaker(MasterMaker):
         self.large_scale_deviation_threshold = large_scale_deviation_threshold
         self.stamp_statistics_config = dict()
         self.stamp_select_config = dict()
-        self.large_scale_smoothing_config = dict()
-        self.cloud_check_smoothing_config = dict()
+        self.large_scale_smoother = large_scale_smoother
+        self.cloud_check_smoother = cloud_check_smoother
 
         if stamp_statistics_config is not None:
             self.configure_stamp_statistics(**stamp_statistics_config)
@@ -247,16 +262,10 @@ class MasterFlatMaker(MasterMaker):
         if stamp_select_config is not None:
             self.configure_stamp_selection(**stamp_select_config)
 
-        if large_scale_smoothing_config is not None:
-            self.configure_large_scale_smoothing(**large_scale_smoothing_config)
-
-        if cloud_check_smoothing_config is not None:
-            self.configure_cloud_check_smoothing(**cloud_check_smoothing_config)
-
     def configure_stamp_statistics(self,
                                    *,
                                    fraction=None,
-                                   detrend_order=None,
+                                   smoother=None,
                                    outlier_threshold=None,
                                    max_iter=None,
                                    average=None):
@@ -270,7 +279,7 @@ class MasterFlatMaker(MasterMaker):
                 stamp along each dimension (i.e. fraction=0.5 means 1/4 of all
                 frame pixels will be incruded in the stamp).
 
-            detrend_order:    The order of the bi-polynomial used for
+            smoother:    An ImageSmoother instance used used for
                 de-trending the stamps before extracting statistics
 
             outlier_threshold:    The threshold in units of RMS deviation from
@@ -291,9 +300,9 @@ class MasterFlatMaker(MasterMaker):
             assert isinstance(fraction, (int, float))
             self.stamp_statistics_config['fraction'] = fraction
 
-        if detrend_order is not None:
-            assert isinstance(detrend_order, int)
-            self.stamp_statistics_config['detrend_order'] = detrend_order
+        if smoother is not None:
+            assert isinstance(smoother, ImageSmoother)
+            self.stamp_statistics_config['smoother'] = smoother
 
         if outlier_threshold is not None:
             assert isinstance(outlier_threshold, (int, float))
@@ -366,29 +375,3 @@ class MasterFlatMaker(MasterMaker):
         if max_low_mean is not None:
             assert isinstance(max_low_mean, (int, float))
             self.stamp_select_config['max_low_mean'] = max_low_mean
-
-    def configure_large_scale_smoothing(self, **kwargs):
-        """
-        Configure the smoothnig for matching large scale structure to master.
-
-        Args:
-            See _configure_smoothing.
-
-        Returns:
-            None
-        """
-
-        self._configure_smoothing(self.large_scale_smoothing_config, **kwargs)
-
-    def configure_cloud_check_smoothing(self, **kwargs):
-        """
-        Configure the smoothnig for final cloud check.
-
-        Args:
-            See _configure_smoothing.
-
-        Returns:
-            None
-        """
-
-        self._configure_smoothing(self.cloud_check_smoothing_config, **kwargs)
