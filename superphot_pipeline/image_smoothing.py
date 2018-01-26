@@ -8,18 +8,22 @@ import scipy.interpolate
 
 from superphot_pipeline.iterative_rejection_util import\
     iterative_rej_linear_leastsq
+from superphot_pipeline.image_utilities import zoom_image, bin_image
 
 git_id = '$Id$'
 
 class ImageSmoother(ABC):
     """
     Define the interface for applying smoothing algorithms to images.
+
+    Attrs:
+        bin_factor:    See same name argument to smooth().
     """
 
     @abstractmethod
-    def smooth(self, image, **kwargs):
+    def _apply_smoothing(self, image, **kwargs):
         """
-        Return a smooth version of the given image.
+        Return a smooth version of the given image (no pre-shrinking).
 
         Args:
             image:    The image to smooth.
@@ -32,12 +36,69 @@ class ImageSmoother(ABC):
                 defined smoothing.
         """
 
+    def __init__(self, **kwargs):
+        """
+        Set default pre-shrink/post-zoom bin factor and interpolation order.
+
+        Args:
+            **kwargs:    All arguments except bin_factor and interp_order (see
+                smooth()) are ignored.
+
+        Returns:
+            None
+        """
+
+        self.bin_factor = kwargs.get('bin_factor', None)
+        self.zoom_interp_order = kwargs.get('zoom_interp_order', None)
+
+    def smooth(self,
+               image,
+               *,
+               bin_factor=None,
+               zoom_interp_order=None,
+               **kwargs):
+        """
+        Sandwich smoothing between initial binning and final zoom.
+
+        Args:
+            image:    The image to smooth.
+
+            bin_factor:    The factor to pre-bin the image by (see
+                bin_image() for details). After smoothing the image is zoomed by
+                the same factor to recover the original size. If None, the value
+                defined at construction is used, otherwise this value applies
+                for this image only.
+
+            interp_order:    The interpolation order to use when zooming the
+                image at the end. If None, the interpolation order defined at
+                construction is used, otherwise this value applies for this
+                image only.
+
+            kwargs:    Any arguments configuring how smoothing is to
+                be performed.
+
+        Returns:
+            smooth_image:    The smoothed version of the image.
+        """
+
+        if bin_factor is None:
+            bin_factor = self.bin_factor
+        if zoom_interp_order is None:
+            zoom_interp_order = self.zoom_interp_order
+
+        return zoom_image(
+            self._apply_smoothing(
+                bin_image(image, bin_factor),
+                **kwargs
+            ),
+            bin_factor,
+            zoom_interp_order
+        )
+
     def detrend(self, image, **kwargs):
         """De-trend the input image by its smooth version (see smooth)."""
 
-        smooth_image = self.smooth(image, **kwargs)
-        return image / smooth_image
-
+        return image / self.smooth(image, **kwargs)
 
 class SeparableLinearImageSmoother(ImageSmoother):
     """
@@ -112,7 +173,8 @@ class SeparableLinearImageSmoother(ImageSmoother):
                  num_x_terms=None,
                  num_y_terms=None,
                  outlier_threshold=None,
-                 max_iterations=None):
+                 max_iterations=None,
+                 **kwargs):
         """
         Define the default smoothing configuration (overwritable on use).
 
@@ -127,10 +189,13 @@ class SeparableLinearImageSmoother(ImageSmoother):
 
             x_resolution:    The x-resolution of the image being smoothed.
 
+            kwargs:    Any arguments to pass to parent's __init__.
+
         Returns:
             None
         """
 
+        super().__init__(**kwargs)
         self.num_x_terms = num_x_terms
         self.num_y_terms = num_y_terms
         self.outlier_threshold = outlier_threshold
@@ -138,13 +203,13 @@ class SeparableLinearImageSmoother(ImageSmoother):
 
     #The abstract method was deliberately defined wit flexible arguments
     #pylint: disable=arguments-differ
-    def smooth(self,
-               image,
-               *,
-               num_x_terms=None,
-               num_y_terms=None,
-               outlier_threshold=None,
-               max_iterations=None):
+    def _apply_smoothing(self,
+                         image,
+                         *,
+                         num_x_terms=None,
+                         num_y_terms=None,
+                         outlier_threshold=None,
+                         max_iterations=None):
         """
         Return a smooth version of the given image.
 
@@ -311,13 +376,18 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
 
     #Different parameters are deliberate
     #pylint: disable=arguments-differ
-    def smooth(self, image, *, num_x_nodes=None, num_y_nodes=None, **kwargs):
+    def _apply_smoothing(self,
+                         image,
+                         *,
+                         num_x_nodes=None,
+                         num_y_nodes=None,
+                         **kwargs):
         """
         Handle change in interpolation nodes needed by integrals functions.
 
-        Args:    See SeparableLinearImageSmoother.smooth() except the names of
-            num_x_terms and num_y_terms have been changed to num_x_nodes and
-            num_y_nodes respectively.
+        Args:    See SeparableLinearImageSmoother._apply_smoothing() except the
+            names of num_x_terms and num_y_terms have been changed to
+            num_x_nodes and num_y_nodes respectively.
 
         Returns:
             None
@@ -328,21 +398,28 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         if num_y_nodes is not None:
             self.num_y_nodes = num_y_nodes
 
-        return super().smooth(image,
-                              num_x_terms=num_x_nodes,
-                              num_y_terms=num_y_nodes,
-                              **kwargs)
+        return super()._apply_smoothing(image,
+                                        num_x_terms=num_x_nodes,
+                                        num_y_terms=num_y_nodes,
+                                        **kwargs)
     #pylint: enable=arguments-differ
 
 class WrapFilterAsSmoother(ImageSmoother):
     """Wrap one of the scipy or astropy image filters in a smoother."""
 
-    def __init__(self, smoothing_filter, **filter_config):
+    def __init__(self,
+                 smoothing_filter,
+                 *,
+                 bin_factor=None,
+                 zoom_interp_order=None,
+                 **filter_config):
         """
         Apply the given filter through the ImageSmoother interface.
 
         Args:
             smoothing_filter:    The filter to apply to smooth images.
+
+            bin_factor, zoom_interp_order:    See ImageSmoother.smooth().
 
             filter_config:    Any arguments to pass to the filter when applying,
                 unless overwritten by arguments to smooth() or detrend().
@@ -351,10 +428,12 @@ class WrapFilterAsSmoother(ImageSmoother):
             None
         """
 
+        super().__init__(bin_factor=bin_factor,
+                         zoom_interp_order=zoom_interp_order)
         self.filter_config = filter_config
         self.filter = smoothing_filter
 
-    def smooth(self, image, **kwargs):
+    def _apply_smoothing(self, image, **kwargs):
         """
         Smooth the given image with the filter supplied on construction.
 
@@ -382,15 +461,18 @@ class ChainSmoother(ImageSmoother):
             second will be applied to the result of the first etc.
     """
 
-    def __init__(self, *smoothers):
+    def __init__(self, *smoothers, **kwargs):
         """
         Create a chain combining the given smoothers in the given order.
 
         Args:
             smoothers:    A list of the image smoothers to combine.
+
+            kwargs:    Any arguments to pass to parent constructor.
         """
 
 
+        super().__init__(**kwargs)
         self.smoothing_chain = []
         self.extend(smoothers)
 
@@ -443,7 +525,7 @@ class ChainSmoother(ImageSmoother):
 
     #It makes no sense to take configuration argumens.
     #pylint: disable=arguments-differ
-    def smooth(self, image):
+    def _apply_smoothing(self, image):
         """Smooth the given image using the current chain of smoothers."""
 
         smooth_image = image

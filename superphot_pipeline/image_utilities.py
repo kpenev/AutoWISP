@@ -119,6 +119,14 @@ def zoom_image(image, zoom, interp_order):
             array.
     """
 
+    try:
+        x_zoom, y_zoom = zoom
+    except TypeError:
+        x_zoom = y_zoom = zoom
+
+    if x_zoom == y_zoom == 1:
+        return image
+
     y_res, x_res = image.shape
     cumulative_image = scipy.empty((x_res + 1, y_res + 1))
     cumulative_image[0, :] = 0
@@ -137,10 +145,6 @@ def zoom_image(image, zoom, interp_order):
         kx=spline_kx,
         ky=spline_ky
     )
-    try:
-        x_zoom, y_zoom = zoom
-    except TypeError:
-        x_zoom = y_zoom = zoom
 
     cumulative_image = cumulative_flux(
         scipy.arange(y_res * y_zoom + 1) / y_zoom,
@@ -164,7 +168,7 @@ def bin_image(image, bin_factor):
             binnin in each direction.
 
     Returns:
-        binned_image:    The binned image with a resolution decreased by the 
+        binned_image:    The binned image with a resolution decreased by the
             binning factor for each axis, which has the same total flux as the
             input image.
     """
@@ -174,7 +178,10 @@ def bin_image(image, bin_factor):
     except TypeError:
         x_bin_factor = y_bin_factor = bin_factor
 
-    y_res, x_res = image.shape 
+    if x_bin_factor == y_bin_factor == 1:
+        return image
+
+    y_res, x_res = image.shape
 
     assert x_res % x_bin_factor == 0
     assert y_res % y_bin_factor == 0
