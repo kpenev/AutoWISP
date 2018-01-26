@@ -18,6 +18,8 @@ class ImageSmoother(ABC):
 
     Attrs:
         bin_factor:    See same name argument to smooth().
+
+        zoom_interp_order:    See same name argument to smooth().
     """
 
     @abstractmethod
@@ -41,7 +43,7 @@ class ImageSmoother(ABC):
         Set default pre-shrink/post-zoom bin factor and interpolation order.
 
         Args:
-            **kwargs:    All arguments except bin_factor and interp_order (see
+            kwargs:    All arguments except bin_factor and interp_order (see
                 smooth()) are ignored.
 
         Returns:
@@ -125,13 +127,13 @@ class SeparableLinearImageSmoother(ImageSmoother):
         Args:
             param_ind:    The index of the input parameter which is non-zero.
 
+            x_resolution:    The resolution of the input image in the
+                x direction.
+
         Returns:
             integrals:    A 1-D scipy array with length equal to the
                 x-resolution of the image with the i-th entry being the integral
                 of the x part of the smoothing function the i-th pixel.
-
-            x_resolution:    The resolution of the input image in the x
-                direction.
         """
 
     @abstractmethod
@@ -258,11 +260,11 @@ class PolynomialImageSmoother(SeparableLinearImageSmoother):
         Return the integrals over one pixel dimension of x^power for each pixel.
 
         Args:
-            resolution:    The resolution of the image in the dimension in which to
-                calculate the pixel integrlas.
-
             power:    The power of the corresponding coordinate of the term we
                 are integrating.
+
+            resolution:    The resolution of the image in the dimension in which to
+                calculate the pixel integrlas.
 
         Returns:
             integrals:    A 1-D scipy array with the i-th entry being the
@@ -419,7 +421,9 @@ class WrapFilterAsSmoother(ImageSmoother):
         Args:
             smoothing_filter:    The filter to apply to smooth images.
 
-            bin_factor, zoom_interp_order:    See ImageSmoother.smooth().
+            bin_factor:    See ImageSmoother.smooth().
+
+            zoom_interp_order:    See ImageSmoother.smooth().
 
             filter_config:    Any arguments to pass to the filter when applying,
                 unless overwritten by arguments to smooth() or detrend().

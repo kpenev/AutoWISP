@@ -115,8 +115,7 @@ def zoom_image(image, zoom, interp_order):
             integer defining a common zoom factor both dimensions or a pair of
             numbers, specifying the zoom along each axis (y first, then x).
 
-        interp_order:    The order of the interpolation of the cumulative
-            array.
+        interp_order:    The order of the interpolation of the cumulative array.
     """
 
     try:
