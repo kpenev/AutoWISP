@@ -54,7 +54,7 @@ def read_image_components(fits_fname,
                     error = hdu.data
                 elif hdu.header['IMAGETYP'] == 'mask':
                     mask = hdu.data
-                    if mask.dtype != scipy.dtype('int8'):
+                    if mask.dtype.itemsize != 1:
                         raise BadImageError(
                             (
                                 'Mask image (hdu #%d) of %s had data type %s '

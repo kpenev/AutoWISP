@@ -88,6 +88,9 @@ class ImageSmoother(ABC):
         if zoom_interp_order is None:
             zoom_interp_order = self.zoom_interp_order
 
+        if bin_factor is None or zoom_interp_order is None:
+            return self._apply_smoothing(image, **kwargs)
+
         return zoom_image(
             self._apply_smoothing(
                 bin_image(image, bin_factor),
@@ -100,7 +103,8 @@ class ImageSmoother(ABC):
     def detrend(self, image, **kwargs):
         """De-trend the input image by its smooth version (see smooth)."""
 
-        return image / self.smooth(image, **kwargs)
+        smooth_image = self.smooth(image, **kwargs)
+        return image / smooth_image * scipy.mean(smooth_image)
 
 class SeparableLinearImageSmoother(ImageSmoother):
     """
@@ -489,17 +493,17 @@ class ChainSmoother(ImageSmoother):
     def extend(self, smoothers):
         """Add multiple smoothers to the end of the chain."""
 
-        if isinstance(ChainSmoother, smoothers):
+        if isinstance(smoothers, ChainSmoother):
             self.smoothing_chain.extend(smoothers.smoothing_chain)
         else:
             for smth in smoothers:
-                assert isinstance(ImageSmoother, smth)
+                assert isinstance(smth, ImageSmoother)
             self.smoothing_chain.extend(smoothers)
 
     def insert(self, position, smoother):
         """Like list insert."""
 
-        assert isinstance(ImageSmoother, smoother)
+        assert isinstance(smoother, ImageSmoother)
         self.smoothing_chain.insert(position, smoother)
 
     def remove(self, smoother):
