@@ -4,12 +4,14 @@
 
 import numpy
 
-from superphot_pipeline.image_calibration import MasterMaker
+from superphot_pipeline.image_calibration.master_maker import MasterMaker
+from superphot_pipeline.image_utilities import read_image_components
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_smoothing import\
     ImageSmoother
 from superphot_pipeline.iterative_rejection_util import\
-    iterative_rejection_average
+    iterative_rejection_average,\
+    iterative_rej_polynomial_fit
 
 class MasterFlatMaker(MasterMaker):
     """
@@ -78,6 +80,8 @@ class MasterFlatMaker(MasterMaker):
         >>> #    > 25 kADU, and low master flat from frames with stamp mean < 15
         >>> #    kADU (intermediate frames are discarded).
         >>> stamp_select_config = dict(max_saturated_fraction=1e-4,
+        >>>                            var_mean_fit_threshold=2.0,
+        >>>                            var_mean_fit_iterations=2,
         >>>                            cloudy_night_threshold=5e3,
         >>>                            cloudy_frame_threshold=2.0,
         >>>                            min_high_mean=2.5e4,
@@ -154,58 +158,80 @@ class MasterFlatMaker(MasterMaker):
         >>> )
     """
 
-    def _get_stamp_statistics(self, image, mask):
+    def _get_stamp_statistics(self, frame_list):
         """
         Get relevant information from the stamp of a single input flat frame.
 
         Args:
-            image:    The image data of the calibrated flat frame considered for
-                inclusion in a master flat.
-
-            mask:    The pixel quality mask associate with `image`.
+            frame_list:    The list of frames for which to extract stamp
+                statistics.
 
         Returns:
-            average:    The average (mean or median as configured) of the
-                smoothed stamp of this frame. None if the stamp has too many
-                saturated pixels.
-
-            stdev:    The standard deviation around the average of the smoothed
-                stamp of this frame. None if the stamp has too many saturated
-                pixels.
+            stamp_statistics:    A structure numpy array with fields called
+                `'mean'`, `'variance'` and `'num_averaged'` with the obvious
+                meanings.
         """
 
-        y_size = int(image.shape[0] * self.stamp_statistics_config['fraction'])
-        x_size = int(image.shape[1] * self.stamp_statistics_config['fraction'])
-        x_off = (image.shape[1] - x_size) // 2
-        y_off = (image.shape[0] - y_size) // 2
-        num_saturated = numpy.bitwise_and(
-            mask[y_off : y_off + y_size, x_off : x_off + x_size],
-            numpy.bitwise_or(mask_flags['OVERSATURATED'],
-                             mask_flags['LEAKED'],
-                             mask_flags['SATURATED'])
-        ).astype(bool).sum()
-
-        if (
-                num_saturated
-                >
-                (
-                    self.stamp_select_config['max_saturated_fraction']
-                    *
-                    (x_size * y_size)
-                )
-        ):
-            return None, None
-
-        smooth_stamp = self.stamp_statistics_config['smoother'].detrend(
-            image[y_off : y_off + y_size, x_off : x_off + x_size]
+        stamp_statistics = numpy.empty(
+            len(frame_list),
+            dtype=[('mean', numpy.float),
+                   ('variance', numpy.float),
+                   ('num_averaged', numpy.int)]
         )
-        return iterative_rejection_average(
-            smooth_stamp.flatten(),
-            average_func=self.stamp_statistics_config['average'],
-            max_iter=self.stamp_statistics_config['max_iter'],
-            outlier_threshold=self.stamp_statistics_config['outlier_threshold'],
-            mangle_input=True
-        )[:2]
+        for frame_index, fname in enumerate(frame_list):
+            image, mask = read_image_components(fname,
+                                                read_error=False,
+                                                read_header=False)
+
+            y_size = int(image.shape[0]
+                         *
+                         self.stamp_statistics_config['fraction'])
+            x_size = int(image.shape[1]
+                         *
+                         self.stamp_statistics_config['fraction'])
+            x_off = (image.shape[1] - x_size) // 2
+            y_off = (image.shape[0] - y_size) // 2
+            num_saturated = numpy.bitwise_and(
+                mask[y_off : y_off + y_size, x_off : x_off + x_size],
+                numpy.bitwise_or(
+                    mask_flags['OVERSATURATED'],
+                    numpy.bitwise_or(
+                        mask_flags['LEAKED'],
+                        mask_flags['SATURATED']
+                    )
+                )
+            ).astype(bool).sum()
+
+            if (
+                    num_saturated
+                    >
+                    (
+                        self.stamp_select_config['max_saturated_fraction']
+                        *
+                        (x_size * y_size)
+                    )
+            ):
+                stamp_statistics[frame_index] = numpy.nan, numpy.nan, numpy.nan
+            else:
+                smooth_stamp = self.stamp_statistics_config['smoother'].detrend(
+                    image[y_off : y_off + y_size, x_off : x_off + x_size]
+                )
+                stamp_statistics[frame_index] = iterative_rejection_average(
+                    smooth_stamp.flatten(),
+                    average_func=self.stamp_statistics_config['average'],
+                    max_iter=self.stamp_statistics_config['max_iter'],
+                    outlier_threshold=(
+                        self.stamp_statistics_config['outlier_threshold']
+                    ),
+                    mangle_input=True
+                )
+
+        stamp_statistics['variance'] = (
+            numpy.square(stamp_statistics['variance'])
+            *
+            (stamp_statistics['num_averaged'] - 1)
+        )
+        return stamp_statistics
 
     def __init__(self,
                  *,
@@ -315,12 +341,14 @@ class MasterFlatMaker(MasterMaker):
             self.stamp_statistics_config['max_iter'] = max_iter
 
         if average is not None:
-            assert average in ['mean', 'median']
-            self.stamp_statistics_config.average = average
+            assert average in [numpy.nanmean, numpy.nanmedian]
+            self.stamp_statistics_config['average'] = average
 
     def configure_stamp_selection(self,
                                   *,
                                   max_saturated_fraction=None,
+                                  var_mean_fit_threshold=None,
+                                  var_mean_fit_iterations=None,
                                   cloudy_night_threshold=None,
                                   cloudy_frame_threshold=None,
                                   min_high_mean=None,
@@ -333,11 +361,12 @@ class MasterFlatMaker(MasterMaker):
                 allowed to be saturated before discarding the frame.
 
             cloudy_night_threshold:    The maximum residual of the variance vs
-                mean quadratic fit before a night is declared cloudy.
+                mean quadratic fit before a night is declared cloudy. If None,
+                this check is disabled.
 
-            cloudy_frame_threshold:    The maximum deviation of an individual
-                frame's variance vs mean from the var(mean) quadratic fit before
-                the frame is declared cloudy.
+            cloudy_frame_threshold:    The maximum deviation in units of the RMS
+                residual of the fit an individual frame's variance vs mean from
+                the var(mean) quadratic fit before the frame is declared cloudy.
 
             min_high_mean:    The minimum mean of the stamp pixels in order to
                 consider the frame high intensity.
@@ -354,6 +383,22 @@ class MasterFlatMaker(MasterMaker):
             assert isinstance(max_saturated_fraction, (int, float))
             self.stamp_select_config['max_saturated_fraction'] = (
                 max_saturated_fraction
+            )
+
+        if var_mean_fit_threshold is not None:
+            assert isinstance(var_mean_fit_threshold, (int, float))
+            self.stamp_select_config['var_mean_fit_threshold'] = (
+                var_mean_fit_threshold
+            )
+
+        if var_mean_fit_iterations is not None:
+            assert (
+                not numpy.isfinite(var_mean_fit_iterations)
+                or
+                isinstance(var_mean_fit_iterations, int)
+            )
+            self.stamp_select_config['var_mean_fit_iterations'] = (
+                var_mean_fit_iterations
             )
 
         if cloudy_night_threshold is not None:
@@ -375,3 +420,95 @@ class MasterFlatMaker(MasterMaker):
         if max_low_mean is not None:
             assert isinstance(max_low_mean, (int, float))
             self.stamp_select_config['max_low_mean'] = max_low_mean
+
+    def __call__(self,
+                 frame_list,
+                 high_master_fname,
+                 low_master_fname,
+                 *,
+                 compress=True,
+                 allow_overwrite=False,
+                 **stacking_options):
+        """
+        Attempt to create high & low master flat from the given frames.
+
+        Args:
+            frame_list:    A list of the frames to create the masters from
+                (FITS filenames).
+
+            high_master_fname:    The filename to save the generated high
+                intensity master flat if one is successfully created.
+
+            low_master_fname:    The filename to save the generated low
+                intensity master flat if one is successfully created.
+
+            compress:    Should the final result be compressed?
+
+            allow_overwrite:    See same name argument
+                to superphot_pipeline.image_calibration.fits_util.create_result.
+
+            stacking_options:    Keyword only arguments allowing overriding the
+                stacking configuration specified at construction for this
+                stack only.
+
+        Reutrns:
+            None
+        """
+
+        stamp_statistics = self._get_stamp_statistics(frame_list)
+
+        if(
+                self.stamp_select_config['cloudy_night_threshold'] is not None
+                or
+                self.stamp_select_config['cloudy_frame_threshold'] is not None
+        ):
+            fit_coef, residual, best_fit_variance = iterative_rej_polynomial_fit(
+                x=stamp_statistics['mean'],
+                y=stamp_statistics['variance'],
+                order=2,
+                outlier_threshold=self.stamp_select_config[
+                    'var_mean_fit_threshold'
+                ],
+                max_iterations=self.stamp_select_config[
+                    'var_mean_fit_iterations'
+                ],
+                return_predicted=True
+            )
+
+            print("Flat stamp pixel statistics:\n\t%50s|%10s|%10s|%10s"
+                  %
+                  ("frame", "mean", "std", "fitstd"))
+            print("\t" + 92 * '_')
+            for fname, stat, fitvar in zip(frame_list,
+                                           stamp_statistics,
+                                           best_fit_variance):
+                print("\t%50s|%10g|%10g|%10g"
+                      %
+                      (fname,
+                       stat['mean'],
+                       stat['variance']**0.5,
+                       fitvar**0.5))
+            print("Best fit quadratic: %f + %f*m + %f*m^2; residue=%f"
+                  %
+                  (tuple(fit_coef) + (residual,)))
+
+            if(
+                    (
+                        self.stamp_select_config['cloudy_night_threshold']
+                        is not None
+                    )
+                    and
+                    (
+                        residual
+                        >
+                        self.stamp_select_config['cloudy_night_threshold']
+                    )
+            ):
+                return
+
+            if self.stamp_select_config['cloudy_frame_threshold'] is not None:
+                cloudy_stamps = (
+                    numpy.abs(stamp_statistics['variance'] - best_fit_variance)
+                    >
+                    self.stamp_select_config['cloudy_frame_threshold']
+                )

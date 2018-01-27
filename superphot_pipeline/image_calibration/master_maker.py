@@ -294,6 +294,7 @@ class MasterMaker(Processor):
     def __call__(self,
                  frame_list,
                  output_fname,
+                 *,
                  compress=True,
                  allow_overwrite=False,
                  **stacking_options):

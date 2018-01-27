@@ -122,7 +122,8 @@ def iterative_rejection_average(array,
 def iterative_rej_linear_leastsq(matrix,
                                  rhs,
                                  outlier_threshold,
-                                 max_iterations=scipy.inf):
+                                 max_iterations=scipy.inf,
+                                 return_predicted=False):
     """
     Perform linear leasts squares fit iteratively rejecting outliers.
 
@@ -142,10 +143,15 @@ def iterative_rej_linear_leastsq(matrix,
         max_iterations:    The maximum number of rejection/re-fitting iterations
             allowed. Zero for simple fit with no rejections.
 
+        return_predicted:    Should the best-fit values for the RHS be returned?
+
     Returns:
         solution:    The best fit coefficients.
 
         residual:    The root mean square residual of the latest fit iteration.
+
+        predicted:    The predicted values for the RHS. Only available if
+            `return_predicted==True`.
     """
 
     num_surviving = rhs.size
@@ -166,4 +172,44 @@ def iterative_rej_linear_leastsq(matrix,
         if not outliers.any():
             break
         iteration += 1
+    if return_predicted:
+        return fit_coef, scipy.sqrt(residual), matrix.dot(fit_coef)
     return fit_coef, scipy.sqrt(residual)
+
+#x and y are perfectly readable arguments for a fitting function.
+#pylint: disable=invalid-name
+def iterative_rej_polynomial_fit(x,
+                                 y,
+                                 order,
+                                 *leastsq_args,
+                                 **leastsq_kwargs):
+    """
+    Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.
+
+    Args:
+        x:    The x (independent variable) in the polynomial.
+
+        y:    The value predicted by the polynomial (y).
+
+        order:    The maximum power of x term to include in the polynomial
+            expansion.
+
+        leastsq_args:    Passed directly to iterative_rej_linear_leastsq().
+        leastsq_kwargs:    Passed directly to iterative_rej_linear_leastsq().
+
+    Returns:
+        solution:    See iterative_rej_linear_leastsq()
+
+        residual:    See iterative_rej_linear_leastsq()
+    """
+
+    matrix = scipy.empty((x.size, order+1))
+    matrix[:, 0] = 1.0
+    for column in range(1, order + 1):
+        matrix[:, column] = matrix[:, column - 1] * x
+
+    return iterative_rej_linear_leastsq(matrix,
+                                        y,
+                                        *leastsq_args,
+                                        **leastsq_kwargs)
+#pylint: enable=invalid-name
