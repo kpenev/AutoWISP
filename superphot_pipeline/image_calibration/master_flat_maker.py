@@ -23,6 +23,11 @@ class MasterFlatMaker(MasterMaker):
         min_pointing_separation:    The minimum separation in pointing between
             flats to avoid overlapping stars.
 
+        min_number_combine:    The minimum number of flats to combine in a
+            master. Dictionary with keys `'high'` and `'low'` for the high and
+            low intensity master respectively. If fewer than this are available,
+            the corresponding master will not be generated.
+
         stamp_statistics_config:    Dictionary configuring how stamps statistics
             for stamp-based selection are extracted from the frames.
 
@@ -43,6 +48,9 @@ class MasterFlatMaker(MasterMaker):
         large_scale_deviation_threshold:    The threshold on the cloud-check
             image for considering the frame cloudy (in addition to stamp-based
             cloud detection).
+
+        master_stack_config:    Dictionary configuring how to stack the
+            individual frames into a master.
 
     Examples:
 
@@ -135,9 +143,41 @@ class MasterFlatMaker(MasterMaker):
         >>>     zoom_interp_order=3
         >>> )
 
+        >>> #When stacking masters require:
+        >>> #  * At least 10 input frames for a high intensity master and at
+        >>> #    least 5 for a low intensity one.
+        >>> #  * When creating the stack used to match large-scale structure,
+        >>> #    use median averaging with outlier rejection of more than
+        >>> #    4-sigma outliers with at most one reject/re-fit iteration.
+        >>> #  * When creating the final master use median averaging with
+        >>> #    outlier rejection of more than 2-sigma outliers in the positive
+        >>> #    and more than 3-sigma in the negative direction with at most 2
+        >>> #    reject/re-fit iterations. Create the master compressed and
+        >>> #    raise an exception if a file with that name already exists.
+        >>> master_stack_config = dict(
+        >>>     min_high_combine=10,
+        >>>     min_low_combine=5,
+        >>>     large_scale_stack_options=dict(
+        >>>         outlier_threshold=4,
+        >>>         average_func=numpy.nanmedian,
+        >>>         min_valid_values=3,
+        >>>         max_iter=1
+        >>>     ),
+        >>>     master_stack_options=dict(
+        >>>         outlier_threshold=(2, -3),
+        >>>         average_func=numpy.nanmedian,
+        >>>         min_valid_values=3,
+        >>>         max_iter=2,
+        >>>         compress=True,
+        >>>         allow_overwrite=False
+        >>>     )
+        >>> )
+
         >>> #Create an object for stacking calibrated flat frames to master
         >>> #flats. In addition to the stamp-based rejections:
         >>> #  * reject flats that point within 40 arcsec of each other on the sky.
+        >>> #  * Require at least 10 frames to be combined into a high master
+        >>> #    and at least 5 for a low master.
         >>> #  * if the smoothed cloud-check image contains pixels with absolute
         >>> #    value > 5% the frame is discarded as cloudy.
         >>> make_master_flat = MasterFlatMaker(
@@ -146,7 +186,8 @@ class MasterFlatMaker(MasterMaker):
         >>>     stamp_statistics_config=stamp_statistics_config,
         >>>     stamp_select_config=stamp_select_config,
         >>>     large_scale_smoother=large_scale_smoother,
-        >>>     cloud_check_smoother=cloud_check_smoother
+        >>>     cloud_check_smoother=cloud_check_smoother,
+        >>>     master_stack_config=master_stack_config
         >>> )
 
         >>> #Create master flat(s) from the given raw flat frames. Note that
@@ -357,7 +398,7 @@ class MasterFlatMaker(MasterMaker):
             colocated:    The list of frames which have at least one other
                 frame too close in pointing to them.
         """
-        
+
         frame_pointings = [get_pointing_from_header(f) for f in frame_list]
         colocated = numpy.full(len(frame_list), False)
         for reference_index, reference_pointing in enumerate(frame_pointings):
@@ -368,7 +409,7 @@ class MasterFlatMaker(MasterMaker):
                         reference_pointing.separation(
                             pointing
                         ).to('arcsec').value
-                        < 
+                        <
                         self.min_pointing_separation
                 ):
                     colocated[reference_index] = True
@@ -381,23 +422,25 @@ class MasterFlatMaker(MasterMaker):
 
     def __init__(self,
                  *,
-                 stacking_config=dict(),
                  min_pointing_separation=None,
                  large_scale_deviation_threshold=None,
                  stamp_statistics_config=None,
                  stamp_select_config=None,
                  large_scale_smoother=None,
-                 cloud_check_smoother=None):
+                 cloud_check_smoother=None,
+                 master_stack_config=None):
         """
         Create object for creating master flats out of calibrated flat frames.
 
         Args:
-            stacking_config:    The arguments to pass to MasterMaker.__init__()
-                configuring how stacking of the final set of selected and
-                prepared frames is perfcormed.
-
             min_pointing_separation:    The minimum distance between individual
                 flat pointings required for stellar PSFs not to overlap.
+
+            min_high_combine:    The minimum number of flats required to make
+                a high intensity master flat.
+
+            min_low_combine:    The minimum number of flats required to make
+                a low intensity master flat.
 
             large_scale_deviation_threshold:    The maxmimu allowed fractional
                 deviation from the largel scale structure after smoothing before
@@ -419,7 +462,7 @@ class MasterFlatMaker(MasterMaker):
             None
         """
 
-        super().__init__(**stacking_config)
+        super().__init__()
 
         self.min_pointing_separation = min_pointing_separation
         self.large_scale_deviation_threshold = large_scale_deviation_threshold
@@ -427,6 +470,7 @@ class MasterFlatMaker(MasterMaker):
         self.stamp_select_config = dict()
         self.large_scale_smoother = large_scale_smoother
         self.cloud_check_smoother = cloud_check_smoother
+        self.master_stack_config = master_stack_config
 
         if stamp_statistics_config is not None:
             self.configure_stamp_statistics(**stamp_statistics_config)
@@ -567,6 +611,7 @@ class MasterFlatMaker(MasterMaker):
             assert isinstance(max_low_mean, (int, float))
             self.stamp_select_config['max_low_mean'] = max_low_mean
 
+    #TODO: implement configuration overwrite through staicking_options
     def __call__(self,
                  frame_list,
                  high_master_fname,
@@ -598,7 +643,23 @@ class MasterFlatMaker(MasterMaker):
                 stack only.
 
         Reutrns:
-            None
+            high_frames:    All entries from `frame_list` which were deemed
+                suitable for inclusion in a master high flat.
+
+            low_frames:    All entries from `frame_list` which were deemed
+                suitable for inclusion in a master low flat.
+
+            medium_frames:    All entries from `frame_list` which were of
+                intermediate intensity and thus not included in any master, but
+                for which no issues were detected.
+
+            colocated:    All entries from `frame_list` which were excluded
+                because they were not sufficiently isolated from their
+                closest neighbor to guarantee that stars do not overlap.
+
+            cloudy:    All entries from `frame_list` which were flagged as
+                cloudy either based on their stamps or on the final full-frame
+                cloud check.
         """
 
         isolated, colocated = self._find_colocated(frame_list)
@@ -609,7 +670,25 @@ class MasterFlatMaker(MasterMaker):
         high_frames, low_frames, medium_frames, cloudy_frames = (
             self._classify_from_stamps(isolated)
         )
-        print('High flats:\n\t' + '\n\t'.join(high_frames))
-        print('Low flats:\n\t' + '\n\t'.join(low_frames))
-        print('Medium flats:\n\t' + '\n\t'.join(medium_frames))
-        print('Cloudy flats:\n\t' + '\n\t'.join(cloudy_frames))
+        print('High flats (%d):\n\t' % len(high_frames)
+              +
+              '\n\t'.join(high_frames))
+        print('Low flats (%d):\n\t' % len(low_frames) + '\n\t'.join(low_frames))
+        print('Medium flats (%d):\n\t' % len(medium_frames)
+              +
+              '\n\t'.join(medium_frames))
+        print('Cloudy flats (%d):\n\t' % len(cloudy_frames)
+              +
+              '\n\t'.join(cloudy_frames))
+
+        if len(high_frames) >= self.master_stack_config['min_high_combine']:
+            master_large_scale = dict()
+            (
+                master_large_scale['values'],
+                master_large_scale['stdev'],
+                master_large_scale['mask'],
+                master_large_scale['header']
+            ) = self.stack(
+                high_frames,
+                **self.master_stack_config['large_scale_stack_options']
+            )

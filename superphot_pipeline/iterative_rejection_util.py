@@ -30,7 +30,9 @@ def iterative_rejection_average(array,
 
         outlier_threshold:    Outliers are defined as outlier_threshold * (root
             maen square deviation around the average). Non-finite values are
-            always outliers.
+            always outliers. This value could also be a 2-tuple with one
+            positive and one negative entry, specifying the thresholds in the
+            positive and negative directions separately.
 
         average_func:    A function which returns the average to compute (e.g.
             scipy.nanmean or scipy.nanmedian), must ignore nan values.
@@ -66,19 +68,31 @@ def iterative_rejection_average(array,
 
     working_array = (array if mangle_input else scipy.copy(array))
 
-    threshold2 = outlier_threshold**2
+    if isinstance(outlier_threshold, (float, int)):
+        threshold_plus = outlier_threshold
+        threshold_minus = -outlier_threshold
+    else:
+        assert len(outlier_threshold) == 2
+        assert outlier_threshold[0] * outlier_threshold[1] < 0
+        if outlier_threshold[0] > 0:
+            threshold_plus, threshold_minus = outlier_threshold
+        else:
+            threshold_minus, threshold_plus = outlier_threshold
 
     iteration = 0
     found_outliers = True
     while found_outliers and iteration < max_iter:
         average = average_func(working_array, axis=axis, keepdims=True)
-
-        square_difference = scipy.square(working_array - average)
-        outliers = (
-            square_difference
-            >
-            threshold2 * scipy.mean(square_difference, axis=axis, keepdims=True)
+        difference = working_array - average
+        rms = scipy.sqrt(
+            scipy.mean(
+                scipy.square(difference),
+                axis=axis,
+                keepdims=True
+            )
         )
+        outliers = scipy.logical_or(difference < threshold_minus * rms,
+                                    difference > threshold_plus * rms)
 
         found_outliers = scipy.any(outliers)
 
