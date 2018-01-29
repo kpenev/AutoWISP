@@ -175,7 +175,14 @@ class SeparableLinearImageSmoother(ImageSmoother):
         """
         Return matrix giving flattened smooth image when applied to fit params.
 
-        Args:    See __init__().
+        Args:
+             num_x_terms:    See same name argument to _apply_smoothing().
+
+             num_y_terms:    See same name argument to _apply_smoothing().
+
+             x_resolution:    The number of image columns.
+
+             y_resolution:    The number of image rows.
 
         Returns:
             matrix:    An (x_res * y_res) by (num_x_terms * num_y_terms) matrix
@@ -208,15 +215,13 @@ class SeparableLinearImageSmoother(ImageSmoother):
         Define the default smoothing configuration (overwritable on use).
 
         Args:
-            num_x_terms:    The number of parameters of the x
-                smoothing function.
+             num_x_terms:    See same name argument to _apply_smoothing().
 
-            num_y_terms:    The number of parameters of the y
-                smoothing function.
+             num_y_terms:    See same name argument to _apply_smoothing().
 
-            y_resolution:    The y-resolution of the image being smoothed.
+             outlier_threshold:    See same name argument to _apply_smoothing().
 
-            x_resolution:    The x-resolution of the image being smoothed.
+             max_iterations:    See same name argument to _apply_smoothing().
 
             kwargs:    Any arguments to pass to parent's __init__.
 
@@ -244,6 +249,20 @@ class SeparableLinearImageSmoother(ImageSmoother):
 
         Args:
             image:    The image to smooth.
+
+            num_x_terms:    The number of parameters of the x
+                smoothing function.
+
+            num_y_terms:    The number of parameters of the y
+                smoothing function.
+
+            outlier_threshold:    The threshold for discarding pixel values as
+                being outliers. See same name argument
+                to iterative_rej_linear_leastsq().
+
+            max_iterations:    The maximum number of reject/re-fit iterations
+                allowed. See same name argument
+                to iterative_rej_linear_leastsq().
 
         Returns:
             smooth_image:    The best approximation of the input image possible

@@ -201,8 +201,8 @@ class MasterFlatMaker(MasterMaker):
 
         Returns:
             stamp_statistics:    A structure numpy array with fields called
-                `'mean'`, `'variance'` and `'num_averaged'` with the obvious
-                meanings.
+                `'mean'`, `'variance'` and `'num_averaged'` with the
+                obvious meanings.
         """
 
         stamp_statistics = numpy.empty(
@@ -381,7 +381,7 @@ class MasterFlatMaker(MasterMaker):
             frame_list:    A list of the frames to create the masters from
                 (FITS filenames).
 
-        Returns;
+        Returns:
             isolated:    The ist of frames sufficiently far in pointing from all
                 other frames.
 
@@ -602,8 +602,8 @@ class MasterFlatMaker(MasterMaker):
                 dictionary, this is just `image`. Otherwise, `image` is
                 transformed to have the same large scale structure as
                 `self._master_large_scale`, while the small scale structure is
-                preserved. Image is also checked for clouds, and discarded if
-                cloudy.
+                preserved. Image is also checked for clouds, and discarded
+                if cloudy.
         """
 
         if not self._master_large_scale:

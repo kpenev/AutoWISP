@@ -37,10 +37,10 @@ def iterative_rejection_average(array,
         average_func:    A function which returns the average to compute (e.g.
             scipy.nanmean or scipy.nanmedian), must ignore nan values.
 
-        axis:    The axis along which to compute the average.
-
         max_iter:    The maximum number of rejection - re-fitting iterations
             to perform.
+
+        axis:    The axis along which to compute the average.
 
         require_convergence:    If the maximum number of iterations is reached
             and still there are entries that should be rejected this argument
@@ -205,10 +205,11 @@ def iterative_rej_polynomial_fit(x,
 
         y:    The value predicted by the polynomial (y).
 
-        order:    The maximum power of x term to include in the polynomial
-            expansion.
+        order:    The maximum power of x term to include in the 
+            polynomial expansion.
 
         leastsq_args:    Passed directly to iterative_rej_linear_leastsq().
+
         leastsq_kwargs:    Passed directly to iterative_rej_linear_leastsq().
 
     Returns:

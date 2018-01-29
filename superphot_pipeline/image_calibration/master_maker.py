@@ -204,13 +204,13 @@ class MasterMaker(Processor):
                 for each pixel. If outlier rejection or masks results in fewer
                 than this, the corresponding pixel gets a bad pixel mask.
 
+            max_iter:    See same name argument to
+                `iterative_rejection_util.iterative_rejection_average`
+
             exclude_mask:    A bitwise or of mask flags, any of which result in
                 the corresponding pixels being excluded from the averaging.
                 Other mask flags in the input frames are ignored, treated
                 as clean.
-
-            max_iter:    See same name argument to
-                `iterative_rejection_util.iterative_rejection_average`
 
         Returns:
             master_values:    The best estimate for the values of the maseter at

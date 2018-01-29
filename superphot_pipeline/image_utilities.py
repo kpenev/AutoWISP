@@ -168,9 +168,6 @@ def bin_image(image, bin_factor):
             in both directions, or a pair of integers, specifying different
             binnin in each direction.
 
-        mode:    How to pad the image in order to ensure an integer number of
-            bins. See mode argument to numpy.pad.
-
     Returns:
         binned_image:    The binned image with a resolution decreased by the
             binning factor for each axis, which has the same total flux as the
@@ -204,8 +201,8 @@ def get_pointing_from_header(frame):
             following formats:
               * string: the filanema of a FITS frame. The pointing information
                   is extracted from the header of the first non-trivial HDU.
-              * HDUList: Same as above, only this time the file is already
-                  opened.
+              * HDUList: Same as above, only this time the file is
+                  already opened.
               * astropy.io.fits ImageHDU or TableHDU, containing the header to
                   extract the pointing information from.
               * asrtopy.io.fits.Header instance: the header from which to
