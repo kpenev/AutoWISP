@@ -129,7 +129,7 @@ def zoom_image(image, zoom, interp_order):
         return image
 
     y_res, x_res = image.shape
-    cumulative_image = scipy.empty((x_res + 1, y_res + 1))
+    cumulative_image = scipy.empty((y_res + 1, x_res + 1))
     cumulative_image[0, :] = 0
     cumulative_image[:, 0] = 0
     cumulative_image[1:, 1:] = scipy.cumsum(scipy.cumsum(image, axis=0), axis=1)
@@ -167,6 +167,9 @@ def bin_image(image, bin_factor):
         bin_factor:    Either a single integer in which case this is the binning
             in both directions, or a pair of integers, specifying different
             binnin in each direction.
+
+        mode:    How to pad the image in order to ensure an integer number of
+            bins. See mode argument to numpy.pad.
 
     Returns:
         binned_image:    The binned image with a resolution decreased by the

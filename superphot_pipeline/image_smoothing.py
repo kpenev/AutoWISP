@@ -43,8 +43,8 @@ class ImageSmoother(ABC):
         Set default pre-shrink/post-zoom bin factor and interpolation order.
 
         Args:
-            kwargs:    All arguments except bin_factor and interp_order (see
-                smooth()) are ignored.
+            kwargs:    All arguments except bin_factor, interp_order and padding
+                mode(see smooth()) are ignored.
 
         Returns:
             None
@@ -52,12 +52,14 @@ class ImageSmoother(ABC):
 
         self.bin_factor = kwargs.get('bin_factor', None)
         self.zoom_interp_order = kwargs.get('zoom_interp_order', None)
+        self.padding_mode = kwargs.get('padding_mode', None)
 
     def smooth(self,
                image,
                *,
                bin_factor=None,
                zoom_interp_order=None,
+               padding_mode='reflect',
                **kwargs):
         """
         Sandwich smoothing between initial binning and final zoom.
@@ -76,6 +78,9 @@ class ImageSmoother(ABC):
                 construction is used, otherwise this value applies for this
                 image only.
 
+            padding_mode:    How to pad the image to have an integer number of
+                bins, if pre-binning and post-zooming is used.
+
             kwargs:    Any arguments configuring how smoothing is to
                 be performed.
 
@@ -91,7 +96,19 @@ class ImageSmoother(ABC):
         if bin_factor is None or zoom_interp_order is None:
             return self._apply_smoothing(image, **kwargs)
 
-        return zoom_image(
+        y_res, x_res = image.shape
+
+        if x_res % bin_factor != 0 or y_res % bin_factor != 0:
+            y_padding = int(scipy.ceil(y_res / bin_factor)) * bin_factor - y_res
+            x_padding = int(scipy.ceil(x_res / bin_factor)) * bin_factor - x_res
+            left_padding = x_padding // 2
+            bottom_padding = y_padding // 2
+            image = scipy.pad(image,
+                              ((bottom_padding, y_padding - bottom_padding),
+                               (left_padding, x_padding - left_padding)),
+                              mode=(padding_mode or self.padding_mode))
+
+        smooth_image = zoom_image(
             self._apply_smoothing(
                 bin_image(image, bin_factor),
                 **kwargs
@@ -99,6 +116,12 @@ class ImageSmoother(ABC):
             bin_factor,
             zoom_interp_order
         )
+        if x_res % bin_factor == 0 and y_res % bin_factor == 0:
+            return smooth_image
+
+
+        return smooth_image[bottom_padding : bottom_padding + y_res,
+                            left_padding : left_padding + x_res]
 
     def detrend(self, image, **kwargs):
         """De-trend the input image by its smooth version (see smooth)."""
@@ -290,7 +313,10 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
     """Smooth image is modeled as a product of cubic splines in x and y."""
 
     @staticmethod
-    def get_spline_pixel_integrals(node_index, resolution, num_nodes):
+    def get_spline_pixel_integrals(node_index,
+                                   resolution,
+                                   num_nodes,
+                                   spline_degree):
         """
         Return the integrals over one pixel dimension of a basis spline.
 
@@ -309,6 +335,8 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                 to have a dimension of `num_nodes - 1` and nodes are set at
                 integer values.
 
+            spline_degree:    The degree of the spline to use.
+
         Returns:
              integrals:    A 1-D scipy array with the i-th entry being the
                 integral of the spline over the i-th pixel.
@@ -318,7 +346,8 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         interp_y[node_index] = 1.0
         integrate = scipy.interpolate.InterpolatedUnivariateSpline(
             scipy.arange(num_nodes),
-            interp_y
+            interp_y,
+            k=spline_degree
         ).antiderivative()
         cumulative_integrals = integrate(scipy.arange(resolution + 1)
                                          *
@@ -337,7 +366,8 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
 
         return self.get_spline_pixel_integrals(param_ind,
                                                x_resolution,
-                                               self.num_x_nodes)
+                                               self.num_x_nodes,
+                                               self.spline_degree)
 
     def get_y_pixel_integrals(self, param_ind, y_resolution):
         """
@@ -351,12 +381,14 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
 
         return self.get_spline_pixel_integrals(param_ind,
                                                y_resolution,
-                                               self.num_y_nodes)
+                                               self.num_y_nodes,
+                                               self.spline_degree)
 
     def __init__(self,
                  *,
                  num_x_nodes=None,
                  num_y_nodes=None,
+                 spline_degree=3,
                  **kwargs):
         """
         Set-up spline interpolation with the given number of nodes.
@@ -379,6 +411,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                          **kwargs)
         self.num_x_nodes = num_x_nodes
         self.num_y_nodes = num_y_nodes
+        self.spline_degree = spline_degree
 
     #Different parameters are deliberate
     #pylint: disable=arguments-differ

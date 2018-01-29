@@ -20,14 +20,6 @@ class MasterFlatMaker(MasterMaker):
     Specialize MasterMaker for making master flat frames.
 
     Attrs:
-        min_pointing_separation:    The minimum separation in pointing between
-            flats to avoid overlapping stars.
-
-        min_number_combine:    The minimum number of flats to combine in a
-            master. Dictionary with keys `'high'` and `'low'` for the high and
-            low intensity master respectively. If fewer than this are available,
-            the corresponding master will not be generated.
-
         stamp_statistics_config:    Dictionary configuring how stamps statistics
             for stamp-based selection are extracted from the frames.
 
@@ -44,10 +36,6 @@ class MasterFlatMaker(MasterMaker):
             performed on the full flat frames after smoothing to the master
             large scale structure. See keyword only arguments of _smooth_image
             for details.
-
-        large_scale_deviation_threshold:    The threshold on the cloud-check
-            image for considering the frame cloudy (in addition to stamp-based
-            cloud detection).
 
         master_stack_config:    Dictionary configuring how to stack the
             individual frames into a master.
@@ -155,19 +143,23 @@ class MasterFlatMaker(MasterMaker):
         >>> #    reject/re-fit iterations. Create the master compressed and
         >>> #    raise an exception if a file with that name already exists.
         >>> master_stack_config = dict(
+        >>>     min_pointing_separation=150.0,
+        >>>     large_scale_deviation_threshold=0.05,
         >>>     min_high_combine=10,
         >>>     min_low_combine=5,
         >>>     large_scale_stack_options=dict(
         >>>         outlier_threshold=4,
         >>>         average_func=numpy.nanmedian,
         >>>         min_valid_values=3,
-        >>>         max_iter=1
+        >>>         max_iter=1,
+        >>>         exclude_mask=MasterMaker.default_exclude_mask
         >>>     ),
         >>>     master_stack_options=dict(
         >>>         outlier_threshold=(2, -3),
         >>>         average_func=numpy.nanmedian,
         >>>         min_valid_values=3,
         >>>         max_iter=2,
+        >>>         exclude_mask=MasterMaker.default_exclude_mask,
         >>>         compress=True,
         >>>         allow_overwrite=False
         >>>     )
@@ -181,8 +173,6 @@ class MasterFlatMaker(MasterMaker):
         >>> #  * if the smoothed cloud-check image contains pixels with absolute
         >>> #    value > 5% the frame is discarded as cloudy.
         >>> make_master_flat = MasterFlatMaker(
-        >>>     min_pointing_separation=40.0,
-        >>>     large_scale_deviation_threshold=0.05,
         >>>     stamp_statistics_config=stamp_statistics_config,
         >>>     stamp_select_config=stamp_select_config,
         >>>     large_scale_smoother=large_scale_smoother,
@@ -410,7 +400,7 @@ class MasterFlatMaker(MasterMaker):
                             pointing
                         ).to('arcsec').value
                         <
-                        self.min_pointing_separation
+                        self.master_stack_config['min_pointing_separation']
                 ):
                     colocated[reference_index] = True
                     colocated[index + reference_index + 1] = True
@@ -422,8 +412,6 @@ class MasterFlatMaker(MasterMaker):
 
     def __init__(self,
                  *,
-                 min_pointing_separation=None,
-                 large_scale_deviation_threshold=None,
                  stamp_statistics_config=None,
                  stamp_select_config=None,
                  large_scale_smoother=None,
@@ -433,19 +421,6 @@ class MasterFlatMaker(MasterMaker):
         Create object for creating master flats out of calibrated flat frames.
 
         Args:
-            min_pointing_separation:    The minimum distance between individual
-                flat pointings required for stellar PSFs not to overlap.
-
-            min_high_combine:    The minimum number of flats required to make
-                a high intensity master flat.
-
-            min_low_combine:    The minimum number of flats required to make
-                a low intensity master flat.
-
-            large_scale_deviation_threshold:    The maxmimu allowed fractional
-                deviation from the largel scale structure after smoothing before
-                a frame is declared cloudy.
-
             stamp_statistics_config:    A dictionary mith arguments to pass
                 to configure_stamp_statistics.
 
@@ -458,14 +433,16 @@ class MasterFlatMaker(MasterMaker):
             cloud_check_smoother:    An ImageSmoother instance used when checkng
                 the full frames for clouds (after stamps are checked).
 
+            master_stack_config:    Configuration of how to stack frames to a
+                master after matching their large scale structure. See
+                example in class doc-string for details.
+
         Returns:
             None
         """
 
         super().__init__()
 
-        self.min_pointing_separation = min_pointing_separation
-        self.large_scale_deviation_threshold = large_scale_deviation_threshold
         self.stamp_statistics_config = dict()
         self.stamp_select_config = dict()
         self.large_scale_smoother = large_scale_smoother
@@ -477,6 +454,8 @@ class MasterFlatMaker(MasterMaker):
 
         if stamp_select_config is not None:
             self.configure_stamp_selection(**stamp_select_config)
+
+        self._master_large_scale = dict()
 
     def configure_stamp_statistics(self,
                                    *,
@@ -611,6 +590,42 @@ class MasterFlatMaker(MasterMaker):
             assert isinstance(max_low_mean, (int, float))
             self.stamp_select_config['max_low_mean'] = max_low_mean
 
+    def prepare_for_stacking(self, image):
+        """
+        Match image large scale to `self._master_large_scale` if not empty.
+
+        Args:
+            image:    The image to transform large scale structure of.
+
+        Returns:
+            stack_image:    If `self._master_large_scale` is an empty
+                dictionary, this is just `image`. Otherwise, `image` is
+                transformed to have the same large scale structure as
+                `self._master_large_scale`, while the small scale structure is
+                preserved. Image is also checked for clouds, and discarded if
+                cloudy.
+        """
+
+        if not self._master_large_scale:
+            return image
+
+        corrected_image = image * self.large_scale_smoother.smooth(
+            self._master_large_scale['values'] / image
+        )
+        max_abs_deviation = numpy.abs(
+            self.cloud_check_smoother.smooth(
+                corrected_image / self._master_large_scale['values'] - 1.0
+            )
+        ).max()
+        if (
+                max_abs_deviation
+                >
+                self.master_stack_config['large_scale_deviation_threshold']
+        ):
+            return None
+
+        return corrected_image
+
     #TODO: implement configuration overwrite through staicking_options
     def __call__(self,
                  frame_list,
@@ -643,52 +658,90 @@ class MasterFlatMaker(MasterMaker):
                 stack only.
 
         Reutrns:
-            high_frames:    All entries from `frame_list` which were deemed
-                suitable for inclusion in a master high flat.
+            frames:    A dictionary splitting the input list of frames into:
+                high:    All entries from `frame_list` which were deemed
+                    suitable for inclusion in a master high flat.
 
-            low_frames:    All entries from `frame_list` which were deemed
-                suitable for inclusion in a master low flat.
+                low:    All entries from `frame_list` which were deemed
+                    suitable for inclusion in a master low flat.
 
-            medium_frames:    All entries from `frame_list` which were of
-                intermediate intensity and thus not included in any master, but
-                for which no issues were detected.
+                medium:    All entries from `frame_list` which were of
+                    intermediate intensity and thus not included in any master,
+                    but for which no issues were detected.
 
-            colocated:    All entries from `frame_list` which were excluded
-                because they were not sufficiently isolated from their
-                closest neighbor to guarantee that stars do not overlap.
+                colocated:    All entries from `frame_list` which were
+                    excluded because they were not sufficiently isolated from
+                    their closest neighbor to guarantee that stars do
+                    not overlap.
 
-            cloudy:    All entries from `frame_list` which were flagged as
-                cloudy either based on their stamps or on the final full-frame
-                cloud check.
+                cloudy:    All entries from `frame_list` which were flagged
+                    as cloudy either based on their stamps or on the final
+                    full-frame cloud check.
         """
 
-        isolated, colocated = self._find_colocated(frame_list)
+        frames = dict()
+        isolated_frames, frames['colocated'] = self._find_colocated(frame_list)
 
-        print('Isolated:\n\t' + '\n\t'.join(isolated))
-        print('Colocated:\n\t' + '\n\t'.join(colocated))
+        print('Isolated:\n\t' + '\n\t'.join(isolated_frames))
+        print('Colocated:\n\t' + '\n\t'.join(frames['colocated']))
 
-        high_frames, low_frames, medium_frames, cloudy_frames = (
-            self._classify_from_stamps(isolated)
+        frames['high'], frames['low'], frames['medium'], frames['cloudy'] = (
+            self._classify_from_stamps(isolated_frames)
         )
-        print('High flats (%d):\n\t' % len(high_frames)
-              +
-              '\n\t'.join(high_frames))
-        print('Low flats (%d):\n\t' % len(low_frames) + '\n\t'.join(low_frames))
-        print('Medium flats (%d):\n\t' % len(medium_frames)
-              +
-              '\n\t'.join(medium_frames))
-        print('Cloudy flats (%d):\n\t' % len(cloudy_frames)
-              +
-              '\n\t'.join(cloudy_frames))
 
-        if len(high_frames) >= self.master_stack_config['min_high_combine']:
-            master_large_scale = dict()
+        print('Stamp frame classification:')
+        for key, filenames in frames.items():
+            print('\t%s (%d):\n\t\t' % (key, len(filenames))
+                  +
+                  '\n\t\t'.join(filenames))
+
+        if len(frames['high']) >= self.master_stack_config['min_high_combine']:
+            self._master_large_scale = dict()
             (
-                master_large_scale['values'],
-                master_large_scale['stdev'],
-                master_large_scale['mask'],
-                master_large_scale['header']
+                self._master_large_scale['values'],
+                self._master_large_scale['stdev'],
+                self._master_large_scale['mask'],
+                self._master_large_scale['header'],
+                discarded_frames
             ) = self.stack(
-                high_frames,
+                frames['high'],
+                min_valid_frames=self.master_stack_config['min_high_combine'],
                 **self.master_stack_config['large_scale_stack_options']
             )
+            assert not discarded_frames
+
+            more_cloudy_frames = super().__call__(
+                frames['high'],
+                high_master_fname,
+                min_valid_frames=self.master_stack_config['min_high_combine'],
+                **self.master_stack_config['master_stack_options']
+            )
+            frames['cloudy'].extend(more_cloudy_frames)
+            for frame in more_cloudy_frames:
+                frames['high'].remove(frame)
+
+            if len(frames['low']) > self.master_stack_config['min_low_combine']:
+                more_cloudy_frames = super().__call__(
+                    frames['low'],
+                    low_master_fname,
+                    min_valid_frames=(
+                        self.master_stack_config['min_low_combine']
+                    ),
+                    **self.master_stack_config['master_stack_options']
+                )
+                frames['cloudy'].extend(more_cloudy_frames)
+                for frame in more_cloudy_frames:
+                    frames['low'].remove(frame)
+            else:
+                print(('Skipping low master flat since only %d frames remain, '
+                       'but %d are required')
+                      %
+                      (len(frames['low']),
+                       self.master_stack_config['min_low_combine']))
+
+        print('Final frame classification:')
+        for key, filenames in frames.items():
+            print('\t%s (%d):\n\t\t' % (key, len(filenames))
+                  +
+                  '\n\t\t'.join(filenames))
+        return frames
