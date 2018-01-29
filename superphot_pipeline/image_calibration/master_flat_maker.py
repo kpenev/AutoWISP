@@ -626,7 +626,8 @@ class MasterFlatMaker(MasterMaker):
 
         return corrected_image
 
-    #TODO: implement configuration overwrite through staicking_options
+    #TODO: implement configuration overwrite through staicking_options.
+    #TODO: implement full header documentation.
     def __call__(self,
                  frame_list,
                  high_master_fname,
