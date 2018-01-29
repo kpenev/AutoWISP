@@ -1,6 +1,8 @@
 """A collection of functions for working with pipeline images."""
 
+from os.path import exists
 from astropy.io import fits
+from astropy.coordinates import SkyCoord
 
 import scipy
 import scipy.interpolate
@@ -189,3 +191,47 @@ def bin_image(image, bin_factor):
                           y_bin_factor,
                           x_res // x_bin_factor,
                           x_bin_factor)).sum(-1).sum(1)
+
+def get_pointing_from_header(frame):
+    """
+    Return the sky coordinates of this frame's pointing per its header.
+
+    Args:
+        frame:    The frame to return the pointing of. Could be in one of the
+            following formats:
+              * string: the filanema of a FITS frame. The pointing information
+                  is extracted from the header of the first non-trivial HDU.
+              * HDUList: Same as above, only this time the file is already
+                  opened.
+              * astropy.io.fits ImageHDU or TableHDU, containing the header to
+                  extract the pointing information from.
+              * asrtopy.io.fits.Header instance: the header from which to
+                  extract the pointing information.
+
+    Returns:
+        pointing:    An instance of astropy.coordinates.SkyCoord containing the
+            frame pointing information contained in the header.
+    """
+
+    try:
+        if exists(frame):
+            with fits.open(frame) as hdulist:
+                return get_pointing_from_header(hdulist)
+    except TypeError:
+        pass
+
+    if isinstance(frame, fits.HDUList):
+        for hdu in frame:
+            if hdu.data is not None:
+                return get_pointing_from_header(hdu.header)
+        raise BadImageError('FITS file '
+                            +
+                            repr(frame.filename)
+                            +
+                            ' contains only trivial HDUs')
+
+    if hasattr(frame, 'header'):
+        return get_pointing_from_header(frame.header)
+
+    assert isinstance(frame, fits.Header)
+    return SkyCoord(ra=frame['ra'] * 15.0, dec=frame['dec'], unit='deg')

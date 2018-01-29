@@ -5,7 +5,9 @@
 import numpy
 
 from superphot_pipeline.image_calibration.master_maker import MasterMaker
-from superphot_pipeline.image_utilities import read_image_components
+from superphot_pipeline.image_utilities import\
+    read_image_components,\
+    get_pointing_from_header
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_smoothing import\
     ImageSmoother
@@ -18,8 +20,8 @@ class MasterFlatMaker(MasterMaker):
     Specialize MasterMaker for making master flat frames.
 
     Attrs:
-        min_pointing_offset:    The minimum offset in pointing between flats to
-            avoid overlapping stars.
+        min_pointing_separation:    The minimum separation in pointing between
+            flats to avoid overlapping stars.
 
         stamp_statistics_config:    Dictionary configuring how stamps statistics
             for stamp-based selection are extracted from the frames.
@@ -139,7 +141,7 @@ class MasterFlatMaker(MasterMaker):
         >>> #  * if the smoothed cloud-check image contains pixels with absolute
         >>> #    value > 5% the frame is discarded as cloudy.
         >>> make_master_flat = MasterFlatMaker(
-        >>>     min_pointing_offset=40.0,
+        >>>     min_pointing_separation=40.0,
         >>>     large_scale_deviation_threshold=0.05,
         >>>     stamp_statistics_config=stamp_statistics_config,
         >>>     stamp_select_config=stamp_select_config,
@@ -233,10 +235,154 @@ class MasterFlatMaker(MasterMaker):
         )
         return stamp_statistics
 
+    def _classify_from_stamps(self, frame_list):
+        """
+        Classify frames by intensity: (high/low/ntermediate), or flag as cloudy.
+
+        Args:
+            frame_list:    The list of frames to create masters from.
+
+        Returns:
+            high:    The list of high intensity non-cloudy frames.
+
+            low:    The list of low intensity non-cloudy frames.
+
+            medium:    The list of medium intensity non-cloudy frames.
+
+            cloudy:    The list of frames suspected of containing clouds in
+                their central stamps.
+        """
+
+        stamp_statistics = self._get_stamp_statistics(frame_list)
+
+        if(
+                self.stamp_select_config['cloudy_night_threshold'] is not None
+                or
+                self.stamp_select_config['cloudy_frame_threshold'] is not None
+        ):
+            fit_coef, residual, best_fit_variance = iterative_rej_polynomial_fit(
+                x=stamp_statistics['mean'],
+                y=stamp_statistics['variance'],
+                order=2,
+                outlier_threshold=self.stamp_select_config[
+                    'var_mean_fit_threshold'
+                ],
+                max_iterations=self.stamp_select_config[
+                    'var_mean_fit_iterations'
+                ],
+                return_predicted=True
+            )
+
+            print("Flat stamp pixel statistics:\n\t%50s|%10s|%10s|%10s"
+                  %
+                  ("frame", "mean", "std", "fitstd"))
+            print("\t" + 92 * '_')
+            for fname, stat, fitvar in zip(frame_list,
+                                           stamp_statistics,
+                                           best_fit_variance):
+                print("\t%50s|%10g|%10g|%10g"
+                      %
+                      (fname,
+                       stat['mean'],
+                       stat['variance']**0.5,
+                       fitvar**0.5))
+            print("Best fit quadratic: %f + %f*m + %f*m^2; residue=%f"
+                  %
+                  (tuple(fit_coef) + (residual,)))
+
+            if(
+                    (
+                        self.stamp_select_config['cloudy_night_threshold']
+                        is not None
+                    )
+                    and
+                    (
+                        residual
+                        >
+                        self.stamp_select_config['cloudy_night_threshold']
+                    )
+            ):
+                return [], [], [], frame_list
+
+        high = (stamp_statistics['mean']
+                >
+                self.stamp_select_config['min_high_mean'])
+        low = (stamp_statistics['mean']
+               <
+               self.stamp_select_config['max_low_mean'])
+
+        if self.stamp_select_config['cloudy_frame_threshold'] is not None:
+            cloudy = (
+                numpy.abs(stamp_statistics['variance'] - best_fit_variance)
+                >
+                self.stamp_select_config['cloudy_frame_threshold'] * residual
+            )
+        else:
+            cloudy = False
+
+        medium = numpy.arange(len(frame_list))[
+            numpy.logical_and(
+                numpy.logical_and(
+                    numpy.logical_not(high),
+                    numpy.logical_not(low)
+                ),
+                numpy.logical_not(cloudy)
+            )
+        ]
+
+        high = numpy.arange(len(frame_list))[
+            numpy.logical_and(high, numpy.logical_not(cloudy))
+        ]
+        low = numpy.arange(len(frame_list))[
+            numpy.logical_and(low, numpy.logical_not(cloudy))
+        ]
+        cloudy = numpy.arange(len(frame_list))[cloudy]
+        return ([frame_list[i] for i in high],
+                [frame_list[i] for i in low],
+                [frame_list[i] for i in medium],
+                [frame_list[i] for i in cloudy])
+
+    def _find_colocated(self, frame_list):
+        """
+        Split the list of frames into well isolated ones and co-located ones.
+
+        Args:
+            frame_list:    A list of the frames to create the masters from
+                (FITS filenames).
+
+        Returns;
+            isolated:    The ist of frames sufficiently far in pointing from all
+                other frames.
+
+            colocated:    The list of frames which have at least one other
+                frame too close in pointing to them.
+        """
+        
+        frame_pointings = [get_pointing_from_header(f) for f in frame_list]
+        colocated = numpy.full(len(frame_list), False)
+        for reference_index, reference_pointing in enumerate(frame_pointings):
+            for index, pointing in enumerate(
+                    frame_pointings[reference_index + 1:]
+            ):
+                if (
+                        reference_pointing.separation(
+                            pointing
+                        ).to('arcsec').value
+                        < 
+                        self.min_pointing_separation
+                ):
+                    colocated[reference_index] = True
+                    colocated[index + reference_index + 1] = True
+
+        isolated = numpy.arange(len(frame_list))[numpy.logical_not(colocated)]
+        colocated = numpy.arange(len(frame_list))[colocated]
+        return ([frame_list[i] for i in isolated],
+                [frame_list[i] for i in colocated])
+
     def __init__(self,
                  *,
                  stacking_config=dict(),
-                 min_pointing_offset=None,
+                 min_pointing_separation=None,
                  large_scale_deviation_threshold=None,
                  stamp_statistics_config=None,
                  stamp_select_config=None,
@@ -250,8 +396,8 @@ class MasterFlatMaker(MasterMaker):
                 configuring how stacking of the final set of selected and
                 prepared frames is perfcormed.
 
-            min_pointing_offset:    The minimum distance between individual flat
-                pointings required for stellar PSFs not to overlap.
+            min_pointing_separation:    The minimum distance between individual
+                flat pointings required for stellar PSFs not to overlap.
 
             large_scale_deviation_threshold:    The maxmimu allowed fractional
                 deviation from the largel scale structure after smoothing before
@@ -275,7 +421,7 @@ class MasterFlatMaker(MasterMaker):
 
         super().__init__(**stacking_config)
 
-        self.min_pointing_offset = min_pointing_offset
+        self.min_pointing_separation = min_pointing_separation
         self.large_scale_deviation_threshold = large_scale_deviation_threshold
         self.stamp_statistics_config = dict()
         self.stamp_select_config = dict()
@@ -455,60 +601,15 @@ class MasterFlatMaker(MasterMaker):
             None
         """
 
-        stamp_statistics = self._get_stamp_statistics(frame_list)
+        isolated, colocated = self._find_colocated(frame_list)
 
-        if(
-                self.stamp_select_config['cloudy_night_threshold'] is not None
-                or
-                self.stamp_select_config['cloudy_frame_threshold'] is not None
-        ):
-            fit_coef, residual, best_fit_variance = iterative_rej_polynomial_fit(
-                x=stamp_statistics['mean'],
-                y=stamp_statistics['variance'],
-                order=2,
-                outlier_threshold=self.stamp_select_config[
-                    'var_mean_fit_threshold'
-                ],
-                max_iterations=self.stamp_select_config[
-                    'var_mean_fit_iterations'
-                ],
-                return_predicted=True
-            )
+        print('Isolated:\n\t' + '\n\t'.join(isolated))
+        print('Colocated:\n\t' + '\n\t'.join(colocated))
 
-            print("Flat stamp pixel statistics:\n\t%50s|%10s|%10s|%10s"
-                  %
-                  ("frame", "mean", "std", "fitstd"))
-            print("\t" + 92 * '_')
-            for fname, stat, fitvar in zip(frame_list,
-                                           stamp_statistics,
-                                           best_fit_variance):
-                print("\t%50s|%10g|%10g|%10g"
-                      %
-                      (fname,
-                       stat['mean'],
-                       stat['variance']**0.5,
-                       fitvar**0.5))
-            print("Best fit quadratic: %f + %f*m + %f*m^2; residue=%f"
-                  %
-                  (tuple(fit_coef) + (residual,)))
-
-            if(
-                    (
-                        self.stamp_select_config['cloudy_night_threshold']
-                        is not None
-                    )
-                    and
-                    (
-                        residual
-                        >
-                        self.stamp_select_config['cloudy_night_threshold']
-                    )
-            ):
-                return
-
-            if self.stamp_select_config['cloudy_frame_threshold'] is not None:
-                cloudy_stamps = (
-                    numpy.abs(stamp_statistics['variance'] - best_fit_variance)
-                    >
-                    self.stamp_select_config['cloudy_frame_threshold']
-                )
+        high_frames, low_frames, medium_frames, cloudy_frames = (
+            self._classify_from_stamps(isolated)
+        )
+        print('High flats:\n\t' + '\n\t'.join(high_frames))
+        print('Low flats:\n\t' + '\n\t'.join(low_frames))
+        print('Medium flats:\n\t' + '\n\t'.join(medium_frames))
+        print('Cloudy flats:\n\t' + '\n\t'.join(cloudy_frames))
