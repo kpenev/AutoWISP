@@ -205,7 +205,7 @@ def iterative_rej_polynomial_fit(x,
 
         y:    The value predicted by the polynomial (y).
 
-        order:    The maximum power of x term to include in the 
+        order:    The maximum power of x term to include in the
             polynomial expansion.
 
         leastsq_args:    Passed directly to iterative_rej_linear_leastsq().

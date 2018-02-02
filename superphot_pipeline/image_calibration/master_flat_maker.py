@@ -624,7 +624,7 @@ class MasterFlatMaker(MasterMaker):
         ):
             return None
 
-        return corrected_image
+        return corrected_image / corrected_image.mean()
 
     #TODO: implement configuration overwrite through staicking_options.
     #TODO: implement full header documentation.
