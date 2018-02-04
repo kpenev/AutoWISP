@@ -5,7 +5,7 @@ import numpy
 from astropy.io import fits
 
 from superphot_pipeline.image_utilities import read_image_components
-from superphot_pipeline.general_purpose_stats import iterative_rejection_average
+from superphot_pipeline.iterative_rejection_util import iterative_rejection_average
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_calibration.fits_util import create_result
 
@@ -21,6 +21,9 @@ class MasterMaker(Processor):
     Implement the simplest & fully generalizable procedure for making a master.
 
     Attrs:
+        default_exclude_mask:    The default bit-mask indicating all flags which
+            should result in a pixel being excluded from the averaging.
+
         stacking_options:    A dictionary with the default configuration of how
             to perform the stacking. The expected keys exactly match the keyword
             only arguments of the `stack_to_master` method.
@@ -28,17 +31,31 @@ class MasterMaker(Processor):
     Examples:
 
         >>> #Create an object for stacking frames to masters, overwriting the
-        >>> #default outlier threshold
-        >>> make_master = MasterMaker(outlier_threshold=10.0)
+        >>> #default outlier threshold and requiring at least 10 frames be
+        >>> #stacked
+        >>> make_master = MasterMaker(outlier_threshold=10.0,
+        >>>                           min_valid_frames=10)
 
         >>> #Stack a set of frames to a master, allowing no more than 3
         >>> #averaging/outlier rejection iterations and allowing a minimum of 3
         >>> #valid source pixels to make a master, for this master only.
-        >>> make_master(['f1.fits', 'f2.fits', 'f3.fits', 'f4.fits'],
-        >>>             'master.fits',
-        >>>             max_iter=3,
-        >>>             min_valid_values=3)
+        >>> make_master(
+        >>>     ['f1.fits.fz', 'f2.fits.fz', 'f3.fits.fz', 'f4.fits.fz'],
+        >>>     'master.fits.fz',
+        >>>     max_iter=3,
+        >>>     min_valid_values=3
+        >>> )
     """
+
+    default_exclude_mask = (mask_flags['FAULT']
+                            | mask_flags['HOT']
+                            | mask_flags['COSMIC']
+                            | mask_flags['OUTER']
+                            | mask_flags['OVERSATURATED']
+                            | mask_flags['LEAKED']
+                            | mask_flags['SATURATED']
+                            | mask_flags['BAD']
+                            | mask_flags['NAN'])
 
     @staticmethod
     def _update_stack_header(master_header,
@@ -107,11 +124,59 @@ class MasterMaker(Processor):
                                     %
                                     filename)
 
+    def __init__(self,
+                 *,
+                 outlier_threshold=5.0,
+                 average_func=numpy.nanmedian,
+                 min_valid_frames=10,
+                 min_valid_values=5,
+                 max_iter=numpy.inf,
+                 exclude_mask=default_exclude_mask):
+        """
+        Create a master maker with the given default stacking configuration.
+
+        Args:
+            See the keyword only arguments to the `stack` method.
+
+        Returns:
+            None
+        """
+
+        print('Number positional arguments: '
+              +
+              repr(self.__init__.__code__.co_argcount))
+        self.stacking_options = dict(
+            outlier_threshold=outlier_threshold,
+            average_func=average_func,
+            min_valid_frames=min_valid_frames,
+            min_valid_values=min_valid_values,
+            max_iter=max_iter,
+            exclude_mask=exclude_mask
+        )
+
+    #This method is intended to be overriden.
+    #pylint: disable=no-self-use
+    def prepare_for_stacking(self, image):
+        """
+        Override with any useful pre-processing of images before stacking.
+
+        Args:
+            image:    One of the images to include in the stack.
+
+        Returns:
+            stack_image:    The image to actually include in the stack. Return
+                None if the image should be excluded.
+        """
+
+        return image
+    #pylint: enable=no-self-use
+
     #Re-factoring to reduce locals will make things less readable.
     #pylint: disable=too-many-locals
-    @staticmethod
-    def stack(frame_list,
+    def stack(self,
+              frame_list,
               *,
+              min_valid_frames,
               outlier_threshold,
               average_func,
               min_valid_values,
@@ -124,35 +189,44 @@ class MasterMaker(Processor):
             frame_list:    The frames to stack. Should be a list of
                 FITS filenames.
 
+            min_valid_frames:    The smallest number of frames from which to
+                create a master. This could be broken if either the input list
+                is not long enough or if too many frames are discarded by
+                self.prepare_for_stacking().
+
             outlier_threshold:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
+                `iterative_rejection_util.iterative_rejection_average`
 
             average_func:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
+                `iterative_rejection_util.iterative_rejection_average`
 
             min_valid_values:    The minimum number of valid values to average
                 for each pixel. If outlier rejection or masks results in fewer
                 than this, the corresponding pixel gets a bad pixel mask.
+
+            max_iter:    See same name argument to
+                `iterative_rejection_util.iterative_rejection_average`
 
             exclude_mask:    A bitwise or of mask flags, any of which result in
                 the corresponding pixels being excluded from the averaging.
                 Other mask flags in the input frames are ignored, treated
                 as clean.
 
-            max_iter:    See same name argument to
-                `general_purpose_stats.iterative_rejection_average`
-
         Returns:
             master_values:    The best estimate for the values of the maseter at
-                each pixel.
+                each pixel. None if stacking failed.
 
             master_stdev:    The best estimate of the standard deviation of the
-                master pixels.
+                master pixels. None if stacking failed.
 
-            master_mask:    The pixel quality mask for the master.
+            master_mask:    The pixel quality mask for the master. None if
+                stacking failed.
 
             master_header:    The header to use for the newly created
-                master frame.
+                master frame. None if stacking failed.
+
+            discarded_frames:    List of the frames that were excluded by
+                self.prepare_for_stacking().
         """
 
         #pylint triggers on doxygen commands.
@@ -193,7 +267,7 @@ class MasterMaker(Processor):
                     'Original frame contributing to master'
                 )
             header['OUTLTHRS'] = (
-                outlier_threshold,
+                repr(outlier_threshold),
                 'The threshold for discarding outlier pixels'
             )
             header['AVRGFUNC'] = (
@@ -215,21 +289,38 @@ class MasterMaker(Processor):
             header['IMAGETYP'] = 'master' + header['IMAGETYP']
         #pylint: enable=anomalous-backslash-in-string
 
+        if len(frame_list) < min_valid_frames:
+            return None, None, None, None, []
+
         pixel_values = None
         master_header = fits.Header()
-        for frame_index, frame_fname in enumerate(frame_list):
+        frame_index = 0
+        discarded_frames = []
+        for frame_fname in frame_list:
             image, mask, header = read_image_components(frame_fname,
                                                         read_error=False,
                                                         read_header=True)
-            MasterMaker._update_stack_header(master_header, header, frame_fname)
+            stack_image = self.prepare_for_stacking(image)
+            if stack_image is None:
+                discarded_frames.append(image)
+            else:
+                MasterMaker._update_stack_header(master_header,
+                                                 header,
+                                                 frame_fname)
 
-            if pixel_values is None:
-                pixel_values = numpy.empty((len(frame_list),) + image.shape)
+                if pixel_values is None:
+                    pixel_values = numpy.empty((len(frame_list),) + image.shape)
 
-            pixel_values[frame_index] = image
-            pixel_values[frame_index][
-                numpy.bitwise_and(mask, exclude_mask).astype(bool)
-            ] = numpy.nan
+                pixel_values[frame_index] = stack_image
+                pixel_values[frame_index][
+                    numpy.bitwise_and(mask, exclude_mask).astype(bool)
+                ] = numpy.nan
+                frame_index += 1
+
+        if frame_index < min_valid_frames:
+            return None, None, None, None, discarded_frames
+
+        pixel_values = pixel_values[:frame_index]
 
         master_values, master_stdev, master_num_averaged = (
             iterative_rejection_average(pixel_values,
@@ -248,50 +339,19 @@ class MasterMaker(Processor):
 
         document_in_header(master_header)
 
-        return master_values, master_stdev, master_mask, master_header
+        return (master_values,
+                master_stdev,
+                master_mask,
+                master_header,
+                discarded_frames)
     #pylint: enable=too-many-locals
 
-    def __init__(self,
-                 *,
-                 outlier_threshold=5.0,
-                 average_func=numpy.nanmedian,
-                 min_valid_values=5,
-                 max_iter=numpy.inf,
-                 exclude_mask=(
-                     mask_flags['FAULT']
-                     | mask_flags['HOT']
-                     | mask_flags['COSMIC']
-                     | mask_flags['OUTER']
-                     | mask_flags['OVERSATURATED']
-                     | mask_flags['LEAKED']
-                     | mask_flags['SATURATED']
-                     | mask_flags['BAD']
-                     | mask_flags['NAN']
-                 )):
-        """
-        Create a master maker with the given default stacking configuration.
 
-        Args:
-            See the keyword only arguments to the `stack` method.
-
-        Returns:
-            None
-        """
-
-        print('Number positional arguments: '
-              +
-              repr(self.__init__.__code__.co_argcount))
-        self.stacking_options = dict(
-            outlier_threshold=outlier_threshold,
-            average_func=average_func,
-            min_valid_values=min_valid_values,
-            max_iter=max_iter,
-            exclude_mask=exclude_mask
-        )
 
     def __call__(self,
                  frame_list,
                  output_fname,
+                 *,
                  compress=True,
                  allow_overwrite=False,
                  **stacking_options):
@@ -317,7 +377,7 @@ class MasterMaker(Processor):
                 stack only.
 
         Returns:
-            None
+            discarded_frames:    Frames which were discarded during stacking.
         """
 
         for option_name, default_value in self.stacking_options.items():
@@ -326,14 +386,20 @@ class MasterMaker(Processor):
 
         #pylint false positive
         #pylint: disable=missing-kwoa
-        values, stdev, mask, header = self.stack(frame_list, **stacking_options)
+        values, stdev, mask, header, discarded_frames = self.stack(
+            frame_list,
+            **stacking_options
+        )
         #pylint: enable=missing-kwoa
 
-        create_result(image_list=[values, stdev, mask],
-                      header=header,
-                      result_fname=output_fname,
-                      compress=compress,
-                      allow_overwrite=allow_overwrite)
+        if values is not None:
+            create_result(image_list=[values, stdev, mask],
+                          header=header,
+                          result_fname=output_fname,
+                          compress=compress,
+                          allow_overwrite=allow_overwrite)
+
+        return discarded_frames
 #pylint: enable=too-few-public-methods
 
 if __name__ == '__main__':
