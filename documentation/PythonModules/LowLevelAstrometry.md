@@ -15,12 +15,12 @@ Extracting the sources from a single frame is done through the __call__ method.
 When source extraction is performed, extracted sources can be stored in a file
 and/or returned as a structured numpy array. The array has at least the
 following fields:
-  * id - A unique integer identifier of the source
-  * x - The x coordinate of the souce in units of pixels
-  * y - The x coordinate of the souce in units of pixels
-  * signal_to_noise - The combined signal to noise of all the pixels assigned
+  * `id` - A unique integer identifier of the source
+  * `x` - The x coordinate of the souce in units of pixels
+  * `y` - The x coordinate of the souce in units of pixels
+  * `signal_to_noise` - The combined signal to noise of all the pixels assigned
     to the source.
-  * flux - Some estimate of the flux of the souce (as calculated by the source
+  * `flux` - Some estimate of the flux of the souce (as calculated by the source
     extractor used).
 In addition, depending on the source extractor used, more columns are available.
 
@@ -54,7 +54,7 @@ columns for UCAC4:
   * `J`, `H`, `K`: J-, H-, K- band magnitude
   * `eJ`, `eH`, `eK`: Estimated uncertainty in J, H, K respectively
   * `PH_QUALITY`: Photometric quality flag (see [2MASS documentation](https://www.ipac.caltech.edu/2mass/releases/allsky/doc/sec2_2a.html))
-  * B, V, R, I, u, g, r, i, z: Estimated magnitude in the corresponding band.
+  * `B`, `V`, `R`, `I`, `u`, `g`, `r`, `i`, `z`: Estimated magnitude in the corresponding band.
 
 Sources can be filtered based on the various quality flags available in the
 corresponding catalogue used. For UCAC4, this means the following:
