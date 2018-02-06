@@ -13,3 +13,6 @@ class BadImageError(ValueError):
 
 class ConvergenceError(RuntimeError):
     """Some iterative procedure failed to converge."""
+
+class HDF5LayoutError(RuntimeError):
+    """Error caused by invalid specification of HDF5 layout."""
