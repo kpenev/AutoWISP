@@ -12,6 +12,8 @@ from superphot_pipeline.pipeline_exceptions import BadImageError
 git_id = '$Id$'
 
 def read_image_components(fits_fname,
+                          *,
+                          read_image=True,
                           read_error=True,
                           read_mask=True,
                           read_header=True):
@@ -22,8 +24,12 @@ def read_image_components(fits_fname,
         fits_fname:    The filename of the FITS file to read the componets of.
             Must have been produced by the pipeline.
 
+        read_image:    Should the pixel values of the primary image be read.
+
         read_error:    Should the error extension be searched for and read.
+
         read_mask:    Should the mask extension be searched for and read.
+
         read_header:    Should the header of the image extension be returned.
 
     Returns:
@@ -48,7 +54,7 @@ def read_image_components(fits_fname,
             if hdu.data is None:
                 continue
             if image is None:
-                image = hdu.data
+                image = hdu.data if read_image else True
                 if read_header:
                     header = hdu.header
             else:
@@ -74,7 +80,7 @@ def read_image_components(fits_fname,
             ):
                 break
     return (
-        (image,)
+        ((image,) if read_image else ())
         +
         ((error,) if read_error else ())
         +
