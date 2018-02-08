@@ -51,7 +51,7 @@ def read_image_components(fits_fname,
     image = error = mask = header = None
     with fits.open(fits_fname, mode='readonly') as input_file:
         for hdu_index, hdu in enumerate(input_file):
-            if hdu.data is None:
+            if hdu.header['NAXIS'] == 0:
                 continue
             if image is None:
                 image = hdu.data if read_image else True
