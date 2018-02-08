@@ -175,9 +175,9 @@ class Transformation:
                 containing the intermediate coordinates.
         """
 
-        if isinstance(sources, numpy.ndarray):
-            projected_shape = sources.shape
-        else:
+        try:
+            projected_shape = sources['RA'].shape
+        except TypeError:
             projected_shape = (1,)
 
         #pylint false positive
