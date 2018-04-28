@@ -1,4 +1,11 @@
-"""A collection of functions for working with masks."""
+"""
+A collection of functions for working with masks.
+
+Attributes:
+
+    mask_flags:    Dictionary contaning the possible bad pixel flags and the
+        corresponding bitmasks.
+"""
 
 from ctypes import cdll, c_long, c_byte, c_char_p
 from ctypes.util import find_library
@@ -92,13 +99,13 @@ def parse_hat_mask(header):
     return mask
 
 def combine_masks(mask_filenames):
-    """
+    r"""
     Create a combined mask image from the masks of all input files.
 
     Args:
         mask_filenames:    A list of FITS filenames from which to read mask
             images (identified by the IMAGETYP header keyword matching
-            [a-z_]*mask).
+            [a-z\_]*mask).
 
     Returns:
         mask:    A bitwise or of the mask extensions of all input FITS files.

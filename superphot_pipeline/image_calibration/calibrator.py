@@ -31,12 +31,11 @@ class Calibrator(Processor):
     """
     Provide basic calibration operations (bias/dark/flat) fully tracking noise.
 
-    Attrs:
+    Public attributes, set through :func:`__init__`, provide defaults for
+    calibration parameters that can be overwritten on a one-time basis for
+    each frame being calibrated by passing arguments to :func:`__call__`.
 
-        Public attributes, set through __init__, provide defaults for
-        calibration parameters that can be overwritten on a one-time basis for
-        each frame being calibrated by passing arguments to __call__.
-
+    Attributes:
         raw_hdu:    Which hdu of the raw frame contains the image to
             calibrate. Note that the header is always taken from the first
             non-trivial hdu. For compressed frames, this should never be
@@ -48,42 +47,45 @@ class Calibrator(Processor):
         master_bias:    A dictionary containing:
 
             * filename: The filename of the master bias frame to use in subsequent
-                calibrations (if not overwritten).
+              calibrations (if not overwritten).
 
             * correction:    The correction to apply (if not overwritten).
 
-            * variance:    An estimate of the variance of the `correction` entry.
+            * variance:    An estimate of the variance of the ``correction``
+              entry.
 
             * mask:    The bitmask the pixel indicating the combination of flags
-                raised for each pixel. The individual flages are defined by
-                `superphot_pipeline.image_calibration.read_hatmask.mask_flags`
+              raised for each pixel. The individual flages are defined by
+              :data:`mask_utilities.mask_flags`.
 
-        master_dark:    Analogous to `master_bias` but contaning the information
-            about the default master dark.
+        master_dark:    Analogous to :attr:`master_bias` but contaning the
+            information about the default master dark.
 
-        master_flat:    Analogous to `master_bias` but contaning the information
-            about the default master flat.
+        master_flat:    Analogous to :attr:`master_bias` but contaning the
+            information about the default master flat.
 
         masks:    A dictionary contaning:
 
             * filenames: A list of the files from which this mask was
-                constructed.
+              constructed.
 
             * image: The combined mask image (bitwise OR) of all masks in
-                `filenames`
+              `filenames`
 
         overscan:   A dictionary containing:
 
-            * areas:    The areas in the raw image to use for overscan corrections.
-                The format is
-                \code
-                [
-                    dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>),
-                    ...
-                ]
-                \endcode
+            * areas:    The areas in the raw image to use for overscan
+              corrections.  The format is::
 
-            * method:    See OverscanMethods.OverscanMethodBase.
+                    [
+                        dict(xmin = <int>,
+                             xmax = <int>,
+                             ymin = <int>,
+                             ymax = <int>),
+                        ...
+                    ]
+
+            * method:    See :class:`overscan_methods.Base`
 
         image_area:    The area in the raw image which actually contains the
             useful image of the night sky. The dimensions must match the
@@ -322,27 +324,34 @@ class Calibrator(Processor):
         """
         Update the given header to document how the calibration was done.
 
-        The following keywords are added or overwritten:
+        The following keywords are added or overwritten::
 
-        \verbatim
             MBIASFNM: Filename of the master bias used
+
             MBIASSHA: Sha-1 checksum of the master bias frame used.
+
             MDARKFNM: Filename of the master dark used
+
             MDARKSHA: Sha-1 checksum of the master dark frame used.
+
             MFLATFNM: Filename of the master flat used
+
             MFLATSHA: Sha-1 checksum of the master flat frame used.
+
             OVRSCN%02d: The overscan regions get consecutive IDs and for
                 each one, the id gets substituted in the keyword as given.
                 The value describes the overscan region like:
                 %(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d with the
                 sibustition dictionary given directly by the corresponding
                 overscan area.
+
             IMAGAREA: '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
                 subsituted with the image are as specified during
                 calibration.
+
             CALBGAIN: The gain assumed during calibration.
+
             CLIBSHA: Sha-1 chacksum of the Calibrator.py blob per Git.
-        \endverbatim
 
         In addition, the overscan method describes itself in the header in
         any way it sees fit.

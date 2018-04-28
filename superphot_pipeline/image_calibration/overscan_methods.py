@@ -120,22 +120,26 @@ class Median(Base):
         Document the last calculated overscan correction to header.
 
         Notes:
-            Adds the following keywords to the header:
-            \verbatim
+            Adds the following keywords to the header::
+
                 OVSCNMTD = Iterative rejection median
                            / Overscan correction method
+
                 OVSCREJM = ###
                            / Maximum number of allowed overscan rejection
                            iterations.
+
                 OVSCMINP = ###
                            / Minimum number of pixels to base correction on
+
                 OVSCREJI = ###
                            / Number of overscan rejection iterations applied
+
                 OVSCNPIX = ###
                            / Actual number of pixels used to calc overscan
+
                 OVSCCONV = T/F
                            / Did the last overscan correction converge
-            \endverbatim
 
         Args:
             header:    The FITS header to add the keywords to.
