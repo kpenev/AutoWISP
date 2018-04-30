@@ -1,4 +1,4 @@
-#pylint: disable=missing-docstring
+"""Configuration for SPHINX to generate documentation."""
 
 # -*- coding: utf-8 -*-
 #
@@ -190,5 +190,3 @@ napoleon_include_private_with_doc = True
 napoleon_include_special_with_doc = True
 napoleon_include_init_with_doc = True
 #pylint: enable=invalid-name
-
-#pylint: enable=missing-docstring

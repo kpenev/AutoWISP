@@ -12,7 +12,7 @@ Welcome to SuperPhotPipeline's documentation!
 
     processing_steps
     PythonModules/contents
-    implementation/contents
+    implementation/modules
 
 Indices and tables
 ==================
