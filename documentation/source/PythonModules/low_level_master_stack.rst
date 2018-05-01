@@ -3,7 +3,7 @@ Low Level Master Stack Interface
 ********************************
 
 Given a user-specified set of calibrated FITS frames produced as described in
-\ref LowLevelImageCalibration_page, this module stacks them to create master
+:doc:`low_level_image_calibration`, this module stacks them to create master
 frames. The stacking procedure and example usage for each master types is as
 follows:
 

@@ -1,5 +1,8 @@
 """Configuration for SPHINX to generate documentation."""
 
+import sys
+import inspect
+
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -51,7 +54,8 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx.ext.inheritance_diagram'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -190,3 +194,38 @@ napoleon_include_private_with_doc = True
 napoleon_include_special_with_doc = True
 napoleon_include_init_with_doc = True
 #pylint: enable=invalid-name
+
+inheritance_graph_attrs = dict(rankdir="TB",
+                               fontsize="24",
+                               ratio='auto',
+                               size='120')
+
+#Call signature defined by SPHINX autodoc plugin.
+#pylint: disable=too-many-arguments
+#pylint: disable=unused-argument
+def add_inheritance_diagram(app, what, name, obj, options, lines):
+    """Add an inheritance diagram for all classes."""
+
+    if what == 'module':
+        class_list = [member[0]
+                      for member in inspect.getmembers(sys.modules[name],
+                                                       inspect.isclass)]
+        print('Classes in ' + name + ':\n\t' + '\n\t'.join(class_list))
+        lines.insert(0, '')
+        lines.insert(
+            0, '.. inheritance-diagram:: '
+            +
+            ' '.join(class_list)
+        )
+        lines.insert(0, '=========================')
+        lines.insert(0, 'Class Inheritance Diagram')
+    elif what == 'class':
+        lines.insert(0, '')
+        lines.insert(0,
+                     '.. inheritance-diagram:: ' + name)
+#pylint: enable=too-many-arguments
+
+def setup(app):
+    """Connect handler for adding inheritance diagrams."""
+
+    app.connect('autodoc-process-docstring', add_inheritance_diagram)

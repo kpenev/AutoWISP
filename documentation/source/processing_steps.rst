@@ -10,7 +10,8 @@ further broken down into multiple smaller steps:
 
 Take the raw data and calibrate it for various instrumental effects.
 
-See \ref ImageCalibrationImplementation_page for implementation documentation.
+See :doc:`PythonModules/image_calibration` for implementation
+documentation.
 
 1.1 Split raw frames by type:
 -----------------------------

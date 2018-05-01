@@ -142,9 +142,6 @@ class MasterMaker(Processor):
             None
         """
 
-        print('Number positional arguments: '
-              +
-              repr(self.__init__.__code__.co_argcount))
         self.stacking_options = dict(
             outlier_threshold=outlier_threshold,
             average_func=average_func,

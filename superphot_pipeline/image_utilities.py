@@ -96,22 +96,23 @@ def zoom_image(image, zoom, interp_order):
     Increase the resolution of an image using flux conserving interpolation.
 
     Interpolation is performed using the following recipe:
+
         1.  create a cumulative image (C), i.e. C(x, y) = sum(
             image(x', y'), {x', 0, x}, {y', 0, y}). Note that C's x and y
             resolutions are both bigger than image's by one with all entries in
             the first row and the first column being zero.
+
         2.  Interpolate the cumulative image using a bivariate spline to get a
             continuous cumulative flux F(x, y).
+
         3.  Create the final image I by setting each pixel to the flux implied
             by F(x, y) from step 2, i.e. if zx is the zoom factor along x and zy
-            is the zoom factor along y:
+            is the zoom factor along y::
 
-            \verbatim
                 I(x, y) = F((x+1)/z, (y+1)/z)
                           - F((x+1)/z, y/z)
                           - F(x/z, (y+1)/z)
                           + F(x/z, y/z)
-            \endverbatim
 
     Since this is a flux conserving method, zooming and then binning an image
     reproduces the original image with close to machine precision.
@@ -205,12 +206,16 @@ def get_pointing_from_header(frame):
     Args:
         frame:    The frame to return the pointing of. Could be in one of the
             following formats:
+
               * string: the filanema of a FITS frame. The pointing information
                   is extracted from the header of the first non-trivial HDU.
+
               * HDUList: Same as above, only this time the file is
                   already opened.
+
               * astropy.io.fits ImageHDU or TableHDU, containing the header to
                   extract the pointing information from.
+
               * asrtopy.io.fits.Header instance: the header from which to
                   extract the pointing information.
 
