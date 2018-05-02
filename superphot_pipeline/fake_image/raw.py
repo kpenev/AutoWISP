@@ -30,7 +30,7 @@ class FakeRawImage:
 
         >>> from superphot_pipeline.fake_image import FakeRawImage
         >>> import numpy
-
+        >>>
         >>> #Create a 1044x1024 image with the first 10 pixels in x being a bias
         >>> #area and the next 10 being a dark area.
         >>> image = FakeRawImage(full_resolution=dict(x=1044, y=1024),
@@ -38,10 +38,10 @@ class FakeRawImage:
         >>>                                      xmax=1044,
         >>>                                      ymin=0,
         >>>                                      ymax=1024))
-
+        >>>
         >>> #Bias level is 12.5 ADU
         >>> image.add_bias(12.5)
-
+        >>>
         >>> #Dark current is 2.3 ADU/s except for a hot column at x=100 with 10x
         >>> #the dark current.
         >>> dark = numpy.full((1044, 1024), 12.5)
@@ -50,12 +50,12 @@ class FakeRawImage:
         >>>     rate=dark,
         >>>     areas=[dict(xmin=10, xmax=20, ymin=0, ymax=1024)]
         >>> )
-
+        >>>
         >>> #Define a flat field which is a quadratic function in both x and y.
         >>> x, y = numpy.meshgrid(numpy.arange(1024), numpy.arange(1024))
         >>> flat = (2.0 - ((x - 512.0) / 512.0)**2) / 2.0
         >>> image.set_flat_field(flat)
-
+        >>>
         >>> #Add simple stars
         >>> star = numpy.array([[0.25, 0.50, 0.25],
         >>>                     [0.50, 1.00, 0.50],
@@ -66,7 +66,7 @@ class FakeRawImage:
         >>>         sky_flux[star_y - 1 : star_y + 2,
         >>>                  star_x - 1 : star_x + 2] = star
         >>> image.set_sky(sky_flux)
-
+        >>>
         >>> #Get image with the given parameters with 30s exposure
         >>> exp1 = image(5)
     """
@@ -201,8 +201,9 @@ class FakeRawImage:
                 with the units used for the rates specified.
 
         Returns:
-            image:    A 2-D numpy array containing the simulated exposure image
-                sprinkled with random poisson noise if gain is finite.
+            2-D numpy array:
+                The simulated exposure image sprinkled with random poisson noise
+                if gain is finite.
         """
 
         image = self._pixels + self._dark_rate * exposure

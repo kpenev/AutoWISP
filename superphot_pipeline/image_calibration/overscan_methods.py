@@ -29,7 +29,7 @@ class Base(ABC, Processor):
 
             overscans:    A list of the areas on the image to use when
                 determining the overscan correction. Each area is specified as
-                dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
+                ``dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)``
 
             image_area:    The area in raw_image for which to calculate the
                 overscan correction. The format is the same as a single
@@ -39,7 +39,7 @@ class Base(ABC, Processor):
                 (electrons/ADU).
 
         Returns:
-            overscan:    Dictionary with items:
+            dict: Dictionary with items:
 
                 * correction:    A 2-D numpy array with the same resolution
                     as the image_area giving the correction to subtract from
@@ -58,7 +58,7 @@ class Median(Base):
     from the beginning until no pixels are rejected or the maximum number of
     rejection iterations is reached.
 
-    Public attributes exactly match the  __init__ arguments.
+    Public attributes exactly match the  :meth:`__init__` arguments.
     """
 
     def __init__(self,
@@ -77,7 +77,7 @@ class Median(Base):
             max_reject_iterations:    The maximum number of outlier rejection
                 iterations to perform. If this limit is reached, either the
                 latest result is accepted, or an exception is raised depending
-                on accept_unconverged.
+                on **require_convergence**.
 
             require_convergence:    If this is False and the maximum number of
                 rejection iterations is reached, the last median computed is the
@@ -94,13 +94,13 @@ class Median(Base):
             Initializes the following private attributes to None, which indicate
             the state of the last overscan correction calculation:
 
-            _last_num_reject_iter:    The number of rejection iterations used by
-                the last overscan correction calculation.
+            **_last_num_reject_iter**:    The number of rejection iterations
+                used by the last overscan correction calculation.
 
-            _last_num_pixels:    The number of unrejected pixels the last
+            **_last_num_pixels**:    The number of unrejected pixels the last
                 overscan correction was based on.
 
-            _last_converged:    Did the last overscan calculation converge?
+            **_last_converged**:    Did the last overscan calculation converge?
 
         """
 
@@ -182,9 +182,10 @@ class Median(Base):
                 None
 
             Retruns:
-                overscan_values:    The values of the pixels to use when
-                    calculating the overscan correction. Even if overscan areas
-                    overlap only a single copy of each pixel is included.
+                numpy.array:
+                    The values of the pixels to use when calculating the
+                    overscan correction. Even if overscan areasoverlap only a
+                    single copy of each pixel is included.
             """
 
             not_included = numpy.full(raw_image.shape, True)

@@ -63,11 +63,12 @@ class HDF5File(ABC, h5py.File):
         """
         A dictionary specifying what each dataset or property is used for.
 
-        This structure has two keys: `'dataset'` and `'attribute'` each of which
-        should contain a dictionary with keys `self.elements['dataset']` or
-        `self.elements['attribute']` and values are lists of strings
+        This structure has two keys: ``'dataset'`` and ``'attribute'`` each of
+        which should contain a dictionary with keys ``self.elements['dataset']``
+        or ``self.elements['attribute']`` and values are lists of strings
         specifying uses (only needed for generating documentation).
         """
+
     @property
     def default_destinations(self):
         """
@@ -98,10 +99,10 @@ class HDF5File(ABC, h5py.File):
 
     @property
     def destinations(self):
-        """
+        r"""
         Specifies the destinations for self.elements in the current file.
 
-        See self.default_destinations.
+        See :attr:`default_destinations`\ .
         """
 
         return self._destinations
@@ -139,8 +140,10 @@ class HDF5File(ABC, h5py.File):
             dset_path:    The path for the new dataset, either absolute or
                 relative to h5group.
 
-            creation_args:    Keyword arguments to pass to create_dataset(). If
-                None, defaults to dict(compression='gzip', compression_opts=9).
+            creation_args:    Keyword arguments to pass to
+                :meth:`create_dataset`\ . If
+                ``None``, defaults to ``dict(compression='gzip',
+                compression_opts=9)``.
 
             compression_opts:    see same name argument
                 in h5py.File.create_dataset.
@@ -173,7 +176,7 @@ class HDF5File(ABC, h5py.File):
         """
         Reads a text from an HDF5 dataset.
 
-        The inverse of text_to_dataset().
+        The inverse of :meth:`write_text_to_dataset`\ .
 
         Args:
             h5dset:    The dataset containing the text to read.
@@ -198,9 +201,9 @@ class HDF5File(ABC, h5py.File):
         Args:
             fitsheader:    The header to save (fits.Header instance).
 
-            args:    Passed directly to text_to_dataset().
+            args:    Passed directly to :meth:`write_text_to_dataset`\ .
 
-            kwargs:    Passed directly to text_to_dataset(.)
+            kwargs:    Passed directly to :meth:`write_text_to_dataset`\ .
 
         Returns:
             None
@@ -225,7 +228,7 @@ class HDF5File(ABC, h5py.File):
         """
         Reads a FITS header from an HDF5 dataset.
 
-        The inverse of fitsheader_to_dataset().
+        The inverse of :meth:`write_fitsheader_to_dataset`.
 
         Args:
             h5dset:    The dataset containing the header to read.
@@ -500,7 +503,7 @@ class HDF5File(ABC, h5py.File):
                     cls._add_paths(child, part_path, part_type)
                 child = child.nextSibling
 
-    #TODO: Fix to work ith markdown rather than markup.
+    #TODO: Fix to work with markdown rather than markup.
     def generate_wiki(self, xml_part, current_indent='', format_for='TRAC'):
         """
         Returns the part of the wiki corresponding to a part of the XML tree.
@@ -512,8 +515,8 @@ class HDF5File(ABC, h5py.File):
                 of xml_part.
 
         Returns:
-            wiki:    a python string with the wiki text to add (newlines
-                and all).
+            str:
+                the wiki text to add (newlines and all).
         """
 
         camel_case_rex = re.compile('[A-Z][a-z]+([A-Z][a-z]+)+')
@@ -540,7 +543,8 @@ class HDF5File(ABC, h5py.File):
                 name:    The name of the group.
 
             Returns:
-                wiki_group:    The properly formatted string stating the name of
+                str:
+                    The properly formatted string stating the name of
                     the given group, as it should be added to the wiki.
             """
 
@@ -571,7 +575,8 @@ class HDF5File(ABC, h5py.File):
                 has_attributes:    Does the dataset have attributes.
 
             Returns:
-                wiki_dataset:    The properly formatted string containing all
+                str:
+                    The properly formatted string containing all
                     the supplied information about the dataset, as it should be
                     added to the wiki.
             """
@@ -603,7 +608,8 @@ class HDF5File(ABC, h5py.File):
                 description:    A brief description of the attribute (optional).
 
             Returns:
-                wiki_attribute:    The properly formatted string containing all
+                str:
+                    The properly formatted string containing all
                     the supplied information about the attribute, as it should
                     be added to the wiki.
             """
@@ -637,7 +643,8 @@ class HDF5File(ABC, h5py.File):
                 description:    A brief description of the link.
 
             Returns:
-                wiki_link:    The properly formatted string containing all the
+                str:
+                    The properly formatted string containing all the
                     supplied information about the link, as it should be added
                     to the wiki.
             """
@@ -861,8 +868,8 @@ class HDF5File(ABC, h5py.File):
                     the configuration.
 
             Returns:
-                dom_document:    A xml.dom.minidom document with
-                    the configuration.
+                xml.dom.minidom:
+                    A document with the configuration.
             """
 
             def create_elements(dom_document):
@@ -873,7 +880,8 @@ class HDF5File(ABC, h5py.File):
                     dom_document:    The DOM document to create elements with.
 
                 Returns:
-                    elements:    A dictionary indexed by
+                    dict:
+                        A dictionary indexed by
                         %(component)s.%(element)s of DOM elements for each entry
                         with all their attributes properly set.
                 """
@@ -1107,11 +1115,12 @@ class HDF5File(ABC, h5py.File):
 
             if_exists:    What should be done if the attribute exists? Possible
                 values are:
-                - ignore:    do not update but return the attribute's value.
 
-                - overwrite:    Change the value to the specified one.
+                * ignore:    do not update but return the attribute's value.
 
-                - error: raise an exception.
+                * overwrite:    Change the value to the specified one.
+
+                * error: raise an exception.
 
             logger:    An object to pass log messages to.
             log_extra:    Extra information to attach to the log messages.
@@ -1478,8 +1487,9 @@ class HDF5File(ABC, h5py.File):
                 (e.g. ap_ind or config_id).
 
         Returns:
-            data:    A numpy int/float array containing the identified dataset
-                from the HDF5 file.
+            numpy.array:
+                A numpy int/float array containing the identified dataset from
+                the HDF5 file.
         """
 
         key = (('%(parent)s/%(name)s' % self._destinations[dataset_key])

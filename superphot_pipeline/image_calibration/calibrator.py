@@ -70,7 +70,7 @@ class Calibrator(Processor):
               constructed.
 
             * image: The combined mask image (bitwise OR) of all masks in
-              `filenames`
+              ``filenames``.
 
         overscan:   A dictionary containing:
 
@@ -90,10 +90,9 @@ class Calibrator(Processor):
         image_area:    The area in the raw image which actually contains the
             useful image of the night sky. The dimensions must match the
             dimensions of the masters to apply an of the overscan correction
-            retured by overscan_method. The format is:
-            \code
-            dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
-            \endcode
+            retured by overscan_method. The format is::
+
+                dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)
 
         gain:    The gain to assume for the input image (electrons/ADU). Only
             useful when estimating errors and could be used by the
@@ -107,34 +106,34 @@ class Calibrator(Processor):
 
         >>> from superphot_pipeline.image_calibration import Calibrator,\
         >>>     overscan_methods
-
+        >>>
         >>> #Create a calibrator callable instance
         >>> calibrate = Calibrator(
         >>>     #The first 20 lines of the image are overscan area.
         >>>     overscans=[dict(xmin=0, xmax=4096, ymin=0, ymax=20)],
-
+        >>>
         >>>     #Overscan corrections should subtract the median of the values.
         >>>     overscan_method=overscan_methods.Median(),
-
+        >>>
         >>>     #The master bias frame to use.
         >>>     master_bias='masters/master_bias1.fits',
-
+        >>>
         >>>     #The gain (electrons/ADU) to assume for the input images.
         >>>     gain=16.0,
-
+        >>>
         >>>     #The area within the raw frame containing the image:
         >>>     image_area=dict(xmin=0, xmax=4096, ymin=20, ymax=4116)
         >>> )
-
+        >>>
         >>> #Specify a master dark after construction.
         >>> calibrate.set_masters(dark='masters/master_dark3.fits')
-
+        >>>
         >>> #Calibrate an image called 'raw1.fits', producing (or overwriting a
         >>> #calibrated file called 'calib1.fits' using the previously specified
         >>> #calibration parameters. Note that no flat correction is going to be
         >>> #applied, since a master flat was never specified.
         >>> calibrate(raw='raw1.fits', calibrated='calib1.fits')
-
+        >>>
         >>> #Calibrate an image, changing the gain assumed for this image only and
         >>> #disabling overscan correction for this image only.
         >>> calibrate(raw='raw2.fits',
@@ -358,7 +357,7 @@ class Calibrator(Processor):
 
         Args:
             calibration_params:    The parameters used when calibrating (see
-                calibration_params argument to __call__.
+                calibration_params argument to :meth:`__call__`\ .
 
             header:    The header to update with the
                 calibration information.
@@ -426,8 +425,8 @@ class Calibrator(Processor):
             raw_image:    An open fits file to search for a header.
 
         Returns:
-            raw_header:    The header of the first non-trivial extension in the
-                fits file.
+            fits.Header:
+                The header of the first non-trivial extension in the fits file.
         """
 
         #pylint: disable=no-member
@@ -474,7 +473,7 @@ class Calibrator(Processor):
 
             leak_directions:    Directions in which the charge could leak from
                 saturated pixels. See
-                `superphot_pipeline.image_calibration.mask_utilities.get_saturation_mask`
+                :func:`superphot_pipeline.image_calibration.mask_utilities.get_saturation_mask`
 
             masters: See set_masters.
 
@@ -542,7 +541,7 @@ class Calibrator(Processor):
                  compress_calibrated=True,
                  allow_overwrite=False,
                  **calibration_params):
-        """
+        r"""
         Calibrate the raw frame, save result to calibrated.
 
         Args:
@@ -558,8 +557,8 @@ class Calibrator(Processor):
 
             calibration_params:    Keyword only arguments allowing one of the
                 calibration parameters to be switched for this calibration only.
-                Should be one of the keyword arguments of __init__, with the
-                same meaning.
+                Should be one of the keyword arguments of :meth:`__init__`\ ,
+                with the same meaning.
 
         Returns:
             None

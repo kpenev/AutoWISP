@@ -20,13 +20,13 @@ class MasterMaker(Processor):
     """
     Implement the simplest & fully generalizable procedure for making a master.
 
-    Attrs:
+    Attributes:
         default_exclude_mask:    The default bit-mask indicating all flags which
             should result in a pixel being excluded from the averaging.
 
         stacking_options:    A dictionary with the default configuration of how
             to perform the stacking. The expected keys exactly match the keyword
-            only arguments of the `stack_to_master` method.
+            only arguments of the :meth:`stack` method.
 
     Examples:
 
@@ -35,7 +35,7 @@ class MasterMaker(Processor):
         >>> #stacked
         >>> make_master = MasterMaker(outlier_threshold=10.0,
         >>>                           min_valid_frames=10)
-
+        >>>
         >>> #Stack a set of frames to a master, allowing no more than 3
         >>> #averaging/outlier rejection iterations and allowing a minimum of 3
         >>> #valid source pixels to make a master, for this master only.
@@ -135,8 +135,9 @@ class MasterMaker(Processor):
         """
         Create a master maker with the given default stacking configuration.
 
-        Args:
-            See the keyword only arguments to the `stack` method.
+        Keyword Args:
+            ():    See the keyword only arguments to the :meth:`stack`
+                method.
 
         Returns:
             None
@@ -161,8 +162,9 @@ class MasterMaker(Processor):
             image:    One of the images to include in the stack.
 
         Returns:
-            stack_image:    The image to actually include in the stack. Return
-                None if the image should be excluded.
+            same type as image:
+                The image to actually include in the stack. Return None if the
+                image should be excluded.
         """
 
         return image
@@ -189,20 +191,23 @@ class MasterMaker(Processor):
             min_valid_frames:    The smallest number of frames from which to
                 create a master. This could be broken if either the input list
                 is not long enough or if too many frames are discarded by
-                self.prepare_for_stacking().
+                :meth:`prepare_for_stacking`.
 
             outlier_threshold:    See same name argument to
-                `iterative_rejection_util.iterative_rejection_average`
+                :func:`superphot_pipeline.iterative_rejection_util.iterative_rejection_average`
+                .
 
             average_func:    See same name argument to
-                `iterative_rejection_util.iterative_rejection_average`
+                :func:`superphot_pipeline.iterative_rejection_util.iterative_rejection_average`
+                .
 
             min_valid_values:    The minimum number of valid values to average
                 for each pixel. If outlier rejection or masks results in fewer
                 than this, the corresponding pixel gets a bad pixel mask.
 
             max_iter:    See same name argument to
-                `iterative_rejection_util.iterative_rejection_average`
+                :func:`superphot_pipeline.iterative_rejection_util.iterative_rejection_average`
+                .
 
             exclude_mask:    A bitwise or of mask flags, any of which result in
                 the corresponding pixels being excluded from the averaging.
@@ -210,20 +215,26 @@ class MasterMaker(Processor):
                 as clean.
 
         Returns:
-            master_values:    The best estimate for the values of the maseter at
-                each pixel. None if stacking failed.
+            (tuple):
+                2-D array:
+                    The best estimate for the values of the maseter at
+                    each pixel. None if stacking failed.
 
-            master_stdev:    The best estimate of the standard deviation of the
-                master pixels. None if stacking failed.
+                2-D array:
+                    The best estimate of the standard deviation of the
+                    master pixels. None if stacking failed.
 
-            master_mask:    The pixel quality mask for the master. None if
-                stacking failed.
+                2-D array:
+                    The pixel quality mask for the master. None if
+                    stacking failed.
 
-            master_header:    The header to use for the newly created
-                master frame. None if stacking failed.
+                fits.Header:
+                    The header to use for the newly created master frame. None if
+                    stacking failed.
 
-            discarded_frames:    List of the frames that were excluded by
-                self.prepare_for_stacking().
+                [<FITS filenames>]:
+                    List of the frames that were excluded by
+                    self.prepare_for_stacking().
         """
 
         #pylint triggers on doxygen commands.
@@ -232,22 +243,27 @@ class MasterMaker(Processor):
             """
             Document how the stacking was done in the given header.
 
-            The following extra keywords are added:
-            \verbatim
+            The following extra keywords are added::
+
                 NUMFCOMB: The number of frames combined in this master.
+
                 ORIGF%04d: The base filename of each original frame added. The
                     keyword will get %-substituted with the frame index.
+
                 OUTLTHRS: The threshold for marking pixel values as outliers in
                     units of RMS deviation from final value.
+
                 AVRGFUNC: The __name__ attribute of the averaging function used.
+
                 MINAVGPX: The minimum number of valid pixel values
                     contributing to a pixel's average required to consider the
                     resulting master pixel valid.
+
                 MAXREJIT: The maximum number of rejection/averaging iterations
                     allowed.
+
                 XCLUDMSK: Pixels with masks or-ing to true with this value were
                     excluded from the average.
-            \endverbatim
 
             Args:
                 header:    The header to add the stacking configuration to.
@@ -299,7 +315,7 @@ class MasterMaker(Processor):
                                                         read_header=True)
             stack_image = self.prepare_for_stacking(image)
             if stack_image is None:
-                discarded_frames.append(image)
+                discarded_frames.append(frame_fname)
             else:
                 MasterMaker._update_stack_header(master_header,
                                                  header,
@@ -374,7 +390,8 @@ class MasterMaker(Processor):
                 stack only.
 
         Returns:
-            discarded_frames:    Frames which were discarded during stacking.
+            [<FITS filenames>]:
+                Frames which were discarded during stacking.
         """
 
         for option_name, default_value in self.stacking_options.items():

@@ -13,13 +13,13 @@ from superphot_pipeline.image_utilities import zoom_image, bin_image
 git_id = '$Id$'
 
 class ImageSmoother(ABC):
-    """
+    r"""
     Define the interface for applying smoothing algorithms to images.
 
-    Attrs:
-        bin_factor:    See same name argument to smooth().
+    Attributes:
+        bin_factor:    See same name argument to :meth:`smooth`\ .
 
-        zoom_interp_order:    See same name argument to smooth().
+        zoom_interp_order:    See same name argument to :meth:`smooth`\ .
     """
 
     @abstractmethod
@@ -34,17 +34,18 @@ class ImageSmoother(ABC):
                 be performed.
 
         Returns:
-            smooth_image:    The smoothed version of the image per the currently
-                defined smoothing.
+            2-D array:
+                The smoothed version of the image per the currently defined
+                smoothing.
         """
 
     def __init__(self, **kwargs):
-        """
+        r"""
         Set default pre-shrink/post-zoom bin factor and interpolation order.
 
         Args:
             kwargs:    All arguments except bin_factor, interp_order and padding
-                mode(see smooth()) are ignored.
+                mode(see :meth:`smooth`\ ) are ignored.
 
         Returns:
             None
@@ -68,10 +69,11 @@ class ImageSmoother(ABC):
             image:    The image to smooth.
 
             bin_factor:    The factor to pre-bin the image by (see
-                bin_image() for details). After smoothing the image is zoomed by
-                the same factor to recover the original size. If None, the value
-                defined at construction is used, otherwise this value applies
-                for this image only.
+                :func:`superphot_pipeline.image_utilities.bin_image` for
+                details). After smoothing the image is zoomed by the same factor
+                to recover the original size. If None, the value defined at
+                construction is used, otherwise this value appliesfor this image
+                only.
 
             interp_order:    The interpolation order to use when zooming the
                 image at the end. If None, the interpolation order defined at
@@ -85,7 +87,8 @@ class ImageSmoother(ABC):
                 be performed.
 
         Returns:
-            smooth_image:    The smoothed version of the image.
+            2-D array:
+                The smoothed version of the image.
         """
 
         if bin_factor is None:
@@ -138,7 +141,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
     y, each of which predicts pixel values as a linear combination of some
     parameters.
 
-    Attrs:
+    Attributes:
         num_x_terms:    The number of terms in the smoothing function in the x
             direction.
 
@@ -158,9 +161,10 @@ class SeparableLinearImageSmoother(ImageSmoother):
                 x direction.
 
         Returns:
-            integrals:    A 1-D scipy array with length equal to the
-                x-resolution of the image with the i-th entry being the integral
-                of the x part of the smoothing function the i-th pixel.
+            1-D array:
+                Array with length equal to the x-resolution of the image with
+                the i-th entry being the integral of the x part of the smoothing
+                function over the i-th pixel.
         """
 
     @abstractmethod
@@ -172,20 +176,21 @@ class SeparableLinearImageSmoother(ImageSmoother):
                               num_y_terms,
                               y_resolution,
                               x_resolution):
-        """
+        r"""
         Return matrix giving flattened smooth image when applied to fit params.
 
         Args:
-             num_x_terms:    See same name argument to _apply_smoothing().
+            num_x_terms:    See same name argument to :meth:`_apply_smoothing`\ .
 
-             num_y_terms:    See same name argument to _apply_smoothing().
+            num_y_terms:    See same name argument to :meth:`_apply_smoothing`\ .
 
-             x_resolution:    The number of image columns.
+            x_resolution:    The number of image columns.
 
-             y_resolution:    The number of image rows.
+            y_resolution:    The number of image rows.
 
         Returns:
-            matrix:    An (x_res * y_res) by (num_x_terms * num_y_terms) matrix
+            2-D array:
+                An (x_res * y_res) by (num_x_terms * num_y_terms) matrix
                 which when applied to a set of parameters returns the value of
                 each image pixel per the smoothing function.
         """
@@ -211,19 +216,21 @@ class SeparableLinearImageSmoother(ImageSmoother):
                  outlier_threshold=None,
                  max_iterations=None,
                  **kwargs):
-        """
+        r"""
         Define the default smoothing configuration (overwritable on use).
 
         Args:
-             num_x_terms:    See same name argument to _apply_smoothing().
+            num_x_terms:    See same name argument to :meth:`_apply_smoothing` .
 
-             num_y_terms:    See same name argument to _apply_smoothing().
+            num_y_terms:    See same name argument to :meth:`_apply_smoothing`\ .
 
-             outlier_threshold:    See same name argument to _apply_smoothing().
+            outlier_threshold:    See same name argument to
+                :meth:`_apply_smoothing`\ .
 
-             max_iterations:    See same name argument to _apply_smoothing().
+            max_iterations:    See same name argument to
+                :meth:`_apply_smoothing`\ .
 
-            kwargs:    Any arguments to pass to parent's __init__.
+            kwargs:    Any arguments to pass to parent's ``__init__``.
 
         Returns:
             None
@@ -258,18 +265,26 @@ class SeparableLinearImageSmoother(ImageSmoother):
 
             outlier_threshold:    The threshold for discarding pixel values as
                 being outliers. See same name argument
-                to iterative_rej_linear_leastsq().
+                to
+                :func:`superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq`
+                .
 
             max_iterations:    The maximum number of reject/re-fit iterations
                 allowed. See same name argument
-                to iterative_rej_linear_leastsq().
+                to
+                :func:`superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq`
+                .
 
         Returns:
-            smooth_image:    The best approximation of the input image possible
-                with the smoothing function.
+            (tuple):
+                2-D array:
+                    The best approximation of the input image possible with the
+                    smoothing function.
 
-            residual:    The root mean square residual returned
-                by iterative_rej_linear_leastsq()
+                float:
+                    The root mean square residual returned by
+                    :func:`superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq`
+                    .
         """
 
         if outlier_threshold is None:
@@ -313,9 +328,9 @@ class PolynomialImageSmoother(SeparableLinearImageSmoother):
                 calculate the pixel integrlas.
 
         Returns:
-            integrals:    A 1-D scipy array with the i-th entry being the
-                integral of the scaled x coordinate to the given power over
-                each pixel.
+            1-D array:
+                An array with the i-th entry being the integral of the scaled x
+                coordinate to the given power over each pixel.
         """
 
         pix_left = scipy.arange(resolution)
@@ -351,14 +366,15 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                 to calculate the pixel integrlas.
 
             num_nodes:    The number of nodes in the spline. The image is scaled
-                to have a dimension of `num_nodes - 1` and nodes are set at
+                to have a dimension of (num_nodes - 1) and nodes are set at
                 integer values.
 
             spline_degree:    The degree of the spline to use.
 
         Returns:
-             integrals:    A 1-D scipy array with the i-th entry being the
-                integral of the spline over the i-th pixel.
+             1-D array:
+                An array with the i-th entry being the integral of the spline
+                over the i-th pixel.
         """
 
         interp_y = scipy.zeros(num_nodes)
@@ -374,13 +390,15 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         return cumulative_integrals[1:] - cumulative_integrals[:-1]
 
     def get_x_pixel_integrals(self, param_ind, x_resolution):
-        """
+        r"""
         Return integrals of the param_ind-th x direction spline basis function.
 
-        Args:    See SeparableLinearImageSmoother.get_x_pixel_integrals()
+        Args:
+            ():    See
+                :meth:`SeparableLinearImageSmoother.get_x_pixel_integrals`\ .
 
         Returns:
-            See SeparableLinearImageSmoother.get_x_pixel_integrals()
+            See :meth:`SeparableLinearImageSmoother.get_x_pixel_integrals`\ .
         """
 
         return self.get_spline_pixel_integrals(param_ind,
@@ -389,13 +407,15 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                                                self.spline_degree)
 
     def get_y_pixel_integrals(self, param_ind, y_resolution):
-        """
+        r"""
         Return integrals of the param_ind-th y direction spline basis function.
 
-        Args:    See SeparableLinearImageSmoother.get_y_pixel_integrals()
+        Args:
+            ():    See
+                :meth:`SeparableLinearImageSmoother.get_y_pixel_integrals`\ .
 
         Returns:
-            See SeparableLinearImageSmoother.get_y_pixel_integrals()
+            See :meth:`SeparableLinearImageSmoother.get_y_pixel_integrals`\ .
         """
 
         return self.get_spline_pixel_integrals(param_ind,
@@ -409,7 +429,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                  num_y_nodes=None,
                  spline_degree=3,
                  **kwargs):
-        """
+        r"""
         Set-up spline interpolation with the given number of nodes.
 
         Args:
@@ -417,9 +437,10 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
 
             num_y_nodes:    The number of spline nodes for the y spline.
 
-            kwargs:    Forwarded directly
-                to SeparableLinearImageSmoother.__init__() after
-                `num_x_terms = num_x_nodes` and `num_y_terms = num_y_nodes`.
+            kwargs:    Forwarded directly to
+                :meth:`SeparableLinearImageSmoother.__init__`\ , along with
+                **num_x_terms** = **num_x_nodes** and **num_y_terms** =
+                **num_y_nodes**.
 
         Returns:
             None
@@ -443,9 +464,10 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         """
         Handle change in interpolation nodes needed by integrals functions.
 
-        Args:    See SeparableLinearImageSmoother._apply_smoothing() except the
-            names of num_x_terms and num_y_terms have been changed to
-            num_x_nodes and num_y_nodes respectively.
+        Args:
+            ():    See :meth:`SeparableLinearImageSmoother._apply_smoothing`
+                except the names of **num_x_terms** and **num_y_terms** have been
+                changed to **num_x_nodes** and **num_y_nodes** respectively.
 
         Returns:
             None
@@ -471,18 +493,19 @@ class WrapFilterAsSmoother(ImageSmoother):
                  bin_factor=None,
                  zoom_interp_order=None,
                  **filter_config):
-        """
+        r"""
         Apply the given filter through the ImageSmoother interface.
 
         Args:
             smoothing_filter:    The filter to apply to smooth images.
 
-            bin_factor:    See ImageSmoother.smooth().
+            bin_factor:    See :meth:`ImageSmoother.smooth`\ .
 
-            zoom_interp_order:    See ImageSmoother.smooth().
+            zoom_interp_order:    See :meth:`ImageSmoother.smooth`\ .
 
             filter_config:    Any arguments to pass to the filter when applying,
-                unless overwritten by arguments to smooth() or detrend().
+                unless overwritten by arguments to :meth:`smooth` or
+                :meth:`detrend`\ .
 
         Returns:
             None
@@ -515,7 +538,7 @@ class ChainSmoother(ImageSmoother):
     Works much like a list of smoothers, except it adds smooth and detrend
     methods.
 
-    Attrs:
+    Attributes:
         smoothing_chain:    The current list of smoothers and the order in which
             they are applied. The first will be applied to the input image, the
             second will be applied to the result of the first etc.

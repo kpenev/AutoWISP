@@ -77,7 +77,8 @@ flat altogether. The procedure used by HATSouth is as follows:
 
         Translation:
 
-            * Fit a quadratic to (standard deviation)^2 vs (mean) from step 1.
+            * Fit a quadratic to (standard deviation)\ :sup:`2` vs (mean) from
+              step 1.
          
             * Discard all points more than two sigma away from the fit go back
               to 2.1.1, for up to two iterations.

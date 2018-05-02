@@ -33,20 +33,25 @@ def read_image_components(fits_fname,
         read_header:    Should the header of the image extension be returned.
 
     Returns:
-        image:   The primary image in the file. Always present.
+        (tuple):
+            2-D array:
+                The primary image in the file. Always present.
 
-        error:   The error estimate of image, identified by IMAGETYP=='error'.
-            Set to None if none of the extensions have IMAGETYP=='error'. This
-            is omitted from the output if `read_error == False`.
+            2-D array:
+                The error estimate of image, identified by ``IMAGETYP=='error'``.
+                Set to None if none of the extensions have
+                ``IMAGETYP=='error'``. This is omitted from the output if
+                ``read_error == False``.
 
-        mask:    A bitmask of quality flags for each image pixel (identified
-            by IMAGETYP='mask'). Set to None if none of the extensions
-            have IMAGETYP='mask'. This is omitted from the output if
-            `read_mask == False`.
+            2-D array:
+                A bitmask of quality flags for each image pixel (identified by
+                ``IMAGETYP='mask'``). Set to None if none of the extensions have
+                ``IMAGETYP='mask'``. This is omitted from the output if
+                ``read_mask == False``.
 
-        header:   The header of the image HDU in the file. This is omitted from
-            the output if `read_header == False`.
-    """
+            astropy.io.fits.Header:
+                The header of the image HDU in the file. This is omitted from
+                the output if ``read_header == False``.  """
 
     image = error = mask = header = None
     with fits.open(fits_fname, mode='readonly') as input_file:
@@ -125,6 +130,10 @@ def zoom_image(image, zoom, interp_order):
             numbers, specifying the zoom along each axis (y first, then x).
 
         interp_order:    The order of the interpolation of the cumulative array.
+
+    Returns:
+        2-D array:
+            The zoomed image.
     """
 
     try:
@@ -176,9 +185,9 @@ def bin_image(image, bin_factor):
             binnin in each direction.
 
     Returns:
-        binned_image:    The binned image with a resolution decreased by the
-            binning factor for each axis, which has the same total flux as the
-            input image.
+        2-D array:
+            The binned image with a resolution decreased by the binning factor
+            for each axis, which has the same total flux as the input image.
     """
 
     try:
@@ -220,8 +229,8 @@ def get_pointing_from_header(frame):
                   extract the pointing information.
 
     Returns:
-        pointing:    An instance of astropy.coordinates.SkyCoord containing the
-            frame pointing information contained in the header.
+        astropy.coordinates.SkyCoord:
+            The frame pointing information contained in the header.
     """
 
     try:

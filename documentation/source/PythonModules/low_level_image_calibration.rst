@@ -10,13 +10,15 @@ is the calibrated image and the second extension are the error estimates for
 each pixel. While the input images can be either integer or floating point, the
 calibrated images are always floating point.
 
-The ImageCalibration python module defines a class (Calibrator) that provides
-the lowest level interface for performing calibrations. The calibration requires
-specifying overscan area(s) to use, overscan correction method(s), master
-bias/dark/flat, and gain to assume for the input raw frames (single floating
-point value), the area in the image which actually contains image pixels (must
-match the dimensions of the masters). We will refer to these as calibration
-parameters from now on. 
+The :mod:`image_calibration<superphot_pipeline.image_calibration>` module
+defines a class
+(:class:`Calibrator<superphot_pipeline.image_calibration.Calibrator>`) that
+provides the lowest level interface for performing calibrations. The calibration
+requires specifying overscan area(s) to use, overscan correction method(s),
+master bias/dark/flat, and gain to assume for the input raw frames (single
+floating point value), the area in the image which actually contains image
+pixels (must match the dimensions of the masters). We will refer to these as
+calibration parameters from now on. 
 
 The typical work flow is as follows:
 
@@ -34,22 +36,23 @@ The typical work flow is as follows:
 
     4. Repeat steps 2 and 3 for all images which need calibrating. 
 
-For example, in order to calibrate flat frames called raw1.fits and raw2.fits
-(with a resolution of 4096x4116) with overscan region consisting of the first 20
-rows applied by subtracting a simple median::
+For example, in order to calibrate flat frames called ``raw1.fits`` and
+``raw2.fits`` (with a resolution of 4096x4116) with overscan region consisting
+of the first 20 rows applied by subtracting a simple median::
 
     from SuperPhotPipeline.ImageCalibration import Calibrator, OverscanMethods
 
     calibrate = Calibrator(
-        overscans = [dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
-        overscan_method = OverscanMethos.median,
-        master_bias = 'masters/master_bias1.fits',
-        gain = 16.0,
-        image_area = dict(xmin = 0, xmax = 4096, ymin = 20, ymax = 4116
+        saturation_threshold=64000.0,
+        overscans=[dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
+        overscan_method=OverscanMethos.median,
+        master_bias='masters/master_bias1.fits',
+        gain=16.0,
+        image_area=dict(xmin=0, xmax=4096, ymin=20, ymax=4116
     )
-    calibrate.set_masters(dark = 'masters/master_dark3.fits')
-    calibrate(raw = 'raw1.fits', calibrated = 'calib1.fits')
-    calibrate(raw = 'raw2.fits', calibrated = 'calib2.fits', gain = 8.0)
+    calibrate.set_masters(dark='masters/master_dark3.fits')
+    calibrate(raw='raw1.fits', calibrated='calib1.fits')
+    calibrate(raw='raw2.fits', calibrated='calib2.fits', gain=8.0)
 
 Users can define their own overscan methods. All that is required is a function
 that takes the input image (numpy array-like object), an overscans dictionary

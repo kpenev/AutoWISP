@@ -210,15 +210,15 @@ def add_inheritance_diagram(app, what, name, obj, options, lines):
         class_list = [member[0]
                       for member in inspect.getmembers(sys.modules[name],
                                                        inspect.isclass)]
-        print('Classes in ' + name + ':\n\t' + '\n\t'.join(class_list))
-        lines.insert(0, '')
-        lines.insert(
-            0, '.. inheritance-diagram:: '
-            +
-            ' '.join(class_list)
-        )
-        lines.insert(0, '=========================')
-        lines.insert(0, 'Class Inheritance Diagram')
+        if class_list:
+            lines.insert(0, '')
+            lines.insert(
+                0, '.. inheritance-diagram:: '
+                +
+                ' '.join(class_list)
+            )
+            lines.insert(0, '=========================')
+            lines.insert(0, 'Class Inheritance Diagram')
     elif what == 'class':
         lines.insert(0, '')
         lines.insert(0,

@@ -2,7 +2,8 @@
 Logging
 *******
 
-## Design considerations
+Design considerations
+=====================
 
 Logging all steps taken by a pipeline is a critical task to allow users to
 monitor progress, debug and tune the various steps. Designing a logging system

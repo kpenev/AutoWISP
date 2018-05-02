@@ -64,26 +64,27 @@ def parse_hat_mask(header):
         header:    The header of the image whose mask to parse.
 
     Returns:
-        mask:    A dtype=uint8 numpy array with exactly the same resolution as
-            the input image containing a bit-field for each pixel indicating
-            any bad-pixel flags raised per the header.
+        numpy.array(dtype=uint8):
+            array with exactly the same resolution as the input image containing
+            a bit-field for each pixel indicating any bad-pixel flags raised per
+            the header.
 
     Examples:
 
         >>> from astropy.io import fits
-
+        >>>
         >>> with fits.open('/Users/kpenev/tmp/1-447491_4.fits.fz',
         >>>                mode='readonly') as f:
         >>>     image_mask = parse_hat_mask(f[1].header)
-
+        >>>
         >>>     flag_name = 'OVERSATURATED'
-
+        >>>
         >>>     matched = numpy.bitwise_and(image_mask,
         >>>                                 mask_flags[flag_name]).astype(bool)
-
+        >>>
         >>>     #Print number of pixels for which the OVERSATURATED flag is raised
         >>>     print(flag_name + ': ' + repr(matched.sum()))
-
+        >>>
         >>>     #Output x, y, flux for the pixels flagged as OVERSATURATED
         >>>     for y, x in zip(*numpy.nonzero(matched)):
         >>>         print('%4d %4d %15d' % (x, y, f[1].data[y, x]))
@@ -108,7 +109,8 @@ def combine_masks(mask_filenames):
             [a-z\_]*mask).
 
     Returns:
-        mask:    A bitwise or of the mask extensions of all input FITS files.
+        numpy.array(dtype=uint8):
+            A bitwise or of the mask extensions of all input FITS files.
     """
 
     mask = None
@@ -158,9 +160,10 @@ def get_saturation_mask(raw_image,
             y offset to which charge is leaked.
 
     Returns:
-        mask:    A 2-D numpy bitmask array flagging pixels which are above
-            `saturation_threshold` or which are adjacent from a saturated pixel
-            in a direction in which a charge could leak.
+        numpy.array(dtype=uint8):
+            A bitmask array flagging pixels which are above
+            **saturation_threshold** or which are adjacent from a saturated
+            pixel in a direction in which a charge could leak.
     """
 
     print('Raw image shape: ' + repr(raw_image.shape))
