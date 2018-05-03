@@ -696,7 +696,7 @@ class Calibrator(Processor):
             ].astype('float64')
             calibrated_images = [
                 trimmed_image,
-                trimmed_image / calibration_params['gain'],
+                numpy.zeros(shape=trimmed_image.shape),
                 get_saturation_mask(trimmed_image,
                                     calibration_params['saturation_threshold'],
                                     calibration_params['leak_directions'])
@@ -725,6 +725,10 @@ class Calibrator(Processor):
                         calibration_params[master_type],
                         calibrated_images
                     )
+                if master_type == 'bias':
+                    calibrated_images[1] += (calibrated_images[0]
+                                             /
+                                             calibration_params['gain'])
 
             if calibration_params['flat'] is not None:
                 apply_flat_correction(calibration_params['flat'], calibrated_images)
