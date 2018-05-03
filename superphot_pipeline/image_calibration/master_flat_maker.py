@@ -671,26 +671,32 @@ class MasterFlatMaker(MasterMaker):
                 stacking configuration specified at construction for this
                 stack only.
 
-        Reutrns:
-            frames:    A dictionary splitting the input list of frames into:
-                high:    All entries from :attr:`frame_list` which were deemed
-                    suitable for inclusion in a master high flat.
+        Returns:
+            dict:
+                A dictionary splitting the input list of frames into
 
-                low:    All entries from :attr:`frame_list` which were deemed
-                    suitable for inclusion in a master low flat.
+                    high:
+                        All entries from :attr:`frame_list` which were deemed
+                        suitable for inclusion in a master high flat.
 
-                medium:    All entries from :attr:`frame_list` which were of
-                    intermediate intensity and thus not included in any master,
-                    but for which no issues were detected.
+                    low:
+                        All entries from :attr:`frame_list` which were deemed
+                        suitable for inclusion in a master low flat.
 
-                colocated:    All entries from :attr:`frame_list` which were
-                    excluded because they were not sufficiently isolated from
-                    their closest neighbor to guarantee that stars do
-                    not overlap.
+                    medium:
+                        All entries from :attr:`frame_list` which were of
+                        intermediate intensity and thus not included in any
+                        master, but for which no issues were detected.
 
-                cloudy:    All entries from :attr:`frame_list` which were
-                    flagged as cloudy either based on their stamps or on the
-                    final full-frame cloud check.
+                    colocated:
+                        All entries from :attr:`frame_list` which were excluded
+                        because they were not sufficiently isolated from their
+                        closest neighbor to guarantee that stars do not overlap.
+
+                    cloudy:
+                        All entries from :attr:`frame_list` which were flagged
+                        as cloudy either based on their stamps or on the final
+                        full-frame cloud check.
         """
 
         frames = dict()

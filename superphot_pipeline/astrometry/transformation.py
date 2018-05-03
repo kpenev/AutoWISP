@@ -183,14 +183,12 @@ class Transformation:
 
         Returns:
             numpy.array(dtype=[('x', float), ('y', float)]):
-                The position in
-                pixels relative to the lower left frame of the corner to which
-                the given sky position projects under the currently defined
-                transformation, as a numpy array with fields named `'x'` and
-                `'y'`. If `save_intermediate` is True, the result also contains
-                fields called `'xi'` and `'eta'` containing the intermediate
-                coordinates.
-        """
+                The position in pixels relative to the lower left frame of the
+                corner to which the given sky position projects under the
+                currently defined transformation, as a numpy array with fields
+                named `'x'` and `'y'`. If `save_intermediate` is True, the
+                result also contains fields called `'xi'` and `'eta'` containing
+                the intermediate coordinates.  """
 
         try:
             projected_shape = sources['RA'].shape
