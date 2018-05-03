@@ -33,20 +33,25 @@ def read_image_components(fits_fname,
         read_header:    Should the header of the image extension be returned.
 
     Returns:
-        image:   The primary image in the file. Always present.
+        (tuple):
+            2-D array:
+                The primary image in the file. Always present.
 
-        error:   The error estimate of image, identified by IMAGETYP=='error'.
-            Set to None if none of the extensions have IMAGETYP=='error'. This
-            is omitted from the output if `read_error == False`.
+            2-D array:
+                The error estimate of image, identified by ``IMAGETYP=='error'``.
+                Set to None if none of the extensions have
+                ``IMAGETYP=='error'``. This is omitted from the output if
+                ``read_error == False``.
 
-        mask:    A bitmask of quality flags for each image pixel (identified
-            by IMAGETYP='mask'). Set to None if none of the extensions
-            have IMAGETYP='mask'. This is omitted from the output if
-            `read_mask == False`.
+            2-D array:
+                A bitmask of quality flags for each image pixel (identified by
+                ``IMAGETYP='mask'``). Set to None if none of the extensions have
+                ``IMAGETYP='mask'``. This is omitted from the output if
+                ``read_mask == False``.
 
-        header:   The header of the image HDU in the file. This is omitted from
-            the output if `read_header == False`.
-    """
+            astropy.io.fits.Header:
+                The header of the image HDU in the file. This is omitted from
+                the output if ``read_header == False``.  """
 
     image = error = mask = header = None
     with fits.open(fits_fname, mode='readonly') as input_file:
@@ -96,22 +101,23 @@ def zoom_image(image, zoom, interp_order):
     Increase the resolution of an image using flux conserving interpolation.
 
     Interpolation is performed using the following recipe:
+
         1.  create a cumulative image (C), i.e. C(x, y) = sum(
             image(x', y'), {x', 0, x}, {y', 0, y}). Note that C's x and y
             resolutions are both bigger than image's by one with all entries in
             the first row and the first column being zero.
+
         2.  Interpolate the cumulative image using a bivariate spline to get a
             continuous cumulative flux F(x, y).
+
         3.  Create the final image I by setting each pixel to the flux implied
             by F(x, y) from step 2, i.e. if zx is the zoom factor along x and zy
-            is the zoom factor along y:
+            is the zoom factor along y::
 
-            \verbatim
                 I(x, y) = F((x+1)/z, (y+1)/z)
                           - F((x+1)/z, y/z)
                           - F(x/z, (y+1)/z)
                           + F(x/z, y/z)
-            \endverbatim
 
     Since this is a flux conserving method, zooming and then binning an image
     reproduces the original image with close to machine precision.
@@ -124,6 +130,10 @@ def zoom_image(image, zoom, interp_order):
             numbers, specifying the zoom along each axis (y first, then x).
 
         interp_order:    The order of the interpolation of the cumulative array.
+
+    Returns:
+        2-D array:
+            The zoomed image.
     """
 
     try:
@@ -175,9 +185,9 @@ def bin_image(image, bin_factor):
             binnin in each direction.
 
     Returns:
-        binned_image:    The binned image with a resolution decreased by the
-            binning factor for each axis, which has the same total flux as the
-            input image.
+        2-D array:
+            The binned image with a resolution decreased by the binning factor
+            for each axis, which has the same total flux as the input image.
     """
 
     try:
@@ -205,18 +215,22 @@ def get_pointing_from_header(frame):
     Args:
         frame:    The frame to return the pointing of. Could be in one of the
             following formats:
+
               * string: the filanema of a FITS frame. The pointing information
                   is extracted from the header of the first non-trivial HDU.
+
               * HDUList: Same as above, only this time the file is
                   already opened.
+
               * astropy.io.fits ImageHDU or TableHDU, containing the header to
                   extract the pointing information from.
+
               * asrtopy.io.fits.Header instance: the header from which to
                   extract the pointing information.
 
     Returns:
-        pointing:    An instance of astropy.coordinates.SkyCoord containing the
-            frame pointing information contained in the header.
+        astropy.coordinates.SkyCoord:
+            The frame pointing information contained in the header.
     """
 
     try:

@@ -19,7 +19,7 @@ def iterative_rejection_average(array,
                                 require_convergence=False,
                                 mangle_input=False,
                                 keepdims=False):
-    """
+    r"""
     Avarage with iterative rejection of outliers along an axis.
 
     Notes:
@@ -35,7 +35,8 @@ def iterative_rejection_average(array,
             positive and negative directions separately.
 
         average_func:    A function which returns the average to compute (e.g.
-            scipy.nanmean or scipy.nanmedian), must ignore nan values.
+            :func:`scipy.nanmean` or :func:`scipy.nanmedian`\ ), must ignore nan
+            values.
 
         max_iter:    The maximum number of rejection - re-fitting iterations
             to perform.
@@ -49,21 +50,26 @@ def iterative_rejection_average(array,
 
         mangle_input:    Is this function allowed to mangle the input array.
 
-        keepdims:    See the keepdims argument of scipy.mean
+        keepdims:    See the keepdims argument of :func:`scipy.mean`\ .
 
     Returns:
-        average:    An array with all axes of a other than axis being the same
-            and the dimension along the axis-th axis being 1. Each entry if of
-            average is independently computed from all other entries.
+        (tuple):
+            array(float):
+                An array with all axes of a other than axis being the same and
+                the dimension along the axis-th axis being 1. Each entry if of
+                average is independently computed from all other entries.
 
-        stdev:    An empirical estimate of the standard deviation around the
-            returned `average` for each pixel. Calculated as RMS of the
-            difference between individual values and the average divided by one
-            less than the number of pixels contributing to that particular
-            pixel's average. Has the same shape as `average`.
+            array(float):
+                An empirical estimate of the standard deviation around the
+                returned `average` for each pixel. Calculated as RMS of the
+                difference between individual values and the average divided by
+                one less than the number of pixels contributing to that
+                particular pixel's average. Has the same shape as above.
 
-        num_averaged:    The number of non-rejected non-NaN values included
-            in the average of each pixel. Same shape as `average`.
+            array(int):
+                The number of non-rejected non-NaN values included in the
+                average of each pixel. Same shape as above.
+
     """
 
     working_array = (array if mangle_input else scipy.copy(array))
@@ -160,12 +166,16 @@ def iterative_rej_linear_leastsq(matrix,
         return_predicted:    Should the best-fit values for the RHS be returned?
 
     Returns:
-        solution:    The best fit coefficients.
+        (tuple):
+            array:
+                The best fit coefficients.
 
-        residual:    The root mean square residual of the latest fit iteration.
+            float:
+                The root mean square residual of the latest fit iteration.
 
-        predicted:    The predicted values for the RHS. Only available if
-            `return_predicted==True`.
+            array:
+                The predicted values for the RHS. Only available if
+                **return_predicted** == ``True``.
     """
 
     num_surviving = rhs.size
@@ -208,14 +218,14 @@ def iterative_rej_polynomial_fit(x,
         order:    The maximum power of x term to include in the
             polynomial expansion.
 
-        leastsq_args:    Passed directly to iterative_rej_linear_leastsq().
+        leastsq_args:    Passed directly to
+            :func:`iterative_rej_linear_leastsq`\ .
 
-        leastsq_kwargs:    Passed directly to iterative_rej_linear_leastsq().
+        leastsq_kwargs:    Passed directly to
+            :func:`iterative_rej_linear_leastsq`\ .
 
     Returns:
-        solution:    See iterative_rej_linear_leastsq()
-
-        residual:    See iterative_rej_linear_leastsq()
+        See :func:`iterative_rej_linear_leastsq`\ .
     """
 
     matrix = scipy.empty((x.size, order+1))

@@ -1,7 +1,5 @@
 """Define classes for creating master flat frames."""
 
-#TODO: pythonize
-
 import numpy
 
 from superphot_pipeline.image_calibration.master_maker import MasterMaker
@@ -16,29 +14,33 @@ from superphot_pipeline.iterative_rejection_util import\
     iterative_rej_polynomial_fit
 
 class MasterFlatMaker(MasterMaker):
-    """
+    r"""
     Specialize MasterMaker for making master flat frames.
 
-    Attrs:
+    Attributes:
         stamp_statistics_config:    Dictionary configuring how stamps statistics
             for stamp-based selection are extracted from the frames.
 
         stamp_select_config:    Dictionary configuring how stamp-based selection
-            is performed. See keyword only arguments of _check_central_stamp for
-            details.
+            is performed. See keyword only arguments of
+            :meth:`configure_stamp_selection` for details.
 
-        large_scale_smoother:    An ImageSmoother instance applied  to the ratio
-            of a frame to the reference large scale structure before applying it
-            to the frame. See keyword only arguments of _smooth_image for
-            details.
+        large_scale_smoother:    A
+            :class:`superphot_pipeline.image_smoothing.ImageSmoother`
+            instance applied  to the ratio of a frame to the reference large
+            scale structure before applying it to the frame.
 
-        cloud_check_smoother:    ImageSmoother instance used for cloud detection
-            performed on the full flat frames after smoothing to the master
-            large scale structure. See keyword only arguments of _smooth_image
-            for details.
+        cloud_check_smoother:
+            :class:`superphot_pipeline.image_smoothing.ImageSmoother`
+            instance used for cloud detection performed on the full flat frames
+            after smoothing to the master large scale structure.
 
         master_stack_config:    Dictionary configuring how to stack the
             individual frames into a master.
+
+        _master_large_scale:    The large scale structure imposed on all master
+            flats. Dictionary with keys ``values``, ``stdev``, ``mask`` and
+            ``header``. If empty dictionary, nothing is imposed.
 
     Examples:
 
@@ -48,7 +50,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     SplineImageSmoother,\
         >>>     ChainSmoother,\
         >>>     WrapFilterAsSmoother
-
+        >>>
         >>> #Stamp statistics configuration:
         >>> #  * stamps span half the frame along each dimension
         >>> #  * stamps are detrended by a bi-quadratic polynomial with at most
@@ -66,7 +68,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     outlier_threshold=3.0,
         >>>     max_iter=3
         >>> )
-
+        >>>
         >>> #Stamp statistics based selection configuration:
         >>> #  * Stamps with more than 0.1% of their pixels saturated are
         >>> #    discarded
@@ -84,7 +86,7 @@ class MasterFlatMaker(MasterMaker):
         >>>                            cloudy_frame_threshold=2.0,
         >>>                            min_high_mean=2.5e4,
         >>>                            max_low_mean=1.5e4)
-
+        >>>
         >>> #Large scale structure smoothing configuration. For each frame, the
         >>> #large scale struture is corrected by taking the ratio of the frame
         >>> #to the reference (median of all input frames), smoothing this ratio
@@ -112,7 +114,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     bin_factor=4,
         >>>     zoom_interp_order=3
         >>> )
-
+        >>>
         >>> #Configuration for smoothnig for the purposes of checking for clouds.
         >>> #After smoothing to the master large scale structure:
         >>> #  * extract a central stamp is extracted from each flat covering
@@ -130,7 +132,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     bin_factor=4,
         >>>     zoom_interp_order=3
         >>> )
-
+        >>>
         >>> #When stacking masters require:
         >>> #  * At least 10 input frames for a high intensity master and at
         >>> #    least 5 for a low intensity one.
@@ -164,7 +166,7 @@ class MasterFlatMaker(MasterMaker):
         >>>         allow_overwrite=False
         >>>     )
         >>> )
-
+        >>>
         >>> #Create an object for stacking calibrated flat frames to master
         >>> #flats. In addition to the stamp-based rejections:
         >>> #  * reject flats that point within 40 arcsec of each other on the sky.
@@ -179,7 +181,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     cloud_check_smoother=cloud_check_smoother,
         >>>     master_stack_config=master_stack_config
         >>> )
-
+        >>>
         >>> #Create master flat(s) from the given raw flat frames. Note that
         >>> #zero, one or two master flat frames can be created, depending on
         >>> #the input images. Assume that the raw flat frames have names like
@@ -200,9 +202,9 @@ class MasterFlatMaker(MasterMaker):
                 statistics.
 
         Returns:
-            stamp_statistics:    A structure numpy array with fields called
-                `'mean'`, `'variance'` and `'num_averaged'` with the
-                obvious meanings.
+            numpy field array:
+                An array with fields called ``mean``, ``variance`` and
+                ``num_averaged`` with the obvious meanings.
         """
 
         stamp_statistics = numpy.empty(
@@ -274,14 +276,19 @@ class MasterFlatMaker(MasterMaker):
             frame_list:    The list of frames to create masters from.
 
         Returns:
-            high:    The list of high intensity non-cloudy frames.
+            (tuple):
+                filename list:
+                    The list of high intensity non-cloudy frames.
 
-            low:    The list of low intensity non-cloudy frames.
+                filename list:
+                    The list of low intensity non-cloudy frames.
 
-            medium:    The list of medium intensity non-cloudy frames.
+                filename list:
+                    The list of medium intensity non-cloudy frames.
 
-            cloudy:    The list of frames suspected of containing clouds in
-                their central stamps.
+                filename list:
+                    The list of frames suspected of containing clouds in
+                    their central stamps.
         """
 
         stamp_statistics = self._get_stamp_statistics(frame_list)
@@ -382,11 +389,14 @@ class MasterFlatMaker(MasterMaker):
                 (FITS filenames).
 
         Returns:
-            isolated:    The ist of frames sufficiently far in pointing from all
-                other frames.
+            (tuple):
+                filename list:
+                    The ist of frames sufficiently far in pointing from all
+                    other frames.
 
-            colocated:    The list of frames which have at least one other
-                frame too close in pointing to them.
+                filename list:
+                    The list of frames which have at least one other
+                    frame too close in pointing to them.
         """
 
         frame_pointings = [get_pointing_from_header(f) for f in frame_list]
@@ -422,10 +432,10 @@ class MasterFlatMaker(MasterMaker):
 
         Args:
             stamp_statistics_config:    A dictionary mith arguments to pass
-                to configure_stamp_statistics.
+                to :meth:`configure_stamp_statistics`.
 
             stamp_select_cofig:    A dictionary with arguments to pass
-                to configure_stamp_selection.
+                to :meth:`configure_stamp_selection`.
 
             large_scale_smoother:    An ImageSmoother instance used when
                 matching large scale structure of individual flats to master.
@@ -484,8 +494,8 @@ class MasterFlatMaker(MasterMaker):
             max_iter:    The maximum number of fit/reject iterations to perform
                 before declaring the de-trending function final.
 
-            average:    How to compute the average. Should be either 'mean'
-                or 'median'.
+            average:    How to compute the average. Should be either ``'mean'``
+                or ``'median'``.
 
         Returns:
             None
@@ -591,19 +601,20 @@ class MasterFlatMaker(MasterMaker):
             self.stamp_select_config['max_low_mean'] = max_low_mean
 
     def prepare_for_stacking(self, image):
-        """
+        r"""
         Match image large scale to `self._master_large_scale` if not empty.
 
         Args:
             image:    The image to transform large scale structure of.
 
         Returns:
-            stack_image:    If `self._master_large_scale` is an empty
-                dictionary, this is just `image`. Otherwise, `image` is
-                transformed to have the same large scale structure as
-                `self._master_large_scale`, while the small scale structure is
-                preserved. Image is also checked for clouds, and discarded
-                if cloudy.
+            2-D array:
+                If :attr:`_master_large_scale` is an empty dictionary, this is
+                just :attr:`image`\ . Otherwise, :attr:`image` is transformed to
+                have the same large scale structure as
+                :attr:`_master_large_scale`\ , while the small scale
+                structure is preserved. :attr:`image` is also checked for
+                clouds, and discarded if cloudy.
         """
 
         if not self._master_large_scale:
@@ -652,32 +663,40 @@ class MasterFlatMaker(MasterMaker):
             compress:    Should the final result be compressed?
 
             allow_overwrite:    See same name argument
-                to superphot_pipeline.image_calibration.fits_util.create_result.
+                to
+                :func:`superphot_pipeline.image_calibration.fits_util.create_result`
+                .
 
             stacking_options:    Keyword only arguments allowing overriding the
                 stacking configuration specified at construction for this
                 stack only.
 
-        Reutrns:
-            frames:    A dictionary splitting the input list of frames into:
-                high:    All entries from `frame_list` which were deemed
-                    suitable for inclusion in a master high flat.
+        Returns:
+            dict:
+                A dictionary splitting the input list of frames into
 
-                low:    All entries from `frame_list` which were deemed
-                    suitable for inclusion in a master low flat.
+                    high:
+                        All entries from :attr:`frame_list` which were deemed
+                        suitable for inclusion in a master high flat.
 
-                medium:    All entries from `frame_list` which were of
-                    intermediate intensity and thus not included in any master,
-                    but for which no issues were detected.
+                    low:
+                        All entries from :attr:`frame_list` which were deemed
+                        suitable for inclusion in a master low flat.
 
-                colocated:    All entries from `frame_list` which were
-                    excluded because they were not sufficiently isolated from
-                    their closest neighbor to guarantee that stars do
-                    not overlap.
+                    medium:
+                        All entries from :attr:`frame_list` which were of
+                        intermediate intensity and thus not included in any
+                        master, but for which no issues were detected.
 
-                cloudy:    All entries from `frame_list` which were flagged
-                    as cloudy either based on their stamps or on the final
-                    full-frame cloud check.
+                    colocated:
+                        All entries from :attr:`frame_list` which were excluded
+                        because they were not sufficiently isolated from their
+                        closest neighbor to guarantee that stars do not overlap.
+
+                    cloudy:
+                        All entries from :attr:`frame_list` which were flagged
+                        as cloudy either based on their stamps or on the final
+                        full-frame cloud check.
         """
 
         frames = dict()

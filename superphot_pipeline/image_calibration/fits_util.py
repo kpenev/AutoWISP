@@ -11,11 +11,16 @@ def create_result(image_list,
     Create a 3-extension FITS file out of 3 numpy images and header.
 
     All FITS files produced during calibration (calibrated frames and masters)
-    follow the same convention: 3 header data units: the actual image and
-    header, an error estimate and a bad pixel mask. Which one is which is
-    identified by the IMAGETYP keyword in the corresponding header. The image
-    HDU can have an arbitrary IMAGETYP, while the mask and error HDU have
-    'IMAGETYP'='mask' and 'IMAGETYP'='error' respectively.
+    contain 3 header data units:
+
+        * the actual image and header,
+        * an error estimate
+        * a bad pixel mask.
+
+    Which one is which is identified by the IMAGETYP keyword in the
+    corresponding header. The image HDU can have an arbitrary IMAGETYP, while
+    the mask and error HDU have 'IMAGETYP'='mask' and 'IMAGETYP'='error'
+    respectively.
 
     Args:
         image_list:    A list with 3 entries of image data for the output
@@ -29,7 +34,7 @@ def create_result(image_list,
 
         compress:    Should the created image be compressed?
 
-        allow_overwrite:    If a file named `result_fname` already exists,
+        allow_overwrite:    If a file named **result_fname** already exists,
             should it be overwritten (otherwise throw an exception).
 
     Returns:
