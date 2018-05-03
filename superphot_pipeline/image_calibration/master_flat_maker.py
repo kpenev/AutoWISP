@@ -14,7 +14,7 @@ from superphot_pipeline.iterative_rejection_util import\
     iterative_rej_polynomial_fit
 
 class MasterFlatMaker(MasterMaker):
-    """
+    r"""
     Specialize MasterMaker for making master flat frames.
 
     Attributes:
