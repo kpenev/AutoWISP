@@ -29,25 +29,25 @@ options include:
 +========+==================================+============+=====================+
 |        |  * Can add indices by            |  * Could result in big data      |
 |        |    sub-HEALPix, brightness,      |    volume.                       |
-| sqlite |    color etc.                    |                                  |
-|        |                                  |                                  |
-|        |  * Each batch of data can be in  |                                  |
-|        |    a separate file               |                                  |
-+--------+----------------------------------+----------------------------------+
-|        |  * Can add indices by            |  * Could result in big data      |
-|        |    sub-HEALPix, brightness,      |    volume.                       |
 | mysql  |    color etc.                    |                                  |
 |        |                                  |                                  |
 |        |  * Can partition table by super- |                                  |
 |        |    HEALPix.                      |                                  |
 +--------+----------------------------------+----------------------------------+
-| FITS   |  * Very standard                 |  * More work to perform queries. |
+|        |  * Can add indices by            |  * Could result in big data      |
+|        |    sub-HEALPix, brightness,      |    volume.                       |
+| sqlite |    color etc.                    |                                  |
 |        |                                  |                                  |
+|        |  * Each batch of data can be in  |                                  |
+|        |    a separate file               |                                  |
++--------+----------------------------------+----------------------------------+
+|        |  * Very standard                 |  * More work to perform queries. |
+| FITS   |                                  |                                  |
 |        |  * Each batch of data can be in  |  * Possibly slower queries       |
 |        |    a separate file               |    (no indices).                 |
 +--------+----------------------------------+----------------------------------+
-| HDF5   |  * Good compression options.     |  * More work to perform queries. |
-|        |                                  |                                  |
+|        |  * Good compression options.     |  * More work to perform queries. |
+| HDF5   |                                  |                                  |
 |        |  * Each batch of data can be in  |  * Possibly slower queries.      |
 |        |    a separate file               |    (no indices).                 |
 +--------+----------------------------------+----------------------------------+
