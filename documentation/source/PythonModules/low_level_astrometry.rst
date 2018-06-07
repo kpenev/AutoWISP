@@ -50,32 +50,60 @@ modified later through calling configuratino methods and overwritten for for a
 single frame only through additional arguments when invoking source extraction.
 Extracting the sources from a single frame is done through the __call__ method.
 
-When source extraction is performed, extracted sources can be stored in a file
-and/or returned as a structured numpy array. The array has at least the
-following fields:
+When source extraction is performed, extracted sources can be stored in a human
+readable ASCII file, added as a dataset within an HDF5 file, and/or returned as
+a structured numpy array. The array has at least the following fields:
 
   * ``id`` - A unique integer identifier of the source
+
   * ``x`` - The x coordinate of the souce in units of pixels
+
   * ``y`` - The x coordinate of the souce in units of pixels
+
   * ``signal_to_noise`` - The combined signal to noise of all the pixels
     assigned to the source.
+
   * ``flux`` - Some estimate of the flux of the souce (as calculated by the
     source extractor used).
 
 In addition, depending on the source extractor used, more columns are available.
 
-The files generated have the column name as a first line, marked as a comment by
-a leading ``#``. To ensure readability by humans, all columns values are aligned
-to a common left boundary, which is also the left boundary for the column name
-in the header. All output columns are numeric.
+HDF5 datasets follow the same structure as the numpy array, but in addition
+define attributes documenting how source extraction was performed. The following
+attributes are defined:
+
+  * ``Tool`` - The source extraction tool used (e.g. fistar).
+
+  * ``CommandLine`` - The full command line used to invoke the tool
+
+  * ``Version`` - The self reported version of the command line tool invoked.
+
+  * ``Filter`` - Any filters applied to the output list of sources: a valid
+    python expression involving the input columns as variables returning either
+    True (source is kept) or False (source is rejected).
+
+ASCII files generated contain a header (denoted by lines starting with the ``#``
+character) providing the full information on how this catalogue query was
+generated. The format is::
+
+    # <key> = <value>
+
+With keys and corresponding values the same as the HDF5 attributes listed above.
+
+After the header, a line defining the the column name follows, marked as a
+comment by a leading ``#``. To ensure readability by humans, all columns values
+are aligned to a common left boundary, which is also the left boundary for the
+column name in the header. All output columns are numeric.
 
 Catalogue query
 ===============
 
 For the moment, only the UCAC4 catalogue is supported, and work is in progress
 to implement support for GAIA. Just like source extraction configuration can be
-specified in three stages, and output can be as a structured numpy array and/or
-a file. In this case however, not all columns are numeric.
+specified in three stages. The output can be as a structured numpy array and/or
+an ASCII file.  In this case however, not all columns are numeric. Since
+catalogue queries are usually shared between multiple frames, adding as HDF5
+datasets makes little sense and is not supported.
 
 The catalogue file format and the return nmupy array contain the following
 columns for UCAC4:
@@ -112,6 +140,11 @@ corresponding catalogue used. For UCAC4, this means the following:
 Filtering can also be done on any of the numeric output columns listed above,
 enforcing that only values in a specific interval are allowed.
 
+In addition to the list of sources, ASCII files produced again contain a header
+identical to the one described for the source extraction step above and an
+additional key called ``Catalogue`` specifying which catalogue was queried (e.g.
+'UCAC4' or 'GAIA').
+
 Approximate solution
 ====================
 
@@ -147,15 +180,72 @@ As with source extraction and catalogue querrying configuration for this step
 can be specified in three stages: construction of the solver, after construction
 and as one-time overwrites during individual solver invocations.
 
-Successfully extracted solutions are saved as a collection of datasets in an
-HDF5 file associated with the frame:
+Successfully extracted solutions are saved as group containing a collection of
+datasets in an HDF5 file associated with the frame:
+
+  * The initial approximate transformation returned by astrometry.net
 
   * The sky-to-frame transformation found
-  * The match between the extracted and catalogue sources
+
+  * The match between the extracted and catalogue sources, containing the source
+    ID from  the source extraction result and all columns from the catalogue
+    query.
+
   * The extracted sources for which no catalogue match was found
+
   * The catalogue sources which transform to a position included in the frame
     per the transformation found, but for which no extracted source was found.
     
 The inclusion of any of these data sets can be turned on or off separately, with
 exact layout within the file configured separately by a base class for HDF5 I/O,
 which uses either an XML file or the database.
+
+A set of attributes is added to the relevant datasets or to the overarching
+group documenting how the solution was extracted. At least the following
+attributes are defined:
+
+  * ``AstrometryNetCommandLine``: The command line with which the
+    ``solve-field`` executable from astrometry.net was invoked.
+
+  * ``AstrometryNetVersion``: The the self reported version of ``solve-field``
+    used (the line starting with 'Revision' in the help message).
+
+  * ``Catalogue``: Which catalogue was used to refine the transformation
+
+  * ``CatalogueFilter``: What filter was applied to catalogue sources before
+    using them for astrometry.
+
+  * ``CatalogueEpoch``: The epoch for which the RA and Dec coordinates of the
+    catalogue entries were estimated (could include proper motion correction to
+    a specified date or just be the epoch given in the catalogue itself).
+
+  * ``CatalogueQueryTool``: What tool was used to query tha catalogue (e.g.
+    python module implementing the queries or an external executable).
+
+  * ``CatalogueQueryVersion``: The version of the ``CatalogueQueryTool`` used
+    (e.g. git hash for module or self reported version for executable).
+
+  * ``SkyProjection``: The name of the transformation mapping (RA, Dec) to
+    (:math:`\xi`, :math:`\eta`) (e.g. tan, arc, ...).
+
+  * ``RefinementTool``: What tool was used to refine the initial astrometry.net
+    solution. Similar to ``CatalogueQueryTool``.
+
+  * ``RefinementVersion``: Analogous to ``CatalogueQueryVersion``.
+
+  * ``RefinementMatchRadius``: The maximum distance allowed between
+    corresponding projected and extracted sources in order for the match to be
+    considered valid.
+
+  * ``RefinementMatchMagnitudeTolerance``:  The largest difference between
+    source magnitudes estimated by source extraction and the catalogue entry for
+    a match to be considered valid.
+
+  * ``RefinementCenterTolerance``: The maximum change (in arcseconds) between
+    the estimate for the (RA, Dec) position corresponding to the frame center
+    used in deriving the last transformation and the one implied by the derived
+    transfomation, in order to consider the re-centering/re-fitting iterations
+    converged.
+
+Additional attributes may be added to document the full configuration used for
+any of the astrometry steps.
