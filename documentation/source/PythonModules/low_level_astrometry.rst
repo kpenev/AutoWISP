@@ -1,9 +1,44 @@
-**************************
-Low Level Astrometry Tools
-**************************
+******************************
+Low Level Astrometry Interface
+******************************
 
-Source extraction
+Given calibrated FITS frames of the night sky produced as described in
+:doc:`low_level_image_calibration`, this module finds an astrometric solution
+defining how (RA, Dec) coordinates on the sky are mapped to image (x, y). The
+transformations are done in two steps:
+
+    #. Using some pre-defined projection (e.g. one of the well know cartograhpic
+       projections) to convert (RA, Dec) to a new set of coordinates
+       (:math:`\xi`, :math:`\eta`) around the (RA, Dec) position corresponding
+       to the center of the frame. **This transformatino has no free
+       parameters.**
+       
+    #. Using a low-order polynomial to transform (:math:`\xi`, :math:`\eta`) to
+       (x, y). The polynomial coefficients are determined using least squares
+       fitting between extracted source positions and projected catalogue
+       positions.
+
+The procedure involves the following steps: 
+
+Source Extraction
 =================
+
+Identify sources in the image. This is done by invoking an external source
+extractor (e.g. fistar, hatphot or sextractor) as a subprocess, then parsing and
+filtering the result to produce as clean and as complete as possible list of
+stars contained in the frame.
+
+fistar
+    This tool provides (x, y), estimate of the flux, an elliptical Gaussian fit
+    for the shape of the source and a signal to noise estimate. Filtering is
+    done based on signal to noise and shape parameters to remove outliers.
+
+hatphot:
+    Similarly to fistar, this tools also provides estimates of the source shape
+    which is used to filter strange looking sources.
+
+sextractor
+    This tool is currently not supported but should be.
 
 Currently, source extraction can use fiphot or hatphot. Both of these are
 supported along with a clear scheme for adding support for other source
@@ -37,9 +72,8 @@ in the header. All output columns are numeric.
 Catalogue query
 ===============
 
-For the moment, only the UCAC4 catalogue is supported, with the idea that
-eventually, when GAIA data is publicly released it will be useable through a
-very similar interface. Just like source extraction configuration can be
+For the moment, only the UCAC4 catalogue is supported, and work is in progress
+to implement support for GAIA. Just like source extraction configuration can be
 specified in three stages, and output can be as a structured numpy array and/or
 a file. In this case however, not all columns are numeric.
 
@@ -77,14 +111,41 @@ corresponding catalogue used. For UCAC4, this means the following:
   
 Filtering can also be done on any of the numeric output columns listed above,
 enforcing that only values in a specific interval are allowed.
-  
-Matching and solving
+
+Approximate solution
 ====================
 
-Currently only anmatch is supported. As with source extraction and catalogue
-querrying configuration can be specified in three stages: construction of the
-solver, after construction and as one-time overwrites during individual solver
-invocations. 
+The `astromtery.net <http://astrometry.net/>`_ code is used to derive a very
+good first guess for the transformation. Experience shows that this is an
+extremely robust tool, probably sufficient for all our needs.
+
+Refining the solution
+=====================
+
+This is done through the following steps:
+
+    1. Once an approximate solution is known, it is used to match catalogue
+       sources to extracted sources by building a `cKDtree
+       <https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.cKDTree.html>`_
+       from the projected catalogue sources and querying it for the closest
+       match to all extracted sources, with matches only considered
+       successful if they are within some pre-determined radius.
+
+    2. Matched catalogue (RA, Dec) coordinates are then projected to
+       (:math:`\xi`, :math:`\eta`) around the best guess for the (RA, Dec)
+       corresponding to the frame center. These then are used to derive a
+       refined transformation between (:math:`\xi`, :math:`\eta`) and (x, y)
+       using least squares fitting.
+
+    3. This transformation is then inverted to find a new best guess for the
+       (RA, Dec) of the center of the frame.
+       
+Steps 2 and 3 are iterated until the central (RA, Dec) remains within some
+tolerance.
+
+As with source extraction and catalogue querrying configuration for this step
+can be specified in three stages: construction of the solver, after construction
+and as one-time overwrites during individual solver invocations.
 
 Successfully extracted solutions are saved as a collection of datasets in an
 HDF5 file associated with the frame:
