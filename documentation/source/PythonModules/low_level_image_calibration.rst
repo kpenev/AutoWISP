@@ -40,12 +40,14 @@ For example, in order to calibrate flat frames called ``raw1.fits`` and
 ``raw2.fits`` (with a resolution of 4096x4116) with overscan region consisting
 of the first 20 rows applied by subtracting a simple median::
 
-    from SuperPhotPipeline.ImageCalibration import Calibrator, OverscanMethods
+    from super_phot_pipeline.image_calibration import\
+        Calibrator,\
+        overscan_methods
 
     calibrate = Calibrator(
         saturation_threshold=64000.0,
         overscans=[dict(xmin = 0, xmax = 4096, ymin = 0, ymax = 20)],
-        overscan_method=OverscanMethos.median,
+        overscan_method=overscan_methos.median,
         master_bias='masters/master_bias1.fits',
         gain=16.0,
         image_area=dict(xmin=0, xmax=4096, ymin=20, ymax=4116

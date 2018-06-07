@@ -19,6 +19,16 @@ individual input images by iterating between the following two steps:
     #. Rejecting values differing from the median by more than some specified
        threshold times the root mean square deviation from the median.
 
+Possible modifications:
+-----------------------
+
+    #. Using a different averaging method than median. In order to support
+       iterations, whatever the method is, should ignore NaN values in the input
+       images.
+    
+    #. More general stacking, i.e. not one rejecting pixels based on deviation
+       from average, perhaps using external informaiton etc.
+
 Master Flat
 ===========
 
@@ -213,3 +223,31 @@ flat altogether. The procedure used by HATSouth is as follows:
         pixels of the surviving individual scaled flats with up to two
         iterations of rejecting more than 3-sigma outliers in the downward
         directions and 2-sigma in the upward direction.
+
+Possible Modifications:
+-----------------------
+
+    #. For step 1:
+
+        #. Allow an array of smoothing methods in step 1.
+
+        #. Allow more general frame rejection.
+
+    #. For step 2:
+
+        #. More general cloud detection, possibly using color or other external
+           information.
+
+    #. For step 6:
+
+        #. more general stacking (e.g. different weights for different flats.)
+
+    #. For step 7:
+
+        #. More general smoothing
+
+        #. More general matching of large scale structure
+
+    #. For step 10: see step 6.
+
+    #. Support for an entirely different procedure.
