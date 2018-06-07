@@ -55,7 +55,10 @@ photometry on the input sources, assuming a flat PSF model.
 
 Since modelling every single image pixel and fitting for the fluxes of all
 sources simultaneously is an overwhelming computational task, SuperPhot
-processes only pixels near known sources, discarding pixels to which multiple sources contribute flux from the shape fit but fitting for the fluxes of such sources simultaneously during the amplitude fitting step.
+processes only pixels near known sources (i.e. ones that at least partially
+overlap with the PSF grid), discarding pixels to which multiple sources
+contribute flux from the shape fit but fitting for the fluxes of such sources
+simultaneously during the amplitude fitting step.
 
 Given calibrated FITS frames of the night sky produced as described in
 :doc:`low_level_image_calibration` and an astrometric solution produced as
