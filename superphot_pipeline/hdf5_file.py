@@ -1,19 +1,21 @@
-#Only a single class is defined so hardly makes sense split.
+#Only a single class is defined so hardly makes sense to split.
 #pylint: disable=too-many-lines
 """Define a class for working with HDF5 files."""
 
 from abc import ABC, abstractmethod
-import h5py
-import numpy
-from astropy.io import fits
 from io import StringIO
 import re
 import xml.dom.minidom as dom
 import os
 import os.path
-from traceback import format_exception, print_exception
 from sys import exc_info
 from ast import literal_eval
+import ssl
+import xmlrpclib
+
+import h5py
+import numpy
+from astropy.io import fits
 
 from superphot_pipeline.pipeline_exceptions import HDF5LayoutError
 
@@ -36,12 +38,12 @@ class HDF5File(ABC, h5py.File):
 
     @classmethod
     @abstractmethod
-    def get_layout_root_tag_name(cls):
+    def _get_layout_root_tag_name(cls):
         """The name of the root tag in the layout configuration."""
 
     @property
     @abstractmethod
-    def elements(self):
+    def _elements(self):
         """
         Identifying strings for the recognized elements of the HDF5 file.
 
@@ -57,9 +59,10 @@ class HDF5File(ABC, h5py.File):
             * link: Identifiers for the links that could be included in
                 the file.
         """
+
     @property
     @abstractmethod
-    def element_uses(self):
+    def _element_uses(self):
         """
         A dictionary specifying what each dataset or property is used for.
 
@@ -70,9 +73,9 @@ class HDF5File(ABC, h5py.File):
         """
 
     @property
-    def default_destinations(self):
+    def _default_destinations(self):
         """
-        Dictionary of where to place newly created elements in the HDF5 file.
+        Dictionary of where to place elements in a newly created HDF5 file.
 
         There is an entry for all non-group elements as defined by
         self.get_element_type(). Each entry is a dictionary:
@@ -98,7 +101,7 @@ class HDF5File(ABC, h5py.File):
         return self._default_destinations
 
     @property
-    def destinations(self):
+    def _destinations(self):
         r"""
         Specifies the destinations for self.elements in the current file.
 
@@ -109,7 +112,7 @@ class HDF5File(ABC, h5py.File):
 
     @property
     @classmethod
-    def destination_versions(cls):
+    def _destination_versions(cls):
         """
         Destiantions for self.elements for all known file structure versions.
 
@@ -126,7 +129,7 @@ class HDF5File(ABC, h5py.File):
                               dset_path,
                               creation_args=None,
                               **attributes):
-        """
+        r"""
         Adds ASCII text/file as a dateset to an HDF5 file.
 
         Args:
@@ -173,7 +176,7 @@ class HDF5File(ABC, h5py.File):
 
     @staticmethod
     def read_text_from_dataset(h5dset, as_file=False):
-        """
+        r"""
         Reads a text from an HDF5 dataset.
 
         The inverse of :meth:`write_text_to_dataset`\ .
@@ -195,7 +198,7 @@ class HDF5File(ABC, h5py.File):
 
     @staticmethod
     def write_fitsheader_to_dataset(fitsheader, *args, **kwargs):
-        """
+        r"""
         Adds a FITS header to an HDF5 file as a dataset.
 
         Args:
@@ -320,12 +323,12 @@ class HDF5File(ABC, h5py.File):
                     offset
                     +
                     (0 if element_type == 'group'
-                     else cls.elements[element_type].index(element_id))
+                     else cls._elements[element_type].index(element_id))
                 )
             if element_type == 'group':
                 offset += 1000
             else:
-                offset += 100 * len(cls.elements[element_type])
+                offset += 100 * len(cls._elements[element_type])
         raise HDF5LayoutError("Unrecognized element type: '%s'"
                               %
                               element_type)
@@ -401,20 +404,20 @@ class HDF5File(ABC, h5py.File):
 
         if not xml_part.hasAttribute('type'):
             raise HDF5LayoutError(
-                "%sStructure configuration contains elemenst with no 'type' "
+                "%s structure configuration contains elemenst with no 'type' "
                 "attribute."
                 %
-                cls.get_layout_root_tag_name
+                cls._get_layout_root_tag_name()
             )
         part_type = xml_part.getAttribute('type')
 
-        if get_name(xml_part) == cls.get_layout_root_tag_name():
+        if get_name(xml_part) == cls._get_layout_root_tag_name():
             if part_type != 'group':
                 raise HDF5LayoutError(
                     "Root entry of %sStructure configuration has type='%s' "
                     "instead of 'group'"
                     %
-                    (cls.get_layout_root_tag_name(), part_type)
+                    (cls._get_layout_root_tag_name(), part_type)
                 )
             part_path = '/'
         elif parent_path == '/':
@@ -427,7 +430,7 @@ class HDF5File(ABC, h5py.File):
                 "%sStructure configuration contains '%s' with type '%s', only "
                 "'group', 'attribute', 'dataset' and 'link' are allowed!"
                 %
-                (cls.get_layout_root_tag_name(), part_type, part_path)
+                (cls._get_layout_root_tag_name(), part_type, part_path)
             )
 
         if xml_part.hasAttribute('value'):
@@ -436,7 +439,7 @@ class HDF5File(ABC, h5py.File):
                     "Value defined for the group '%s' in %sStructure "
                     "configuration."
                     %
-                    (part_path, cls.get_layout_root_tag_name())
+                    (part_path, cls._get_layout_root_tag_name())
                 )
             else:
                 part_value = xml_part.getAttribute('value')
@@ -454,7 +457,7 @@ class HDF5File(ABC, h5py.File):
                             "be compressed!"
                             %
                             (part_type, part_path,
-                             cls.get_layout_root_tag_name())
+                             cls._get_layout_root_tag_name())
                         )
                     else:
                         this_destination['creation_args'] = parse_compression(
@@ -482,7 +485,7 @@ class HDF5File(ABC, h5py.File):
                     "Configuration for %s file has structure under the "
                     "attribute '%s'!"
                     %
-                    (cls.get_layout_root_tag_name(), part_path)
+                    (cls._get_layout_root_tag_name(), part_path)
                 )
             child = xml_part.firstChild
             while child:
@@ -753,7 +756,7 @@ class HDF5File(ABC, h5py.File):
             elif part_type == 'attribute':
                 result += format_attribute(
                     hdf5_name,
-                    self.element_uses['attribute'].get(key, []),
+                    self._element_uses['attribute'].get(key, []),
                     part_description
                 )
             elif part_type == 'link':
@@ -781,7 +784,7 @@ class HDF5File(ABC, h5py.File):
                     'Version %(ver)s: [wiki:%(product)sFormat_v%(ver)s]'
                     %
                     dict(version=version,
-                         product=self.get_layout_root_tag_name())
+                         product=self._get_layout_root_tag_name())
                 )
         return result
 
@@ -823,7 +826,9 @@ class HDF5File(ABC, h5py.File):
 
     @classmethod
     def configure_from_db(cls,
-                          db,
+                          database,
+                          table,
+                          *,
                           target_project_id=0,
                           target_version=None,
                           datatype_from_db=False,
@@ -834,7 +839,8 @@ class HDF5File(ABC, h5py.File):
         Reads the defined the structure of the file from the database.
 
         Args:
-            db:    An instance of CalibDB connected to the calibration database.
+            database:    An instance of CalibDB connected to the calibration
+                database.
 
             target_project_id:    The project ID to configure for (falls back to
                 the configuration for project_id=0 if no configuration is found
@@ -887,7 +893,7 @@ class HDF5File(ABC, h5py.File):
                 """
 
                 hdf5_structure = dom_document.createElement(
-                    cls.get_layout_root_tag_name()
+                    cls._get_layout_root_tag_name()
                 )
                 hdf5_structure.setAttribute('type', 'group')
 
@@ -976,17 +982,20 @@ class HDF5File(ABC, h5py.File):
             return result
 
         if hasattr(cls, '_add_custom_elements'):
+            #pylint false positive: we check for this method before calling.
+            #pylint: disable=no-member
             cls._add_custom_elements()
+            #pylint: enable=no-member
         version_list = None
         structure_project_id = target_project_id
         default_project_id = target_project_id
         while version_list is None:
-            version_list = db(
+            version_list = database(
                 (
                     'SELECT `version` FROM `%s` WHERE `project_id`=%%s GROUP BY'
                     ' `version`'
                     %
-                    cls._db_table
+                    table
                 ),
                 (structure_project_id,),
                 no_simplify=True
@@ -996,7 +1005,7 @@ class HDF5File(ABC, h5py.File):
                     raise HDF5LayoutError(
                         'No %s structure defined for project id %d or 0!'
                         %
-                        (cls.get_layout_root_tag_name(), target_project_id)
+                        (cls._get_layout_root_tag_name(), target_project_id)
                     )
                 structure_project_id = 0
             else:
@@ -1007,7 +1016,7 @@ class HDF5File(ABC, h5py.File):
             raise HDF5LayoutError(
                 "No configuration found for project ID %d, version %d in `%s`"
                 %
-                (target_project_id, target_version, cls._db_table)
+                (target_project_id, target_version, table)
             )
         if update_trac:
             ssl_context = ssl.create_default_context()
@@ -1025,8 +1034,8 @@ class HDF5File(ABC, h5py.File):
                 query += ' `dtype`,'
             query += (' `compression`, `replace_nonfinite`, `description` '
                       'FROM `%s` WHERE `project_id`=%%s AND `version`=%%s')
-            db_config = db(query % cls._db_table,
-                           (structure_project_id, version),
+            db_config = database(query % table,
+                                 (structure_project_id, version),
                            no_simplify=True)
             xml = build_xml(db_config)
             xml.firstChild.setAttribute('version', str(version))
@@ -1061,8 +1070,8 @@ class HDF5File(ABC, h5py.File):
                                    version == target_version)
         cls._structure_project_id = structure_project_id
         cls._default_project_id = default_project_id
-        cls._calibration_station = db.station
-        cls.configure_filenames(db)
+        cls._calibration_station = database.station
+        cls.configure_filenames(database)
         cls._configured_from_db = True
 
     @classmethod
