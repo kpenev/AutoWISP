@@ -27,8 +27,9 @@ class HDF5File(ABC, h5py.File):
     """
     Base class for HDF5 pipeline products.
 
-    Supports defining the structure from the database or XML file, as  well as
-    generating markdown, and XML files describing the structure.
+    The actual structure of the file has to be defined by a class inheriting
+    from this one, by overwriting the relevant properties and
+    :meth:`_get_layout_root_tag_name`.
 
     Implements backwards compatibility for different versions of the structure
     of files.
