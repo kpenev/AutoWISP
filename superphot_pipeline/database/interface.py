@@ -10,7 +10,7 @@ Session = sessionmaker()
 #pylint: enable=invalid-name
 
 db_engine = create_engine(
-    'mysql+pymysql://kpenev:shakakaa@localhost/PHYS2325SPRING2018',
+    'mysql+pymysql://superphotuser:pipeline@localhost/SuperPhotPipeline',
     echo=True
 )
 
