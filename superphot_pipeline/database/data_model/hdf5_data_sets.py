@@ -1,0 +1,104 @@
+"""Define the hdf5_datasets table."""
+
+from sqlalchemy import\
+    Column,\
+    Integer,\
+    String,\
+    Boolean,\
+    Float,\
+    TIMESTAMP,\
+    ForeignKey,\
+    Index,\
+    text
+from sqlalchemy.orm import relationship
+
+from superphot_pipeline.database.data_model.base import DataModelBase
+
+__all__ = ['HDF5DataSet']
+
+#The standard use of SQLAlchemy ORM requires classes with no public methods.
+#pylint: disable=too-few-public-methods
+class HDF5DataSet(DataModelBase):
+    """The table describing how to include datasets in HDF5 files."""
+
+    __tablename__ = 'hdf5_datasets'
+
+    hdf5_dataset_id = Column(
+        Integer,
+        primary_key=True,
+        doc='A unique identifier of each dataset.'
+    )
+    hdf5_structure_version_id = Column(
+        Integer,
+        ForeignKey('hdf5_structure_versions.hdf5_structure_version_id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
+        doc='Which structure version of which pipeline product is this '
+        'element configuration for.'
+    )
+    pipeline_key = Column(
+        String(100),
+        nullable=False,
+        doc='How is this dataset referred to by the pipeline.'
+    )
+    abspath = Column(
+        String(1000),
+        nullable=False,
+        doc='The full absolute path to the dataset within the HDF5 file.'
+    )
+    dtype = Column(
+        String(100),
+        nullable=False,
+        doc='The data type to use for this dataset. See h5py for possible '
+        'values and their meanings.'
+    )
+    compression = Column(
+        String(100),
+        nullable=True,
+        server_default=text('NULL'),
+        doc='If not NULL, which compression filter to use when creating the '
+        'dataset.'
+    )
+    compression_options = Column(
+        String(1000),
+        nullable=True,
+        server_default=text('NULL'),
+        doc='Any options to pass to the compression filter. For gzip, this is '
+        'passed as int(compression_options).'
+    )
+    scaleoffset = Column(
+        Integer,
+        nullable=True,
+        server_default=text('NULL'),
+        doc='If not null, enable the scale/offset filter for this dataset with '
+        'the specified precision.'
+    )
+    shuffle = Column(
+        Boolean,
+        nullable=False,
+        server_default='0',
+        doc='Should the shuffle filter be enabled?'
+    )
+    replace_nonfinite = Column(
+        Float,
+        nullable=True,
+        server_default=text('NULL'),
+        doc='For floating point datasets, if this is not NULL, any non-finite '
+        'values are replaced by this value.'
+    )
+    timestamp = Column(
+        TIMESTAMP,
+        nullable=False,
+        doc='When was this record last changed.'
+    )
+
+    __table_args__ = (
+        Index('version_dataset',
+              'hdf5_structure_version_id',
+              'pipeline_key',
+              unique=True),
+    )
+
+    structure_version = relationship('HDF5StructureVersion',
+                                     back_populates='data_sets')
+#pylint: enable=too-few-public-methods
