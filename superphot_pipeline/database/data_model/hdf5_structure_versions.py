@@ -59,4 +59,7 @@ class HDF5StructureVersion(DataModelBase):
 
     data_sets = relationship('HDF5DataSet',
                              back_populates='structure_version')
+
+    links = relationship('HDF5Link',
+                         back_populates='structure_version')
 #pylint: enable=too-few-public-methods

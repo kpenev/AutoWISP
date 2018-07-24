@@ -9,7 +9,8 @@ from superphot_pipeline.database.data_model import\
     HDF5Product,\
     HDF5StructureVersion,\
     HDF5Attribute,\
-    HDF5DataSet
+    HDF5DataSet,\
+    HDF5Link
 #pylint: enable=no-name-in-module
 
 _default_paths = dict(
@@ -24,10 +25,13 @@ _default_paths = dict(
         coefficients='/ProjectedToFrameMap',
         matched='/MatchedSources'
     ),
-    srcproj='/ProjectedSources/Version$(srcproj_version)03d',
-    background='/Background/Version$(background_version)03d',
+    srcproj='/ProjectedSources/Version%(srcproj_version)03d',
+    background='/Background/Version%(background_version)03d',
     shapefit='/ShapeFit/Version%(shapefit_version)03d',
-    apphot='/AperturePhotometry/Version%(apphot_version)03d',
+    apphot=dict(
+        root='/AperturePhotometry/Version%(apphot_version)03d',
+        apsplit='/Aperture%(aperture_index)03d'
+    ),
     subpixmap='/SubPixelMap/Version%(subpixmap_version)03d',
 )
 
@@ -308,6 +312,63 @@ def _get_sky_to_frame_datasets():
         )
     ]
 
+def _get_link(used_component, user_component, description):
+    """
+    Return link to one version of used_component within user_component group.
+
+    Args:
+        used_component:    The pipeline name of the component being used.
+
+        user_component:    The pipeline component using used_component.
+
+        description:    A description of the link.
+
+    Returns:
+        HDF5Link:
+            A properly constructed link signifying that user_component was
+            derived based on a particular version of used_component.
+    """
+
+    used_root = _default_paths[used_component]
+    if isinstance(used_root, dict):
+        used_root = used_root['root']
+
+    used_group_name, version_suffix = used_root.rsplit('/', 1)
+
+    assert version_suffix == 'Version%(' + used_component + '_version)03d'
+    assert used_group_name[0] == '/'
+
+    link_path = _default_paths[user_component]
+    if isinstance(link_path, dict):
+        link_path = link_path['root']
+    link_path += used_group_name
+
+    return HDF5Link(
+        pipeline_key=user_component + '.' + used_component,
+        abspath=link_path,
+        target=used_root,
+        description=description
+    )
+
+def _get_sky_to_frame_links():
+    """Create default data reduction links for sky to frame transformations."""
+
+
+    return [
+        _get_link(
+            'catalogue',
+            'skytoframe',
+            description='The version of the catalogue used for deriving '
+            'this sky to frame transformation.'
+        ),
+        _get_link(
+            'srcextract',
+            'skytoframe',
+            description='The version of the extracted sources used for '
+            'deriving this sky to frame transformation.'
+        )
+    ]
+
 def _get_source_projection_attributes():
     """Create default data reduction attributes describing source projection."""
 
@@ -334,6 +395,23 @@ def _get_source_projection_datasets():
             scaleoffset=4,
             description='The x and y coordinates of the catalogue sources when '
             'projected through the sky to frame transformation.'
+        )
+    ]
+
+def _get_source_projection_links():
+    """Create default data reduction links for projected sources."""
+
+    return [
+        _get_link(
+            'catalogue',
+            'srcproj',
+            description='The catalgue sources which were projected.'
+        ),
+        _get_link(
+            'skytoframe',
+            'srcproj',
+            description='The sky to frame transformation used to project these '
+            'sources.'
         )
     ]
 
@@ -417,6 +495,17 @@ def _get_background_datasets():
         )
     ]
 
+def _get_background_links():
+    """Create default data reduction links for sky to background extraction."""
+
+    return [
+        _get_link(
+            'srcproj',
+            'background',
+            description='The soures for which background was measured.'
+        )
+    ]
+
 def _get_magfit_key_and_path(photometry_mode, is_master):
     """
     Return start of pipeline key and path for magfit datasets/attributes.
@@ -440,13 +529,15 @@ def _get_magfit_key_and_path(photometry_mode, is_master):
         dset_path = _default_paths['shapefit']
         pipeline_key_start = 'shapefit.' + pipeline_key_start
     elif photometry_mode.lower() == 'apphot':
-        dset_path = _default_paths['apphot']
+        dset_path = (_default_paths['apphot']['root']
+                     +
+                     _default_paths['apphot']['apsplit'])
         pipeline_key_start = 'apphot.' + pipeline_key_start
     else:
         raise ValueError('Unrecognized photometry mode: '
                          +
                          repr(photometry_mode))
-    dset_path += (
+    dset_path += '/' + (
         ('Master' if is_master else 'Single')
         +
         'ReferenceFittedMagnitude'
@@ -910,16 +1001,38 @@ def _get_shapefit_datasets():
         _get_magfit_datasets('shapefit', True)
     )
 
+def _get_shapefit_links():
+    """Create default data reduction links for sky to background extraction."""
+
+    return [
+        _get_link(
+            'subpixmap',
+            'shapefit',
+            description='The sub-pixel sensitivity map assumed for this PSF '
+            'fit.'
+        ),
+        _get_link(
+            'background',
+            'shapefit',
+            description='The background measurement used for this PSF/PRF fit. '
+            'Also contains the projected sources.'
+        )
+    ]
+
 def _get_apphot_attributes():
     """
     Create default data reduction attributes describing aperture photometry.
     """
 
+    root_path = _default_paths['apphot']['root']
+    apsplit_path = (_default_paths['apphot']['root']
+                    +
+                    _default_paths['apphot']['apsplit'])
     return (
         [
             HDF5Attribute(
                 pipeline_key='apphot.sofware_versions',
-                parent=_default_paths['apphot'],
+                parent=root_path,
                 name='SoftwareVersions',
                 dtype="'S100'",
                 description='An Nx2 array of strings consisting of '
@@ -928,7 +1041,7 @@ def _get_apphot_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='apphot.cfg.error_floor',
-                parent=_default_paths['apphot'],
+                parent=root_path,
                 name='ErrorFloor',
                 dtype='numpy.float64',
                 description='A value to add to the error estimate of pixels '
@@ -937,9 +1050,7 @@ def _get_apphot_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='apphot.cfg.aperture',
-                parent=(_default_paths['apphot']
-                        +
-                        '/Aperture%(aperture_index)03d'),
+                parent=apsplit_path,
                 name='Aperture',
                 dtype='numpy.float64',
                 description='The size of the aperture used for aperture '
@@ -955,11 +1066,14 @@ def _get_apphot_attributes():
 def _get_apphot_datasets():
     """Create the datasets to contain shape aperture photometry results."""
 
+    abspath_start = (_default_paths['apphot']['root']
+                     +
+                     _default_paths['apphot']['apsplit'])
     return (
         [
             HDF5DataSet(
                 pipeline_key='apphot.magnitude',
-                abspath=_default_paths['apphot'] + '/Magnitude',
+                abspath=abspath_start + '/Magnitude',
                 dtype='numpy.float64',
                 scaleoffset=5,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -968,7 +1082,7 @@ def _get_apphot_datasets():
             ),
             HDF5DataSet(
                 pipeline_key='apphot.magnitude_error',
-                abspath=_default_paths['shapefit'] + '/MagnitudeError',
+                abspath=abspath_start + '/MagnitudeError',
                 dtype='numpy.float64',
                 scaleoffset=5,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -977,7 +1091,7 @@ def _get_apphot_datasets():
             ),
             HDF5DataSet(
                 pipeline_key='apphot.quality_flag',
-                abspath=_default_paths['shapefit'] + '/QualityFlag',
+                abspath=abspath_start + '/QualityFlag',
                 dtype='numpy.uint8',
                 compression='gzip',
                 compression_options='9',
@@ -993,6 +1107,24 @@ def _get_apphot_datasets():
         +
         _get_magfit_datasets('apphot', True)
     )
+
+def _get_apphot_links():
+    """Create default data reduction links for sky to background extraction."""
+
+    return [
+        _get_link(
+            'subpixmap',
+            'apphot',
+            description='The sub-pixel sensitivity map assumed for this '
+            'aperture photometry.'
+        ),
+        _get_link(
+            'shapefit',
+            'apphot',
+            description='The PSF/PRF fit use for this aperture photometry. '
+            'Also contains the background measurements and projected sources.'
+        )
+    ]
 
 def _get_attributes():
     """Create the default database attributes in data reduction HDF5 files."""
@@ -1041,6 +1173,21 @@ def _get_datasets():
         ]
     )
 
+def _get_links():
+    """Create the default database links in data reduction HDF5 files."""
+
+    return (
+        _get_sky_to_frame_links()
+        +
+        _get_source_projection_links()
+        +
+        _get_background_links()
+        +
+        _get_shapefit_links()
+        +
+        _get_apphot_links()
+    )
+
 #Silence complaint about too long a name.
 #pylint: disable=invalid-name
 def get_default_data_reduction_structure():
@@ -1059,6 +1206,9 @@ def get_default_data_reduction_structure():
     )
     default_structure.structure_versions[0].data_sets = (
         _get_datasets()
+    )
+    default_structure.structure_versions[0].links = (
+        _get_links()
     )
     return default_structure
 #pylint: enable=invalid-name

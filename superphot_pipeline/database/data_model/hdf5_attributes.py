@@ -36,7 +36,7 @@ class HDF5Attribute(DataModelBase):
     pipeline_key = Column(
         String(100),
         nullable=False,
-        doc='How is this dataset referred to by the pipeline.'
+        doc='How is this attribute referred to by the pipeline.'
     )
     parent = Column(
         String(1000),
