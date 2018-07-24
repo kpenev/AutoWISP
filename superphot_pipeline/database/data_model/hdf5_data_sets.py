@@ -83,8 +83,13 @@ class HDF5DataSet(DataModelBase):
         Float,
         nullable=True,
         server_default=text('NULL'),
-        doc='For floating point datasets, if this is not NULL, any non-finite '
+        doc='For numeric datasets, if this is not NULL, any non-finite '
         'values are replaced by this value.'
+    )
+    description = Column(
+        String(1000),
+        nullable=False,
+        doc='A brief description of what this attribute tracks.'
     )
     timestamp = Column(
         TIMESTAMP,
@@ -101,4 +106,24 @@ class HDF5DataSet(DataModelBase):
 
     structure_version = relationship('HDF5StructureVersion',
                                      back_populates='data_sets')
+
+    def __str__(self):
+        """Human readable description."""
+
+        return (
+            str(self.hdf5_dataset_id) + ':\n\t'
+            +
+            '\n\t'.join([
+                'structure version ID = ' + str(self.hdf5_structure_version_id),
+                'pipeline key = ' + str(self.pipeline_key),
+                '|path| = ' + repr(self.abspath),
+                'dtype = ' + str(self.dtype),
+                'compression = ' + str(self.compression),
+                'compression options = ' + repr(self.compression_options),
+                'scale-offset = ' + str(self.scaleoffset),
+                'shuffle = ' + str(self.shuffle),
+                'replace non-finite = ' + str(self.replace_nonfinite),
+                'timestamp = ' + str(self.timestamp)
+            ])
+        )
 #pylint: enable=too-few-public-methods
