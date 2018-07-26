@@ -4,14 +4,12 @@
 
 from abc import ABC, abstractmethod
 from io import StringIO
-import re
-import xml.dom.minidom as dom
 import os
 import os.path
 from sys import exc_info
 from ast import literal_eval
-import ssl
-import xmlrpclib
+from xml.etree import ElementTree
+from traceback import format_exception
 
 import h5py
 import numpy
@@ -29,18 +27,24 @@ class HDF5File(ABC, h5py.File):
 
     The actual structure of the file has to be defined by a class inheriting
     from this one, by overwriting the relevant properties and
-    :meth:`_get_layout_root_tag_name`.
+    :meth:`_get_root_tag_name`.
 
     Implements backwards compatibility for different versions of the structure
     of files.
     """
 
-    _destination_versions = dict()
-
     @classmethod
     @abstractmethod
-    def _get_layout_root_tag_name(cls):
+    def _get_root_tag_name(cls):
         """The name of the root tag in the layout configuration."""
+
+    @property
+    def _layout_version_attribute(self):
+        """
+        Return path, name of attribute in the file holding the layout version.
+        """
+
+        return '/', 'LayoutVersion'
 
     @property
     @abstractmethod
@@ -51,7 +55,7 @@ class HDF5File(ABC, h5py.File):
         Shoul be a dictionary-like object with values being a set of strings
         containing the identifiers of the HDF5 elements and keys:
 
-            * dataset: Identifiers for the datasets that could be included in
+            * data_set: Identifiers for the data sets that could be included in
                 the file.
 
             * attribute: Identifiers for the attributes that could be included
@@ -61,68 +65,24 @@ class HDF5File(ABC, h5py.File):
                 the file.
         """
 
-    @property
     @abstractmethod
-    def _element_uses(self):
+    def _get_file_structure(self, version=None):
         """
-        A dictionary specifying what each dataset or property is used for.
+        Return the layout structure with the given version of the file.
 
-        This structure has two keys: ``'dataset'`` and ``'attribute'`` each of
-        which should contain a dictionary with keys ``self.elements['dataset']``
-        or ``self.elements['attribute']`` and values are lists of strings
-        specifying uses (only needed for generating documentation).
+        Args:
+            version:    The version number of the layout structure to set. If
+                None, it should provide the default structure for new files
+                (presumably the latest version).
+
+        Returns:
+            dict:
+                How to include elements in the HDF5 file. The keys for the
+                dictionary should be one in one of the lists in self._elements
+                and the value is an object with attributes decsribing how to
+                include the element. See classes in :mod:database.data_model for
+                the provided attributes and their meining.
         """
-
-    @property
-    def _default_destinations(self):
-        """
-        Dictionary of where to place elements in a newly created HDF5 file.
-
-        There is an entry for all non-group elements as defined by
-        self.get_element_type(). Each entry is a dictionary:
-
-            * parent: The path to the parent group/dataset where the new
-                entry will be created.
-
-            * parent_type: The type of the parent - 'group' or 'dataset'.
-
-            * name: The name to give to the new dataset. It may contain
-                a substitution of %(ap_ind)?.
-
-            * creation_args: For datasets only. Should specify additional
-                arguments for the create_dataset method.
-
-            * replace_nonfinite: For floating point datasets only. Specifies
-                a value with which to replace any non-finite dataset entries
-                before writing to the file. (Workaround the scaleoffset filter
-                problem with non-finite values). After extracting a dataset, any
-                values found to equal this are replaced by not-a-number.
-        """
-
-        return self._default_destinations
-
-    @property
-    def _destinations(self):
-        r"""
-        Specifies the destinations for self.elements in the current file.
-
-        See :attr:`default_destinations`\ .
-        """
-
-        return self._destinations
-
-    @property
-    @classmethod
-    def _destination_versions(cls):
-        """
-        Destiantions for self.elements for all known file structure versions.
-
-        This is a dictionary indexed by configuration version number containing
-        entries identical to self.default_destinations for each configured
-        version of the HDF5 structure.
-        """
-
-        return cls._destination_versions
 
     @staticmethod
     def write_text_to_dataset(text,
@@ -141,7 +101,7 @@ class HDF5File(ABC, h5py.File):
             h5group:    An HDF5 group (could be the root group, i.e. an
                 h5py.File opened for writing).
 
-            dset_path:    The path for the new dataset, either absolute or
+            dset_path:    The path for the new data set, either absolute or
                 relative to h5group.
 
             creation_args:    Keyword arguments to pass to
@@ -153,7 +113,7 @@ class HDF5File(ABC, h5py.File):
                 in h5py.File.create_dataset.
 
             attributes:    Added as attributes with the same name to the
-                the dataset.
+                the data set.
 
         Returns:
             None
@@ -256,28 +216,6 @@ class HDF5File(ABC, h5py.File):
             header = fits.Header.fromfile(StringIO(fitsheader_array.data))
         return header
 
-    @staticmethod
-    def get_hdf5_dtype(dtype_string, hdf5_element_type):
-        """
-        Return the dtype argument to when creating an HDF5 entry.
-
-        Args:
-            dtype_string:    The string from the XML or database configuration
-                specifying the type.
-
-            hdf5_element_type:    What is the element being created - dataset
-                or attribute.
-
-        Returns:
-            dtype:    Whatever should be passed as the dtype argument when
-                creating the given entry in the HDF5 file.
-        """
-
-        if dtype_string != 'S' or hdf5_element_type == 'attribute':
-            return numpy.dtype(dtype_string)
-
-        return h5py.special_dtype(vlen=str)
-
     @classmethod
     def get_element_type(cls, element_id):
         """
@@ -298,782 +236,233 @@ class HDF5File(ABC, h5py.File):
         #pylint: enable=no-member
             if element_id.rstrip('.') in recognized:
                 return element_type
-        return 'group'
 
-    @classmethod
-    def get_documentation_order(cls, element_type, element_id):
-        """
-        Return a sorting key for the elements in a documentation level.
+        raise KeyError('Unrecognized element: ' + repr(element_id))
 
-        Args:
-            element_type:    The type of entry this element corresponds to in
-                the HDF5 file (group, dataset, attribute or link).
+    def layout_to_etree(self):
+        """Create an ElementTree decsribing the currently defined layout."""
 
-            element_id:    The identifying string of this element.
+        root = ElementTree.Element('group',
+                                   dict(name=self._get_root_tag_name()))
 
-        Returns:
-            sort_key:    An integer such that elements for which lower values
-                are returned should appear before elements with higher values in
-                the documentation if the two are on the same level.
-        """
-
-        offset = 1
-        for check_type in ['attribute', 'group', 'link', 'dataset']:
-            if element_type == check_type:
-                return (
-                    offset
-                    +
-                    (0 if element_type == 'group'
-                     else cls._elements[element_type].index(element_id))
-                )
-            if element_type == 'group':
-                offset += 1000
-            else:
-                offset += 100 * len(cls._elements[element_type])
-        raise HDF5LayoutError("Unrecognized element type: '%s'"
-                              %
-                              element_type)
-
-    @classmethod
-    def _add_paths(cls, xml_part, parent_path='/', parent_type='group'):
-        """
-        Add the paths in a part of an XML document.
-
-        Args:
-            xml_part:    A part of an XML docuemnt to parse (parsed
-                through xml.dom.minidom).
-
-            parent_path:    The path under which xml_part lives.
-
-            parent_type:    The type of entry the parent is ('group'
-                or 'dataset').
-
-        Returns:
-            None
-        """
-
-        def parse_compression(compression_str):
+        def require_parent(path, must_be_group):
             """
-            Parses a string defining how to compress a dataset.
+            Return group element at the given path creating groups as needed.
 
             Args:
-                compression_str:    The string defiring the compression. Allowed
-                    values (can be combined with ';'):
-
-                    * gzip:<level>:    uses gzip based compression of the
-                        specified level
-
-                    * shuffle:    enables the shuffle filter.
-
-                    * scaleoffset:<precision>:    Uses the scale-offset filter.
-                        The precision is ignored if the dataset contains
-                        integral values and if it contains floating point values
-                        it specifies the number of digits after the decimal
-                        point to preserve.
+                path ([str]):    The path for the group element required. Each
+                    entry in the list is the name of a sub-group of the previous
+                    entry.
 
             Returns:
-                compression_args:    A dictionary of extra arguments to pass to
-                    the h5py create_dataset function in order to enable the
-                    specified compression.
+                ElementTree.Element:
+                    The element holding the group at the specified path. If it
+                    does not exist, it is created along with any parent groups
+                    required along the way.
+
+            Raises:
+                TypeError:
+                    If an element anywhere along the given path already exists,
+                    but is not a group.
             """
 
-            result = dict()
-            for subfilter in compression_str.split(';'):
-                if subfilter == 'shuffle':
-                    result['shuffle'] = True
-                else:
-                    method, options = subfilter.split(':')
-                    if method == 'scaleoffset':
-                        result.update(scaleoffset=int(options))
-                    elif method == 'gzip':
-                        result.update(compression='gzip',
-                                      compression_opts=int(options))
-                    else:
-                        raise HDF5LayoutError(
-                            "Unrecognized compression filter '%s'!"
-                            %
-                            method
-                        )
-            return result
-
-        def get_name(xml_element):
-            """Return the tag of the XML element replacing if necessary."""
-
-            if xml_element.hasAttribute('element_name'):
-                return xml_element.getAttribute('element_name')
-            return xml_element.tagName
-
-        if not xml_part.hasAttribute('type'):
-            raise HDF5LayoutError(
-                "%s structure configuration contains elemenst with no 'type' "
-                "attribute."
-                %
-                cls._get_layout_root_tag_name()
-            )
-        part_type = xml_part.getAttribute('type')
-
-        if get_name(xml_part) == cls._get_layout_root_tag_name():
-            if part_type != 'group':
-                raise HDF5LayoutError(
-                    "Root entry of %sStructure configuration has type='%s' "
-                    "instead of 'group'"
-                    %
-                    (cls._get_layout_root_tag_name(), part_type)
-                )
-            part_path = '/'
-        elif parent_path == '/':
-            part_path = '/'+get_name(xml_part)
-        else:
-            part_path = parent_path+'/' + get_name(xml_part)
-
-        if part_type not in ['group', 'attribute', 'dataset', 'link']:
-            raise HDF5LayoutError(
-                "%sStructure configuration contains '%s' with type '%s', only "
-                "'group', 'attribute', 'dataset' and 'link' are allowed!"
-                %
-                (cls._get_layout_root_tag_name(), part_type, part_path)
-            )
-
-        if xml_part.hasAttribute('value'):
-            if part_type == 'group':
-                raise HDF5LayoutError(
-                    "Value defined for the group '%s' in %sStructure "
-                    "configuration."
-                    %
-                    (part_path, cls._get_layout_root_tag_name())
-                )
-            else:
-                part_value = xml_part.getAttribute('value')
-                cls._default_destinations[part_value] = dict(
-                    parent=parent_path,
-                    parent_type=parent_type,
-                    name=get_name(xml_part)
-                )
-                this_destination = cls._default_destinations[part_value]
-                if xml_part.hasAttribute('compression'):
-                    if part_type != 'dataset':
-                        raise HDF5LayoutError(
-                            "Compression defined for the %s '%s' in "
-                            "%sStructure configuration. Only datasets can "
-                            "be compressed!"
-                            %
-                            (part_type, part_path,
-                             cls._get_layout_root_tag_name())
-                        )
-                    else:
-                        this_destination['creation_args'] = parse_compression(
-                            xml_part.getAttribute('compression')
-                        )
-                else:
-                    this_destination['creation_args'] = dict()
-
-                if xml_part.hasAttribute('replace_nonfinite'):
-                    assert part_type == 'dataset'
-                    this_destination['replace_nonfinite'] = literal_eval(
-                        xml_part.getAttribute('replace_nonfinite')
-                    )
-                if xml_part.hasAttribute('dtype'):
-                    this_destination['creation_args'].update(
-                        dtype=cls.get_hdf5_dtype(
-                            xml_part.getAttribute('dtype'),
-                            part_type
-                        )
-                    )
-
-        if xml_part.hasChildNodes():
-            if xml_part.getAttribute('type') == 'attribute':
-                raise HDF5LayoutError(
-                    "Configuration for %s file has structure under the "
-                    "attribute '%s'!"
-                    %
-                    (cls._get_layout_root_tag_name(), part_path)
-                )
-            child = xml_part.firstChild
-            while child:
-                if not hasattr(child, 'data') or child.data.strip():
-                    child_type = child.getAttribute('type')
-                    if part_type == 'dataset' and child_type != 'attribute':
-                        raise HDF5LayoutError(
-                            "HDF5 file structure  configuration involves a "
-                            "'%s' ('%s') under the dataset '%s', only "
-                            "attributes are allowed."
-                            %
-                            (
-                                child_type,
-                                get_name(child),
-                                part_path
-                            )
-                        )
-                    cls._add_paths(child, part_path, part_type)
-                child = child.nextSibling
-
-    #TODO: Fix to work with markdown rather than markup.
-    def generate_wiki(self, xml_part, current_indent='', format_for='TRAC'):
-        """
-        Returns the part of the wiki corresponding to a part of the XML tree.
-
-        Args:
-            xml_part:    The part of the XML tree to wikify.
-
-            current_indent:    The indent to use for the root element
-                of xml_part.
-
-        Returns:
-            str:
-                the wiki text to add (newlines and all).
-        """
-
-        camel_case_rex = re.compile('[A-Z][a-z]+([A-Z][a-z]+)+')
-
-        def camel_case(string):
-            """Returns True iff the given string is CamelCase."""
-
-            match = camel_case_rex.match(string)
-            return match is not None and match.end() == len(string)
-
-        def format_description(description):
-            """The string to add to the wiki for the given description."""
-
-            if format_for == 'TRAC':
-                return '- [[span(%s, style=color: grey)]]' % description
-            return description
-
-
-        def format_group(name, description=""):
-            """
-            Returns the string to represent a group.
-
-            Args:
-                name:    The name of the group.
-
-            Returns:
-                str:
-                    The properly formatted string stating the name of
-                    the given group, as it should be added to the wiki.
-            """
-
-            if format_for == 'TRAC':
-                if camel_case(name):
-                    name = '!' + name
-                result = (
-                    '- [[span(%s, style=color: orange; font-size: 150%%, '
-                    'id=anchor)]]'
-                    %
-                    name
-                )
-            else:
-                result = '<li><b>' + name + '</b>'
-            return result + format_description(description)
-
-        def format_dataset(name, used_by, description, has_attributes):
-            """
-            Returns the string to represent a dataset.
-
-            Args:
-                name:    The name of the dataset.
-
-                used_by:    A list of "things" that use the dataset.
-
-                description:    A brief description of the dataset.
-
-                has_attributes:    Does the dataset have attributes.
-
-            Returns:
-                str:
-                    The properly formatted string containing all
-                    the supplied information about the dataset, as it should be
-                    added to the wiki.
-            """
-
-            if format_for == 'TRAC':
-                if used_by:
-                    result = "- '''__%s__'''^%s^: " % (name, ', '.join(used_by))
-                else:
-                    result = '- __%s__: ' % name
-                return result + format_description(description)
-            else:
-                result = '<li><u>' + name + '</u>: '
-                if used_by:
-                    result += '<sup>' + ', '.join(used_by) + '</sup>: '
-                result += format_description(description)
-                if not has_attributes:
-                    result += '</li>'
-                return result
-
-        def format_attribute(name, used_by, description=""):
-            """
-            Returns the string to represent an attribute.
-
-            Args:
-                name:    The name of the attribute.
-
-                used_by:    A list of "things"  that use the attribute
-
-                description:    A brief description of the attribute (optional).
-
-            Returns:
-                str:
-                    The properly formatted string containing all
-                    the supplied information about the attribute, as it should
-                    be added to the wiki.
-            """
-
-            formatted_name = ('!' + name if camel_case(name) else name)
-            if format_for == 'TRAC':
-                if used_by:
-                    result = "- '''%s'''^%s^: " % (formatted_name,
-                                                   ', '.join(used_by))
-                else:
-                    result = '- ' + formatted_name + ': '
-                return result + format_description(description)
-            else:
-                return ('<li>'
-                        +
-                        name
-                        +
-                        ': '
-                        +
-                        format_description(description)
-                        +
-                        '</li>')
-
-        def format_link(name, description):
-            """
-            Returns the string to represent a link.
-
-            Args:
-                name:    The name of the link.
-
-                description:    A brief description of the link.
-
-            Returns:
-                str:
-                    The properly formatted string containing all the
-                    supplied information about the link, as it should be added
-                    to the wiki.
-            """
-
-            formatted_name = ('!' + name if camel_case(name) else name)
-            if format_for == 'TRAC':
-                return ('- [[span(%s, style=color: DarkTurquoise)]]: '
-                        %
-                        formatted_name
-                        +
-                        format_description(description))
-            return ('<li><i>'
-                    +
-                    name
-                    +
-                    '</i>: '
-                    +
-                    format_description(description)
-                    +
-                    '</li>')
-
-        def format_header():
-            """The header of the wiki page (legend, description, ...)"""
-
-            if format_for == 'TRAC':
-                legend_start = '= Legend: ='
-                legend_end = ''
-                format_start = '= Single Frame HDF5 File version %s =\n\n'
-            else:
-                legend_start = '# Legend:\n<ul>'
-                legend_end = '    </ul>\n</ul>'
-                format_start = '# Single Frame HDF5 File version %s\n\n'
-
-            legend_end = ('' if format_for == 'TRAC' else '\n</ul>')
-            result = (legend_start + '\n' + '    ' + format_group('group'))
-
-            if format_for == 'GitHub':
-                result += '\n    <ul>'
-
-            result += ('\n'
-                       +
-                       ('        ' + format_dataset('dataset',
-                                                    ['[usedby', '[...]]'],
-                                                    'description',
-                                                    False))
-                       +
-                       '\n'
-                       +
-                       ('        ' + format_attribute('attribute',
-                                                      ['[usedby', '[...]]'],
-                                                      '[description]'))
-                       +
-                       '\n'
-                       +
-                       '        ' + format_link('link', 'description'))
-
-            if format_for == 'GitHub':
-                result += '\n    </ul>'
-            return (
-                result
-                +
-                legend_end
-                +
-                '\n\nElements which depend on the aperture used for aperture'
-                'photometry must contain a substitution of %(ap_ind)s '
-                'in their names, unless only a single aperture is '
-                'being used.\n\nElements which are required by the pipeline'
-                ' are bold.\n\n'
-                +
-                format_start%xml_part.getAttribute('version')
-            )
-
-        def sort_children():
-            """Orders all the child nodes as they should be processed."""
-
-            child_nodes = []
-            child = xml_part.firstChild
-            while child:
-                child_nodes.append(child)
-                child = child.nextSibling
-            result = sorted(
-                child_nodes,
-                key=lambda child: self.get_documentation_order(
-                    child.getAttribute('type'),
-                    child.getAttribute('value')
-                )
-            )
-            return result
-
-        part_type = xml_part.getAttribute('type')
-        part_description = xml_part.getAttribute('description')
-        if xml_part.tagName == self.get_layout_root_tag_name():
-            result = format_header()
-        else:
-            hdf5_name = xml_part.tagName
-            key = xml_part.getAttribute('value')
-            result = '\n' + current_indent
-            if part_type == 'group':
-                result += format_group(hdf5_name, part_description)
-            elif part_type == 'dataset':
-                users = self.element_uses['dataset'].get(key, [])
-                result += format_dataset(hdf5_name,
-                                         users,
-                                         part_description,
-                                         xml_part.hasChildNodes())
-            elif part_type == 'attribute':
-                result += format_attribute(
-                    hdf5_name,
-                    self._element_uses['attribute'].get(key, []),
-                    part_description
-                )
-            elif part_type == 'link':
-                result += format_link(hdf5_name, part_description)
-
-        if xml_part.hasChildNodes():
-            if format_for != 'TRAC':
-                result += '\n' + current_indent + '<ul>'
-            new_indent = current_indent + '    '
-            for child in sort_children():
-                result += self.generate_wiki(child, new_indent, format_for)
-            if format_for != 'TRAC':
-                result += '\n' + current_indent + '</ul></li>'
-        return result
-
-    def _wiki_other_version_links(self, version_list, target_version):
-        """Text to add to wiki to link to other configuration versions."""
-
-        result = "\n\n= Other Versions: =\n"
-        for version in version_list:
-            if version != target_version:
-                result += (
-                    '\n * '
-                    +
-                    'Version %(ver)s: [wiki:%(product)sFormat_v%(ver)s]'
-                    %
-                    dict(version=version,
-                         product=self._get_layout_root_tag_name())
-                )
-        return result
-
-    @classmethod
-    def configure_from_xml(cls, xml, project_id=0, make_default=False):
-        """
-        Defines the file structure from an xml.dom.minidom document.
-
-        Args:
-            xml:    The xml.dom.minidom document defining the structure.
-
-            project_id:    The project ID this configuration applies to.
-
-            make_default:    Should this configuration be saved as the
-                default one?
-
-        Returns:
-            None
-        """
-
-        if hasattr(cls, '_add_custom_elements'):
-            #pylint false positive: we check for this method before calling.
-            #pylint: disable=no-member
-            cls._add_custom_elements()
-            #pylint: enable=no-member
-        version = int(xml.firstChild.getAttribute('version'))
-        cls._add_paths(xml.firstChild)
-        cls._destination_versions[version] = (
-            cls._default_destinations
-        )
-        cls._structure_project_id = None
-        cls._default_project_id = None
-        if make_default:
-            cls._default_version = version
-            cls._project_id = project_id
-        else:
-            cls._default_destinations = dict()
-        cls._configured_from_db = False
-
-    @classmethod
-    def configure_from_db(cls,
-                          database,
-                          table,
-                          *,
-                          target_project_id=0,
-                          target_version=None,
-                          datatype_from_db=False,
-                          save_to_file=None,
-                          update_trac=False,
-                          generate_markdown=False):
-        """
-        Reads the defined the structure of the file from the database.
-
-        Args:
-            database:    An instance of CalibDB connected to the calibration
-                database.
-
-            target_project_id:    The project ID to configure for (falls back to
-                the configuration for project_id=0 if no configuration is found
-                for the requested value. Default: 0.
-
-            target_version:    The configuration version to set as default. If
-                None (default), the largest configuration value found is used.
-
-            datatype_from_db:    Should the information about data type be read
-                form the database?
-
-            save_to_file:    If not None, a file with the given names is created
-                contaning an XML representation of the HDF5 file structure
-                costructed from the database.
-
-            generate_markdown:    Generates markdown files suitable for
-                committing to a GitHub repository as documentation. If given,
-                this argument should be a directory where the files should be
-                saved. Otherwise it should be something that tests as False.
-
-        Returns:
-            None
-        """
-
-        def build_xml(db_config):
-            """
-            Builds a DOM structure from the database configuration.
-
-            Args:
-                db_config:    The entries in the database defining
-                    the configuration.
-
-            Returns:
-                xml.dom.minidom:
-                    A document with the configuration.
-            """
-
-            def create_elements(dom_document):
-                """
-                Creates DOM elements for all entries with no hierarchy.
-
-                Args:
-                    dom_document:    The DOM document to create elements with.
-
-                Returns:
-                    dict:
-                        A dictionary indexed by
-                        %(component)s.%(element)s of DOM elements for each entry
-                        with all their attributes properly set.
-                """
-
-                hdf5_structure = dom_document.createElement(
-                    cls._get_layout_root_tag_name()
-                )
-                hdf5_structure.setAttribute('type', 'group')
-
-                result = {}
-                result['.'] = dict(element=hdf5_structure)
-                for db_entry in db_config:
-                    if datatype_from_db:
-                        (
-                            component,
-                            element,
-                            parent,
-                            h5name,
-                            datatype,
-                            compression,
-                            replace_nonfinite,
-                            description
-                        ) = db_entry
-                    else:
-                        (
-                            component,
-                            element,
-                            parent,
-                            h5name,
-                            compression,
-                            replace_nonfinite,
-                            description
-                        ) = db_entry
-                    element_id = component + '.' + element
-
-                    if '.' not in parent:
-                        parent = component + '.' + parent
-                        if parent == element_id:
-                            parent = '.'
-
-                    new_element = dom_document.createElement(
-                        h5name.replace(
-                            '%', ''
-                        ).replace(
-                            '(', ''
-                        ).replace(
-                            ')', ''
-                        )
-                    )
-                    element_type = cls.get_element_type(element_id.rstrip('.'))
-                    new_element.setAttribute('type', element_type)
-                    if not h5name.isalnum():
-                        new_element.setAttribute('element_name', h5name)
-                    if element_type != 'group':
-                        new_element.setAttribute('value',
-                                                 element_id.rstrip('.'))
-                        if datatype_from_db:
-                            new_element.setAttribute('dtype', datatype)
+            parent = root
+            current_path = ''
+            for group_name in path:
+                found = False
+                current_path += '/' + group_name
+                for element in parent.iterfind('./*'):
+                    if element.attrib['name'] == group_name:
                         if (
-                                element_type == 'dataset'
+                                element.tag != 'group'
                                 and
-                                replace_nonfinite is not None
+                                (must_be_group or element.tag != 'dataset')
                         ):
-                            new_element.setAttribute('replace_nonfinite',
-                                                     repr(replace_nonfinite))
-                    if compression is not None:
-                        new_element.setAttribute('compression', compression)
-                    new_element.setAttribute('description', description)
-                    result[element_id] = dict(element=new_element,
-                                              parent=parent)
-                return result
-
-            result = dom.Document()
-            element_dict = create_elements(result)
-            for element_id, element in element_dict.items():
-                if element_id != '.':
-                    parent = element['parent']
-                    if parent not in element_dict:
-                        if parent[-1] != '.':
-                            raise HDF5LayoutError(
-                                "Requested that '%s' be placed under '%s' but "
-                                "'%s' is not configured."
-                                %
-                                (element_id, parent, parent)
+                            raise TypeError(
+                                'Element '
+                                +
+                                repr(current_path)
+                                +
+                                ' exists, but is of type '
+                                +
+                                element.tag
+                                +
+                                ', expected group'
+                                +
+                                ('' if must_be_group else ' or dataset')
+                                +
+                                '!'
                             )
                         else:
-                            parent = '.'
-                    element_dict[parent]['element'].appendChild(
-                        element['element']
+                            parent = element
+                            found = True
+                            break
+                if not found:
+                    parent = ElementTree.SubElement(parent,
+                                                    'group',
+                                                    name=group_name)
+            return parent
+
+        def add_dataset(parent, dataset):
+            """
+            Add the given dataset as a SubElement to the given parent.
+
+            Args:
+                parent (ElementTree.Element):    The group element in the result
+                    tree to add the dataset under.
+
+                dataset:    The dataset to add (object with attributes
+                    specifying how the dataset should be added to the file).
+            """
+
+            ElementTree.SubElement(
+                parent,
+                'dataset',
+                name=dataset.abspath.rsplit('/', 1)[1],
+                key=dataset.pipeline_key,
+                dtype=dataset.dtype,
+                compression=((dataset.compression or '')
+                             +
+                             ':'
+                             +
+                             (dataset.compression_options or '')),
+                scaleoffset=str(dataset.scaleoffset),
+                shuffle=str(dataset.shuffle),
+                fill=repr(dataset.replace_nonfinite),
+                description=dataset.description
+            )
+
+        def add_attribute(parent, attribute):
+            """Add the given attribute as a SubElement to the given parent."""
+
+            ElementTree.SubElement(
+                parent,
+                'attribute',
+                name=attribute.name,
+                key=attribute.pipeline_key,
+                dtype=dataset.dtype,
+                description=attribute.description
+            )
+
+        def add_link(parent, link):
+            """Add the given link as a SubElement to the given parent."""
+
+            ElementTree.SubElement(
+                parent,
+                'link',
+                name=link.abspath.rsplit('/', 1)[1],
+                key=link.pipeline_key,
+                target=link.target,
+                description=link.description
+            )
+
+        for dataset_key in self._elements['data_set']:
+            dataset = self._file_structure[dataset_key]
+            path = dataset.abspath.lstrip('/').split('/')[:-1]
+            add_dataset(require_parent(path, True), dataset)
+
+        for attribute_key in self._elements['attribute']:
+            attribute = self._file_structure[attribute_key]
+            path = attribute.parent.lstrip('/').split('/')
+            add_attribute(require_parent(path, False), attribute)
+
+        for link_key in self._elements['link']:
+            link = self._file_structure[link_key]
+            path = link.abspath.lstrip('/').split('/')[:-1]
+            add_link(require_parent(path, True), link)
+
+        return root
+
+    def layout_to_restructuredtext(self):
+        """Create an RST document showing the currently defined layout."""
+
+        def link_to_str(element, indentation):
+            """Represent the given link."""
+
+            return (
+                indentation + '  - ``' + element.get('name') + '``'
+                +
+                ' (``' + element.get('key') + '``)'
+                +
+                ' --> ``' + element.get('target') + '``'
+                +
+                '\n'
+            )
+
+        def attribute_to_str(element, indentation):
+            """Represent given attribute."""
+
+            return (
+                indentation + '  - ' + element.get('name')
+                +
+                ' (``' + element.get('key') + '``)'
+                +
+                ' :sup:`' + element.get('dtype') + '`'
+                +
+                ': ' + element.get('description')
+                +
+                '\n'
+            )
+
+        def dataset_to_str(element, indentation):
+            """Represent given data set (including sub-attributes)."""
+
+            result = (
+                indentation + '  - *' + element.get('name') + '* '
+                +
+                '(``' + element.get('key') + '``)'
+                +
+                ' :sup:`' + (
+                    element.get('dtype')
+                    +
+                    ' ' + element.get('compression')
+                    +
+                    (
+                        ', scaleoffset = ' + element.get('scaleoffset')
+                        if element.get('scaleoffset') != 'None'
+                        else ''
                     )
-            result.appendChild(element_dict['.']['element'])
+                    +
+                    (
+                        ', shuffle'  if literal_eval(element.get('shuffle'))
+                        else ''
+                    )
+                    +
+                    (
+                        ', fill = ' + element.get('fill')
+                        if element.get('fill') != 'None'
+                        else ''
+                    )
+                ) + '`'
+                +
+                ': ' + element.get('description')
+                +
+                '\n'
+            )
+            for sub_element in element.iterfind('./*'):
+                assert sub_element.tag == 'attribute'
+                result += attribute_to_str(sub_element, indentation + '    ')
             return result
 
-        if hasattr(cls, '_add_custom_elements'):
-            #pylint false positive: we check for this method before calling.
-            #pylint: disable=no-member
-            cls._add_custom_elements()
-            #pylint: enable=no-member
-        version_list = None
-        structure_project_id = target_project_id
-        default_project_id = target_project_id
-        while version_list is None:
-            version_list = database(
-                (
-                    'SELECT `version` FROM `%s` WHERE `project_id`=%%s GROUP BY'
-                    ' `version`'
-                    %
-                    table
-                ),
-                (structure_project_id,),
-                no_simplify=True
-            )
-            if version_list is None:
-                if structure_project_id == 0:
-                    raise HDF5LayoutError(
-                        'No %s structure defined for project id %d or 0!'
-                        %
-                        (cls._get_layout_root_tag_name(), target_project_id)
-                    )
-                structure_project_id = 0
-            else:
-                version_list = [r[0] for r in version_list]
-        if target_version is None:
-            target_version = max(version_list)
-        if target_version not in version_list:
-            raise HDF5LayoutError(
-                "No configuration found for project ID %d, version %d in `%s`"
-                %
-                (target_project_id, target_version, table)
-            )
-        if update_trac:
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-            ssl_context.verify_flags = ssl.VERIFY_DEFAULT
-            wiki_server = xmlrpclib.ServerProxy(
-                'https://kpenev:shakakaa@hat.astro.princeton.edu/projects/'
-                'HATreduc/login/rpc',
-                context=ssl_context
-            ).wiki
-        for version in version_list:
-            query = 'SELECT `component`, `element`, `parent`, `hdf5_name`,'
-            if datatype_from_db:
-                query += ' `dtype`,'
-            query += (' `compression`, `replace_nonfinite`, `description` '
-                      'FROM `%s` WHERE `project_id`=%%s AND `version`=%%s')
-            db_config = database(query % table,
-                                 (structure_project_id, version),
-                           no_simplify=True)
-            xml = build_xml(db_config)
-            xml.firstChild.setAttribute('version', str(version))
-            if save_to_file is not None:
-                f = open(save_to_file % dict(PROJID=structure_project_id,
-                                             VERSION=version),
-                         'w')
-                f.write(xml.toprettyxml())
-                f.close()
-            if update_trac or generate_markdown:
-                page_name = cls.get_layout_root_tag_name() + 'Format'
-                page_text = cls.generate_wiki(
-                    xml.firstChild,
-                    format_for=('TRAC' if update_trac else 'GitHub')
-                )
-                if version != target_version:
-                    page_name += '_v' + str(version)
-                elif update_trac:
-                    page_text += cls._wiki_other_version_links(
-                        version_list,
-                        version
-                    )
-                if update_trac:
-                    wiki_server.putPage(page_name, page_text, dict())
+        def group_to_str(element, indentation):
+            """Represent given group (including sub-elements)."""
+
+            result = indentation + '  - **' + element.get('name') + '**\n'
+            for sub_element in element.iterfind('./*'):
+                if sub_element.tag == 'group':
+                    result += group_to_str(sub_element, indentation + '    ')
+                elif sub_element.tag == 'dataset':
+                    result += dataset_to_str(sub_element, indentation + '    ')
+                elif sub_element.tag == 'attribute':
+                    result += attribute_to_str(sub_element,
+                                               indentation + '    ')
                 else:
-                    f = open(join_paths(generate_markdown, page_name + '.md'),
-                             'w')
-                    f.write(page_text)
-                    f.close()
-            cls.configure_from_xml(xml,
-                                   structure_project_id,
-                                   version == target_version)
-        cls._structure_project_id = structure_project_id
-        cls._default_project_id = default_project_id
-        cls._calibration_station = database.station
-        cls.configure_filenames(database)
-        cls._configured_from_db = True
+                    assert sub_element.tag == 'link'
+                    result += link_to_str(sub_element, indentation + '    ')
+
+            return result
+
+        return group_to_str(self.layout_to_etree(), '')
 
     @classmethod
     def get_version_dtype(cls, element_id, version=None):
@@ -1626,78 +1015,51 @@ class HDF5File(ABC, h5py.File):
     def __init__(self,
                  fname,
                  mode,
-                 project_id=None,
-                 db_config_version=None):
-        """Opens the given HDF5 file in the given mode."""
+                 layout_version=None):
+        """
+        Opens the given HDF5 file in the given mode.
 
-        old_file = exists(fname)
+        Args:
+            fname:    The name of the file to open.
+
+            mode:    The mode to open the file in (see hdf5.File).
+
+            layout_version:    If the file does not exist, this is the version
+                of the layout that will be used for its structure. Leave None
+                to use the latest defined.
+
+        Returns:
+            None
+        """
+
+        old_file = os.path.exists(fname)
         if mode[0] != 'r':
-            path = dirname(fname)
-            try:
-                os.makedirs(path)
-            except OSError:
-                if not exists(path):
-                    raise
+            path = os.path.dirname(fname)
+            if path:
+                try:
+                    os.makedirs(path)
+                except OSError:
+                    if not os.path.exists(path):
+                        raise
+
         try:
             h5py.File.__init__(self, fname, mode)
-        except IOError as error:
+        except IOError:
             raise HDF5LayoutError(
                 'Problem opening %s in mode=%s'%(fname, mode)
                 +
                 ''.join(format_exception(*exc_info()))
             )
-        if mode[0] == 'r' or (mode == 'a' and old_file):
-            found_project_id = False
-            if self._configured_from_db:
-                for self._destinations\
-                        in\
-                        self.destination_versions.values():
-                    try:
-                        structure_project_id = HDF5File.get_attribute(
-                            self,
-                            'file_structure.project_id',
-                            project_id=project_id
-                        )
-                        found_project_id = True
-                        break
-                    except Error.HDF5:
-                        pass
-                assert found_project_id
-                if self._structure_project_id is not None:
-                    assert structure_project_id == self._structure_project_id
-                self._project_id = (
-                    self._default_project_id
-                    if project_id is None else
-                    project_id
-                )
-                self._version = HDF5File.get_attribute(
-                    self,
-                    'file_structure.version',
-                    project_id=project_id
-                )
-                self._destinations = self.destination_versions[
-                    self._version
-                ]
-            else:
-                self._project_id = None
-                self._version = None
-                self._destinations = self._default_destinations
-        else:
-            if project_id is None:
-                self._project_id = self._default_project_id
-            else:
-                self._project_id = project_id
-            self._version = (self._default_version
-                             if db_config_version is None else
-                             db_config_version)
-            self._destinations = self.destination_versions[self._version]
-            self.add_attribute(
-                'file_structure.project_id',
-                (
-                    0
-                    if self._structure_project_id is None else
-                    self._structure_project_id
-                )
+
+        if old_file:
+            layout_version_path, layout_version_attr = (
+                self._layout_version_attribute()
             )
-            self.add_attribute('file_structure.version', self._version)
+            layout_version = (
+                self[layout_version_path].attrs[layout_version_attr]
+            )
+        else:
+            layout_version = layout_version
+
+        self._file_structure = self._get_file_structure(layout_version)
 #pylint: enable=too-many-ancestors

@@ -389,11 +389,19 @@ def _get_source_projection_datasets():
 
     return [
         HDF5DataSet(
-            pipeline_key='srcproj.coordinates',
-            abspath=_default_paths['srcproj'],
+            pipeline_key='srcproj.x',
+            abspath=_default_paths['srcproj'] + '/X',
             dtype='numpy.float64',
             scaleoffset=4,
-            description='The x and y coordinates of the catalogue sources when '
+            description='The x coordinates of the catalogue sources when '
+            'projected through the sky to frame transformation.'
+        ),
+        HDF5DataSet(
+            pipeline_key='srcproj.y',
+            abspath=_default_paths['srcproj'] + '/Y',
+            dtype='numpy.float64',
+            scaleoffset=4,
+            description='The x coordinates of the catalogue sources when '
             'projected through the sky to frame transformation.'
         )
     ]
