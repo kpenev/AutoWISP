@@ -1,16 +1,22 @@
 """Define HDF5 file setting its structure from a database."""
 
-from io import BytesIO
-from sqlalchemy.orm import subqueryload
+from sqlalchemy.orm import contains_eager
 
 from superphot_pipeline.hdf5_file import HDF5File
 from superphot_pipeline.database.interface import db_session_scope
+
+#Pylint false positive due to quirky imports.
+#pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
     HDF5Product,\
     HDF5StructureVersion
+#pylint: enable=no-name-in-module
 
 #This is a h5py issue not an issue with this module
 #pylint: disable=too-many-ancestors
+
+#Class intentionally left abstract.
+#pylint: disable=abstract-method
 class HDF5FileDatabaseStructure(HDF5File):
     """HDF5 file with structure specified through the database."""
 
@@ -42,34 +48,43 @@ class HDF5FileDatabaseStructure(HDF5File):
                                        element_type):
                     result[element.pipeline_key] = element
 
-            return result
+            return result, str(structure.structure_versions[0].version)
 
         with db_session_scope() as db_session:
-            structure = db_session.query(
+            query = db_session.query(
                 HDF5Product
+            ).join(
+                HDF5Product.structure_versions
             ).options(
-                subqueryload(
+                contains_eager(
                     HDF5Product.structure_versions
                 ).subqueryload(
                     HDF5StructureVersion.data_sets
                 )
             ).options(
-                subqueryload(
+                contains_eager(
                     HDF5Product.structure_versions
                 ).subqueryload(
                     HDF5StructureVersion.attributes
                 )
             ).options(
-                subqueryload(
+                contains_eager(
                     HDF5Product.structure_versions
                 ).subqueryload(
                     HDF5StructureVersion.links
                 )
             ).filter(
                 HDF5Product.pipeline_key == self._product
-            ).filter(
-                HDF5StructureVersion.version == 0
-            ).one()
+            )
+
+            if version is None:
+                structure = query.order_by(
+                    HDF5StructureVersion.version.desc()
+                ).first()
+            else:
+                structure = query.filter(
+                    HDF5StructureVersion.version == version
+                ).one()
 
             db_session.expunge_all()
 
@@ -87,6 +102,7 @@ class HDF5FileDatabaseStructure(HDF5File):
         self._defined_elements = dict()
         self._product = product
         super().__init__(*args, **kwargs)
+#pylint: enable=abstract-method
 
 class DataReductionFile(HDF5FileDatabaseStructure):
     """Data reduction file with structure specified through the database."""
@@ -105,20 +121,18 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 #pylint: enable=too-many-ancestors
 
 if __name__ == '__main__':
-    dr_file = DataReductionFile('test.hdf5', 'w-')
+    dr_file = DataReductionFile('test.hdf5', 'a')
 
-    from xml.dom import minidom
-    from xml.etree import ElementTree
+    from lxml import etree
 
-    with open('example_structure.xml', 'wb') as xml:
-        xml.write(
-            b'<?xml-stylesheet type="text/xsl" href="hdf5_file_structure.xsl"?>'
-            b'\n'
+    root_element = dr_file.layout_to_xml()
+    root_element.addprevious(
+        etree.ProcessingInstruction(
+            'xml-stylesheet',
+            'type="text/xsl" href="hdf5_file_structure.xsl"'
         )
-        xml.write(
-            minidom.parseString(
-                ElementTree.tostring(
-                    dr_file.layout_to_etree()
-                )
-            ).toprettyxml(indent='    ', encoding='UTF-8')
-        )
+    )
+    etree.ElementTree(element=root_element).write('example_structure.xml',
+                                                  pretty_print=True,
+                                                  xml_declaration=True,
+                                                  encoding='utf-8')

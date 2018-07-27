@@ -8,9 +8,9 @@ import os
 import os.path
 from sys import exc_info
 from ast import literal_eval
-from xml.etree import ElementTree
 from traceback import format_exception
 
+from lxml import etree
 import h5py
 import numpy
 from astropy.io import fits
@@ -31,6 +31,12 @@ class HDF5File(ABC, h5py.File):
 
     Implements backwards compatibility for different versions of the structure
     of files.
+
+    Attributes:
+        _file_structure:    See the first entry returned by _get_file_structure.
+
+        _file_structure_version:    See the second entry returned by 
+            _get_file_structure.
     """
 
     @classmethod
@@ -76,12 +82,17 @@ class HDF5File(ABC, h5py.File):
                 (presumably the latest version).
 
         Returns:
-            dict:
-                How to include elements in the HDF5 file. The keys for the
-                dictionary should be one in one of the lists in self._elements
-                and the value is an object with attributes decsribing how to
-                include the element. See classes in :mod:database.data_model for
-                the provided attributes and their meining.
+            (dict, str):
+
+                The dictionary specifies how to include elements in the HDF5
+                file. The keys for the dictionary should be one in one of the
+                lists in self._elements and the value is an object with
+                attributes decsribing how to include the element. See classes in
+                :mod:database.data_model for the provided attributes and their
+                meining.
+
+                The string is the actual file structure version returned. The
+                same as version if version is not None.
         """
 
     @staticmethod
@@ -239,11 +250,12 @@ class HDF5File(ABC, h5py.File):
 
         raise KeyError('Unrecognized element: ' + repr(element_id))
 
-    def layout_to_etree(self):
-        """Create an ElementTree decsribing the currently defined layout."""
+    def layout_to_xml(self):
+        """Create an etree.Element decsribing the currently defined layout."""
 
-        root = ElementTree.Element('group',
-                                   dict(name=self._get_root_tag_name()))
+        root = etree.Element('group',
+                             dict(name=self._get_root_tag_name(),
+                                  version=self._file_structure_version))
 
         def require_parent(path, must_be_group):
             """
@@ -255,7 +267,7 @@ class HDF5File(ABC, h5py.File):
                     entry.
 
             Returns:
-                ElementTree.Element:
+                etree.Element:
                     The element holding the group at the specified path. If it
                     does not exist, it is created along with any parent groups
                     required along the way.
@@ -298,9 +310,9 @@ class HDF5File(ABC, h5py.File):
                             found = True
                             break
                 if not found:
-                    parent = ElementTree.SubElement(parent,
-                                                    'group',
-                                                    name=group_name)
+                    parent = etree.SubElement(parent,
+                                              'group',
+                                              name=group_name)
             return parent
 
         def add_dataset(parent, dataset):
@@ -308,14 +320,14 @@ class HDF5File(ABC, h5py.File):
             Add the given dataset as a SubElement to the given parent.
 
             Args:
-                parent (ElementTree.Element):    The group element in the result
+                parent (etree.Element):    The group element in the result
                     tree to add the dataset under.
 
                 dataset:    The dataset to add (object with attributes
                     specifying how the dataset should be added to the file).
             """
 
-            ElementTree.SubElement(
+            etree.SubElement(
                 parent,
                 'dataset',
                 name=dataset.abspath.rsplit('/', 1)[1],
@@ -335,7 +347,7 @@ class HDF5File(ABC, h5py.File):
         def add_attribute(parent, attribute):
             """Add the given attribute as a SubElement to the given parent."""
 
-            ElementTree.SubElement(
+            etree.SubElement(
                 parent,
                 'attribute',
                 name=attribute.name,
@@ -347,7 +359,7 @@ class HDF5File(ABC, h5py.File):
         def add_link(parent, link):
             """Add the given link as a SubElement to the given parent."""
 
-            ElementTree.SubElement(
+            etree.SubElement(
                 parent,
                 'link',
                 name=link.abspath.rsplit('/', 1)[1],
@@ -372,97 +384,6 @@ class HDF5File(ABC, h5py.File):
             add_link(require_parent(path, True), link)
 
         return root
-
-    def layout_to_restructuredtext(self):
-        """Create an RST document showing the currently defined layout."""
-
-        def link_to_str(element, indentation):
-            """Represent the given link."""
-
-            return (
-                indentation + '  - ``' + element.get('name') + '``'
-                +
-                ' (``' + element.get('key') + '``)'
-                +
-                ' --> ``' + element.get('target') + '``'
-                +
-                '\n'
-            )
-
-        def attribute_to_str(element, indentation):
-            """Represent given attribute."""
-
-            return (
-                indentation + '  - ' + element.get('name')
-                +
-                ' (``' + element.get('key') + '``)'
-                +
-                ' :sup:`' + element.get('dtype') + '`'
-                +
-                ': ' + element.get('description')
-                +
-                '\n'
-            )
-
-        def dataset_to_str(element, indentation):
-            """Represent given data set (including sub-attributes)."""
-
-            result = (
-                indentation + '  - *' + element.get('name') + '* '
-                +
-                '(``' + element.get('key') + '``)'
-                +
-                ' :sup:`' + (
-                    element.get('dtype')
-                    +
-                    ' ' + element.get('compression')
-                    +
-                    (
-                        ', scaleoffset = ' + element.get('scaleoffset')
-                        if element.get('scaleoffset') != 'None'
-                        else ''
-                    )
-                    +
-                    (
-                        ', shuffle'  if literal_eval(element.get('shuffle'))
-                        else ''
-                    )
-                    +
-                    (
-                        ', fill = ' + element.get('fill')
-                        if element.get('fill') != 'None'
-                        else ''
-                    )
-                ) + '`'
-                +
-                ': ' + element.get('description')
-                +
-                '\n'
-            )
-            for sub_element in element.iterfind('./*'):
-                assert sub_element.tag == 'attribute'
-                result += attribute_to_str(sub_element, indentation + '    ')
-            return result
-
-        def group_to_str(element, indentation):
-            """Represent given group (including sub-elements)."""
-
-            result = indentation + '  - **' + element.get('name') + '**\n'
-            for sub_element in element.iterfind('./*'):
-                if sub_element.tag == 'group':
-                    result += group_to_str(sub_element, indentation + '    ')
-                elif sub_element.tag == 'dataset':
-                    result += dataset_to_str(sub_element, indentation + '    ')
-                elif sub_element.tag == 'attribute':
-                    result += attribute_to_str(sub_element,
-                                               indentation + '    ')
-                else:
-                    assert sub_element.tag == 'link'
-                    result += link_to_str(sub_element, indentation + '    ')
-
-            return result
-
-        return group_to_str(self.layout_to_etree(), '')
 
     @classmethod
     def get_version_dtype(cls, element_id, version=None):
@@ -1051,15 +972,23 @@ class HDF5File(ABC, h5py.File):
                 ''.join(format_exception(*exc_info()))
             )
 
+        layout_version_path, layout_version_attr = (
+            self._layout_version_attribute
+        )
+
         if old_file:
-            layout_version_path, layout_version_attr = (
-                self._layout_version_attribute()
-            )
             layout_version = (
                 self[layout_version_path].attrs[layout_version_attr]
             )
         else:
             layout_version = layout_version
 
-        self._file_structure = self._get_file_structure(layout_version)
+        self._file_structure, self._file_structure_version = (
+            self._get_file_structure(layout_version)
+        )
+
+        if not old_file:
+            self[layout_version_path].attrs[layout_version_attr] = (
+                self._file_structure_version
+            )
 #pylint: enable=too-many-ancestors

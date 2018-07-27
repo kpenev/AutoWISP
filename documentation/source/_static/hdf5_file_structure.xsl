@@ -29,7 +29,10 @@
 
         </head>
         <body bgcolor="black">
-            <h1 style="color:white"><xsl:value-of select="@name"/></h1>
+            <h1 style="color:white">
+                <xsl:value-of select="@name"/>
+                (v. <xsl:value-of select="@version"/>)
+            </h1>
             <hr/>
             <dl>
                 <xsl:apply-templates/>
