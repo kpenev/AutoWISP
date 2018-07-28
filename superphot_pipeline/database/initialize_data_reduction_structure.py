@@ -1212,7 +1212,7 @@ def get_default_data_reduction_structure():
     default_structure.structure_versions[0].attributes = (
         _get_attributes()
     )
-    default_structure.structure_versions[0].data_sets = (
+    default_structure.structure_versions[0].datasets = (
         _get_datasets()
     )
     default_structure.structure_versions[0].links = (

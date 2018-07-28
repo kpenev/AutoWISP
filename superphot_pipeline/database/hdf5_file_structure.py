@@ -32,7 +32,7 @@ class HDF5FileDatabaseStructure(HDF5File):
         def fill_elements(structure):
             """Fill self._defined_elements with all defined pipeline keys."""
 
-            for element_type in ['data_set', 'attribute', 'link']:
+            for element_type in ['dataset', 'attribute', 'link']:
                 self._defined_elements[element_type] = [
                     element.pipeline_key
                     for element in getattr(structure.structure_versions[0],
@@ -43,7 +43,7 @@ class HDF5FileDatabaseStructure(HDF5File):
             """Create the final result of the parent function."""
 
             result = dict()
-            for element_type in ['data_sets', 'attributes', 'links']:
+            for element_type in ['datasets', 'attributes', 'links']:
                 for element in getattr(structure.structure_versions[0],
                                        element_type):
                     result[element.pipeline_key] = element
@@ -59,7 +59,7 @@ class HDF5FileDatabaseStructure(HDF5File):
                 contains_eager(
                     HDF5Product.structure_versions
                 ).subqueryload(
-                    HDF5StructureVersion.data_sets
+                    HDF5StructureVersion.datasets
                 )
             ).options(
                 contains_eager(

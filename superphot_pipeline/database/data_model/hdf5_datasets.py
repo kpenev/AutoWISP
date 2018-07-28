@@ -105,7 +105,7 @@ class HDF5DataSet(DataModelBase):
     )
 
     structure_version = relationship('HDF5StructureVersion',
-                                     back_populates='data_sets')
+                                     back_populates='datasets')
 
     def __str__(self):
         """Human readable description."""

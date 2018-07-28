@@ -3,11 +3,11 @@
 """Define a class for working with HDF5 files."""
 
 from abc import ABC, abstractmethod
-from io import StringIO
+from io import BytesIO
 import os
 import os.path
 from sys import exc_info
-from ast import literal_eval
+#from ast import literal_eval
 from traceback import format_exception
 
 from lxml import etree
@@ -35,7 +35,7 @@ class HDF5File(ABC, h5py.File):
     Attributes:
         _file_structure:    See the first entry returned by _get_file_structure.
 
-        _file_structure_version:    See the second entry returned by 
+        _file_structure_version:    See the second entry returned by
             _get_file_structure.
     """
 
@@ -61,7 +61,7 @@ class HDF5File(ABC, h5py.File):
         Shoul be a dictionary-like object with values being a set of strings
         containing the identifiers of the HDF5 elements and keys:
 
-            * data_set: Identifiers for the data sets that could be included in
+            * dataset: Identifiers for the data sets that could be included in
                 the file.
 
             * attribute: Identifiers for the attributes that could be included
@@ -94,6 +94,27 @@ class HDF5File(ABC, h5py.File):
                 The string is the actual file structure version returned. The
                 same as version if version is not None.
         """
+
+    def _flag_required_attribute_parents(self):
+        """
+        Flag attributes whose parents must exist when adding the attribute.
+
+        The file structure must be fully configured before calling this method!
+
+        If the parent is a group, it is safe to create it and then add the
+        attribute, however, this in is not the case for attributes to datasets.
+
+        Add an attribute named 'parent_must_exist' to all attribute
+        configurations in self._file_structure set to False if and only if the
+        attribute parent is a group.
+        """
+
+        dataset_paths = [self._file_structure[dataset_key].abspath
+                         for dataset_key in self._elements['dataset']]
+
+        for attribute_key in self._elements['attribute']:
+            attribute = self._file_structure[attribute_key]
+            attribute.parent_must_exist = attribute.parent in dataset_paths
 
     @staticmethod
     def write_text_to_dataset(text,
@@ -134,13 +155,12 @@ class HDF5File(ABC, h5py.File):
             creation_args = dict(compression='gzip',
                                  compression_opts=9)
 
-        try:
+        if isinstance(text, bytes):
             data = numpy.frombuffer(text, dtype='i1')
-        except AttributeError:
-            if isinstance(text, numpy.ndarray) and text.dtype == 'i1':
-                data = text
-            else:
-                data = numpy.fromfile(text, dtype='i1')
+        elif isinstance(text, numpy.ndarray) and text.dtype == 'i1':
+            data = text
+        else:
+            data = numpy.fromfile(text, dtype='i1')
 
         dataset = h5group.create_dataset(dset_path, data=data, **creation_args)
         for key, value in attributes.items():
@@ -154,17 +174,22 @@ class HDF5File(ABC, h5py.File):
         The inverse of :meth:`write_text_to_dataset`\ .
 
         Args:
-            h5dset:    The dataset containing the text to read.
+            h5dset (h5py.DataSet):    The dataset containing the text to read.
+
+            as_file (bool):    Should the return value be file-like?
 
         Returns:
-            text:    Numpy byte array (dtype='i1') containing the text.
+            bytes or BytesIO:
+                If as_file is False: numpy byte array (dtype='i1') containing
+                the text. If as_file is True: a BytesIO wrapped around the
+                stored text.
         """
 
         text = numpy.empty((h5dset.len(),), dtype='i1')
         if h5dset.len() != 0:
             h5dset.read_direct(text)
         if as_file:
-            return StringIO(text.data)
+            return BytesIO(text.data)
 
         return text
 
@@ -214,18 +239,9 @@ class HDF5File(ABC, h5py.File):
 
         fitsheader_array = numpy.empty((h5dset.len(),), dtype='i1')
         h5dset.read_direct(fitsheader_array)
-        try:
-            header = fits.Header.fromfile(StringIO(fitsheader_array.data),
-                                          endcard=False,
-                                          padding=False)
-        except:
-            newlines = numpy.empty(fitsheader_array.size/80, dtype='i1')
-            newlines.fill(numpy.frombuffer('\n', dtype='i1')[0])
-            fitsheader_array = numpy.insert(fitsheader_array,
-                                            slice(80, None, 80),
-                                            numpy.frombuffer('\n', dtype='i1'))
-            header = fits.Header.fromfile(StringIO(fitsheader_array.data))
-        return header
+        return fits.Header.fromfile(BytesIO(fitsheader_array.data),
+                                    endcard=False,
+                                    padding=False)
 
     @classmethod
     def get_element_type(cls, element_id):
@@ -368,7 +384,7 @@ class HDF5File(ABC, h5py.File):
                 description=link.description
             )
 
-        for dataset_key in self._elements['data_set']:
+        for dataset_key in self._elements['dataset']:
             dataset = self._file_structure[dataset_key]
             path = dataset.abspath.lstrip('/').split('/')[:-1]
             add_dataset(require_parent(path, True), dataset)
@@ -385,40 +401,28 @@ class HDF5File(ABC, h5py.File):
 
         return root
 
-    @classmethod
-    def get_version_dtype(cls, element_id, version=None):
-        """
-        What get_dtype would return for LC configured with the given version.
+    def get_dtype(self, element_key):
+        """Return numpy data type for the element with by the given key."""
 
-        Args:
-            element_id:    The string identifier for the quantity to return the
-                data type for.
+        result = self._file_structure[element_key].dtype
 
-            version:    The structure version for which to return the data type.
-                If None, uses the latest configured version.
+        if result == 'manual':
+            return None
 
-        Returns:
-            dtype:    A numpy style data type to use for the quantity in LCs.
-        """
+        #Used only on input defined by us.
+        #pylint: disable=eval-used
+        result = eval(result)
+        #pylint: enable=eval-used
 
-        if version is None:
-            destination = cls._default_destinations
-        else:
-            destination = cls.destination_versions[version]
-        return destination[element_id]['creation_args']['dtype']
+        if isinstance(result, str):
+            return numpy.dtype(result)
 
-    def get_dtype(self, element_id):
-        """Return numpy style data type string for the given element_id."""
-
-        return self._destinations[element_id]['creation_args']['dtype']
+        return result
 
     def add_attribute(self,
                       attribute_key,
                       attribute_value,
-                      attribute_dtype=None,
                       if_exists='overwrite',
-                      logger=None,
-                      log_extra=dict(),
                       **substitutions):
         """
         Adds a single attribute to a dateset or a group.
@@ -430,9 +434,6 @@ class HDF5File(ABC, h5py.File):
 
             attribute_value:    The value to give the attribute.
 
-            attribute_dtype:    Data type for the new attribute, None to
-                determine automatically.
-
             if_exists:    What should be done if the attribute exists? Possible
                 values are:
 
@@ -442,34 +443,30 @@ class HDF5File(ABC, h5py.File):
 
                 * error: raise an exception.
 
-            logger:    An object to pass log messages to.
-            log_extra:    Extra information to attach to the log messages.
-
             substitutions:    variables to substitute in HDF5 paths and names.
 
         Returns:
-            None.
+            unknown:
+                The value of the attribute. May differ from attribute_value if
+                the attribute already exists, if type conversion is performed,
+                or if the file structure does not specify a location for the
+                attribute. In the latter case the result is None.
         """
 
-        if attribute_key not in self._destinations:
-            if logger:
-                logger.debug(
-                    "Not adding '%s' attribute, since no destination is defined"
-                    " for it."
-                    %
-                    attribute_key
-                )
-            return
-        destination = self._destinations[attribute_key]
-        parent_path = destination['parent'] % substitutions
+        if attribute_key not in self._file_structure:
+            return None
+
+        attribute_config = self._file_structure[attribute_key]
+        parent_path = (attribute_config.parent
+                       %
+                       substitutions)
         if parent_path not in self:
-            if destination['parent_type'] != 'group':
+            if attribute_config.parent_must_exist:
                 raise HDF5LayoutError(
-                    "Attempting to add a attribute to non-existant %s ('%s') "
-                    "in '%s'!"
+                    "Attempting to add a attribute to non-existant path: '%s' "
+                    "under '%s'. Creating the parent is not allowed!"
                     %
                     (
-                        destination['parent_type'],
                         parent_path,
                         self.filename
                     )
@@ -477,19 +474,8 @@ class HDF5File(ABC, h5py.File):
             parent = self.create_group(parent_path)
         else:
             parent = self[parent_path]
-        if logger:
-            logger.debug(
-                "Defining '%s%s.%s'='%s'"
-                %
-                (
-                    self.filename,
-                    destination['parent'] % substitutions,
-                    destination['name'] % substitutions,
-                    attribute_value
-                ),
-                extra=log_extra
-            )
-        attribute_name = destination['name'] % substitutions
+
+        attribute_name = attribute_config.name % substitutions
         if attribute_name in parent.attrs:
             if if_exists == 'ignore':
                 return parent.attrs[attribute_name]
@@ -504,7 +490,9 @@ class HDF5File(ABC, h5py.File):
 
         parent.attrs.create(attribute_name,
                             attribute_value,
-                            dtype=attribute_dtype)
+                            dtype=self.get_dtype(attribute_key))
+
+        return parent.attrs[attribute_name]
 
     def add_link(self, target, name, logger=None, log_extra=dict()):
         """
