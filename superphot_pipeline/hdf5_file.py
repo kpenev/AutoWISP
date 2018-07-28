@@ -419,6 +419,26 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
+    @staticmethod
+    def hdf5_class_string(hdf5_class):
+        """Return a string identifier of the given hdf5 class."""
+
+        if issubclass(hdf5_class, h5py.Group):
+            return "group"
+        elif issubclass(hdf5_class, h5py.Dataset):
+            return "dataset"
+        elif issubclass(hdf5_class, h5py.HardLink):
+            return "hard link"
+        elif issubclass(hdf5_class, h5py.SoftLink):
+            return "soft link"
+        elif issubclass(hdf5_class, h5py.ExternalLink):
+            return "external link"
+        else:
+            raise ValueError(
+                'Argument to hdf5_class_string does not appear to be a class or'
+                ' a child of a class defined by h5py!'
+            )
+
     def add_attribute(self,
                       attribute_key,
                       attribute_value,
@@ -437,11 +457,14 @@ class HDF5File(ABC, h5py.File):
             if_exists:    What should be done if the attribute exists? Possible
                 values are:
 
-                * ignore:    do not update but return the attribute's value.
+                * ignore:
+                    do not update but return the attribute's value.
 
-                * overwrite:    Change the value to the specified one.
+                * overwrite:
+                    Change the value to the specified one.
 
-                * error: raise an exception.
+                * error:
+                    raise an exception.
 
             substitutions:    variables to substitute in HDF5 paths and names.
 
@@ -477,7 +500,11 @@ class HDF5File(ABC, h5py.File):
 
         attribute_name = attribute_config.name % substitutions
         if attribute_name in parent.attrs:
-            if if_exists == 'ignore':
+            if (
+                    if_exists == 'ignore'
+                    or
+                    parent.attrs[attribute_name] == attribute_value
+            ):
                 return parent.attrs[attribute_name]
             elif if_exists == 'error':
                 raise HDF5LayoutError(
@@ -494,43 +521,71 @@ class HDF5File(ABC, h5py.File):
 
         return parent.attrs[attribute_name]
 
-    def add_link(self, target, name, logger=None, log_extra=dict()):
+    def add_link(self, link_key, if_exists='overwrite', **substitutions):
         """
         Adds a soft link to the HDF5 file.
 
         Args:
-            target:    The path to create a soft link to.
+            link_key:    The key identifying the link to create.
 
-            name:    The name to give to the link. Overwritten if it existts and
-                is a link.
+            if_exists:    See same name argument to :meth:`add_attribute`.
+
+            substitutions:    variables to substitute in HDF5 paths and names of
+                both where the link should be place and where it should point
+                to.
 
         Returns:
-            None
+            str:
+                The path the identified link points to. See if_exists argument
+                for how the value con be determined.
 
         Raises:
-            Error.HDF5:    if an object with the same name as the link exists,
-                but is not a link.
+            IOError:    if an object with the same name as the link exists,
+                but is not a link or is a link, but does not point to the
+                configured target and if_exists == 'error'.
         """
 
-        if logger:
-            logger.debug("Linking '%s' -> '%s' in '%s'"
-                         %
-                         (name, target, self.filename),
-                         extra=log_extra)
-        if name in self:
-            if self.get(name, getclass=True, getlink=True) == h5py.SoftLink:
-                if logger:
-                    logger.debug("Removing old symlink '%s'" % name,
-                                 extra=log_extra)
-                del self[name]
-            else:
-                raise HDF5LayoutError(
-                    "An object named '%s' already exists in '%s', and is not"
-                    " a link. Not overwriting!"
+        link_config = self._file_structure[link_key]
+
+        link_path = link_config.abspath % substitutions
+        target_path = link_config.target % substitutions
+
+        if link_path in self:
+            existing_class = self.get(link_path, getclass=True, getlink=True)
+            if issubclass(existing_class, h5py.SoftLink):
+                existing_target_path = self[link_path].path
+                if (
+                        if_exists == 'ignore'
+                        or
+                        existing_target_path == target_path
+                ):
+                    return existing_target_path
+
+                raise IOError(
+                    "Unable to create link with key %s: a link at '%s' already"
+                    " exists in '%s', and points to '%s' instead of '%s'!"
                     %
-                    (name, self.filename)
+                    (
+                        link_key,
+                        link_path,
+                        self.filename,
+                        existing_target_path,
+                        target_path
+                    )
                 )
-        self[name] = h5py.SoftLink(target)
+            else:
+                raise IOError(
+                    "Unable to create link with key %s: a %s at '%s' already"
+                    " exists in '%s'!"
+                    %
+                    (
+                        link_key,
+                        self.hdf5_class_string(existing_class),
+                        link_path,
+                        self.filename,
+                    )
+                )
+        self[link_path] = h5py.SoftLink(target_path)
 
     def _delete_obsolete_dataset(self,
                                  parent,
