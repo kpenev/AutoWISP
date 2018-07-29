@@ -633,7 +633,7 @@ class HDF5File(ABC, h5py.File):
         self[link_path] = h5py.SoftLink(target_path)
         return target_path
 
-    def _delete_obsolete_dataset(self, dataset_key):
+    def _delete_obsolete_dataset(self, dataset_key, **substitutions):
         """
         Delete obsolete HDF5 dataset if it exists and update repacking flag.
 
@@ -656,8 +656,9 @@ class HDF5File(ABC, h5py.File):
         assert dataset_key in self._elements['dataset']
 
         dataset_config = self._file_structure[dataset_key]
+        dataset_path = dataset_config.abspath % substitutions
 
-        if dataset_config.abspath in self:
+        if dataset_path in self:
             repack_attribute_config = self._file_structure['repack']
             if repack_attribute_config.parent not in self:
                 self.create_group(repack_attribute_config.parent)
@@ -668,18 +669,18 @@ class HDF5File(ABC, h5py.File):
                     +
                     ','
                     +
-                    dataset_config.abspath
+                    dataset_path
                 )
             else:
                 repack_parent.create(repack_attribute_config.name,
-                                     dataset_config.abspath,
+                                     dataset_path,
                                      dtype=self.get_dtype('repack'))
-            del self[dataset_config.abspath]
+            del self[dataset_path]
             return True
 
         return False
 
-    def dump_file_or_text(self, dataset_key, file_contents):
+    def dump_file_or_text(self, dataset_key, file_contents, **substitutions):
         """
         Adds a byte-by-byte dump of a file-like object to self.
 
@@ -701,10 +702,10 @@ class HDF5File(ABC, h5py.File):
 
         assert dataset_key in self._elements['dataset']
 
-        dataset_path = self._file_structure[dataset_key].abspath
+        dataset_path = self._file_structure[dataset_key].abspath % substitutions
         assert self.get_dtype(dataset_key) == numpy.dtype('i1')
 
-        self._delete_obsolete_dataset(dataset_key)
+        self._delete_obsolete_dataset(dataset_key, **substitutions)
 
         self.write_text_to_dataset(
             text=(
@@ -763,21 +764,23 @@ class HDF5File(ABC, h5py.File):
                 The text of the dumped file.
         """
 
-        if dataset_key not in self._destinations:
-            raise HDF5LayoutError(
+        if dataset_key not in self._file_structure:
+            raise IOError(
                 "The key '%s' does not exist in the list of configured data "
                 "reduction file entries."
                 %
-                dump_key
+                dataset_key
             )
-        destination = self._destinations[dump_key]
-        dset_name = destination['parent'] + '/' + destination['name']
-        if dset_name not in self:
-            raise HDF5LayoutError("No '%s' dataset found in data reduction '%s'"
-                                  %
-                                  (dset_name, self.filename))
-        result = text_from_dataset(self[dset_name], as_file=True)
-        result.name = self.filename + '/' + dset_name
+        assert dataset_key in self._elements['dataset']
+        assert self.get_dtype(dataset_key) == numpy.dtype('i1')
+        dataset_path = self._file_structure[dataset_key].abspath
+
+        if dataset_path not in self:
+            raise IOError("No '%s' dataset ('%s') found in '%s'"
+                          %
+                          (dataset_key, dataset_path, self.filename))
+
+        result = self.read_text_from_dataset(self[dataset_path], as_file=True)
         return result
 
     def get_attribute(self,
@@ -793,46 +796,66 @@ class HDF5File(ABC, h5py.File):
 
             default_value:    If this is not None this values is returned if the
                 attribute does not exist in the file, if None, not finding the
-                attribute rasies Error.Sanity.
+                attribute rasies IOError.
 
             substitutions:    Any keys that must be substituted in the path
                 (i.e. ap_ind, config_id, ...).
 
         Returns:
             value:    The value of the attribute.
+
+        Raises:
+            KeyError:
+                If no attribute with the given key is defined in the current
+                files structure or if it does not correspond to an attribute.
+
+            IOError:
+                If the requested dataset is not found and no default value was
+                given.
         """
 
-        if attribute_key not in self._destinations:
-            raise HDF5LayoutError(
-                "The key '%s' does not exist in the list of configured data "
-                "reduction file entries."
+        if attribute_key not in self._file_structure:
+            raise KeyError(
+                "The key '%s' does not exist in the list of configured HDF5 "
+                "file structure."
                 %
                 attribute_key
             )
-        destination = self._destinations[attribute_key]
-        parent_path = destination['parent'] % substitutions
-        attribute_name = destination['name'] % substitutions
+        if attribute_key not in self._elements['attribute']:
+            raise KeyError(
+                "The key '%s' does not correspond to an attribute in the "
+                "configured HDF5 file structure."
+                %
+                attribute_key
+            )
+
+        attribute_config = self._file_structure[attribute_key]
+
+        parent_path = attribute_config.parent % substitutions
+        attribute_name = attribute_config.name % substitutions
+
         if parent_path not in self:
             if default_value is not None:
                 return default_value
-            raise HDF5LayoutError(
-                "Requested attribute '%s' from a non-existent %s: '%s/%s'!"
+            raise IOError(
+                "Requested attribute (%s) '%s' from a non-existent path: '%s' "
+                "in '%s'!"
                 %
                 (
+                    attribute_key,
                     attribute_name,
-                    destination['parent_type'],
+                    parent_path,
                     self.filename,
-                    parent_path
                 )
             )
         parent = self[parent_path]
         if attribute_name not in parent.attrs:
             if default_value is not None:
                 return default_value
-            raise HDF5LayoutError(
-                "The attribute '%s' is not defined for '%s/%s'!"
+            raise IOError(
+                "The attribute (%s) '%s' is not defined for '%s' in '%s'!"
                 %
-                (attribute_name, self.filename, parent_path)
+                (attribute_key, attribute_name, parent_path, self.filename)
             )
         return parent.attrs[attribute_name]
 
