@@ -516,6 +516,8 @@ class HDF5File(ABC, h5py.File):
         if attribute_key not in self._file_structure:
             return None
 
+        assert attribute_key in self._elements['attribute']
+
         attribute_config = self._file_structure[attribute_key]
         parent_path = (attribute_config.parent
                        %
@@ -574,13 +576,19 @@ class HDF5File(ABC, h5py.File):
         Returns:
             str:
                 The path the identified link points to. See if_exists argument
-                for how the value con be determined.
+                for how the value con be determined or None if the link was not
+                created (not defined in current file structure).
 
         Raises:
             IOError:    if an object with the same name as the link exists,
                 but is not a link or is a link, but does not point to the
                 configured target and if_exists == 'error'.
         """
+
+        if link_key not in self._file_structure:
+            return None
+
+        assert link_key in self._elements['link']
 
         link_config = self._file_structure[link_key]
 
@@ -642,6 +650,11 @@ class HDF5File(ABC, h5py.File):
                 but is not a dataset.
         """
 
+        if dataset_key not in self._file_structure:
+            return False
+
+        assert dataset_key in self._elements['dataset']
+
         dataset_config = self._file_structure[dataset_key]
 
         if dataset_config.abspath in self:
@@ -662,8 +675,11 @@ class HDF5File(ABC, h5py.File):
                                      dataset_config.abspath,
                                      dtype=self.get_dtype('repack'))
             del self[dataset_config.abspath]
+            return True
 
-    def dump_file_like(self, dataset_key, file_like):
+        return False
+
+    def dump_file_or_text(self, dataset_key, file_contents):
         """
         Adds a byte-by-byte dump of a file-like object to self.
 
@@ -671,21 +687,29 @@ class HDF5File(ABC, h5py.File):
             dataset_key:    The key identifying the dataset to create for the
                 file contents.
 
-            file_like:    A file-like object to dump.
+            file_contents:    See text argument to
+                :meth:`write_text_to_dataset`. None is also a valid value, in
+                which case an empty dataset is created.
 
         Returns:
-            None.
+            (bool):
+                Was the dataset actually created?
         """
 
-        dataset_path = self._file_structure['dataset_key'].abspath
+        if dataset_key not in self._file_structure:
+            return
+
+        assert dataset_key in self._elements['dataset']
+
+        dataset_path = self._file_structure[dataset_key].abspath
         assert self.get_dtype(dataset_key) == numpy.dtype('i1')
 
         self._delete_obsolete_dataset(dataset_key)
 
         self.write_text_to_dataset(
             text=(
-                file_like
-                if file_like is not None else
+                file_contents
+                if file_contents is not None else
                 numpy.empty((0,), dtype='i1')
             ),
             h5group=self,
@@ -693,76 +717,53 @@ class HDF5File(ABC, h5py.File):
             creation_args=self.get_dataset_creation_args(dataset_key)
         )
 
-    def add_file_dump(self,
-                      fname,
-                      destination,
-                      link_name=False,
-                      delete_original=True,
-                      logger=None,
-                      external_log_extra=dict()):
+    def add_file_dump(self, dataset_key, fname, delete_original=True):
         """
-        Adds a byte by byte dump of a file to the data reduction file.
+        Adds a byte by byte dump of a file to self.
 
         If the file does not exist an empty dataset is created.
 
         Args:
             fname:    The name of the file to dump.
 
-            destination:    Passed directly to dump_file_like.
-
-            link_name:    Passed directly to dump_file_like.
+            dataset_key:    Passed directly to dump_file_like.
 
             delete_original:    If True, the file being dumped is
                 deleted (default).
-
-            logger:    An object to emit log messages to.
-
-            external_log_extra:    extra information to add to log message.
 
         Returns:
             None.
         """
 
-        if logger:
-            logger.debug(
-                (
-                    "Adding dump of '%s' to '%s' as '%s/%s'"
-                    %
-                    (
-                        fname,
-                        self.filename,
-                        destination['parent'],
-                        destination['name']
-                    )
-                    +
-                    (" and linking as '%s'" % link_name if link_name else '')
-                ),
-                extra=dict(log_extra.items() + external_log_extra.items())
-            )
-        self.dump_file_like(
-            (open(fname, 'r') if exists(fname) else None),
-            destination,
-            link_name,
-            logger,
-            external_log_extra,
-            log_dumping=False
-        )
-        if delete_original and exists(fname):
-            os.remove(fname)
 
-    def get_file_dump(self, dump_key):
+        created_dataset = self.dump_file_or_text(
+            dataset_key,
+            (open(fname, 'r') if os.path.exists(fname) else None)
+        )
+        if delete_original and os.path.exists(fname):
+            if created_dataset:
+                os.remove(fname)
+            else:
+                raise IOError("Dataset '%s' containing a dump of '%s' not "
+                              "created in '%s' but original deletion was "
+                              "requested!"
+                              %
+                              (dataset_key, fname, self.filename))
+
+    def get_file_dump(self, dataset_key):
         """
         Returns as a string (with name attribute) a previously dumped file.
 
         Args:
-            dump_key:    The key in self._destinations identifying the file
-                to extract.
+            dataset_key:    The key identifying the dataset containing the file
+                dump.
 
         Returns:
-            dump:    The text of the dumped file.
+            bytes:
+                The text of the dumped file.
         """
 
-        if dump_key not in self._destinations:
+        if dataset_key not in self._destinations:
             raise HDF5LayoutError(
                 "The key '%s' does not exist in the list of configured data "
                 "reduction file entries."
