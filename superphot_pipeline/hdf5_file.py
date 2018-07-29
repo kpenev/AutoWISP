@@ -731,7 +731,11 @@ class HDF5File(ABC, h5py.File):
 
         return False
 
-    def dump_file_or_text(self, dataset_key, file_contents, **substitutions):
+    def dump_file_or_text(self,
+                          dataset_key,
+                          file_contents,
+                          if_exists='overwrite',
+                          **substitutions):
         """
         Adds a byte-by-byte dump of a file-like object to self.
 
@@ -743,6 +747,9 @@ class HDF5File(ABC, h5py.File):
                 :meth:`_write_text_to_dataset`. None is also a valid value, in
                 which case an empty dataset is created.
 
+            if_exists:    See same name argument to add_attribute.
+
+            substitutions:    variables to substitute in the dataset HDF5 path.
         Returns:
             (bool):
                 Was the dataset actually created?
@@ -756,7 +763,16 @@ class HDF5File(ABC, h5py.File):
         dataset_path = self._file_structure[dataset_key].abspath % substitutions
         assert self.get_dtype(dataset_key) == numpy.dtype('i1')
 
-        self._delete_obsolete_dataset(dataset_key, **substitutions)
+        if dataset_path in self:
+            if if_exists == 'ignore':
+                return
+            elif if_exists == 'error':
+                raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
+                              "overwriting is not allowed!"
+                              %
+                              (dataset_key, dataset_path, self.filename))
+            else:
+                self._delete_obsolete_dataset(dataset_key, **substitutions)
 
         self._write_text_to_dataset(
             text=(
@@ -769,7 +785,12 @@ class HDF5File(ABC, h5py.File):
             creation_args=self.get_dataset_creation_args(dataset_key)
         )
 
-    def add_file_dump(self, dataset_key, fname, delete_original=True):
+    def add_file_dump(self,
+                      dataset_key,
+                      fname,
+                      if_exists='overwrite',
+                      delete_original=True,
+                      **substitutions):
         """
         Adds a byte by byte dump of a file to self.
 
@@ -780,9 +801,12 @@ class HDF5File(ABC, h5py.File):
 
             dataset_key:    Passed directly to dump_file_like.
 
+            if_exists:    See same name argument to add_attribute.
+
             delete_original:    If True, the file being dumped is
                 deleted (default).
 
+            substitutions:    variables to substitute in the dataset HDF5 path.
         Returns:
             None.
         """
@@ -790,7 +814,9 @@ class HDF5File(ABC, h5py.File):
 
         created_dataset = self.dump_file_or_text(
             dataset_key,
-            (open(fname, 'r') if os.path.exists(fname) else None)
+            (open(fname, 'r') if os.path.exists(fname) else None),
+            if_exists,
+            **substitutions
         )
         if delete_original and os.path.exists(fname):
             if created_dataset:
@@ -909,7 +935,7 @@ class HDF5File(ABC, h5py.File):
                     default_value=None,
                     **substitutions):
         """
-        Return a single dataset as a numpy float or int array.
+        Return a dataset as a numpy float or int array.
 
         Args:
             dataset_key:    The key in self._destinations identifying the
@@ -977,15 +1003,11 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
-    def add_single_dataset(self,
-                           parent,
-                           name,
-                           data,
-                           creation_args,
-                           replace_nonfinite=None,
-                           logger=None,
-                           log_extra=dict(),
-                           **kwargs):
+    def add_dataset(self,
+                    dataset_key,
+                    data,
+                    if_exists='overwrite',
+                    **substitutions):
         """
         Adds a single dataset to self.
 
@@ -993,62 +1015,54 @@ class HDF5File(ABC, h5py.File):
         name of the dataset is added to the root level Repack attribute.
 
         Args:
-            parent:    The full path of the group under which to place the new
-                dataset (created if it does not exist).
-
-            name:    The name of the dataset.
+            dataset_key:    The key identifying the dataset to add.
 
             data:    The values that should be written, a numpy array with
-                appropriate type already set.
-
-            creation_args:    Additional arguments to pass to the create_dataset
-                method.
+                an appropriate data type.
 
             replace_nonfinite:    If not None, any non-finite values are
                 replaced with this value, it is also used as the fill value for
                 the dataset.
 
-            logger:    An object to send log messages to.
+            if_exists:    See same name argument to add_attribute.
 
-            log_extra:    Extra information to add to log messages
-
-            kwargs:    Ignored.
+            substitututions:    Any arguments that should be substituted in the
+                dataset path.
 
         Returns:
             None
         """
 
-        if logger:
-            logger.debug("Creating dataset '%s/%s' in '%s'"
-                         %
-                         (parent, name, self.filename),
-                         extra=log_extra)
-        if parent not in self:
-            parent_group = self.create_group(parent)
-        else:
-            parent_group = self[parent]
-        self._delete_obsolete_dataset(parent_group, name, logger, log_extra)
-        fillvalue = None
-        if replace_nonfinite is None:
+        self._check_for_dataset(dataset_key, False)
+        dataset_config = self._file_structure[dataset_key]
+        dataset_path = dataset_config.abspath % substitutions
+
+        if dataset_path in self:
+            if if_exists == 'ignore':
+                return
+            elif if_exists == 'error':
+                raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
+                              "overwriting is not allowed!"
+                              %
+                              (dataset_key, dataset_path, self.filename))
+            else:
+                self._delete_obsolete_dataset(dataset_key, **substitutions)
+
+        if dataset_config.replace_nonfinite is None:
+            fillvalue = None
             data_copy = data
         else:
+            fillvalue = dataset_config.replace_nonfinite
             finite = numpy.isfinite(data)
-            fillvalue = replace_nonfinite
             if finite.all():
                 data_copy = data
             else:
                 data_copy = numpy.copy(data)
-                data_copy[numpy.logical_not(finite)] = replace_nonfinite
+                data_copy[numpy.logical_not(finite)] = fillvalue
 
-        if fillvalue is None:
-            parent_group.create_dataset(name,
-                                        data=data_copy,
-                                        **creation_args)
-        else:
-            parent_group.create_dataset(name,
-                                        data=data_copy,
-                                        fillvalue=fillvalue,
-                                        **creation_args)
+        self.create_dataset(dataset_path,
+                            data=data_copy,
+                            **self.get_dataset_creation_args(dataset_key))
 
     def __init__(self,
                  fname,
