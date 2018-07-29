@@ -1138,6 +1138,18 @@ def _get_attributes():
     """Create the default database attributes in data reduction HDF5 files."""
 
     return (
+        [
+            HDF5Attribute(
+                pipeline_key='repack',
+                parent='/',
+                name='Repack',
+                dtype='numpy.string_',
+                description='A list of the datasets deleted from the file since'
+                ' the last re-packing. If not empty, indicates that the file '
+                'size can be decreased by re-packing.'
+            )
+        ]
+        +
         _get_source_extraction_attributes()
         +
         _get_catalogue_attributes()

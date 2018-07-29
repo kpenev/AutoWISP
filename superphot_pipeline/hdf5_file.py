@@ -587,46 +587,43 @@ class HDF5File(ABC, h5py.File):
                 )
         self[link_path] = h5py.SoftLink(target_path)
 
-    def _delete_obsolete_dataset(self,
-                                 parent,
-                                 name,
-                                 logger=None,
-                                 log_extra=dict()):
+    def _delete_obsolete_dataset(self, dataset_key):
         """
         Delete obsolete HDF5 dataset if it exists and update repacking flag.
 
         Args:
-            parent:    The parent group this entry belongs to.
-
-            name:    The name of the entry to check and delete. If the entry is
-                not a dataset, an error is raised.
-
-            logger:    An object to issue log messages to.
-
-            log_extra:    Extra information to add to log messages.
+            dataset_key:    The key identifying the link to delete.
 
         Returns:
-            None
+            bool:
+                Was a dataset actually deleted?
 
         Raises:
-            Error.HDF5:    if an entry with the given name exists under parent,
+            Error.HDF5:
+                if an entry already exists at the target dataset's location
                 but is not a dataset.
         """
 
-        if name in parent:
-            if logger:
-                logger.warning("Deleteing obsolete dataset '%s/%s' in '%s'"
-                               %
-                               (parent.name, name, self.filename))
-            if 'Repack' in self:
-                self.attrs['Repack'] = (
-                    self.attrs['Repack']
+        dataset_config = self._file_structure[dataset_key]
+
+        if dataset_config.abspath in self:
+            repack_attribute_config = self._file_structure['repack']
+            if repack_attribute_config.parent not in self:
+                self.create_group(repack_attribute_config.parent)
+            repack_parent = self[repack_attribute_config.parent]
+            if repack_attribute_config.name in repack_parent.attrs:
+                repack_parent.attrs[repack_attribute_config.name] = (
+                    self.attrs[repack_attribute_config.name]
                     +
-                    ',%s/%s' % (parent, name)
+                    ','
+                    +
+                    dataset_config.abspath
                 )
             else:
-                self.attrs.create('Repack', bytes(',%s/%s' % (parent, name)))
-            del parent[name]
+                repack_parent.create(repack_attribute_config.name,
+                                     dataset_config.abspath,
+                                     dtype=self.get_dtype('repack'))
+            del self[dataset_config.abspath]
 
     def dump_file_like(self,
                        file_like,
