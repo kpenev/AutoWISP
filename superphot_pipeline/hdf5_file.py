@@ -117,11 +117,11 @@ class HDF5File(ABC, h5py.File):
             attribute.parent_must_exist = attribute.parent in dataset_paths
 
     @staticmethod
-    def write_text_to_dataset(text,
-                              h5group,
-                              dset_path,
-                              creation_args=None,
-                              **attributes):
+    def _write_text_to_dataset(text,
+                               h5group,
+                               dset_path,
+                               creation_args=None,
+                               **attributes):
         r"""
         Adds ASCII text/file as a dateset to an HDF5 file.
 
@@ -167,11 +167,11 @@ class HDF5File(ABC, h5py.File):
             dataset.attrs[key] = value
 
     @staticmethod
-    def read_text_from_dataset(h5dset, as_file=False):
+    def _read_text_from_dataset(h5dset, as_file=False):
         r"""
         Reads a text from an HDF5 dataset.
 
-        The inverse of :meth:`write_text_to_dataset`\ .
+        The inverse of :meth:`_write_text_to_dataset`\ .
 
         Args:
             h5dset (h5py.DataSet):    The dataset containing the text to read.
@@ -201,9 +201,9 @@ class HDF5File(ABC, h5py.File):
         Args:
             fitsheader:    The header to save (fits.Header instance).
 
-            args:    Passed directly to :meth:`write_text_to_dataset`\ .
+            args:    Passed directly to :meth:`_write_text_to_dataset`\ .
 
-            kwargs:    Passed directly to :meth:`write_text_to_dataset`\ .
+            kwargs:    Passed directly to :meth:`_write_text_to_dataset`\ .
 
         Returns:
             None
@@ -221,7 +221,7 @@ class HDF5File(ABC, h5py.File):
         else:
             fitsheader_string = b''.join(fitsheader.cards)
         fitsheader_array = numpy.frombuffer(fitsheader_string, dtype='i1')
-        HDF5File.write_text_to_dataset(fitsheader_array, *args, **kwargs)
+        HDF5File._write_text_to_dataset(fitsheader_array, *args, **kwargs)
 
     @staticmethod
     def read_fitsheader_from_dataset(h5dset):
@@ -242,6 +242,55 @@ class HDF5File(ABC, h5py.File):
         return fits.Header.fromfile(BytesIO(fitsheader_array.data),
                                     endcard=False,
                                     padding=False)
+
+    def _check_for_dataset(self, dataset_key, must_exist=True, **substitutions):
+        """
+        Check if the given key identifies a dataset and it actually exists.
+
+        Args:
+            dataset_key:    The key identifying the dataset to check for.
+
+            must_exist:    If True, and the dataset does not exist, raise
+                IOError.
+
+            substitutions:    Any arguments that should be substituted in the
+                path. Only required if must_exist == True.
+
+        Returns:
+            None
+
+        Raises:
+            KeyError:
+                If the specified key is not in the currently set file structure
+                or does not identify a dataset.
+
+            IOError:
+                If the dataset does not exist but the must_exist argument is
+                True.
+        """
+
+        if dataset_key not in self._file_structure:
+            raise KeyError(
+                "The key '%s' does not exist in the list of configured data "
+                "reduction file entries."
+                %
+                dataset_key
+            )
+        if dataset_key in self._elements['dataset']:
+            raise KeyError(
+                "The key '%s' does not identify a dataset in '%s'"
+                %
+                (dataset_key, self.filename)
+            )
+
+        if must_exist:
+            dataset_path = (self._file_structure[dataset_key].abspath
+                            %
+                            substitutions)
+            if dataset_path not in self:
+                raise IOError("Requried dataset ('%s') '%s' does not exist in '%s'"
+                              %
+                              (dataset_key, dataset_path, self.filename))
 
     @classmethod
     def get_element_type(cls, element_id):
@@ -431,6 +480,8 @@ class HDF5File(ABC, h5py.File):
                 All arguments to pass to create_dataset() or require_dataset()
                 except: name, shape and data.
         """
+
+        self._check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
         result = dict()
@@ -653,7 +704,7 @@ class HDF5File(ABC, h5py.File):
         if dataset_key not in self._file_structure:
             return False
 
-        assert dataset_key in self._elements['dataset']
+        self._check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
@@ -689,7 +740,7 @@ class HDF5File(ABC, h5py.File):
                 file contents.
 
             file_contents:    See text argument to
-                :meth:`write_text_to_dataset`. None is also a valid value, in
+                :meth:`_write_text_to_dataset`. None is also a valid value, in
                 which case an empty dataset is created.
 
         Returns:
@@ -700,14 +751,14 @@ class HDF5File(ABC, h5py.File):
         if dataset_key not in self._file_structure:
             return
 
-        assert dataset_key in self._elements['dataset']
+        self._check_for_dataset(dataset_key, False)
 
         dataset_path = self._file_structure[dataset_key].abspath % substitutions
         assert self.get_dtype(dataset_key) == numpy.dtype('i1')
 
         self._delete_obsolete_dataset(dataset_key, **substitutions)
 
-        self.write_text_to_dataset(
+        self._write_text_to_dataset(
             text=(
                 file_contents
                 if file_contents is not None else
@@ -751,7 +802,7 @@ class HDF5File(ABC, h5py.File):
                               %
                               (dataset_key, fname, self.filename))
 
-    def get_file_dump(self, dataset_key):
+    def get_file_dump(self, dataset_key, **substitutions):
         """
         Returns as a string (with name attribute) a previously dumped file.
 
@@ -759,28 +810,21 @@ class HDF5File(ABC, h5py.File):
             dataset_key:    The key identifying the dataset containing the file
                 dump.
 
+            substitutions:    Any arguments that should be substituted in the
+                path. Only required if must_exist == True.
+
         Returns:
             bytes:
                 The text of the dumped file.
         """
 
-        if dataset_key not in self._file_structure:
-            raise IOError(
-                "The key '%s' does not exist in the list of configured data "
-                "reduction file entries."
-                %
-                dataset_key
-            )
-        assert dataset_key in self._elements['dataset']
+        self._check_for_dataset(dataset_key, True, **substitutions)
         assert self.get_dtype(dataset_key) == numpy.dtype('i1')
-        dataset_path = self._file_structure[dataset_key].abspath
 
-        if dataset_path not in self:
-            raise IOError("No '%s' dataset ('%s') found in '%s'"
-                          %
-                          (dataset_key, dataset_path, self.filename))
-
-        result = self.read_text_from_dataset(self[dataset_path], as_file=True)
+        result = self._read_text_from_dataset(
+            self[self._file_structure[dataset_key].abspath],
+            as_file=True
+        )
         return result
 
     def get_attribute(self,
@@ -859,12 +903,11 @@ class HDF5File(ABC, h5py.File):
             )
         return parent.attrs[attribute_name]
 
-    def get_single_dataset(self,
-                           dataset_key,
-                           sub_entry=None,
-                           expected_shape=None,
-                           optional=None,
-                           **substitute):
+    def get_dataset(self,
+                    dataset_key,
+                    expected_shape=None,
+                    default_value=None,
+                    **substitutions):
         """
         Return a single dataset as a numpy float or int array.
 
@@ -872,47 +915,44 @@ class HDF5File(ABC, h5py.File):
             dataset_key:    The key in self._destinations identifying the
                 dataset to read.
 
-            sub_entry:    If the dataset_key does not identify a single dataset,
-                this value is used to select from among the multiple possible
-                datasets (e.g. 'field' or 'source' for source IDs)
-
             expected_size:    The size to use for the dataset if an empty
                 dataset is found. If None, a zero-sized array is returned.
 
-            optional:    If not None and the dataset does not exist, this value
-                is returned, otherwise if the dataset does not exist an
+            default_value:    If not None and the dataset does not exist, this
+                value is returned, otherwise if the dataset does not exist an
                 exception is raised.
 
-            substitute:    Any arguments that should be substituted in the path
-                (e.g. ap_ind or config_id).
+            substitutions:    Any arguments that should be substituted in the
+                path.
 
         Returns:
             numpy.array:
                 A numpy int/float array containing the identified dataset from
                 the HDF5 file.
+
+        Raises:
+            KeyError:
+                If the specified key is not in the currently set file structure
+                or does not identify a dataset.
+
+            IOError:
+                If the dataset does not exist, and no default_value was
+                specified
         """
 
-        key = (('%(parent)s/%(name)s' % self._destinations[dataset_key])
-               %
-               substitute)
-        if key not in self:
-            if optional is not None:
-                return optional
-            raise HDF5LayoutError(
-                "Requested dataset '%s' does not exist in '%s'!"
-                %
-                (key, self.filename)
-            )
-        dataset = self[key]
-        if sub_entry is not None:
-            dataset = dataset[sub_entry]
+        self._check_for_dataset(dataset_key, default_value is None, **substitutions)
+
+        dataset_config = self._file_structure[dataset_key]
+        dataset_path = dataset_config.abspath % substitutions
+
+        if dataset_path not in self:
+            return default_value
+
+        dataset = self[dataset_path]
         variable_length_dtype = h5py.check_dtype(vlen=dataset.dtype)
         if variable_length_dtype is not None:
             result_dtype = variable_length_dtype
-        elif numpy.can_cast(dataset.dtype, int):
-            result_dtype = int
-        else:
-            result_dtype = float
+
         if dataset.size == 0:
             result = numpy.empty(
                 shape=(dataset.shape
@@ -924,20 +964,17 @@ class HDF5File(ABC, h5py.File):
         elif variable_length_dtype is not None:
             return dataset[:]
         else:
-            result = numpy.empty(shape=dataset.shape, dtype=result_dtype)
+            result = numpy.empty(shape=dataset.shape,
+                                 dtype=self.get_dtype(dataset_key))
             dataset.read_direct(result)
+
         if (
-                'replace_nonfinite' in self._destinations[dataset_key]
+                dataset_config.replace_nonfinite is not None
                 and
-                (
-                    dataset.fillvalue != 0
-                    or
-                    self._destinations[dataset_key]['replace_nonfinite'] == 0
-                )
+                result.dtype.kind == 'f'
         ):
             result[result == dataset.fillvalue] = numpy.nan
-        else:
-            assert not dataset.fillvalue
+
         return result
 
     def add_single_dataset(self,
