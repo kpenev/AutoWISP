@@ -419,6 +419,43 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
+    def get_dataset_creation_args(self, dataset_key):
+        """
+        Return all arguments to pass to create_dataset() except the content.
+
+        Args:
+            dataset_key:    The key identifying the dataset to delete.
+
+        Returns:
+            dict:
+                All arguments to pass to create_dataset() or require_dataset()
+                except: name, shape and data.
+        """
+
+        dataset_config = self._file_structure[dataset_key]
+        result = dict()
+
+        if dataset_config.compression is not None:
+            result['compression'] = dataset_config.compression
+            if (
+                    dataset_config.compression == 'gzip'
+                    and
+                    dataset_config.compression_options is not None
+            ):
+                result['compression_opts'] = int(
+                    dataset_config.compression_options
+                )
+
+        if dataset_config.scaleoffset is not None:
+            result['scaleoffset'] = dataset_config.scaleoffset
+
+        result['shuffle'] = dataset_config.shuffle
+
+        if dataset_config.replace_nonfinite is not None:
+            result['fillvalue'] = dataset_config.replace_nonfinite
+
+        return result
+
     @staticmethod
     def hdf5_class_string(hdf5_class):
         """Return a string identifier of the given hdf5 class."""
@@ -586,13 +623,14 @@ class HDF5File(ABC, h5py.File):
                     )
                 )
         self[link_path] = h5py.SoftLink(target_path)
+        return target_path
 
     def _delete_obsolete_dataset(self, dataset_key):
         """
         Delete obsolete HDF5 dataset if it exists and update repacking flag.
 
         Args:
-            dataset_key:    The key identifying the link to delete.
+            dataset_key:    The key identifying the dataset to delete.
 
         Returns:
             bool:
@@ -625,57 +663,35 @@ class HDF5File(ABC, h5py.File):
                                      dtype=self.get_dtype('repack'))
             del self[dataset_config.abspath]
 
-    def dump_file_like(self,
-                       file_like,
-                       destination,
-                       link_name=False,
-                       logger=None,
-                       external_log_extra=dict(),
-                       log_dumping=True):
+    def dump_file_like(self, dataset_key, file_like):
         """
         Adds a byte-by-byte dump of a file-like object to self.
 
         Args:
+            dataset_key:    The key identifying the dataset to create for the
+                file contents.
+
             file_like:    A file-like object to dump.
-
-            destination:    The path in self to use for the dump.
-
-            link_name:    If this argument converts to True, a link with the
-                given name is created pointing to destination.
-
-            logger:    An object to emit log messages to.
-
-            external_log_extra:    extra information to add to log message.
 
         Returns:
             None.
         """
 
-        if destination['parent'] not in self:
-            parent = self.create_group(destination['parent'])
-        else:
-            parent = self[destination['parent']]
-        self._delete_obsolete_dataset(parent,
-                                      destination['name'],
-                                      logger,
-                                      external_log_extra)
-        text_to_dataset(
-            (
+        dataset_path = self._file_structure['dataset_key'].abspath
+        assert self.get_dtype(dataset_key) == numpy.dtype('i1')
+
+        self._delete_obsolete_dataset(dataset_key)
+
+        self.write_text_to_dataset(
+            text=(
                 file_like
                 if file_like is not None else
                 numpy.empty((0,), dtype='i1')
             ),
-            parent,
-            destination['name'],
-            creation_args=destination['creation_args']
+            h5group=self,
+            dset_path=dataset_path,
+            creation_args=self.get_dataset_creation_args(dataset_key)
         )
-        if link_name:
-            self.add_link(
-                destination['parent'] + '/' + destination['name'],
-                link_name,
-                logger=logger,
-                log_extra=log_extra
-            )
 
     def add_file_dump(self,
                       fname,
