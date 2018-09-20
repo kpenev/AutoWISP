@@ -10,7 +10,8 @@ from sqlalchemy.orm import relationship
 from superphot_pipeline.database.data_model.base import DataModelBase
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module
-from superphot_pipeline.database.data_model import HDF5StructureVersion
+from superphot_pipeline.database.data_model.hdf5_structure_versions import\
+    HDF5StructureVersion
 #pylint: enable=no-name-in-module
 
 __all__ = ['HDF5Product']
