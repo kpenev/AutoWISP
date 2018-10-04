@@ -270,13 +270,14 @@ class HDF5File(ABC, h5py.File):
         """
 
         if dataset_key not in self._file_structure:
+
             raise KeyError(
                 "The key '%s' does not exist in the list of configured data "
                 "reduction file entries."
                 %
                 dataset_key
             )
-        if dataset_key in self._elements['dataset']:
+        if dataset_key not in self._elements['dataset']:
             raise KeyError(
                 "The key '%s' does not identify a dataset in '%s'"
                 %
@@ -1059,7 +1060,7 @@ class HDF5File(ABC, h5py.File):
             else:
                 data_copy = numpy.copy(data)
                 data_copy[numpy.logical_not(finite)] = fillvalue
-
+        print(repr(self.get_dataset_creation_args(dataset_key)))
         self.create_dataset(dataset_path,
                             data=data_copy,
                             **self.get_dataset_creation_args(dataset_key))
