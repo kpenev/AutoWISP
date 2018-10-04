@@ -21,7 +21,8 @@ class Conversion(HDF5FileDatabaseStructure):
         self.column_names=['id', 'x', 'y', 'bg', 'amp', 's', 'd', 'k', 'fwhm', 'ellip', 'pa',
                                                  'flux', 'ston', 'npix']
         self.Transitarray = np.genfromtxt('10-465009_2_G2.fistar',
-                                          names=self.column_names)
+                                          names=self.column_names,
+                                          dtype=None)
         print(self.Transitarray['id'])
         super().__init__('data_reduction',fname,mode)
     def Dump(self):
