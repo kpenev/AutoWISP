@@ -324,7 +324,7 @@ def _get_link(used_component, user_component, description):
         description:    A description of the link.
 
     Returns:
-        HDF5Link:
+        superphot_pipeline.database.data_model.HDF5Link:
             A properly constructed link signifying that user_component was
             derived based on a particular version of used_component.
     """
@@ -565,7 +565,7 @@ def _get_magfit_attributes(photometry_mode, is_master):
             magnitude fitting.
 
     Returns:
-        [HDF5Attribute]:
+        [superphot_pipeline.database.data_model.HDF5Attribute]:
             The attributes describing magnitude fitting.
     """
 
@@ -693,7 +693,7 @@ def _get_magfit_datasets(photometry_mode, is_master):
             magnitude fitting.
 
     Returns:
-        [HDF5DataSet]:
+        [superphot_pipeline.database.data_model.HDF5DataSet]:
             The datasets containing the magnitude fitting results.
     """
 
@@ -723,7 +723,7 @@ def _get_shapefit_attributes():
         None
 
     Returns:
-        [HDF5Attribute]:
+        [superphot_pipeline.database.data_model.HDF5Attribute]:
             All attributes related to PSF/PRF fitting to include in data
             reduction files.
     """
