@@ -726,9 +726,11 @@ class Calibrator(Processor):
                         calibrated_images
                     )
                 if master_type == 'bias':
-                    calibrated_images[1] += (calibrated_images[0]
-                                             /
-                                             calibration_params['gain'])
+                    calibrated_images[1] += numpy.abs(
+                        calibrated_images[0]
+                        /
+                        calibration_params['gain']
+                    )
 
             if calibration_params['flat'] is not None:
                 apply_flat_correction(calibration_params['flat'], calibrated_images)

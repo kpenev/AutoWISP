@@ -1,6 +1,7 @@
 """Define a generic function to make 3-hdu FITS images (image, error, mask)."""
 
 from astropy.io import fits
+import numpy
 
 def create_result(image_list,
                   header,
@@ -48,6 +49,11 @@ def create_result(image_list,
 
     header['BITPIX'] = header_list[1]['BITPIX'] = -32
     header_list[2]['BITPIX'] = 8
+
+    for check_image in image_list:
+        assert numpy.isfinite(check_image).all()
+
+    assert (image_list[1] > 0).all()
 
     hdu_list = fits.HDUList([
         fits.PrimaryHDU(image_list[0], header),

@@ -2,6 +2,7 @@
 
 import scipy
 import scipy.linalg
+from scipy.interpolate import UnivariateSpline
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
 
@@ -207,7 +208,7 @@ def iterative_rej_polynomial_fit(x,
                                  order,
                                  *leastsq_args,
                                  **leastsq_kwargs):
-    """
+    r"""
     Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.
 
     Args:
@@ -237,4 +238,69 @@ def iterative_rej_polynomial_fit(x,
                                         y,
                                         *leastsq_args,
                                         **leastsq_kwargs)
+
+def iterative_rejection_smoothing_spline(x,
+                                         y,
+                                         outlier_threshold,
+                                         max_iterations=scipy.inf,
+                                         **spline_args):
+    r"""
+    Use scipy's UnivariateSpline for iterative rejection smoothing.
+
+    Args:
+        x:    The x (independent variable) in the dependence.
+
+        y:    The y (dependenc variable) in the dependence.
+
+        outlier_threshold:    See same name argument of
+            :func:`iterative_rej_linear_leastsq`\ .
+
+        max_iterations:    See same name argument of
+            :func:`iterative_rej_linear_leastsq`\ .
+
+        spline_args:    Keyword arguments passed directly to
+            scipy.interpolate.UnivariateSpline.
+
+    Returns:
+        scipy.interpolate.UnivariateSpline:
+            The latest iteration of the smoothing spline fit, after either the
+            outlier rejection/refitting iterations have converged or
+            max_iterations was reached.
+    """
+
+    found_outliers = True
+    iteration = 0
+    fit_points = scipy.logical_and(scipy.isfinite(x), scipy.isfinite(y))
+    fit_x = x[fit_points]
+    fit_y = y[fit_points]
+    if 'w' in spline_args:
+        fit_w = spline_args['w'][fit_points]
+        del spline_args['w']
+    else:
+        fit_w = None
+    while found_outliers and iteration < max_iterations:
+        smooth_func = UnivariateSpline(fit_x, fit_y, w=fit_w, **spline_args)
+
+        square_residuals = scipy.square(smooth_func(fit_x) - fit_y)
+        print('Square res:\n' + repr(square_residuals))
+        non_outliers = (square_residuals
+                        <
+                        outlier_threshold**2 * scipy.mean(square_residuals))
+        print('Non outliers: ' + repr(non_outliers))
+        print('Rejecting %d / %d points.'
+              %
+              (
+                  len(non_outliers) - non_outliers.sum(),
+                  len(non_outliers)
+              ))
+
+        fit_x = fit_x[non_outliers]
+        fit_y = fit_y[non_outliers]
+        if fit_w is not None:
+            fit_w = fit_w[non_outliers]
+
+        found_outliers = not scipy.all(non_outliers)
+
+    return smooth_func
+
 #pylint: enable=invalid-name

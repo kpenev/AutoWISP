@@ -190,6 +190,9 @@ autodoc_default_flags = ['members',
                          'undoc-members',
                          'show-inheritance']
 
+autodoc_mock_imports = ['superphot_pipeline.database.DbSource',
+                        'superphot_pipeline.Dump2hdf5']
+
 #Napolean extension defined names.
 #pylint: disable=invalid-name
 napoleon_include_private_with_doc = True
@@ -208,7 +211,7 @@ inheritance_graph_attrs = dict(rankdir="TB",
 def add_inheritance_diagram(app, what, name, obj, options, lines):
     """Add an inheritance diagram for all classes."""
 
-    if what == 'module':
+    if what == 'module' and name not in autodoc_mock_imports:
         class_list = [member[0]
                       for member in inspect.getmembers(sys.modules[name],
                                                        inspect.isclass)]
