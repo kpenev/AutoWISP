@@ -22,8 +22,6 @@ class DataReduction(HDF5FileDatabaseStructure):
 
         self.fistarcolumn_names=['id', 'x', 'y', 'bg', 'amp', 's', 'd', 'k', 'fwhm', 'ellip', 'pa',
                                                  'flux', 'ston', 'npix']
-        self.
-
         super().__init__('data_reduction',fname,mode)
     def add_fistar(self,filename):
         transitarray = np.genfromtxt(filename,names=self.column_names)
