@@ -1,0 +1,181 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet type="text/xsl" href="hdf5_file_structure.xsl"?>
+<group name="DataReduction" version="0">
+  <group name="AperturePhotometry">
+    <group name="Version%(apphot_version)03d">
+      <group name="Aperture%(aperture_index)03d">
+        <dataset compression=":" description="The aperture photometry raw magnitudes of the projected sources." dtype="numpy.float64" fill="-3.40282e+38" key="apphot.magnitude" name="Magnitude" scaleoffset="5" shuffle="False"/>
+        <dataset compression=":" description="Error estimates for the aperture photometry magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="apphot.magnitude_error" name="MagnitudeError" scaleoffset="5" shuffle="False"/>
+        <dataset compression=":" description="The master photometric reference fitted apphot photometry magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="apphot.mprmagfit.magnitudes" name="MasterReferenceFittedMagnitude" scaleoffset="5" shuffle="False">
+          <attribute description="The RMS residual from the single refence magnitude fit." dtype="numpy.float64" key="apphot.mprmagfit.fit_residual" name="FitResidual"/>
+          <attribute description="The number of unrejected sources used in the last iteration of this magintude fit." dtype="numpy.float64" key="apphot.mprmagfit.num_fit_src" name="NumberFitSources"/>
+          <attribute description="The number of sources magnitude fitting was applied to." dtype="numpy.float64" key="apphot.mprmagfit.num_input_src" name="NumberInputSources"/>
+          <attribute description="The actual parametric expression for the magnitude correction." dtype="numpy.float64" key="apphot.mprmagfitcfg.correction" name="CorrectionExpression"/>
+          <attribute description="The type of function being fitted for now the supported types are: linear (nonlinear and spline in the future)." dtype="numpy.float64" key="apphot.mprmagfitcfg.correction_type" name="CorrectionType"/>
+          <attribute description="The number of observations for a star/max number of observations raised to this power is multiplied by the error based weight when doing the magnitude fit." dtype="numpy.float64" key="apphot.mprmagfitcfg.count_weight_power" name="NumberMeasurementsWeightingPower"/>
+          <attribute description="How to calculate the scale for rejecting sources." dtype="numpy.float64" key="apphot.mprmagfitcfg.error_avg" name="ErrorAveraging"/>
+          <attribute description="Any condition imposed on the sources used to derive the correction function parameters." dtype="numpy.float64" key="apphot.mprmagfitcfg.filter" name="SourceFilter"/>
+          <attribute description="Sources with estimated magnitude error larger than this are not used in the fit." dtype="numpy.float64" key="apphot.mprmagfitcfg.max_mag_err" name="MaxMagnitudeError"/>
+          <attribute description="Stop rejecting outlier sources after this number of rejection/refitting cycles." dtype="numpy.float64" key="apphot.mprmagfitcfg.max_rej_iter" name="MaxRejectionIterations"/>
+          <attribute description="The maximum number of sources to use in the fit." dtype="numpy.float64" key="apphot.mprmagfitcfg.max_src" name="MaxSources"/>
+          <attribute description="A constant added to the magnitude error before using in the fit." dtype="numpy.float64" key="apphot.mprmagfitcfg.noise_offset" name="ExtraNoiseLevel"/>
+          <attribute description="Sources rej_level time average error away from the best fit are rejected and the fit is repeated." dtype="numpy.float64" key="apphot.mprmagfitcfg.rej_level" name="RejectionLevel"/>
+        </dataset>
+        <dataset compression="gzip:9" description="Quality flags for the aperture photometry of the projected sources." dtype="numpy.uint8" fill="255.0" key="apphot.quality_flag" name="QualityFlag" scaleoffset="0" shuffle="True"/>
+        <dataset compression=":" description="The single photometric reference fitted apphot photometry magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="apphot.sprmagfit.magnitudes" name="SingleReferenceFittedMagnitude" scaleoffset="5" shuffle="False">
+          <attribute description="The RMS residual from the single refence magnitude fit." dtype="numpy.float64" key="apphot.sprmagfit.fit_residual" name="FitResidual"/>
+          <attribute description="The number of unrejected sources used in the last iteration of this magintude fit." dtype="numpy.float64" key="apphot.sprmagfit.num_fit_src" name="NumberFitSources"/>
+          <attribute description="The number of sources magnitude fitting was applied to." dtype="numpy.float64" key="apphot.sprmagfit.num_input_src" name="NumberInputSources"/>
+          <attribute description="The actual parametric expression for the magnitude correction." dtype="numpy.float64" key="apphot.sprmagfitcfg.correction" name="CorrectionExpression"/>
+          <attribute description="The type of function being fitted for now the supported types are: linear (nonlinear and spline in the future)." dtype="numpy.float64" key="apphot.sprmagfitcfg.correction_type" name="CorrectionType"/>
+          <attribute description="The number of observations for a star/max number of observations raised to this power is multiplied by the error based weight when doing the magnitude fit." dtype="numpy.float64" key="apphot.sprmagfitcfg.count_weight_power" name="NumberMeasurementsWeightingPower"/>
+          <attribute description="How to calculate the scale for rejecting sources." dtype="numpy.float64" key="apphot.sprmagfitcfg.error_avg" name="ErrorAveraging"/>
+          <attribute description="Any condition imposed on the sources used to derive the correction function parameters." dtype="numpy.float64" key="apphot.sprmagfitcfg.filter" name="SourceFilter"/>
+          <attribute description="Sources with estimated magnitude error larger than this are not used in the fit." dtype="numpy.float64" key="apphot.sprmagfitcfg.max_mag_err" name="MaxMagnitudeError"/>
+          <attribute description="Stop rejecting outlier sources after this number of rejection/refitting cycles." dtype="numpy.float64" key="apphot.sprmagfitcfg.max_rej_iter" name="MaxRejectionIterations"/>
+          <attribute description="The maximum number of sources to use in the fit." dtype="numpy.float64" key="apphot.sprmagfitcfg.max_src" name="MaxSources"/>
+          <attribute description="A constant added to the magnitude error before using in the fit." dtype="numpy.float64" key="apphot.sprmagfitcfg.noise_offset" name="ExtraNoiseLevel"/>
+          <attribute description="Sources rej_level time average error away from the best fit are rejected and the fit is repeated." dtype="numpy.float64" key="apphot.sprmagfitcfg.rej_level" name="RejectionLevel"/>
+        </dataset>
+        <attribute description="The size of the aperture used for aperture photometry." dtype="numpy.float64" key="apphot.cfg.aperture" name="Aperture"/>
+      </group>
+      <attribute description="A value to add to the error estimate of pixels (intended to represent things like readout noise, truncation noise etc.)." dtype="numpy.float64" key="apphot.cfg.error_floor" name="ErrorFloor"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions used for aperture photometry." dtype="numpy.float64" key="apphot.sofware_versions" name="SoftwareVersions"/>
+      <link description="The PSF/PRF fit use for this aperture photometry. Also contains the background measurements and projected sources." key="apphot.shapefit" name="ShapeFit" target="/ShapeFit/Version%(shapefit_version)03d"/>
+      <link description="The sub-pixel sensitivity map assumed for this aperture photometry." key="apphot.subpixmap" name="SubPixelMap" target="/SubPixelMap/Version%(subpixmap_version)03d"/>
+    </group>
+  </group>
+  <group name="Background">
+    <group name="Version%(background_version)03d">
+      <dataset compression=":" description="An error estimate of the background under each projected source." dtype="numpy.float64" fill="-3.40282e+38" key="bg.errors" name="Error" scaleoffset="3" shuffle="False"/>
+      <dataset compression=":" description="The number of pixels the background value and error estimates are based on." dtype="numpy.uint" fill="None" key="bg.npix" name="NumberPixels" scaleoffset="0" shuffle="False"/>
+      <dataset compression=":" description="The best estimate of the background under each projected source." dtype="numpy.float64" fill="-3.40282e+38" key="bg.values" name="Value" scaleoffset="3" shuffle="False"/>
+      <attribute description="The inner and outer radius of the annulus centered around each source used to estimate the background and its error." dtype="numpy.float64" key="bg.cfg.annulus" name="Annulus"/>
+      <attribute description="The minimum number of pixels required to estimate a reliable value and error for the background." dtype="numpy.float64" key="bg.cfg.min_pix" name="MinPixels"/>
+      <attribute description="How was the backgroun modelled." dtype="numpy.float64" key="bg.cfg.model" name="Model"/>
+      <attribute description="Assume that the background has already been subtracted from the input image?" dtype="numpy.float64" key="bg.cfg.zero" name="BackgroudIsZero"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions used for estimating the backgrund for each source." dtype="numpy.float64" key="bg.sofware_versions" name="SoftwareVersions"/>
+      <link description="The soures for which background was measured." key="background.srcproj" name="ProjectedSources" target="/ProjectedSources/Version%(srcproj_version)03d"/>
+    </group>
+  </group>
+  <group name="CatalogueSources">
+    <group name="Version%(catalogue_version)03d">
+      <dataset compression="manual:manual" description="A single catalogue column." dtype="manual" fill="None" key="catalogue.columns" name="%(catalogue_column_name)s" scaleoffset="None" shuffle="False"/>
+      <attribute description="The epoch (JD) up to which source positions were corrected when used." dtype="numpy.float64" key="catalogue.cfg.epoch" name="Epoch"/>
+      <attribute description="Any filtering applied to the catalogue sources, in addition to the field selection and brightness range, before using them." dtype="numpy.float64" key="catalogue.cfg.filter" name="Filter"/>
+      <attribute description="The width and height of the field queried from the catalogue." dtype="numpy.float64" key="catalogue.cfg.fov" name="QuerySize"/>
+      <attribute description="The catalogue to query." dtype="numpy.float64" key="catalogue.cfg.name" name="Name"/>
+      <attribute description="The minimum and maximum brightness magnitude for catalogue sources used for finding the pre-projected to frame transformation." dtype="numpy.float64" key="catalogue.cfg.orientation" name="QueryOrientation"/>
+    </group>
+  </group>
+  <group name="ShapeFit">
+    <group name="Version%(shapefit_version)03d">
+      <dataset compression=":" description="The reduced chi-squared values for PSF fitting for the corresponding source." dtype="numpy.float64" fill="-3.40282e+38" key="shapefit.chi2" name="ChiSquared" scaleoffset="2" shuffle="False"/>
+      <dataset compression=":" description="The PSF/PRF fitting raw magnitudes of the projected sources." dtype="numpy.float64" fill="-3.40282e+38" key="shapefit.magnitude" name="Magnitude" scaleoffset="5" shuffle="False"/>
+      <dataset compression=":" description="Error estimates for the PSF/PRF fitting magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="shapefit.magnitude_error" name="MagnitudeError" scaleoffset="5" shuffle="False"/>
+      <dataset compression=":" description="The coefficients of the derived PSF/PRF map." dtype="numpy.float64" fill="None" key="shapefit.map_coef" name="MapCoefficients" scaleoffset="None" shuffle="False"/>
+      <dataset compression=":" description="The master photometric reference fitted shapefit photometry magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="shapefit.mprmagfit.magnitudes" name="MasterReferenceFittedMagnitude" scaleoffset="5" shuffle="False">
+        <attribute description="The RMS residual from the single refence magnitude fit." dtype="numpy.float64" key="shapefit.mprmagfit.fit_residual" name="FitResidual"/>
+        <attribute description="The number of unrejected sources used in the last iteration of this magintude fit." dtype="numpy.float64" key="shapefit.mprmagfit.num_fit_src" name="NumberFitSources"/>
+        <attribute description="The number of sources magnitude fitting was applied to." dtype="numpy.float64" key="shapefit.mprmagfit.num_input_src" name="NumberInputSources"/>
+        <attribute description="The actual parametric expression for the magnitude correction." dtype="numpy.float64" key="shapefit.mprmagfitcfg.correction" name="CorrectionExpression"/>
+        <attribute description="The type of function being fitted for now the supported types are: linear (nonlinear and spline in the future)." dtype="numpy.float64" key="shapefit.mprmagfitcfg.correction_type" name="CorrectionType"/>
+        <attribute description="The number of observations for a star/max number of observations raised to this power is multiplied by the error based weight when doing the magnitude fit." dtype="numpy.float64" key="shapefit.mprmagfitcfg.count_weight_power" name="NumberMeasurementsWeightingPower"/>
+        <attribute description="How to calculate the scale for rejecting sources." dtype="numpy.float64" key="shapefit.mprmagfitcfg.error_avg" name="ErrorAveraging"/>
+        <attribute description="Any condition imposed on the sources used to derive the correction function parameters." dtype="numpy.float64" key="shapefit.mprmagfitcfg.filter" name="SourceFilter"/>
+        <attribute description="Sources with estimated magnitude error larger than this are not used in the fit." dtype="numpy.float64" key="shapefit.mprmagfitcfg.max_mag_err" name="MaxMagnitudeError"/>
+        <attribute description="Stop rejecting outlier sources after this number of rejection/refitting cycles." dtype="numpy.float64" key="shapefit.mprmagfitcfg.max_rej_iter" name="MaxRejectionIterations"/>
+        <attribute description="The maximum number of sources to use in the fit." dtype="numpy.float64" key="shapefit.mprmagfitcfg.max_src" name="MaxSources"/>
+        <attribute description="A constant added to the magnitude error before using in the fit." dtype="numpy.float64" key="shapefit.mprmagfitcfg.noise_offset" name="ExtraNoiseLevel"/>
+        <attribute description="Sources rej_level time average error away from the best fit are rejected and the fit is repeated." dtype="numpy.float64" key="shapefit.mprmagfitcfg.rej_level" name="RejectionLevel"/>
+      </dataset>
+      <dataset compression=":" description="The number of pixels for each source on which PSF fitting was performed." dtype="numpy.uint" fill="0.0" key="shapefit.num_pixels" name="NumberPixels" scaleoffset="0" shuffle="False"/>
+      <dataset compression="gzip:9" description="Quality flags for the PSF fitting of the projected sources." dtype="numpy.uint8" fill="255.0" key="shapefit.quality_flag" name="QualityFlag" scaleoffset="0" shuffle="True"/>
+      <dataset compression=":" description="The single photometric reference fitted shapefit photometry magnitudes." dtype="numpy.float64" fill="-3.40282e+38" key="shapefit.sprmagfit.magnitudes" name="SingleReferenceFittedMagnitude" scaleoffset="5" shuffle="False">
+        <attribute description="The RMS residual from the single refence magnitude fit." dtype="numpy.float64" key="shapefit.sprmagfit.fit_residual" name="FitResidual"/>
+        <attribute description="The number of unrejected sources used in the last iteration of this magintude fit." dtype="numpy.float64" key="shapefit.sprmagfit.num_fit_src" name="NumberFitSources"/>
+        <attribute description="The number of sources magnitude fitting was applied to." dtype="numpy.float64" key="shapefit.sprmagfit.num_input_src" name="NumberInputSources"/>
+        <attribute description="The actual parametric expression for the magnitude correction." dtype="numpy.float64" key="shapefit.sprmagfitcfg.correction" name="CorrectionExpression"/>
+        <attribute description="The type of function being fitted for now the supported types are: linear (nonlinear and spline in the future)." dtype="numpy.float64" key="shapefit.sprmagfitcfg.correction_type" name="CorrectionType"/>
+        <attribute description="The number of observations for a star/max number of observations raised to this power is multiplied by the error based weight when doing the magnitude fit." dtype="numpy.float64" key="shapefit.sprmagfitcfg.count_weight_power" name="NumberMeasurementsWeightingPower"/>
+        <attribute description="How to calculate the scale for rejecting sources." dtype="numpy.float64" key="shapefit.sprmagfitcfg.error_avg" name="ErrorAveraging"/>
+        <attribute description="Any condition imposed on the sources used to derive the correction function parameters." dtype="numpy.float64" key="shapefit.sprmagfitcfg.filter" name="SourceFilter"/>
+        <attribute description="Sources with estimated magnitude error larger than this are not used in the fit." dtype="numpy.float64" key="shapefit.sprmagfitcfg.max_mag_err" name="MaxMagnitudeError"/>
+        <attribute description="Stop rejecting outlier sources after this number of rejection/refitting cycles." dtype="numpy.float64" key="shapefit.sprmagfitcfg.max_rej_iter" name="MaxRejectionIterations"/>
+        <attribute description="The maximum number of sources to use in the fit." dtype="numpy.float64" key="shapefit.sprmagfitcfg.max_src" name="MaxSources"/>
+        <attribute description="A constant added to the magnitude error before using in the fit." dtype="numpy.float64" key="shapefit.sprmagfitcfg.noise_offset" name="ExtraNoiseLevel"/>
+        <attribute description="Sources rej_level time average error away from the best fit are rejected and the fit is repeated." dtype="numpy.float64" key="shapefit.sprmagfitcfg.rej_level" name="RejectionLevel"/>
+      </dataset>
+      <dataset compression=":" description="The total signal to noise of all the pixels assigned to the source for PSF fitting." dtype="numpy.float64" fill="-3.40282e+38" key="shapefti.signal_to_noise" name="SignalToNoise" scaleoffset="3" shuffle="False"/>
+      <attribute description="The magnitude that corresponds to a flux of 1ADU on the input image." dtype="numpy.float64" key="shapefit.cfg.magnitude_1adu" name="Magnitude1ADU"/>
+      <attribute description="The x and y boundaries of the grid on which the PSF map is defined." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.grid" name="Grid"/>
+      <attribute description="This aperture is used to derive an initial guess for the amplitudes of sources." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.initial_aperture" name="InitialAmplitudeAperture"/>
+      <attribute description="The absolute root of sum squares tolerance of the source amplitude changes in order to declare the piecewise bicubic PSF fitting converged." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.max_abs_amplitude_change" name="MaxAbsoluteAmplitudeChange"/>
+      <attribute description="The relative root of sum squares tolerance of the source amplitude changes in order to declare the piecewise bicubic PSF fittingiiii converged." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.max_rel_amplitude_change" name="MaxRelativeAmplitudeChange"/>
+      <attribute description="Pixels with fitting residuals (normalized by the standard deviation) bigger than this value are excluded from the fit." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.pixrej" name="PixelRejectionThreshold"/>
+      <attribute description="The amount of smoothing used during PSF fitting." dtype="numpy.float64" key="shapefit.cfg.psf.bicubic.smoothing" name="BicubicSmoothing"/>
+      <attribute description="If True, sources dropped during source selection will not have their amplitudes fit for. Instead their shape fit fluxes/magnitudes and associated errors will all be NaN." dtype="numpy.float64" key="shapefit.cfg.psf.ignore_dropped" name="DiscardDroppedSources"/>
+      <attribute description="The value of the reduced chi squared above which sources are excluded from the fit." dtype="numpy.float64" key="shapefit.cfg.psf.max-chi2" name="MaxReducedChiSquared"/>
+      <attribute description="The maximum number of shape/amplitude fitting iterations allowed during PSF/PRF fitting." dtype="numpy.float64" key="shapefit.cfg.psf.max_iterations" name="MaxIterations"/>
+      <attribute description="The minimum rate of convergence required before stopping iterations." dtype="numpy.float64" key="shapefit.cfg.psf.min_convergence_rate" name="MinimumConvergenceRate"/>
+      <attribute description="The model used to represent the PSF/PRF." dtype="numpy.float64" key="shapefit.cfg.psf.model" name="Model"/>
+      <attribute description="The terms the PSF/PRF is allowed to depend on. See SuperPhot documentation for full description." dtype="numpy.float64" key="shapefit.cfg.psf.terms" name="Terms"/>
+      <attribute description="For bicubic PSF fits, If true all pixels that at least partially overlap with the grid are assigned to the corresponding source." dtype="numpy.float64" key="shapefit.cfg.src.cover_bicubic_grid" name="CoverGridWithPixels"/>
+      <attribute description="If this option has a positive value, pixels are assigned to sources in circular apertures (the smallest such that all pixels that pass the signal to noise cut are still assigned to the source)." dtype="numpy.float64" key="shapefit.cfg.src.max_aperture" name="SourceMaxAperture"/>
+      <attribute description="The maximum number of sources to include in the fit for the PSF shape." dtype="numpy.float64" key="shapefit.cfg.src.max_count" name="MaxSources"/>
+      <attribute description="The maximum number of pixels that must be assigned to a source in order to include the source is the shapefit." dtype="numpy.float64" key="shapefit.cfg.src.max_pix" name="SourceMaxPixels"/>
+      <attribute description="If more than this fraction of the pixels assigned to a source are saturated, the source is excluded from the fit." dtype="numpy.float64" key="shapefit.cfg.src.max_sat_frac" name="SourceMaxSaturatedFraction"/>
+      <attribute description="The minimum number of pixels that must be assigned to a source in order to include the source is the shapefit." dtype="numpy.float64" key="shapefit.cfg.src.min_pix" name="SourceMinPixels"/>
+      <attribute description="How far above the background (in units of RMS) should pixels be to still be considered part of a source." dtype="numpy.float64" key="shapefit.cfg.src.min_signal_to_noise" name="SourcePixelMinSignalToNoise"/>
+      <attribute description="The overall reduced chi squared of the PSF/PRF fit." dtype="numpy.float64" key="shapefit.global_chi2" name="GlobalReducedChi2"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions usef during PSF/PRF fitting." dtype="numpy.float64" key="shapefit.sofware_versions" name="SoftwareVersions"/>
+      <link description="The background measurement used for this PSF/PRF fit. Also contains the projected sources." key="shapefit.background" name="Background" target="/Background/Version%(background_version)03d"/>
+      <link description="The sub-pixel sensitivity map assumed for this PSF fit." key="shapefit.subpixmap" name="SubPixelMap" target="/SubPixelMap/Version%(subpixmap_version)03d"/>
+    </group>
+  </group>
+  <group name="SkyToFrameTransformation">
+    <group name="Version%(skytoframe_version)03d">
+      <dataset compression=":" description="The coefficients defining the transformation from pre-projected sky coordinates to frame coordinates." dtype="numpy.float64" fill="None" key="skytoframe.coefficients" name="ProjectedToFrameMap" scaleoffset="None" shuffle="False">
+        <attribute description="The weighted residual of the best-fit pre-projected to sky transformation." dtype="numpy.float64" key="skytoframe.residual" name="WeightedResidual"/>
+        <attribute description="The unitarity of the best-fit pre-projected to frame transformation.." dtype="numpy.float64" key="skytoframe.unitarity" name="Unitarity"/>
+      </dataset>
+      <dataset compression=":" description="The indices within the catalogue source and the extracted sources defining pairs of matched source." dtype="numpy.uint" fill="None" key="skytoframe.matched" name="MatchedSources" scaleoffset="0" shuffle="False"/>
+      <attribute description="The frame coordinates around which the pre-projected to frame transformation is defined." dtype="numpy.float64" key="skytoframe.cfg.frame_center" name="FrameCenter"/>
+      <attribute description="The maximum distance (in pixels) between extracted andprojected source positions in ordet to still consider the sources matched." dtype="numpy.float64" key="skytoframe.cfg.max_match_distance" name="MaxMatchDistance"/>
+      <attribute description="he pre-projection aronud the central coordinates used for the sources when deriving the pre-shrunk sky to frame transformation ('arc', 'tan', ...)." dtype="numpy.float64" key="skytoframe.cfg.sky_preprojection" name="SkyPreProjection"/>
+      <attribute description="Any filtering applied to the extracted sources before using them to derive the pre-projected to frame transformation." dtype="numpy.float64" key="skytoframe.cfg.srcextract_filter" name="ExtractedSourcesFilter"/>
+      <attribute description="An expression involving catalogue and/or source extraction columns for the weights to use for various sources when deriving the pre-projected to frame transformation." dtype="numpy.float64" key="skytoframe.cfg.weights_expression" name="WeightsExpression"/>
+      <attribute description="The (RA, Dec) coordinates corresponding to the frame center, around which the sky pre-projection is performed." dtype="numpy.float64" key="skytoframe.sky_center" name="CenterSkyCoordinates"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions used for deriving the sky to frame transformation." dtype="numpy.float64" key="skytoframe.software_versions" name="SoftwareVersions"/>
+      <link description="The version of the catalogue used for deriving this sky to frame transformation." key="skytoframe.catalogue" name="CatalogueSources" target="/CatalogueSources/Version%(catalogue_version)03d"/>
+      <link description="The version of the extracted sources used for deriving this sky to frame transformation." key="skytoframe.srcextract" name="SourceExtraction" target="/SourceExtraction/Version%(srcextract_version)03d"/>
+    </group>
+  </group>
+  <group name="SourceExtraction">
+    <group name="Version%(srcextract_version)03d">
+      <dataset compression=":" description="The coefficients of the map giving the elliptical gaussian shape parameters (S, D and K) as a function of image position (x, y)." dtype="numpy.float64" fill="None" key="srcextract.sdk_map" name="SDKMap" scaleoffset="None" shuffle="False">
+        <attribute description="The offsets to apply to source positions before scaling and substitutiting in the PSF map. A pair of values giving the x and y offsets." dtype="numpy.float64" key="srcextract.sdkmap.offset" name="Offset"/>
+        <attribute description="The scaling to apply to source positinos after offsetting and before substituting in the PSF map. A pair of values giving the x and y scalings." dtype="numpy.float64" key="srcextract.sdkmap.scale" name="Scale"/>
+      </dataset>
+      <group name="Sources">
+        <dataset compression="manual:manual" description="A single quantity derived for each extracted source during source extraction." dtype="manual" fill="None" key="srcextract.sources" name="%(srcextract_column_name)s" scaleoffset="None" shuffle="False"/>
+        <attribute description="A list of the source extraction columns stored." dtype="numpy.float64" key="srcextract.columns" name="Columns"/>
+      </group>
+      <attribute description="Two values, giving the factors by which the input image was binned in the x and y directions respectively before passing to the source extractor. Useful for way out of focus images." dtype="numpy.float64" key="srcextract.binning" name="ImageBinFactor"/>
+      <attribute description="The command line with which fistar was invoked." dtype="numpy.float64" key="srcextract.fistar.cmdline" name="FiStarCommandLine"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions used for source extraction." dtype="numpy.float64" key="srcextract.software_versions" name="SoftwareVersions"/>
+    </group>
+  </group>
+  <group name="ProjectedSources">
+    <group name="Version%(srcproj_version)03d">
+      <dataset compression=":" description="The x coordinates of the catalogue sources when projected through the sky to frame transformation." dtype="numpy.float64" fill="None" key="srcproj.x" name="X" scaleoffset="4" shuffle="False"/>
+      <dataset compression=":" description="The x coordinates of the catalogue sources when projected through the sky to frame transformation." dtype="numpy.float64" fill="None" key="srcproj.y" name="Y" scaleoffset="4" shuffle="False"/>
+      <attribute description="An Nx2 array of strings consisting of software elements and their versions used for projecting catalogue sources to the frame." dtype="numpy.float64" key="srcproj.software_versions" name="SoftwareVersions"/>
+      <link description="The catalgue sources which were projected." key="srcproj.catalogue" name="CatalogueSources" target="/CatalogueSources/Version%(catalogue_version)03d"/>
+      <link description="The sky to frame transformation used to project these sources." key="srcproj.skytoframe" name="SkyToFrameTransformation" target="/SkyToFrameTransformation/Version%(skytoframe_version)03d"/>
+    </group>
+  </group>
+  <group name="SubPixelMap">
+    <dataset compression=":" description="The sub-pixel sensitivity map." dtype="numpy.float64" fill="None" key="subpixmap" name="Version%(subpixmap_version)03d" scaleoffset="None" shuffle="False"/>
+  </group>
+</group>
