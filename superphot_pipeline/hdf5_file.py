@@ -575,16 +575,6 @@ class HDF5File(ABC, h5py.File):
                        %
                        substitutions)
         if parent_path not in self:
-            if attribute_config.parent_must_exist:
-                raise HDF5LayoutError(
-                    "Attempting to add a attribute to non-existant path: '%s' "
-                    "under '%s'. Creating the parent is not allowed!"
-                    %
-                    (
-                        parent_path,
-                        self.filename
-                    )
-                )
             parent = self.create_group(parent_path)
         else:
             parent = self[parent_path]
@@ -606,9 +596,17 @@ class HDF5File(ABC, h5py.File):
             else:
                 assert if_exists == 'overwrite'
 
-        parent.attrs.create(attribute_name,
-                            attribute_value,
-                            dtype=self.get_dtype(attribute_key))
+        if type(attribute_value) in [str, bytes, numpy.string_]:
+            parent.attrs.create(attribute_name,
+                                (
+                                    attribute_value.encode('ascii')
+                                    if type(attribute_value) is str
+                                    else attribute_value
+                                ))
+        else:
+            parent.attrs.create(attribute_name,
+                                attribute_value,
+                                dtype=self.get_dtype(attribute_key))
 
         return parent.attrs[attribute_name]
 

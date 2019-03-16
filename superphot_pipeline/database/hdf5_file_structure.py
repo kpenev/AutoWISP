@@ -104,35 +104,4 @@ class HDF5FileDatabaseStructure(HDF5File):
         super().__init__(*args, **kwargs)
 #pylint: enable=abstract-method
 
-class DataReductionFile(HDF5FileDatabaseStructure):
-    """Data reduction file with structure specified through the database."""
-
-    @classmethod
-    def _get_root_tag_name(cls):
-        """The name of the root tag in the layout configuration."""
-
-        return 'DataReduction'
-
-    def __init__(self, *args, **kwargs):
-        """See HDF5File for description of arguments."""
-
-        super().__init__('data_reduction', *args, **kwargs)
-
 #pylint: enable=too-many-ancestors
-
-if __name__ == '__main__':
-    dr_file = DataReductionFile('test.hdf5', 'a')
-
-    from lxml import etree
-
-    root_element = dr_file.layout_to_xml()
-    root_element.addprevious(
-        etree.ProcessingInstruction(
-            'xml-stylesheet',
-            'type="text/xsl" href="hdf5_file_structure.xsl"'
-        )
-    )
-    etree.ElementTree(element=root_element).write('example_structure.xml',
-                                                  pretty_print=True,
-                                                  xml_declaration=True,
-                                                  encoding='utf-8')

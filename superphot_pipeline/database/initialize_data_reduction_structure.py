@@ -453,14 +453,6 @@ def _get_background_attributes():
             'around each source used to estimate the background and its error.'
         ),
         HDF5Attribute(
-            pipeline_key='bg.cfg.min_pix',
-            parent=_default_paths['background'],
-            name='MinPixels',
-            dtype='numpy.uint',
-            description='The minimum number of pixels required to estimate a '
-            'reliable value and error for the background.'
-        ),
-        HDF5Attribute(
             pipeline_key='bg.sofware_versions',
             parent=_default_paths['background'],
             name='SoftwareVersions',
@@ -733,6 +725,14 @@ def _get_shapefit_attributes():
 
         return [
             HDF5Attribute(
+                pipeline_key='shapefit.cfg.gain',
+                parent=_default_paths['shapefit'],
+                name='Gain',
+                dtype='numpy.float64',
+                description='The gain (electrons per ADU) assumed for the '
+                'input image.'
+            ),
+            HDF5Attribute(
                 pipeline_key='shapefit.cfg.magnitude_1adu',
                 parent=_default_paths['shapefit'],
                 name='Magnitude1ADU',
@@ -775,7 +775,7 @@ def _get_shapefit_attributes():
                 pipeline_key='shapefit.cfg.psf.max_iterations',
                 parent=_default_paths['shapefit'],
                 name='MaxIterations',
-                dtype='numpy.uint',
+                dtype='numpy.int',
                 description='The maximum number of shape/amplitude '
                 'fitting iterations allowed during PSF/PRF fitting.'
             ),
@@ -843,6 +843,15 @@ def _get_shapefit_attributes():
                 description='The maximum number of pixels that must be '
                 'assigned to a source in order to include the source is '
                 'the shapefit.'
+            ),
+            HDF5Attribute(
+                pipeline_key='shapefit.cfg.src.min_bg_pix',
+                parent=_default_paths['shapefit'],
+                name='SourceMinBackgroundPixels',
+                dtype='numpy.uint',
+                description='The minimum number of backrgound pixels required '
+                'to consider the estimates for the background value and error '
+                'reliable for the source.'
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.max_count',
