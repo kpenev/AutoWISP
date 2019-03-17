@@ -1,6 +1,7 @@
 """Define a class for worknig with data reduction files."""
 
-from ctypes import c_char_p, c_uint, c_double, c_ushort, c_int
+from ctypes import c_uint, c_double, c_int
+import re
 
 import numpy
 
@@ -52,7 +53,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'psffit.srcpix_max_pix': 'shapefit.cfg.src.max_pix',
         'psffit.srcpix_max_sat_frac': 'shapefit.cfg.src.max_sat_frac',
         'psffit.srcpix_min_signal_to_noise':
-        'shapefit.cfg.src.min_signal_to_noise'
+        'shapefit.cfg.src.min_signal_to_noise',
+        'bg.value': 'bg.values',
+        'bg.error': 'bg.errors'
     }
 
     _dtype_dr_to_io_tree = {
@@ -73,13 +76,23 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         super().__init__('data_reduction', *args, **kwargs)
 
-    def add_star_shape_fit(self, shape_fit_result_tree):
+    def add_star_shape_fit(self,
+                           shape_fit_result_tree,
+                           num_sources,
+                           image_index=0):
         """
         Add the results of a star shape fit to the DR file.
 
         Args:
             shape_fit_result_tree(superphot.SuperPhotIOTree):    The return
                 value of a successful call of superphot.FitStarShape.fit().
+
+            num_sources (int):    The number of surces used in the fit (used to
+                determine the expected size of datasets).
+
+            image_index (int):    The index of the image whose DR file is being
+                filled within the input list of images passed to PSF/PRF
+                fitting.
 
         Returns:
             None
@@ -101,22 +114,44 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                   ':\n\t'
                   +
                   '\n\t'.join(self._elements[element_type]))
-        print('DR quantities:\n')
-        for quantity_name in shape_fit_result_tree.defined_quantity_names():
-            print('\t' + quantity_name, end='')
+        print('DR quantities:')
 
-            dr_key = self._key_io_tree_to_dr.get(quantity_name, quantity_name)
+        indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
+        for quantity_name in shape_fit_result_tree.defined_quantity_names():
+
+            print('\t' + quantity_name)
+
+            indexed_match = indexed_rex.fullmatch(quantity_name)
+            if indexed_match:
+                if int(indexed_match['image_index_str']) == image_index:
+                    key_quantity = quantity_name[
+                        :
+                        indexed_match.start('image_index_str')-1
+                    ]
+                else:
+                    print('\t\tSkipping')
+                    continue
+            else:
+                key_quantity = quantity_name
+
+            dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
 
             found = False
             for element_type in ['dataset', 'attribute', 'link']:
                 if dr_key in self._elements[element_type]:
                     if quantity_name == 'psffit.grid':
-                        #TODO: implement grid and cover_grid parsing
-                        dtype=str
+                        dtype = str
+                        print('\t\tGetting ' + repr(dtype) + ' (grid) value')
                         value = parse_grid_str(
                             shape_fit_result_tree.get(quantity_name, dtype)
                         )
                     elif quantity_name == 'psffit.srcpix_cover_bicubic_grid':
+                        dtype = str
+                        print('\t\tGetting '
+                              +
+                              repr(dtype)
+                              +
+                              ' (cover grid) value')
                         value = (
                             shape_fit_result_tree.get(
                                 quantity_name,
@@ -127,22 +162,28 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         )
                     else:
                         dtype = self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
-                        value = shape_fit_result_tree.get(quantity_name, dtype)
+                        print('\t\tGetting ' + repr(dtype) + ' value(s)')
+                        value = shape_fit_result_tree.get(
+                            quantity_name,
+                            dtype,
+                            shape=(num_sources
+                                   if element_type == 'dataset' else
+                                   None)
+                        )
                     #TODO: add automatic detection for versions
-                    self.add_attribute(dr_key,
-                                       value,
-                                       if_exists='error',
-                                       background_version=0,
-                                       shapefit_version=0)
-                    print(' (' + repr(dtype) + ' ' + element_type + '): ',
-                          end='')
+                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
                     found = True
+                    getattr(self, 'add_' + element_type)(dr_key,
+                                                         value,
+                                                         if_exists='error',
+                                                         background_version=0,
+                                                         shapefit_version=0)
                     break
             if not found:
-                dtype=str
+                dtype = str
                 value = shape_fit_result_tree.get(quantity_name, dtype)
-                print(' (ignored): ', end='')
-            print(repr(value))
+                print('\t\t(ignored): ')
+            print('\t\t' + repr(value))
 
 #pylint: enable=too-many-ancestors
 
