@@ -449,10 +449,11 @@ def _get_source_projection_datasets():
             description='The x coordinates of the catalogue sources when '
             'projected through the sky to frame transformation.'
         ),
+        #TODO: use boolean again after fixing C-code and DR class.
         HDF5DataSet(
             pipeline_key='srcproj.enabled',
             abspath=(root_path + '/Enabled'),
-            dtype='numpy.bool',
+            dtype='numpy.float64',
             compression='gzip',
             compression_options='9',
             shuffle=True,
