@@ -25,9 +25,14 @@ _default_paths = dict(
         coefficients='/ProjectedToFrameMap',
         matched='/MatchedSources'
     ),
-    srcproj='/ProjectedSources/Version%(srcproj_version)03d',
+    srcproj=dict(
+        root='/ProjectedSources/Version%(srcproj_version)03d',
+        prefix='/Prefix'
+    ),
     background='/Background/Version%(background_version)03d',
-    shapefit='/ShapeFit/Version%(shapefit_version)03d',
+    shapefit=dict(
+        root='/ShapeFit/Version%(shapefit_version)03d',
+    ),
     apphot=dict(
         root='/AperturePhotometry/Version%(apphot_version)03d',
         apsplit='/Aperture%(aperture_index)03d'
@@ -372,25 +377,65 @@ def _get_sky_to_frame_links():
 def _get_source_projection_attributes():
     """Create default data reduction attributes describing source projection."""
 
+    root_path = _default_paths['srcproj']['root']
+
     return [
         HDF5Attribute(
             pipeline_key='srcproj.software_versions',
-            parent=_default_paths['srcproj'],
+            parent=root_path,
             name='SoftwareVersions',
             dtype="'S100'",
             description='An Nx2 array of strings consisting of '
             'software elements and their versions used for projecting '
             'catalogue sources to the frame.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcproj.recognized_hat_id_prefixes',
+            parent=(root_path + _default_paths['srcproj']['prefix']),
+            name='RecognizedHATIDPrefixes',
+            dtype="'S100'",
+            description='A list of all possible prefixes to source HAT-IDs.'
         )
     ]
 
 def _get_source_projection_datasets():
     """Create default projected sources data reduction data sets."""
 
+    root_path = _default_paths['srcproj']['root']
     return [
         HDF5DataSet(
+            pipeline_key='srcproj.hat_id_prefix',
+            abspath=(root_path + _default_paths['srcproj']['prefix']),
+            dtype='numpy.ubyte',
+            compression='gzip',
+            compression_options='9',
+            shuffle=True,
+            description='An integer identifier of the HAT-id prefix (most of '
+            'the time HAT, but occasionally UCAC4 and possibly other values in '
+            'the future). The entry is the index within the attribute listing '
+            'all possible entries.'
+        ),
+        HDF5DataSet(
+            pipeline_key='srcproj.hat_id_field',
+            abspath=(root_path + '/Field'),
+            dtype='numpy.uint16',
+            compression='gzip',
+            compression_options='9',
+            shuffle=True,
+            description='The field number part of the HAT ID.'
+        ),
+        HDF5DataSet(
+            pipeline_key='srcproj.hat_id_source',
+            abspath=(root_path + '/Source'),
+            dtype='numpy.uint32',
+            compression='gzip',
+            compression_options='9',
+            shuffle=True,
+            description='The source number part of the HAT ID.'
+        ),
+        HDF5DataSet(
             pipeline_key='srcproj.x',
-            abspath=_default_paths['srcproj'] + '/X',
+            abspath=(root_path + '/X'),
             dtype='numpy.float64',
             scaleoffset=4,
             description='The x coordinates of the catalogue sources when '
@@ -398,11 +443,21 @@ def _get_source_projection_datasets():
         ),
         HDF5DataSet(
             pipeline_key='srcproj.y',
-            abspath=_default_paths['srcproj'] + '/Y',
+            abspath=(root_path + '/Y'),
             dtype='numpy.float64',
             scaleoffset=4,
             description='The x coordinates of the catalogue sources when '
             'projected through the sky to frame transformation.'
+        ),
+        HDF5DataSet(
+            pipeline_key='srcproj.enabled',
+            abspath=(root_path + '/Enabled'),
+            dtype='numpy.bool',
+            compression='gzip',
+            compression_options='9',
+            shuffle=True,
+            description='Should the source be allowed to participate in shape '
+            'fitting, though note that enabled sources are not always used.'
         )
     ]
 
@@ -526,7 +581,7 @@ def _get_magfit_key_and_path(photometry_mode, is_master):
 
     pipeline_key_start = ('m' if is_master else 's') + 'prmagfit.'
     if photometry_mode.lower() in ['psffit', 'prffit', 'shapefit']:
-        dset_path = _default_paths['shapefit']
+        dset_path = _default_paths['shapefit']['root']
         pipeline_key_start = 'shapefit.' + pipeline_key_start
     elif photometry_mode.lower() == 'apphot':
         dset_path = (_default_paths['apphot']['root']
@@ -720,13 +775,15 @@ def _get_shapefit_attributes():
             reduction files.
     """
 
+    parent_path = _default_paths['shapefit']['root']
+
     def get_config_attributes():
         """Create the attributes specifying the shape fitting configuration."""
 
         return [
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.gain',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='Gain',
                 dtype='numpy.float64',
                 description='The gain (electrons per ADU) assumed for the '
@@ -734,7 +791,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.magnitude_1adu',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='Magnitude1ADU',
                 dtype='numpy.float64',
                 description='The magnitude that corresponds to a flux of '
@@ -742,14 +799,14 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.model',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='Model',
                 dtype='numpy.string_',
                 description='The model used to represent the PSF/PRF.'
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.terms',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='Terms',
                 dtype='numpy.string_',
                 description='The terms the PSF/PRF is allowed to depend '
@@ -757,7 +814,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.max-chi2',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MaxReducedChiSquared',
                 dtype='numpy.float64',
                 description='The value of the reduced chi squared above '
@@ -765,7 +822,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.min_convergence_rate',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MinimumConvergenceRate',
                 dtype='numpy.float64',
                 description='The minimum rate of convergence required '
@@ -773,7 +830,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.max_iterations',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MaxIterations',
                 dtype='numpy.int',
                 description='The maximum number of shape/amplitude '
@@ -781,7 +838,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.ignore_dropped',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='DiscardDroppedSources',
                 dtype='numpy.bool_',
                 description='If True, sources dropped during source '
@@ -791,7 +848,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.cover_bicubic_grid',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='CoverGridWithPixels',
                 dtype='numpy.bool_',
                 description='For bicubic PSF fits, If true all pixels '
@@ -800,7 +857,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.min_signal_to_noise',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourcePixelMinSignalToNoise',
                 dtype='numpy.float64',
                 description='How far above the background (in units of '
@@ -809,7 +866,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.max_aperture',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourceMaxAperture',
                 dtype='numpy.float64',
                 description='If this option has a positive value, pixels '
@@ -819,7 +876,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.max_sat_frac',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourceMaxSaturatedFraction',
                 dtype='numpy.float64',
                 description='If more than this fraction of the pixels '
@@ -828,7 +885,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.min_pix',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourceMinPixels',
                 dtype='numpy.uint',
                 description='The minimum number of pixels that must be '
@@ -837,7 +894,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.max_pix',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourceMaxPixels',
                 dtype='numpy.uint',
                 description='The maximum number of pixels that must be '
@@ -846,7 +903,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.min_bg_pix',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SourceMinBackgroundPixels',
                 dtype='numpy.uint',
                 description='The minimum number of backrgound pixels required '
@@ -855,23 +912,31 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.src.max_count',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MaxSources',
                 dtype='numpy.uint',
                 description='The maximum number of sources to include in '
                 'the fit for the PSF shape.'
             ),
             HDF5Attribute(
-                pipeline_key='shapefit.cfg.psf.bicubic.grid',
-                parent=_default_paths['shapefit'],
-                name='Grid',
+                pipeline_key='shapefit.cfg.psf.bicubic.grid.x',
+                parent=parent_path,
+                name='GridXBoundaries',
                 dtype='numpy.float64',
-                description='The x and y boundaries of the grid on which '
+                description='The x boundaries of the grid on which '
+                'the PSF map is defined.'
+            ),
+            HDF5Attribute(
+                pipeline_key='shapefit.cfg.psf.bicubic.grid.y',
+                parent=parent_path,
+                name='GridYBoundaries',
+                dtype='numpy.float64',
+                description='The y boundaries of the grid on which '
                 'the PSF map is defined.'
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.bicubic.pixrej',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='PixelRejectionThreshold',
                 dtype='numpy.float64',
                 description='Pixels with fitting residuals (normalized by'
@@ -880,7 +945,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.bicubic.initial_aperture',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='InitialAmplitudeAperture',
                 dtype='numpy.float64',
                 description='This aperture is used to derive an initial '
@@ -888,7 +953,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.bicubic.max_abs_amplitude_change',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MaxAbsoluteAmplitudeChange',
                 dtype='numpy.float64',
                 description='The absolute root of sum squares tolerance '
@@ -897,7 +962,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.bicubic.max_rel_amplitude_change',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='MaxRelativeAmplitudeChange',
                 dtype='numpy.float64',
                 description='The relative root of sum squares tolerance of the '
@@ -906,7 +971,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.cfg.psf.bicubic.smoothing',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='BicubicSmoothing',
                 dtype='numpy.float64',
                 description='The amount of smoothing used during PSF '
@@ -921,7 +986,7 @@ def _get_shapefit_attributes():
         [
             HDF5Attribute(
                 pipeline_key='shapefit.sofware_versions',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='SoftwareVersions',
                 dtype="'S100'",
                 description='An Nx2 array of strings consisting of '
@@ -930,7 +995,7 @@ def _get_shapefit_attributes():
             ),
             HDF5Attribute(
                 pipeline_key='shapefit.global_chi2',
-                parent=_default_paths['shapefit'],
+                parent=parent_path,
                 name='GlobalReducedChi2',
                 dtype='numpy.float64',
                 description='The overall reduced chi squared of the '
@@ -946,17 +1011,18 @@ def _get_shapefit_attributes():
 def _get_shapefit_datasets():
     """Create the datasets to contain shape fitting results."""
 
+    root_path = _default_paths['shapefit']['root']
     return (
         [
             HDF5DataSet(
                 pipeline_key='shapefit.map_coef',
-                abspath=_default_paths['shapefit'] + '/MapCoefficients',
+                abspath=root_path + '/MapCoefficients',
                 dtype='numpy.float64',
                 description='The coefficients of the derived PSF/PRF map.'
             ),
             HDF5DataSet(
                 pipeline_key='shapefit.num_pixels',
-                abspath=_default_paths['shapefit'] + '/NumberPixels',
+                abspath=root_path + '/NumberPixels',
                 dtype='numpy.uint',
                 scaleoffset=0,
                 replace_nonfinite=0,
@@ -964,8 +1030,8 @@ def _get_shapefit_datasets():
                 'fitting was performed.'
             ),
             HDF5DataSet(
-                pipeline_key='shapefti.signal_to_noise',
-                abspath=_default_paths['shapefit'] + '/SignalToNoise',
+                pipeline_key='shapefit.signal_to_noise',
+                abspath=root_path + '/SignalToNoise',
                 dtype='numpy.float64',
                 scaleoffset=3,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -973,8 +1039,8 @@ def _get_shapefit_datasets():
                 'assigned to the source for PSF fitting.'
             ),
             HDF5DataSet(
-                pipeline_key='shapefit.magnitude',
-                abspath=_default_paths['shapefit'] + '/Magnitude',
+                pipeline_key='shapefit.magnitudes',
+                abspath=root_path + '/Magnitude',
                 dtype='numpy.float64',
                 scaleoffset=5,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -982,8 +1048,8 @@ def _get_shapefit_datasets():
                 'projected sources.'
             ),
             HDF5DataSet(
-                pipeline_key='shapefit.magnitude_error',
-                abspath=_default_paths['shapefit'] + '/MagnitudeError',
+                pipeline_key='shapefit.magnitude_errors',
+                abspath=root_path + '/MagnitudeError',
                 dtype='numpy.float64',
                 scaleoffset=5,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -992,8 +1058,8 @@ def _get_shapefit_datasets():
             ),
             HDF5DataSet(
                 pipeline_key='shapefit.quality_flag',
-                abspath=_default_paths['shapefit'] + '/QualityFlag',
-                dtype='numpy.uint8',
+                abspath=root_path + '/QualityFlag',
+                dtype='numpy.uint',
                 compression='gzip',
                 compression_options='9',
                 scaleoffset=0,
@@ -1004,7 +1070,7 @@ def _get_shapefit_datasets():
             ),
             HDF5DataSet(
                 pipeline_key='shapefit.chi2',
-                abspath=_default_paths['shapefit'] + '/ChiSquared',
+                abspath=root_path + '/ChiSquared',
                 dtype='numpy.float64',
                 scaleoffset=2,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
