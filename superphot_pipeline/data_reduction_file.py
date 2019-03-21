@@ -91,7 +91,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         print('Parsing source ID:' + repr(source_id))
         if isinstance(source_id, bytes):
-            source_id = source_id[:source_id.find(b'\0')].decode()
+            c_style_end = source_id.find(b'\0')
+            if c_style_end >= 0:
+                source_id = source_id[:c_style_end].decode()
+            else:
+                source_id = source_id.decode()
+        print('Re-formatted to ' + repr(source_id))
         prefix_str, field_str, source_str = source_id.split('-')
         print('Prefix: %s, field: %s, source: %s'
               %
@@ -397,20 +402,20 @@ if __name__ == '__main__':
 
     from lxml import etree
     #pylint: disable=ungrouped-imports
-    from superphot import FitStarShape, SuperPhotIOTree
+    from superphot import FitStarShape, SuperPhotIOTree, SubPixPhot
     #pylint: enable=ungrouped-imports
 
-    root_element = dr_file.layout_to_xml()
-    root_element.addprevious(
-        etree.ProcessingInstruction(
-            'xml-stylesheet',
-            'type="text/xsl" href="hdf5_file_structure.xsl"'
-        )
-    )
-    etree.ElementTree(element=root_element).write('example_structure.xml',
-                                                  pretty_print=True,
-                                                  xml_declaration=True,
-                                                  encoding='utf-8')
+#    root_element = dr_file.layout_to_xml()
+#    root_element.addprevious(
+#        etree.ProcessingInstruction(
+#            'xml-stylesheet',
+#            'type="text/xsl" href="hdf5_file_structure.xsl"'
+#        )
+#    )
+#    etree.ElementTree(element=root_element).write('example_structure.xml',
+#                                                  pretty_print=True,
+#                                                  xml_declaration=True,
+#                                                  encoding='utf-8')
 
     fitprf = FitStarShape(mode='prf',
                           shape_terms='{1}',
@@ -418,8 +423,32 @@ if __name__ == '__main__':
                           initial_aperture=2.0,
                           smoothing=None,
                           min_convergence_rate=0.0)
+    subpixphot = SubPixPhot()
 
     #Debugging code
     #pylint: disable=protected-access
-    tree = SuperPhotIOTree(fitprf._library_configuration)
-    dr_file.add_star_shape_fit(tree, 0)
+    tree = SuperPhotIOTree(subpixphot._library_configuration)
+    #dr_file.add_star_shape_fit(tree, 0)
+
+    test_sources = numpy.empty(10, dtype=[('id', 'S100'),
+                                          ('x', numpy.float64),
+                                          ('enabled', numpy.bool),
+                                          ('y', numpy.float64),
+                                          ('bg', numpy.float64),
+                                          ('bg_err', numpy.float64)])
+    for i in range(10):
+        test_sources[i]['id'] = 'HAT-%03d-%07d' % (i, i)
+        test_sources[i]['x'] = (10.0 * numpy.pi) * (i % 4)
+        test_sources[i]['y'] = (10.0 * numpy.pi) * (i / 4)
+        test_sources[i]['bg'] = 10.0 + 0.01 * i
+        test_sources[i]['bg_err'] = 1.0 + 0.2 * i
+    print('Source data: ' + repr(test_sources))
+    map_coefficients = numpy.ones((4, 1, 1, 10), dtype=numpy.float64)
+    print('Test sources: ' + repr(test_sources))
+    tree.set_aperture_photometry_inputs(
+        source_data=test_sources,
+        star_shape_grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
+        star_shape_map_terms='O3{x, y}',
+        star_shape_map_coefficients=map_coefficients
+    )
+    dr_file.add_star_shape_fit(tree, 10)
