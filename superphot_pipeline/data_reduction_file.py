@@ -70,6 +70,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'psffit.npix': 'shapefit.num_pixels',
         'psffit.quality': 'shapefit.quality_flag',
         'psffit.psfmap': 'shapefit.map_coef',
+        'apphot.const_error': 'apphot.cfg.error_floor',
+        'apphot.aperture': 'apphot.cfg.aperture',
+        'apphot.gain': 'apphot.cfg.gain',
+        'apphot.magnitude-1adu': 'apphot.cfg.magnitude_1adu'
     }
 
     _dtype_dr_to_io_tree = {
@@ -260,8 +264,80 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         self.add_dataset('shapefit.map_coef',
                          coefficients,
                          if_exists='error',
-                         background_version=0,
-                         shapefit_version=0)
+                         **path_substitutions)
+
+    def _auto_add_tree_quantities(self,
+                                  result_tree,
+                                  num_sources,
+                                  skip_quantities,
+                                  image_index=0,
+                                  **path_substitutions):
+        """
+        Best guess for how to add tree quantities to DR file.
+
+        Args:
+            result_tree(SuperPhotIOTree):    The tree to extract quantities to
+                add.
+
+            num_sources(int):    The number of sources (assumed to be ththe
+                length of all datasets).
+
+            skip_quantities(compiled rex matcher):    Quantities matching this
+                regular expression will not be added to the DR file by this
+                function.
+
+            image_index(int):    For quantities which are split by image, only
+                the values associated to this image index will be added.
+
+        Returns:
+            None
+        """
+
+        indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
+        for quantity_name in result_tree.defined_quantity_names():
+
+            print('\t' + quantity_name)
+
+            indexed_match = indexed_rex.fullmatch(quantity_name)
+            if indexed_match:
+                if int(indexed_match['image_index_str']) == image_index:
+                    key_quantity = quantity_name[
+                        :
+                        indexed_match.start('image_index_str')-1
+                    ]
+                    print('\t\t-> ' + key_quantity)
+                else:
+                    print('\t\tSkipping')
+                    continue
+            else:
+                key_quantity = quantity_name
+
+            dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
+
+            for element_type in ['dataset', 'attribute', 'link']:
+                if (
+                        dr_key in self._elements[element_type]
+                        and
+                        skip_quantities.match(key_quantity) is None
+                ):
+                    dtype = (
+                        self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
+                    )
+                    print('\t\tGetting ' + repr(dtype) + ' value(s)')
+                    value = result_tree.get(
+                        quantity_name,
+                        dtype,
+                        shape=(num_sources
+                               if element_type == 'dataset' else
+                               None)
+                    )
+                    #TODO: add automatic detection for versions
+                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
+                    getattr(self, 'add_' + element_type)(dr_key,
+                                                         value,
+                                                         if_exists='error',
+                                                         **path_substitutions)
+                    break
 
     def __init__(self, *args, **kwargs):
         """See HDF5File for description of arguments."""
@@ -319,80 +395,72 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             shapefit_version=0,
             srcproj_version=0
         )
+        self.add_attribute(
+            self._key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
+            (
+                shape_fit_result_tree.get(
+                    'psffit.srcpix_cover_bicubic_grid',
+                    str
+                ).lower()
+                ==
+                'true'
+            ),
+            if_exists='error',
+            shapefit_version=0
+        )
+        self._auto_add_tree_quantities(
+            result_tree=shape_fit_result_tree,
+            num_sources=num_sources,
+            skip_quantities=re.compile(
+                '|'.join([r'^psffit\.variables$',
+                          r'^psffit\.grid$',
+                          r'^psffit\.psfmap$',
+                          r'^psffit.srcpix_cover_bicubic_grid$',
+                          r'^projsrc\.'])
+            ),
+            image_index=image_index,
+            background_version=0,
+            shapefit_version=0
+        )
 
-        indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
-        for quantity_name in shape_fit_result_tree.defined_quantity_names():
+    def add_aperture_photometry(self,
+                                apphot_result_tree,
+                                num_sources,
+                                num_apertures):
+        """
+        Add the results of aperture photometry to the DR file.
 
-            print('\t' + quantity_name)
+        Args:
+            apphot_result_tree:(superphot.SuperPhotIOTree):    The tree which
+                was passed to the :class:superphot.SubPixPhot instance which did
+                the aperture photometry (i.e. where the results were added).
 
-            indexed_match = indexed_rex.fullmatch(quantity_name)
-            if indexed_match:
-                if int(indexed_match['image_index_str']) == image_index:
-                    key_quantity = quantity_name[
-                        :
-                        indexed_match.start('image_index_str')-1
-                    ]
-                    print('\t\t-> ' + key_quantity)
-                else:
-                    print('\t\tSkipping')
-                    continue
-            else:
-                key_quantity = quantity_name
+            num_sources(int):    The number of sources for which aperture
+                photometry was done. The same as the number of sources the star
+                shape fitting which was used by the aperture photometry was
+                performed on for the photometered image.
 
-            dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
+        Returns:
+            None
+        """
 
-            found = False
-            for element_type in ['dataset', 'attribute', 'link']:
-                if (
-                        dr_key in self._elements[element_type]
-                        and
-                        key_quantity not in ['psffit.variables',
-                                             'psffit.grid',
-                                             'psffit.psfmap']
-                        and
-                        not key_quantity.startswith('projsrc.')
-                ):
-                    if quantity_name == 'psffit.srcpix_cover_bicubic_grid':
-                        dtype = str
-                        print('\t\tGetting '
-                              +
-                              repr(dtype)
-                              +
-                              ' (cover grid) value')
-                        value = (
-                            shape_fit_result_tree.get(
-                                quantity_name,
-                                dtype
-                            ).lower()
-                            ==
-                            'true'
-                        )
-                    else:
-                        dtype = (
-                            self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
-                        )
-                        print('\t\tGetting ' + repr(dtype) + ' value(s)')
-                        value = shape_fit_result_tree.get(
-                            quantity_name,
-                            dtype,
-                            shape=(num_sources
-                                   if element_type == 'dataset' else
-                                   None)
-                        )
-                    #TODO: add automatic detection for versions
-                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
-                    found = True
-                    getattr(self, 'add_' + element_type)(dr_key,
-                                                         value,
-                                                         if_exists='error',
-                                                         background_version=0,
-                                                         shapefit_version=0)
-                    break
-            if found:
-                print('\t\t' + repr(value))
-            else:
-                dtype = str
-                print('\t\t(ignored): ')
+        for aperture_index, aperture in enumerate(
+                apphot_result_tree.get('apphot.aperture',
+                                       c_double,
+                                       shape=(num_apertures,))
+        ):
+            self.add_attribute('apphot.cfg.aperture',
+                               aperture,
+                               if_exists='error',
+                               apphot_version=0,
+                               aperture_index=aperture_index)
+
+        self._auto_add_tree_quantities(
+            result_tree=apphot_result_tree,
+            num_sources=num_sources,
+            skip_quantities=re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+            apphot_version=0
+        )
 
 #pylint: enable=too-many-ancestors
 
@@ -400,7 +468,7 @@ if __name__ == '__main__':
 
     dr_file = DataReductionFile('test.hdf5', 'a')
 
-    from lxml import etree
+    #from lxml import etree
     #pylint: disable=ungrouped-imports
     from superphot import FitStarShape, SuperPhotIOTree, SubPixPhot
     #pylint: enable=ungrouped-imports
@@ -427,7 +495,7 @@ if __name__ == '__main__':
 
     #Debugging code
     #pylint: disable=protected-access
-    tree = SuperPhotIOTree(subpixphot._library_configuration)
+    tree = SuperPhotIOTree(fitprf._library_configuration)
     #dr_file.add_star_shape_fit(tree, 0)
 
     test_sources = numpy.empty(10, dtype=[('id', 'S100'),
@@ -459,3 +527,5 @@ if __name__ == '__main__':
         magnitude_1adu=10.0
     )
     dr_file.add_star_shape_fit(tree, 10)
+#    dr_file.add_aperture_photometry(tree, 10, 5)
+    dr_file.close()
