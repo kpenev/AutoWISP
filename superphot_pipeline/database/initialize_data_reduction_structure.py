@@ -453,7 +453,7 @@ def _get_source_projection_datasets():
         HDF5DataSet(
             pipeline_key='srcproj.enabled',
             abspath=(root_path + '/Enabled'),
-            dtype='numpy.float64',
+            dtype='numpy.bool',
             compression='gzip',
             compression_options='9',
             shuffle=True,
