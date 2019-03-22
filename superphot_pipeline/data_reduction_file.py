@@ -434,6 +434,8 @@ if __name__ == '__main__':
                                           ('x', numpy.float64),
                                           ('enabled', numpy.bool),
                                           ('y', numpy.float64),
+                                          ('mag', numpy.float64),
+                                          ('mag_err', numpy.float64),
                                           ('bg', numpy.float64),
                                           ('bg_err', numpy.float64)])
     for i in range(10):
@@ -442,6 +444,8 @@ if __name__ == '__main__':
         test_sources[i]['y'] = (10.0 * numpy.pi) * (i / 4)
         test_sources[i]['bg'] = 10.0 + 0.01 * i
         test_sources[i]['bg_err'] = 1.0 + 0.2 * i
+        test_sources[i]['mag'] = numpy.pi - i
+        test_sources[i]['mag_err'] = 0.01 * i
     print('Source data: ' + repr(test_sources))
     map_coefficients = numpy.ones((4, 1, 1, 10), dtype=numpy.float64)
     print('Test sources: ' + repr(test_sources))
