@@ -465,7 +465,16 @@ class HDF5File(ABC, h5py.File):
         #pylint: enable=eval-used
 
         if isinstance(result, str):
-            return numpy.dtype(result)
+            result = numpy.dtype(result)
+
+        if element_key.endswith('.hat_id_prefix'):
+            return h5py.special_dtype(
+                enum=(
+                    result,
+                    dict((prefix, value)
+                         for value, prefix in enumerate(self._hat_id_prefixes))
+                )
+            )
 
         return result
 

@@ -167,12 +167,19 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             print('FINISHED READING VARIABLES')
             print('VARABLES SHAPE: ' + repr(variables.shape))
             for var_name, var_values in zip(fit_variables, variables):
-                print(var_name + ': ' + repr(var_values))
+                if var_name == 'enabled':
+                    dataset_data = (
+                        var_values != 0
+                    ).astype(
+                        self.get_dtype('srcproj.' + var_name)
+                    )
+                else:
+                    print(var_name + ': ' + repr(var_values))
 
-                dataset_data = numpy.array(
-                    var_values,
-                    dtype=self.get_dtype('srcproj.' + var_name)
-                )
+                    dataset_data = numpy.array(
+                        var_values,
+                        dtype=self.get_dtype('srcproj.' + var_name)
+                    )
                 print('\tAdding dataset: ' + repr(dataset_data))
                 self.add_dataset(
                     'srcproj.' + var_name,
