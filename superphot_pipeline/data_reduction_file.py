@@ -437,7 +437,8 @@ if __name__ == '__main__':
                                           ('mag', numpy.float64),
                                           ('mag_err', numpy.float64),
                                           ('bg', numpy.float64),
-                                          ('bg_err', numpy.float64)])
+                                          ('bg_err', numpy.float64),
+                                          ('bg_npix', numpy.uint)])
     for i in range(10):
         test_sources[i]['id'] = 'HAT-%03d-%07d' % (i, i)
         test_sources[i]['x'] = (10.0 * numpy.pi) * (i % 4)
@@ -446,6 +447,7 @@ if __name__ == '__main__':
         test_sources[i]['bg_err'] = 1.0 + 0.2 * i
         test_sources[i]['mag'] = numpy.pi - i
         test_sources[i]['mag_err'] = 0.01 * i
+        test_sources[i]['bg_npix'] = 10 * i
     print('Source data: ' + repr(test_sources))
     map_coefficients = numpy.ones((4, 1, 1, 10), dtype=numpy.float64)
     print('Test sources: ' + repr(test_sources))
@@ -453,6 +455,7 @@ if __name__ == '__main__':
         source_data=test_sources,
         star_shape_grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
         star_shape_map_terms='O3{x, y}',
-        star_shape_map_coefficients=map_coefficients
+        star_shape_map_coefficients=map_coefficients,
+        magnitude_1adu=10.0
     )
     dr_file.add_star_shape_fit(tree, 10)
