@@ -1139,6 +1139,22 @@ def _get_apphot_attributes():
                 dtype='numpy.float64',
                 description='The size of the aperture used for aperture '
                 'photometry.'
+            ),
+            HDF5Attribute(
+                pipeline_key='apphot.cfg.gain',
+                parent=root_path,
+                name='Gain',
+                dtype='numpy.float64',
+                description='The gain (electrons per ADU) assumed for the '
+                'input image.'
+            ),
+            HDF5Attribute(
+                pipeline_key='apphot.cfg.magnitude_1adu',
+                parent=root_path,
+                name='Magnitude1ADU',
+                dtype='numpy.float64',
+                description='The magnitude that corresponds to a flux of '
+                '1ADU on the input image.'
             )
         ]
         +
