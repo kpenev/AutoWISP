@@ -33,11 +33,11 @@ class HDF5FileDatabaseStructure(HDF5File):
             """Fill self._defined_elements with all defined pipeline keys."""
 
             for element_type in ['dataset', 'attribute', 'link']:
-                self._defined_elements[element_type] = [
+                self._defined_elements[element_type] = set(
                     element.pipeline_key
                     for element in getattr(structure.structure_versions[0],
                                            element_type + 's')
-                ]
+                )
 
         def create_result(structure):
             """Create the final result of the parent function."""

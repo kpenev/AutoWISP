@@ -307,10 +307,7 @@ class HDF5File(ABC, h5py.File):
                 One of: 'group', 'dataset', 'attribute', 'link'.
         """
 
-        #pylint false positive
-        #pylint: disable=no-member
-        for (element_type, recognized) in cls.elements.items():
-        #pylint: enable=no-member
+        for (element_type, recognized) in cls._elements.items():
             if element_id.rstrip('.') in recognized:
                 return element_type
 

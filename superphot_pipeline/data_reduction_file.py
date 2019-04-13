@@ -4,6 +4,7 @@ from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
 
 import numpy
+import h5py
 
 from superphot import SmoothDependence
 from superphot_pipeline.database.hdf5_file_structure import\
@@ -70,6 +71,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'psffit.npix': 'shapefit.num_pixels',
         'psffit.quality': 'shapefit.quality_flag',
         'psffit.psfmap': 'shapefit.map_coef',
+        'apphot.const_error': 'apphot.cfg.error_floor',
+        'apphot.aperture': 'apphot.cfg.aperture',
+        'apphot.gain': 'apphot.cfg.gain',
+        'apphot.magnitude-1adu': 'apphot.cfg.magnitude_1adu'
     }
 
     _dtype_dr_to_io_tree = {
@@ -404,8 +409,80 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         self.add_dataset('shapefit.map_coef',
                          coefficients,
                          if_exists='error',
-                         background_version=0,
-                         shapefit_version=0)
+                         **path_substitutions)
+
+    def _auto_add_tree_quantities(self,
+                                  result_tree,
+                                  num_sources,
+                                  skip_quantities,
+                                  image_index=0,
+                                  **path_substitutions):
+        """
+        Best guess for how to add tree quantities to DR file.
+
+        Args:
+            result_tree(SuperPhotIOTree):    The tree to extract quantities to
+                add.
+
+            num_sources(int):    The number of sources (assumed to be ththe
+                length of all datasets).
+
+            skip_quantities(compiled rex matcher):    Quantities matching this
+                regular expression will not be added to the DR file by this
+                function.
+
+            image_index(int):    For quantities which are split by image, only
+                the values associated to this image index will be added.
+
+        Returns:
+            None
+        """
+
+        indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
+        for quantity_name in result_tree.defined_quantity_names():
+
+            print('\t' + quantity_name)
+
+            indexed_match = indexed_rex.fullmatch(quantity_name)
+            if indexed_match:
+                if int(indexed_match['image_index_str']) == image_index:
+                    key_quantity = quantity_name[
+                        :
+                        indexed_match.start('image_index_str')-1
+                    ]
+                    print('\t\t-> ' + key_quantity)
+                else:
+                    print('\t\tSkipping')
+                    continue
+            else:
+                key_quantity = quantity_name
+
+            dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
+
+            for element_type in ['dataset', 'attribute', 'link']:
+                if (
+                        dr_key in self._elements[element_type]
+                        and
+                        skip_quantities.match(key_quantity) is None
+                ):
+                    dtype = (
+                        self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
+                    )
+                    print('\t\tGetting ' + repr(dtype) + ' value(s)')
+                    value = result_tree.get(
+                        quantity_name,
+                        dtype,
+                        shape=(num_sources
+                               if element_type == 'dataset' else
+                               None)
+                    )
+                    #TODO: add automatic detection for versions
+                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
+                    getattr(self, 'add_' + element_type)(dr_key,
+                                                         value,
+                                                         if_exists='error',
+                                                         **path_substitutions)
+                    break
 
     def __init__(self, *args, **kwargs):
         """See HDF5File for description of arguments."""
@@ -463,80 +540,228 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             shapefit_version=0,
             srcproj_version=0
         )
+        print('Added shape fit sources')
+        self.add_attribute(
+            self._key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
+            (
+                shape_fit_result_tree.get(
+                    'psffit.srcpix_cover_bicubic_grid',
+                    str
+                ).lower()
+                ==
+                'true'
+            ),
+            if_exists='error',
+            shapefit_version=0
+        )
+        print('Added cover grid attribute.')
+        self._auto_add_tree_quantities(
+            result_tree=shape_fit_result_tree,
+            num_sources=num_sources,
+            skip_quantities=re.compile(
+                '|'.join([r'^psffit\.variables$',
+                          r'^psffit\.grid$',
+                          r'^psffit\.psfmap$',
+                          r'^psffit.srcpix_cover_bicubic_grid$',
+                          r'^projsrc\.'])
+            ),
+            image_index=image_index,
+            background_version=0,
+            shapefit_version=0
+        )
 
-        indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
-        for quantity_name in shape_fit_result_tree.defined_quantity_names():
+    def fill_aperture_photometry_input_tree(self,
+                                            tree,
+                                            shapefit_version=0,
+                                            srcproj_version=0,
+                                            background_version=0):
+        """
+        Fill a SuperPhotIOTree with shape fit info for aperture photometry.
 
-            print('\t' + quantity_name)
+        Args:
+            shapefit_version:    The version of the star shape fit results
+                stored in the file to use when initializing the tree.
 
-            indexed_match = indexed_rex.fullmatch(quantity_name)
-            if indexed_match:
-                if int(indexed_match['image_index_str']) == image_index:
-                    key_quantity = quantity_name[
-                        :
-                        indexed_match.start('image_index_str')-1
-                    ]
-                    print('\t\t-> ' + key_quantity)
-                else:
-                    print('\t\tSkipping')
+            srcproj_version:    The version of the projected sources to use for
+                aperture photometry.
+
+        Returns:
+            int:
+                The number of sources added to the tree.
+        """
+
+        def list_source_variable_datasets(**substitutions):
+            """
+            List all variables that must be included in the source data.
+
+            Args:
+                None
+
+            Returns:
+                [2-tuples]:
+                    Each tuple identifies the name of a variable that may
+                    participate in the PSF map and its associated dataset path
+                    in self.
+            """
+
+            result = []
+            dset_key_var_name = {'shapefit.magnitudes': 'mag',
+                                 'shapefit.magnitude_errors': 'mag_err',
+                                 'bg.values': 'bg',
+                                 'bg.errors': 'bg_err',
+                                 'bg.npix': 'bg_npix'}
+            var_name_parser = re.compile(r'srcproj.(?P<var_name>\w+)')
+            for dataset_key in self._elements['dataset']:
+                if dataset_key.startswith('srcproj.hat_id_'):
                     continue
-            else:
-                key_quantity = quantity_name
-
-            dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
-
-            found = False
-            for element_type in ['dataset', 'attribute', 'link']:
+                parsed_var_name = var_name_parser.fullmatch(dataset_key)
                 if (
-                        dr_key in self._elements[element_type]
+                        parsed_var_name is None
                         and
-                        key_quantity not in ['psffit.variables',
-                                             'psffit.grid',
-                                             'psffit.psfmap']
-                        and
-                        not key_quantity.startswith('projsrc.')
+                        dataset_key not in dset_key_var_name
                 ):
-                    if quantity_name == 'psffit.srcpix_cover_bicubic_grid':
-                        dtype = str
-                        print('\t\tGetting '
-                              +
-                              repr(dtype)
-                              +
-                              ' (cover grid) value')
-                        value = (
-                            shape_fit_result_tree.get(
-                                quantity_name,
-                                dtype
-                            ).lower()
-                            ==
-                            'true'
+                    continue
+
+                dataset_path = (self._file_structure[dataset_key].abspath
+                                %
+                                substitutions)
+                if dataset_path in self:
+                    var_name = (parsed_var_name.group('var_name')
+                                if parsed_var_name is not None else
+                                dset_key_var_name[dataset_key])
+
+                    result.append((var_name, dataset_path))
+            return result
+
+        def get_source_data(**substitutions):
+            """See SuperPhotIOTree.set_aperture_photometry_inputs() argument."""
+
+            fit_variable_datasets = list_source_variable_datasets(**substitutions)
+            sources_shape = self[fit_variable_datasets[0][1]].shape
+            assert len(sources_shape) == 1
+
+            source_data = numpy.empty(
+                shape=sources_shape,
+                dtype=(
+                    [('id', 'S20')]
+                    +
+                    [
+                        (
+                            var_path[0],
+                            (numpy.uint if var_path[0] == 'bg_npix' else numpy.float64)
                         )
-                    else:
-                        dtype = (
-                            self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
-                        )
-                        print('\t\tGetting ' + repr(dtype) + ' value(s)')
-                        value = shape_fit_result_tree.get(
-                            quantity_name,
-                            dtype,
-                            shape=(num_sources
-                                   if element_type == 'dataset' else
-                                   None)
-                        )
-                    #TODO: add automatic detection for versions
-                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
-                    found = True
-                    getattr(self, 'add_' + element_type)(dr_key,
-                                                         value,
-                                                         if_exists='error',
-                                                         background_version=0,
-                                                         shapefit_version=0)
-                    break
-            if found:
-                print('\t\t' + repr(value))
-            else:
-                dtype = str
-                print('\t\t(ignored): ')
+                        for var_path in fit_variable_datasets
+                    ]
+                )
+            )
+            for var_name, dset_path in fit_variable_datasets:
+                assert self[dset_path].shape == sources_shape
+                source_data[var_name] = self[dset_path]
+
+            prefix_dset = self[
+                self._file_structure['srcproj.hat_id_prefix'].abspath
+                %
+                substitutions
+            ]
+            translate_prefix = dict(
+                (value, prefix)
+                for prefix, value in h5py.check_dtype(
+                    enum=prefix_dset.dtype
+                ).items()
+            )
+            for source_ind, (id_prefix, id_field, id_source) in enumerate(
+                    zip(
+                        prefix_dset,
+                        self[self._file_structure['srcproj.hat_id_field'].abspath
+                             %
+                             substitutions],
+                        self[self._file_structure['srcproj.hat_id_source'].abspath
+                             %
+                             substitutions]
+                    )
+            ):
+                source_data['id'][source_ind] = '%s-%03d-%07d' % (
+                    translate_prefix[id_prefix],
+                    id_field,
+                    id_source
+                )
+            return source_data
+
+        def get_star_shape_grid(**substitutions):
+            """Return the grid used for representing the star shape."""
+
+            return numpy.array([
+                self.get_attribute('shapefit.cfg.psf.bicubic.grid.x',
+                                   **substitutions),
+                self.get_attribute('shapefit.cfg.psf.bicubic.grid.y',
+                                   **substitutions)
+            ])
+
+        source_data = get_source_data(
+            shapefit_version=shapefit_version,
+            srcproj_version=srcproj_version,
+            background_version=background_version
+        )
+        print('Source data:\n' + repr(source_data))
+        magnitude_1adu = self.get_attribute(
+            'shapefit.cfg.magnitude_1adu',
+            shapefit_version=shapefit_version
+        )
+        tree.set_aperture_photometry_inputs(
+            source_data=source_data,
+            star_shape_grid=get_star_shape_grid(
+                shapefit_version=shapefit_version
+            ),
+            star_shape_map_terms=self.get_attribute(
+                'shapefit.cfg.psf.terms',
+                shapefit_version=shapefit_version
+            ),
+            star_shape_map_coefficients=self.get_dataset(
+                'shapefit.map_coef',
+                shapefit_version=shapefit_version
+            ),
+            magnitude_1adu=magnitude_1adu
+        )
+        return source_data.size
+
+    def add_aperture_photometry(self,
+                                apphot_result_tree,
+                                num_sources,
+                                num_apertures):
+        """
+        Add the results of aperture photometry to the DR file.
+
+        Args:
+            apphot_result_tree:(superphot.SuperPhotIOTree):    The tree which
+                was passed to the :class:superphot.SubPixPhot instance which did
+                the aperture photometry (i.e. where the results were added).
+
+            num_sources(int):    The number of sources for which aperture
+                photometry was done. The same as the number of sources the star
+                shape fitting which was used by the aperture photometry was
+                performed on for the photometered image.
+
+        Returns:
+            None
+        """
+
+        for aperture_index, aperture in enumerate(
+                apphot_result_tree.get('apphot.aperture',
+                                       c_double,
+                                       shape=(num_apertures,))
+        ):
+            self.add_attribute('apphot.cfg.aperture',
+                               aperture,
+                               if_exists='error',
+                               apphot_version=0,
+                               aperture_index=aperture_index)
+
+        self._auto_add_tree_quantities(
+            result_tree=apphot_result_tree,
+            num_sources=num_sources,
+            skip_quantities=re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+            apphot_version=0
+        )
 
     def get_aperture_photometry_inputs(self):
         """
@@ -554,7 +779,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
 #pylint: enable=too-many-ancestors
 
-if __name__ == '__main__':
+def debug():
+    """Some debugging code executed when module is run as script."""
 
     dr_file = DataReductionFile('test.hdf5', 'r')
     print(repr(dr_file._get_shapefit_sources(background_version=0,
@@ -562,10 +788,14 @@ if __name__ == '__main__':
                                              shapefit_version=0)))
     exit(0)
 
-    from lxml import etree
+    #from lxml import etree
     #pylint: disable=ungrouped-imports
+    #pylint: disable=unused-import
     from superphot import FitStarShape, SuperPhotIOTree, SubPixPhot
+    from superphot._initialize_library import superphot_library
+    from ctypes import c_void_p, c_char_p
     #pylint: enable=ungrouped-imports
+    #pylint: enable=unused-import
 
 #    root_element = dr_file.layout_to_xml()
 #    root_element.addprevious(
@@ -579,46 +809,35 @@ if __name__ == '__main__':
 #                                                  xml_declaration=True,
 #                                                  encoding='utf-8')
 
-    fitprf = FitStarShape(mode='prf',
-                          shape_terms='{1}',
-                          grid=[-1.0, 0.0, 1.0],
-                          initial_aperture=2.0,
-                          smoothing=None,
-                          min_convergence_rate=0.0)
+#    fitprf = FitStarShape(mode='prf',
+#                          shape_terms='{1}',
+#                          grid=[-1.0, 0.0, 1.0],
+#                          initial_aperture=2.0,
+#                          smoothing=None,
+#                          min_convergence_rate=0.0)
     subpixphot = SubPixPhot()
 
     #Debugging code
     #pylint: disable=protected-access
     tree = SuperPhotIOTree(subpixphot._library_configuration)
-    #dr_file.add_star_shape_fit(tree, 0)
-
-    test_sources = numpy.empty(10, dtype=[('id', 'S100'),
-                                          ('x', numpy.float64),
-                                          ('enabled', numpy.bool),
-                                          ('y', numpy.float64),
-                                          ('mag', numpy.float64),
-                                          ('mag_err', numpy.float64),
-                                          ('bg', numpy.float64),
-                                          ('bg_err', numpy.float64),
-                                          ('bg_npix', numpy.uint)])
-    for i in range(10):
-        test_sources[i]['id'] = 'HAT-%03d-%07d' % (i, i)
-        test_sources[i]['x'] = (10.0 * numpy.pi) * (i % 4)
-        test_sources[i]['y'] = (10.0 * numpy.pi) * (i / 4)
-        test_sources[i]['bg'] = 10.0 + 0.01 * i
-        test_sources[i]['bg_err'] = 1.0 + 0.2 * i
-        test_sources[i]['mag'] = numpy.pi - i
-        test_sources[i]['mag_err'] = 0.01 * i
-        test_sources[i]['bg_npix'] = 10 * i
-    print('Source data: ' + repr(test_sources))
-    map_coefficients = numpy.ones((4, 1, 1, 10), dtype=numpy.float64)
-    print('Test sources: ' + repr(test_sources))
-    tree.set_aperture_photometry_inputs(
-        source_data=test_sources,
-        star_shape_grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
-        star_shape_map_terms='O3{x, y}',
-        star_shape_map_coefficients=map_coefficients,
-        magnitude_1adu=10.0
+    num_sources = dr_file.fill_aperture_photometry_input_tree(tree)
+    superphot_library.update_result_tree(
+        b'psffit.srcpix_cover_bicubic_grid',
+        (c_char_p * 1)(c_char_p(b'true')),
+        b'str',
+        1,
+        tree.library_tree
     )
-    dr_file.add_star_shape_fit(tree, 10)
+
+    dr_file = DataReductionFile('test_apphot_inputs.hdf5', 'w')
+    dr_file.add_star_shape_fit(tree,
+                               num_sources,
+                               fit_variables=('x', 'y', 'enabled'))
+    print('Added star shape fit')
+    dr_file.add_aperture_photometry(tree, 10, 5)
+    print('Added photometry')
     dr_file.close()
+
+if __name__ == '__main__':
+
+    debug()
