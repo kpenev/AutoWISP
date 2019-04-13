@@ -949,7 +949,7 @@ class HDF5File(ABC, h5py.File):
             dataset_key:    The key in self._destinations identifying the
                 dataset to read.
 
-            expected_size:    The size to use for the dataset if an empty
+            expected_shape:    The shape to use for the dataset if an empty
                 dataset is found. If None, a zero-sized array is returned.
 
             default_value:    If not None and the dataset does not exist, this
@@ -974,7 +974,9 @@ class HDF5File(ABC, h5py.File):
                 specified
         """
 
-        self._check_for_dataset(dataset_key, default_value is None, **substitutions)
+        self._check_for_dataset(dataset_key,
+                                default_value is None,
+                                **substitutions)
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions

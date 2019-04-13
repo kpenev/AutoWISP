@@ -227,6 +227,143 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         add_source_ids()
         add_fit_variables()
 
+    def _get_shapefit_sources(self, **path_substitutions):
+        """
+        Read the sources used for shape fitting from this DR file.
+
+        Args:
+            path_substitutions:    Values to substitute in the path to the
+                datasets containing source informaiton (usually versions of
+                various components).
+
+        Returns:
+            numpy.array(dtype=[('ID', 'S#'),\
+                               ('x', numpy.float64),\
+                               ('y', numpy.float64),\
+                               ('bg', numpy.float64),\
+                               ('bg_err', numpy.float64),\
+                               ('bg_npix', numpy.float64),\
+                               ('mag', numpy.float64),\
+                               ('mag_err', numpy.float64),
+                               ...]):
+                The source data used as input for shape fitting. It is
+                guaranteed to contain at least the fields listed in the return
+                type, and all other variables avialable for the projected
+                sources.
+        """
+
+        def get_source_ids():
+            """
+            Return the IDs of the projected sources found in the file.
+
+            Args:
+                None
+
+            Returns:
+                [str]:
+                    List of the source ID strings.
+            """
+
+            hat_id_prefixes = self.get_attribute(
+                'srcproj.recognized_hat_id_prefixes',
+                **path_substitutions
+            )
+            id_data = tuple(
+                self.get_dataset(
+                    'srcproj.hat_id_' + id_part,
+                    **path_substitutions
+                )
+                for id_part in ('prefix', 'field', 'source')
+            )
+            for data_ind in 1, 2:
+                assert len(id_data[data_ind]) == len(id_data[0])
+
+            return [
+                b'%s-%03d-%07d' % (hat_id_prefixes[prefix_ind],
+                                   field,
+                                   source)
+                for prefix_ind, field, source in zip(*id_data)
+            ]
+
+        def list_shape_map_var_names():
+            """
+            Return a list of the names of all variables shape map can depend on.
+
+            Args:
+                None
+
+            Returns:
+                [str]:
+                    The names of all source projection variables to check for.
+            """
+
+            return list(
+                filter(
+                    lambda pipeline_key: (
+                        pipeline_key.startswith('srcproj.')
+                        and
+                        (not pipeline_key.startswith('srcproj.hat_id_'))
+                    ),
+                    self._defined_elements['dataset']
+                )
+            )
+
+        def get_fit_variables(num_sources):
+            """Return a dictionary containing all stored map variables."""
+
+            found_data = dict()
+            shape_map_var_names = list_shape_map_var_names()
+            print('Shape map variables: ' +  repr(shape_map_var_names))
+            for var_name in shape_map_var_names:
+                try:
+                    found_data[var_name] = self.get_dataset(
+                        var_name,
+                        expected_shape=(num_sources,),
+                        **path_substitutions
+                    )
+                except IOError:
+                    pass
+            return found_data
+
+        def add_measurements(num_sources, destination):
+            """Add bacgkround and shape fit photometry to destination."""
+
+            for destination_key, dataset_key in (
+                    ('bg', 'bg.values'),
+                    ('bg_err', 'bg.errors'),
+                    ('bg_npix', 'bg.npix'),
+                    ('mag', 'shapefit.magnitudes'),
+                    ('mag_err', 'shapefit.magnitude_errors')
+            ):
+                destination[destination_key] = self.get_dataset(
+                    dataset_key,
+                    expected_shape=(num_sources,),
+                    **path_substitutions
+                )
+
+        source_ids = get_source_ids()
+        num_sources = len(source_ids)
+        found_source_variables = get_fit_variables(num_sources)
+        add_measurements(num_sources, found_source_variables)
+        result = numpy.empty(
+            (num_sources,),
+            dtype=(
+                [('ID', 'S100')]
+                +
+                [
+                    (
+                        var_name,
+                        numpy.bool if var_name == 'enabled' else numpy.float64
+                    )
+                    for var_name in found_source_variables
+                ]
+            )
+        )
+        result['ID'] = source_ids
+        for var_name in found_source_variables:
+            result[var_name] = found_source_variables[var_name]
+        return result
+
     def _add_shapefit_map(self,
                           shape_fit_result_tree,
                           **path_substitutions):
@@ -401,11 +538,29 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 dtype = str
                 print('\t\t(ignored): ')
 
+    def get_aperture_photometry_inputs(self):
+        """
+        Return all required information for aperture photometry from PSF fit DR.
+
+        Args:
+            None
+
+        Returns:
+            dict:
+                All parameters required by
+                SuperPhotIOTree.set_aperture_photometry_inputs() directly
+                passable to that method using **.
+        """
+
 #pylint: enable=too-many-ancestors
 
 if __name__ == '__main__':
 
-    dr_file = DataReductionFile('test.hdf5', 'a')
+    dr_file = DataReductionFile('test.hdf5', 'r')
+    print(repr(dr_file._get_shapefit_sources(background_version=0,
+                                             srcproj_version=0,
+                                             shapefit_version=0)))
+    exit(0)
 
     from lxml import etree
     #pylint: disable=ungrouped-imports
@@ -466,3 +621,4 @@ if __name__ == '__main__':
         magnitude_1adu=10.0
     )
     dr_file.add_star_shape_fit(tree, 10)
+    dr_file.close()
