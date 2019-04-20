@@ -587,6 +587,7 @@ class HDF5File(ABC, h5py.File):
 
         attribute_name = attribute_config.name % substitutions
         if attribute_name in parent.attrs:
+            #TODO: handle  multi-valued attributes correctly.
             if (
                     if_exists == 'ignore'
                     or

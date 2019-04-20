@@ -4,7 +4,6 @@ from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
 
 import numpy
-import h5py
 
 from superphot import SmoothDependence
 from superphot_pipeline.database.hdf5_file_structure import\
@@ -157,9 +156,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_fit_variables():
             """Add datasets for all source variables used in the fit."""
 
-            print('READING VARIABLES, expected size: %dx%d'
+            print('READING VARIABLES (%s), expected size: %dx%d'
                   %
-                  (len(fit_variables), num_sources))
+                  (repr(fit_variables), len(fit_variables), num_sources))
             variables = shape_fit_result_tree.get_psfmap_variables(
                 image_index,
                 len(fit_variables),
@@ -169,6 +168,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             print('VARABLES SHAPE: ' + repr(variables.shape))
             for var_name, var_values in zip(fit_variables, variables):
                 if var_name == 'enabled':
+                    print('Enabled dtype: '
+                          +
+                          repr(self.get_dtype('srcproj.' + var_name)))
                     dataset_data = (
                         var_values != 0
                     ).astype(
@@ -304,7 +306,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     The names of all source projection variables to check for.
             """
 
-            return list(
+            result = list(
                 filter(
                     lambda pipeline_key: (
                         pipeline_key.startswith('srcproj.')
@@ -314,6 +316,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     self._defined_elements['dataset']
                 )
             )
+            return [var_name[len('srcproj.'):] for var_name in result]
 
         def get_fit_variables(num_sources):
             """Return a dictionary containing all stored map variables."""
@@ -324,12 +327,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             for var_name in shape_map_var_names:
                 try:
                     found_data[var_name] = self.get_dataset(
-                        var_name,
+                        'srcproj.' + var_name,
                         expected_shape=(num_sources,),
                         **path_substitutions
                     )
                 except IOError:
-                    pass
+                    print('Dataset ' + 'srcproj.' + var_name + ' not found!')
+                    raise
             return found_data
 
         def add_measurements(num_sources, destination):
@@ -369,6 +373,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         result['ID'] = source_ids
         for var_name in found_source_variables:
             result[var_name] = found_source_variables[var_name]
+        print('Sources: ' + repr(result))
         return (
             result,
             self.get_attribute('shapefit.cfg.magnitude_1adu',
@@ -379,9 +384,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """Return the grid used to represent star shape from this DR file."""
 
         return numpy.array([
-            self.get_attribute('shapefit.cfg.psf.bicubic.grid.' + direction,
+            self.get_attribute('shapefit.cfg.psf.bicubic.grid.x',
+                               **path_substitutions),
+            self.get_attribute('shapefit.cfg.psf.bicubic.grid.y',
                                **path_substitutions)
-            for direction in ('x', 'y')
         ])
 
     def _get_shapefit_map(self, **path_substitutions):
@@ -523,7 +529,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                                          value,
                                                          if_exists='error',
                                                          **path_substitutions)
+                    print('Added value:' + repr(value))
                     break
+                print('Skipped ' + key_quantity)
 
     def __init__(self, *args, **kwargs):
         """See HDF5File for description of arguments."""
@@ -604,12 +612,70 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                           r'^psffit\.grid$',
                           r'^psffit\.psfmap$',
                           r'^psffit.srcpix_cover_bicubic_grid$',
-                          r'^projsrc\.'])
+                          r'^projsrc\.',
+                          r'^apphot\.'])
             ),
             image_index=image_index,
             background_version=0,
             shapefit_version=0
         )
+
+    def get_aperture_photometry_inputs(self, **path_substitutions):
+        """
+        Return all required information for aperture photometry from PSF fit DR.
+
+        Args:
+            path_substitutions:    Values to substitute in the paths to the
+                datasets and attributes containing shape fit informaiton
+                (usually versions of various components).
+
+        Returns:
+            dict:
+                All parameters required by
+                SuperPhotIOTree.set_aperture_photometry_inputs() directly
+                passable to that method using **.
+        """
+
+        def get_shape_map_variable_names(source_data):
+            """Identify and return the variable names directly as c_char_p."""
+
+            result = []
+            for var_name in source_data.dtype.names:
+                if (
+                        var_name == 'enabled'
+                        or
+                        (
+                            source_data[var_name].dtype.kind == 'f'
+                            and
+                            var_name not in ['bg', 'bg_err', 'bg_npix',
+                                             'flux', 'flux_err',
+                                             'mag', 'mag_err']
+                        )
+                ):
+                    result.append(var_name)
+            return result
+
+
+
+        result = dict()
+        result['source_data'], result['magnitude_1adu'] = (
+            self._get_shapefit_sources(**path_substitutions)
+        )
+        return result
+        (
+            result['star_shape_grid'],
+            result['star_shape_map_terms'],
+            result['star_shape_map_coefficients']
+        ) = self._get_shapefit_map(**path_substitutions)
+        result['star_shape_map_varnames'] = get_shape_map_variable_names(
+            result['source_data']
+        )
+        print('Apphot inputs:')
+        for keyword in result:
+            print(80*'=')
+            print(keyword + ': ' + repr(result[keyword]))
+        print(80*'#')
+        return result
 
     def fill_aperture_photometry_input_tree(self,
                                             tree,
@@ -620,163 +686,34 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         Fill a SuperPhotIOTree with shape fit info for aperture photometry.
 
         Args:
-            shapefit_version:    The version of the star shape fit results
+            tree(superphot.SuperPhotIOTree):    The tree to fill.
+
+            shapefit_version(int):    The version of the star shape fit results
                 stored in the file to use when initializing the tree.
 
-            srcproj_version:    The version of the projected sources to use for
-                aperture photometry.
+            srcproj_version(int):    The version of the projected sources to
+                assume was used for shape fitting, and to use for aperture
+                photometry.
+
+            background_vesrion(int):    The version of the background extraction
+                to assume was used for shape fitting, and to use for aperture
+                photometry.
 
         Returns:
             int:
                 The number of sources added to the tree.
         """
 
-        def list_source_variable_datasets(**substitutions):
-            """
-            List all variables that must be included in the source data.
-
-            Args:
-                None
-
-            Returns:
-                [2-tuples]:
-                    Each tuple identifies the name of a variable that may
-                    participate in the PSF map and its associated dataset path
-                    in self.
-            """
-
-            result = []
-            dset_key_var_name = {'shapefit.magnitudes': 'mag',
-                                 'shapefit.magnitude_errors': 'mag_err',
-                                 'bg.values': 'bg',
-                                 'bg.errors': 'bg_err',
-                                 'bg.npix': 'bg_npix'}
-            var_name_parser = re.compile(r'srcproj.(?P<var_name>\w+)')
-            for dataset_key in self._elements['dataset']:
-                if dataset_key.startswith('srcproj.hat_id_'):
-                    continue
-                parsed_var_name = var_name_parser.fullmatch(dataset_key)
-                if (
-                        parsed_var_name is None
-                        and
-                        dataset_key not in dset_key_var_name
-                ):
-                    continue
-
-                dataset_path = (self._file_structure[dataset_key].abspath
-                                %
-                                substitutions)
-                if dataset_path in self:
-                    var_name = (parsed_var_name.group('var_name')
-                                if parsed_var_name is not None else
-                                dset_key_var_name[dataset_key])
-
-                    result.append((var_name, dataset_path))
-            return result
-
-        def get_source_data(**substitutions):
-            """See SuperPhotIOTree.set_aperture_photometry_inputs() argument."""
-
-            fit_variable_datasets = list_source_variable_datasets(
-                **substitutions
-            )
-            sources_shape = self[fit_variable_datasets[0][1]].shape
-            assert len(sources_shape) == 1
-
-            source_data = numpy.empty(
-                shape=sources_shape,
-                dtype=(
-                    [('id', 'S20')]
-                    +
-                    [
-                        (
-                            var_path[0],
-                            (
-                                numpy.uint if var_path[0] == 'bg_npix'
-                                else numpy.float64
-                            )
-                        )
-                        for var_path in fit_variable_datasets
-                    ]
-                )
-            )
-            for var_name, dset_path in fit_variable_datasets:
-                assert self[dset_path].shape == sources_shape
-                source_data[var_name] = self[dset_path]
-
-            prefix_dset = self[
-                self._file_structure['srcproj.hat_id_prefix'].abspath
-                %
-                substitutions
-            ]
-            translate_prefix = dict(
-                (value, prefix)
-                for prefix, value in h5py.check_dtype(
-                    enum=prefix_dset.dtype
-                ).items()
-            )
-            for source_ind, (id_prefix, id_field, id_source) in enumerate(
-                    zip(
-                        prefix_dset,
-                        self[
-                            self._file_structure[
-                                'srcproj.hat_id_field'
-                            ].abspath
-                            %
-                            substitutions
-                        ],
-                        self[
-                            self._file_structure[
-                                'srcproj.hat_id_source'
-                            ].abspath
-                            %
-                            substitutions
-                        ]
-                    )
-            ):
-                source_data['id'][source_ind] = '%s-%03d-%07d' % (
-                    translate_prefix[id_prefix],
-                    id_field,
-                    id_source
-                )
-            return source_data
-
-        def get_star_shape_grid(**substitutions):
-            """Return the grid used for representing the star shape."""
-
-            return numpy.array([
-                self.get_attribute('shapefit.cfg.psf.bicubic.grid.x',
-                                   **substitutions),
-                self.get_attribute('shapefit.cfg.psf.bicubic.grid.y',
-                                   **substitutions)
-            ])
-
-        source_data = get_source_data(
+        aperture_photometry_inputs = self.get_aperture_photometry_inputs(
             shapefit_version=shapefit_version,
             srcproj_version=srcproj_version,
             background_version=background_version
         )
-        print('Source data:\n' + repr(source_data))
-        magnitude_1adu = self.get_attribute(
-            'shapefit.cfg.magnitude_1adu',
-            shapefit_version=shapefit_version
+        tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
+        return (
+            aperture_photometry_inputs['source_data'].size,
+            aperture_photometry_inputs['star_shape_map_varnames']
         )
-        tree.set_aperture_photometry_inputs(
-            source_data=source_data,
-            star_shape_grid=get_star_shape_grid(
-                shapefit_version=shapefit_version
-            ),
-            star_shape_map_terms=self.get_attribute(
-                'shapefit.cfg.psf.terms',
-                shapefit_version=shapefit_version
-            ),
-            star_shape_map_coefficients=self.get_dataset(
-                'shapefit.map_coef',
-                shapefit_version=shapefit_version
-            ),
-            magnitude_1adu=magnitude_1adu
-        )
-        return source_data.size
 
     def add_aperture_photometry(self,
                                 apphot_result_tree,
@@ -817,34 +754,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             apphot_version=0
         )
 
-    def get_aperture_photometry_inputs(self,
-                                       **path_substitutions):
-        """
-        Return all required information for aperture photometry from PSF fit DR.
-
-        Args:
-            path_substitutions:    Values to substitute in the paths to the
-                datasets and attributes containing shape fit informaiton
-                (usually versions of various components).
-
-        Returns:
-            dict:
-                All parameters required by
-                SuperPhotIOTree.set_aperture_photometry_inputs() directly
-                passable to that method using **.
-        """
-
-        result = dict()
-        result['source_data'], result['magnitude_1adu'] = (
-            self._get_shapefit_sources(**path_substitutions)
-        )
-        (
-            result['star_shape_grid'],
-            result['star_shape_map_terms'],
-            result['star_shape_map_coefficients']
-        ) = self._get_shapefit_map(**path_substitutions)
-        return result
-
 #pylint: enable=too-many-ancestors
 
 def mock_shape_fit():
@@ -867,17 +776,18 @@ def mock_shape_fit():
 
     test_sources = numpy.empty(10, dtype=[('id', 'S100'),
                                           ('x', numpy.float64),
-                                          ('enabled', numpy.bool),
                                           ('y', numpy.float64),
+                                          ('enabled', numpy.bool),
                                           ('mag', numpy.float64),
                                           ('mag_err', numpy.float64),
                                           ('bg', numpy.float64),
                                           ('bg_err', numpy.float64),
                                           ('bg_npix', numpy.uint)])
     for i in range(10):
-        test_sources[i]['id'] = 'HAT-%03d-%07d' % (i, i)
+        test_sources[i]['ID'] = 'HAT-%03d-%07d' % (i, i)
         test_sources[i]['x'] = (10.0 * numpy.pi) * (i % 4)
         test_sources[i]['y'] = (10.0 * numpy.pi) * (i / 4)
+        test_sources[i]['enabled'] = bool(i % 3)
         test_sources[i]['bg'] = 10.0 + 0.01 * i
         test_sources[i]['bg_err'] = 1.0 + 0.2 * i
         test_sources[i]['mag'] = numpy.pi - i
@@ -895,17 +805,67 @@ def mock_shape_fit():
     )
     return tree
 
+def duplicate_apphot_inputs(input_dr_fname, output_dr_fname):
+    """Read the aperture photometry inputs from input and write to output."""
+
+    from ctypes import c_char_p
+
+    from superphot import SubPixPhot, SuperPhotIOTree
+    from superphot._initialize_library import superphot_library
+
+    input_dr_file = DataReductionFile(input_dr_fname, 'r')
+
+    aperture_photometry_inputs = input_dr_file.get_aperture_photometry_inputs(
+        shapefit_version=0,
+        srcproj_version=0,
+        background_version=0
+    )
+    input_dr_file.close()
+
+    subpixphot = SubPixPhot()
+    #pylint: disable=protected-access
+    tree = SuperPhotIOTree(subpixphot._library_configuration)
+    #pylint: enable=protected-access
+
+    tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
+
+    exit(0)
+
+    input_dr_file = DataReductionFile(input_dr_fname, 'r')
+    num_sources, fit_variables = (
+        input_dr_file.fill_aperture_photometry_input_tree(tree,
+                                                          background_version=0,
+                                                          srcproj_version=0,
+                                                          shapefit_version=0)
+    )
+    input_dr_file.close()
+
+    superphot_library.update_result_tree(
+        b'psffit.srcpix_cover_bicubic_grid',
+        (c_char_p * 1)(b'True'),
+        b'str',
+        1,
+        tree.library_tree
+    )
+
+    output_dr_file = DataReductionFile(output_dr_fname, 'w')
+    output_dr_file.add_star_shape_fit(tree,
+                                      num_sources,
+                                      fit_variables=fit_variables)
+
+def write_mock_shape_fit(output_dr_fname):
+    """Write the shape fit initialized by mock_shape_fit() to a file."""
+
+    dr_file = DataReductionFile(output_dr_fname, 'w')
+    dr_file.add_star_shape_fit(mock_shape_fit(),
+                               10,
+                               fit_variables=['x', 'y', 'enabled'])
+    dr_file.close()
+
 def debug():
     """Some debugging code executed when module is run as script."""
 
-    dr_file = DataReductionFile('test.hdf5', 'r')
-    apphot_inputs = dr_file.get_aperture_photometry_inputs(background_version=0,
-                                                           srcproj_version=0,
-                                                           shapefit_version=0)
-    for key, value in apphot_inputs.items():
-        print(key + ': ' + repr(value))
-    dr_file.close()
-    exit(0)
+#    duplicate_apphot_inputs('test.hdf5', 'test_apphot_inputs_io.hdf5')
 
     #from lxml import etree
     #pylint: disable=ungrouped-imports
@@ -915,12 +875,8 @@ def debug():
     #pylint: enable=ungrouped-imports
     #pylint: enable=unused-import
 
-
-    dr_file = DataReductionFile('test.hdf5', 'w')
-    dr_file.add_star_shape_fit(mock_shape_fit(), 10)
-    dr_file.close()
-    exit(0)
-
+    duplicate_apphot_inputs('/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
+                            '10-465248_2_R1.hdf5.0.duplicate')
 #    root_element = dr_file.layout_to_xml()
 #    root_element.addprevious(
 #        etree.ProcessingInstruction(
