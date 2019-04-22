@@ -1067,7 +1067,6 @@ class HDF5File(ABC, h5py.File):
             else:
                 data_copy = numpy.copy(data)
                 data_copy[numpy.logical_not(finite)] = fillvalue
-        print(repr(self.get_dataset_creation_args(dataset_key)))
         self.create_dataset(dataset_path,
                             data=data_copy,
                             **self.get_dataset_creation_args(dataset_key))

@@ -93,18 +93,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     def _parse_hat_source_id(self, source_id):
         """Return the prefix ID, field numberand source number."""
 
-        print('Parsing source ID:' + repr(source_id))
         if isinstance(source_id, bytes):
             c_style_end = source_id.find(b'\0')
             if c_style_end >= 0:
                 source_id = source_id[:c_style_end].decode()
             else:
                 source_id = source_id.decode()
-        print('Re-formatted to ' + repr(source_id))
         prefix_str, field_str, source_str = source_id.split('-')
-        print('Prefix: %s, field: %s, source: %s'
-              %
-              (prefix_str, field_str, source_str))
         return (
             numpy.where(self._hat_id_prefixes
                         ==
@@ -156,34 +151,23 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_fit_variables():
             """Add datasets for all source variables used in the fit."""
 
-            print('READING VARIABLES (%s), expected size: %dx%d'
-                  %
-                  (repr(fit_variables), len(fit_variables), num_sources))
             variables = shape_fit_result_tree.get_psfmap_variables(
                 image_index,
                 len(fit_variables),
                 num_sources
             )
-            print('FINISHED READING VARIABLES')
-            print('VARABLES SHAPE: ' + repr(variables.shape))
             for var_name, var_values in zip(fit_variables, variables):
                 if var_name == 'enabled':
-                    print('Enabled dtype: '
-                          +
-                          repr(self.get_dtype('srcproj.' + var_name)))
                     dataset_data = (
                         var_values != 0
                     ).astype(
                         self.get_dtype('srcproj.' + var_name)
                     )
                 else:
-                    print(var_name + ': ' + repr(var_values))
-
                     dataset_data = numpy.array(
                         var_values,
                         dtype=self.get_dtype('srcproj.' + var_name)
                     )
-                print('\tAdding dataset: ' + repr(dataset_data))
                 self.add_dataset(
                     'srcproj.' + var_name,
                     dataset_data,
@@ -194,9 +178,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_source_ids():
             """Add the datasets containing the source IDs."""
 
-            print('Getting source IDs at: '
-                  +
-                  'projsrc.srcid.name.' + str(image_index))
             source_ids = shape_fit_result_tree.get(
                 'projsrc.srcid.name.' + str(image_index),
                 numpy.dtype('S100'),
@@ -323,7 +304,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
             found_data = dict()
             shape_map_var_names = list_shape_map_var_names()
-            print('Shape map variables: ' +  repr(shape_map_var_names))
             for var_name in shape_map_var_names:
                 try:
                     found_data[var_name] = self.get_dataset(
@@ -333,7 +313,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     )
                 except IOError:
                     print('Dataset ' + 'srcproj.' + var_name + ' not found!')
-                    raise
             return found_data
 
         def add_measurements(num_sources, destination):
@@ -373,7 +352,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         result['ID'] = source_ids
         for var_name in found_source_variables:
             result[var_name] = found_source_variables[var_name]
-        print('Sources: ' + repr(result))
         return (
             result,
             self.get_attribute('shapefit.cfg.magnitude_1adu',
@@ -488,8 +466,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
         for quantity_name in result_tree.defined_quantity_names():
 
-            print('\t' + quantity_name)
-
             indexed_match = indexed_rex.fullmatch(quantity_name)
             if indexed_match:
                 if int(indexed_match['image_index_str']) == image_index:
@@ -497,9 +473,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         :
                         indexed_match.start('image_index_str')-1
                     ]
-                    print('\t\t-> ' + key_quantity)
                 else:
-                    print('\t\tSkipping')
                     continue
             else:
                 key_quantity = quantity_name
@@ -515,7 +489,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     dtype = (
                         self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
                     )
-                    print('\t\tGetting ' + repr(dtype) + ' value(s)')
                     value = result_tree.get(
                         quantity_name,
                         dtype,
@@ -524,14 +497,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                None)
                     )
                     #TODO: add automatic detection for versions
-                    print('\t\t(' + repr(dtype) + ' ' + element_type + '): ')
                     getattr(self, 'add_' + element_type)(dr_key,
                                                          value,
                                                          if_exists='error',
                                                          **path_substitutions)
-                    print('Added value:' + repr(value))
                     break
-                print('Skipped ' + key_quantity)
 
     def __init__(self, *args, **kwargs):
         """See HDF5File for description of arguments."""
@@ -569,14 +539,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             None
         """
 
-        for element_type in ['dataset', 'attribute', 'link']:
-            print(element_type
-                  +
-                  ':\n\t'
-                  +
-                  '\n\t'.join(self._elements[element_type]))
-        print('DR quantities:')
-
         self._add_shapefit_map(shape_fit_result_tree,
                                background_version=0,
                                shapefit_version=0)
@@ -589,7 +551,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             shapefit_version=0,
             srcproj_version=0
         )
-        print('Added shape fit sources')
         self.add_attribute(
             self._key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
             (
@@ -603,7 +564,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             if_exists='error',
             shapefit_version=0
         )
-        print('Added cover grid attribute.')
         self._auto_add_tree_quantities(
             result_tree=shape_fit_result_tree,
             num_sources=num_sources,
@@ -661,7 +621,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         result['source_data'], result['magnitude_1adu'] = (
             self._get_shapefit_sources(**path_substitutions)
         )
-        return result
         (
             result['star_shape_grid'],
             result['star_shape_map_terms'],
@@ -670,11 +629,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         result['star_shape_map_varnames'] = get_shape_map_variable_names(
             result['source_data']
         )
-        print('Apphot inputs:')
-        for keyword in result:
-            print(80*'=')
-            print(keyword + ': ' + repr(result[keyword]))
-        print(80*'#')
         return result
 
     def fill_aperture_photometry_input_tree(self,
@@ -793,9 +747,7 @@ def mock_shape_fit():
         test_sources[i]['mag'] = numpy.pi - i
         test_sources[i]['mag_err'] = 0.01 * i
         test_sources[i]['bg_npix'] = 10 * i
-    print('Source data: ' + repr(test_sources))
     map_coefficients = numpy.ones((4, 1, 1, 6), dtype=numpy.float64)
-    print('Test sources: ' + repr(test_sources))
     tree.set_aperture_photometry_inputs(
         source_data=test_sources,
         star_shape_grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
@@ -810,26 +762,15 @@ def duplicate_apphot_inputs(input_dr_fname, output_dr_fname):
 
     from ctypes import c_char_p
 
+    import h5py
+
     from superphot import SubPixPhot, SuperPhotIOTree
     from superphot._initialize_library import superphot_library
-
-    input_dr_file = DataReductionFile(input_dr_fname, 'r')
-
-    aperture_photometry_inputs = input_dr_file.get_aperture_photometry_inputs(
-        shapefit_version=0,
-        srcproj_version=0,
-        background_version=0
-    )
-    input_dr_file.close()
 
     subpixphot = SubPixPhot()
     #pylint: disable=protected-access
     tree = SuperPhotIOTree(subpixphot._library_configuration)
     #pylint: enable=protected-access
-
-    tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
-
-    exit(0)
 
     input_dr_file = DataReductionFile(input_dr_fname, 'r')
     num_sources, fit_variables = (
@@ -870,13 +811,13 @@ def debug():
     #from lxml import etree
     #pylint: disable=ungrouped-imports
     #pylint: disable=unused-import
-    from superphot._initialize_library import superphot_library
-    from ctypes import c_void_p, c_char_p
     #pylint: enable=ungrouped-imports
     #pylint: enable=unused-import
 
-    duplicate_apphot_inputs('/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
-                            '10-465248_2_R1.hdf5.0.duplicate')
+    duplicate_apphot_inputs(
+        '/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
+        '10-465248_2_R1.hdf5.0.duplicate'
+    )
 #    root_element = dr_file.layout_to_xml()
 #    root_element.addprevious(
 #        etree.ProcessingInstruction(
@@ -890,5 +831,9 @@ def debug():
 #                                                  encoding='utf-8')
 
 if __name__ == '__main__':
-
+    duplicate_apphot_inputs(
+        '/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
+        '10-465248_2_R1.hdf5.0.duplicate'
+    )
+    exit(0)
     debug()
