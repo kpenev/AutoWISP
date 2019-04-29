@@ -73,7 +73,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'apphot.const_error': 'apphot.cfg.error_floor',
         'apphot.aperture': 'apphot.cfg.aperture',
         'apphot.gain': 'apphot.cfg.gain',
-        'apphot.magnitude-1adu': 'apphot.cfg.magnitude_1adu'
+        'apphot.magnitude-1adu': 'apphot.cfg.magnitude_1adu',
+        'apphot.mag': 'apphot.magnitude',
+        'apphot.mag_err': 'apphot.magnitude_error',
+        'apphot.quality': 'apphot.quality_flag'
     }
 
     _dtype_dr_to_io_tree = {
@@ -464,9 +467,22 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """
 
         indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
+        apphot_indexed_rex = re.compile(r'|apphot\..*\.'
+                                        r'(?P<image_index_str>[0-9]+)\.'
+                                        r'(?P<ap_index_str>[0-9]+)$')
         for quantity_name in result_tree.defined_quantity_names():
 
-            indexed_match = indexed_rex.fullmatch(quantity_name)
+            print('Quantity: ' + repr(quantity_name))
+
+            indexed_match = apphot_indexed_rex.fullmatch(quantity_name)
+            if indexed_match:
+                path_substitutions['aperture_index'] = int(
+                    indexed_match['ap_index_str']
+                )
+            else:
+                path_substitutions.pop('aperture_index', 0)
+                indexed_match = indexed_rex.fullmatch(quantity_name)
+
             if indexed_match:
                 if int(indexed_match['image_index_str']) == image_index:
                     key_quantity = quantity_name[
@@ -474,11 +490,15 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         indexed_match.start('image_index_str')-1
                     ]
                 else:
+                    print('Wrong image')
                     continue
             else:
+                print('No index')
                 key_quantity = quantity_name
 
             dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
+
+            print('DR key: ' + repr(dr_key))
 
             for element_type in ['dataset', 'attribute', 'link']:
                 if (
@@ -501,6 +521,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                                          value,
                                                          if_exists='error',
                                                          **path_substitutions)
+                    print('Added')
                     break
 
     def __init__(self, *args, **kwargs):
@@ -685,6 +706,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 photometry was done. The same as the number of sources the star
                 shape fitting which was used by the aperture photometry was
                 performed on for the photometered image.
+
+            num_apertures(int):    The number of apertures for which photometry
+                was extracted.
 
         Returns:
             None

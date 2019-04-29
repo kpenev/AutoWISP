@@ -1192,7 +1192,7 @@ def _get_apphot_datasets():
             HDF5DataSet(
                 pipeline_key='apphot.quality_flag',
                 abspath=abspath_start + '/QualityFlag',
-                dtype='numpy.uint8',
+                dtype='numpy.uint',
                 compression='gzip',
                 compression_options='9',
                 scaleoffset=0,
