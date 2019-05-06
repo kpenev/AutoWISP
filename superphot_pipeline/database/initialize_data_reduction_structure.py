@@ -562,16 +562,13 @@ def _get_background_links():
         )
     ]
 
-def _get_magfit_key_and_path(photometry_mode, is_master):
+def _get_magfit_key_and_path(photometry_mode):
     """
     Return start of pipeline key and path for magfit datasets/attributes.
 
     Args:
         photometry_mode(str):    The method by which the raw magnitudes used for
             magnitude fitting were extracted.
-
-        is_master (bool):    Should names be for single (False) or master (True)
-            magnitude fitting.
 
     Returns:
         str, str:
@@ -580,7 +577,7 @@ def _get_magfit_key_and_path(photometry_mode, is_master):
             associated attributes.
     """
 
-    pipeline_key_start = ('m' if is_master else 's') + 'prmagfit.'
+    pipeline_key_start = 'magfit.'
     if photometry_mode.lower() in ['psffit', 'prffit', 'shapefit']:
         dset_path = _default_paths['shapefit']['root']
         pipeline_key_start = 'shapefit.' + pipeline_key_start
@@ -594,14 +591,12 @@ def _get_magfit_key_and_path(photometry_mode, is_master):
                          +
                          repr(photometry_mode))
     dset_path += '/' + (
-        ('Master' if is_master else 'Single')
-        +
-        'ReferenceFittedMagnitude'
+        'FittedMagnitudes/Version%(magfit_version)03d/Iteration%(magfit_iteration)03d'
     )
 
     return pipeline_key_start, dset_path
 
-def _get_magfit_attributes(photometry_mode, is_master):
+def _get_magfit_attributes(photometry_mode):
     """
     Return a set of magnitude fitting attributes for a single photometry.
 
@@ -609,16 +604,12 @@ def _get_magfit_attributes(photometry_mode, is_master):
         photometry_mode(str):    The method by which the raw magnitudes used for
             magnitude fitting were extracted.
 
-        is_master (bool):    Should names be for single (False) or master (True)
-            magnitude fitting.
-
     Returns:
         [superphot_pipeline.database.data_model.HDF5Attribute]:
             The attributes describing magnitude fitting.
     """
 
-    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode,
-                                                             is_master)
+    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode)
 
     result = [
         HDF5Attribute(
@@ -729,7 +720,7 @@ def _get_magfit_attributes(photometry_mode, is_master):
         )
     ]
 
-def _get_magfit_datasets(photometry_mode, is_master):
+def _get_magfit_datasets(photometry_mode):
     """
     Return a set of magnitude fitting data sets for a single photometry.
 
@@ -737,16 +728,12 @@ def _get_magfit_datasets(photometry_mode, is_master):
         photometry_mode(str):    The method by which the raw magnitudes used for
             magnitude fitting were extracted.
 
-        is_master (bool):    Should names be for single (False) or master (True)
-            magnitude fitting.
-
     Returns:
         [superphot_pipeline.database.data_model.HDF5DataSet]:
             The datasets containing the magnitude fitting results.
     """
 
-    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode,
-                                                             is_master)
+    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode)
 
     return [
         HDF5DataSet(
@@ -756,9 +743,7 @@ def _get_magfit_datasets(photometry_mode, is_master):
             scaleoffset=5,
             replace_nonfinite=repr(numpy.finfo('f4').min),
             description=(
-                'The %s photometric reference fitted %s photometry magnitudes.'
-                %
-                ('master' if is_master else 'single', photometry_mode)
+                'The fitted %s photometry magnitudes.'
             )
         )
     ]
@@ -1004,9 +989,7 @@ def _get_shapefit_attributes():
             )
         ]
         +
-        _get_magfit_attributes('shapefit', False)
-        +
-        _get_magfit_attributes('shapefit', True)
+        _get_magfit_attributes('shapefit')
     )
 
 def _get_shapefit_datasets():
@@ -1080,9 +1063,7 @@ def _get_shapefit_datasets():
             )
         ]
         +
-        _get_magfit_datasets('shapefit', False)
-        +
-        _get_magfit_datasets('shapefit', True)
+        _get_magfit_datasets('shapefit')
     )
 
 def _get_shapefit_links():
@@ -1158,9 +1139,7 @@ def _get_apphot_attributes():
             )
         ]
         +
-        _get_magfit_attributes('apphot', False)
-        +
-        _get_magfit_attributes('apphot', True)
+        _get_magfit_attributes('apphot')
     )
 
 def _get_apphot_datasets():
@@ -1203,9 +1182,7 @@ def _get_apphot_datasets():
             ),
         ]
         +
-        _get_magfit_datasets('apphot', False)
-        +
-        _get_magfit_datasets('apphot', True)
+        _get_magfit_datasets('apphot')
     )
 
 def _get_apphot_links():
