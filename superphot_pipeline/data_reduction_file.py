@@ -1,5 +1,7 @@
 """Define a class for worknig with data reduction files."""
 
+#pylint: disable=too-many-lines
+
 from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
 
@@ -218,149 +220,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         add_source_ids()
         add_fit_variables()
 
-    def _get_shapefit_sources(self, **path_substitutions):
-        """
-        Read the sources used for shape fitting from this DR file.
-
-        Args:
-            path_substitutions:    See get_aperture_photometry_inputs().
-
-        Returns:
-            numpy.array(dtype=[('ID', 'S#'),\
-                               ('x', numpy.float64),\
-                               ('y', numpy.float64),\
-                               ('bg', numpy.float64),\
-                               ('bg_err', numpy.float64),\
-                               ('bg_npix', numpy.float64),\
-                               ('mag', numpy.float64),\
-                               ('mag_err', numpy.float64),
-                               ...]):
-                The source data used as input for shape fitting. It is
-                guaranteed to contain at least the fields listed in the return
-                type, and all other variables avialable for the projected
-                sources.
-
-            float:
-                The magnitude that corresponds to a flux of 1ADU from shape
-                fitting photometry.
-        """
-
-        def get_source_ids():
-            """
-            Return the IDs of the projected sources found in the file.
-
-            Args:
-                None
-
-            Returns:
-                [str]:
-                    List of the source ID strings.
-            """
-
-            hat_id_prefixes = self.get_attribute(
-                'srcproj.recognized_hat_id_prefixes',
-                **path_substitutions
-            )
-            id_data = tuple(
-                self.get_dataset(
-                    'srcproj.hat_id_' + id_part,
-                    **path_substitutions
-                )
-                for id_part in ('prefix', 'field', 'source')
-            )
-            for data_ind in 1, 2:
-                assert len(id_data[data_ind]) == len(id_data[0])
-
-            return [
-                b'%s-%03d-%07d' % (hat_id_prefixes[prefix_ind],
-                                   field,
-                                   source)
-                for prefix_ind, field, source in zip(*id_data)
-            ]
-
-        def list_shape_map_var_names():
-            """
-            Return a list of the names of all variables shape map can depend on.
-
-            Args:
-                None
-
-            Returns:
-                [str]:
-                    The names of all source projection variables to check for.
-            """
-
-            result = list(
-                filter(
-                    lambda pipeline_key: (
-                        pipeline_key.startswith('srcproj.')
-                        and
-                        (not pipeline_key.startswith('srcproj.hat_id_'))
-                    ),
-                    self._defined_elements['dataset']
-                )
-            )
-            return [var_name[len('srcproj.'):] for var_name in result]
-
-        def get_fit_variables(num_sources):
-            """Return a dictionary containing all stored map variables."""
-
-            found_data = dict()
-            shape_map_var_names = list_shape_map_var_names()
-            for var_name in shape_map_var_names:
-                try:
-                    found_data[var_name] = self.get_dataset(
-                        'srcproj.' + var_name,
-                        expected_shape=(num_sources,),
-                        **path_substitutions
-                    )
-                except IOError:
-                    print('Dataset ' + 'srcproj.' + var_name + ' not found!')
-            return found_data
-
-        def add_measurements(num_sources, destination):
-            """Add bacgkround and shape fit photometry to destination."""
-
-            for destination_key, dataset_key in (
-                    ('bg', 'bg.values'),
-                    ('bg_err', 'bg.errors'),
-                    ('bg_npix', 'bg.npix'),
-                    ('mag', 'shapefit.magnitudes'),
-                    ('mag_err', 'shapefit.magnitude_errors')
-            ):
-                destination[destination_key] = self.get_dataset(
-                    dataset_key,
-                    expected_shape=(num_sources,),
-                    **path_substitutions
-                )
-
-        source_ids = get_source_ids()
-        num_sources = len(source_ids)
-        found_source_variables = get_fit_variables(num_sources)
-        add_measurements(num_sources, found_source_variables)
-        result = numpy.empty(
-            (num_sources,),
-            dtype=(
-                [('ID', 'S100')]
-                +
-                [
-                    (
-                        var_name,
-                        numpy.bool if var_name == 'enabled' else numpy.float64
-                    )
-                    for var_name in found_source_variables
-                ]
-            )
-        )
-        result['ID'] = source_ids
-        for var_name in found_source_variables:
-            result[var_name] = found_source_variables[var_name]
-        return (
-            result,
-            self.get_attribute('shapefit.cfg.magnitude_1adu',
-                               **path_substitutions)
-        )
-
     def _get_shapefit_map_grid(self, **path_substitutions):
         """Return the grid used to represent star shape from this DR file."""
 
@@ -471,9 +330,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                         r'(?P<image_index_str>[0-9]+)\.'
                                         r'(?P<ap_index_str>[0-9]+)$')
         for quantity_name in result_tree.defined_quantity_names():
-
-            print('Quantity: ' + repr(quantity_name))
-
             indexed_match = apphot_indexed_rex.fullmatch(quantity_name)
             if indexed_match:
                 path_substitutions['aperture_index'] = int(
@@ -490,15 +346,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         indexed_match.start('image_index_str')-1
                     ]
                 else:
-                    print('Wrong image')
                     continue
             else:
-                print('No index')
                 key_quantity = quantity_name
 
             dr_key = self._key_io_tree_to_dr.get(key_quantity, key_quantity)
-
-            print('DR key: ' + repr(dr_key))
 
             for element_type in ['dataset', 'attribute', 'link']:
                 if (
@@ -506,12 +358,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         and
                         skip_quantities.match(key_quantity) is None
                 ):
-                    dtype = (
-                        self._dtype_dr_to_io_tree[self.get_dtype(dr_key)]
-                    )
                     value = result_tree.get(
                         quantity_name,
-                        dtype,
+                        self._dtype_dr_to_io_tree[self.get_dtype(dr_key)],
                         shape=(num_sources
                                if element_type == 'dataset' else
                                None)
@@ -521,11 +370,30 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                                          value,
                                                          if_exists='error',
                                                          **path_substitutions)
-                    print('Added')
                     break
 
+    @classmethod
+    def get_fname_from_header(cls, header):
+        """Return the filename of the DR file for the given header."""
+
+        #TODO: implement filename template from DB ofter DB has been designed.
+        #pylint: disable=no-member
+        return cls.fname_template % header
+        #pylint: enable=no-member
+
     def __init__(self, *args, **kwargs):
-        """See HDF5File for description of arguments."""
+        """Open or create a data reduction file.
+
+        Args:
+            See HDF5File.__init__() for description of arguments, however
+            instead of fname, a DataReductionFile can be specified by the header
+            of the frame it corresponds to (or at least a dict-like object
+            defining the header keywords required by the DR filename template).
+        """
+
+        if 'header' in kwargs:
+            kwargs['fname'] = self.get_fname_from_header(kwargs['header'])
+            del kwargs['header']
 
         super().__init__('data_reduction', *args, **kwargs)
 
@@ -533,6 +401,27 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             ['HAT', 'UCAC4'],
             dtype=self.get_dtype('srcproj.recognized_hat_id_prefixes')
         )
+
+    def get_source_count(self, **path_substitutions):
+        """
+        Return the number of sources for the given tool versions.
+
+        Args:
+            path_substitutions:    Values to substitute in the paths to the
+                datasets and attributes containing shape fit informaiton
+                (usually versions of various components).
+
+        Returns:
+            int:
+                The number of projected sources in the databasets reached by the
+                given substitutions.
+        """
+
+        return self[
+            self._file_structure['srcproj.hat_id_prefix'].abspath
+            %
+            path_substitutions
+        ].len()
 
     def add_star_shape_fit(self,
                            shape_fit_result_tree,
@@ -639,8 +528,17 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
 
         result = dict()
-        result['source_data'], result['magnitude_1adu'] = (
-            self._get_shapefit_sources(**path_substitutions)
+        result['source_data'] = self.get_source_data(
+            magfit_iterations=[0],
+            shapefit=True,
+            apphot=False,
+            shape_map_variables=True,
+            string_source_ids=True,
+            **path_substitutions
+        )
+        result['magnitude_1adu'] = self.get_attribute(
+            'shapefit.cfg.magnitude_1adu',
+            **path_substitutions
         )
         (
             result['star_shape_grid'],
@@ -732,6 +630,366 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             apphot_version=0
         )
 
+    def get_num_apertures(self, **path_substitutions):
+        """Return the number of apertures used for aperture photometry."""
+
+        num_apertures = 0
+        while True:
+            try:
+                self._check_for_dataset('apphot.magnitude',
+                                        aperture_index=num_apertures,
+                                        **path_substitutions)
+                num_apertures += 1
+            except IOError:
+                return num_apertures
+
+        assert False
+
+    def get_num_magfit_iterations(self, **path_substitutions):
+        """
+        Return how many magnitude fitting iterations are in the file.
+
+        Args:
+            path_substitutions:    See get_source_count().
+
+        Returns:
+            int:
+                The number of magnitude fitting iterations performed on the
+                set of photometry measurements identified by the
+                path_substitutions argument.
+        """
+
+        path_substitutions['aperture_index'] = 0
+        path_substitutions['magfit_iteration'] = 0
+        for photometry_mode in ['shapefit', 'apphot']:
+            try:
+                self._check_for_dataset(
+                    photometry_mode + '.magfit.magnitudes',
+                    **path_substitutions
+                )
+            except IOError:
+                continue
+
+            while True:
+                path_substitutions['magfit_iteration'] += 1
+                try:
+                    self._check_for_dataset(
+                        photometry_mode + '.magfit.magnitudes',
+                        **path_substitutions
+                    )
+                except IOError:
+                    break
+
+        return path_substitutions['magfit_iteration']
+
+    def get_shape_map_variables(self, num_sources, **path_substitutions):
+        """Return a dictionary containing all stored map variables."""
+
+        found_data = dict()
+        shape_map_var_names = list(
+            filter(
+                lambda pipeline_key: (
+                    pipeline_key.startswith('srcproj.')
+                    and
+                    (not pipeline_key.startswith('srcproj.hat_id_'))
+                ),
+                self._defined_elements['dataset']
+            )
+        )
+
+        for var_name in shape_map_var_names:
+            try:
+                found_data[var_name[len('srcproj.'):]] = self.get_dataset(
+                    var_name,
+                    expected_shape=(num_sources,),
+                    **path_substitutions
+                )
+            except IOError:
+                print('Dataset ' + var_name + ' not found!')
+        return found_data
+
+    #Could not think of a reasonable way to simplify further.
+    #pylint: disable=too-many-locals
+    #pylint: disable=too-many-statements
+    def get_source_data(self,
+                        *,
+                        magfit_iterations='all',
+                        shape_fit=True,
+                        apphot=True,
+                        shape_map_variables=True,
+                        string_source_ids=True,
+                        **path_substitutions):
+        """
+        Extract available photometry from the data reduction file.
+
+        Args:
+            magfit_iterations(iterable):    The set of magnitude fitting
+                iterations to include in the result. ``0`` is the raw photometry
+                (i.e. no magnitude fitting), 1 is  single reference frame fit, 1
+                is the first re-fit etc. Use ``'all'`` to get all iterations.
+                Negative numbers have the same interpretation as python list
+                indices. For example ``-1`` is the final iteration.
+
+            shape_fit(bool):    Should the result include shape fit photometry
+                measurements.
+
+            apphot(bool):    Should the result include aperture photometry
+                measurements.
+
+            shape_map_variables:    Should the result include the variables on
+                which the star shape map depents?
+
+            string_source_ids:    Should source IDs be formatted as strings
+                (True) or a set of integers (False)?
+
+            path_substitutions:    See get_source_count().
+
+        Returns:
+            numpy structure array:
+                The photometry information in the current data reduction file.
+                The fields are:
+
+                    * ID: a list of sources IDs for which photometry is
+                      available. Either a string (if string_source_ids) or (a
+                      tuple of) integer(s).  For HAT IDs, each entry is 3
+                      integers (prefix, field, source).
+
+                    * x (numpy.float64): The x coordinates of the sources
+
+                    * y (numpy.float64): The y coordinates of the sources
+
+                    * bg (numpy.float64): The background estimates for the
+                      sources
+
+                    * bg_err (numpy.float64): Error estimate for 'bg'
+
+                    * bg_npix (numpy.uint): The number of pixel background
+                      extraction was based on.
+
+                    * mag (2-D numpy.float64 array): measured magnitudes. The
+                      first dimension is the index within the
+                      ``magfit_iterations`` argument and the second index
+                      iterates over photometry, starting wmith shape fitting (if
+                      the ``shape_fit`` argument is True),
+                      followed by the aperture photometry measurement for each
+                      aperture (if the ``apphot`` argument is True).
+
+                    * mag_err (numpy.float64): Error estimate for ``mag``. Same
+                      shape and order.
+
+                    * phot_flag: The quality flag for the photometry. Same
+                      shape and order as ``mag``.
+
+                    * <map variable> (numpy.float64): one entry for each
+                      variable shape map depends on. The name of the field is
+                      exactly the variable name. Only included if the
+                      ``shape_map_variables`` argument is True.
+        """
+
+        def initialize_result(num_sources, num_apertures, shape_map_var_names):
+            """Return empty result structure with the correct shape & dtype."""
+
+            dtype = [
+                (('ID',) + ('S15',) if string_source_ids else (numpy.int, 3)),
+                ('bg', numpy.float64),
+                ('bg_err', numpy.float64),
+                ('bg_npix', numpy.uint)
+            ]
+
+            num_photometries = 0
+            if shape_fit:
+                try:
+                    self._check_for_dataset('shapefit.magnitudes',
+                                            **path_substitutions)
+                    num_photometries += 1
+                except IOError:
+                    pass
+            if apphot:
+                num_photometries += num_apertures
+
+            magnitude_shape = (len(magfit_iterations), num_photometries)
+
+            if num_photometries > 0:
+                dtype.extend([
+                    ('mag', numpy.float64, magnitude_shape),
+                    ('mag_err', numpy.float64, magnitude_shape),
+                    ('phot_flag', numpy.uint, magnitude_shape)
+                ])
+
+            if shape_map_variables:
+                dtype.extend([
+                    (
+                        var_name,
+                        numpy.bool if var_name == 'enabled' else numpy.float64
+                    )
+                    for var_name in shape_map_var_names
+                ])
+
+            return numpy.empty(
+                shape=(num_sources,),
+                dtype=dtype
+            )
+
+        def fill_source_ids(result):
+            """
+            Add the IDs of the projected sources found in the file to result.
+
+            Args:
+                result:    The array created by initialize_result() to fill with
+                    source IDs.
+
+            Returns:
+                [str]:
+                    List of the source ID strings.
+            """
+
+            hat_id_prefixes = self.get_attribute(
+                'srcproj.recognized_hat_id_prefixes',
+                **path_substitutions
+            )
+            if string_source_ids:
+                id_data = tuple(
+                    self.get_dataset(
+                        'srcproj.hat_id_' + id_part,
+                        **path_substitutions
+                    )
+                    for id_part in ('prefix', 'field', 'source')
+                )
+                for data_ind in 0, 1, 2:
+                    assert len(id_data[data_ind]) == result.size
+
+                for source_index in range(result.size):
+                    result['ID'][source_index] = (
+                        b'%s-%03d-%07d'
+                        %
+                        (
+                            hat_id_prefixes[id_data[0][source_index]],
+                            id_data[1][source_index],
+                            id_data[2][source_index]
+                        )
+                    )
+            else:
+                for component_index, id_part in enumerate(('prefix',
+                                                           'field',
+                                                           'source')):
+                    result[:, component_index] = self.get_dataset(
+                        'srcproj.hat_id_' + id_part,
+                        **path_substitutions
+                    )
+
+        def normalize_magfit_iterations():
+            """Make sure ``magfit_iterations`` is a list of positive indices."""
+
+            if magfit_iterations != 'all' and min(magfit_iterations) >= 0:
+                return magfit_iterations
+
+            all_magfit_indices = numpy.array(
+                [0]
+                +
+                list(
+                    range(
+                        1,
+                        self.get_num_magfit_iterations(**path_substitutions) + 1
+                    )
+                )
+            )
+
+            if magfit_iterations == 'all':
+                return all_magfit_indices
+
+            return all_magfit_indices[magfit_iterations]
+
+        def fill_background(result):
+            """Fill the background entries in the result."""
+
+            for result_key, dataset_key in (('bg', 'bg.values'),
+                                            ('bg_err', 'bg.errors'),
+                                            ('bg_npix', 'bg.npix')):
+                result[result_key] = self.get_dataset(
+                    dataset_key,
+                    expected_shape=result.shape,
+                    **path_substitutions
+                )
+
+        def fill_photometry(result):
+            """Fill the photomtric measurements entries in result."""
+
+            for result_key, dataset_key_tail in (
+                    ('mag', 'magnitudes'),
+                    ('mag_err', 'magnitude_errors'),
+                    ('phot_flag', 'quality_flag')
+            ):
+                for magfit_iter in magfit_iterations:
+                    photometry_index = 0
+                    print('Filling '
+                          +
+                          repr(result_key)
+                          +
+                          ' phot_i = %d, magfit_i = %d'
+                          %
+                          (photometry_index, magfit_iter))
+                    if shape_fit:
+                        try:
+                            result[
+                                result_key
+                            ][
+                                :,
+                                magfit_iter,
+                                photometry_index
+                            ] = self.get_dataset(
+                                'shapefit.' + dataset_key_tail,
+                                expected_shape=result.shape,
+                                magfit_iteration=magfit_iter,
+                                **path_substitutions
+                            )
+                            photometry_index += 1
+                        except IOError:
+                            pass
+                    if apphot:
+                        num_apertures = result.shape[1] - photometry_index
+                        for aperture_index in range(num_apertures):
+                            result[
+                                result_key
+                            ][
+                                :,
+                                magfit_iter,
+                                photometry_index
+                            ] = self.get_dataset(
+                                'apphot.' + dataset_key_tail,
+                                expected_shape=result.shape,
+                                aperture_index=aperture_index,
+                                magfit_iteration=magfit_iter,
+                                **path_substitutions
+                            )
+                            photometry_index += 1
+
+        magfit_iterations = normalize_magfit_iterations()
+        num_sources = self.get_source_count(**path_substitutions)
+        if shape_map_variables:
+            shape_map_var_data = self.get_shape_map_variables(
+                num_sources,
+                **path_substitutions
+            )
+        else:
+            shape_map_var_data = dict()
+
+        result = initialize_result(
+            num_sources,
+            self.get_num_apertures(**path_substitutions) if apphot else None,
+            shape_map_var_data.keys()
+        )
+
+        fill_source_ids(result)
+
+        for var_name in shape_map_var_data:
+            result[var_name] = shape_map_var_data[var_name]
+
+        fill_background(result)
+        fill_photometry(result)
+        return result
+    #pylint: enable=too-many-locals
+    #pylint: enable=too-many-statements
+
 #pylint: enable=too-many-ancestors
 
 def mock_shape_fit():
@@ -785,8 +1043,6 @@ def duplicate_apphot_inputs(input_dr_fname, output_dr_fname):
     """Read the aperture photometry inputs from input and write to output."""
 
     from ctypes import c_char_p
-
-    import h5py
 
     from superphot import SubPixPhot, SuperPhotIOTree
     from superphot._initialize_library import superphot_library
