@@ -971,7 +971,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 **path_substitutions
             )
         else:
-            shape_map_var_data = dict()
+            shape_map_var_data = {
+                coordinate: self.get_dataset('srcproj.' + coordinate,
+                                             expected_shape=(num_sources,),
+                                             **path_substitutions)
+                for coordinate in ['x', 'y']
+            }
 
         result = initialize_result(
             num_sources,
@@ -987,133 +992,35 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         fill_background(result)
         fill_photometry(result)
         return result
+
+    def add_magnitude_fitting(self,
+                              *,
+                              fitted_magnitudes,
+                              fit_statistics,
+                              magfit_configuration,
+                              missing_indices):
+        """
+        Add a magnitude fitting iteration to the DR file.
+
+        Args:
+            fitted_magnitudes(numpy.array):   The differential photometry
+                corrected magnitudes of the sources.
+
+            fit_statistics(dict):    Summary statistics about how the fit went.
+                It should define at least the following keys:
+                ``initial_src_count``, ``final_src_count``, and ``residual``.
+
+            magfit_configuration:    The configuration structure with which
+                magnitude fitting was performed.
+
+            missing_indices:    A list of indices within the file of sources
+                for which no entries are included in fitted_magnitudes.
+
+        Returns:
+            None
+        """
+
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 
 #pylint: enable=too-many-ancestors
-
-def mock_shape_fit():
-    """Return a SuperPhotIOTree containing entries as if shape fit was done."""
-
-    #pylint: disable=ungrouped-imports
-    from superphot import FitStarShape, SuperPhotIOTree
-    #pylint: enable=ungrouped-imports
-
-    fitprf = FitStarShape(mode='prf',
-                          shape_terms='O2{x, y}',
-                          grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
-                          initial_aperture=2.0,
-                          smoothing=None,
-                          min_convergence_rate=0.0)
-
-    #pylint: disable=protected-access
-    tree = SuperPhotIOTree(fitprf._library_configuration)
-    #pylint: enable=protected-access
-
-    test_sources = numpy.empty(10, dtype=[('id', 'S100'),
-                                          ('x', numpy.float64),
-                                          ('y', numpy.float64),
-                                          ('enabled', numpy.bool),
-                                          ('mag', numpy.float64),
-                                          ('mag_err', numpy.float64),
-                                          ('bg', numpy.float64),
-                                          ('bg_err', numpy.float64),
-                                          ('bg_npix', numpy.uint)])
-    for i in range(10):
-        test_sources[i]['ID'] = 'HAT-%03d-%07d' % (i, i)
-        test_sources[i]['x'] = (10.0 * numpy.pi) * (i % 4)
-        test_sources[i]['y'] = (10.0 * numpy.pi) * (i / 4)
-        test_sources[i]['enabled'] = bool(i % 3)
-        test_sources[i]['bg'] = 10.0 + 0.01 * i
-        test_sources[i]['bg_err'] = 1.0 + 0.2 * i
-        test_sources[i]['mag'] = numpy.pi - i
-        test_sources[i]['mag_err'] = 0.01 * i
-        test_sources[i]['bg_npix'] = 10 * i
-    map_coefficients = numpy.ones((4, 1, 1, 6), dtype=numpy.float64)
-    tree.set_aperture_photometry_inputs(
-        source_data=test_sources,
-        star_shape_grid=[[-1.0, 0.0, 1.0], [-1.5, 0.0, 1.0]],
-        star_shape_map_terms='O2{x, y}',
-        star_shape_map_coefficients=map_coefficients,
-        magnitude_1adu=10.0
-    )
-    return tree
-
-def duplicate_apphot_inputs(input_dr_fname, output_dr_fname):
-    """Read the aperture photometry inputs from input and write to output."""
-
-    from ctypes import c_char_p
-
-    from superphot import SubPixPhot, SuperPhotIOTree
-    from superphot._initialize_library import superphot_library
-
-    subpixphot = SubPixPhot()
-    #pylint: disable=protected-access
-    tree = SuperPhotIOTree(subpixphot._library_configuration)
-    #pylint: enable=protected-access
-
-    input_dr_file = DataReductionFile(input_dr_fname, 'r')
-    num_sources, fit_variables = (
-        input_dr_file.fill_aperture_photometry_input_tree(tree,
-                                                          background_version=0,
-                                                          srcproj_version=0,
-                                                          shapefit_version=0)
-    )
-    input_dr_file.close()
-
-    superphot_library.update_result_tree(
-        b'psffit.srcpix_cover_bicubic_grid',
-        (c_char_p * 1)(b'True'),
-        b'str',
-        1,
-        tree.library_tree
-    )
-
-    output_dr_file = DataReductionFile(output_dr_fname, 'w')
-    output_dr_file.add_star_shape_fit(tree,
-                                      num_sources,
-                                      fit_variables=fit_variables)
-
-def write_mock_shape_fit(output_dr_fname):
-    """Write the shape fit initialized by mock_shape_fit() to a file."""
-
-    dr_file = DataReductionFile(output_dr_fname, 'w')
-    dr_file.add_star_shape_fit(mock_shape_fit(),
-                               10,
-                               fit_variables=['x', 'y', 'enabled'])
-    dr_file.close()
-
-def debug():
-    """Some debugging code executed when module is run as script."""
-
-#    duplicate_apphot_inputs('test.hdf5', 'test_apphot_inputs_io.hdf5')
-
-    #from lxml import etree
-    #pylint: disable=ungrouped-imports
-    #pylint: disable=unused-import
-    #pylint: enable=ungrouped-imports
-    #pylint: enable=unused-import
-
-    duplicate_apphot_inputs(
-        '/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
-        '10-465248_2_R1.hdf5.0.duplicate'
-    )
-#    root_element = dr_file.layout_to_xml()
-#    root_element.addprevious(
-#        etree.ProcessingInstruction(
-#            'xml-stylesheet',
-#            'type="text/xsl" href="hdf5_file_structure.xsl"'
-#        )
-#    )
-#    etree.ElementTree(element=root_element).write('example_structure.xml',
-#                                                  pretty_print=True,
-#                                                  xml_declaration=True,
-#                                                  encoding='utf-8')
-
-if __name__ == '__main__':
-    duplicate_apphot_inputs(
-        '/data/HAT10DSLR_sandbox/FITPSF/10-20170306/10-465248_2_R1.hdf5.0',
-        '10-465248_2_R1.hdf5.0.duplicate'
-    )
-    exit(0)
-    debug()
