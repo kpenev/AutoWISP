@@ -5,6 +5,7 @@ import logging
 from multiprocessing import current_process
 from traceback import format_exception
 from abc import ABC, abstractmethod
+from asteval import asteval
 
 import scipy
 from numpy.lib import recfunctions
@@ -245,6 +246,10 @@ class MagnitudeFit(ABC):
             set:
                 The indices for which no catalogue information was found, and
                 the catalogue default was used.
+
+            sorted list:
+                The indices within the original phot which were deleted bacause
+                of missing catalogue information, and no default.
         """
 
         new_column_names = next(iter(self._catalogue.values())).keys()
@@ -299,53 +304,31 @@ class MagnitudeFit(ABC):
             [int]:
                 A list of the indices within phot of the sources which pass all
                 catalogue requirements for inclusion in the magnitude fit.
+
+            int:
+                The number of dropped sources.
+
+            tuple:
+                The ID of one of the sources dropped, None if no sources were
+                dropped.
         """
 
-        skipped_example = None
+        interpreter = asteval.Interpreter()
+        for varname in phot.dtype.names:
+            interpreter.symtable[varname] = phot['varname']
+        include_flag = interpreter(self.config.fit_source_condition)
+        include_flag[no_catalogue] = False
 
-        #TODO: use a general user-supplied expression of phot + catalogue info
-        def keep_src(src_ind):
-            """
-            Does the source at the given index passes all catalogue requirements
+        result = include_flag.nonzero()
 
-            Args:
-                src_ind:    The index of the source within phot to check.
+        num_skipped = len(phot['ID']) - result.size
+        if num_skipped:
+            first_skipped = scipy.logical_not(include_flag).nonzero()[0][0]
+            skipped_example = phot['ID'][first_skipped]
+        else:
+            skipped_example = None
 
-            Returns:
-                bool:
-                    Does the given sources satisfy all requirements for use in
-                    magnitude fitting based on its catalogue information.
-            """
-
-            if src_ind in no_catalogue:
-                return False
-
-            j_minus_k = phot['J'][src_ind]-phot['K'][src_ind]
-            mag = phot[self.config.filter][src_ind]
-
-            result = (
-                mag >= self.config.bright_mag
-                and
-                mag <= self.config.faint_mag
-                and
-                j_minus_k >= self.config.min_JmK
-                and
-                j_minus_k <= self.config.max_JmK
-                and
-                (
-                    not self.config.AAAonly
-                    or
-                    phot['qlt'][src_ind].strip() == 'AAA'
-                )
-            )
-            if not result and skipped_example is None:
-                skipped_example = phot['ID'][src_ind]
-
-            return result
-
-        num_sources = len(phot['sources'])
-        result = list(filter(keep_src, range(num_sources)))
-        return result, num_sources - len(result), skipped_example
+        return result, num_skipped, skipped_example
 
     def _match_to_reference(self, phot, no_catalogue):
         """
@@ -412,10 +395,11 @@ class MagnitudeFit(ABC):
                     '(example %d-%d.), bright mag=%g, faint_mag=%g, '
                     'min(J-K)=%g, max(J-K)=%g, AAA only=%s'
                 ),
-                len(phot['sources']),
+                len(phot['ID']),
                 self._header['STID'],
                 self._header['FNUM'],
-                self._header['CMPOS'], num_skipped,
+                self._header['CMPOS'],
+                num_skipped,
                 self._source_name_format % skipped_example,
                 num_not_in_ref,
                 len(self._reference.keys()),
@@ -579,8 +563,8 @@ class MagnitudeFit(ABC):
             Combine the statistics summarizing how the fit went from all groups.
 
             Properly combines values from the individual group fits into single
-            numbers. The quantities processed are: residual, initial_src_count,
-            final_src_count.
+            numbers for each photometry method. The quantities processed are:
+            residual, initial_src_count, final_src_count.
 
             Args:
                 fit_results:    The best fit results for this photometry.
@@ -601,10 +585,13 @@ class MagnitudeFit(ABC):
                 final_src_count += group_res['final_src_count']
 
             return dict(
-                residual=scipy.nanmedian([
-                    group_res['residual'] or scipy.nan
-                    for group_res in fit_results
-                ]),
+                residual=scipy.nanmedian(
+                    [
+                        group_res['residual'] or scipy.nan
+                        for group_res in fit_results
+                    ],
+                    0
+                ),
                 initial_src_count=initial_src_count,
                 final_src_count=final_src_count
             )
@@ -619,7 +606,8 @@ class MagnitudeFit(ABC):
                 header=header,
                 mode='r+'
             )
-            phot = data_reduction.get_source_data(string_source_ids=False,
+            phot = data_reduction.get_source_data(magfit_iterations=[-1],
+                                                  string_source_ids=False,
                                                   shape_map_variables=False)
 
             if 'sources' not in phot or phot['sources']:
@@ -652,7 +640,8 @@ class MagnitudeFit(ABC):
                     fitted_magnitudes=fitted,
                     fit_statistics=fit_statistics,
                     magfit_configuration=self.config,
-                    missing_indices=deleted_phot_indices
+                    missing_indices=deleted_phot_indices,
+                    **dr_path_substitutions
                 )
                 data_reduction.close()
                 self.logger.debug('Updating calibration status.')

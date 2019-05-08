@@ -682,6 +682,16 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         return path_substitutions['magfit_iteration']
 
+    def has_shape_fit(self, **path_substitutions):
+        """True iff shape fitting photometry exists for path_substitutions."""
+
+        try:
+            self._check_for_dataset('shapefit.magnitudes',
+                                    **path_substitutions)
+            return True
+        except IOError:
+            return False
+
     def get_shape_map_variables(self, num_sources, **path_substitutions):
         """Return a dictionary containing all stored map variables."""
 
@@ -796,14 +806,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 ('bg_npix', numpy.uint)
             ]
 
-            num_photometries = 0
-            if shape_fit:
-                try:
-                    self._check_for_dataset('shapefit.magnitudes',
-                                            **path_substitutions)
-                    num_photometries += 1
-                except IOError:
-                    pass
+            num_photometries = 1 if shape_fit else 0
             if apphot:
                 num_photometries += num_apertures
 
@@ -929,22 +932,19 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                           %
                           (photometry_index, magfit_iter))
                     if shape_fit:
-                        try:
-                            result[
-                                result_key
-                            ][
-                                :,
-                                magfit_iter,
-                                photometry_index
-                            ] = self.get_dataset(
-                                'shapefit.' + dataset_key_tail,
-                                expected_shape=result.shape,
-                                magfit_iteration=magfit_iter,
-                                **path_substitutions
-                            )
-                            photometry_index += 1
-                        except IOError:
-                            pass
+                        result[
+                            result_key
+                        ][
+                            :,
+                            magfit_iter,
+                            photometry_index
+                        ] = self.get_dataset(
+                            'shapefit.' + dataset_key_tail,
+                            expected_shape=result.shape,
+                            magfit_iteration=magfit_iter,
+                            **path_substitutions
+                        )
+                        photometry_index += 1
                     if apphot:
                         num_apertures = result.shape[1] - photometry_index
                         for aperture_index in range(num_apertures):
@@ -963,6 +963,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             )
                             photometry_index += 1
 
+        shape_fit = shape_fit and self.has_shape_fit(**path_substitutions)
         magfit_iterations = normalize_magfit_iterations()
         num_sources = self.get_source_count(**path_substitutions)
         if shape_map_variables:
@@ -998,7 +999,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                               fitted_magnitudes,
                               fit_statistics,
                               magfit_configuration,
-                              missing_indices):
+                              missing_indices,
+                              **path_substitutions):
         """
         Add a magnitude fitting iteration to the DR file.
 
@@ -1019,6 +1021,112 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         Returns:
             None
         """
+
+        def pad_missing_magnitudes():
+            """Return fitted magnitudes with nans added at missing_indices."""
+
+
+            if not missing_indices:
+                return fitted_magnitudes
+
+            fitted_magnitudes_shape = list(fitted_magnitudes.shape)
+            fitted_magnitudes_shape[0] += len(missing_indices)
+            padded_fitted_magnitudes = numpy.empty(
+                shape=fitted_magnitudes_shape,
+                dtype=fitted_magnitudes.dtype
+            )
+            padded_fitted_magnitudes[missing_indices] = numpy.nan
+            padded_fitted_magnitudes[
+                [
+                    ind not in missing_indices
+                    for ind in range(fitted_magnitudes_shape[0])
+                ]
+            ] = fitted_magnitudes
+            return padded_fitted_magnitudes
+
+        def add_magfit_datasets(fitted_magnitudes,
+                                include_shape_fit):
+            """Create the datasets holding the newly fitted magnitudes."""
+
+            num_apertures = fitted_magnitudes.shape[1]
+            apphot_start = 0
+            if include_shape_fit:
+                num_apertures -= 1
+                apphot_start = 1
+                self.add_dataset('shapefit.magfit.magnitudes',
+                                 fitted_magnitudes[:, 0],
+                                 if_exists='error',
+                                 **path_substitutions)
+            for aperture_index in range(num_apertures):
+                self.add_dataset('apphot.magfit.magnitudes',
+                                 fitted_magnitudes[
+                                     :,
+                                     aperture_index + apphot_start
+                                 ],
+                                 if_exists='error',
+                                 aperture_index=aperture_index,
+                                 **path_substitutions)
+
+        def add_attributes(include_shape_fit):
+            """Add attributes with the magfit configuration."""
+
+            for phot_index in range(fitted_magnitudes.shape[0]):
+                phot_method = (
+                    'shapefit' if include_shape_fit and phot_index = 0
+                    else 'apphot'
+                )
+
+                self.add_attribute(
+                    phot_method + '.magfitcfg.correction_type',
+                    b'linear',
+                    if_exists='error',
+                    **path_substitutions
+                )
+
+                for pipeline_key_end, config_attribute in [
+                        ('correction', 'correction_parametrization'),
+                        ('require', 'fit_source_condition'),
+                        ('max_src', 'max_fit_sources'),
+                ]:
+                    self.add_attribute(
+                        phot_method + '.magfitcfg.' + pipeline_key_end,
+                        getattr(magfit_configuration, config_attribute),
+                        if_exists='error',
+                        **path_substitutions
+                    )
+
+                for config_param in ['noise_offset',
+                                     'max_mag_err',
+                                     'rej_level',
+                                     'max_rej_iter',
+                                     'error_avg',
+                                     'count_weight_power']:
+                    self.add_attribute(
+                        phot_method + '.magfitcfg.' + config_param,
+                        getattr(magfit_configuration, config_param),
+                        if_exists='error',
+                        **path_substitutions
+                    )
+
+                for pipeline_key_end, statistics_key in [
+                        ('num_input_src', 'initial_src_count'),
+                        ('num_fit_src', 'final_src_count'),
+                        ('fit_residual', 'residual')
+                ]:
+                    self.add_attribute(
+                        phot_method + '.magfit.' + pipeline_key_end,
+                        fit_statistics[statistics_key][phot_index]
+                        if_exists='error',
+                        **path_substitutions
+                    )
+
+        path_substitutions['magfit_iteration'] = self.get_num_magfit_iterations(
+            **path_substitutions
+        )
+        include_shape_fit = self.has_shape_fit(**path_substitutions)
+        add_magfit_datasets(pad_missing_magnitudes(),
+                            include_shape_fit)
+        add_attributes(include_shape_fit)
 
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements

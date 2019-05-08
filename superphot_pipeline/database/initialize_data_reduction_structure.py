@@ -656,7 +656,7 @@ def _get_magfit_attributes(photometry_mode):
             'correction.'
         ),
         HDF5Attribute(
-            pipeline_key=pipeline_key_start + 'filter',
+            pipeline_key=pipeline_key_start + 'require',
             parent=dset_path,
             name='SourceFilter',
             dtype='numpy.string_',
