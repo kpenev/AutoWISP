@@ -1072,7 +1072,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
             for phot_index in range(fitted_magnitudes.shape[0]):
                 phot_method = (
-                    'shapefit' if include_shape_fit and phot_index = 0
+                    'shapefit' if include_shape_fit and phot_index == 0
                     else 'apphot'
                 )
 
@@ -1115,7 +1115,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 ]:
                     self.add_attribute(
                         phot_method + '.magfit.' + pipeline_key_end,
-                        fit_statistics[statistics_key][phot_index]
+                        fit_statistics[statistics_key][phot_index],
                         if_exists='error',
                         **path_substitutions
                     )

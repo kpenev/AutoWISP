@@ -138,9 +138,9 @@ class MagnitudeFit(ABC):
         """
 
     @abstractmethod
-    def _linear_fit(self, fit_data):
+    def _fit(self, fit_data):
         """
-        Perform a linear least squares fit for the magfit correction.
+        Perform a fit for the magfit correction.
 
         Args:
             fit_data (numpy structured array):    The current photometry being
@@ -160,7 +160,7 @@ class MagnitudeFit(ABC):
 
                 * residual(float): The residual of the final fit iteration.
 
-                * coefficients(numpy.array): The best fit coefficients defining
+                * parameters(numpy.array): The best fit parameters defining
                     the magnitude correction.
         """
 
@@ -173,8 +173,7 @@ class MagnitudeFit(ABC):
             phot:    The current photometry being fit, including catalogue
                 information, i.e. the object returned by add_catalogue_info().
 
-            coefficients:    The best fit coefficients derived using
-                _linear_fit().
+            coefficients:    The best fit parameters derived using _fit().
 
         Returns:
             numpy.array (number sources x number photometry methods):
@@ -502,11 +501,11 @@ class MagnitudeFit(ABC):
         self._output_lock.release()
 
     def __init__(self,
+                 *,
                  reference,
                  master_catalogue,
                  config,
                  output_lock,
-                 *,
                  output_stream=None,
                  source_name_format='HAT-%03d-%07d'):
         """
@@ -628,7 +627,7 @@ class MagnitudeFit(ABC):
                 fit_base = self._match_to_reference(phot, no_catalogue)
                 if fit_base.size > 0:
                     self.logger.debug('Performing linear fit.')
-                    fit_results = self._linear_fit(fit_base)
+                    fit_results = self._fit(fit_base)
             if fit_results:
                 self.logger.debug('Post-processing fit.')
                 fitted = self._apply_fit(phot, fit_results)
