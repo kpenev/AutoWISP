@@ -37,6 +37,10 @@ class HDF5File(ABC, h5py.File):
 
         _file_structure_version:    See the second entry returned by
             _get_file_structure.
+
+        _hat_id_prefixes (numpy.array):    A list of the currently recognized
+            HAT-ID prefixes, with the correct data type ready for adding as a
+            dataset.
     """
 
     @classmethod
@@ -307,9 +311,12 @@ class HDF5File(ABC, h5py.File):
                 One of: 'group', 'dataset', 'attribute', 'link'.
         """
 
+        #All implementations of _elemnts are required to make them dict-like.
+        #pylint: disable=no-member
         for (element_type, recognized) in cls._elements.items():
             if element_id.rstrip('.') in recognized:
                 return element_type
+        #pylint: enable=no-member
 
         raise KeyError('Unrecognized element: ' + repr(element_id))
 
@@ -520,19 +527,18 @@ class HDF5File(ABC, h5py.File):
 
         if issubclass(hdf5_class, h5py.Group):
             return "group"
-        elif issubclass(hdf5_class, h5py.Dataset):
+        if issubclass(hdf5_class, h5py.Dataset):
             return "dataset"
-        elif issubclass(hdf5_class, h5py.HardLink):
+        if issubclass(hdf5_class, h5py.HardLink):
             return "hard link"
-        elif issubclass(hdf5_class, h5py.SoftLink):
+        if issubclass(hdf5_class, h5py.SoftLink):
             return "soft link"
-        elif issubclass(hdf5_class, h5py.ExternalLink):
+        if issubclass(hdf5_class, h5py.ExternalLink):
             return "external link"
-        else:
-            raise ValueError(
-                'Argument to hdf5_class_string does not appear to be a class or'
-                ' a child of a class defined by h5py!'
-            )
+        raise ValueError(
+            'Argument to hdf5_class_string does not appear to be a class or'
+            ' a child of a class defined by h5py!'
+        )
 
     def add_attribute(self,
                       attribute_key,
@@ -594,20 +600,19 @@ class HDF5File(ABC, h5py.File):
                     parent.attrs[attribute_name] == attribute_value
             ):
                 return parent.attrs[attribute_name]
-            elif if_exists == 'error':
+            if if_exists == 'error':
                 raise HDF5LayoutError(
                     "Attribute '%s/%s.%s' already exists!"
                     %
                     (self.filename, parent_path, attribute_name)
                 )
-            else:
-                assert if_exists == 'overwrite'
+            assert if_exists == 'overwrite'
 
-        if type(attribute_value) in [str, bytes, numpy.string_]:
+        if isinstance(attribute_value, (str, bytes, numpy.string_)):
             parent.attrs.create(attribute_name,
                                 (
                                     attribute_value.encode('ascii')
-                                    if type(attribute_value) is str
+                                    if isinstance(attribute_value, str)
                                     else attribute_value
                                 ))
         else:
@@ -762,7 +767,7 @@ class HDF5File(ABC, h5py.File):
         """
 
         if dataset_key not in self._file_structure:
-            return
+            return False
 
         self._check_for_dataset(dataset_key, False)
 
@@ -771,14 +776,13 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_path in self:
             if if_exists == 'ignore':
-                return
-            elif if_exists == 'error':
+                return False
+            if if_exists == 'error':
                 raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
                               "overwriting is not allowed!"
                               %
                               (dataset_key, dataset_path, self.filename))
-            else:
-                self._delete_obsolete_dataset(dataset_key, **substitutions)
+            self._delete_obsolete_dataset(dataset_key, **substitutions)
 
         self._write_text_to_dataset(
             text=(
@@ -790,6 +794,7 @@ class HDF5File(ABC, h5py.File):
             dset_path=dataset_path,
             creation_args=self.get_dataset_creation_args(dataset_key)
         )
+        return True
 
     def add_file_dump(self,
                       dataset_key,
@@ -1048,13 +1053,12 @@ class HDF5File(ABC, h5py.File):
         if dataset_path in self:
             if if_exists == 'ignore':
                 return
-            elif if_exists == 'error':
+            if if_exists == 'error':
                 raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
                               "overwriting is not allowed!"
                               %
                               (dataset_key, dataset_path, self.filename))
-            else:
-                self._delete_obsolete_dataset(dataset_key, **substitutions)
+            self._delete_obsolete_dataset(dataset_key, **substitutions)
 
         if dataset_config.replace_nonfinite is None:
             fillvalue = None
@@ -1129,4 +1133,11 @@ class HDF5File(ABC, h5py.File):
             self[layout_version_path].attrs[layout_version_attr] = (
                 self._file_structure_version
             )
+
+        self._hat_id_prefixes = numpy.array(
+            ['HAT', 'UCAC4'],
+            dtype=self.get_dtype('srcproj.recognized_hat_id_prefixes')
+        )
+
+
 #pylint: enable=too-many-ancestors

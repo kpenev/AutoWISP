@@ -1,4 +1,3 @@
-from superphot_pipeline.fit_terms.list_terms_visitor import ListTermsVisitor
-from superphot_pipeline.fit_terms.count_terms_visitor import CountTermsVisitor
-from superphot_pipeline.fit_terms.evaluate_terms_visitor import \
-    EvaluateTermsVisitor
+"""Utilities for working with fitting terms expressions."""
+
+from superphot_pipeline.fit_terms.interface import Interface

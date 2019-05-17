@@ -27,10 +27,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         _dtype_dr_to_io_tree (dict):    A dictionary specifying the
             correspondence between data types for entries in DR files and data
             types in SuperPhotIOTree.
-
-        _hat_id_prefixes (numpy.array):    A list of the currently recognized
-            HAT-ID prefixes, with the correct data type ready for adding as a
-            dataset.
     """
 
     _key_io_tree_to_dr = {
@@ -38,7 +34,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'projsrc.y': 'srcproj.y',
         'bg.model': 'bg.cfg.model',
         'bg.value': 'bg.values',
-        'bg.error': 'bg.errors',
+        'bg.error': 'bg.error',
         'psffit.min_bg_pix': 'shapefit.cfg.src.min_bg_pix',
         'psffit.gain': 'shapefit.cfg.gain',
         'psffit.magnitude_1adu': 'shapefit.cfg.magnitude_1adu',
@@ -65,8 +61,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'psffit.srcpix_max_sat_frac': 'shapefit.cfg.src.max_sat_frac',
         'psffit.srcpix_min_signal_to_noise':
         'shapefit.cfg.src.min_signal_to_noise',
-        'psffit.mag': 'shapefit.magnitudes',
-        'psffit.mag_err': 'shapefit.magnitude_errors',
+        'psffit.mag': 'shapefit.magnitude',
+        'psffit.mag_err': 'shapefit.magnitude_error',
         'psffit.chi2': 'shapefit.chi2',
         'psffit.sigtonoise': 'shapefit.signal_to_noise',
         'psffit.npix': 'shapefit.num_pixels',
@@ -94,24 +90,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """The name of the root tag in the layout configuration."""
 
         return 'DataReduction'
-
-    def _parse_hat_source_id(self, source_id):
-        """Return the prefix ID, field numberand source number."""
-
-        if isinstance(source_id, bytes):
-            c_style_end = source_id.find(b'\0')
-            if c_style_end >= 0:
-                source_id = source_id[:c_style_end].decode()
-            else:
-                source_id = source_id.decode()
-        prefix_str, field_str, source_str = source_id.split('-')
-        return (
-            numpy.where(self._hat_id_prefixes
-                        ==
-                        prefix_str.encode('ascii'))[0][0],
-            int(field_str),
-            int(source_str)
-        )
 
     @staticmethod
     def _parse_grid_str(grid_str):
@@ -201,7 +179,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     id_data['prefix'][source_index],
                     id_data['field'][source_index],
                     id_data['source'][source_index]
-                ) = self._parse_hat_source_id(source_id)
+                ) = self.parse_hat_source_id(source_id)
             for id_part in ['prefix', 'field', 'source']:
                 self.add_dataset(
                     'srcproj.hat_id_' + id_part,
@@ -397,10 +375,25 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         super().__init__('data_reduction', *args, **kwargs)
 
-        self._hat_id_prefixes = numpy.array(
-            ['HAT', 'UCAC4'],
-            dtype=self.get_dtype('srcproj.recognized_hat_id_prefixes')
+    def parse_hat_source_id(self, source_id):
+        """Return the prefix ID, field number, and source number."""
+
+        if isinstance(source_id, bytes):
+            c_style_end = source_id.find(b'\0')
+            if c_style_end >= 0:
+                source_id = source_id[:c_style_end].decode()
+            else:
+                source_id = source_id.decode()
+        prefix_str, field_str, source_str = source_id.split('-')
+        return (
+            numpy.where(self._hat_id_prefixes
+                        ==
+                        prefix_str.encode('ascii'))[0][0],
+            int(field_str),
+            int(source_str)
         )
+
+
 
     def get_source_count(self, **path_substitutions):
         """
@@ -664,7 +657,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         for photometry_mode in ['shapefit', 'apphot']:
             try:
                 self._check_for_dataset(
-                    photometry_mode + '.magfit.magnitudes',
+                    photometry_mode + '.magfit.magnitude',
                     **path_substitutions
                 )
             except IOError:
@@ -674,7 +667,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 path_substitutions['magfit_iteration'] += 1
                 try:
                     self._check_for_dataset(
-                        photometry_mode + '.magfit.magnitudes',
+                        photometry_mode + '.magfit.magnitude',
                         **path_substitutions
                     )
                 except IOError:
@@ -686,7 +679,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """True iff shape fitting photometry exists for path_substitutions."""
 
         try:
-            self._check_for_dataset('shapefit.magnitudes',
+            self._check_for_dataset('shapefit.magnitude',
                                     **path_substitutions)
             return True
         except IOError:
@@ -779,7 +772,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     * mag (2-D numpy.float64 array): measured magnitudes. The
                       first dimension is the index within the
                       ``magfit_iterations`` argument and the second index
-                      iterates over photometry, starting wmith shape fitting (if
+                      iterates over photometry, starting with shape fitting (if
                       the ``shape_fit`` argument is True),
                       followed by the aperture photometry measurement for each
                       aperture (if the ``apphot`` argument is True).
@@ -800,7 +793,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             """Return empty result structure with the correct shape & dtype."""
 
             dtype = [
-                (('ID',) + ('S15',) if string_source_ids else (numpy.int, 3)),
+                (('ID',) + (('S15',) if string_source_ids else (numpy.int, 3))),
                 ('bg', numpy.float64),
                 ('bg_err', numpy.float64),
                 ('bg_npix', numpy.uint)
@@ -819,14 +812,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     ('phot_flag', numpy.uint, magnitude_shape)
                 ])
 
-            if shape_map_variables:
-                dtype.extend([
-                    (
-                        var_name,
-                        numpy.bool if var_name == 'enabled' else numpy.float64
-                    )
-                    for var_name in shape_map_var_names
-                ])
+            dtype.extend([
+                (
+                    var_name,
+                    numpy.bool if var_name == 'enabled' else numpy.float64
+                )
+                for var_name in shape_map_var_names
+            ])
 
             return numpy.empty(
                 shape=(num_sources,),
@@ -875,7 +867,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 for component_index, id_part in enumerate(('prefix',
                                                            'field',
                                                            'source')):
-                    result[:, component_index] = self.get_dataset(
+                    result['ID'][:, component_index] = self.get_dataset(
                         'srcproj.hat_id_' + id_part,
                         **path_substitutions
                     )
@@ -906,7 +898,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             """Fill the background entries in the result."""
 
             for result_key, dataset_key in (('bg', 'bg.values'),
-                                            ('bg_err', 'bg.errors'),
+                                            ('bg_err', 'bg.error'),
                                             ('bg_npix', 'bg.npix')):
                 result[result_key] = self.get_dataset(
                     dataset_key,
@@ -918,11 +910,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             """Fill the photomtric measurements entries in result."""
 
             for result_key, dataset_key_tail in (
-                    ('mag', 'magnitudes'),
-                    ('mag_err', 'magnitude_errors'),
+                    ('mag', 'magnitude'),
+                    ('mag_err', 'magnitude_error'),
                     ('phot_flag', 'quality_flag')
             ):
-                for magfit_iter in magfit_iterations:
+                for iter_index, magfit_iter in enumerate(magfit_iterations):
                     photometry_index = 0
                     print('Filling '
                           +
@@ -936,7 +928,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             result_key
                         ][
                             :,
-                            magfit_iter,
+                            iter_index,
                             photometry_index
                         ] = self.get_dataset(
                             'shapefit.' + dataset_key_tail,
@@ -944,15 +936,20 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             magfit_iteration=magfit_iter,
                             **path_substitutions
                         )
+                        print('Raad shape fit photometry (phot index = %d)'
+                              %
+                              photometry_index)
                         photometry_index += 1
                     if apphot:
-                        num_apertures = result.shape[1] - photometry_index
+                        num_apertures = (result[result_key].shape[2]
+                                         -
+                                         photometry_index)
                         for aperture_index in range(num_apertures):
                             result[
                                 result_key
                             ][
                                 :,
-                                magfit_iter,
+                                iter_index,
                                 photometry_index
                             ] = self.get_dataset(
                                 'apphot.' + dataset_key_tail,
@@ -961,6 +958,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                 magfit_iteration=magfit_iter,
                                 **path_substitutions
                             )
+                            print('Raad apphot #%d (phot index = %d)'
+                                  %
+                                  (aperture_index, photometry_index))
                             photometry_index += 1
 
         shape_fit = shape_fit and self.has_shape_fit(**path_substitutions)
@@ -1053,12 +1053,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             if include_shape_fit:
                 num_apertures -= 1
                 apphot_start = 1
-                self.add_dataset('shapefit.magfit.magnitudes',
+                self.add_dataset('shapefit.magfit.magnitude',
                                  fitted_magnitudes[:, 0],
                                  if_exists='error',
                                  **path_substitutions)
             for aperture_index in range(num_apertures):
-                self.add_dataset('apphot.magfit.magnitudes',
+                self.add_dataset('apphot.magfit.magnitude',
                                  fitted_magnitudes[
                                      :,
                                      aperture_index + apphot_start
@@ -1070,11 +1070,18 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_attributes(include_shape_fit):
             """Add attributes with the magfit configuration."""
 
-            for phot_index in range(fitted_magnitudes.shape[0]):
+            for phot_index in range(fitted_magnitudes.shape[1]):
                 phot_method = (
                     'shapefit' if include_shape_fit and phot_index == 0
                     else 'apphot'
                 )
+
+                if phot_method == 'apphot':
+                    path_substitutions['aperture_index'] = (
+                        path_substitutions.get('aperture_index', -1)
+                        +
+                        1
+                    )
 
                 self.add_attribute(
                     phot_method + '.magfitcfg.correction_type',
@@ -1085,8 +1092,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
                 for pipeline_key_end, config_attribute in [
                         ('correction', 'correction_parametrization'),
-                        ('require', 'fit_source_condition'),
-                        ('max_src', 'max_fit_sources'),
+                        ('require', 'fit_source_condition')
                 ]:
                     self.add_attribute(
                         phot_method + '.magfitcfg.' + pipeline_key_end,
@@ -1099,8 +1105,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                      'max_mag_err',
                                      'rej_level',
                                      'max_rej_iter',
-                                     'error_avg',
-                                     'count_weight_power']:
+                                     'error_avg']:
                     self.add_attribute(
                         phot_method + '.magfitcfg.' + config_param,
                         getattr(magfit_configuration, config_param),

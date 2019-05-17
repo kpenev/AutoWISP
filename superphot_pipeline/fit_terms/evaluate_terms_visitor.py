@@ -19,9 +19,6 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
             shape=(num_output_terms, term_length),
             dtype=dtype
         )
-        print('Expansiot terms shape: '
-              +
-              repr(self._current_expansion_terms.shape))
 
     def _process_term_product(self, input_terms, term_powers=None):
         """Add to the current expansion the product of input terms to powers."""
@@ -31,19 +28,6 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
             pwr = 1 if term_powers is None else term_powers[term_index]
             if pwr == 0:
                 continue
-            print('powerlaw index: ' + repr(pwr))
-            print(
-                'destination shape: '
-                +
-                repr(
-                    self._current_expansion_terms[
-                        self._expansion_term_index
-                    ].shape
-                )
-            )
-            print(
-                'term shape: ' + repr(term.shape)
-            )
             self._current_expansion_terms[
                 self._expansion_term_index
             ] *= (term if pwr == 1 else term**pwr)
@@ -79,7 +63,6 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
         num_output_terms = 1
         for term_set in input_term_sets:
             num_output_terms *= len(term_set)
-        print('Cross product input term sets: ' + repr(input_term_sets))
         self._start_expansion(num_output_terms,
                               input_term_sets[0][0].size,
                               input_term_sets[0].dtype)

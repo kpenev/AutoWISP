@@ -5,27 +5,17 @@ import logging
 from multiprocessing import current_process
 from traceback import format_exception
 from abc import ABC, abstractmethod
-from asteval import asteval
 
 import scipy
 from numpy.lib import recfunctions
 
 from superphot_pipeline import DataReductionFile
-
-def remove_source_ind(phot, source_ind):
-    """ Removes a source from the given photometry file (format should be
-    like the output of BinPhot.read_fiphot. """
-
-    for col in phot.keys():
-        if col == 'photometry':
-            for sub_phot in phot[col]:
-                for subcol in sub_phot.keys():
-                    del sub_phot[subcol][source_ind]
-        elif col != 'serial':
-            del phot[col][source_ind]
+from superphot_pipeline.evaluator import Evaluator
 
 #Could not think of a sensible way to reduce number of attributes
 #pylint: disable=too-many-instance-attributes
+#Still makes sense es a class.
+#pylint: disable=too-few-public-methods
 class MagnitudeFit(ABC):
     """
     A base class for all classes doing magnitude fitting.
@@ -38,25 +28,10 @@ class MagnitudeFit(ABC):
             magnitude fitting. It should provide at least the following
             attributes:
 
-            * filter: The filter which to assume for the frames being
-                magnitude fitted.
-
-            * bright_mag: Sources with catalogue magnitude in the specified
-                filter brighter than this are excluded from the fit (generally
-                should correspond to the magnitude at which stars in the images
-                begin to saturate.
-
-            * faint_mag: Sources with catalogue magnitude in the specified
-                filter fainter than this are excluded from the fit.
-
-            * min_JmK: The minimum value of the catalogue J - K for sources to
-                be included in the fit.
-
-            * max_JmK: The maximum value of the catalogue J - K for sources to
-                be included in the fit.
-
-            * AAAonly: Should only sources with 2MASS AAA flag be used in
-                magnitude fitting?
+            * fit_source_condition: An expression involving catalogue, reference
+                and/or photometry variables which evaluates to zero if a source
+                should be excluded and any non-zero value if it should be
+                included in the magnitude fit.
 
             * reference_subpix: Should the magnitude fitting correction depend
                 on the sub-pixel position of the source in the reference frame.
@@ -64,10 +39,10 @@ class MagnitudeFit(ABC):
         logger:    A python logging logger for emitting messages on the progress
             and status of magnitude fitting.
 
-        _header:    The header of the frame currently undergoing magnitude
-            fitting.
+        _dr_fname:    The name of the data reduction file currently undergoing
+            magnitude fitting.
 
-        _output_stream:    See `output_stream` argument to __init__().
+        _magfit_collector:    See `magfit_collector` argument to __init__().
 
         _reference:    See `reference` argument to __init__().
 
@@ -86,7 +61,7 @@ class MagnitudeFit(ABC):
 
         Args:
             coefficients (iterable of values):    The best fit coefficients for
-                the magnitude fitting of the current header.
+                the magnitude fitting of the current data reduction file.
 
             fit_diagnostics:    Any information about the fit that should be
                 recorded in the database. The names of the arguments are assumed
@@ -165,7 +140,7 @@ class MagnitudeFit(ABC):
         """
 
     @abstractmethod
-    def _apply_fit(self, phot, coefficients):
+    def _apply_fit(self, phot, fit_results):
         """
         Return corrected magnitudes using best fit magfit coefficients.
 
@@ -173,7 +148,7 @@ class MagnitudeFit(ABC):
             phot:    The current photometry being fit, including catalogue
                 information, i.e. the object returned by add_catalogue_info().
 
-            coefficients:    The best fit parameters derived using _fit().
+            fit_results:    The best fit parameters derived using _fit().
 
         Returns:
             numpy.array (number sources x number photometry methods):
@@ -251,23 +226,27 @@ class MagnitudeFit(ABC):
                 of missing catalogue information, and no default.
         """
 
-        new_column_names = next(iter(self._catalogue.values())).keys()
+        new_column_names = next(iter(self._catalogue.values())).dtype.names
+        special_dtypes = dict(phqual='S3',
+                              magsrcflag='S9')
         new_column_data = [
             scipy.empty(phot.size,
-                        dtype=('S3' if colname == 'qlt' else scipy.float64))
+                        dtype=special_dtypes.get(colname, scipy.float64))
             for colname in new_column_names
         ]
         default_cat = (self._catalogue['default']
                        if 'default' in self._catalogue else None)
-        default_cat_indices = set()
+        default_cat_indices = []
         remove_source_indices = []
         for source_ind in range(phot.size):
-            src = phot['ID'][source_ind]
+            src = tuple(phot['ID'][source_ind])
             if src in self._catalogue:
-                src_dict = self._catalogue[src]
+                cat_source = self._catalogue[src]
             elif default_cat:
-                src_dict = default_cat
-                default_cat_indices.add(source_ind - len(remove_source_indices))
+                cat_source = default_cat
+                default_cat_indices.append(source_ind
+                                           -
+                                           len(remove_source_indices))
                 self.logger.warning(
                     '%s has no catalogue informaiton, using default.',
                     self._source_name_format % src
@@ -275,13 +254,14 @@ class MagnitudeFit(ABC):
             else:
                 remove_source_indices.append(source_ind)
                 continue
-            for col_index, value in enumerate(src_dict.values()):
-                new_column_data[col_index][source_ind] = value
+            for col_index, col_name in enumerate(new_column_names):
+                new_column_data[col_index][source_ind] = cat_source[col_name]
 
         result = scipy.delete(
             recfunctions.append_fields(phot,
                                        new_column_names,
-                                       data=new_column_data),
+                                       data=new_column_data,
+                                       usemask=False),
             remove_source_indices
         )
 
@@ -296,7 +276,7 @@ class MagnitudeFit(ABC):
         Args:
             phot:   See return of DataReductionFile.get_photometry().
 
-            no_catalogue:    The set of source indices for which no catalogue
+            no_catalogue:    The list of source indices for which no catalogue
                 information is available (all are rejected).
 
         Returns:
@@ -312,13 +292,10 @@ class MagnitudeFit(ABC):
                 dropped.
         """
 
-        interpreter = asteval.Interpreter()
-        for varname in phot.dtype.names:
-            interpreter.symtable[varname] = phot['varname']
-        include_flag = interpreter(self.config.fit_source_condition)
+        include_flag = Evaluator(phot)(self.config.fit_source_condition)
         include_flag[no_catalogue] = False
 
-        result = include_flag.nonzero()
+        result = include_flag.nonzero()[0]
 
         num_skipped = len(phot['ID']) - result.size
         if num_skipped:
@@ -336,7 +313,7 @@ class MagnitudeFit(ABC):
         Args:
             phot:    See return of add_catalogue_info()
 
-            no_catalogue (set):    A set of source indices from phot for which
+            no_catalogue (list):    The source indices from phot for which
                 no catalogue information was available, so default values were
                 used. All identified sources are omitted from the result.
 
@@ -352,12 +329,16 @@ class MagnitudeFit(ABC):
         def initialize_result():
             """Return an empty result structure."""
 
-            dtype = phot.dtype
+            dtype = [(field[0], field[1][0])
+                     for field in phot.dtype.fields.items()]
             if self.config.reference_subpix:
                 dtype.extend([('x_ref', scipy.float64),
                               ('y_ref', scipy.float64)])
-            dtype.extend([('ref_mag', phot['mag'].shape),
-                          ('ref_mag_err', phot['mag_err'].shape)])
+            dtype.extend([
+                ('ref_mag', scipy.float64, phot['mag'][0].shape),
+                ('ref_mag_err', scipy.float64, phot['mag_err'][0].shape)
+            ])
+            print('Result dtype: ' + repr(dtype))
             return scipy.empty(phot.shape, dtype=dtype)
 
         result = initialize_result()
@@ -369,7 +350,7 @@ class MagnitudeFit(ABC):
         )
         result_ind = 0
         for phot_ind in fit_indices:
-            ref_info = self._reference.get(result['ID'][result_ind])
+            ref_info = self._reference.get(tuple(phot['ID'][phot_ind]))
             if ref_info is None:
                 if num_not_in_ref == 0:
                     not_in_ref_example = result['ID'][result_ind]
@@ -387,28 +368,22 @@ class MagnitudeFit(ABC):
             result_ind += 1
 
         if result_ind == 0:
+            print(repr(skipped_example))
             self.logger.error(
                 (
-                    'All %d sources discarded from %d-%d_%d: %d skipped '
+                    'All %d sources discarded from %s: %d skipped '
                     '(example %s), %d not in the %d sources of the reference '
-                    '(example %d-%d.), bright mag=%g, faint_mag=%g, '
-                    'min(J-K)=%g, max(J-K)=%g, AAA only=%s'
+                    '(example %d-%d.), fit source condition: %s'
                 ),
                 len(phot['ID']),
-                self._header['STID'],
-                self._header['FNUM'],
-                self._header['CMPOS'],
+                self._dr_fname,
                 num_skipped,
-                self._source_name_format % skipped_example,
+                self._source_name_format % tuple(skipped_example[1:]),
                 num_not_in_ref,
                 len(self._reference.keys()),
                 not_in_ref_example[0],
                 not_in_ref_example[1],
-                self.config.bright_mag,
-                self.config.faint_mag,
-                self.config.min_JmK,
-                self.config.max_JmK,
-                self.config.AAAonly
+                self.config.fit_source_condition
             )
         return result[:result_ind]
 
@@ -463,60 +438,22 @@ class MagnitudeFit(ABC):
         os.remove(self._fit_file)
         """
 
-    def _output_to_grcollect(self, phot, fitted):
-        """Write the appropriate output for grcollect to self._output_stream."""
-
-
-        formal_errors = phot['mag_err'][:, -1]
-        phot_flags = phot['phot_flag'][:, -1]
-
-        src_count, num_photometries = formal_errors.shape
-        assert formal_errors.shape == phot_flags.shape
-        assert fitted.shape == formal_errors.shape
-
-        line_format = (self._source_name_format
-                       +
-                       (' %9.5f') * (2 * num_photometries))
-        self._output_lock.acquire()
-        for source_ind in range(src_count):
-            print_args = (
-                phot['ID'][source_ind]
-                +
-                tuple(fitted[source_ind])
-                +
-                tuple(formal_errors(source_ind))
-            )
-
-            all_finite = True
-            for value in print_args:
-                if scipy.isnan(value):
-                    all_finite = False
-                    break
-
-            if all_finite:
-                if self._output_stream:
-                    self._output_stream.write(line_format % print_args + '\n')
-                else:
-                    print(line_format % print_args)
-        self._output_lock.release()
-
     def __init__(self,
                  *,
                  reference,
                  master_catalogue,
                  config,
-                 output_lock,
-                 output_stream=None,
+                 magfit_collector=None,
                  source_name_format='HAT-%03d-%07d'):
         """
         Initializes a magnditude fitting thread.
 
         Args:
             reference(dict):    the reference against which fitting is done.
-                Should be indexed by source and contain something implementing
-                dict interface with keys 'mag', 'mag_err' and optionally 'x' and
-                'y' if the sub-pixel position of the source in the reference is
-                to be used in magnitude fitting.
+                Should be indexed by source and contain entries implementing
+                the dict interface with keys 'mag', 'mag_err' and optionally
+                'x' and 'y' if the sub-pixel position of the source in the
+                reference is to be used in magnitude fitting.
 
             master_catalogue(dict):    should be indexed by sources (field,
                 source number) containing dictonaries with relevant 2mass
@@ -529,26 +466,25 @@ class MagnitudeFit(ABC):
             output_lock:    A lock to use for ensuring only one thread is
                 outputting at a time.
 
-            output_stream(file stream):    Destination to write fitted magniteds
-                to. This should generally be the standard input to grcollect for
-                generating statistics of the scatter after magnitude fitting.
+            magfit_collector(MasterPhotrefCollector):    Object collecting
+                fitted magnitedes for generating statistics of the scatter after
+                magnitude fitting.
         """
 
         self.config = config
-        self._output_stream = output_stream
+        self._dr_fname = None
+        self._magfit_collector = magfit_collector
         self._reference = reference
         self._catalogue = master_catalogue
-        self._output_lock = output_lock
         self._source_name_format = source_name_format
-        self._header = None
         self.logger = logging.getLogger(__name__)
 
-    def __call__(self, header, **dr_path_substitutions):
+    def __call__(self, dr_fname, **dr_path_substitutions):
         """
         Performs the fit for the latest magfit iteration for a single frame.
 
         Args:
-            header:    The header of the frame to fit.
+            dr_fname:    The name of the data reductio file to fit.
 
             dr_path_substitutions:    See path_substitutions argument
                 to DataReduction.get_source_data().
@@ -575,41 +511,36 @@ class MagnitudeFit(ABC):
                     each input photometry method.
             """
 
-            initial_src_count = 0
-            final_src_count = 0
-            for group_res in fit_results:
-                initial_src_count += (
-                    group_res['initial_src_count']
-                )
-                final_src_count += group_res['final_src_count']
-
-            return dict(
-                residual=scipy.nanmedian(
-                    [
-                        group_res['residual'] or scipy.nan
-                        for group_res in fit_results
-                    ],
-                    0
-                ),
-                initial_src_count=initial_src_count,
-                final_src_count=final_src_count
+            num_photometries = len(fit_results)
+            result = dict(
+                residual=scipy.empty(num_photometries, scipy.float64),
+                initial_src_count=scipy.zeros(num_photometries, scipy.int_),
+                final_src_count=scipy.zeros(num_photometries, scipy.int_),
             )
 
+            for phot_ind, phot_result in enumerate(fit_results):
+                for group_result in phot_result:
+                    for key in ['initial_src_count', 'final_src_count']:
+                        result[key][phot_ind] += group_result[key]
+                result['residual'][phot_ind] = scipy.nanmedian([
+                    group_result['residual'] or scipy.nan
+                    for group_result in phot_result
+                ])
+
+            return result
 
         try:
-            self.logger.debug('Process %d fitting header: %s.',
+            self.logger.debug('Process %d fitting: %s.',
                               current_process().pid,
-                              header)
-            self._header = header
-            data_reduction = DataReductionFile(
-                header=header,
-                mode='r+'
-            )
+                              dr_fname)
+            data_reduction = DataReductionFile(dr_fname, mode='r+')
+            self._dr_fname = dr_fname
             phot = data_reduction.get_source_data(magfit_iterations=[-1],
                                                   string_source_ids=False,
-                                                  shape_map_variables=False)
+                                                  shape_map_variables=False,
+                                                  **dr_path_substitutions)
 
-            if 'sources' not in phot or phot['sources']:
+            if not phot.size:
                 self.logger.warning('Downgrading calib status.')
                 self._downgrade_calib_status()
                 return
@@ -618,7 +549,7 @@ class MagnitudeFit(ABC):
                 self._add_catalogue_info(phot)
             )
             self.logger.debug('Checking for existing solution.')
-            fit_results = False or self._solved(len(phot['photometry']))
+            fit_results = False or self._solved(phot['mag'].shape[2])
             if fit_results:
                 assert 'fit_groups' not in phot
                 fit_results = [fit_results]
@@ -631,7 +562,8 @@ class MagnitudeFit(ABC):
             if fit_results:
                 self.logger.debug('Post-processing fit.')
                 fitted = self._apply_fit(phot, fit_results)
-                assert fitted.shape == phot['mag'].shape
+                assert fitted.shape == (phot['mag'].shape[0],
+                                        phot['mag'].shape[2])
                 fit_statistics = combine_fit_statistics(fit_results)
 
                 self.logger.debug('Adding to DR file.')
@@ -644,10 +576,10 @@ class MagnitudeFit(ABC):
                 )
                 data_reduction.close()
                 self.logger.debug('Updating calibration status.')
-                if self._output_stream is None:
+                if self._magfit_collector is not None:
                     self.logger.debug('Outputting %d sources.',
-                                      len(phot['sources']))
-                    self._output_to_grcollect(phot, fitted)
+                                      len(phot['ID']))
+                    self._magfit_collector.add_input(phot, fitted)
         except Exception as ex:
             #Does not make sense to avoid building message.
             #pylint: disable=logging-not-lazy
@@ -657,9 +589,10 @@ class MagnitudeFit(ABC):
                                  +
                                  "".join(format_exception(*sys.exc_info()))
                                  +
-                                 "\nBad header:"
+                                 "\nBad DR:"
                                  +
-                                 str(header))
+                                 dr_fname)
             #pylint: enable=logging-not-lazy
             raise
 #pylint: enable=too-many-instance-attributes
+#pylint: enable=too-few-public-methods

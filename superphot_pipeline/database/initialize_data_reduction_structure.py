@@ -533,7 +533,7 @@ def _get_background_datasets():
             'projected source.'
         ),
         HDF5DataSet(
-            pipeline_key='bg.errors',
+            pipeline_key='bg.error',
             abspath=_default_paths['background'] + '/Error',
             dtype='numpy.float64',
             scaleoffset=3,
@@ -737,7 +737,7 @@ def _get_magfit_datasets(photometry_mode):
 
     return [
         HDF5DataSet(
-            pipeline_key=pipeline_key_start + 'magnitudes',
+            pipeline_key=pipeline_key_start + 'magnitude',
             abspath=dset_path,
             dtype='numpy.float64',
             scaleoffset=5,
@@ -1023,7 +1023,7 @@ def _get_shapefit_datasets():
                 'assigned to the source for PSF fitting.'
             ),
             HDF5DataSet(
-                pipeline_key='shapefit.magnitudes',
+                pipeline_key='shapefit.magnitude',
                 abspath=root_path + '/Magnitude',
                 dtype='numpy.float64',
                 scaleoffset=5,
@@ -1032,7 +1032,7 @@ def _get_shapefit_datasets():
                 'projected sources.'
             ),
             HDF5DataSet(
-                pipeline_key='shapefit.magnitude_errors',
+                pipeline_key='shapefit.magnitude_error',
                 abspath=root_path + '/MagnitudeError',
                 dtype='numpy.float64',
                 scaleoffset=5,
