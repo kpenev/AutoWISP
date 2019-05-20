@@ -57,7 +57,7 @@ class MasterPhotrefCollector:
         """
 
         grcollect_cmd = ['grcollect', '-', '-V', '--stat']
-        stat_columns = range(1, 2 * num_photometries + 1)
+        stat_columns = range(2, 2 * num_photometries + 2)
         if outlier_threshold:
             grcollect_cmd.append(','.join(['count',
                                            'rcount',
@@ -101,9 +101,12 @@ class MasterPhotrefCollector:
         self._output_lock = output_lock
         self._num_photometries = num_photometries
         self._source_name_format = source_name_format
+        self._input_backup = open('grcollect_input_backup.txt', 'w')
 
     def add_input(self, phot, fitted):
         """Ingest a fitted frame's photometry into the statistics."""
+
+        assert self._grcollect.poll() is None
 
         formal_errors = phot['mag_err'][:, -1]
         phot_flags = phot['phot_flag'][:, -1]
@@ -137,13 +140,20 @@ class MasterPhotrefCollector:
                 self._grcollect.stdin.write(
                     (line_format % print_args + '\n').encode('ascii')
                 )
+                self._input_backup.write(
+                    (line_format % print_args + '\n')
+                )
         if self._output_lock is not None:
             self._output_lock.release()
 
     def calculate_statistics(self):
         """Finish the work of the object, creating the statics file."""
 
+        self._input_backup.close()
+        assert self._grcollect.poll() is None
         grcollect_output, grcollect_error = self._grcollect.communicate()
+        print('grcollect output: ' + grcollect_output.decode())
+        print('grcollect error: ' + grcollect_error.decode())
         if self._grcollect.returncode:
             raise ChildProcessError(
                 'grcollect command failed! '
