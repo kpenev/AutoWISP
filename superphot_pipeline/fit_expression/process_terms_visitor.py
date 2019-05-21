@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 
 from scipy.special import binom
 
-from superphot_pipeline.fit_terms.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_terms.FitTermsParserVisitor import \
+from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
+from superphot_pipeline.fit_expression.FitTermsParserVisitor import \
     FitTermsParserVisitor
 
 class ProcessTermsVisitor(FitTermsParserVisitor, ABC):

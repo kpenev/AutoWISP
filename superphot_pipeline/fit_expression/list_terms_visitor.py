@@ -1,7 +1,7 @@
 """Implement a visitor to parsed fit terms expressions that prints all terms."""
 
-from superphot_pipeline.fit_terms.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_terms.process_terms_visitor import \
+from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
+from superphot_pipeline.fit_expression.process_terms_visitor import \
     ProcessTermsVisitor
 
 class ListTermsVisitor(ProcessTermsVisitor):

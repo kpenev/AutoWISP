@@ -1,11 +1,11 @@
 """An interface for working with fitting terms expressions."""
 
 from antlr4 import InputStream, CommonTokenStream
-from superphot_pipeline.fit_terms.FitTermsLexer import FitTermsLexer
-from superphot_pipeline.fit_terms.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_terms.list_terms_visitor import ListTermsVisitor
-from superphot_pipeline.fit_terms.count_terms_visitor import CountTermsVisitor
-from superphot_pipeline.fit_terms.evaluate_terms_visitor import \
+from superphot_pipeline.fit_expression.FitTermsLexer import FitTermsLexer
+from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
+from superphot_pipeline.fit_expression.list_terms_visitor import ListTermsVisitor
+from superphot_pipeline.fit_expression.count_terms_visitor import CountTermsVisitor
+from superphot_pipeline.fit_expression.evaluate_terms_visitor import \
     EvaluateTermsVisitor
 
 class Interface:
