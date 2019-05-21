@@ -51,7 +51,6 @@ class MagnitudeFit(ABC):
         _output_lock:    See `output_lock` argument to __init__().
 
         _source_name_format:    See `source_name_format` argument to __init__().
-
     """
 
     #TODO: revive once database design is complete
