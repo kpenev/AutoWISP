@@ -57,7 +57,10 @@ def iterative_fit(derivatives,
 
         logger.debug('Weigthed difference: %s', repr(weighted_fit_diff))
         logger.debug('Weigths: %s', repr(weights))
-        fit_diff2 = pow(weighted_fit_diff/(weights or 1.0), 2)
+        fit_diff2 = pow(
+            weighted_fit_diff/(1.0 if weights is None else weights),
+            2
+        )
         logger.debug('Square difference: %s', repr(fit_diff2))
         if error_avg == 'weightedmean':
             res2 = (scipy.mean(pow(weighted_fit_diff, 2))

@@ -126,10 +126,7 @@ class MasterPhotrefCollector:
             special_dtypes = dict(phqual='S3', magsrcflag='S9')
             dtype = (
                 [
-                    ('ID', catalogue['ID'].dtype, catalogue['ID'][0].shape),
-                    ('xi', scipy.float64),
-                    ('eta', scipy.float64),
-                    (catalogue_filter, scipy.float64),
+                    ('ID', scipy.intc, (len(next(iter(catalogue.keys()))),)),
                     ('full_count', scipy.intc, (self._num_photometries,)),
                     ('rejected_count', scipy.intc, (self._num_photometries,)),
                     ('median', scipy.float64, (self._num_photometries,)),
@@ -153,9 +150,7 @@ class MasterPhotrefCollector:
             for source_index, source_id in enumerate(stat_data['ID']):
                 result['ID'][source_index] = parse_source_id(source_id)
 
-            for column in ['xi', 'eta', catalogue_filter]:
-                result[column] = stat_data[column]
-
+            print('Stat data columns: ' + repr(stat_data.dtype.names))
             for phot_index in range(self._num_photometries):
                 result['full_count'][:, phot_index] = stat_data[
                     'count_mag_%d' % phot_index
@@ -165,13 +160,13 @@ class MasterPhotrefCollector:
                 ]
                 for statistic in ['median', 'mediandev', 'medianmeddev']:
                     result[statistic][:, phot_index] = stat_data[
-                        statistic + '_%d' % phot_index
+                        'r' + statistic + '_mag_%d' % phot_index
                     ]
 
         def add_catalogue_info(catalogue_columns, result):
             """Add the catalogue data for each source to the result."""
 
-            for source_index, source_id in result['ID']:
+            for source_index, source_id in enumerate(result['ID']):
                 catalogue_source = catalogue[tuple(source_id)]
                 for colname in catalogue_columns:
                     result[colname][source_index] = catalogue_source[colname]
@@ -228,13 +223,13 @@ class MasterPhotrefCollector:
         """
 
         predictors = FitTermsInterface(fit_terms_expression)(statistics)
-        num_photometries = statistics['count'][0].size
+        num_photometries = statistics['full_count'][0].size
         residuals = scipy.empty((statistics.size, num_photometries))
         for phot_ind in range(num_photometries):
             enough_counts = (
                 statistics['rejected_count'][:, phot_ind] >= min_counts
             )
-            phot_predictors = predictors[enough_counts]
+            phot_predictors = predictors[:, enough_counts]
             target_values = scipy.log10(
                 statistics[scatter_quantity][enough_counts, phot_ind]
             )
@@ -333,10 +328,10 @@ class MasterPhotrefCollector:
                                                                 phot_ind]
             return reference_data
 
-        num_photometries = statistics['count'][0].size
+        num_photometries = statistics['full_count'][0].size
         master_hdus = [fits.BinTableHDU(get_phot_reference_data(phot_ind))
                        for phot_ind in range(num_photometries)]
-        fits.HDUList(master_hdus).writeto(reference_fname)
+        fits.HDUList([fits.PrimaryHDU()] + master_hdus).writeto(reference_fname)
 
     #Could not refactor to simply.
     #pylint: disable=too-many-locals
