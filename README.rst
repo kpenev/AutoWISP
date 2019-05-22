@@ -6,7 +6,7 @@ Collection of Python scripts implementing a SuiperPhot based generic pipeline fo
 Potentially relevant articles:
 ------------------------------
 
- `The shape of the Photon Transfer Curve of CCD sensors <https://ui.adsabs.harvard.edu/abs/2019arXiv190508677A/abstract>`_
+`The shape of the Photon Transfer Curve of CCD sensors <https://ui.adsabs.harvard.edu/abs/2019arXiv190508677A/abstract>`_
 
 `The Weird Detector: Flagging periodic, coherent signals of arbitrary shape in time series photometry <https://ui.adsabs.harvard.edu/abs/2019MNRAS.485.5498W/abstract>`_
 
