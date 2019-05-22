@@ -2,6 +2,7 @@
 
 import numpy
 from numpy.lib import recfunctions
+from astropy.io import fits
 
 def get_single_photref(data_reduction_file, **path_substitutions):
     """Create a photometric reference out of the raw photometry in a DR file."""
@@ -17,6 +18,39 @@ def get_single_photref(data_reduction_file, **path_substitutions):
                                       mag=source['mag'],
                                       mag_err=source['mag_err'])
             for source in source_data}
+
+def get_master_photref(photref_fname):
+    """Read a FITS photometric reference created by MasterPhotrefCollector."""
+
+    result = dict()
+    with fits.open(photref_fname, 'readonly') as photref_fits:
+        num_photometries = len(photref_fits) - 1
+        for phot_ind, phot_reference in enumerate(photref_fits[1:]):
+            for source_index, source_id in enumerate(
+                    zip(phot_reference.data['IDprefix'].astype('int'),
+                        phot_reference.data['IDfield'],
+                        phot_reference.data['IDsource'])
+            ):
+                if source_id not in result:
+                    result[source_id] = dict(
+                        mag=numpy.full(num_photometries,
+                                       numpy.nan,
+                                       numpy.float64),
+                        mag_err=numpy.full(num_photometries,
+                                           numpy.nan,
+                                           numpy.float64)
+                    )
+                result[source_id]['mag'][phot_ind] = phot_reference.data[
+                    'magnitude'
+                ][
+                    source_index
+                ]
+                result[source_id]['mag_err'][phot_ind] = phot_reference.data[
+                    'mediandev'
+                ][
+                    source_index
+                ]
+    return result
 
 def read_master_catalogue(fname, source_id_parser):
     """Return the catalogue info in the given file formatted for magfitting."""
