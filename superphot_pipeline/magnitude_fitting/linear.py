@@ -172,6 +172,37 @@ class LinearMagnitudeFit(MagnitudeFit):
         return fitted
 
     def __init__(self, *, config, **kwargs):
+        """
+        Initialize a magnitude fitting object using linear least squares.
+
+        Args:
+            config:    An object with attributes configuring how to perform
+                magnitude fitting. It should provide at least the arguments
+                required by the parent class and the following:
+
+                    * correction_parametrization: As string that expands to the
+                      terms to include in the magnitude fitting correction.
+
+                    * max_mag_err: The largest the formal magnitude error is
+                      allowed to be before the source is excluded.
+
+                    * noise_offset: Additional offset to format magnitude error
+                      estimates when they are used to determine the fitting
+                      weights.
+
+                    * error_avg: See same name argument to
+                      superphot_pipeline.fit_expression.iterative_fit().
+
+                    * rej_level: See same name argument to
+                      superphot_pipeline.fit_expression.iterative_fit().
+
+                    * max_rej_iter: See same name argument to
+                      superphot_pipeline.fit_expression.iterative_fit().
+
+        Returns:
+            None
+        """
+
 
         super().__init__(config=config, **kwargs)
         self.fit_terms = FitTermsInterface(config.correction_parametrization)

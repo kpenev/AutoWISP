@@ -24,17 +24,7 @@ class MagnitudeFit(ABC):
     the database.
 
     Attributes:
-        config:    An object with attributes configuring how to perform
-            magnitude fitting. It should provide at least the following
-            attributes:
-
-            * fit_source_condition: An expression involving catalogue, reference
-                and/or photometry variables which evaluates to zero if a source
-                should be excluded and any non-zero value if it should be
-                included in the magnitude fit.
-
-            * reference_subpix: Should the magnitude fitting correction depend
-                on the sub-pixel position of the source in the reference frame.
+        config:    See `config` argument to __init__().
 
         logger:    A python logging logger for emitting messages on the progress
             and status of magnitude fitting.
@@ -445,7 +435,7 @@ class MagnitudeFit(ABC):
                  magfit_collector=None,
                  source_name_format='HAT-%03d-%07d'):
         """
-        Initializes a magnditude fitting thread.
+        Initializes a magnditude fitting object.
 
         Args:
             reference(dict):    the reference against which fitting is done.
@@ -458,9 +448,19 @@ class MagnitudeFit(ABC):
                 source number) containing dictonaries with relevant 2mass
                 information.
 
-            config:    An object with attributes configuring how magnitude
-                fitting is going to be done. See same name atribute for expected
-                attributes.
+
+            config:    An object with attributes configuring how to
+                perform magnitude fitting. It should provide at least the
+                following attributes:
+
+                    * fit_source_condition: An expression involving catalogue,
+                      reference and/or photometry variables which evaluates to
+                      zero if a source should be excluded and any non-zero value
+                      if it should be included in the magnitude fit.
+
+                    * reference_subpix: Should the magnitude fitting correction
+                      depend on the sub-pixel position of the source in the
+                      reference frame.
 
             output_lock:    A lock to use for ensuring only one thread is
                 outputting at a time.

@@ -59,16 +59,13 @@ class MasterPhotrefCollector:
             med = scipy.median([float(l.split()[count_col]) for l in stat_file])
         return med
 
-    def _read_statistics(self, catalogue, catalogue_filter, parse_source_id):
+    def _read_statistics(self, catalogue, parse_source_id):
         """
         Read the magnitude & scatter for each source for each photometry.
 
         Args:
             catalogue(dict):    See ``master_catalogue`` argument to
                 MagnitudeFit.__init__().
-
-            catalogue_filter(str):    See same name argument to
-                generate_master().
 
             parse_source_id(callable):    See same name argument to
                 generate_master().
@@ -78,9 +75,6 @@ class MasterPhotrefCollector:
                 The fields are as follows:
 
                     ID: The ID of the source.
-
-                    <filter>: The catalogue estimated magnitude of the source.
-                        The name of the column is given by ``catalogue_filter``.
 
                     xi, eta: The projected angular coordinates of the source
                         from the catalogue.
@@ -477,7 +471,6 @@ class MasterPhotrefCollector:
                         *,
                         master_reference_fname,
                         catalogue,
-                        catalogue_filter,
                         fit_terms_expression,
                         parse_source_id,
                         min_nobs_median_fraction=0.5,
@@ -493,10 +486,6 @@ class MasterPhotrefCollector:
 
             catalogque:     See ``master_catalogue`` argument to
                 MagnitudeFit.__init__().
-
-            catalogque_filter(str):   The column in the catalogue that contains
-                the magntiude closest to what is measured using the input
-                images.
 
             fit_terms_expression(str):    An expression expanding to the terms
                 to include in the scatter fit. May use any catalogue column.
@@ -528,7 +517,6 @@ class MasterPhotrefCollector:
         self._calculate_statistics()
         statistics = self._read_statistics(
             catalogue,
-            catalogue_filter,
             parse_source_id
         )
         min_counts = min_nobs_median_fraction * self._get_med_count()

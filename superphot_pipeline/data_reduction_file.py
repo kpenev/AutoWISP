@@ -923,6 +923,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                           ' phot_i = %d, magfit_i = %d'
                           %
                           (photometry_index, magfit_iter))
+                    path_substitutions['magfit_iteration'] = magfit_iter
                     if shape_fit:
                         result[
                             result_key
@@ -933,7 +934,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         ] = self.get_dataset(
                             'shapefit.' + dataset_key_tail,
                             expected_shape=result.shape,
-                            magfit_iteration=magfit_iter,
                             **path_substitutions
                         )
                         print('Raad shape fit photometry (phot index = %d)'
@@ -955,7 +955,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                 'apphot.' + dataset_key_tail,
                                 expected_shape=result.shape,
                                 aperture_index=aperture_index,
-                                magfit_iteration=magfit_iter,
                                 **path_substitutions
                             )
                             print('Raad apphot #%d (phot index = %d)'
