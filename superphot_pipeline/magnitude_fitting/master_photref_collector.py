@@ -104,18 +104,16 @@ class MasterPhotrefCollector:
             """Read the statistics file."""
 
             column_names = ['ID']
-            for phot_ind in range(self._num_photometries):
-                column_names.extend(
-                    [
-                        quantity + '_mag_%d' % phot_ind
-                        for quantity in self._stat_quantities
-                    ]
-                    +
-                    [
-                        quantity + '_mag_err_%d' % phot_ind
-                        for quantity in self._stat_quantities
-                    ]
-                )
+            for phot_quantity in ['mag', 'mag_err']:
+                for phot_ind in range(self._num_photometries):
+                    column_names.extend(
+                        [
+                            '%s_%s_%d' % (stat_quantity,
+                                          phot_quantity,
+                                          phot_ind)
+                            for stat_quantity in self._stat_quantities
+                        ]
+                    )
             return scipy.genfromtxt(self._statistics_fname,
                                     dtype=None,
                                     names=column_names)
@@ -314,7 +312,7 @@ class MasterPhotrefCollector:
                     ('IDsource', 'ID', 2),
                     ('full_count', 'full_count', phot_ind),
                     ('rejected_count', 'rejected_count', phot_ind),
-                    ('magnitude', 'median', phot_ind,),
+                    ('magnitude', 'median', phot_ind),
                     ('mediandev', 'mediandev', phot_ind),
                     ('medianmeddev', 'medianmeddev', phot_ind)
             ]:
