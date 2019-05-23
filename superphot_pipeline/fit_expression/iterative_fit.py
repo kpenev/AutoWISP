@@ -57,18 +57,21 @@ def iterative_fit(derivatives,
 
         logger.debug('Weigthed difference: %s', repr(weighted_fit_diff))
         logger.debug('Weigths: %s', repr(weights))
+
+        assert weights is None or (weights > 0).all()
+        assert scipy.isfinite(weighted_fit_diff).all()
+
         fit_diff2 = pow(
             weighted_fit_diff/(1.0 if weights is None else weights),
             2
         )
         logger.debug('Square difference: %s', repr(fit_diff2))
         if error_avg == 'weightedmean':
-            res2 = (scipy.mean(pow(weighted_fit_diff, 2))
-                    /
-                    (1.0 if weights is None else scipy.mean(pow(weights, 2))))
+            res2 = scipy.mean(pow(weighted_fit_diff, 2))
+            if weights is not None:
+                res2 /= scipy.mean(pow(weights, 2))
         else:
-            avg = getattr(scipy, error_avg)
-            res2 = avg(fit_diff2)
+            res2 = getattr(scipy, error_avg)(fit_diff2)
         max_diff2 = rej_level**2*res2
         logger.debug('max square difference: %s', repr(max_diff2))
         if res2 < 0:
@@ -107,8 +110,15 @@ def iterative_fit(derivatives,
     error_func = lambda coef: scipy.dot(coef, derivatives) - target_values
     deriv_func = lambda coef: derivatives
     initial_guess = scipy.zeros(num_free_coef)
+    bad_ind = scipy.logical_not(scipy.isfinite(target_values)).nonzero()[0]
     rej_iter = 0
     while True:
+
+        derivatives = scipy.delete(derivatives, bad_ind, 1)
+        target_values = scipy.delete(target_values, bad_ind)
+        if weights is not None:
+            weights = scipy.delete(weights, bad_ind)
+
         logger.debug('%d sources, %d coefficients\n',
                      len(target_values),
                      num_free_coef)
@@ -129,11 +139,8 @@ def iterative_fit(derivatives,
             )
         bad_ind, fit_res2 = rejected_indices(fit_results[2]['fvec'],
                                              weights)
-        rej_iter += 1
         if not bad_ind or rej_iter == max_rej_iter:
             return fit_results[0], fit_res2, len(target_values)
-        derivatives = scipy.delete(derivatives, bad_ind, 1)
-        target_values = scipy.delete(target_values, bad_ind)
-        if weights is not None:
-            weights = scipy.delete(weights, bad_ind)
+
+        rej_iter += 1
 #pylint: enable=too-many-locals
