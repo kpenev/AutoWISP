@@ -19,7 +19,8 @@ class LinearMagnitudeFit(MagnitudeFit):
 
             finite = True
             for var in ['x', 'y', 'bg', 'bg_err']:
-                finite = scipy.logical_and(finite, fit_data[var])
+                finite = scipy.logical_and(finite,
+                                           scipy.isfinite(fit_data[var]))
 
             result = []
             for phot_ind in range(num_photometries):
@@ -27,7 +28,7 @@ class LinearMagnitudeFit(MagnitudeFit):
                 for var in ['mag', 'mag_err', 'ref_mag', 'ref_mag_err']:
                     finite_phot = scipy.logical_and(
                         finite_phot,
-                        fit_data[var][:, 0, phot_ind]
+                        scipy.isfinite(fit_data[var][:, 0, phot_ind])
                     )
                 exclude = scipy.logical_not(finite_phot)
                 exclude = scipy.logical_or(
@@ -38,11 +39,12 @@ class LinearMagnitudeFit(MagnitudeFit):
                         self.config.max_mag_err
                     )
                 )
-                result.append(exclude.nonzero())
+                result.append(exclude.nonzero()[0])
 
             return result
 
-        def calculate_photometry_result(phot_predictors,
+        def calculate_photometry_result(phot_ind,
+                                        phot_predictors,
                                         no_fit_indices,
                                         fit_group,
                                         fit_group_ids):
@@ -56,10 +58,23 @@ class LinearMagnitudeFit(MagnitudeFit):
                               fit_data['mag'][:, 0, phot_ind])
 
             phot_skip_indices = no_fit_indices[phot_ind]
-            if phot_skip_indices:
-                scipy.delete(phot_predictors, phot_skip_indices)
-                scipy.delete(weights, phot_skip_indices)
-                scipy.delete(mag_difference, phot_skip_indices)
+            if phot_skip_indices.size:
+                self.logger.debug('Skipping %d sources from fitting.',
+                                  phot_skip_indices.size)
+                phot_predictors = scipy.delete(phot_predictors,
+                                               phot_skip_indices,
+                                               1)
+                weights = scipy.delete(weights, phot_skip_indices)
+                mag_difference = scipy.delete(mag_difference, phot_skip_indices)
+
+            self.logger.debug('Smallest weight for photometry %d: %g',
+                              phot_ind,
+                              weights.min())
+
+            assert scipy.isfinite(phot_predictors).all()
+            assert scipy.isfinite(mag_difference).all()
+            assert (weights > 0).all()
+
 
             derivatives = scipy.multiply(phot_predictors, weights)
             print('Derivatives shape: ' + repr(derivatives.shape))
@@ -69,7 +84,7 @@ class LinearMagnitudeFit(MagnitudeFit):
                 if group_id is not None:
                     in_group = (fit_group == group_id)
                     if phot_skip_indices:
-                        scipy.delete(in_group, phot_skip_indices)
+                        in_group = scipy.delete(in_group, phot_skip_indices)
 
                 self.logger.debug('Fitting group %s', str(group_id))
                 coefficients, fit_res2, final_src_count = iterative_fit(
@@ -124,6 +139,7 @@ class LinearMagnitudeFit(MagnitudeFit):
         for phot_ind in range(num_photometries):
             result.append(
                 calculate_photometry_result(
+                    phot_ind,
                     scipy.copy(predictors),
                     no_fit_indices,
                     fit_group,
