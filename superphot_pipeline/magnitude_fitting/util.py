@@ -160,17 +160,21 @@ def iterative_refit(fit_dr_filenames,
         new_reference = get_master_photref(master_reference_fname)
 
         common_sources = set(new_reference) & set(old_reference)
-        square_change = numpy.array(
-            (old_reference[source]['mag'] - new_reference[source]['mag'])**2
-            for source in common_sources
-        )
 
+        average_square_change = 0
+        num_finite = 0
+        for source in common_sources:
+            square_diff = (old_reference[source]['mag'] - new_reference[source]['mag'])**2
+            if numpy.isfinite(square_diff):
+                average_square_change += square_diff
+                num_finite += 1
+
+        average_square_change /= num_finite
         _logger.debug(
             'Fit iteration resulted in average square change in magnitudes of: '
-            '%g',
-            square_change
+            '%s',
+            repr(average_square_change)
         )
-        exit(1)
 
         if average_square_change.max() <= configuration.max_photref_change:
             return None
