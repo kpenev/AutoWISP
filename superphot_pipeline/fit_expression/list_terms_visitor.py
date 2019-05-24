@@ -75,5 +75,10 @@ class ListTermsVisitor(ProcessTermsVisitor):
 
         result = []
         for child in ctx.fit_terms_set_cross_product():
-            result.extend(self.visit(child))
+            new_terms = self.visit(child)
+            if result and (new_terms[0] == '1'):
+                result.extend(new_terms[1:])
+            else:
+                result.extend(new_terms)
+
         return result

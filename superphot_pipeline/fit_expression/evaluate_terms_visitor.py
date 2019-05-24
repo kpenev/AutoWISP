@@ -105,9 +105,12 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
     ):
         """Return all terms defined by the term expression."""
 
-        return numpy.concatenate(
-            [
-                self.visit(child)
-                for child in ctx.fit_terms_set_cross_product()
-            ]
-        )
+        term_list = []
+        for child in ctx.fit_terms_set_cross_product():
+            new_terms = self.visit(child)
+            if term_list and (new_terms[0] == 1).all():
+                term_list.append(new_terms[1:])
+            else:
+                term_list.append(new_terms)
+
+        return numpy.concatenate(term_list)

@@ -4,9 +4,9 @@ import sys
 import scipy
 
 from antlr4 import InputStream, CommonTokenStream
-from superphot_pipeline.fit_terms.FitTermsLexer import FitTermsLexer
-from superphot_pipeline.fit_terms.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_terms import Interface as FitTermsInterface
+from superphot_pipeline.fit_expression.FitTermsLexer import FitTermsLexer
+from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
+from superphot_pipeline.fit_expression import Interface as FitTermsInterface
 
 if __name__ == '__main__':
     fit_terms = FitTermsInterface(sys.argv[1])

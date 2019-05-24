@@ -13,15 +13,15 @@ class CountTermsVisitor(FitTermsParserVisitor):
     def visitFit_terms_list(self, ctx: FitTermsParser.Fit_terms_listContext):
         """Return the number of terms in the list."""
 
-        return len(ctx.fit_term())
+        return len(ctx.fit_term()), 0
 
     # Visit a parse tree produced by FitTermsParser#fit_polynomial.
     def visitFit_polynomial(self, ctx: FitTermsParser.Fit_polynomialContext):
         """Return the number of terms after the polynomial expansion."""
 
         max_order = int(ctx.order.text)
-        num_terms = self.visit(ctx.fit_terms_list())
-        return int(binom(num_terms + max_order, max_order))
+        num_terms = self.visit(ctx.fit_terms_list())[0]
+        return int(binom(num_terms + max_order, max_order)), 1
 
     # Visit a parse tree produced by FitTermsParser#fit_terms_set.
     def visitFit_terms_set(self, ctx: FitTermsParser.Fit_terms_setContext):
@@ -36,11 +36,13 @@ class CountTermsVisitor(FitTermsParserVisitor):
     ):
         """Return the number of terms combining one term from each input set."""
 
-        result = 1
+        num_terms, num_one_terms = 1, 1
         for term_set in ctx.fit_terms_set():
-            result *= self.visit(term_set)
+            piece_num_terms, piece_num_one_terms = self.visit(term_set)
+            num_terms *= piece_num_terms
+            num_one_terms *= piece_num_one_terms
 
-        return result
+        return num_terms, num_one_terms
 
     def visitFit_terms_expression(
             self,
@@ -48,8 +50,10 @@ class CountTermsVisitor(FitTermsParserVisitor):
     ):
         """Return the total number of terms the term expression expands to."""
 
-        result = 0
+        num_terms, num_one_terms = 0, 0
         for child in ctx.fit_terms_set_cross_product():
-            result += self.visit(child)
+            piece_num_terms, piece_num_one_terms = self.visit(child)
+            num_terms += piece_num_terms
+            num_one_terms += piece_num_one_terms
 
-        return result
+        return num_terms - (0 if num_one_terms <= 1 else num_one_terms - 1)
