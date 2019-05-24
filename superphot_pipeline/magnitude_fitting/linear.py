@@ -83,14 +83,14 @@ class LinearMagnitudeFit(MagnitudeFit):
             for group_id in fit_group_ids:
                 if group_id is not None:
                     in_group = (fit_group == group_id)
-                    if phot_skip_indices:
+                    if phot_skip_indices.size:
                         in_group = scipy.delete(in_group, phot_skip_indices)
 
                 self.logger.debug('Fitting group %s', str(group_id))
                 coefficients, fit_res2, final_src_count = iterative_fit(
                     (
                         derivatives if group_id is None
-                        else scipy.copy(derivatives[in_group])
+                        else scipy.copy(derivatives[:, in_group])
                     ),
                     (
                         mag_difference if group_id is None
@@ -163,7 +163,7 @@ class LinearMagnitudeFit(MagnitudeFit):
 
                 in_group = (
                     None if group_fit_results['group_id'] is None
-                    else (phot['fit_groups'] == group_fit_results['group_id'])
+                    else (phot['fit_group'] == group_fit_results['group_id'])
                 )
                 if in_group is None:
                     fitted[:, phot_ind] = (
@@ -173,17 +173,10 @@ class LinearMagnitudeFit(MagnitudeFit):
                     )
                 else:
                     fitted[in_group, phot_ind] = (
-                        phot['mag'][:, 0, phot_ind][in_group]
+                        phot['mag'][in_group, 0, phot_ind]
                         +
                         scipy.dot(fit_coef, predictors[:, in_group])
                     )
-
-
-                predictors = (
-                    predictors
-                    if in_group is None else
-                    [p[in_group] for p in predictors]
-                )
 
         return fitted
 
