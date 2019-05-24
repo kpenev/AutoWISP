@@ -748,7 +748,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             path_substitutions:    See get_source_count().
 
         Returns:
-            numpy structure array:
+            numpy structured array:
                 The photometry information in the current data reduction file.
                 The fields are:
 
@@ -915,6 +915,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     ('phot_flag', 'quality_flag')
             ):
                 for iter_index, magfit_iter in enumerate(magfit_iterations):
+                    if magfit_iter == 0 or result_key != 'mag':
+                        dataset_key_middle = ''
+                    else:
+                        dataset_key_middle = 'magfit.'
                     photometry_index = 0
                     print('Filling '
                           +
@@ -923,7 +927,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                           ' phot_i = %d, magfit_i = %d'
                           %
                           (photometry_index, magfit_iter))
-                    path_substitutions['magfit_iteration'] = magfit_iter
+                    path_substitutions['magfit_iteration'] = magfit_iter - 1
                     if shape_fit:
                         result[
                             result_key
@@ -932,7 +936,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             iter_index,
                             photometry_index
                         ] = self.get_dataset(
-                            'shapefit.' + dataset_key_tail,
+                            (
+                                'shapefit.'
+                                +
+                                dataset_key_middle
+                                +
+                                dataset_key_tail
+                            ),
                             expected_shape=result.shape,
                             **path_substitutions
                         )
@@ -952,7 +962,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                 iter_index,
                                 photometry_index
                             ] = self.get_dataset(
-                                'apphot.' + dataset_key_tail,
+                                (
+                                    'apphot.'
+                                    +
+                                    dataset_key_middle
+                                    +
+                                    dataset_key_tail
+                                ),
                                 expected_shape=result.shape,
                                 aperture_index=aperture_index,
                                 **path_substitutions
