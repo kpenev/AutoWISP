@@ -8,7 +8,7 @@ import scipy.optimize
 #TODO: switch to linear least squares
 #Could not come up with a reasonable way to simplify
 #pylint: disable=too-many-locals
-def iterative_fit(derivatives,
+def iterative_fit(predictors,
                   target_values,
                   *,
                   weights=None,
@@ -20,9 +20,9 @@ def iterative_fit(derivatives,
     Fit for the coefficients of a single fitting group.
 
     Args:
-        derivatives:    The derivatives w.r.t. to the fit coefficients of
+        predictors:    The derivatives w.r.t. to the fit coefficients of
             the predicted values (i.e. the matrix defining the fitting
-            problem).
+            problem, apart from weighting).
 
         target_values:    The values wey are trying to reproduce.
 
@@ -104,17 +104,19 @@ def iterative_fit(derivatives,
                     )
                 ])
             )
-        return (fit_diff2 > max_diff2).nonzero(), res2
+        return (fit_diff2 > max_diff2).nonzero()[0], res2
 
-    num_free_coef = len(derivatives)
-    error_func = lambda coef: scipy.dot(coef, derivatives) - target_values
-    deriv_func = lambda coef: derivatives
+    if weights is not None:
+        predictors = scipy.multiply(predictors, weights)
+        target_values = scipy.multiply(target_values, weights)
+    num_free_coef = len(predictors)
+    error_func = lambda coef: scipy.dot(coef, predictors) - target_values
+    deriv_func = lambda coef: predictors
     initial_guess = scipy.zeros(num_free_coef)
     bad_ind = scipy.logical_not(scipy.isfinite(target_values)).nonzero()[0]
-    rej_iter = 0
-    while True:
 
-        derivatives = scipy.delete(derivatives, bad_ind, 1)
+    for rej_iter in range(max_rej_iter + 1):
+        predictors = scipy.delete(predictors, bad_ind, 1)
         target_values = scipy.delete(target_values, bad_ind)
         if weights is not None:
             weights = scipy.delete(weights, bad_ind)
@@ -139,8 +141,7 @@ def iterative_fit(derivatives,
             )
         bad_ind, fit_res2 = rejected_indices(fit_results[2]['fvec'],
                                              weights)
-        if not bad_ind or rej_iter == max_rej_iter:
+        if bad_ind.size == 0:
             return fit_results[0], fit_res2, len(target_values)
 
-        rej_iter += 1
 #pylint: enable=too-many-locals

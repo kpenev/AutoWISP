@@ -164,7 +164,9 @@ def iterative_refit(fit_dr_filenames,
         average_square_change = 0
         num_finite = 0
         for source in common_sources:
-            square_diff = (old_reference[source]['mag'] - new_reference[source]['mag'])**2
+            square_diff = (old_reference[source]['mag']
+                           -
+                           new_reference[source]['mag'])**2
             if numpy.isfinite(square_diff):
                 average_square_change += square_diff
                 num_finite += 1

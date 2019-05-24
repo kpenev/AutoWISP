@@ -75,10 +75,6 @@ class LinearMagnitudeFit(MagnitudeFit):
             assert scipy.isfinite(mag_difference).all()
             assert (weights > 0).all()
 
-
-            derivatives = scipy.multiply(phot_predictors, weights)
-            print('Derivatives shape: ' + repr(derivatives.shape))
-
             group_results = []
             for group_id in fit_group_ids:
                 if group_id is not None:
@@ -89,8 +85,8 @@ class LinearMagnitudeFit(MagnitudeFit):
                 self.logger.debug('Fitting group %s', str(group_id))
                 coefficients, fit_res2, final_src_count = iterative_fit(
                     (
-                        derivatives if group_id is None
-                        else scipy.copy(derivatives[:, in_group])
+                        phot_predictors if group_id is None
+                        else phot_predictors[:, in_group]
                     ),
                     (
                         mag_difference if group_id is None
@@ -140,7 +136,7 @@ class LinearMagnitudeFit(MagnitudeFit):
             result.append(
                 calculate_photometry_result(
                     phot_ind,
-                    scipy.copy(predictors),
+                    predictors,
                     no_fit_indices,
                     fit_group,
                     fit_group_ids
@@ -161,17 +157,16 @@ class LinearMagnitudeFit(MagnitudeFit):
                 if fit_coef is None:
                     continue
 
-                in_group = (
-                    None if group_fit_results['group_id'] is None
-                    else (phot['fit_group'] == group_fit_results['group_id'])
-                )
-                if in_group is None:
+                if group_fit_results['group_id'] is None:
                     fitted[:, phot_ind] = (
                         phot['mag'][:, 0, phot_ind]
                         +
                         scipy.dot(fit_coef, predictors)
                     )
                 else:
+                    in_group = (phot['fit_group']
+                                ==
+                                group_fit_results['group_id'])
                     fitted[in_group, phot_ind] = (
                         phot['mag'][in_group, 0, phot_ind]
                         +
