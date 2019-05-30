@@ -33,7 +33,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         'projsrc.x': 'srcproj.x',
         'projsrc.y': 'srcproj.y',
         'bg.model': 'bg.cfg.model',
-        'bg.value': 'bg.values',
+        'bg.value': 'bg.value',
         'bg.error': 'bg.error',
         'psffit.min_bg_pix': 'shapefit.cfg.src.min_bg_pix',
         'psffit.gain': 'shapefit.cfg.gain',
@@ -897,7 +897,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def fill_background(result):
             """Fill the background entries in the result."""
 
-            for result_key, dataset_key in (('bg', 'bg.values'),
+            for result_key, dataset_key in (('bg', 'bg.value'),
                                             ('bg_err', 'bg.error'),
                                             ('bg_npix', 'bg.npix')):
                 result[result_key] = self.get_dataset(
