@@ -17,3 +17,5 @@ Potentially relevant articles:
 `MOBSTER - II. Identification of rotationally variable A stars observed with \emph{TESS} in Sectors 1 to 4 <https://arxiv.org/abs/1905.08835>`_
 
 `Transit least-squares survey - II. Discovery and validation of 17 new sub- to super-Earth-sized planets in multi-planet systems from K2 <https://arxiv.org/abs/1905.09038>`_
+
+`AutoRegressive Planet Search: Application to the Kepler Mission <https://ui.adsabs.harvard.edu/abs/2019arXiv190509852C/abstract>`_
