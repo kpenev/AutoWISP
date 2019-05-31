@@ -3,11 +3,8 @@
 import logging
 
 import scipy
-import scipy.optimize
+import scipy.linalg
 
-#TODO: switch to linear least squares
-#Could not come up with a reasonable way to simplify
-#pylint: disable=too-many-locals
 def iterative_fit(predictors,
                   target_values,
                   *,
@@ -110,12 +107,12 @@ def iterative_fit(predictors,
         predictors = scipy.multiply(predictors, weights)
         target_values = scipy.multiply(target_values, weights)
     num_free_coef = len(predictors)
-    error_func = lambda coef: scipy.dot(coef, predictors) - target_values
-    deriv_func = lambda coef: predictors
-    initial_guess = scipy.zeros(num_free_coef)
     bad_ind = scipy.logical_not(scipy.isfinite(target_values)).nonzero()[0]
 
+    #Intended just to limit the number of iterations
+    #pylint: disable=unused-variable
     for rej_iter in range(max_rej_iter + 1):
+    #pylint: enable=unused-variable
         predictors = scipy.delete(predictors, bad_ind, 1)
         target_values = scipy.delete(target_values, bad_ind)
         if weights is not None:
@@ -126,22 +123,10 @@ def iterative_fit(predictors,
                      num_free_coef)
         if len(target_values) < num_free_coef:
             return None, None, 0
-        fit_results = scipy.optimize.leastsq(
-            error_func,
-            initial_guess,
-            Dfun=deriv_func,
-            col_deriv=1,
-            full_output=1
+        best_fit_coef = scipy.linalg.lstsq(predictors.T, target_values, None)[0]
+        bad_ind, fit_res2 = rejected_indices(
+            scipy.dot(best_fit_coef, predictors) - target_values,
+            weights
         )
-        if fit_results[4] not in [1, 2, 3, 4]:
-            raise RuntimeError(
-                "Linear least squares fitting failed for '%s': %s"
-                %
-                (fit_identifier, fit_results[3])
-            )
-        bad_ind, fit_res2 = rejected_indices(fit_results[2]['fvec'],
-                                             weights)
         if bad_ind.size == 0:
-            return fit_results[0], fit_res2, len(target_values)
-
-#pylint: enable=too-many-locals
+            return best_fit_coef, fit_res2, len(target_values)
