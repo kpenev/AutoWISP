@@ -6,6 +6,7 @@ from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
 
 import numpy
+import h5py
 
 from superphot import SmoothDependence
 from superphot_pipeline.database.hdf5_file_structure import\
@@ -374,6 +375,25 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             del kwargs['header']
 
         super().__init__('data_reduction', *args, **kwargs)
+
+        self._hat_id_prefixes = numpy.array(
+            ['HAT', 'UCAC4'],
+            dtype=self.get_dtype('srcproj.recognized_hat_id_prefixes')
+        )
+
+    def get_dtype(self, element_key):
+        """Return numpy data type for the element with by the given key."""
+
+        if element_key.endswith('.hat_id_prefix'):
+            return h5py.special_dtype(
+                enum=(
+                    self._file_structure[element_key].dtype,
+                    dict((prefix, value)
+                         for value, prefix in enumerate(self._hat_id_prefixes))
+                )
+            )
+
+        return super().get_dtype(element_key)
 
     def parse_hat_source_id(self, source_id):
         """Return the prefix ID, field number, and source number."""

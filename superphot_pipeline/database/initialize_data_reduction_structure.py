@@ -40,6 +40,8 @@ _default_paths = dict(
     subpixmap='/SubPixelMap/Version%(subpixmap_version)03d',
 )
 
+
+
 def _get_source_extraction_attributes():
     """Create default data reduction attributes describing source extraction."""
 
@@ -229,7 +231,7 @@ def _get_skytoframe_attributes():
             parent=parent,
             name='SkyPreProjection',
             dtype='numpy.string_',
-            description='he pre-projection aronud the central coordinates used '
+            description='The pre-projection aronud the central coordinates used '
             'for the sources when deriving the pre-shrunk sky to frame '
             'transformation (\'arc\', \'tan\', ...).'
         ),
@@ -524,7 +526,7 @@ def _get_background_datasets():
 
     return [
         HDF5DataSet(
-            pipeline_key='bg.values',
+            pipeline_key='bg.value',
             abspath=_default_paths['background'] + '/Value',
             dtype='numpy.float64',
             scaleoffset=3,
@@ -590,11 +592,9 @@ def _get_magfit_key_and_path(photometry_mode):
         raise ValueError('Unrecognized photometry mode: '
                          +
                          repr(photometry_mode))
-    dset_path += '/' + (
-        'FittedMagnitudes/Version%(magfit_version)03d/Iteration%(magfit_iteration)03d'
-    )
+    dset_path += '/' + 'FittedMagnitudes/Version%(magfit_version)03d'
 
-    return pipeline_key_start, dset_path
+    return pipeline_key_start, dset_path, '/Iteration%(magfit_iteration)03d'
 
 def _get_magfit_attributes(photometry_mode):
     """
@@ -609,12 +609,14 @@ def _get_magfit_attributes(photometry_mode):
             The attributes describing magnitude fitting.
     """
 
-    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode)
+    pipeline_key_start, dset_path, iter_split = _get_magfit_key_and_path(
+        photometry_mode
+    )
 
     result = [
         HDF5Attribute(
             pipeline_key=pipeline_key_start + 'num_input_src',
-            parent=dset_path,
+            parent=dset_path + iter_split,
             name='NumberInputSources',
             dtype='numpy.uint',
             description='The number of sources magnitude fitting was applied '
@@ -622,7 +624,7 @@ def _get_magfit_attributes(photometry_mode):
         ),
         HDF5Attribute(
             pipeline_key=pipeline_key_start + 'num_fit_src',
-            parent=dset_path,
+            parent=dset_path + iter_split,
             name='NumberFitSources',
             dtype='numpy.uint',
             description='The number of unrejected sources used in the last '
@@ -630,7 +632,7 @@ def _get_magfit_attributes(photometry_mode):
         ),
         HDF5Attribute(
             pipeline_key=pipeline_key_start + 'fit_residual',
-            parent=dset_path,
+            parent=dset_path + iter_split,
             name='FitResidual',
             dtype='numpy.float64',
             description='The RMS residual from the single refence magnitude '
@@ -733,17 +735,21 @@ def _get_magfit_datasets(photometry_mode):
             The datasets containing the magnitude fitting results.
     """
 
-    pipeline_key_start, dset_path = _get_magfit_key_and_path(photometry_mode)
+    pipeline_key_start, dset_path, iter_split = _get_magfit_key_and_path(
+        photometry_mode
+    )
 
     return [
         HDF5DataSet(
             pipeline_key=pipeline_key_start + 'magnitude',
-            abspath=dset_path,
+            abspath=dset_path + iter_split,
             dtype='numpy.float64',
             scaleoffset=5,
             replace_nonfinite=repr(numpy.finfo('f4').min),
             description=(
                 'The fitted %s photometry magnitudes.'
+                %
+                photometry_mode
             )
         )
     ]

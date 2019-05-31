@@ -349,6 +349,8 @@ class HDF5File(ABC, h5py.File):
             """
 
             parent = root
+            if len(path) == 1 and path[0] == '':
+                return parent
             current_path = ''
             for group_name in path:
                 found = False
@@ -444,6 +446,7 @@ class HDF5File(ABC, h5py.File):
             add_dataset(require_parent(path, True), dataset)
 
         for attribute_key in self._elements['attribute']:
+            print('Adding attribute ' + attribute_key)
             attribute = self._file_structure[attribute_key]
             path = attribute.parent.lstrip('/').split('/')
             add_attribute(require_parent(path, False), attribute)
@@ -470,15 +473,6 @@ class HDF5File(ABC, h5py.File):
 
         if isinstance(result, str):
             result = numpy.dtype(result)
-
-        if element_key.endswith('.hat_id_prefix'):
-            return h5py.special_dtype(
-                enum=(
-                    result,
-                    dict((prefix, value)
-                         for value, prefix in enumerate(self._hat_id_prefixes))
-                )
-            )
 
         return result
 
@@ -1133,11 +1127,5 @@ class HDF5File(ABC, h5py.File):
             self[layout_version_path].attrs[layout_version_attr] = (
                 self._file_structure_version
             )
-
-        self._hat_id_prefixes = numpy.array(
-            ['HAT', 'UCAC4'],
-            dtype=self.get_dtype('srcproj.recognized_hat_id_prefixes')
-        )
-
 
 #pylint: enable=too-many-ancestors
