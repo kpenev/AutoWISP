@@ -19,3 +19,6 @@ Potentially relevant articles:
 `Transit least-squares survey - II. Discovery and validation of 17 new sub- to super-Earth-sized planets in multi-planet systems from K2 <https://arxiv.org/abs/1905.09038>`_
 
 `AutoRegressive Planet Search: Application to the Kepler Mission <https://ui.adsabs.harvard.edu/abs/2019arXiv190509852C/abstract>`_
+
+Pipeline used for TESS FFIs: Barentsen,G.,Hedges,C.,Vin ́ıcius,Z.,&Saunders,N.
+e. a. 2019, KeplerGO/lightkurve: Lightkurve v1.0b29 (Version v1.0b29)., Zenodo, doi:10.5281/zenodo.2565212
