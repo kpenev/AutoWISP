@@ -84,6 +84,7 @@ def iterative_refit(fit_dr_filenames,
                     configuration,
                     master_photref_fname_pattern,
                     magfit_stat_fname_pattern,
+                    max_iterations=5,
                     **path_substitutions):
     """
     Iteratively performa magnitude fitting/generating master until convergence.
@@ -123,6 +124,9 @@ def iterative_refit(fit_dr_filenames,
 
         num_parallel_processes(int):     How many processes to use for
             simultaneus fitting.
+
+        max_iterations(int):    The maximum number of iterations of deriving a
+            master and re-fitting to allow.
 
         path_substitutions:     Any variables to substitute in
             ``master_photref_fname_pattern`` or to pass to data reduction files
@@ -192,7 +196,11 @@ def iterative_refit(fit_dr_filenames,
     path_substitutions['magfit_iteration'] = 0
 
     with TemporaryDirectory() as grcollect_tmp_dir:
-        while photref:
+        while (
+                photref
+                and
+                path_substitutions['magfit_iteration'] <= max_iterations
+        ):
             magfit_stat_collector = MasterPhotrefCollector(
                 magfit_stat_fname_pattern % path_substitutions,
                 next(iter(photref.values()))['mag'].size,
