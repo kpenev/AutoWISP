@@ -9,6 +9,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
     """Interface for working with the pipeline generated light curve files."""
 
     @classmethod
+    def _product(cls):
+        return 'light_curve'
+
+    @classmethod
     def _get_root_tag_name(cls):
         """The name of the root tag in the layout configuration."""
 
