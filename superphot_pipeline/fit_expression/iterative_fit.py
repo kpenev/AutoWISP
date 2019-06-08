@@ -130,3 +130,5 @@ def iterative_fit(predictors,
         )
         if bad_ind.size == 0:
             return best_fit_coef, fit_res2, len(target_values)
+
+    return best_fit_coef, fit_res2, len(target_values)
