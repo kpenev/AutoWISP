@@ -27,7 +27,7 @@ _version_rex = re.compile(r'/Version%\([a-zA-Z_]*\)[0-9]*d')
 
 _default_paths = dict(
     sdk_map='/SourceExtractionSDKMap',
-    astrometry='/Astrometry',
+    catalogue='/SkyToFrameTransformation',
     magfit='/MagnitudeFitting'
 )
 
@@ -54,7 +54,7 @@ def _get_source_extraction_datasets():
             HDF5DataSet(
                 pipeline_key=(sdk_map_key_start
                               +
-                              'srcextract_config_version'),
+                              'srcextract_cfg_version'),
                 abspath=config_path_start + 'ConfigurationVersion',
                 dtype='numpy.uint',
                 description='The configuration version ID from the database '
@@ -125,96 +125,30 @@ def _get_catalogue_attributes():
         )
     ]
 
-def _get_astrometry_datasets():
+def _get_catalogue_datasets():
     """Return the datasets describing source projection."""
 
-    key_start = 'astrometry.'
+    key_start = 'catalogue.cfg.'
 
     def get_configuration_datasets():
         """Create datasets for config. of sky-tosframe and source projection."""
 
-        config_path_start = _default_paths['astrometry'] + '/Configuration/'
+        config_path_start = _default_paths['catalogue'] + '/Configuration/'
 
         return [
             HDF5DataSet(
-                pipeline_key=key_start + 'software_versions',
-                abspath=config_path_start + 'SoftwareVersions',
-                dtype="'S100'",
-                description='An Nx2 array of strings consisting of software '
-                'elements and their versions used for deriving the sky to frame'
-                ' transformation.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.srcextract_filter',
-                abspath=config_path_start + 'ExtractedSourcesFilter',
-                dtype='numpy.string_',
-                description='Filtering applied to extracted sources before '
-                'matching to catalogue.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.sky_preprojection',
-                abspath=config_path_start + 'SkyPreProjection',
-                dtype='numpy.string_',
-                description='The pre-projection aronud the central coordinates '
-                'used for the sources when deriving the pre-shrunk sky to frame'
-                ' transformation (\'arc\', \'tan\', ...).'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.frame_center',
-                abspath=config_path_start + 'FrameCenter',
-                dtype='numpy.float64',
-                description='The frame coordinates around which the '
-                'pre-projected to frame transformation is defined.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.max_match_distance',
-                abspath=config_path_start + 'MaxMatchDistance',
-                dtype='numpy.float64',
-                description='The maximum distance (in pixels) between extracted'
-                ' and projected source positions in ordet to still consider the'
-                ' sources matched.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.weights_expression',
-                abspath=config_path_start + 'WeightsExpression',
-                dtype='numpy.string_',
-                description='An expression involving catalogue and/or source '
-                'extraction columns for the weights to use for various sources '
-                'when deriving the pre-projected to frame transformation.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'cfg.catagolue.name',
+                pipeline_key=key_start + 'name',
                 abspath=config_path_start + 'CatalogueName',
                 dtype='numpy.string_',
                 description='The catalogue used for astrometry.'
             ),
             HDF5DataSet(
-                pipeline_key=key_start + 'cfg.catagolue.filter',
+                pipeline_key=key_start + 'filter',
                 abspath=config_path_start + 'CatalogueFilter',
                 dtype='numpy.string_',
                 description='Any filtering applied to catalogue sources before '
                 'matching.'
             )
-        ]
-
-    def get_per_source_datasets():
-        """Return the datasets with entries for each source."""
-
-        return [
-            HDF5DataSet(
-                pipeline_key=key_start + position_var,
-                abspath=(_default_paths['astrometry']
-                         +
-                         '/'
-                         +
-                         position_var.upper()),
-                dtype='numpy.fload64',
-                scaleoffset=4,
-                description='The %s coordinate of the source in the '
-                'corresponding frame when projected through the sky to '
-                'frame transformation.' % position_var
-            )
-            for position_var in 'xy'
         ]
 
     return get_configuration_datasets() + get_per_source_datasets()
@@ -451,7 +385,7 @@ def _get_frame_datasets():
                 ),
         ]:
             args = dict(
-                pipeline_key='fitsheader.config.' + keyword.lower(),
+                pipeline_key='fitsheader.cfg.' + keyword.lower(),
                 abspath='/FrameInformation/Configuration/' + dset_name,
                 dtype=dtype,
                 description=description
@@ -650,7 +584,7 @@ def _get_configuration_index_datasets(db_session):
         description=('The index within the configuration datasets containing '
                      'the configuration used for this light curve point.')
     )
-    key_tail = '.config_index'
+    key_tail = '.cfg_index'
     path_tail = '/ConfigurationIndex'
 
     dr_structure_version_id = _get_structure_version_id(db_session)
