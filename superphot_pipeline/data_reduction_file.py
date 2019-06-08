@@ -21,6 +21,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     Interface for working with the pipeline data reduction (DR) files.
 
     Attributes:
+        _product(str):    The pipeline key of the HDF5 product. In this case:
+            `'data_reduction'`
+
         _key_io_tree_to_dr (dict):    A dictionary specifying the correspondence
             between the keys used in SuperPhotIOTree to store quantities and the
             element key in the DR file.
@@ -29,6 +32,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             correspondence between data types for entries in DR files and data
             types in SuperPhotIOTree.
     """
+
+    @classmethod
+    def _product(cls):
+        return 'data_reduction'
 
     _key_io_tree_to_dr = {
         'projsrc.x': 'srcproj.x',
@@ -333,7 +340,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
             for element_type in ['dataset', 'attribute', 'link']:
                 if (
-                        dr_key in self._elements[element_type]
+                        dr_key in self.elements[element_type]
                         and
                         skip_quantities.match(key_quantity) is None
                 ):
@@ -374,7 +381,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             kwargs['fname'] = self.get_fname_from_header(kwargs['header'])
             del kwargs['header']
 
-        super().__init__('data_reduction', *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._hat_id_prefixes = numpy.array(
             ['HAT', 'UCAC4'],
@@ -384,16 +391,18 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     def get_dtype(self, element_key):
         """Return numpy data type for the element with by the given key."""
 
+        result = super().get_dtype(element_key)
+
         if element_key.endswith('.hat_id_prefix'):
             return h5py.special_dtype(
                 enum=(
-                    self._file_structure[element_key].dtype,
+                    result,
                     dict((prefix, value)
                          for value, prefix in enumerate(self._hat_id_prefixes))
                 )
             )
 
-        return super().get_dtype(element_key)
+        return result
 
     def parse_hat_source_id(self, source_id):
         """Return the prefix ID, field number, and source number."""
@@ -716,7 +725,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     and
                     (not pipeline_key.startswith('srcproj.hat_id_'))
                 ),
-                self._defined_elements['dataset']
+                self.elements['dataset']
             )
         )
 
@@ -1166,7 +1175,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         include_shape_fit = self.has_shape_fit(**path_substitutions)
         add_magfit_datasets(pad_missing_magnitudes(),
                             include_shape_fit)
-        add_attributes(include_shape_fit)
+        if path_substitutions['magfit_iteration'] == 0:
+            add_attributes(include_shape_fit)
 
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
