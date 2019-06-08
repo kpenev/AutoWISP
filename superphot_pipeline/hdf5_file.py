@@ -48,6 +48,11 @@ class HDF5File(ABC, h5py.File):
     def _get_root_tag_name(cls):
         """The name of the root tag in the layout configuration."""
 
+    @classmethod
+    @abstractmethod
+    def _product(cls):
+        """The pipeline key of the product held in this type of HDF5 files."""
+
     @property
     def _layout_version_attribute(self):
         """
@@ -58,7 +63,7 @@ class HDF5File(ABC, h5py.File):
 
     @property
     @abstractmethod
-    def _elements(self):
+    def elements(self):
         """
         Identifying strings for the recognized elements of the HDF5 file.
 
@@ -75,8 +80,9 @@ class HDF5File(ABC, h5py.File):
                 the file.
         """
 
+    @classmethod
     @abstractmethod
-    def _get_file_structure(self, version=None):
+    def _get_file_structure(cls, version=None):
         """
         Return the layout structure with the given version of the file.
 
@@ -90,7 +96,7 @@ class HDF5File(ABC, h5py.File):
 
                 The dictionary specifies how to include elements in the HDF5
                 file. The keys for the dictionary should be one in one of the
-                lists in self._elements and the value is an object with
+                lists in self.elements and the value is an object with
                 attributes decsribing how to include the element. See classes in
                 :mod:database.data_model for the provided attributes and their
                 meining.
@@ -114,9 +120,9 @@ class HDF5File(ABC, h5py.File):
         """
 
         dataset_paths = [self._file_structure[dataset_key].abspath
-                         for dataset_key in self._elements['dataset']]
+                         for dataset_key in self.elements['dataset']]
 
-        for attribute_key in self._elements['attribute']:
+        for attribute_key in self.elements['attribute']:
             attribute = self._file_structure[attribute_key]
             attribute.parent_must_exist = attribute.parent in dataset_paths
 
@@ -281,7 +287,7 @@ class HDF5File(ABC, h5py.File):
                 %
                 dataset_key
             )
-        if dataset_key not in self._elements['dataset']:
+        if dataset_key not in self.elements['dataset']:
             raise KeyError(
                 "The key '%s' does not identify a dataset in '%s'"
                 %
@@ -319,6 +325,36 @@ class HDF5File(ABC, h5py.File):
         #pylint: enable=no-member
 
         raise KeyError('Unrecognized element: ' + repr(element_id))
+
+    def get_element_path(self, element_id, **substitutions):
+        """
+        Return the path to the given element (.<attr> for attributes).
+
+        Args:
+            substitutions:    Arguments that should be substituted in the path.
+                If none are given, the path is returned without substitutions.
+
+        Returns:
+            str:
+                A string giving the path the element does/will have in the file.
+        """
+
+        for (element_type, recognized) in cls._elements.items():
+            if element_id.rstrip('.') in recognized:
+                if element_type == 'attribute':
+                    attribute_config = self._file_structure[element_id]
+                    path_template = (attribute_config.parent
+                                     +
+                                     '.'
+                                     +
+                                     attribute_config.name)
+                else:
+                    path_template = self._file_structure[element_id].abspath
+
+        if substitutions:
+            return path_template % substitutions
+        else:
+            return path_template
 
     def layout_to_xml(self):
         """Create an etree.Element decsribing the currently defined layout."""
@@ -440,18 +476,18 @@ class HDF5File(ABC, h5py.File):
                 description=link.description
             )
 
-        for dataset_key in self._elements['dataset']:
+        for dataset_key in self.elements['dataset']:
             dataset = self._file_structure[dataset_key]
             path = dataset.abspath.lstrip('/').split('/')[:-1]
             add_dataset(require_parent(path, True), dataset)
 
-        for attribute_key in self._elements['attribute']:
+        for attribute_key in self.elements['attribute']:
             print('Adding attribute ' + attribute_key)
             attribute = self._file_structure[attribute_key]
             path = attribute.parent.lstrip('/').split('/')
             add_attribute(require_parent(path, False), attribute)
 
-        for link_key in self._elements['link']:
+        for link_key in self.elements['link']:
             link = self._file_structure[link_key]
             path = link.abspath.lstrip('/').split('/')[:-1]
             add_link(require_parent(path, True), link)
@@ -574,7 +610,7 @@ class HDF5File(ABC, h5py.File):
         if attribute_key not in self._file_structure:
             return None
 
-        assert attribute_key in self._elements['attribute']
+        assert attribute_key in self.elements['attribute']
 
         attribute_config = self._file_structure[attribute_key]
         parent_path = (attribute_config.parent
@@ -644,7 +680,7 @@ class HDF5File(ABC, h5py.File):
         if link_key not in self._file_structure:
             return None
 
-        assert link_key in self._elements['link']
+        assert link_key in self.elements['link']
 
         link_config = self._file_structure[link_key]
 
@@ -896,7 +932,7 @@ class HDF5File(ABC, h5py.File):
                 %
                 attribute_key
             )
-        if attribute_key not in self._elements['attribute']:
+        if attribute_key not in self.elements['attribute']:
             raise KeyError(
                 "The key '%s' does not correspond to an attribute in the "
                 "configured HDF5 file structure."
@@ -1070,8 +1106,8 @@ class HDF5File(ABC, h5py.File):
                             **self.get_dataset_creation_args(dataset_key))
 
     def __init__(self,
-                 fname,
-                 mode,
+                 fname=None,
+                 mode=None,
                  layout_version=None):
         """
         Opens the given HDF5 file in the given mode.
@@ -1089,41 +1125,47 @@ class HDF5File(ABC, h5py.File):
             None
         """
 
-        old_file = os.path.exists(fname)
-        if mode[0] != 'r':
-            path = os.path.dirname(fname)
-            if path:
-                try:
-                    os.makedirs(path)
-                except OSError:
-                    if not os.path.exists(path):
-                        raise
+        if fname is None:
+            assert mode is None
+        else:
+            old_file = os.path.exists(fname)
+            if mode[0] != 'r':
+                path = os.path.dirname(fname)
+                if path:
+                    try:
+                        os.makedirs(path)
+                    except OSError:
+                        if not os.path.exists(path):
+                            raise
 
-        try:
-            h5py.File.__init__(self, fname, mode)
-        except IOError:
-            raise HDF5LayoutError(
-                'Problem opening %s in mode=%s'%(fname, mode)
-                +
-                ''.join(format_exception(*exc_info()))
-            )
+            try:
+                h5py.File.__init__(self, fname, mode)
+            except IOError:
+                raise HDF5LayoutError(
+                    'Problem opening %s in mode=%s'%(fname, mode)
+                    +
+                    ''.join(format_exception(*exc_info()))
+                )
 
         layout_version_path, layout_version_attr = (
             self._layout_version_attribute
         )
 
-        if old_file:
+
+        if fname is not None and old_file:
             layout_version = (
                 self[layout_version_path].attrs[layout_version_attr]
             )
         else:
             layout_version = layout_version
 
-        self._file_structure, self._file_structure_version = (
-            self._get_file_structure(layout_version)
-        )
+        (
+            self._defined_elements,
+            self._file_structure,
+            self._file_structure_version
+        ) = self._get_file_structure(layout_version)
 
-        if not old_file:
+        if fname is not None and not old_file:
             self[layout_version_path].attrs[layout_version_attr] = (
                 self._file_structure_version
             )

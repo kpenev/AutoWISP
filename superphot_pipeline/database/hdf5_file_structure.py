@@ -21,34 +21,41 @@ class HDF5FileDatabaseStructure(HDF5File):
     """HDF5 file with structure specified through the database."""
 
     @property
-    def _elements(self):
-        """See :meth:HDF5File._elements for description."""
+    def elements(self):
+        """See :meth:HDF5File.elements for description."""
 
         return self._defined_elements
 
-    def _get_file_structure(self, version=None):
+    @classmethod
+    def _get_file_structure(cls, version=None):
         """See :meth:HDF5File._get_file_structure for description."""
 
-        def fill_elements(structure):
-            """Fill self._defined_elements with all defined pipeline keys."""
+        def get_defined_elements(structure):
+            """Fill cls._defined_elements with all defined pipeline keys."""
 
+            defined_elements = dict()
             for element_type in ['dataset', 'attribute', 'link']:
-                self._defined_elements[element_type] = set(
+                defined_elements[element_type] = set(
                     element.pipeline_key
                     for element in getattr(structure.structure_versions[0],
                                            element_type + 's')
                 )
+            return defined_elements
 
         def create_result(structure):
             """Create the final result of the parent function."""
 
-            result = dict()
+            file_structure = dict()
             for element_type in ['datasets', 'attributes', 'links']:
                 for element in getattr(structure.structure_versions[0],
                                        element_type):
-                    result[element.pipeline_key] = element
+                    file_structure[element.pipeline_key] = element
 
-            return result, str(structure.structure_versions[0].version)
+            return (
+                get_defined_elements(structure),
+                file_structure,
+                str(structure.structure_versions[0].version)
+            )
 
         with db_session_scope() as db_session:
             query = db_session.query(
@@ -74,7 +81,7 @@ class HDF5FileDatabaseStructure(HDF5File):
                     HDF5StructureVersion.links
                 )
             ).filter(
-                HDF5Product.pipeline_key == self._product
+                HDF5Product.pipeline_key == cls._product()
             )
 
             if version is None:
@@ -88,20 +95,8 @@ class HDF5FileDatabaseStructure(HDF5File):
 
             db_session.expunge_all()
 
-        fill_elements(structure)
         return create_result(structure)
 
-    def __init__(self, product, *args, **kwargs):
-        """
-        Open a file containing the given pipeline product.
-
-        All arguments other than product are passed directly to
-        HDF5File.__init__().
-        """
-
-        self._defined_elements = dict()
-        self._product = product
-        super().__init__(*args, **kwargs)
 #pylint: enable=abstract-method
 
 #pylint: enable=too-many-ancestors
