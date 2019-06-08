@@ -79,74 +79,87 @@ class LCDataReader:
                 lightcurve files to expect.
         """
 
-        config_datasets = set()
-        config_components = dict()
+        def organize_datasets():
+            """Set dataset_dimensions and header_datasets attributes."""
 
-        substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
-        key_rex = dict(
-            config='|'.join([
-                r'_cfg_version$',
-                r'.software_versions$',
-                r'sdkmap\.order$',
-                r'^srcextract\.binning$',
-                r'\.cfg\.|\.magfitcfg\.',
-                r'^srcextract\.sdkmap\.scale$'
-            ]),
-            perframe='|'.join([
-                r'skytoframe\.(sky_center|residual|unitarity)$',
-                r'^shapefit\.global_chi2$',
-                r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
-                r'^fitsheader\.(?!cfg\.)',
-                r'\.cfg_index$'
-            ]),
-            persource='|'.join([
-                r'^srcextract\.sdkmap\.[sdk]',
-                r'^srcproj\.([xy]|enabled)$',
-                r'^bg\.(value|error|npix)$',
-                r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
-                r'\.(magnitude|magnitude_error|quality_flag$'
-            ])
-        )
+            config_datasets = dict()
+            config_components = dict()
 
-        for lc_quantity in lc_example.elements['dataset']:
-            split_quantity = lc_quantity.split('.')
-            if split_quantity[0] == 'fitsheader':
-                cls.header_datasets[lc_quantity] = split_quantity[-1]
-
-            path_template = lc_example.get_element_path(lc_quantity)
-            parent = path_template.rsplit('/', 1)[0]
-            dimensions = substitution_rex.findall(path_template)
-            found_match = False
-            for key_type, type_rex in key_rex.items():
-                if type_rex.search(lc_quantity):
-                    assert not found_match
-                    found_match = True
-                    if key_type == 'config':
-                        if parent not in config_datasets:
-                            config_datasets[parent] = set()
-                        config_datasets[parent].add(lc_quantity)
-                    else:
-                        dimensions.append('frame')
-                    if key_type == 'persource':
-                        dimensions.append('source')
-            assert found_match
-            cls.dataset_dimensions[lc_quantity] = tuple(sorted(set(dimensions)))
-            if lc_quantity.endswith('.cfg_index'):
-                assert parent not in config_components
-                config_components[parent] = lc_quantity[:-len('.cfg_index')]
-
-        for parent, component in config_components:
-            component_dsets = config_datasets[parent]
-            dimensions = cls.dataset_dimensions[next(iter(dsets))]
-            for dset in component_dsets:
-                assert cls.dataset_dimensions[dset] == dimensions
-            assert (cls.dataset_dimensions[component + '.cfg_index']
-                    ==
-                    dimensions)
-            cls.config_components[component] = (
-                dimensions,
-                dsets
+            substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
+            key_rex = dict(
+                config='|'.join([
+                    r'_cfg_version$',
+                    r'.software_versions$',
+                    r'sdkmap\.order$',
+                    r'^srcextract\.binning$',
+                    r'\.cfg\.|\.magfitcfg\.',
+                    r'^srcextract\.sdkmap\.scale$'
+                ]),
+                perframe='|'.join([
+                    r'skytoframe\.(sky_center|residual|unitarity)$',
+                    r'^shapefit\.global_chi2$',
+                    r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
+                    r'^fitsheader\.(?!cfg\.)',
+                    r'\.cfg_index$'
+                ]),
+                persource='|'.join([
+                    r'^srcextract\.sdkmap\.[sdk]',
+                    r'^srcproj\.([xy]|enabled)$',
+                    r'^bg\.(value|error|npix)$',
+                    r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
+                    r'\.(magnitude|magnitude_error|quality_flag$'
+                ])
             )
+
+            for lc_quantity in lc_example.elements['dataset']:
+                split_quantity = lc_quantity.split('.')
+                if split_quantity[0] == 'fitsheader':
+                    cls.header_datasets[lc_quantity] = split_quantity[-1]
+
+                path_template = lc_example.get_element_path(lc_quantity)
+                parent = path_template.rsplit('/', 1)[0]
+                dimensions = substitution_rex.findall(path_template)
+                found_match = False
+                for key_type, type_rex in key_rex.items():
+                    if type_rex.search(lc_quantity):
+                        assert not found_match
+                        found_match = True
+                        if key_type == 'config':
+                            if parent not in config_datasets:
+                                config_datasets[parent] = set()
+                            config_datasets[parent].add(lc_quantity)
+                        else:
+                            dimensions.append('frame')
+                        if key_type == 'persource':
+                            dimensions.append('source')
+                assert found_match
+                cls.dataset_dimensions[lc_quantity] = tuple(
+                    sorted(
+                        set(dimensions)
+                    )
+                )
+                if lc_quantity.endswith('.cfg_index'):
+                    assert parent not in config_components
+                    config_components[parent] = lc_quantity[:-len('.cfg_index')]
+            return config_datasets, config_components
+
+        def organize_config(config_datasets, config_components):
+            """Fill the :attr:`config_components` attribute."""
+
+            for parent, component in config_components:
+                component_dsets = config_datasets[parent]
+                dimensions = cls.dataset_dimensions[next(iter(component_dsets))]
+                for dset in component_dsets:
+                    assert cls.dataset_dimensions[dset] == dimensions
+                assert (cls.dataset_dimensions[component + '.cfg_index']
+                        ==
+                        dimensions)
+                cls.config_components[component] = (
+                    dimensions,
+                    component_dsets
+                )
+
+        organize_config(*organize_datasets())
 
     @classmethod
     def create(cls,
