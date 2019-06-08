@@ -45,19 +45,19 @@ def get_master_photref(photref_fname):
             ):
                 if source_id not in result:
                     result[source_id] = dict(
-                        mag=numpy.full(num_photometries,
+                        mag=numpy.full((1, num_photometries),
                                        numpy.nan,
                                        numpy.float64),
-                        mag_err=numpy.full(num_photometries,
+                        mag_err=numpy.full((1, num_photometries),
                                            numpy.nan,
                                            numpy.float64)
                     )
-                result[source_id]['mag'][phot_ind] = phot_reference.data[
+                result[source_id]['mag'][0, phot_ind] = phot_reference.data[
                     'magnitude'
                 ][
                     source_index
                 ]
-                result[source_id]['mag_err'][phot_ind] = phot_reference.data[
+                result[source_id]['mag_err'][0, phot_ind] = phot_reference.data[
                     'mediandev'
                 ][
                     source_index
@@ -136,7 +136,10 @@ def iterative_refit(fit_dr_filenames,
         None
     """
 
-    def update_photref(magfit_stat_collector, old_reference, source_id_parser):
+    def update_photref(magfit_stat_collector,
+                       old_reference,
+                       source_id_parser,
+                       num_photometries):
         """
         Return the next iteration photometric reference or None if converged.
 
@@ -150,6 +153,9 @@ def iterative_refit(fit_dr_filenames,
 
             source_id_parser(callable):    Should return the integers
                 identifying a source, given its string ID.
+
+            num_photometries(int):    How many different photometric
+                measurements are being fit.
         """
 
         master_reference_fname = (master_photref_fname_pattern
@@ -165,15 +171,29 @@ def iterative_refit(fit_dr_filenames,
 
         common_sources = set(new_reference) & set(old_reference)
 
-        average_square_change = 0
-        num_finite = 0
+        average_square_change = numpy.zeros(num_photometries,
+                                            dtype=numpy.float64)
+        num_finite = numpy.zeros(num_photometries, dtype=numpy.float64)
         for source in common_sources:
-            square_diff = (old_reference[source]['mag']
+            square_diff = (old_reference[source]['mag'][0]
                            -
-                           new_reference[source]['mag'])**2
-            if numpy.isfinite(square_diff):
-                average_square_change += square_diff
-                num_finite += 1
+                           new_reference[source]['mag'][0])**2
+            finite_entries = numpy.isfinite(square_diff)
+            print('Num photometries: ' + repr(num_photometries))
+            print('square_diff (shape=%s): ' % repr(square_diff.shape)
+                  +
+                  repr(square_diff))
+            print('finite_entries (shape=%s): ' % repr(finite_entries.shape)
+                  +
+                  repr(finite_entries))
+            print('average_square_change (shape=%s): '
+                  %
+                  repr(average_square_change.shape)
+                  +
+                  repr(average_square_change))
+
+            average_square_change[finite_entries] += square_diff[finite_entries]
+            num_finite += finite_entries
 
         average_square_change /= num_finite
         _logger.debug(
@@ -195,15 +215,19 @@ def iterative_refit(fit_dr_filenames,
                                       photref_dr.parse_hat_source_id)
     path_substitutions['magfit_iteration'] = 0
 
+    num_photometries = next(iter(photref.values()))['mag'].size
+
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
                 photref
                 and
                 path_substitutions['magfit_iteration'] <= max_iterations
         ):
+            assert next(iter(photref.values()))['mag'].size == num_photometries
+
             magfit_stat_collector = MasterPhotrefCollector(
                 magfit_stat_fname_pattern % path_substitutions,
-                next(iter(photref.values()))['mag'].size,
+                num_photometries,
                 grcollect_tmp_dir,
                 output_lock=(
                     Lock() if configuration.num_parallel_processes > 1
@@ -226,6 +250,7 @@ def iterative_refit(fit_dr_filenames,
 
             photref = update_photref(magfit_stat_collector,
                                      photref,
-                                     photref_dr.parse_hat_source_id)
+                                     photref_dr.parse_hat_source_id,
+                                     num_photometries)
             path_substitutions['magfit_iteration'] += 1
 #pylint: enable=too-many-locals
