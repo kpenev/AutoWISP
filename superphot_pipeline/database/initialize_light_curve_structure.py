@@ -57,6 +57,7 @@ def _get_source_extraction_datasets():
                               'srcextract_cfg_version'),
                 abspath=config_path_start + 'ConfigurationVersion',
                 dtype='numpy.uint',
+                replace_nonfinite=repr(numpy.iinfo('u4').max),
                 description='The configuration version ID from the database '
                 'for the source extraction used for this frame.'
             ),
@@ -71,6 +72,7 @@ def _get_source_extraction_datasets():
                 pipeline_key=sdk_map_key_start + 'order',
                 abspath=config_path_start + 'SpatialOrder',
                 dtype='numpy.uint',
+                replace_nonfinite=repr(numpy.iinfo('u4').max),
                 description='The maximum total order of the spatial terms '
                 'included in the smoothed PSF map from source extraction.',
             )
@@ -85,6 +87,7 @@ def _get_source_extraction_datasets():
                 abspath=_default_paths['sdk_map'] + '/' + psf_parameter,
                 dtype='numpy.float64',
                 scaleoffset=4,
+                replace_nonfinite=repr(numpy.finfo('f4').min),
                 description='The values of the %s parameter for elliptical '
                 'gaussion PSF for each source.' % psf_parameter,
             )
@@ -121,6 +124,7 @@ def _get_catalogue_attributes():
             parent=parent,
             name='Catalogue_%(catalogue_column_name)s',
             dtype='manual',
+            replace_nonfinite=repr(numpy.finfo('f4').min),
             description='A single catalogue value for this source.'
         )
     ]
@@ -160,11 +164,12 @@ def _get_frame_datasets():
         """Return the datasets of header keywords with one entry per LC pt."""
 
         result = []
-        for keyword, dset_name, dtype, description in [
+        for keyword, dset_name, dtype, default, description in [
                 (
                     'FNUM',
                     'FrameNumber',
                     'numpy.uint',
+                    repr(numpy.iinfo('u4').max),
                     'The number of the frame corresponding to this datapoint in'
                     ' the light curve.'
                 ),
@@ -172,72 +177,84 @@ def _get_frame_datasets():
                     'FOCUS',
                     'FocusSetting',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'The focus setting of the telescope for this observation.'
                 ),
                 (
                     'WIND',
                     'WindSpeed',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'The wind speed in m/s'
                 ),
                 (
                     'WINDDIR',
                     'WindDirection',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Wind direction [degrees] reported for this observation.'
                 ),
                 (
                     'AIRPRESS',
                     'AirPressure',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Air pressure [Pa] for this observation.'
                 ),
                 (
                     'AIRTEMP',
                     'AirTemperature',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Air temperature [C]'
                 ),
                 (
                     'HUMIDITY',
                     'Humidity',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Relative humidity [%]'
                 ),
                 (
                     'DEWPT',
                     'DewPoint',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Dew point [C]'
                 ),
                 (
                     'SUNDIST',
                     'SunDistance',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Distance from Sun [deg] (frame center)'
                 ),
                 (
                     'SUNELEV',
                     'SunElevation',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Elevation of Sun [deg]'
                 ),
                 (
                     'MOONDIST',
                     'MoonDistance',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Distance from Moon [deg] (frame center)'
                 ),
                 (
                     'MOONPH',
                     'MoonPhase',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Phase of Moon'
                 ),
                 (
                     'MOONELEV',
                     'MoonElevation',
                     'numpy.float64',
+                    repr(numpy.finfo('f4').min),
                     'Elevation of Moon [deg]'
                 )
         ]:
@@ -245,11 +262,11 @@ def _get_frame_datasets():
                 pipeline_key='fitsheader.' + keyword.lower(),
                 abspath='/FrameInformation/' + dset_name,
                 dtype=dtype,
+                replace_nonfinite=default
                 description=description
             )
             if dtype == 'numpy.float64':
                 args['scaleoffset'] = 3
-                args['replace_nonfinite'] = repr(numpy.finfo('f4').min)
             else:
                 args['compression'] = 'gzip'
                 args['compression_options'] = '9'

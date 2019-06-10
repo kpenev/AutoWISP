@@ -280,16 +280,20 @@ class HDF5File(ABC, h5py.File):
         """
 
         if dataset_key not in self._file_structure:
-
             raise KeyError(
                 "The key '%s' does not exist in the list of configured data "
                 "reduction file entries."
                 %
                 dataset_key
             )
-        if dataset_key not in self.elements['dataset']:
+
+        if (
+                dataset_key not in self.elements['dataset']
+                and
+                dataset_key not in self.elements['link']
+        ):
             raise KeyError(
-                "The key '%s' does not identify a dataset in '%s'"
+                "The key '%s' does not identify a dataset or link in '%s'"
                 %
                 (dataset_key, self.filename)
             )
@@ -339,7 +343,7 @@ class HDF5File(ABC, h5py.File):
                 A string giving the path the element does/will have in the file.
         """
 
-        for (element_type, recognized) in cls._elements.items():
+        for (element_type, recognized) in self._elements.items():
             if element_id.rstrip('.') in recognized:
                 if element_type == 'attribute':
                     attribute_config = self._file_structure[element_id]
@@ -353,8 +357,7 @@ class HDF5File(ABC, h5py.File):
 
         if substitutions:
             return path_template % substitutions
-        else:
-            return path_template
+        return path_template
 
     def layout_to_xml(self):
         """Create an etree.Element decsribing the currently defined layout."""

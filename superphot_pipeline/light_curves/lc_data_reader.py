@@ -6,6 +6,8 @@ from traceback import format_exception
 import sys
 import itertools
 
+import h5py
+
 from superphot_pipeline.light_curves import LCDataSlice, LightCurveFile
 from superphot_pipeline.magnitude_fitting import read_master_catalogue
 
@@ -51,7 +53,8 @@ class LCDataReader:
             be defined. Values: 2-tuple:
 
                 * a tuple of the keywords required to resolve the path to the
-                  configuration index dataset for this component.
+                  configuration index dataset for this component for which all
+                  values found must be dumped.
 
                 * a set of the datasets belonging to this component
 
@@ -69,7 +72,7 @@ class LCDataReader:
     max_dimension_size = dict()
 
     @classmethod
-    def _classify_datasets(cls, lc_example):
+    def _classify_datasets(cls, lc_example, ignore_splits):
         """
         Set dataset_dimensions, header_datasets, & config_components attributes.
 
@@ -77,6 +80,9 @@ class LCDataReader:
             lc_example(LightCurveFile):    A fully configured instance of
                 LightCurveFile to serve as an example of the structure of
                 lightcurve files to expect.
+
+            ignore_splits:    See create().
+
         """
 
         def organize_datasets():
@@ -119,6 +125,11 @@ class LCDataReader:
                 path_template = lc_example.get_element_path(lc_quantity)
                 parent = path_template.rsplit('/', 1)[0]
                 dimensions = substitution_rex.findall(path_template)
+                for split in ignore_splits:
+                    try:
+                        dimensions.remove(split)
+                    except ValueError:
+                        pass
                 found_match = False
                 for key_type, type_rex in key_rex.items():
                     if type_rex.search(lc_quantity):
@@ -166,6 +177,7 @@ class LCDataReader:
                config,
                source_list,
                source_id_parser,
+               ignore_splits=(),
                *,
                source_range=(None, None)):
         """
@@ -198,6 +210,12 @@ class LCDataReader:
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
 
+            ignore_splits(iterable):    A list of %-substitution kewyords in the
+                paths of lightcurve datasets for which only a single value will
+                be dumped (e.g. configuration versions indices). For all other
+                splits (e.g. aperture_index or magfit_iteration) all versions
+                are dumped simultaneously.
+
             The following arguments are never used if config contains the
             extra arguments for command line configuration, but must be
             supplied if database configuration is used.
@@ -229,7 +247,7 @@ class LCDataReader:
             magfit_iteration=config.max_magfit_iterations
         )
 
-        cls._classify_datasets(no_light_curve)
+        cls._classify_datasets(no_light_curve, ignore_splits)
 
         cls.max_dimension_size['frame'] = LCDataSlice.configure(
             get_dtype=no_light_curve.get_dtype,
@@ -295,7 +313,37 @@ class LCDataReader:
             )
     #pylint: enable=too-many-branches
 
-    def _get_configurations(self, data_reduction, frame_header, get_lc_dtype):
+    @classmethod
+    def _get_dimensions_iterator(cls, dimensions):
+        """
+        Return iterator over all possible values for a set of dimensions.
+
+        Args:
+            dimensions(str or iterable):    Either the name of dataset for which
+                to iterate over all dimensions other than `'frame'` and
+                `'source'` or a tuple contaning all dimensions to iterate over.
+
+        Returns:
+            iterator:
+                Covering all possible combinatinos of values for each dimensions
+                identified by `dimensions`.
+        """
+
+        if isinstance(dimensions, str):
+            dimensions = filter(
+                lambda dim: dim not in ['frame', 'source'],
+                cls.dataset_dimensions[dimensions]
+            )
+
+        return itertools.product(
+            *(range(cls.max_dimension_size[dim]) for dim in dimensions)
+        )
+
+    def _get_configurations(self,
+                            data_reduction,
+                            frame_header,
+                            get_lc_dtype,
+                            **path_substitutions):
         """
         Extract all configurations from the given data reduction file.
 
@@ -309,6 +357,7 @@ class LCDataReader:
             get_lc_dtype(callable):    Should return the data type of a dataset
                 within light curves.
 
+            path_substitutions:    See __call__().
         Returns:
             dict:
                 The keys are the various components for which configuration is
@@ -359,7 +408,8 @@ class LCDataReader:
                     else:
                         value = data_reduction.get_attribute(
                             dset_key,
-                            **substitutions
+                            **substitutions,
+                            **path_substitutions
                         )
                     found_config = True
                 except KeyError:
@@ -377,12 +427,7 @@ class LCDataReader:
         result = dict()
         for component, (dimensions, component_dsets) in self.config_components:
             result[component] = []
-            for dim_values in itertools.product(
-                    *(
-                        range(self.max_dimension_size[dim])
-                        for dim in dimensions
-                    )
-            ):
+            for dim_values in self._get_dimensions_iterator(dimensions):
                 substitutions = dict(zip(dimensions, dim_values))
 
                 configuration = get_component_config(component_dsets,
@@ -390,44 +435,165 @@ class LCDataReader:
                 if configuration is not None:
                     result[component].append(substitutions, configuration)
 
-    def __add_to_data_slice(self,
-                            data_reduction,
-                            frame_header,
-                            source_extracted_psf_map,
-                            frame_center,
-                            data_slice_index) :
+    @classmethod
+    def _get_slice_field(cls, pipeline_key):
+        """Return the field in the data slice containing the given quantity."""
+
+        return getattr(cls.lc_data_slice, pipeline_key.replace('.', '_'))
+
+
+    def _add_to_data_slice(self,
+                           *,
+                           data_reduction,
+                           frame_header,
+                           frame_center,
+                           data_slice_index,
+                           lc_example,
+                           **path_substitutions):
         """
         Add the information from a single frame to the LCDataSlice.
 
         Args:
-            - data_reduction: An opened (at least for reading) data reduction
-                              file for the frame being processed.
-            - frame_header: A pyfits header or the equivalent dictionary for
-                            the frame being processed.
-            - source_extracted_psf_map: See __call__
-            - frame_center: Dictionary with the following:
-                - jd: The JD when the frame was observed.
-                - bjd: BJD for the frame center.
-                - zenith_distance: Zenith distance of the frame center.
-                - hour_angle: Hour angle of the frame center.
-                - ra: RA of the frame center.
-            - data_slice_index: See __call__
+            data_reduction(DataReductionFile):    An opened (at least for
+                reading) data reduction file for the frame being processed.
 
-        Returns: The list of sources between (exclusive)
-                 self.last_source_below and self.first_source_above found in
-                 at least some of the frames which were not includedj in the
-                 LCDataSlice.
+            frame_header(dict-like):    A pyfits header or the equivalent
+                dictionary for the frame being processed.
+
+            source_extracted_psf_map(dict):    The PSF map derived by smoothing
+                the source extarction results. The keys are the PSF parameters
+                and the values are callables which can be evaluated at an image
+                position to get the value of the corresponding parameter at that
+                location.
+
+            frame_center(dict):    Must contain the following keys:
+
+                * jd: The JD when the frame was observed.
+
+                * bjd: BJD for the frame center.
+
+                * zenith_distance: Zenith distance of the frame center.
+
+                * hour_angle: Hour angle of the frame center.
+
+                * ra: RA of the frame center.
+
+            data_slice_index(int):    The index at which to place this frame's data
+                  in the LCDataSlice object being filled.
+
+            lc_example(LightCurveFile):    See _classify_datasets().
+
+            path_substitutions:    See __call__().
+
+        Returns:
+            []:
+                The of sources IDs (as tuples of integers) between (exclusive)
+                self.last_source_below and self.first_source_above found in at
+                least some of the frames which were not included in the
+                LCDataSlice.
         """
 
-        def add_header_keywords() :
-            """Fill the entries directly equal to header keywords."""
+        def fill_header_keywords():
+            """Fill the non-config datasets equal to header keywords."""
 
-            for lc_quantity, hdr_quantity \
-                    in \
-                    self.__header_datasets.iteritems() :
-                getattr(
-                    self.lc_data_slice, lc_quantity.replace('.', '_')
-                )[data_slice_index]=frame_header[hdr_quantity]
+            for lc_quantity, hdr_quantity in self.header_datasets.items():
+                if 'frame' in self.dataset_dimensions[lc_quantity]:
+                    assert len(self.dataset_dimensions[lc_quantity]) == 1
+                    self._get_slice_field(lc_quantity)[data_slice_index] = (
+                        frame_header[hdr_quantity]
+                    )
+
+        def get_dset_default(quantity):
+            """Return a value to fill undefined entries datasets with."""
+
+            creation_args = lc_example.get_dataset_creation_args(
+                quantity
+            )
+            default_value = creation_args.get('fillvalue')
+            if default_value is None:
+                assert h5py.check_dtype(vlen=creation_args.dtype) is str
+                default_value = ''
+            return default_value
+
+        def set_field_entry(quantity, value, dim_values):
+            """
+            Set the correct index within the field for the specified entry.
+
+            Args:
+                quantity(str):    The pipeline key of the dataset being filled.
+
+                value:    The value to set to the field. Must have the correct
+                    type.
+
+                dim_values(tuple(int,...)):    The value for each dimension of
+                    the dataset.
+
+            Returns:
+                None
+            """
+
+            dimensions = self.dataset_dimensions[quantity]
+            if dimensions[-1] == 'source':
+                assert dimensions[-2] == 'frame'
+                assert source is not None
+                dimensions = dimensions[:-2] + ('source', 'frame')
+                dim_values += (source_index, data_slice_index)
+            else:
+                assert dimensions[-1] == 'frame'
+                dim_values += (data_slice_index,)
+
+            index = 0
+            for coord, dimension in zip(dim_values, dimensions):
+                index = index * self.max_dimension_size[dimension] + coord
+
+            self._get_slice_field(quantity)[index] = value
+
+        def fill_from_attribute(quantity):
+            """Fill the value of a quantity equal to a DR attribute."""
+
+            for dim_values in self._get_dimensions_iterator(quantity):
+                set_field_entry(
+                    quantity,
+                    data_reduction.get_attribute(
+                        quantity,
+                        default_value=get_dset_default(quantity),
+                        **path_substitutions,
+                        **dict(
+                            zip(self.dataset_dimensions[quantity], dim_values)
+                        )
+                    ),
+                    dim_values
+                )
+
+        def fill_from_dataset(quantity):
+            """Fill the value of a quantity equal to a DR dataset."""
+
+            for dim_values in self._get_dimensions_iterator(quantity):
+                pass
+
+        def fill_direct_from_dr():
+            """Fill all quantities coming directly from DR files."""
+
+            non_header_or_config = (set(self.dataset_dimensions.keys())
+                                    -
+                                    set(header_datasets.keys()))
+            for config_quantity in self.config_components.values():
+                non_header_or_config -= config_quantity[1]
+
+            for quantity in non_header_or_config:
+                if 'source' not in self.dataset_dimensions[quantity]:
+                    assert quantity not in data_reduction.elements['dataset']
+                    assert quantity not in data_reduction.elements['link']
+                    if quantity in data_reduction.elements['attribute']:
+                        fill_from_attribute(quantity)
+                else:
+                    assert quantity not in data_reduction.elements['attribute']
+                    if (
+                            quantity in data_reduction.elements['dataset']
+                            or
+                            quantity in data_reduction.elements['link']
+                    ):
+                            fill_from_dataset(quantity)
 
         def add_global_magfit_quantities(num_apertures, has_psffit) :
             """Fill the global (per frame) magfit quantities."""
@@ -633,7 +799,7 @@ class LCDataReader:
              for coef in sdk_coef]
         ))
 
-    def __call__(self, frame) :
+    def __call__(self, frame, **path_substitutions) :
         """
         Add single frame's information to configurations and the LCDataSlice.
 
@@ -649,6 +815,14 @@ class LCDataReader:
                 - data_slice_index: The index at which to place this frame's
                                     data in the LCDataSlice object being
                                     filled.
+
+            path_substitutions:    Any %-substitution arguments required to
+                fully resolve the data being dumped to light curves for which
+                not all values are being dumped within a DR file, and
+                respectively the destination for the data in the LC file. The
+                keys should be exactly the ignore_splits arguments passed to
+                create().
+
 
         Returns: None.
         """

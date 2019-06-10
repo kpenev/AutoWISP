@@ -1178,6 +1178,38 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         if path_substitutions['magfit_iteration'] == 0:
             add_attributes(include_shape_fit)
 
+    def get_source_extracted_psf_map(self):
+        """
+        Return dict of functions giving the source extraction PSF map in self.
+
+        Args:
+            None
+
+        Returns:
+            dict:
+                Keys: s, d and k. Values: functions of (x,y) which evaluate to
+                the corresponding PSF parameter.
+        """
+
+        x_scale, y_scale = data_reduction.get_attribute('srcextract.sdk_map.scale')
+        x_offset, y_offset = data_reduction.get_attribute(
+           'srcextract.sdk_map.offset'
+        )
+        sdk_coef = data_reduction.get_single_dataset('srcextract.sdk_map')
+        return dict(
+            zip(
+                ['s', 'd', 'k'],
+                [
+                    make_polynomial_function(x_offset, y_offset,
+                                             x_scale, y_scale,
+                                             coef)
+                    for coef in sdk_coef
+                ]
+            )
+        )
+
+
+    def get_source_
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 

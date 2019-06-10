@@ -57,7 +57,7 @@ def _get_source_extraction_attributes():
             description='The command line with which fistar was invoked.'
         ),
         HDF5Attribute(
-            pipeline_key='srcextract.sdkmap.scale',
+            pipeline_key='srcextract.sdk_map.scale',
             parent=map_parent,
             name='Scale',
             dtype='numpy.float64',
@@ -66,7 +66,7 @@ def _get_source_extraction_attributes():
             'values giving the x and y scalings.'
         ),
         HDF5Attribute(
-            pipeline_key='srcextract.sdkmap.offset',
+            pipeline_key='srcextract.sdk_map.offset',
             parent=map_parent,
             name='Offset',
             dtype='numpy.float64',
