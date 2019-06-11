@@ -447,7 +447,7 @@ class LCDataReader:
                            data_reduction,
                            frame_header,
                            frame_center,
-                           data_slice_index,
+                           frame_index,
                            lc_example,
                            **path_substitutions):
         """
@@ -478,7 +478,7 @@ class LCDataReader:
 
                 * ra: RA of the frame center.
 
-            data_slice_index(int):    The index at which to place this frame's data
+            frame_index(int):    The index at which to place this frame's data
                   in the LCDataSlice object being filled.
 
             lc_example(LightCurveFile):    See _classify_datasets().
@@ -499,7 +499,7 @@ class LCDataReader:
             for lc_quantity, hdr_quantity in self.header_datasets.items():
                 if 'frame' in self.dataset_dimensions[lc_quantity]:
                     assert len(self.dataset_dimensions[lc_quantity]) == 1
-                    self._get_slice_field(lc_quantity)[data_slice_index] = (
+                    self._get_slice_field(lc_quantity)[frame_index] = (
                         frame_header[hdr_quantity]
                     )
 
@@ -515,7 +515,7 @@ class LCDataReader:
                 default_value = ''
             return default_value
 
-        def set_field_entry(quantity, value, dim_values):
+        def set_field_entry(quantity, value, dim_values, source_index=None):
             """
             Set the correct index within the field for the specified entry.
 
@@ -528,6 +528,9 @@ class LCDataReader:
                 dim_values(tuple(int,...)):    The value for each dimension of
                     the dataset.
 
+                source_index(int or None):    For source dependent datasets
+                    only, the index of the source in the data_slice.
+
             Returns:
                 None
             """
@@ -535,12 +538,12 @@ class LCDataReader:
             dimensions = self.dataset_dimensions[quantity]
             if dimensions[-1] == 'source':
                 assert dimensions[-2] == 'frame'
-                assert source is not None
+                assert source_index is not None
                 dimensions = dimensions[:-2] + ('source', 'frame')
-                dim_values += (source_index, data_slice_index)
+                dim_values += (source_index, frame_index)
             else:
                 assert dimensions[-1] == 'frame'
-                dim_values += (data_slice_index,)
+                dim_values += (frame_index,)
 
             index = 0
             for coord, dimension in zip(dim_values, dimensions):
@@ -565,18 +568,57 @@ class LCDataReader:
                     dim_values
                 )
 
-        def fill_from_dataset(quantity):
-            """Fill the value of a quantity equal to a DR dataset."""
+        def fill_from_dataset(quantity, data_slice_source_indices):
+            """
+            Fill the value of a quantity equal to a DR dataset.
 
+            Args:
+                quantity(str):    The pipeline key of the dataset to fill.
+
+                data_slice_source_indices:    See fill_direct_from_dr().
+
+            Returns:
+                None
+            """
+
+            num_sources = len(data_slice_source_indices)
             for dim_values in self._get_dimensions_iterator(quantity):
-                pass
+                dataset = data_reduction.get_dataset(
+                    quantity,
+                    expected_shape=(num_sources,),
+                    default_value=get_dset_default(quantity),
+                    **path_substitutions,
+                    **dict(
+                        zip(self.dataset_dimensions[quantity], dim_values)
+                    )
+                )
 
-        def fill_direct_from_dr():
-            """Fill all quantities coming directly from DR files."""
+                for phot_src_ind, data_slice_src_ind in enumerate(
+                        data_slice_source_indices
+                ):
+                    if data_slice_src_ind is None:
+                        continue
+                    set_field_entry(quantity,
+                                    dataset[phot_src_ind],
+                                    dim_values,
+                                    data_slice_src_ind)
+
+        def fill_direct_from_dr(data_slice_source_indices):
+            """
+            Fill all quantities coming directly from DR files.
+
+            Args:
+                data_slice_source_indices(iterable of int):    The indices
+                    within data_slice of the sources in the DR currently being
+                    processed
+
+            Returns:
+                None
+            """
 
             non_header_or_config = (set(self.dataset_dimensions.keys())
                                     -
-                                    set(header_datasets.keys()))
+                                    set(self.header_datasets.keys()))
             for config_quantity in self.config_components.values():
                 non_header_or_config -= config_quantity[1]
 
@@ -593,7 +635,8 @@ class LCDataReader:
                             or
                             quantity in data_reduction.elements['link']
                     ):
-                            fill_from_dataset(quantity)
+                        fill_from_dataset(quantity,
+                                          data_slice_source_indices)
 
         def add_global_magfit_quantities(num_apertures, has_psffit) :
             """Fill the global (per frame) magfit quantities."""
@@ -608,7 +651,7 @@ class LCDataReader:
                     getattr(
                         self.lc_data_slice,
                         phot_mode + '_' + mode_char + 'pr_fit_residual'
-                    )[ap_ind][data_slice_index] = (
+                    )[ap_ind][frame_index] = (
                         data_reduction.get_attribute(
                             phot_mode + '.' + mode_char + 'prmagfit_residual',
                             ap_ind = ap_ind,
@@ -624,7 +667,7 @@ class LCDataReader:
                     getattr(
                         self.lc_data_slice,
                         phot_mode + '_' + mode_char + 'pr_fit_nsources'
-                    )[ap_ind][data_slice_index]=(
+                    )[ap_ind][frame_index]=(
                         data_reduction.get_attribute(
                             phot_mode + '.' + mode_char + 'prmagfit_fit_src',
                             ap_ind=ap_ind,
@@ -642,7 +685,14 @@ class LCDataReader:
                     else:
                         ap_ind += 1
 
-        add_header_keywords()
+        fill_header_keywords()
+        dr_source_ids = data_reduction.get_source_ids(string_source_ids=False,
+                                                      **path_substitutions)
+        data_slice_source_indices = [self.source_destinations.get(src_id)
+                                     for src_id in dr_source_ids]
+        fill_direct_from_dr(data_slice_source_indices)
+
+
         photometry = data_reduction.get_photometry(
             raw=True,
             single_fit=self.require_single_magfit,
@@ -684,17 +734,17 @@ class LCDataReader:
             x=photometry['x'][phot_source_ind]
             y=photometry['y'][phot_source_ind]
             self.lc_data_slice.astrometry_x\
-                    [lc_source_ind][data_slice_index]=x
+                    [lc_source_ind][frame_index]=x
             self.lc_data_slice.astrometry_y\
-                    [lc_source_ind][data_slice_index]=y
-            self.lc_data_slice.bg_value[lc_source_ind][data_slice_index]=(
+                    [lc_source_ind][frame_index]=y
+            self.lc_data_slice.bg_value[lc_source_ind][frame_index]=(
                 photometry['bg'][phot_source_ind]
             )
-            self.lc_data_slice.bg_error[lc_source_ind][data_slice_index]=(
+            self.lc_data_slice.bg_error[lc_source_ind][frame_index]=(
                 photometry['bg err'][phot_source_ind]
             )
             self.lc_data_slice.astrometry_bjd\
-                    [lc_source_ind][data_slice_index]=(
+                    [lc_source_ind][frame_index]=(
                         source_bjds[lc_source_ind]
                     )
             if self.__ra_dec is not None :
@@ -706,7 +756,7 @@ class LCDataReader:
                 if hour_angle>12.0 : hour_angle-=24.0
             else : hour_angle=frame_center['hour_angle']
             self.lc_data_slice.astrometry_hour_angle\
-                    [lc_source_ind][data_slice_index]=(
+                    [lc_source_ind][frame_index]=(
                         hour_angle
                     )
             if self.__config.persrc.z :
@@ -721,14 +771,14 @@ class LCDataReader:
                 )
             else : zenith_distance=frame_center['zenith_distance']
             self.lc_data_slice.astrometry_zenith_distance\
-                    [lc_source_ind][data_slice_index]=(
+                    [lc_source_ind][frame_index]=(
                         zenith_distance
                     )
             for psf_param_name in psf_param.keys() :
                 getattr(
                     self.lc_data_slice,
                     'srcfind_' + psf_param_name
-                )[lc_source_ind][data_slice_index]=(
+                )[lc_source_ind][frame_index]=(
                     psf_param[psf_param_name][phot_source_ind]
                 )
             magnitudes_to_transfer=[('mag', 'mag'),
@@ -756,9 +806,9 @@ class LCDataReader:
                     getattr(
                         self.lc_data_slice,
                         'apphot_'+dest
-                    )[lc_source_ind][ap_ind][data_slice_index] = value
+                    )[lc_source_ind][ap_ind][frame_index] = value
                 self.lc_data_slice.apphot_quality\
-                        [lc_source_ind][ap_ind][data_slice_index]=int(
+                        [lc_source_ind][ap_ind][frame_index]=int(
                             photometry['photometry'][ap_ind]['status flag']\
                                       [phot_source_ind]
                         )
@@ -812,7 +862,7 @@ class LCDataReader:
                            or
                           (station_id, fnum, cmpos, night, JD, BJD,
                            zenith distance, hour angle, right ascention).
-                - data_slice_index: The index at which to place this frame's
+                - frame_index: The index at which to place this frame's
                                     data in the LCDataSlice object being
                                     filled.
 
@@ -848,7 +898,7 @@ class LCDataReader:
                 frame_header['MNTSTATE']='T'
 
         try :
-            record, data_slice_index=frame
+            record, frame_index=frame
             if len(record)==6 :
                 data_reduction=DataReduction(record[0], 'r')
                 direct_dr_fname=record[0]
@@ -878,7 +928,7 @@ class LCDataReader:
                 frame_header,
                 source_extracted_psf_map,
                 frame_center,
-                data_slice_index
+                frame_index
             )
             data_reduction.close()
             return configurations, skipped_sources

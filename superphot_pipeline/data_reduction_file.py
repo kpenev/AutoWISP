@@ -750,6 +750,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         apphot=True,
                         shape_map_variables=True,
                         string_source_ids=True,
+                        background=True,
+                        position=True,
                         **path_substitutions):
         """
         Extract available photometry from the data reduction file.
@@ -781,10 +783,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 The photometry information in the current data reduction file.
                 The fields are:
 
-                    * ID: a list of sources IDs for which photometry is
-                      available. Either a string (if string_source_ids) or (a
-                      tuple of) integer(s).  For HAT IDs, each entry is 3
-                      integers (prefix, field, source).
+                    * ID: an array of sources IDs in the given DR file. Either a
+                      string (if string_source_ids) or (an array of) integer(s).
+                      For HAT IDs, each non-string entry is 3 integers (prefix,
+                      field, source).
 
                     * x (numpy.float64): The x coordinates of the sources
 
@@ -822,11 +824,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             """Return empty result structure with the correct shape & dtype."""
 
             dtype = [
-                (('ID',) + (('S15',) if string_source_ids else (numpy.int, 3))),
-                ('bg', numpy.float64),
-                ('bg_err', numpy.float64),
-                ('bg_npix', numpy.uint)
+                (('ID',) + (('S15',) if string_source_ids else (numpy.int, 3)))
             ]
+            if background:
+                dtype.extend([('bg', numpy.float64),
+                              ('bg_err', numpy.float64),
+                              ('bg_npix', numpy.uint)])
 
             num_photometries = 1 if shape_fit else 0
             if apphot:
@@ -1020,7 +1023,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 coordinate: self.get_dataset('srcproj.' + coordinate,
                                              expected_shape=(num_sources,),
                                              **path_substitutions)
-                for coordinate in ['x', 'y']
+                for coordinate in (['x', 'y'] if position else [])
             }
 
         result = initialize_result(
@@ -1034,9 +1037,35 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         for var_name in shape_map_var_data:
             result[var_name] = shape_map_var_data[var_name]
 
-        fill_background(result)
+        if background:
+            fill_background(result)
+
         fill_photometry(result)
         return result
+
+    def get_source_ids(self, string_source_ids=True, **path_substitutions):
+        """Return the IDs of the sources in the given DR file.
+
+
+        Args:
+            string_source_ids:    Should source IDs be formatted as strings
+                (True) or a set of integers (False)?
+
+            path_substitutions:    See get_source_count().
+
+        Returns:
+            numpy.array:
+                See ID field of result in get_source_data().
+        """
+
+        return self.get_source_data(string_source_ids=string_source_ids,
+                                    magfit_iterations=[],
+                                    shape_fit=False,
+                                    apphot=False,
+                                    shape_map_variables=False,
+                                    background=False,
+                                    position=False,
+                                    **path_substitutions)['ID']
 
     def add_magnitude_fitting(self,
                               *,
@@ -1178,12 +1207,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         if path_substitutions['magfit_iteration'] == 0:
             add_attributes(include_shape_fit)
 
-    def get_source_extracted_psf_map(self):
+    def get_source_extracted_psf_map(self, **path_substitutions):
         """
         Return dict of functions giving the source extraction PSF map in self.
 
         Args:
-            None
+            path_substitutions:    Substitution arguments required to resolve
+                the path to the relevant datasets/attributes.
 
         Returns:
             dict:
@@ -1191,11 +1221,14 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 the corresponding PSF parameter.
         """
 
-        x_scale, y_scale = data_reduction.get_attribute('srcextract.sdk_map.scale')
-        x_offset, y_offset = data_reduction.get_attribute(
-           'srcextract.sdk_map.offset'
+        x_scale, y_scale = self.get_attribute('srcextract.sdk_map.scale',
+                                              **path_substitutions)
+        x_offset, y_offset = self.get_attribute(
+            'srcextract.sdk_map.offset',
+            **path_substitutions
         )
-        sdk_coef = data_reduction.get_single_dataset('srcextract.sdk_map')
+        sdk_coef = self.get_dataset('srcextract.sdk_map',
+                                    **path_substitutions)
         return dict(
             zip(
                 ['s', 'd', 'k'],
@@ -1207,9 +1240,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 ]
             )
         )
-
-
-    def get_source_
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 
