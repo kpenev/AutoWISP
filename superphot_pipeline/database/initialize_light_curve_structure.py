@@ -28,7 +28,8 @@ _version_rex = re.compile(r'/Version%\([a-zA-Z_]*\)[0-9]*d')
 _default_paths = dict(
     sdk_map='/SourceExtractionSDKMap',
     catalogue='/SkyToFrameTransformation',
-    magfit='/MagnitudeFitting'
+    magfit='/MagnitudeFitting',
+    sky_position='/SkyPosition'
 )
 
 def _get_structure_version_id(db_session, product='data_reduction'):
@@ -43,7 +44,7 @@ def _get_structure_version_id(db_session, product='data_reduction'):
 def _get_source_extraction_datasets():
     """Create the default datasets for source extraction data."""
 
-    sdk_map_key_start = 'srcextract.sdkmap.'
+    sdk_map_key_start = 'srcextract.sdk_map.'
 
     def get_configuration_datasets():
         """Return the datasets containing the config. for source exatraction."""
@@ -124,38 +125,9 @@ def _get_catalogue_attributes():
             parent=parent,
             name='Catalogue_%(catalogue_column_name)s',
             dtype='manual',
-            replace_nonfinite=repr(numpy.finfo('f4').min),
             description='A single catalogue value for this source.'
         )
     ]
-
-def _get_catalogue_datasets():
-    """Return the datasets describing source projection."""
-
-    key_start = 'catalogue.cfg.'
-
-    def get_configuration_datasets():
-        """Create datasets for config. of sky-tosframe and source projection."""
-
-        config_path_start = _default_paths['catalogue'] + '/Configuration/'
-
-        return [
-            HDF5DataSet(
-                pipeline_key=key_start + 'name',
-                abspath=config_path_start + 'CatalogueName',
-                dtype='numpy.string_',
-                description='The catalogue used for astrometry.'
-            ),
-            HDF5DataSet(
-                pipeline_key=key_start + 'filter',
-                abspath=config_path_start + 'CatalogueFilter',
-                dtype='numpy.string_',
-                description='Any filtering applied to catalogue sources before '
-                'matching.'
-            )
-        ]
-
-    return get_configuration_datasets() + get_per_source_datasets()
 
 def _get_frame_datasets():
     """Return all datasets containing FITS header keywords."""
@@ -262,7 +234,7 @@ def _get_frame_datasets():
                 pipeline_key='fitsheader.' + keyword.lower(),
                 abspath='/FrameInformation/' + dset_name,
                 dtype=dtype,
-                replace_nonfinite=default
+                replace_nonfinite=default,
                 description=description
             )
             if dtype == 'numpy.float64':
@@ -433,7 +405,7 @@ def transform_dr_to_lc_path(dr_path):
             ('/ProjectedToFrameMap', ''),
             ('/SourceExtraction/SDKMap', '/SourceExtraction'),
             ('/SourceExtraction', _default_paths['sdk_map']),
-            ('/CatalogueSources', _default_paths['astrometry'])
+            ('/CatalogueSources', '/SkyToFrameTransformation')
     ]:
         result = re.sub(dr_string, lc_string, result)
 
@@ -456,8 +428,8 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.magfit.num_fit_src', None, False),
             ('apphot.magfit.fit_residual', 2, False),
             ('srcextract.binning', None, True),
-            ('srcextract.sdkmap.scale', 3, True),
-            ('srcextract.sdkmap.offset', 3, True),
+            ('srcextract.sdk_map.scale', 3, True),
+            ('srcextract.sdk_map.offset', 3, True),
             ('skytoframe.cfg.srcextract_filter', None, True),
             ('skytoframe.cfg.sky_preprojection', None, True),
             ('skytoframe.cfg.frame_center', 3, True),
@@ -510,7 +482,12 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.magfitcfg.rej_level', 3, True),
             ('apphot.magfitcfg.max_rej_iter', None, True),
             ('apphot.magfitcfg.error_avg', None, True),
-            ('apphot.magfitcfg.count_weight_power', 3, True)
+            ('apphot.magfitcfg.count_weight_power', 3, True),
+            ('catalogue.cfg.orientation', None, False),
+            ('catalogue.cfg.filter', None, True),
+            ('catalogue.cfg.name', None, True),
+            ('catalogue.cfg.fov', None, False),
+            ('catalogue.cfg.epoch', None, False)
     ]:
         dr_attribute = db_session.query(HDF5Attribute).filter_by(
             hdf5_structure_version_id=dr_structure_version_id,
@@ -589,6 +566,62 @@ def _get_data_reduction_dataset_datasets(db_session):
 
     return result
 
+def _get_sky_position_datasets():
+    """Return datasets describing when and where on the sky the source is."""
+
+    path_start = _default_paths['sky_position'] + '/'
+
+    return [
+        HDF5DataSet(
+            pipeline_key='skypos.per_source',
+            abspath=path_start + 'PerSource',
+            dtype='numpy.bool',
+            description='Were sky position quantities calcualated individually '
+            'for each source, as opposed to assuming the values for the frame '
+            'center apply to all sources in the frame.'
+        ),
+        HDF5DataSet(
+            pipeline_key='skypos.BJD',
+            abspath=path_start + 'BJD',
+            dtype='numpy.float64',
+            scaleoffset=8,
+            description='The barycentric Julian Date of this light curve data '
+            'point.'
+        ),
+        HDF5DataSet(
+            pipeline_key='skypos.hour_angle',
+            abspath=path_start + 'HourAngle',
+            dtype='numpy.float64',
+            scaleoffset=6,
+            description='The hour angle of the source for this light curve data'
+            ' point.'
+        ),
+        HDF5DataSet(
+            pipeline_key='skypos.a180',
+            abspath=path_start + 'Azimuth180',
+            dtype='numpy.float64',
+            scaleoffset=6,
+            description='The azimuth angle of the source for this light curve '
+            'data point in degrees in the range (-180, 180].'
+        ),
+        HDF5DataSet(
+            pipeline_key='skypos.zenith_distance',
+            abspath=path_start + 'ZenithDistance',
+            dtype='numpy.float64',
+            scaleoffset=6,
+            description='The zenith distance of the source for this light curve'
+            ' data point in degrees.'
+        ),
+        HDF5DataSet(
+            pipeline_key='skypos.air_mass',
+            abspath=path_start + 'AirMass',
+            dtype='numpy.float64',
+            scaleoffset=6,
+            description='The air mass of the source for this light curve data '
+            'point in degrees.'
+        )
+    ]
+
 def _get_configuration_index_datasets(db_session):
     """Return a list of datasets of indicies within configuration datasets."""
 
@@ -639,13 +672,8 @@ def _get_configuration_index_datasets(db_session):
 
     result.extend([
         HDF5DataSet(
-            pipeline_key='srcextract.sdkmap' + key_tail,
+            pipeline_key='srcextract.sdk_map' + key_tail,
             abspath=_default_paths['sdk_map'] + path_tail,
-            **storage_options
-        ),
-        HDF5DataSet(
-            pipeline_key='astrometry' + key_tail,
-            abspath=_default_paths['astrometry'] + path_tail,
             **storage_options
         ),
         HDF5DataSet(
@@ -700,8 +728,6 @@ def _get_datasets(db_session):
     return (
         _get_source_extraction_datasets()
         +
-        _get_astrometry_datasets()
-        +
         _get_frame_datasets()
         +
         _get_data_reduction_attribute_datasets(db_session)
@@ -709,6 +735,8 @@ def _get_datasets(db_session):
         _get_data_reduction_dataset_datasets(db_session)
         +
         _get_configuration_index_datasets(db_session)
+        +
+        _get_sky_position_datasets()
     )
 
 def get_default_light_curve_structure(db_session):
