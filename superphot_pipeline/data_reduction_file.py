@@ -1229,6 +1229,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         )
         sdk_coef = self.get_dataset('srcextract.sdk_map',
                                     **path_substitutions)
+        order = ((9.0 + 8.0 * (len(sdk_coef[0]) - 1))**0.5 - 3.0) / 2.0
+        assert numpy.abs(int(order) - order) < 1e-15
+
         return dict(
             zip(
                 ['s', 'd', 'k'],
@@ -1238,7 +1241,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                              coef)
                     for coef in sdk_coef
                 ]
-            )
+            ),
+            order=order
         )
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
