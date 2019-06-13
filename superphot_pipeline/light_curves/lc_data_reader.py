@@ -7,6 +7,10 @@ import sys
 import itertools
 
 import h5py
+import numpy
+from astropy import units
+from astropy.time import Time
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from superphot_pipeline.light_curves import LCDataSlice, LightCurveFile
 from superphot_pipeline.magnitude_fitting import read_master_catalogue
@@ -70,6 +74,7 @@ class LCDataReader:
     header_datasets = dict()
     config_components = dict()
     max_dimension_size = dict()
+    _ra_dec = []
 
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
@@ -113,7 +118,8 @@ class LCDataReader:
                     r'^srcproj\.([xy]|enabled)$',
                     r'^bg\.(value|error|npix)$',
                     r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
-                    r'\.(magnitude|magnitude_error|quality_flag$'
+                    r'\.(magnitude|magnitude_error|quality_flag$',
+                    r'skypos\..*'
                 ])
             )
 
@@ -263,13 +269,10 @@ class LCDataReader:
                                               source_id_parser)
             cls._ra_dec = [(catalogue[src]['ra'], catalogue[src]['dec'])
                            for src in source_list]
-        else:
-            cls._ra_dec = None
 
         cls.last_source_below, cls.first_source_above = source_range
 
         result = LCDataReader()
-        result.reset()
         return result
 
     #Handling the many branches is exactly the point.
@@ -341,6 +344,7 @@ class LCDataReader:
 
     def _get_configurations(self,
                             data_reduction,
+                            source_extracted_psf_map_order,
                             frame_header,
                             get_lc_dtype,
                             **path_substitutions):
@@ -350,6 +354,9 @@ class LCDataReader:
         Args:
             data_reduction(DataReductionFile):    An opened (at least for
                 reading) data reduction file for the frame being processed.
+
+            source_extracted_psf_map_order(int):    The maximum polynomial order
+                used for smoothing the source extraction PSF map.
 
             frame_header(dict-like):    A pyfits header or the equivalent
                 dictionary for the frame being processed.
@@ -400,7 +407,9 @@ class LCDataReader:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    if dset_key in self.header_datasets:
+                    if dset_key == 'srcextract.sdk_map.order':
+                        value = source_extracted_psf_map_order
+                    elif dset_key in self.header_datasets:
                         assert not substitutions
                         value = frame_header[
                             self.header_datasets[dset_key]
@@ -434,6 +443,7 @@ class LCDataReader:
                                                      substitutions)
                 if configuration is not None:
                     result[component].append(substitutions, configuration)
+        return result
 
     @classmethod
     def _get_slice_field(cls, pipeline_key):
@@ -442,11 +452,14 @@ class LCDataReader:
         return getattr(cls.lc_data_slice, pipeline_key.replace('.', '_'))
 
 
+    #Split internally into sub-functions for readability
+    #pylint: disable=too-many-locals
+    #pylint: disable=too-many-statements
     def _add_to_data_slice(self,
                            *,
                            data_reduction,
                            frame_header,
-                           frame_center,
+                           source_extracted_psf_map,
                            frame_index,
                            lc_example,
                            **path_substitutions):
@@ -465,18 +478,6 @@ class LCDataReader:
                 and the values are callables which can be evaluated at an image
                 position to get the value of the corresponding parameter at that
                 location.
-
-            frame_center(dict):    Must contain the following keys:
-
-                * jd: The JD when the frame was observed.
-
-                * bjd: BJD for the frame center.
-
-                * zenith_distance: Zenith distance of the frame center.
-
-                * hour_angle: Hour angle of the frame center.
-
-                * ra: RA of the frame center.
 
             frame_index(int):    The index at which to place this frame's data
                   in the LCDataSlice object being filled.
@@ -638,218 +639,100 @@ class LCDataReader:
                         fill_from_dataset(quantity,
                                           data_slice_source_indices)
 
-        def add_global_magfit_quantities(num_apertures, has_psffit) :
-            """Fill the global (per frame) magfit quantities."""
+        def fill_sky_position_datasets(data_slice_source_indices):
+            """Fill all datasets with pipeline key prefix `'skypos'`."""
 
-            enabled_mode_chars=[]
-            if self.require_single_magfit : enabled_mode_chars.append('s')
-            if self.require_master_magfit : enabled_mode_chars.append('m')
-            for mode_char in enabled_mode_chars :
-                ap_ind = 0
-                phot_mode = 'psffit' if has_psffit else 'apphot'
-                while ap_ind < num_apertures :
-                    getattr(
-                        self.lc_data_slice,
-                        phot_mode + '_' + mode_char + 'pr_fit_residual'
-                    )[ap_ind][frame_index] = (
-                        data_reduction.get_attribute(
-                            phot_mode + '.' + mode_char + 'prmagfit_residual',
-                            ap_ind = ap_ind,
-                            default_value = (
-                                np.nan if (
-                                    mode_char == 's'
-                                    and
-                                    self.require_single_magfit == 'optional'
-                                ) else None
-                            )
-                        )
-                    )
-                    getattr(
-                        self.lc_data_slice,
-                        phot_mode + '_' + mode_char + 'pr_fit_nsources'
-                    )[ap_ind][frame_index]=(
-                        data_reduction.get_attribute(
-                            phot_mode + '.' + mode_char + 'prmagfit_fit_src',
-                            ap_ind=ap_ind,
-                            default_value = (
-                                0 if (
-                                    mode_char == 's'
-                                    and
-                                    self.require_single_magfit == 'optional'
-                                ) else None
-                            )
-                        )
-                    )
-                    if phot_mode == 'psffit':
-                        phot_mode = 'apphot'
-                    else:
-                        ap_ind += 1
+            num_sources = len(data_slice_source_indices)
+
+            #False positive, pylint does not see units attributes
+            #pylint: disable=no-member
+            location = EarthLocation(lat=frame_header['SITELAT'] * units.deg,
+                                     lon=frame_header['SITELONG'] * units.deg,
+                                     height=frame_header['SITEALT'] * units.m)
+
+            obs_time = Time(2.4e6 + frame_header['JD'],
+                            format='jd',
+                            location=location)
+
+            source_coords = SkyCoord(
+                ra=self._ra_dec[0] * units.deg,
+                dec=self._ra_dec[1] * units.deg,
+                frame='icrs'
+            )
+
+            data = dict()
+
+            alt_az = source_coords.transform_to(
+                AltAz(obstime=obs_time, location=location)
+            )
+            data['a180'] = 180.0  + alt_az.az.to(units.deg).value
+            data['a180'][data['a180'] > 180.0] -= 360
+            data['zenith_distance'] = 90.0 - alt_az.alt.to(units.deg).value
+            #pylint: enable=no-member
+
+            data['BJD'] = (obs_time.tdb
+                           +
+                           obs_time.light_travel_time(source_coords))
+            data['hour_angle'] = (obs_time.sidereal_time('apparent')
+                                  -
+                                  self._ra_dec[0] / 15.0)
+            data['per_source'] = numpy.ones((num_sources,), dtype=numpy.bool)
+
+            for source_index in range(num_sources):
+                for quantity, values in data.items():
+                    set_field_entry('skypos.' + quantity,
+                                    values[source_index],
+                                    source_index)
+
+        def fill_srcextract_psf_map(source_data,
+                                    data_slice_source_indices):
+            """Fill all datasets containing the source exatrction PSF map."""
+
+            for (
+                    param_name,
+                    param_function
+            ) in source_extracted_psf_map.items():
+                if param_name == 'order':
+                    continue
+                param_values = param_function(source_data)
+
+                for data_slice_src_ind, value in zip(
+                        data_slice_source_indices,
+                        param_values
+                ):
+                    if data_slice_src_ind is None:
+                        continue
+                    set_field_entry('srcextract.sdk_map.' + param_name,
+                                    value,
+                                    (),
+                                    data_slice_src_ind)
 
         fill_header_keywords()
-        dr_source_ids = data_reduction.get_source_ids(string_source_ids=False,
-                                                      **path_substitutions)
+        source_data = data_reduction.get_source_data(
+            string_source_ids=False,
+            shape_fit=False,
+            apphot=False,
+            shape_map_variables=False,
+            background=False,
+            **path_substitutions
+        )
         data_slice_source_indices = [self.source_destinations.get(src_id)
-                                     for src_id in dr_source_ids]
+                                     for src_id in source_data['ID']]
         fill_direct_from_dr(data_slice_source_indices)
+        fill_sky_position_datasets(data_slice_source_indices)
+        fill_srcextract_psf_map(source_data, data_slice_source_indices)
 
+        skipped_sources = []
+        for src, slice_ind in zip(source_data['ID'],
+                                  data_slice_source_indices):
+            if slice_ind is None:
+                skipped_sources.append(src)
 
-        photometry = data_reduction.get_photometry(
-            raw=True,
-            single_fit=self.require_single_magfit,
-            master_fit=self.require_master_magfit
-        )
-        has_psffit = (photometry['photometry'][0]['type'] == 'psffit')
-        num_apertures = len(photometry['photometry']) - (1 if has_psffit else 0)
-        assert(num_apertures<=self.__max_apertures)
-        add_global_magfit_quantities(num_apertures, has_psffit)
-        if self.__config.persrc.bjd :
-            source_bjds=bjd(self.__ra_dec, frame_center['jd'])
-        else : source_bjds=ConstList(frame_center['bjd'])
-        psf_param=dict()
-        for param_name in source_extracted_psf_map.keys() :
-            psf_param[param_name]=source_extracted_psf_map[param_name](
-                photometry['x'],
-                photometry['y']
-            )
-        skipped_sources = set()
-        for phot_source_ind, source in enumerate(photometry['sources']) :
-            if source not in self.source_destinations :
-                if (
-                        (
-                            self.last_source_below is None
-                            or
-                            source > self.last_source_below
-                        )
-                        and
-                        (
-                            self.first_source_above is None
-                            or
-                            source < self.first_source_above
-                        )
-
-                ) :
-                    skipped_sources.add(source)
-                continue
-            lc_source_ind=self.source_destinations[source]
-            x=photometry['x'][phot_source_ind]
-            y=photometry['y'][phot_source_ind]
-            self.lc_data_slice.astrometry_x\
-                    [lc_source_ind][frame_index]=x
-            self.lc_data_slice.astrometry_y\
-                    [lc_source_ind][frame_index]=y
-            self.lc_data_slice.bg_value[lc_source_ind][frame_index]=(
-                photometry['bg'][phot_source_ind]
-            )
-            self.lc_data_slice.bg_error[lc_source_ind][frame_index]=(
-                photometry['bg err'][phot_source_ind]
-            )
-            self.lc_data_slice.astrometry_bjd\
-                    [lc_source_ind][frame_index]=(
-                        source_bjds[lc_source_ind]
-                    )
-            if self.__ra_dec is not None :
-                ra, dec=self.__ra_dec[lc_source_ind]
-            if self.__config.persrc.ha :
-                hour_angle=(frame_center['hour_angle']
-                            +
-                            (frame_center['ra']-ra)/15.0)%24
-                if hour_angle>12.0 : hour_angle-=24.0
-            else : hour_angle=frame_center['hour_angle']
-            self.lc_data_slice.astrometry_hour_angle\
-                    [lc_source_ind][frame_index]=(
-                        hour_angle
-                    )
-            if self.__config.persrc.z :
-                zenith_distance=(
-                    90.0
-                    -
-                    hrz_from_equ(ra,
-                                 dec,
-                                 frame_header['SITELAT'],
-                                 frame_header['SITELONG'],
-                                 frame_center['jd'])[1]
-                )
-            else : zenith_distance=frame_center['zenith_distance']
-            self.lc_data_slice.astrometry_zenith_distance\
-                    [lc_source_ind][frame_index]=(
-                        zenith_distance
-                    )
-            for psf_param_name in psf_param.keys() :
-                getattr(
-                    self.lc_data_slice,
-                    'srcfind_' + psf_param_name
-                )[lc_source_ind][frame_index]=(
-                    psf_param[psf_param_name][phot_source_ind]
-                )
-            magnitudes_to_transfer=[('mag', 'mag'),
-                                    ('mag err', 'mag_err')]
-            if self.require_single_magfit :
-                magnitudes_to_transfer.append(
-                    ('single fit mag', 'spr_fit_mag')
-                )
-            if self.require_master_magfit :
-                magnitudes_to_transfer.append(
-                    ('master fit mag', 'mpr_fit_mag')
-                )
-            for ap_ind in range(num_apertures + (1 if has_psffit else 0)):
-                for source, dest in magnitudes_to_transfer :
-                    if (
-                        source == 'single fit mag'
-                        and
-                        self.require_single_magfit == 'optional'
-                        and
-                        source not in photometry['photometry'][ap_ind]
-                    ) :
-                        value = np.nan
-                    else : value = photometry['photometry'][ap_ind][source]\
-                            [phot_source_ind]
-                    getattr(
-                        self.lc_data_slice,
-                        'apphot_'+dest
-                    )[lc_source_ind][ap_ind][frame_index] = value
-                self.lc_data_slice.apphot_quality\
-                        [lc_source_ind][ap_ind][frame_index]=int(
-                            photometry['photometry'][ap_ind]['status flag']\
-                                      [phot_source_ind]
-                        )
         return skipped_sources
+    #pylint: enable=too-many-locals
+    #pylint: enable=too-many-statements
 
-    def reset(self) :
-        """
-        Fill background in LC slice with nans for detecting undefined values.
-        """
-
-        np.frombuffer(self.lc_data_slice.bg_value, self.__bg_dtype)[:]=np.nan
-
-    def fistar_sdk_map(self, data_reduction) :
-        """
-        Return dictionary of functions evaluating the fistar PSF map in DR.
-
-        Args:
-            - data_reduction: An open DataReduction instance.
-        Returns: A dictionary with keys s, d and k, each of which is a
-                 function of (x,y) which evaluates to the corresponding PSF
-                 parameter.
-        """
-
-        if not self.require_srcfind_psfmap :
-            return dict([
-                (v, lambda x, y: np.nan*x) for v in ['s', 'd', 'k']
-            ])
-        x_scale, y_scale=data_reduction.get_attribute('srcfind.psfmap_scale')
-        x_offset, y_offset=data_reduction.get_attribute(
-            'srcfind.psfmap_offset'
-        )
-        sdk_coef=data_reduction.get_single_dataset('srcfind.psfmap_coef')
-        return dict(zip(
-            ['s', 'd', 'k'],
-            [make_polynomial_function(x_offset, y_offset,
-                                      x_scale, y_scale,
-                                      coef)
-             for coef in sdk_coef]
-        ))
-
-    def __call__(self, frame, **path_substitutions) :
+    def __call__(self, frame, **path_substitutions):
         """
         Add single frame's information to configurations and the LCDataSlice.
 
@@ -877,65 +760,48 @@ class LCDataReader:
         Returns: None.
         """
 
-        def fix_header(frame_header) :
+        def fix_header(frame_header):
             """Patch problems with FITS headers and adds filename info."""
 
-            if direct_dr_fname :
-                try :
-                    stid, frame_header['CMPOS'], frame_header['FNUM']=(
-                        parse_frame_name(direct_dr_fname)
-                    )
-                except : pass
-            else :
-                frame_header['FNUM']=record[1]
-                frame_header['CMPOS']=record[2]
-                frame_header['NIGHT']=record[3]
-            if 'COMPOSIT' not in frame_header : frame_header['COMPOSIT']=1
-            if 'FILVER' not in frame_header : frame_header['FILVER']=0
-            if 'MNTSTATE' not in frame_header :
-                frame_header['MNTSTATE']='unkwnown'
-            elif frame_header['MNTSTATE']==True :
-                frame_header['MNTSTATE']='T'
+            if 'COMPOSIT' not in frame_header:
+                frame_header['COMPOSIT'] = 1
+            if 'FILVER' not in frame_header:
+                frame_header['FILVER'] = 0
+            if 'MNTSTATE' not in frame_header:
+                frame_header['MNTSTATE'] = 'unkwnown'
+            #This is actually intended to fail if MNTSTAT is not bool type
+            #pylint: disable=singleton-comparison
+            elif frame_header['MNTSTATE'] == True:
+                frame_header['MNTSTATE'] = 'T'
+            #pylint: enable=singleton-comparison
 
-        try :
-            record, frame_index=frame
-            if len(record)==6 :
-                data_reduction=DataReduction(record[0], 'r')
-                direct_dr_fname=record[0]
-            else :
-                assert(len(record)==9)
-                direct_dr_fname=False
-                data_reduction=DataReduction.from_image_vars(
-                    stid=record[0],
-                    fnum=record[1],
-                    cmpos=record[2],
-                    image_type=self.image_type,
-                    night=record[3],
-                    project_id=self.project_id,
-                    mode='r'
+        try:
+            lc_example = LightCurveFile()
+            dr_fname, frame_index = frame
+            with DataReduction(dr_fname, 'r') as data_reduction:
+                frame_header = dict(data_reduction.get_fits_header().iteritems())
+                fix_header(frame_header)
+                psf_map = data_reduction.get_source_extracted_psf_map(
+                    **path_substitutions
                 )
-            frame_center=dict(zip(
-                ('jd', 'bjd', 'zenith_distance', 'hour_angle', 'ra'),
-                record[-5:]
-            ))
-            frame_header=dict(data_reduction.get_fits_header().iteritems())
-            fix_header(frame_header)
-            source_extracted_psf_map=self.fistar_sdk_map(data_reduction)
-            configurations=self.__get_configurations(data_reduction,
-                                                     frame_header)
-            skipped_sources = self.__add_to_data_slice(
-                data_reduction,
-                frame_header,
-                source_extracted_psf_map,
-                frame_center,
-                frame_index
-            )
-            data_reduction.close()
+
+                configurations = self._get_configurations(data_reduction,
+                                                          psf_map['order'],
+                                                          frame_header,
+                                                          lc_example.get_dtype)
+
+                skipped_sources = self._add_to_data_slice(
+                    data_reduction=data_reduction,
+                    frame_header=frame_header,
+                    source_extracted_psf_map=source_extracted_psf_map,
+                    frame_index=frame_index,
+                    lc_example=lc_example,
+                    **path_substitutions
+                )
             return configurations, skipped_sources
-        except : raise Exception(
-            "".join(format_exception(*sys.exc_info()))
-            +
-            '\nWhile processing: ' + repr(frame)
-        )
-
-
+        except:
+            raise Exception(
+                "".join(format_exception(*sys.exc_info()))
+                +
+                '\nWhile processing: ' + repr(frame)
+            )
