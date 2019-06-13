@@ -18,13 +18,4 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         return 'LightCurve'
 
-    def __init__(self, *args, **kwargs):
-        """
-        Open or create a light curve file.
-
-        Args:
-            See HDF5File.__init__() for description of arguments.
-        """
-
-        super().__init__('light_curve', *args, **kwargs)
 #pylint: enable=too-many-ancestors
