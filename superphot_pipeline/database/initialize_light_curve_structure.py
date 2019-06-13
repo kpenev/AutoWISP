@@ -611,14 +611,6 @@ def _get_sky_position_datasets():
             scaleoffset=6,
             description='The zenith distance of the source for this light curve'
             ' data point in degrees.'
-        ),
-        HDF5DataSet(
-            pipeline_key='skypos.air_mass',
-            abspath=path_start + 'AirMass',
-            dtype='numpy.float64',
-            scaleoffset=6,
-            description='The air mass of the source for this light curve data '
-            'point in degrees.'
         )
     ]
 
