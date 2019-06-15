@@ -1207,6 +1207,96 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         if path_substitutions['magfit_iteration'] == 0:
             add_attributes(include_shape_fit)
 
+    def add_hat_astrometry(self, filenames, **path_substitutions):
+        """
+        Add astrometry derived by fistar, and anmatch to the DR file.
+
+        Args:
+            filanemes(dict):    The files containing the astrometry results.
+                Should have the following keys: `'fistar'`, `'trans'`,
+                `'match'`, `'catalogue'`.
+
+            path_substitutions:    See get_source_count()
+
+        Returns:
+            None
+        """
+
+        def add_sources(data, dataset_key, column_substitution_name):
+            """
+            Creates datasets out of the fields in an array of sources.
+
+            Args:
+                data(structured numpy.array):    The data about the sources to
+                    add.
+
+                dataset_key(str):    The pipeline key for the dataset to add.
+
+                column_substitution_name(str):    The %-subsittution variable to
+                    distinguish between the column in the array.
+
+            Returns:
+                None
+            """
+
+            for column_name in data.dtype.names:
+                self.add_dataset(dataset_key=dataset_key,
+                                 data=data[column_name],
+                                 **{column_substitution_name: column_name},
+                                 **path_substitutions)
+
+
+        def add_match(extracted_sources, catalogue_sources):
+            """Create dset of the matched indices from catalogue & extracted."""
+
+            num_cat_columns = len(catalogue_sources.dtype.names)
+            match_ids = numpy.genfromtxt(filenames['match'],
+                                         dtype=None,
+                                         names=['cat_id', 'extracted_id'],
+                                         usecols=(0, num_cat_columns))
+            extracted_sorter = numpy.argsort(extracted_sources['ID'])
+            catalogue_sorter = numpy.argsort(ctalogue_sources['ID'])
+            match = np.empty([match_ids.size, 2], dtype=int)
+            match[:, 0] = catalogue_sorter[
+                numpy.searchsorted(catalogue_sources['ID'],
+                                   match_ids['cat_id'],
+                                   sorter=catalogue_sorter)
+            ]
+            match[:, 1] = extracted_sorter[
+                numpy.searchsorted(extracted_sources['ID'],
+                                   match_ids['extracted_id'],
+                                   sorter=extracted_sorter)
+            ]
+            self.add_dataset(dataset_key='skytoframe.matched',
+                             data=match,
+                             **path_substitutions)
+
+        def add_trans():
+            """Create dsets/attrs describing the sky to frame transformation."""
+
+
+        extracted_sources = numpy.genfromtxt(
+            filenames['fistar'],
+            names=['ID', 'x', 'y', 'Background', 'Amplitude', 'S', 'D', 'K',
+                   'FWHM', 'Ellipticity', 'PositionAngle', 'Flux',
+                   'SignalToNoise', 'NumberPixels']
+        )
+        catalogue_sources = numpy.genfromtxt(filenames['catalogue'],
+                                             dtype=None,
+                                             names=True,
+                                             deletechars='')
+        catalogue_sources.dtype.names = [
+            name.split('[', 1)[0] for name in catalogue_sources.dtype.names
+        ]
+
+        add_sources(extracted_sources,
+                    'srcextract.sources',
+                    'srcextract_column_name')
+        add_sources(catalogue_sources,
+                    'catalogue.columns',
+                    'catologue_column_name')
+        add_match(extracted_sources, catalogue_sources)
+
     def get_source_extracted_psf_map(self, **path_substitutions):
         """
         Return dict of functions giving the source extraction PSF map in self.
