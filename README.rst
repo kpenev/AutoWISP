@@ -24,3 +24,5 @@ Pipeline used for TESS FFIs: Barentsen,G.,Hedges,C.,Vin ́ıcius,Z.,&Saunders,N.
 e. a. 2019, KeplerGO/lightkurve: Lightkurve v1.0b29 (Version v1.0b29)., Zenodo, doi:10.5281/zenodo.2565212
 
 `Wotan: Comprehensive time-series de-trending in Python <https://arxiv.org/abs/1906.00966>`_
+
+`The ssos Pipeline: Identification of Solar System Objects in Astronomical Images <https://ui.adsabs.harvard.edu/abs/2019arXiv190603673M/abstract>`_
