@@ -28,7 +28,7 @@ def parse_transformation(filename):
                 if len(split_line) > 1:
                     quantity, value = split_line
                     if value:
-                        info[quantity.strip()] = value.strip()
+                        info[quantity.strip().lower()] = value.strip()
             else:
                 quantity, value = line.split('=')
                 quantity = quantity.strip().lower()
@@ -65,22 +65,22 @@ def parse_anmatch_transformation(filename):
         return dict(zip(keys, values))
 
     transformation, info = parse_transformation(filename)
-    for info_key in ['Residual', 'Unitarity']:
+    for info_key in ['residual', 'unitarity']:
         info[info_key] = float(info[info_key])
 
-    info['Points'] = parse_multivalue(info['Points'], int, head='number of:')
+    info['points'] = parse_multivalue(info['points'], int, head='number of:')
 
-    info['Ratio'] = float(info['Ratio'].split(None, 1)[0]) / 100.0
+    info['ratio'] = float(info['ratio'].split(None, 1)[0]) / 100.0
 
-    info['Timing'] = parse_multivalue(info['Timing'],
+    info['timing'] = parse_multivalue(info['timing'],
                                       float,
                                       tail = ': in seconds')
 
-    del info['All']
+    del info['all']
 
-    info['2MASS'] = parse_multivalue(info['2MASS'], float)
+    info['2mass'] = parse_multivalue(info['2mass'], float)
     for size_char in 'wh':
-        info['2MASS']['image' + size_char] = int(
-            info['2MASS']['imag' + size_char]
+        info['2mass']['image' + size_char] = int(
+            info['2mass']['imag' + size_char]
         )
     return transformation, info
