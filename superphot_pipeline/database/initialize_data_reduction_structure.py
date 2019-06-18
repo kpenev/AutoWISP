@@ -290,6 +290,38 @@ def _get_skytoframe_attributes():
                 dtype='numpy.float64',
                 description='The unitarity of the best-fit pre-projected to '
                 'frame transformation..'
+            ),
+            HDF5Attribute(
+                pipeline_key='skytoframe.type',
+                parent=parent + _default_paths['skytoframe']['coefficients'],
+                name='Order',
+                dtype='numpy.string_',
+                description='The type of transformation describing the '
+                'pre-projected to frame transformation.'
+            ),
+            HDF5Attribute(
+                pipeline_key='skytoframe.order',
+                parent=parent + _default_paths['skytoframe']['coefficients'],
+                name='Order',
+                dtype='numpy.uint',
+                description='The maximum combined order of x and y in the '
+                'pre-projected to frame transformation.'
+            ),
+            HDF5Attribute(
+                pipeline_key='skytoframe.offset',
+                parent=parent + _default_paths['skytoframe']['coefficients'],
+                name='Offset',
+                dtype='numpy.float64',
+                description='Offset to apply to the input xi and eta '
+                'coordinates before using in the transformation.'
+            ),
+            HDF5Attribute(
+                pipeline_key='skytoframe.scale',
+                parent=parent + _default_paths['skytoframe']['coefficients'],
+                name='Scale',
+                dtype='numpy.float64',
+                description='A scaling to apply to the input xi and eta '
+                'coordinates before using them ni the transformaiton.'
             )
         ]
     )
