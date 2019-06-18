@@ -11,6 +11,7 @@ import h5py
 from superphot import SmoothDependence
 from superphot_pipeline.database.hdf5_file_structure import\
     HDF5FileDatabaseStructure
+from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 
 git_id = '$Id$'
 
@@ -175,19 +176,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 shape=num_sources
             )
 
-            id_data = {
-                id_part: numpy.empty(
-                    (len(source_ids),),
-                    dtype=self.get_dtype('srcproj.hat_id_' + id_part)
-                )
-                for id_part in ['prefix', 'field', 'source']
-            }
-            for source_index, source_id in enumerate(source_ids):
-                (
-                    id_data['prefix'][source_index],
-                    id_data['field'][source_index],
-                    id_data['source'][source_index]
-                ) = self.parse_hat_source_id(source_id)
+            id_data = self.parse_hat_source_id(source_ids)
+
             for id_part in ['prefix', 'field', 'source']:
                 self.add_dataset(
                     'srcproj.hat_id_' + id_part,
@@ -367,6 +357,58 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         return cls.fname_template % header
         #pylint: enable=no-member
 
+    def get_dataset_creation_args(self, dataset_key, **path_substitutions):
+        """See HDF5File.get_dataset_creation_args(), but handle srcextract."""
+
+        result = super().get_dataset_creation_args(dataset_key)
+
+        if dataset_key == 'srcextract.sources':
+            column = path_substitutions['srcextract_column_name']
+            if column in ['ID', 'NumberPixels']:
+                result['compression'] = 'gzip'
+                result['compression_opts'] = 9
+            else:
+                del result['compression']
+                result['scaleoffset'] = 3
+        elif dataset_key == 'catalogue.columns':
+            column = path_substitutions['catalogue_column_name']
+            if column in ['hat_id_prefix',
+                          'hat_id_field',
+                          'hat_id_source',
+                          'objtype',
+                          'doublestar',
+                          'sigRA',
+                          'sigDec',
+                          'phqual',
+                          'magsrcflag']:
+                result['compression'] = 'gzip'
+                result['compression_opts'] = 9
+                result['shuffle'] = True
+            elif column in ['RA', 'Dec']:
+                del result['compression']
+                result['scaleoffset'] = 7
+            elif column in ['xi', 'eta']:
+                del result['compression']
+                result['scaleoffset'] = 6
+            elif column in ['ucacmag',
+                            'J', 'H', 'K',
+                            'B', 'V', 'R', 'I',
+                            'u', 'g', 'r', 'i', 'z']:
+                del result['compression']
+                result['scaleoffset'] = 3
+            elif column in ['dist',
+                            'epochRA', 'epochDec',
+                            'sigucacmag',
+                            'errJ', 'errH', 'errK']:
+                del result['compression']
+                result['scaleoffset'] = 2
+            else:
+                assert column in ['PM_RA', 'PM_Dec', 'ePM_RA', 'ePM_Dec']
+                del result['compression']
+                result['scaleoffset'] = 1
+
+        return result
+
     def __init__(self, *args, **kwargs):
         """Open or create a data reduction file.
 
@@ -407,6 +449,23 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     def parse_hat_source_id(self, source_id):
         """Return the prefix ID, field number, and source number."""
 
+        if isinstance(source_id, numpy.ndarray):
+            id_data = {
+                id_part: numpy.empty(
+                    (len(source_id),),
+                    dtype=self.get_dtype('srcproj.hat_id_' + id_part)
+                )
+                for id_part in ['prefix', 'field', 'source']
+            }
+
+            for source_index, this_id in enumerate(source_id):
+                (
+                    id_data['prefix'][source_index],
+                    id_data['field'][source_index],
+                    id_data['source'][source_index]
+                ) = self.parse_hat_source_id(this_id)
+            return id_data
+
         if isinstance(source_id, bytes):
             c_style_end = source_id.find(b'\0')
             if c_style_end >= 0:
@@ -421,8 +480,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             int(field_str),
             int(source_str)
         )
-
-
 
     def get_source_count(self, **path_substitutions):
         """
@@ -952,13 +1009,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     else:
                         dataset_key_middle = 'magfit.'
                     photometry_index = 0
-                    print('Filling '
-                          +
-                          repr(result_key)
-                          +
-                          ' phot_i = %d, magfit_i = %d'
-                          %
-                          (photometry_index, magfit_iter))
                     path_substitutions['magfit_iteration'] = magfit_iter - 1
                     if shape_fit:
                         result[
@@ -978,9 +1028,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             expected_shape=result.shape,
                             **path_substitutions
                         )
-                        print('Raad shape fit photometry (phot index = %d)'
-                              %
-                              photometry_index)
                         photometry_index += 1
                     if apphot:
                         num_apertures = (result[result_key].shape[2]
@@ -1005,9 +1052,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                 aperture_index=aperture_index,
                                 **path_substitutions
                             )
-                            print('Raad apphot #%d (phot index = %d)'
-                                  %
-                                  (aperture_index, photometry_index))
                             photometry_index += 1
 
         shape_fit = shape_fit and self.has_shape_fit(**path_substitutions)
@@ -1222,7 +1266,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             None
         """
 
-        def add_sources(data, dataset_key, column_substitution_name):
+        def add_sources(data,
+                        dataset_key,
+                        column_substitution_name,
+                        parse_ids=False):
             """
             Creates datasets out of the fields in an array of sources.
 
@@ -1235,15 +1282,28 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 column_substitution_name(str):    The %-subsittution variable to
                     distinguish between the column in the array.
 
+                parse_ids(bool):    Should self.parse_hat_source_id() be used to
+                    translate string IDs to datasets to insert?
+
             Returns:
                 None
             """
 
             for column_name in data.dtype.names:
-                self.add_dataset(dataset_key=dataset_key,
-                                 data=data[column_name],
-                                 **{column_substitution_name: column_name},
-                                 **path_substitutions)
+                if parse_ids and column_name == 'ID':
+                    id_data = self.parse_hat_source_id(data['ID'])
+                    for id_part in ['prefix', 'field', 'source']:
+                        self.add_dataset(
+                            dataset_key=dataset_key,
+                            data=id_data[id_part],
+                            **{column_substitution_name: 'hat_id_' + id_part},
+                            **path_substitutions
+                        )
+                else:
+                    self.add_dataset(dataset_key=dataset_key,
+                                     data=data[column_name],
+                                     **{column_substitution_name: column_name},
+                                     **path_substitutions)
 
 
         def add_match(extracted_sources, catalogue_sources):
@@ -1255,8 +1315,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                          names=['cat_id', 'extracted_id'],
                                          usecols=(0, num_cat_columns))
             extracted_sorter = numpy.argsort(extracted_sources['ID'])
-            catalogue_sorter = numpy.argsort(ctalogue_sources['ID'])
-            match = np.empty([match_ids.size, 2], dtype=int)
+            catalogue_sorter = numpy.argsort(catalogue_sources['ID'])
+            match = numpy.empty([match_ids.size, 2], dtype=int)
             match[:, 0] = catalogue_sorter[
                 numpy.searchsorted(catalogue_sources['ID'],
                                    match_ids['cat_id'],
@@ -1274,12 +1334,40 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_trans():
             """Create dsets/attrs describing the sky to frame transformation."""
 
+            transformation, info = parse_anmatch_transformation(
+                filenames['trans']
+            )
+            self.add_dataset(
+                dataset_key='skytoframe.coefficients',
+                data=numpy.stack((transformation['dxfit'],
+                                  transformation['dyfit'])),
+                **path_substitutions
+            )
+            for entry in ['type', 'order', 'offset', 'scale']:
+                self.add_attribute(
+                    attribute_key='skytoframe.' + entry,
+                    attribute_value=transformation[entry],
+                    **path_substitutions
+                )
+            for entry in ['residual', 'unitarity']:
+                self.add_attribute(
+                    attribute_key='skytoframe.' + entry,
+                    attribute_value=info[entry],
+                    **path_substitutions
+                )
+            self.add_attribute(
+                attribute_key='skytoframe.sky_center',
+                attribute_value=numpy.array([info['2mass']['RA'],
+                                             info['2mass']['DEC']]),
+                **path_substitutions
+            )
 
         extracted_sources = numpy.genfromtxt(
             filenames['fistar'],
             names=['ID', 'x', 'y', 'Background', 'Amplitude', 'S', 'D', 'K',
                    'FWHM', 'Ellipticity', 'PositionAngle', 'Flux',
-                   'SignalToNoise', 'NumberPixels']
+                   'SignalToNoise', 'NumberPixels'],
+            dtype=None
         )
         catalogue_sources = numpy.genfromtxt(filenames['catalogue'],
                                              dtype=None,
@@ -1294,8 +1382,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     'srcextract_column_name')
         add_sources(catalogue_sources,
                     'catalogue.columns',
-                    'catologue_column_name')
+                    'catalogue_column_name',
+                    parse_ids=True)
         add_match(extracted_sources, catalogue_sources)
+        add_trans()
 
     def get_source_extracted_psf_map(self, **path_substitutions):
         """
