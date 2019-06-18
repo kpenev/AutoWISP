@@ -515,12 +515,15 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
-    def get_dataset_creation_args(self, dataset_key):
+    def get_dataset_creation_args(self, dataset_key, **path_substitutions):
         """
         Return all arguments to pass to create_dataset() except the content.
 
         Args:
             dataset_key:    The key identifying the dataset to delete.
+
+            path_substitutions:    In theory the dataset creation arguments can
+                depend on the full dataset path (c.f. srcextract.sources).
 
         Returns:
             dict:
@@ -531,7 +534,11 @@ class HDF5File(ABC, h5py.File):
         self._check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
-        result = dict()
+        result = dict(shuffle=dataset_config.shuffle)
+
+        dtype = self.get_dtype(dataset_key)
+        if dtype is not None:
+            result['dtype'] = dtype
 
         if dataset_config.compression is not None:
             result['compression'] = dataset_config.compression
@@ -546,8 +553,6 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_config.scaleoffset is not None:
             result['scaleoffset'] = dataset_config.scaleoffset
-
-        result['shuffle'] = dataset_config.shuffle
 
         if dataset_config.replace_nonfinite is not None:
             result['fillvalue'] = dataset_config.replace_nonfinite
@@ -1104,9 +1109,11 @@ class HDF5File(ABC, h5py.File):
             else:
                 data_copy = numpy.copy(data)
                 data_copy[numpy.logical_not(finite)] = fillvalue
-        self.create_dataset(dataset_path,
-                            data=data_copy,
-                            **self.get_dataset_creation_args(dataset_key))
+        self.create_dataset(
+            dataset_path,
+            data=data_copy,
+            **self.get_dataset_creation_args(dataset_key, **substitutions)
+        )
 
     def __init__(self,
                  fname=None,
