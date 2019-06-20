@@ -42,9 +42,14 @@ def iterative_fit(predictors,
             messages.
 
     Returns:
-        coefficients:     The best fit coefficients.
+        scipy.array:
+            The best fit coefficients.
 
-        fit_res2:    The square residuals of the best fit.
+        float:
+            The square residuals of the best fit.
+
+        int:
+            The number of non-rejected points used in the last fit iteration.
     """
 
     logger = logging.getLogger(__name__)

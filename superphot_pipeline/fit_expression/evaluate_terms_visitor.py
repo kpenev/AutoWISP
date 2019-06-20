@@ -3,9 +3,8 @@
 import numpy
 
 from superphot_pipeline.evaluator import Evaluator
-from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_expression.process_terms_visitor import \
-    ProcessTermsVisitor
+from .FitTermsParser import FitTermsParser
+from .process_terms_visitor import ProcessTermsVisitor
 
 class EvaluateTermsVisitor(ProcessTermsVisitor):
     """Visitor to parsed fit terms expression evaluating all terms."""
