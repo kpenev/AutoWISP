@@ -26,7 +26,7 @@ from superphot_pipeline.database.initialize_data_reduction_structure import\
 _version_rex = re.compile(r'/Version%\([a-zA-Z_]*\)[0-9]*d')
 
 _default_paths = dict(
-    sdk_map='/SourceExtractionSDKMap',
+    psf_map='/SourceExtractionPSFMap',
     catalogue='/SkyToFrameTransformation',
     magfit='/MagnitudeFitting',
     sky_position='/SkyPosition'
@@ -44,16 +44,16 @@ def _get_structure_version_id(db_session, product='data_reduction'):
 def _get_source_extraction_datasets():
     """Create the default datasets for source extraction data."""
 
-    sdk_map_key_start = 'srcextract.sdk_map.'
+    psf_map_key_start = 'srcextract.psf_map.'
 
     def get_configuration_datasets():
         """Return the datasets containing the config. for source exatraction."""
 
-        config_path_start = _default_paths['sdk_map'] + '/Configuration/'
+        config_path_start = _default_paths['psf_map'] + '/Configuration/'
 
         return [
             HDF5DataSet(
-                pipeline_key=(sdk_map_key_start
+                pipeline_key=(psf_map_key_start
                               +
                               'srcextract_cfg_version'),
                 abspath=config_path_start + 'ConfigurationVersion',
@@ -63,14 +63,14 @@ def _get_source_extraction_datasets():
                 'for the source extraction used for this frame.'
             ),
             HDF5DataSet(
-                pipeline_key=sdk_map_key_start + 'software_versions',
+                pipeline_key=psf_map_key_start + 'software_versions',
                 abspath=config_path_start + 'SoftwareVersions',
                 dtype="'S100'",
                 description='An Nx2 array of strings consisting of software '
                 'elements and their versions used for source extraction.',
             ),
             HDF5DataSet(
-                pipeline_key=sdk_map_key_start + 'order',
+                pipeline_key=psf_map_key_start + 'order',
                 abspath=config_path_start + 'SpatialOrder',
                 dtype='numpy.uint',
                 replace_nonfinite=repr(numpy.iinfo('u4').max),
@@ -84,8 +84,8 @@ def _get_source_extraction_datasets():
 
         return [
             HDF5DataSet(
-                pipeline_key=sdk_map_key_start + psf_parameter.lower(),
-                abspath=_default_paths['sdk_map'] + '/' + psf_parameter,
+                pipeline_key=psf_map_key_start + psf_parameter.lower(),
+                abspath=_default_paths['psf_map'] + '/' + psf_parameter,
                 dtype='numpy.float64',
                 scaleoffset=4,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -404,7 +404,7 @@ def transform_dr_to_lc_path(dr_path):
             ('/SourceExtractionPSFMap', '/SourceExtractionPSF'),
             ('/ProjectedToFrameMap', ''),
             ('/SourceExtraction/SDKMap', '/SourceExtraction'),
-            ('/SourceExtraction', _default_paths['sdk_map']),
+            ('/SourceExtraction', _default_paths['psf_map']),
             ('/CatalogueSources', '/SkyToFrameTransformation')
     ]:
         result = re.sub(dr_string, lc_string, result)
@@ -428,8 +428,14 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.magfit.num_fit_src', None, False),
             ('apphot.magfit.fit_residual', 2, False),
             ('srcextract.binning', None, True),
-            ('srcextract.sdk_map.scale', 3, True),
-            ('srcextract.sdk_map.offset', 3, True),
+            ('srcextract.psf_map.cfg.psf_params', None, True),
+            ('srcextract.psf_map.cfg.terms', None, True),
+            ('srcextract.psf_map.cfg.weights', None, True),
+            ('srcextract.psf_map.cfg.error_avg', None, True),
+            ('srcextract.psf_map.cfg.rej_level', None, True),
+            ('srcextract.psf_map.cfg.max_rej_iter', None, True),
+            ('srcextract.psf_map.residual', 3, False),
+            ('srcextract.psf_map.num_fit_src', None, False),
             ('skytoframe.cfg.srcextract_filter', None, True),
             ('skytoframe.cfg.sky_preprojection', None, True),
             ('skytoframe.cfg.frame_center', 3, True),
@@ -664,8 +670,8 @@ def _get_configuration_index_datasets(db_session):
 
     result.extend([
         HDF5DataSet(
-            pipeline_key='srcextract.sdk_map' + key_tail,
-            abspath=_default_paths['sdk_map'] + path_tail,
+            pipeline_key='srcextract.psf_map' + key_tail,
+            abspath=_default_paths['psf_map'] + path_tail,
             **storage_options
         ),
         HDF5DataSet(

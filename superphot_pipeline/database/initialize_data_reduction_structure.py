@@ -17,7 +17,7 @@ _default_paths = dict(
     srcextract=dict(
         root='/SourceExtraction/Version%(srcextract_version)03d',
         sources='/Sources',
-        sdk_map='/SDKMap'
+        psf_map='/PSFMap'
     ),
     catalogue='/CatalogueSources/Version%(catalogue_version)03d',
     skytoframe=dict(
@@ -47,7 +47,7 @@ def _get_source_extraction_attributes():
 
     map_parent = (_default_paths['srcextract']['root']
                   +
-                  _default_paths['srcextract']['sdk_map'])
+                  _default_paths['srcextract']['psf_map'])
     fistar_attributes = [
         HDF5Attribute(
             pipeline_key='srcextract.fistar.cmdline',
@@ -57,22 +57,68 @@ def _get_source_extraction_attributes():
             description='The command line with which fistar was invoked.'
         ),
         HDF5Attribute(
-            pipeline_key='srcextract.sdk_map.scale',
+            pipeline_key='srcextract.psf_map.cfg.psf_params',
             parent=map_parent,
-            name='Scale',
-            dtype='numpy.float64',
-            description='The scaling to apply to source positinos after '
-            'offsetting and before substituting in the PSF map. A pair of '
-            'values giving the x and y scalings.'
+            name='Parameters',
+            dtype='numpy.string_',
+            description='The parameters for which smoothing was done.'
         ),
         HDF5Attribute(
-            pipeline_key='srcextract.sdk_map.offset',
+            pipeline_key='srcextract.psf_map.cfg.terms',
             parent=map_parent,
-            name='Offset',
+            name='Terms',
+            dtype='numpy.string_',
+            description='An expression expanding to the terms to include when '
+            'smoothing the fistar PSF parameters.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.cfg.weights',
+            parent=map_parent,
+            name='Weights',
+            dtype='numpy.string_',
+            description='An expression that evaluates to the weight for each '
+            'source in the smoothing fit.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.cfg.error_avg',
+            parent=map_parent,
+            name='ErrorAveraging',
+            dtype='numpy.string_',
+            description='How are the residuals after the fit averaged to '
+            'detect outlier sources?'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.cfg.rej_level',
+            parent=map_parent,
+            name='RejectionLevel',
             dtype='numpy.float64',
-            description='The offsets to apply to source positions before '
-            'scaling and substitutiting in the PSF map. A pair of values giving'
-            ' the x and y offsets.'
+            description='Sources are outliers if their residual '
+            'from the best fit is bigger than RejectionLevel * average '
+            'residuals.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.cfg.max_rej_iter',
+            parent=map_parent,
+            name='MaxRejectionIterations',
+            dtype='numpy.uint',
+            description='Maximum of this many outlier rejection/re-fitting '
+            'iterations are performed.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.residual',
+            parent=map_parent,
+            name='RMSResidual',
+            dtype='numpy.float64',
+            description='Root of average square residuals of the fit for each '
+            'PSF parameter.'
+        ),
+        HDF5Attribute(
+            pipeline_key='srcextract.psf_map.num_fit_src',
+            parent=map_parent,
+            name='NumberFitSources',
+            dtype='numpy.uint',
+            description='The number of non-rejected sources used in the '
+            'accepted fit for each PSF parameter.'
         )
     ]
 
@@ -129,14 +175,13 @@ def _get_source_extraction_datasets():
             'during source extraction.'
         ),
         HDF5DataSet(
-            pipeline_key='srcextract.sdk_map',
+            pipeline_key='srcextract.psf_map',
             abspath=(_default_paths['srcextract']['root']
                      +
-                     _default_paths['srcextract']['sdk_map']),
+                     _default_paths['srcextract']['psf_map']),
             dtype='numpy.float64',
-            description='The coefficients of the map giving the elliptical '
-            'gaussian shape parameters (S, D and K) as a function of image '
-            'position (x, y).'
+            description='The coefficients of the map giving the smoothed PSF '
+            'shape parameters.'
         )
     ]
 
