@@ -70,6 +70,8 @@ class LCDataReader:
 
         _config:    The configuration of how to perform the LC dumping.
 
+        _path_substitutions:    See path_substitutions argument to create().
+
     """
 
     dataset_dimensions = dict()
@@ -78,6 +80,7 @@ class LCDataReader:
     max_dimension_size = dict()
     _catalogue = dict()
     _ra_dec = []
+    _path_substitutions = dict()
 
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
@@ -89,7 +92,7 @@ class LCDataReader:
                 LightCurveFile to serve as an example of the structure of
                 lightcurve files to expect.
 
-            ignore_splits:    See create().
+            ignore_splits:    See path_substitutions argument of create().
 
         """
 
@@ -184,11 +187,9 @@ class LCDataReader:
     @classmethod
     def create(cls,
                config,
-               source_list,
                source_id_parser,
-               ignore_splits=(),
-               *,
-               source_range=(None, None)):
+               source_list=None,
+               **path_substitutions):
         """
         Configure the class for use in multiprocessing LC collection.
 
@@ -207,40 +208,22 @@ class LCDataReader:
                     - catalogue_fname: The filename of a catalogue file
                       containing at least RA and Dec.
 
-                    - catalogue_columns: List of the columns in the catalogue
-                      file. The two catalogue attributes are only necessary if
-                      BJD, HA or Z are being evaluated on a per-source basis.
-
                     - srcextract_psf_params: List of the parameters describing
                       PSF shapes of the extracted sources.
-
-            source_list:    A list that includes all sources for which
-                lightcurves will be generated. Sources should be formatted
-                as (field, source) tuples of two integers. Sources not in this
-                list are ignored.
 
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
 
-            ignore_splits(iterable):    A list of %-substitution kewyords in the
-                paths of lightcurve datasets for which only a single value will
-                be dumped (e.g. configuration versions indices). For all other
-                splits (e.g. aperture_index or magfit_iteration) all versions
-                are dumped simultaneously.
+            source_list:    A list that includes all sources for which
+                lightcurves will be generated. Sources should be formatted
+                as (field, source) tuples of two integers. Sources not in this
+                list are ignored. If None, the sources in the catalogue are used
+                instead.
 
-            The following arguments are never used if config contains the
-            extra arguments for command line configuration, but must be
-            supplied if database configuration is used.
-
-            - project_id:    The project for which lightcurves are being
-                created.
-
-            - sphotref_id:    The single photometric reference ID.
-
-            - db:    A calibration database object.
-            - track_skipped_sources:    Should objects keep track of sources for
-                which no lightcurves were created because they were not in
-                source_list?
+            path_substitutions:    Path substitutions to be kept fixed during
+                the entire lightcurve dumping process. Used to resolve paths
+                both within the input data reduction files and with the
+                generated lightcurves.
 
         Returns:
             None
@@ -248,6 +231,14 @@ class LCDataReader:
 
         if hasattr(cls, 'lc_data_slice'):
             del cls.lc_data_slice
+
+        cls._path_substitutions = path_substitutions
+
+        cls._catalogue = read_master_catalogue(config.catalogue_fname,
+                                               source_id_parser)
+
+        if source_list is None:
+            source_list = list(cls._catalogue.keys())
 
         no_light_curve = LightCurveFile()
 
@@ -260,7 +251,7 @@ class LCDataReader:
             srcextract_psf_param=len(config.srcextract_psf_params)
         )
 
-        cls._classify_datasets(no_light_curve, ignore_splits)
+        cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
         cls.max_dimension_size['frame'] = LCDataSlice.configure(
             get_dtype=no_light_curve.get_dtype,
@@ -272,8 +263,6 @@ class LCDataReader:
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
         if config.persrc.bjd or config.persrc.ha or config.persrc.z:
-            cls._catalogue = read_master_catalogue(config.catalogue.fname,
-                                                   source_id_parser)
             cls._ra_dec = [
                 (cls._catalogue[src]['ra'], cls._catalogue[src]['dec'])
                 for src in source_list
@@ -753,22 +742,17 @@ class LCDataReader:
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 
-    def __call__(self, frame, **path_substitutions):
+    def __call__(self, frame):
         """
         Add single frame's information to configurations and the LCDataSlice.
 
         Args:
             - frame: A 3-tulpe containing the following:
-                - record: A tuple identifying the frame to process,
-                          containing either:
-                          (filename, JD, BJD, zenith distance, hour angle,
-                           right ascention)
-                           or
-                          (station_id, fnum, cmpos, night, JD, BJD,
-                           zenith distance, hour angle, right ascention).
-                - frame_index: The index at which to place this frame's
-                                    data in the LCDataSlice object being
-                                    filled.
+
+                - The filename of the DR file to read.
+
+                - The index at which to place this frame's data in the
+                  LCDataSlice object being filled.
 
             path_substitutions:    Any %-substitution arguments required to
                 fully resolve the data being dumped to light curves for which
