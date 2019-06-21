@@ -26,7 +26,7 @@ from superphot_pipeline.database.initialize_data_reduction_structure import\
 _version_rex = re.compile(r'/Version%\([a-zA-Z_]*\)[0-9]*d')
 
 _default_paths = dict(
-    psf_map='/SourceExtractionPSFMap',
+    srcextract_psf_map='/SourceExtraction/PSFMap',
     catalogue='/SkyToFrameTransformation',
     magfit='/MagnitudeFitting',
     sky_position='/SkyPosition'
@@ -49,7 +49,7 @@ def _get_source_extraction_datasets():
     def get_configuration_datasets():
         """Return the datasets containing the config. for source exatraction."""
 
-        config_path_start = _default_paths['psf_map'] + '/Configuration/'
+        config_path_start = _default_paths['srcextract_psf_map'] + '/Configuration/'
 
         return [
             HDF5DataSet(
@@ -68,14 +68,6 @@ def _get_source_extraction_datasets():
                 dtype="'S100'",
                 description='An Nx2 array of strings consisting of software '
                 'elements and their versions used for source extraction.',
-            ),
-            HDF5DataSet(
-                pipeline_key=psf_map_key_start + 'order',
-                abspath=config_path_start + 'SpatialOrder',
-                dtype='numpy.uint',
-                replace_nonfinite=repr(numpy.iinfo('u4').max),
-                description='The maximum total order of the spatial terms '
-                'included in the smoothed PSF map from source extraction.',
             )
         ]
 
@@ -84,15 +76,16 @@ def _get_source_extraction_datasets():
 
         return [
             HDF5DataSet(
-                pipeline_key=psf_map_key_start + psf_parameter.lower(),
-                abspath=_default_paths['psf_map'] + '/' + psf_parameter,
+                pipeline_key=psf_map_key_start + 'eval',
+                abspath=(_default_paths['srcextract_psf_map']
+                         +
+                         '/%(srcextract_psf_param)s'),
                 dtype='numpy.float64',
                 scaleoffset=4,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
-                description='The values of the %s parameter for elliptical '
-                'gaussion PSF for each source.' % psf_parameter,
+                description='The values of the psf parameters for source '
+                'extraction based PSF for each source.'
             )
-            for psf_parameter in 'SDK'
         ]
 
     return get_configuration_datasets() + get_per_source_datasets()
@@ -401,10 +394,8 @@ def transform_dr_to_lc_path(dr_path):
     for dr_string, lc_string in [
             ('/FittedMagnitudes', _default_paths['magfit']),
             ('/ProjectedSources', '/ProjectedPosition'),
-            ('/SourceExtractionPSFMap', '/SourceExtractionPSF'),
+            ('/SourceExtraction/.*/PSFMap', _default_paths['srcextract_psf_map']),
             ('/ProjectedToFrameMap', ''),
-            ('/SourceExtraction/SDKMap', '/SourceExtraction'),
-            ('/SourceExtraction', _default_paths['psf_map']),
             ('/CatalogueSources', '/SkyToFrameTransformation')
     ]:
         result = re.sub(dr_string, lc_string, result)
@@ -671,7 +662,7 @@ def _get_configuration_index_datasets(db_session):
     result.extend([
         HDF5DataSet(
             pipeline_key='srcextract.psf_map' + key_tail,
-            abspath=_default_paths['psf_map'] + path_tail,
+            abspath=_default_paths['srcextract_psf_map'] + path_tail,
             **storage_options
         ),
         HDF5DataSet(
