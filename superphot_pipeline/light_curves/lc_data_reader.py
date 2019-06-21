@@ -8,6 +8,7 @@ import itertools
 
 import h5py
 import numpy
+from numpy.lib.recfunctions import merge_arrays as merge_structured_arrays
 from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
@@ -39,8 +40,9 @@ class LCDataReader:
         dataset_dimensions (dict):    Identifiers for the dimensions of
             datasets. The keys are the pipeline keys of lightcurve datasets and
             the values are tuples containing some of: `'frame'`,
-            `'source'`, `'aperture_index'`, `'magfit_iteration'` identifying
-            what the entries in the dataset depend on.
+            `'source'`, `'aperture_index'`, `'magfit_iteration'`,
+            `'srcextract_psf_param'` identifying what the entries in the dataset
+            depend on.
 
         header_datasets (dict):    The set of datasets which contain FITS header
             keywords. The index is the pipeline key identifying the dataset, and
@@ -74,6 +76,7 @@ class LCDataReader:
     header_datasets = dict()
     config_components = dict()
     max_dimension_size = dict()
+    _catalogue = dict()
     _ra_dec = []
 
     @classmethod
@@ -101,20 +104,20 @@ class LCDataReader:
                 config='|'.join([
                     r'_cfg_version$',
                     r'.software_versions$',
-                    r'sdkmap\.order$',
                     r'^srcextract\.binning$',
                     r'\.cfg\.|\.magfitcfg\.',
-                    r'^srcextract\.sdkmap\.scale$'
+                    r'^srcextract\.psf_map\.cfg.'
                 ]),
                 perframe='|'.join([
                     r'skytoframe\.(sky_center|residual|unitarity)$',
                     r'^shapefit\.global_chi2$',
                     r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
                     r'^fitsheader\.(?!cfg\.)',
-                    r'\.cfg_index$'
+                    r'\.cfg_index$',
+                    r'^srcextract.psf_map.(residual|num_fit_src)$',
                 ]),
                 persource='|'.join([
-                    r'^srcextract\.sdkmap\.[sdk]',
+                    r'^srcextract\.psf_map.eval',
                     r'^srcproj\.([xy]|enabled)$',
                     r'^bg\.(value|error|npix)$',
                     r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
@@ -208,6 +211,9 @@ class LCDataReader:
                       file. The two catalogue attributes are only necessary if
                       BJD, HA or Z are being evaluated on a per-source basis.
 
+                    - srcextract_psf_params: List of the parameters describing
+                      PSF shapes of the extracted sources.
+
             source_list:    A list that includes all sources for which
                 lightcurves will be generated. Sources should be formatted
                 as (field, source) tuples of two integers. Sources not in this
@@ -250,7 +256,8 @@ class LCDataReader:
         cls.max_dimension_size = dict(
             source=len(source_list),
             aperture_index=config.max_apertures,
-            magfit_iteration=config.max_magfit_iterations
+            magfit_iteration=config.max_magfit_iterations,
+            srcextract_psf_param=len(config.srcextract_psf_params)
         )
 
         cls._classify_datasets(no_light_curve, ignore_splits)
@@ -265,10 +272,12 @@ class LCDataReader:
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
         if config.persrc.bjd or config.persrc.ha or config.persrc.z:
-            catalogue = read_master_catalogue(config.catalogue.fname,
-                                              source_id_parser)
-            cls._ra_dec = [(catalogue[src]['ra'], catalogue[src]['dec'])
-                           for src in source_list]
+            cls._catalogue = read_master_catalogue(config.catalogue.fname,
+                                                   source_id_parser)
+            cls._ra_dec = [
+                (cls._catalogue[src]['ra'], cls._catalogue[src]['dec'])
+                for src in source_list
+            ]
 
         cls.last_source_below, cls.first_source_above = source_range
 
@@ -407,7 +416,7 @@ class LCDataReader:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    if dset_key == 'srcextract.sdk_map.order':
+                    if dset_key == 'srcextract.psf_map.order':
                         value = source_extracted_psf_map_order
                     elif dset_key in self.header_datasets:
                         assert not substitutions
@@ -459,7 +468,6 @@ class LCDataReader:
                            *,
                            data_reduction,
                            frame_header,
-                           source_extracted_psf_map,
                            frame_index,
                            lc_example,
                            **path_substitutions):
@@ -472,12 +480,6 @@ class LCDataReader:
 
             frame_header(dict-like):    A pyfits header or the equivalent
                 dictionary for the frame being processed.
-
-            source_extracted_psf_map(dict):    The PSF map derived by smoothing
-                the source extarction results. The keys are the PSF parameters
-                and the values are callables which can be evaluated at an image
-                position to get the value of the corresponding parameter at that
-                location.
 
             frame_index(int):    The index at which to place this frame's data
                   in the LCDataSlice object being filled.
@@ -684,27 +686,44 @@ class LCDataReader:
                                     values[source_index],
                                     source_index)
 
+        def merge_with_catalogue_information(source_data):
+            """Extend source_data with catalogue information."""
+
+            num_sources = len(source_data)
+            cat_data = numpy.empty(
+                num_sources,
+                dtype=next(iter(self._catalogue.values())).dtype
+            )
+            for source_index, source_id in enumerate(source_data['ID']):
+                cat_data[source_index] = self._catalogue[source_id]
+
+            return merge_structured_arrays(source_data, cat_data)
+
         def fill_srcextract_psf_map(source_data,
                                     data_slice_source_indices):
             """Fill all datasets containing the source exatrction PSF map."""
 
-            for (
-                    param_name,
-                    param_function
-            ) in source_extracted_psf_map.items():
-                if param_name == 'order':
-                    continue
-                param_values = param_function(source_data)
+            psf_map = data_reduction.get_source_extracted_psf_map(
+                **path_substitutions
+            )
+            psf_param_values = psf_map(source_data)
 
+            assert(set(psf_param_values.dtype.names)
+                   ==
+                   set(self._config.srcextract_psf_params))
+
+            for param_index, param_name in enumerate(
+                    self._config.srcextract_psf_params
+            ):
                 for data_slice_src_ind, value in zip(
                         data_slice_source_indices,
-                        param_values
+                        psf_param_values[param_name]
                 ):
                     if data_slice_src_ind is None:
                         continue
-                    set_field_entry('srcextract.sdk_map.' + param_name,
+                    set_field_entry('srcextract.psf_map.eval',
                                     value,
-                                    (),
+                                    (param_index,),
                                     data_slice_src_ind)
 
         fill_header_keywords()
@@ -716,6 +735,8 @@ class LCDataReader:
             background=False,
             **path_substitutions
         )
+        source_data = merge_with_catalogue_information(source_data)
+
         data_slice_source_indices = [self.source_destinations.get(src_id)
                                      for src_id in source_data['ID']]
         fill_direct_from_dr(data_slice_source_indices)
@@ -781,10 +802,6 @@ class LCDataReader:
             with DataReduction(dr_fname, 'r') as data_reduction:
                 frame_header = dict(data_reduction.get_fits_header().iteritems())
                 fix_header(frame_header)
-                psf_map = data_reduction.get_source_extracted_psf_map(
-                    **path_substitutions
-                )
-
                 configurations = self._get_configurations(data_reduction,
                                                           psf_map['order'],
                                                           frame_header,
@@ -793,7 +810,6 @@ class LCDataReader:
                 skipped_sources = self._add_to_data_slice(
                     data_reduction=data_reduction,
                     frame_header=frame_header,
-                    source_extracted_psf_map=source_extracted_psf_map,
                     frame_index=frame_index,
                     lc_example=lc_example,
                     **path_substitutions
