@@ -60,7 +60,7 @@ def _get_source_extraction_attributes():
             pipeline_key='srcextract.psf_map.cfg.psf_params',
             parent=map_parent,
             name='Parameters',
-            dtype='numpy.string_',
+            dtype='manual',
             description='The parameters for which smoothing was done.'
         ),
         HDF5Attribute(
@@ -1336,6 +1336,13 @@ def _get_datasets():
         _get_apphot_datasets()
         +
         [
+            HDF5DataSet(
+                pipeline_key='fitsheader',
+                abspath='FITSHeader',
+                dtype="'i1'",
+                description='A binary dump of the header of the calibrated '
+                'frames corresponding to this DR file.'
+            ),
             HDF5DataSet(
                 pipeline_key='subpixmap',
                 abspath=_default_paths['subpixmap'],
