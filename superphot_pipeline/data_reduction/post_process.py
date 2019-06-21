@@ -10,6 +10,8 @@ from superphot_pipeline.fit_expression import\
     iterative_fit
 from superphot_pipeline.evaluator import Evaluator
 
+from .source_extracted_psf_map import SourceExtractedPSFMap
+
 #Out of my control (most ancestors come from h5py module).
 #pylint: disable=too-many-ancestors
 #This is intended to be an abstract class
@@ -86,7 +88,7 @@ class DataReductionPostProcess(HDF5FileDatabaseStructure):
                                 (
                                     component == 'catalogue'
                                     or
-                                    var_name not in psf_parameters
+                                    var_name in ['x', 'y']
                                 )
                         ):
                             if indices is None:
@@ -190,5 +192,38 @@ class DataReductionPostProcess(HDF5FileDatabaseStructure):
 
         save_fit_results(fit_results)
     #pylint: enable=too-many-locals
+
+    def get_source_extracted_psf_map(self, **path_substitutions):
+        """
+        Return functions giving the source extraction PSF map in self.
+
+        Args:
+            path_substitutions:    Substitution arguments required to resolve
+                the path to the relevant datasets/attributes.
+
+        Returns:
+            SourceExtractedPSFMap:
+                The PSF map derived from extracted sources stored in this DR
+                file.
+        """
+
+        return SourceExtractedPSFMap(
+            psf_parameters=[
+                param_name.decode()
+                for param_name in self.get_attribute(
+                    'srcextract.psf_map.cfg.psf_params',
+                    **path_substitutions
+                )
+            ],
+            terms_expression=self.get_attribute(
+                'srcextract.psf_map.cfg.terms',
+                **path_substitutions
+            ).decode(),
+            coefficients=self.get_dataset(
+                'srcextract.psf_map',
+                **path_substitutions
+            )
+        )
+
 #pylint: enable=too-many-ancestors
 #pylint: enable=abstract-method

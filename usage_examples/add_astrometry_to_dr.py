@@ -2,6 +2,8 @@
 
 from os.path import dirname, join as join_paths
 
+import scipy
+
 from superphot_pipeline import DataReductionFile
 
 if __name__ == '__main__':
@@ -29,3 +31,20 @@ if __name__ == '__main__':
                                              rej_level=5.0,
                                              max_rej_iter=20,
                                              **path_substitutions)
+        psf_map = data_reduction.get_source_extracted_psf_map(
+            **path_substitutions
+        )
+    print(
+        repr(
+            psf_map(
+                scipy.array(
+                    [(1000.0, 1000.0, 11.0, 12.0, 12.0)],
+                    dtype=[('x', float),
+                           ('y', float),
+                           ('r', float),
+                           ('J', float),
+                           ('K', float)]
+                )
+            )
+        )
+    )

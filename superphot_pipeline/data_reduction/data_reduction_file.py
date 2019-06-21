@@ -9,15 +9,15 @@ import numpy
 import h5py
 
 from superphot import SmoothDependence
-from superphot_pipeline.database.hdf5_file_structure import\
-    HDF5FileDatabaseStructure
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
+
+from .post_process import DataReductionPostProcess
 
 git_id = '$Id$'
 
 #Out of my control (most ancestors come from h5py module).
 #pylint: disable=too-many-ancestors
-class DataReductionFile(HDF5FileDatabaseStructure):
+class DataReductionFile(DataReductionPostProcess):
     """
     Interface for working with the pipeline data reduction (DR) files.
 
@@ -1387,43 +1387,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         add_match(extracted_sources, catalogue_sources)
         add_trans()
 
-    def get_source_extracted_psf_map(self, **path_substitutions):
-        """
-        Return dict of functions giving the source extraction PSF map in self.
-
-        Args:
-            path_substitutions:    Substitution arguments required to resolve
-                the path to the relevant datasets/attributes.
-
-        Returns:
-            dict:
-                Keys: s, d and k. Values: functions of (x,y) which evaluate to
-                the corresponding PSF parameter.
-        """
-
-        x_scale, y_scale = self.get_attribute('srcextract.sdk_map.scale',
-                                              **path_substitutions)
-        x_offset, y_offset = self.get_attribute(
-            'srcextract.sdk_map.offset',
-            **path_substitutions
-        )
-        sdk_coef = self.get_dataset('srcextract.sdk_map',
-                                    **path_substitutions)
-        order = ((9.0 + 8.0 * (len(sdk_coef[0]) - 1))**0.5 - 3.0) / 2.0
-        assert numpy.abs(int(order) - order) < 1e-15
-
-        return dict(
-            zip(
-                ['s', 'd', 'k'],
-                [
-                    make_polynomial_function(x_offset, y_offset,
-                                             x_scale, y_scale,
-                                             coef)
-                    for coef in sdk_coef
-                ]
-            ),
-            order=order
-        )
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 
