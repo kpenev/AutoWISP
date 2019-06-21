@@ -502,6 +502,16 @@ class DataReductionFile(DataReductionPostProcess):
             path_substitutions
         ].len()
 
+    def add_frame_header(self, header, **substitutions):
+        """Add the header of the corresponding FITS frame to DR file."""
+
+        self.write_fitsheader_to_dataset('fitsheader', header, **substitutions)
+
+    def get_frame_header(self, **substitutions):
+        """Return the header of the corresponding FITS frame."""
+
+        return self.read_fitsheader_from_dataset('fitsheader', **substitutions)
+
     def add_star_shape_fit(self,
                            shape_fit_result_tree,
                            num_sources,

@@ -126,44 +126,29 @@ class HDF5File(ABC, h5py.File):
             attribute = self._file_structure[attribute_key]
             attribute.parent_must_exist = attribute.parent in dataset_paths
 
-    @staticmethod
-    def _write_text_to_dataset(text,
-                               h5group,
-                               dset_path,
-                               creation_args=None,
-                               **attributes):
+    def _write_text_to_dataset(self,
+                               dataset_key,
+                               text,
+                               if_exists='overwrite',
+                               **substitutions):
         r"""
         Adds ASCII text/file as a dateset to an HDF5 file.
 
         Args:
+            dataset_key:    The key identifying the dataset to add.
+
             text:    The text or file to add. If it is an open file, the
                 contents is dumped, if it is a python2 string or a python3
                 bytes, the value is stored.
 
-            h5group:    An HDF5 group (could be the root group, i.e. an
-                h5py.File opened for writing).
+            if_exists:    See add_dataset().
 
-            dset_path:    The path for the new data set, either absolute or
-                relative to h5group.
-
-            creation_args:    Keyword arguments to pass to
-                :meth:`create_dataset`\ . If
-                ``None``, defaults to ``dict(compression='gzip',
-                compression_opts=9)``.
-
-            compression_opts:    see same name argument
-                in h5py.File.create_dataset.
-
-            attributes:    Added as attributes with the same name to the
-                the data set.
+            substitututions:    Any arguments that should be substituted in the
+                dataset path.
 
         Returns:
             None
         """
-
-        if creation_args is None:
-            creation_args = dict(compression='gzip',
-                                 compression_opts=9)
 
         if isinstance(text, bytes):
             data = numpy.frombuffer(text, dtype='i1')
@@ -172,46 +157,20 @@ class HDF5File(ABC, h5py.File):
         else:
             data = numpy.fromfile(text, dtype='i1')
 
-        dataset = h5group.create_dataset(dset_path, data=data, **creation_args)
-        for key, value in attributes.items():
-            dataset.attrs[key] = value
+        self.add_dataset(dataset_key, data, if_exists, **substitutions)
 
-    @staticmethod
-    def _read_text_from_dataset(h5dset, as_file=False):
-        r"""
-        Reads a text from an HDF5 dataset.
-
-        The inverse of :meth:`_write_text_to_dataset`\ .
-
-        Args:
-            h5dset (h5py.DataSet):    The dataset containing the text to read.
-
-            as_file (bool):    Should the return value be file-like?
-
-        Returns:
-            bytes or BytesIO:
-                If as_file is False: numpy byte array (dtype='i1') containing
-                the text. If as_file is True: a BytesIO wrapped around the
-                stored text.
-        """
-
-        text = numpy.empty((h5dset.len(),), dtype='i1')
-        if h5dset.len() != 0:
-            h5dset.read_direct(text)
-        if as_file:
-            return BytesIO(text.data)
-
-        return text
-
-    @staticmethod
-    def write_fitsheader_to_dataset(fitsheader, *args, **kwargs):
+    def write_fitsheader_to_dataset(self,
+                                    dataset_key,
+                                    fitsheader,
+                                    **kwargs):
         r"""
         Adds a FITS header to an HDF5 file as a dataset.
 
         Args:
-            fitsheader:    The header to save (fits.Header instance).
+            dataset_key(str):    The key identifying the dataset to add the
+                header to.
 
-            args:    Passed directly to :meth:`_write_text_to_dataset`\ .
+            fitsheader(fits.Header):    The header to save.
 
             kwargs:    Passed directly to :meth:`_write_text_to_dataset`\ .
 
@@ -229,12 +188,13 @@ class HDF5File(ABC, h5py.File):
                 fitsheader_string = b''.join(map(bytes, header.cards))
             #pylint: enable=no-member
         else:
-            fitsheader_string = b''.join(fitsheader.cards)
+            fitsheader_string = b''.join(
+                card.image.encode('ascii') for card in fitsheader.cards
+            )
         fitsheader_array = numpy.frombuffer(fitsheader_string, dtype='i1')
-        HDF5File._write_text_to_dataset(fitsheader_array, *args, **kwargs)
+        self._write_text_to_dataset(dataset_key, fitsheader_array, **kwargs)
 
-    @staticmethod
-    def read_fitsheader_from_dataset(h5dset):
+    def read_fitsheader_from_dataset(self, dataset_key, **substitutions):
         """
         Reads a FITS header from an HDF5 dataset.
 
@@ -244,11 +204,11 @@ class HDF5File(ABC, h5py.File):
             h5dset:    The dataset containing the header to read.
 
         Returns:
-            header:    Instance of fits.Header.
+            fits.Header:
+                The FITS header contained in the given dataset.
         """
 
-        fitsheader_array = numpy.empty((h5dset.len(),), dtype='i1')
-        h5dset.read_direct(fitsheader_array)
+        fitsheader_array = self.get_dataset(dataset_key, **substitutions)
         return fits.Header.fromfile(BytesIO(fitsheader_array.data),
                                     endcard=False,
                                     padding=False)
@@ -323,7 +283,7 @@ class HDF5File(ABC, h5py.File):
 
         #All implementations of _elemnts are required to make them dict-like.
         #pylint: disable=no-member
-        for (element_type, recognized) in cls._elements.items():
+        for (element_type, recognized) in cls.elements.items():
             if element_id.rstrip('.') in recognized:
                 return element_type
         #pylint: enable=no-member
@@ -343,7 +303,7 @@ class HDF5File(ABC, h5py.File):
                 A string giving the path the element does/will have in the file.
         """
 
-        for (element_type, recognized) in self._elements.items():
+        for (element_type, recognized) in self.elements.items():
             if element_id.rstrip('.') in recognized:
                 if element_type == 'attribute':
                     attribute_config = self._file_structure[element_id]
@@ -515,6 +475,8 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
+    #The path_substitutions arg is used by overloading functions.
+    #pylint: disable=unused-argument
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
         """
         Return all arguments to pass to create_dataset() except the content.
@@ -558,6 +520,7 @@ class HDF5File(ABC, h5py.File):
             result['fillvalue'] = dataset_config.replace_nonfinite
 
         return result
+    #pylint: enable=unused-argument
 
     @staticmethod
     def hdf5_class_string(hdf5_class):
@@ -804,33 +767,15 @@ class HDF5File(ABC, h5py.File):
                 Was the dataset actually created?
         """
 
-        if dataset_key not in self._file_structure:
-            return False
-
-        self._check_for_dataset(dataset_key, False)
-
-        dataset_path = self._file_structure[dataset_key].abspath % substitutions
-        assert self.get_dtype(dataset_key) == numpy.dtype('i1')
-
-        if dataset_path in self:
-            if if_exists == 'ignore':
-                return False
-            if if_exists == 'error':
-                raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
-                              "overwriting is not allowed!"
-                              %
-                              (dataset_key, dataset_path, self.filename))
-            self._delete_obsolete_dataset(dataset_key, **substitutions)
-
         self._write_text_to_dataset(
+            dataset_key=dataset_key,
             text=(
                 file_contents
                 if file_contents is not None else
                 numpy.empty((0,), dtype='i1')
             ),
-            h5group=self,
-            dset_path=dataset_path,
-            creation_args=self.get_dataset_creation_args(dataset_key)
+            if_exists=if_exists,
+            **substitutions
         )
         return True
 
@@ -876,31 +821,6 @@ class HDF5File(ABC, h5py.File):
                               "requested!"
                               %
                               (dataset_key, fname, self.filename))
-
-    def get_file_dump(self, dataset_key, **substitutions):
-        """
-        Returns as a string (with name attribute) a previously dumped file.
-
-        Args:
-            dataset_key:    The key identifying the dataset containing the file
-                dump.
-
-            substitutions:    Any arguments that should be substituted in the
-                path. Only required if must_exist == True.
-
-        Returns:
-            bytes:
-                The text of the dumped file.
-        """
-
-        self._check_for_dataset(dataset_key, True, **substitutions)
-        assert self.get_dtype(dataset_key) == numpy.dtype('i1')
-
-        result = self._read_text_from_dataset(
-            self[self._file_structure[dataset_key].abspath],
-            as_file=True
-        )
-        return result
 
     def get_attribute(self,
                       attribute_key,
