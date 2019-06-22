@@ -6,11 +6,7 @@ from glob import glob
 from collections import namedtuple
 import logging
 
-import scipy
-
 from superphot_pipeline import magnitude_fitting
-
-from superphot_pipeline.fit_expression import Interface as FitTermsInterface
 
 if __name__ == '__main__':
     fit_dir = '/data/HAT10DSLR_sandbox/FITPSF/10-20170306'
