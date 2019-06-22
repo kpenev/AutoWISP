@@ -1,9 +1,10 @@
 """Define a class holding a slice of LC data organize by source."""
 
 from ctypes import\
+    c_bool,\
     c_int8, c_int16, c_int32, c_int64,\
-    c_float, c_double, c_longdouble,\
     c_uint64, c_uint32, c_uint16, c_uint8,\
+    c_float, c_double, c_longdouble,\
     Structure, sizeof
 
 import numpy
@@ -20,6 +21,9 @@ class LCDataSlice(Structure):
 
         if not isinstance(dtype, numpy.dtype):
             dtype = numpy.dtype(dtype)
+
+        if dtype.kind == 'b':
+            return c_bool
 
         if dtype.kind == 'i':
             assert dtype.itemsize <= 8
@@ -81,21 +85,21 @@ class LCDataSlice(Structure):
                 The number of frames that will fit into the structure.
         """
 
-        atomic_ctypes = {
-            dset_name: cls.get_ctype(get_dtype(dset_name))
-            for dset_name in dataset_dimensions
-        }
+        atomic_ctypes = dict()
 
         dset_size = dict()
         perframe_bytes = 0
-        for dset_name, dset_dimensions in dataset_dimensions:
-            dset_size[dset_name] = 1
-            for dimension in dset_dimensions:
-                if dimension != 'frame':
-                    dset_size[dset_name] *= max_dimension_size[dimension]
-            perframe_bytes += (sizeof(atomic_ctypes[dset_name])
-                               *
-                               dset_size[dset_name])
+        for dset_name, dset_dimensions in dataset_dimensions.items():
+            if 'frame' in dset_dimensions or 'source' in dset_dimensions:
+                atomic_ctypes[dset_name] = cls.get_ctype(get_dtype(dset_name))
+
+                dset_size[dset_name] = 1
+                for dimension in dset_dimensions:
+                    if dimension != 'frame':
+                        dset_size[dset_name] *= max_dimension_size[dimension]
+                perframe_bytes += (sizeof(atomic_ctypes[dset_name])
+                                   *
+                                   dset_size[dset_name])
 
         num_frames = min(int(max_mem / perframe_bytes), 1000)
 
