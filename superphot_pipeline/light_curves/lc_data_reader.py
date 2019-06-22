@@ -104,29 +104,35 @@ class LCDataReader:
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
             key_rex = dict(
-                config='|'.join([
-                    r'_cfg_version$',
-                    r'.software_versions$',
-                    r'^srcextract\.binning$',
-                    r'\.cfg\.|\.magfitcfg\.',
-                    r'^srcextract\.psf_map\.cfg.'
-                ]),
-                perframe='|'.join([
-                    r'skytoframe\.(sky_center|residual|unitarity)$',
-                    r'^shapefit\.global_chi2$',
-                    r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
-                    r'^fitsheader\.(?!cfg\.)',
-                    r'\.cfg_index$',
-                    r'^srcextract.psf_map.(residual|num_fit_src)$',
-                ]),
-                persource='|'.join([
-                    r'^srcextract\.psf_map.eval',
-                    r'^srcproj\.([xy]|enabled)$',
-                    r'^bg\.(value|error|npix)$',
-                    r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
-                    r'\.(magnitude|magnitude_error|quality_flag$',
-                    r'skypos\..*'
-                ])
+                config=re.compile(
+                    '|'.join([
+                        r'_cfg_version$',
+                        r'.software_versions$',
+                        r'^srcextract\.binning$',
+                        r'\.cfg\.|\.magfitcfg\.',
+                        r'^srcextract\.psf_map\.cfg\.'
+                    ])
+                ),
+                perframe=re.compile(
+                    '|'.join([
+                        r'skytoframe\.(sky_center|residual|unitarity)$',
+                        r'^shapefit\.global_chi2$',
+                        r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
+                        r'^fitsheader\.(?!cfg\.)',
+                        r'\.cfg_index$',
+                        r'^srcextract.psf_map.(residual|num_fit_src)$',
+                    ])
+                ),
+                persource=re.compile(
+                    '|'.join([
+                        r'^srcextract\.psf_map.eval',
+                        r'^srcproj\.([xy]|enabled)$',
+                        r'^bg\.(value|error|npix)$',
+                        r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
+                        r'\.(magnitude|magnitude_error|quality_flag)$',
+                        r'skypos\..*'
+                    ])
+                )
             )
 
             for lc_quantity in lc_example.elements['dataset']:
@@ -162,21 +168,22 @@ class LCDataReader:
                     )
                 )
                 if lc_quantity.endswith('.cfg_index'):
-                    assert parent not in config_components
-                    config_components[parent] = lc_quantity[:-len('.cfg_index')]
+                    config_group = parent + '/Configuration'
+                    assert config_group not in config_components
+                    config_components[config_group] = lc_quantity[:-len('.cfg_index')]
             return config_datasets, config_components
 
         def organize_config(config_datasets, config_components):
             """Fill the :attr:`config_components` attribute."""
 
-            for parent, component in config_components:
+            for parent, component in config_components.items():
                 component_dsets = config_datasets[parent]
                 dimensions = cls.dataset_dimensions[next(iter(component_dsets))]
                 for dset in component_dsets:
                     assert cls.dataset_dimensions[dset] == dimensions
                 assert (cls.dataset_dimensions[component + '.cfg_index']
                         ==
-                        dimensions)
+                        dimensions + ('frame',))
                 cls.config_components[component] = (
                     dimensions,
                     component_dsets
@@ -210,6 +217,10 @@ class LCDataReader:
 
                     - srcextract_psf_params: List of the parameters describing
                       PSF shapes of the extracted sources.
+
+                    - memblocksize: The maximum amount of memory (in bytes) to
+                      allocate for temporaririly storing source information
+                      before dumping to LC.
 
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
@@ -267,8 +278,6 @@ class LCDataReader:
                 (cls._catalogue[src]['ra'], cls._catalogue[src]['dec'])
                 for src in source_list
             ]
-
-        cls.last_source_below, cls.first_source_above = source_range
 
         result = LCDataReader()
         return result

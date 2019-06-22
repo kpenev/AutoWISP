@@ -6,6 +6,8 @@ from ctypes import\
     c_uint64, c_uint32, c_uint16, c_uint8,\
     Structure, sizeof
 
+import numpy
+
 class LCDataSlice(Structure):
     """A time-slice of LC data to be shared between LC dumping processes."""
 
@@ -15,6 +17,9 @@ class LCDataSlice(Structure):
     @staticmethod
     def get_ctype(dtype):
         """Return the appropriate c-types type to use for the given dtype."""
+
+        if not isinstance(dtype, numpy.dtype):
+            dtype = numpy.dtype(dtype)
 
         if dtype.kind == 'i':
             assert dtype.itemsize <= 8
