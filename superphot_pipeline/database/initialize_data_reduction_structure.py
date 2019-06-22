@@ -1338,7 +1338,7 @@ def _get_datasets():
         [
             HDF5DataSet(
                 pipeline_key='fitsheader',
-                abspath='FITSHeader',
+                abspath='/FITSHeader',
                 dtype="'i1'",
                 description='A binary dump of the header of the calibrated '
                 'frames corresponding to this DR file.'
