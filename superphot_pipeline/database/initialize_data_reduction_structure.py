@@ -134,7 +134,7 @@ def _get_source_extraction_attributes():
                 'extraction.'
             ),
             HDF5Attribute(
-                pipeline_key='srcextract.binning',
+                pipeline_key='srcextract.cfg.binning',
                 parent=_default_paths['srcextract']['root'],
                 name='ImageBinFactor',
                 dtype='numpy.uint',
@@ -142,15 +142,6 @@ def _get_source_extraction_attributes():
                 'image was binned in the x and y directions respectively '
                 'before passing to the source extractor. Useful for way out of '
                 'focus images.'
-            ),
-            HDF5Attribute(
-                pipeline_key='srcextract.columns',
-                parent=(_default_paths['srcextract']['root']
-                        +
-                        _default_paths['srcextract']['sources']),
-                name='Columns',
-                dtype="'S100'",
-                description='A list of the source extraction columns stored.'
             )
         ]
         +

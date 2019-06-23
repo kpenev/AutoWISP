@@ -418,7 +418,7 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.magfit.num_input_src', None, False),
             ('apphot.magfit.num_fit_src', None, False),
             ('apphot.magfit.fit_residual', 2, False),
-            ('srcextract.binning', None, True),
+            ('srcextract.cfg.binning', None, True),
             ('srcextract.psf_map.cfg.psf_params', None, True),
             ('srcextract.psf_map.cfg.terms', None, True),
             ('srcextract.psf_map.cfg.weights', None, True),

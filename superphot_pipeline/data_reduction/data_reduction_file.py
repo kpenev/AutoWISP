@@ -1261,7 +1261,7 @@ class DataReductionFile(DataReductionPostProcess):
         if path_substitutions['magfit_iteration'] == 0:
             add_attributes(include_shape_fit)
 
-    def add_hat_astrometry(self, filenames, **path_substitutions):
+    def add_hat_astrometry(self, filenames, configuration, **path_substitutions):
         """
         Add astrometry derived by fistar, and anmatch to the DR file.
 
@@ -1269,6 +1269,9 @@ class DataReductionFile(DataReductionPostProcess):
             filanemes(dict):    The files containing the astrometry results.
                 Should have the following keys: `'fistar'`, `'trans'`,
                 `'match'`, `'catalogue'`.
+
+            configuration:    An object with attributes containing the
+                configuraiton of how astormetry was performed.
 
             path_substitutions:    See get_source_count()
 
@@ -1372,6 +1375,34 @@ class DataReductionFile(DataReductionPostProcess):
                 **path_substitutions
             )
 
+        def add_configuration():
+            """Add the information about the configuration used."""
+
+            for component, config_attribute in [
+                    ('srcextract', 'binning'),
+                    ('catalogue', 'name'),
+                    ('catalogue', 'epoch'),
+                    ('catalogue', 'filter'),
+                    ('catalogue', 'fov'),
+                    ('catalogue', 'orientation'),
+                    ('skytoframe', 'srcextract_filter'),
+                    ('skytoframe', 'sky_preprojection'),
+                    ('skytoframe', 'max_match_distance'),
+                    ('skytoframe', 'frame_center'),
+                    ('skytoframe', 'weights_expression')
+            ]:
+                if component == 'catalogue':
+                    value = getattr(configuration,
+                                    'astrom_catalogue_' + config_attribute)
+                else:
+                    value = getattr(configuration,
+                                    component + '_' + config_attribute)
+                self.add_attribute(
+                    component + '.cfg.' + config_attribute,
+                    value,
+                    **path_substitutions
+                )
+
         extracted_sources = numpy.genfromtxt(
             filenames['fistar'],
             names=['ID', 'x', 'y', 'Background', 'Amplitude', 'S', 'D', 'K',
@@ -1396,6 +1427,7 @@ class DataReductionFile(DataReductionPostProcess):
                     parse_ids=True)
         add_match(extracted_sources, catalogue_sources)
         add_trans()
+        add_configuration()
 
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
