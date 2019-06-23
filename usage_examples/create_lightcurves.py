@@ -31,12 +31,13 @@ if __name__ == '__main__':
         memblocksize=1023**3
     )
 
-    with DataReductionFile(dr_fname, 'r') as dummy_dr:
-        read_data = LCDataReader.create(configuration,
-                                        dummy_dr.parse_hat_source_id)
-
     path_substitutions = dict(srcextract_version=0,
                               catalogue_version=0,
                               skytoframe_version=0)
 
-    read_data((dr_fname, 0), **path_substitutions)
+    with DataReductionFile(dr_fname, 'r') as dummy_dr:
+        read_data = LCDataReader.create(configuration,
+                                        dummy_dr.parse_hat_source_id,
+                                        **path_substitutions)
+
+    read_data((dr_fname, 0))

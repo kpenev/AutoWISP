@@ -15,6 +15,7 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from superphot_pipeline.light_curves import LCDataSlice, LightCurveFile
 from superphot_pipeline.magnitude_fitting import read_master_catalogue
+from superphot_pipeline import DataReductionFile
 
 class LCDataReader:
     """
@@ -273,11 +274,10 @@ class LCDataReader:
 
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
-        if config.persrc.bjd or config.persrc.ha or config.persrc.z:
-            cls._ra_dec = [
-                (cls._catalogue[src]['ra'], cls._catalogue[src]['dec'])
-                for src in source_list
-            ]
+        cls._ra_dec = [
+            (cls._catalogue[src]['RA'], cls._catalogue[src]['Dec'])
+            for src in source_list
+        ]
 
         result = LCDataReader()
         return result
@@ -351,10 +351,8 @@ class LCDataReader:
 
     def _get_configurations(self,
                             data_reduction,
-                            source_extracted_psf_map_order,
                             frame_header,
-                            get_lc_dtype,
-                            **path_substitutions):
+                            get_lc_dtype):
         """
         Extract all configurations from the given data reduction file.
 
@@ -362,16 +360,12 @@ class LCDataReader:
             data_reduction(DataReductionFile):    An opened (at least for
                 reading) data reduction file for the frame being processed.
 
-            source_extracted_psf_map_order(int):    The maximum polynomial order
-                used for smoothing the source extraction PSF map.
-
             frame_header(dict-like):    A pyfits header or the equivalent
                 dictionary for the frame being processed.
 
             get_lc_dtype(callable):    Should return the data type of a dataset
                 within light curves.
 
-            path_substitutions:    See __call__().
         Returns:
             dict:
                 The keys are the various components for which configuration is
@@ -414,9 +408,7 @@ class LCDataReader:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    if dset_key == 'srcextract.psf_map.order':
-                        value = source_extracted_psf_map_order
-                    elif dset_key in self.header_datasets:
+                    if dset_key in self.header_datasets:
                         assert not substitutions
                         value = frame_header[
                             self.header_datasets[dset_key]
@@ -425,7 +417,7 @@ class LCDataReader:
                         value = data_reduction.get_attribute(
                             dset_key,
                             **substitutions,
-                            **path_substitutions
+                            **self._path_substitutions
                         )
                     found_config = True
                 except KeyError:
@@ -441,7 +433,8 @@ class LCDataReader:
             return frozenset(config_list) if found_config else None
 
         result = dict()
-        for component, (dimensions, component_dsets) in self.config_components:
+        for component, (dimensions,
+                        component_dsets) in self.config_components.items():
             result[component] = []
             for dim_values in self._get_dimensions_iterator(dimensions):
                 substitutions = dict(zip(dimensions, dim_values))
@@ -467,8 +460,7 @@ class LCDataReader:
                            data_reduction,
                            frame_header,
                            frame_index,
-                           lc_example,
-                           **path_substitutions):
+                           lc_example):
         """
         Add the information from a single frame to the LCDataSlice.
 
@@ -483,8 +475,6 @@ class LCDataReader:
                   in the LCDataSlice object being filled.
 
             lc_example(LightCurveFile):    See _classify_datasets().
-
-            path_substitutions:    See __call__().
 
         Returns:
             []:
@@ -561,7 +551,7 @@ class LCDataReader:
                     data_reduction.get_attribute(
                         quantity,
                         default_value=get_dset_default(quantity),
-                        **path_substitutions,
+                        **self._path_substitutions,
                         **dict(
                             zip(self.dataset_dimensions[quantity], dim_values)
                         )
@@ -588,7 +578,7 @@ class LCDataReader:
                     quantity,
                     expected_shape=(num_sources,),
                     default_value=get_dset_default(quantity),
-                    **path_substitutions,
+                    **self._path_substitutions,
                     **dict(
                         zip(self.dataset_dimensions[quantity], dim_values)
                     )
@@ -702,7 +692,7 @@ class LCDataReader:
             """Fill all datasets containing the source exatrction PSF map."""
 
             psf_map = data_reduction.get_source_extracted_psf_map(
-                **path_substitutions
+                **self._path_substitutions
             )
             psf_param_values = psf_map(source_data)
 
@@ -731,7 +721,7 @@ class LCDataReader:
             apphot=False,
             shape_map_variables=False,
             background=False,
-            **path_substitutions
+            **self._path_substitutions
         )
         source_data = merge_with_catalogue_information(source_data)
 
@@ -756,20 +746,12 @@ class LCDataReader:
         Add single frame's information to configurations and the LCDataSlice.
 
         Args:
-            - frame: A 3-tulpe containing the following:
+            - frame: A 2-tulpe containing the following:
 
                 - The filename of the DR file to read.
 
                 - The index at which to place this frame's data in the
                   LCDataSlice object being filled.
-
-            path_substitutions:    Any %-substitution arguments required to
-                fully resolve the data being dumped to light curves for which
-                not all values are being dumped within a DR file, and
-                respectively the destination for the data in the LC file. The
-                keys should be exactly the ignore_splits arguments passed to
-                create().
-
 
         Returns: None.
         """
@@ -792,11 +774,12 @@ class LCDataReader:
         try:
             lc_example = LightCurveFile()
             dr_fname, frame_index = frame
-            with DataReduction(dr_fname, 'r') as data_reduction:
-                frame_header = dict(data_reduction.get_fits_header().iteritems())
+            with DataReductionFile(dr_fname, 'r') as data_reduction:
+                frame_header = dict(
+                    data_reduction.get_frame_header().items()
+                )
                 fix_header(frame_header)
                 configurations = self._get_configurations(data_reduction,
-                                                          psf_map['order'],
                                                           frame_header,
                                                           lc_example.get_dtype)
 
@@ -805,7 +788,7 @@ class LCDataReader:
                     frame_header=frame_header,
                     frame_index=frame_index,
                     lc_example=lc_example,
-                    **path_substitutions
+                    **self._path_substitutions
                 )
             return configurations, skipped_sources
         except:
