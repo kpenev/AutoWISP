@@ -1198,6 +1198,7 @@ class DataReductionFile(DataReductionPostProcess):
             """Add attributes with the magfit configuration."""
 
             for phot_index in range(fitted_magnitudes.shape[1]):
+
                 phot_method = (
                     'shapefit' if include_shape_fit and phot_index == 0
                     else 'apphot'
@@ -1210,35 +1211,38 @@ class DataReductionFile(DataReductionPostProcess):
                         1
                     )
 
-                self.add_attribute(
-                    phot_method + '.magfitcfg.correction_type',
-                    b'linear',
-                    if_exists='error',
-                    **path_substitutions
-                )
 
-                for pipeline_key_end, config_attribute in [
-                        ('correction', 'correction_parametrization'),
-                        ('require', 'fit_source_condition')
-                ]:
+                if path_substitutions['magfit_iteration'] == 0:
+
                     self.add_attribute(
-                        phot_method + '.magfitcfg.' + pipeline_key_end,
-                        getattr(magfit_configuration, config_attribute),
+                        phot_method + '.magfitcfg.correction_type',
+                        b'linear',
                         if_exists='error',
                         **path_substitutions
                     )
 
-                for config_param in ['noise_offset',
-                                     'max_mag_err',
-                                     'rej_level',
-                                     'max_rej_iter',
-                                     'error_avg']:
-                    self.add_attribute(
-                        phot_method + '.magfitcfg.' + config_param,
-                        getattr(magfit_configuration, config_param),
-                        if_exists='error',
-                        **path_substitutions
-                    )
+                    for pipeline_key_end, config_attribute in [
+                            ('correction', 'correction_parametrization'),
+                            ('require', 'fit_source_condition')
+                    ]:
+                        self.add_attribute(
+                            phot_method + '.magfitcfg.' + pipeline_key_end,
+                            getattr(magfit_configuration, config_attribute),
+                            if_exists='error',
+                            **path_substitutions
+                        )
+
+                    for config_param in ['noise_offset',
+                                         'max_mag_err',
+                                         'rej_level',
+                                         'max_rej_iter',
+                                         'error_avg']:
+                        self.add_attribute(
+                            phot_method + '.magfitcfg.' + config_param,
+                            getattr(magfit_configuration, config_param),
+                            if_exists='error',
+                            **path_substitutions
+                        )
 
                 for pipeline_key_end, statistics_key in [
                         ('num_input_src', 'initial_src_count'),
@@ -1258,8 +1262,8 @@ class DataReductionFile(DataReductionPostProcess):
         include_shape_fit = self.has_shape_fit(**path_substitutions)
         add_magfit_datasets(pad_missing_magnitudes(),
                             include_shape_fit)
-        if path_substitutions['magfit_iteration'] == 0:
-            add_attributes(include_shape_fit)
+
+        add_attributes(include_shape_fit)
 
     def add_hat_astrometry(self, filenames, configuration, **path_substitutions):
         """
