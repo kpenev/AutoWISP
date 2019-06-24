@@ -288,29 +288,42 @@ class LCDataReader:
     def _config_to_lc_format(lc_quantity, lc_dtype, value):
         """Return value as it would be read from the LC."""
 
+        print('Formatting %s (%s) = %s.' % (repr(lc_quantity),
+                                            repr(lc_dtype),
+                                            repr(value)))
         try:
             if value is None:
-                if lc_dtype.kind == 'i':
-                    result = np.iinfo(lc_dtype).min
-                elif lc_dtype.kind == 'u':
-                    result = np.iinfo(lc_dtype).max
-                elif lc_dtype.kind == 'f':
-                    result = 'NaN'
-                elif h5py.check_dtype(vlen=lc_dtype) is str:
-                    result = ''
+                if numpy.dtype(lc_dtype).kind == 'i':
+                    result = numpy.iinfo(lc_dtype).min
+                elif numpy.dtype(lc_dtype).kind == 'u':
+                    result = numpy.iinfo(lc_dtype).max
+                elif numpy.dtype(lc_dtype).kind == 'f':
+                    result = b'NaN'
+                elif (
+                    lc_dtype is numpy.string_
+                    or
+                    h5py.check_dtype(vlen=lc_dtype) is str
+                ):
+                    result = b''
                 else:
                     assert False
-            elif isinstance(value, str) and value == 'NaN':
-                return value
+            elif lc_dtype is numpy.string_:
+                if isinstance(value, bytes):
+                    return value
+                else:
+                    return value.encode('ascii')
+            elif isinstance(value, str) and (value == 'NaN'):
+                return value.encode('ascii')
             else:
+                lc_dtyp = numpy.dtype(lc_dtype)
                 vlen_type = h5py.check_dtype(vlen=lc_dtype)
                 if vlen_type is str:
-                    result = str(value)
+                    result = str(value).encode('ascii')
                 elif vlen_type is None:
                     result = lc_dtype.type(value)
                 else:
                     result = HashableArray(
-                        np.array(value, dtype=vlen_type)
+                        numpy.array(value, dtype=vlen_type)
                     )
             return result
         except:
@@ -411,7 +424,7 @@ class LCDataReader:
                     if dset_key in self.header_datasets:
                         assert not substitutions
                         value = frame_header[
-                            self.header_datasets[dset_key]
+                            self.header_datasets[dset_key].upper()
                         ]
                     else:
                         value = data_reduction.get_attribute(
@@ -420,7 +433,12 @@ class LCDataReader:
                             **self._path_substitutions
                         )
                     found_config = True
-                except KeyError:
+                except OSError:
+                    print('Failed to read %s from DR file:\n\t'
+                          %
+                          dset_key
+                          +
+                          "\t".join(format_exception(*sys.exc_info())))
                     value = None
 
                 config_list.append(
