@@ -15,7 +15,7 @@ from superphot_pipeline import DataReductionFile
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     data_dir = join_paths(dirname(__file__), 'test_data')
-    dr_fname = join_paths(data_dir, '10-464933_2_R1.hdf5.0')
+    dr_fname = join_paths(data_dir, '10-464933_2_R1.hdf5')
 
     ConfigType = namedtuple('ConfigType', ['max_apertures',
                                            'max_magfit_iterations',
@@ -33,7 +33,11 @@ if __name__ == '__main__':
 
     path_substitutions = dict(srcextract_version=0,
                               catalogue_version=0,
-                              skytoframe_version=0)
+                              skytoframe_version=0,
+                              shapefit_version=0,
+                              apphot_version=0,
+                              background_version=0,
+                              magfit_version=0)
 
     with DataReductionFile(dr_fname, 'r') as dummy_dr:
         read_data = LCDataReader.create(configuration,
