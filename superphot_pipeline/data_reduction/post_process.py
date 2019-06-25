@@ -107,7 +107,9 @@ class DataReductionPostProcess(HDF5FileDatabaseStructure):
 
             for var_name, var_dset in get_predictor_items(match.transpose()):
                 input_data[var_name] = var_dset
-
+            if weights_expression is None:
+                return (FitTermsInterface(fit_terms_expression)(input_data),
+                        None)
             return (FitTermsInterface(fit_terms_expression)(input_data),
                     Evaluator(input_data)(weights_expression))
 
@@ -142,7 +144,13 @@ class DataReductionPostProcess(HDF5FileDatabaseStructure):
                                      in psf_parameters])
                     ),
                     ('cfg.terms', fit_terms_expression.encode('ascii')),
-                    ('cfg.weights', weights_expression.encode('ascii')),
+                    (
+                        'cfg.weights',
+                        (
+                            b'none' if weights_expression is None
+                            else weights_expression.encode('ascii')
+                        )
+                    ),
                     ('cfg.error_avg', error_avg.encode('ascii')),
                     ('cfg.rej_level', rej_level),
                     ('cfg.max_rej_iter', max_rej_iter),
