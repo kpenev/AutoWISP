@@ -1,9 +1,9 @@
 """Define a function doing iterative re-fitting of terms from an expression."""
 
 import logging
-
 import scipy
 import scipy.linalg
+
 
 def iterative_fit(predictors,
                   target_values,
@@ -122,8 +122,8 @@ def iterative_fit(predictors,
         target_values = scipy.delete(target_values, bad_ind)
         if weights is not None:
             weights = scipy.delete(weights, bad_ind)
-
-        logger.debug('%d sources, %d coefficients\n',
+        logger.debug('Iteration %d, %d sources, %d coefficients\n',
+                     rej_iter,
                      len(target_values),
                      num_free_coef)
         if len(target_values) < num_free_coef:
