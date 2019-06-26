@@ -11,10 +11,11 @@ from collections import namedtuple
 
 from superphot_pipeline.light_curves import LCDataReader
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    data_dir = join_paths(dirname(__file__), 'test_data')
+    data_dir = join_paths(dirname(__file__), 'test_data/10-20170306')
     dr_fname = join_paths(data_dir, '10-464933_2_R1.hdf5')
 
     ConfigType = namedtuple('ConfigType', ['max_apertures',
@@ -23,7 +24,7 @@ if __name__ == '__main__':
                                            'srcextract_psf_params',
                                            'memblocksize'])
     configuration = ConfigType(
-        max_apertures=40,
+        max_apertures=39,
         max_magfit_iterations=6,
         catalogue_fname=join_paths(data_dir,
                                    'cat_object_G10124500_139_2.ucac4'),
@@ -37,11 +38,13 @@ if __name__ == '__main__':
                               shapefit_version=0,
                               apphot_version=0,
                               background_version=0,
-                              magfit_version=0)
+                              magfit_version=0,
+                              srcproj_version=0)
 
     with DataReductionFile(dr_fname, 'r') as dummy_dr:
         read_data = LCDataReader.create(configuration,
                                         dummy_dr.parse_hat_source_id,
+                                        parse_fname_keywords,
                                         **path_substitutions)
 
     read_data((dr_fname, 0))

@@ -5,6 +5,7 @@ from multiprocessing import Value
 from traceback import format_exception
 import sys
 import itertools
+import logging
 
 import h5py
 import numpy
@@ -13,9 +14,13 @@ from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
-from superphot_pipeline.light_curves import LCDataSlice, LightCurveFile
 from superphot_pipeline.magnitude_fitting import read_master_catalogue
 from superphot_pipeline import DataReductionFile
+
+from . import LCDataSlice, LightCurveFile
+from .hashable_array import HashableArray
+
+_logger = logging.getLogger(__name__)
 
 class LCDataReader:
     """
@@ -82,6 +87,8 @@ class LCDataReader:
     _catalogue = dict()
     _ra_dec = []
     _path_substitutions = dict()
+    _multivalued_entry_datasets = ['srcextract_psf_param',
+                                   'sky_coord']
 
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
@@ -97,6 +104,8 @@ class LCDataReader:
 
         """
 
+        #TODO: perhaps worth simplifying later.
+        #pylint: disable=too-many-branches
         def organize_datasets():
             """Set dataset_dimensions and header_datasets attributes."""
 
@@ -109,8 +118,7 @@ class LCDataReader:
                     '|'.join([
                         r'_cfg_version$',
                         r'.software_versions$',
-                        r'^srcextract\.binning$',
-                        r'\.cfg\.|\.magfitcfg\.',
+                        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
                         r'^srcextract\.psf_map\.cfg\.'
                     ])
                 ),
@@ -121,6 +129,7 @@ class LCDataReader:
                         r'magfit\.(num_input_src|num_fit_src|fit_residual)$',
                         r'^fitsheader\.(?!cfg\.)',
                         r'\.cfg_index$',
+                        r'^catalogue\.cfg\.(epoch|fov|orientation)$',
                         r'^srcextract.psf_map.(residual|num_fit_src)$',
                     ])
                 ),
@@ -149,6 +158,12 @@ class LCDataReader:
                         dimensions.remove(split)
                     except ValueError:
                         pass
+
+                dimensions = tuple(
+                    sorted(
+                        set(dimensions)
+                    )
+                )
                 found_match = False
                 for key_type, type_rex in key_rex.items():
                     if type_rex.search(lc_quantity):
@@ -159,20 +174,28 @@ class LCDataReader:
                                 config_datasets[parent] = set()
                             config_datasets[parent].add(lc_quantity)
                         else:
-                            dimensions.append('frame')
+                            dimensions += ('frame',)
                         if key_type == 'persource':
-                            dimensions.append('source')
-                assert found_match
-                cls.dataset_dimensions[lc_quantity] = tuple(
-                    sorted(
-                        set(dimensions)
-                    )
-                )
+                            dimensions += ('source',)
+
+                if lc_quantity in ['srcextract.psf_map.residual',
+                                   'srcextract.psf_map.num_fit_src']:
+                    dimensions += ('srcextract_psf_param',)
+                elif lc_quantity in ['skytoframe.cfg.frame_center',
+                                     'skytoframe.sky_center']:
+                    dimensions += ('sky_coord',)
+
+                cls.dataset_dimensions[lc_quantity] = dimensions
+
                 if lc_quantity.endswith('.cfg_index'):
                     config_group = parent + '/Configuration'
                     assert config_group not in config_components
-                    config_components[config_group] = lc_quantity[:-len('.cfg_index')]
+                    config_components[config_group] = lc_quantity[
+                        :
+                        -len('.cfg_index')
+                    ]
             return config_datasets, config_components
+        #pylint: enable=too-many-branches
 
         def organize_config(config_datasets, config_components):
             """Fill the :attr:`config_components` attribute."""
@@ -180,8 +203,23 @@ class LCDataReader:
             for parent, component in config_components.items():
                 component_dsets = config_datasets[parent]
                 dimensions = cls.dataset_dimensions[next(iter(component_dsets))]
+                if (
+                        dimensions
+                        and
+                        dimensions[-1] in cls._multivalued_entry_datasets
+                ):
+                    dimensions = dimensions[:-1]
                 for dset in component_dsets:
-                    assert cls.dataset_dimensions[dset] == dimensions
+                    dset_dimensions = cls.dataset_dimensions[dset]
+                    if (
+                            dset_dimensions
+                            and
+                            dset_dimensions[-1] in (
+                                cls._multivalued_entry_datasets
+                            )
+                    ):
+                        dset_dimensions = dset_dimensions[:-1]
+                    assert dset_dimensions == dimensions
                 assert (cls.dataset_dimensions[component + '.cfg_index']
                         ==
                         dimensions + ('frame',))
@@ -196,6 +234,7 @@ class LCDataReader:
     def create(cls,
                config,
                source_id_parser,
+               dr_fname_parser,
                source_list=None,
                **path_substitutions):
         """
@@ -226,6 +265,9 @@ class LCDataReader:
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
 
+            dr_fname_parser:    A callable that parser the filename of DR files
+                returning extra keywrds to add to the header.
+
             source_list:    A list that includes all sources for which
                 lightcurves will be generated. Sources should be formatted
                 as (field, source) tuples of two integers. Sources not in this
@@ -248,19 +290,23 @@ class LCDataReader:
 
         cls._catalogue = read_master_catalogue(config.catalogue_fname,
                                                source_id_parser)
+        cls.dr_fname_parser = staticmethod(dr_fname_parser)
 
         if source_list is None:
             source_list = list(cls._catalogue.keys())
 
         no_light_curve = LightCurveFile()
 
+        num_sources = len(source_list)
+
         cls.source_destinations = {source: index
                                    for index, source in enumerate(source_list)}
         cls.max_dimension_size = dict(
-            source=len(source_list),
+            source=num_sources,
             aperture_index=config.max_apertures,
             magfit_iteration=config.max_magfit_iterations,
-            srcextract_psf_param=len(config.srcextract_psf_params)
+            srcextract_psf_param=len(config.srcextract_psf_params),
+            sky_coord=2
         )
 
         cls._classify_datasets(no_light_curve, path_substitutions.keys())
@@ -274,10 +320,11 @@ class LCDataReader:
 
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
-        cls._ra_dec = [
-            (cls._catalogue[src]['RA'], cls._catalogue[src]['Dec'])
-            for src in source_list
-        ]
+
+        cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
+        for src_index, src in enumerate(source_list):
+            cls._ra_dec[:, src_index] = (cls._catalogue[src]['RA'],
+                                         cls._catalogue[src]['Dec'])
 
         result = LCDataReader()
         return result
@@ -288,21 +335,22 @@ class LCDataReader:
     def _config_to_lc_format(lc_quantity, lc_dtype, value):
         """Return value as it would be read from the LC."""
 
-        print('Formatting %s (%s) = %s.' % (repr(lc_quantity),
-                                            repr(lc_dtype),
-                                            repr(value)))
+        if lc_dtype is None:
+            lc_dtype = value.dtype
         try:
             if value is None:
-                if numpy.dtype(lc_dtype).kind == 'i':
+                if numpy.dtype(lc_dtype).kind == 'b':
+                    result = False
+                elif numpy.dtype(lc_dtype).kind == 'i':
                     result = numpy.iinfo(lc_dtype).min
                 elif numpy.dtype(lc_dtype).kind == 'u':
                     result = numpy.iinfo(lc_dtype).max
                 elif numpy.dtype(lc_dtype).kind == 'f':
                     result = b'NaN'
                 elif (
-                    lc_dtype is numpy.string_
-                    or
-                    h5py.check_dtype(vlen=lc_dtype) is str
+                        numpy.dtype(lc_dtype).kind == 'S'
+                        or
+                        h5py.check_dtype(vlen=numpy.dtype(lc_dtype)) is str
                 ):
                     result = b''
                 else:
@@ -310,17 +358,18 @@ class LCDataReader:
             elif lc_dtype is numpy.string_:
                 if isinstance(value, bytes):
                     return value
-                else:
-                    return value.encode('ascii')
+                return value.encode('ascii')
             elif isinstance(value, str) and (value == 'NaN'):
                 return value.encode('ascii')
             else:
-                lc_dtyp = numpy.dtype(lc_dtype)
+                lc_dtype = numpy.dtype(lc_dtype)
                 vlen_type = h5py.check_dtype(vlen=lc_dtype)
                 if vlen_type is str:
                     result = str(value).encode('ascii')
                 elif vlen_type is None:
                     result = lc_dtype.type(value)
+                    if result.size > 1:
+                        result = HashableArray(result)
                 else:
                     result = HashableArray(
                         numpy.array(value, dtype=vlen_type)
@@ -359,7 +408,44 @@ class LCDataReader:
             )
 
         return itertools.product(
-            *(range(cls.max_dimension_size[dim]) for dim in dimensions)
+            *(
+                range(1 if dim in cls._multivalued_entry_datasets
+                      else cls.max_dimension_size[dim])
+                for dim in dimensions
+            )
+        )
+
+    @classmethod
+    def _get_substitutions(cls, dimensions, dimension_values):
+        """
+        Return dict of path substitutions to fully resolt path to quantity.
+
+        Args:
+            dimensions:    See _get_dimensions_iterator().
+
+            dimension_values(tuple(int)):    The values for the various dataset
+                dimensions which to turn to substitutions.
+
+        Returns:
+            dict:
+                Ready to be passed to functions needing it to resolve path.
+        """
+
+        if isinstance(dimensions, str):
+            dimensions = filter(
+                lambda dim: dim not in ['frame', 'source'],
+                cls.dataset_dimensions[dimensions]
+            )
+
+        return dict(
+            zip(
+                filter(
+                    lambda dim: dim not in ['frame', 'source'],
+                    dimensions
+                ),
+                dimension_values
+            ),
+            **cls._path_substitutions
         )
 
     def _get_configurations(self,
@@ -422,7 +508,6 @@ class LCDataReader:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
                     if dset_key in self.header_datasets:
-                        assert not substitutions
                         value = frame_header[
                             self.header_datasets[dset_key].upper()
                         ]
@@ -430,15 +515,12 @@ class LCDataReader:
                         value = data_reduction.get_attribute(
                             dset_key,
                             **substitutions,
-                            **self._path_substitutions
                         )
                     found_config = True
                 except OSError:
-                    print('Failed to read %s from DR file:\n\t'
-                          %
-                          dset_key
-                          +
-                          "\t".join(format_exception(*sys.exc_info())))
+                    _logger.warning('Failed to read %s from DR file for %s.'
+                                    %
+                                    (dset_key, repr(substitutions)))
                     value = None
 
                 config_list.append(
@@ -455,12 +537,13 @@ class LCDataReader:
                         component_dsets) in self.config_components.items():
             result[component] = []
             for dim_values in self._get_dimensions_iterator(dimensions):
-                substitutions = dict(zip(dimensions, dim_values))
+                substitutions = self._get_substitutions(dimensions,
+                                                        dim_values)
 
                 configuration = get_component_config(component_dsets,
                                                      substitutions)
                 if configuration is not None:
-                    result[component].append(substitutions, configuration)
+                    result[component].append((substitutions, configuration))
         return result
 
     @classmethod
@@ -506,10 +589,14 @@ class LCDataReader:
             """Fill the non-config datasets equal to header keywords."""
 
             for lc_quantity, hdr_quantity in self.header_datasets.items():
-                if 'frame' in self.dataset_dimensions[lc_quantity]:
+                if (
+                        'frame' in self.dataset_dimensions[lc_quantity]
+                        and
+                        hdr_quantity != 'cfg_index'
+                ):
                     assert len(self.dataset_dimensions[lc_quantity]) == 1
                     self._get_slice_field(lc_quantity)[frame_index] = (
-                        frame_header[hdr_quantity]
+                        frame_header[hdr_quantity.upper()]
                     )
 
         def get_dset_default(quantity):
@@ -520,8 +607,14 @@ class LCDataReader:
             )
             default_value = creation_args.get('fillvalue')
             if default_value is None:
-                assert h5py.check_dtype(vlen=creation_args.dtype) is str
-                default_value = ''
+                if quantity == 'catalogue.cfg.epoch':
+                    return 2451545.0
+                if h5py.check_dtype(
+                        vlen=numpy.dtype(creation_args['dtype'])
+                ) is str:
+                    return ''
+                if numpy.dtype(creation_args['dtype']).kind == 'f':
+                    return numpy.nan
             return default_value
 
         def set_field_entry(quantity, value, dim_values, source_index=None):
@@ -545,37 +638,59 @@ class LCDataReader:
             """
 
             dimensions = self.dataset_dimensions[quantity]
-            if dimensions[-1] == 'source':
+            if dimensions and dimensions[-1] == 'source':
                 assert dimensions[-2] == 'frame'
                 assert source_index is not None
                 dimensions = dimensions[:-2] + ('source', 'frame')
                 dim_values += (source_index, frame_index)
             else:
-                assert dimensions[-1] == 'frame'
+                assert (
+                    dimensions[-1] == 'frame'
+                    or
+                    (
+                        dimensions[-1] in self._multivalued_entry_datasets
+                        and
+                        dimensions[-2] == 'frame'
+                    )
+                )
                 dim_values += (frame_index,)
 
             index = 0
             for coord, dimension in zip(dim_values, dimensions):
                 index = index * self.max_dimension_size[dimension] + coord
 
-            self._get_slice_field(quantity)[index] = value
+            if dimensions[-1] in self._multivalued_entry_datasets:
+                assert len(value) == (
+                    self.max_dimension_size[dimensions[-1]]
+                )
+                for param_index, param_value in enumerate(value):
+                    self._get_slice_field(quantity)[index + param_index] = (
+                        param_value
+                    )
+            else:
+                self._get_slice_field(quantity)[index] = value
 
         def fill_from_attribute(quantity):
             """Fill the value of a quantity equal to a DR attribute."""
 
             for dim_values in self._get_dimensions_iterator(quantity):
-                set_field_entry(
-                    quantity,
-                    data_reduction.get_attribute(
+                try:
+                    set_field_entry(
                         quantity,
-                        default_value=get_dset_default(quantity),
-                        **self._path_substitutions,
-                        **dict(
-                            zip(self.dataset_dimensions[quantity], dim_values)
-                        )
-                    ),
-                    dim_values
-                )
+                        data_reduction.get_attribute(
+                            quantity,
+                            default_value=get_dset_default(quantity),
+                            **self._get_substitutions(quantity, dim_values)
+                        ),
+                        dim_values
+                    )
+                except OSError:
+                    _logger.warning(
+                        'Attribute %s not found in %s for %s',
+                        quantity,
+                        repr(data_reduction.filename),
+                        repr(self._get_substitutions(quantity, dim_values))
+                    )
 
         def fill_from_dataset(quantity, data_slice_source_indices):
             """
@@ -592,25 +707,31 @@ class LCDataReader:
 
             num_sources = len(data_slice_source_indices)
             for dim_values in self._get_dimensions_iterator(quantity):
-                dataset = data_reduction.get_dataset(
-                    quantity,
-                    expected_shape=(num_sources,),
-                    default_value=get_dset_default(quantity),
-                    **self._path_substitutions,
-                    **dict(
-                        zip(self.dataset_dimensions[quantity], dim_values)
+                substitutions = self._get_substitutions(quantity, dim_values)
+                try:
+                    dataset = data_reduction.get_dataset(
+                        quantity,
+                        expected_shape=(num_sources,),
+                        **substitutions
                     )
-                )
 
-                for phot_src_ind, data_slice_src_ind in enumerate(
-                        data_slice_source_indices
-                ):
-                    if data_slice_src_ind is None:
-                        continue
-                    set_field_entry(quantity,
-                                    dataset[phot_src_ind],
-                                    dim_values,
-                                    data_slice_src_ind)
+                    for phot_src_ind, data_slice_src_ind in enumerate(
+                            data_slice_source_indices
+                    ):
+                        if data_slice_src_ind is None:
+                            continue
+                        set_field_entry(quantity,
+                                        dataset[phot_src_ind],
+                                        dim_values,
+                                        data_slice_src_ind)
+                except OSError:
+                    _logger.warning(
+                        'Dataset identified by %s does not exist in %s for %s',
+                        quantity,
+                        repr(data_reduction.filename),
+                        repr(substitutions)
+                    )
+
 
         def fill_direct_from_dr(data_slice_source_indices):
             """
@@ -678,19 +799,24 @@ class LCDataReader:
             data['zenith_distance'] = 90.0 - alt_az.alt.to(units.deg).value
             #pylint: enable=no-member
 
-            data['BJD'] = (obs_time.tdb
-                           +
-                           obs_time.light_travel_time(source_coords))
-            data['hour_angle'] = (obs_time.sidereal_time('apparent')
-                                  -
-                                  self._ra_dec[0] / 15.0)
+            data['BJD'] = (
+                obs_time.tdb
+                +
+                obs_time.light_travel_time(source_coords)
+            ).jd
+            data['hour_angle'] = (
+                obs_time.sidereal_time('apparent').to(units.hourangle).value
+                -
+                self._ra_dec[0] / 15.0
+            )
             data['per_source'] = numpy.ones((num_sources,), dtype=numpy.bool)
 
             for source_index in range(num_sources):
                 for quantity, values in data.items():
                     set_field_entry('skypos.' + quantity,
                                     values[source_index],
-                                    source_index)
+                                    dim_values=(),
+                                    source_index=source_index)
 
         def merge_with_catalogue_information(source_data):
             """Extend source_data with catalogue information."""
@@ -701,9 +827,11 @@ class LCDataReader:
                 dtype=next(iter(self._catalogue.values())).dtype
             )
             for source_index, source_id in enumerate(source_data['ID']):
-                cat_data[source_index] = self._catalogue[source_id]
+                cat_data[source_index] = self._catalogue[tuple(source_id)]
 
-            return merge_structured_arrays(source_data, cat_data)
+            return merge_structured_arrays((source_data, cat_data),
+                                           flatten=True,
+                                           usemask=False)
 
         def fill_srcextract_psf_map(source_data,
                                     data_slice_source_indices):
@@ -743,7 +871,7 @@ class LCDataReader:
         )
         source_data = merge_with_catalogue_information(source_data)
 
-        data_slice_source_indices = [self.source_destinations.get(src_id)
+        data_slice_source_indices = [self.source_destinations.get(tuple(src_id))
                                      for src_id in source_data['ID']]
         fill_direct_from_dr(data_slice_source_indices)
         fill_sky_position_datasets(data_slice_source_indices)
@@ -788,6 +916,7 @@ class LCDataReader:
             elif frame_header['MNTSTATE'] == True:
                 frame_header['MNTSTATE'] = 'T'
             #pylint: enable=singleton-comparison
+            frame_header.update(self.dr_fname_parser(dr_fname))
 
         try:
             lc_example = LightCurveFile()
@@ -805,8 +934,7 @@ class LCDataReader:
                     data_reduction=data_reduction,
                     frame_header=frame_header,
                     frame_index=frame_index,
-                    lc_example=lc_example,
-                    **self._path_substitutions
+                    lc_example=lc_example
                 )
             return configurations, skipped_sources
         except:
