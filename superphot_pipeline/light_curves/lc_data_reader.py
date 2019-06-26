@@ -89,6 +89,7 @@ class LCDataReader:
     _path_substitutions = dict()
     _multivalued_entry_datasets = ['srcextract_psf_param',
                                    'sky_coord']
+    cfg_index_id = 'cfg_index'
 
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
@@ -187,12 +188,12 @@ class LCDataReader:
 
                 cls.dataset_dimensions[lc_quantity] = dimensions
 
-                if lc_quantity.endswith('.cfg_index'):
+                if lc_quantity.endswith('.' + cls.cfg_index_id):
                     config_group = parent + '/Configuration'
                     assert config_group not in config_components
                     config_components[config_group] = lc_quantity[
                         :
-                        -len('.cfg_index')
+                        -(len(cls.cfg_index_id) + 1)
                     ]
             return config_datasets, config_components
         #pylint: enable=too-many-branches
@@ -220,9 +221,11 @@ class LCDataReader:
                     ):
                         dset_dimensions = dset_dimensions[:-1]
                     assert dset_dimensions == dimensions
-                assert (cls.dataset_dimensions[component + '.cfg_index']
-                        ==
-                        dimensions + ('frame',))
+                assert (
+                    cls.dataset_dimensions[component + '.' + cls.cfg_index_id]
+                    ==
+                    dimensions + ('frame',)
+                )
                 cls.config_components[component] = (
                     dimensions,
                     component_dsets
@@ -448,6 +451,67 @@ class LCDataReader:
             **cls._path_substitutions
         )
 
+    @classmethod
+    def set_field_entry(cls,
+                        quantity,
+                        value,
+                        frame_index,
+                        dim_values,
+                        source_index=None):
+        """
+        Set the correct index within the field for the specified entry.
+
+        Args:
+            quantity(str):    The pipeline key of the dataset being filled.
+
+            value:    The value to set to the field. Must have the correct
+                type.
+
+            frame_index:    See _add_to_data_slice().
+
+            dim_values(tuple(int,...)):    The value for each dimension of
+                the dataset.
+
+            source_index(int or None):    For source dependent datasets
+                only, the index of the source in the data_slice.
+
+        Returns:
+            None
+        """
+
+        dimensions = cls.dataset_dimensions[quantity]
+        if dimensions and dimensions[-1] == 'source':
+            assert dimensions[-2] == 'frame'
+            assert source_index is not None
+            dimensions = dimensions[:-2] + ('source', 'frame')
+            dim_values += (source_index, frame_index)
+        else:
+            assert (
+                dimensions[-1] == 'frame'
+                or
+                (
+                    dimensions[-1] in cls._multivalued_entry_datasets
+                    and
+                    dimensions[-2] == 'frame'
+                )
+            )
+            dim_values += (frame_index,)
+
+        index = 0
+        for coord, dimension in zip(dim_values, dimensions):
+            index = index * cls.max_dimension_size[dimension] + coord
+
+        if dimensions[-1] in cls._multivalued_entry_datasets:
+            assert len(value) == (
+                cls.max_dimension_size[dimensions[-1]]
+            )
+            for param_index, param_value in enumerate(value):
+                cls.get_slice_field(quantity)[index + param_index] = (
+                    param_value
+                )
+        else:
+            cls.get_slice_field(quantity)[index] = value
+
     def _get_configurations(self,
                             data_reduction,
                             frame_header,
@@ -471,17 +535,14 @@ class LCDataReader:
                 defined in the given data reduction file/frame. The values are
                 lists of 2-tuples:
 
-                    * a dictionary of the substitutions required to
-                      resolve the path to the configuration index dataset
+                    * a tuple of the coordinates along each dataset dimension
+                      for which the configuration applies.
 
                     * a frozen set of 2-tuples:
 
                         - the pipeline key of the configuration quantity
 
                         - The value of the configuration parameter.
-
-                The result is suitable for directly passing to
-                LightCurveFile.add_configuration().
         """
 
         def get_component_config(component_dsets, substitutions):
@@ -518,9 +579,9 @@ class LCDataReader:
                         )
                     found_config = True
                 except OSError:
-                    _logger.warning('Failed to read %s from DR file for %s.'
-                                    %
-                                    (dset_key, repr(substitutions)))
+                    _logger.warning('Failed to read %s from DR file for %s.',
+                                    dset_key,
+                                    repr(substitutions))
                     value = None
 
                 config_list.append(
@@ -543,11 +604,11 @@ class LCDataReader:
                 configuration = get_component_config(component_dsets,
                                                      substitutions)
                 if configuration is not None:
-                    result[component].append((substitutions, configuration))
+                    result[component].append((dim_values, configuration))
         return result
 
     @classmethod
-    def _get_slice_field(cls, pipeline_key):
+    def get_slice_field(cls, pipeline_key):
         """Return the field in the data slice containing the given quantity."""
 
         return getattr(cls.lc_data_slice, pipeline_key.replace('.', '_'))
@@ -592,10 +653,10 @@ class LCDataReader:
                 if (
                         'frame' in self.dataset_dimensions[lc_quantity]
                         and
-                        hdr_quantity != 'cfg_index'
+                        hdr_quantity != self.cfg_index_id
                 ):
                     assert len(self.dataset_dimensions[lc_quantity]) == 1
-                    self._get_slice_field(lc_quantity)[frame_index] = (
+                    self.get_slice_field(lc_quantity)[frame_index] = (
                         frame_header[hdr_quantity.upper()]
                     )
 
@@ -617,71 +678,19 @@ class LCDataReader:
                     return numpy.nan
             return default_value
 
-        def set_field_entry(quantity, value, dim_values, source_index=None):
-            """
-            Set the correct index within the field for the specified entry.
-
-            Args:
-                quantity(str):    The pipeline key of the dataset being filled.
-
-                value:    The value to set to the field. Must have the correct
-                    type.
-
-                dim_values(tuple(int,...)):    The value for each dimension of
-                    the dataset.
-
-                source_index(int or None):    For source dependent datasets
-                    only, the index of the source in the data_slice.
-
-            Returns:
-                None
-            """
-
-            dimensions = self.dataset_dimensions[quantity]
-            if dimensions and dimensions[-1] == 'source':
-                assert dimensions[-2] == 'frame'
-                assert source_index is not None
-                dimensions = dimensions[:-2] + ('source', 'frame')
-                dim_values += (source_index, frame_index)
-            else:
-                assert (
-                    dimensions[-1] == 'frame'
-                    or
-                    (
-                        dimensions[-1] in self._multivalued_entry_datasets
-                        and
-                        dimensions[-2] == 'frame'
-                    )
-                )
-                dim_values += (frame_index,)
-
-            index = 0
-            for coord, dimension in zip(dim_values, dimensions):
-                index = index * self.max_dimension_size[dimension] + coord
-
-            if dimensions[-1] in self._multivalued_entry_datasets:
-                assert len(value) == (
-                    self.max_dimension_size[dimensions[-1]]
-                )
-                for param_index, param_value in enumerate(value):
-                    self._get_slice_field(quantity)[index + param_index] = (
-                        param_value
-                    )
-            else:
-                self._get_slice_field(quantity)[index] = value
-
         def fill_from_attribute(quantity):
             """Fill the value of a quantity equal to a DR attribute."""
 
             for dim_values in self._get_dimensions_iterator(quantity):
                 try:
-                    set_field_entry(
+                    self.set_field_entry(
                         quantity,
                         data_reduction.get_attribute(
                             quantity,
                             default_value=get_dset_default(quantity),
                             **self._get_substitutions(quantity, dim_values)
                         ),
+                        frame_index,
                         dim_values
                     )
                 except OSError:
@@ -720,10 +729,11 @@ class LCDataReader:
                     ):
                         if data_slice_src_ind is None:
                             continue
-                        set_field_entry(quantity,
-                                        dataset[phot_src_ind],
-                                        dim_values,
-                                        data_slice_src_ind)
+                        self.set_field_entry(quantity,
+                                             dataset[phot_src_ind],
+                                             frame_index,
+                                             dim_values,
+                                             data_slice_src_ind)
                 except OSError:
                     _logger.warning(
                         'Dataset identified by %s does not exist in %s for %s',
@@ -804,19 +814,23 @@ class LCDataReader:
                 +
                 obs_time.light_travel_time(source_coords)
             ).jd
+            #False positive
+            #pylint: disable=no-member
             data['hour_angle'] = (
                 obs_time.sidereal_time('apparent').to(units.hourangle).value
                 -
                 self._ra_dec[0] / 15.0
             )
+            #pylint: enable=no-member
             data['per_source'] = numpy.ones((num_sources,), dtype=numpy.bool)
 
             for source_index in range(num_sources):
                 for quantity, values in data.items():
-                    set_field_entry('skypos.' + quantity,
-                                    values[source_index],
-                                    dim_values=(),
-                                    source_index=source_index)
+                    self.set_field_entry('skypos.' + quantity,
+                                         values[source_index],
+                                         frame_index,
+                                         dim_values=(),
+                                         source_index=source_index)
 
         def merge_with_catalogue_information(source_data):
             """Extend source_data with catalogue information."""
@@ -855,10 +869,11 @@ class LCDataReader:
                 ):
                     if data_slice_src_ind is None:
                         continue
-                    set_field_entry('srcextract.psf_map.eval',
-                                    value,
-                                    (param_index,),
-                                    data_slice_src_ind)
+                    self.set_field_entry('srcextract.psf_map.eval',
+                                         value,
+                                         frame_index,
+                                         (param_index,),
+                                         data_slice_src_ind)
 
         fill_header_keywords()
         source_data = data_reduction.get_source_data(
@@ -899,7 +914,12 @@ class LCDataReader:
                 - The index at which to place this frame's data in the
                   LCDataSlice object being filled.
 
-        Returns: None.
+        Returns:
+            dict:
+                See return value of _get_configurations().
+
+            []:
+                See return value of _add_to_data_slice().
         """
 
         def fix_header(frame_header):

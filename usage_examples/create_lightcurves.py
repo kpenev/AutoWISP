@@ -4,12 +4,14 @@
 
 import logging
 
-import os
 from os.path import join as join_paths, dirname
 
 from collections import namedtuple
 
-from superphot_pipeline.light_curves import LCDataReader
+from superphot_pipeline.light_curves.lc_data_reader import LCDataReader
+from superphot_pipeline.light_curves.collect_light_curves import\
+    organize_configurations,\
+    print_organized_configurations
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 
@@ -47,4 +49,8 @@ if __name__ == '__main__':
                                         parse_fname_keywords,
                                         **path_substitutions)
 
-    read_data((dr_fname, 0))
+    config, skipped = read_data((dr_fname, 0))
+    print('Configurations:' + repr(config))
+    print('Skipped: ' + repr(skipped))
+
+    print_organized_configurations(organize_configurations([config]))
