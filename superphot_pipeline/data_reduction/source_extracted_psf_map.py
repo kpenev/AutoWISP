@@ -46,7 +46,6 @@ class SourceExtractedPSFMap:
                 The fields will have the names of the PSF parameters.
         """
 
-        print('Data %s: %s' % (repr(source_data.shape), repr(source_data)))
         assert len(source_data.shape) == 1
         result = scipy.empty(source_data.shape,
                              dtype=[(param_name, scipy.float64)

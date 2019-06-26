@@ -134,6 +134,15 @@ def _get_source_extraction_attributes():
                 'extraction.'
             ),
             HDF5Attribute(
+                pipeline_key='srcextract.psf_map.software_versions',
+                parent=_default_paths['srcextract']['root'],
+                name='SoftwareVersions',
+                dtype="'S100'",
+                description='An Nx2 array of strings consisting of '
+                'software elements and their versions used for source '
+                'extraction.'
+            ),
+            HDF5Attribute(
                 pipeline_key='srcextract.cfg.binning',
                 parent=_default_paths['srcextract']['root'],
                 name='ImageBinFactor',

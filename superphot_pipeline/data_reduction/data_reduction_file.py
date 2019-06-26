@@ -15,6 +15,8 @@ from .post_process import DataReductionPostProcess
 
 git_id = '$Id$'
 
+#TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.
+
 #Out of my control (most ancestors come from h5py module).
 #pylint: disable=too-many-ancestors
 class DataReductionFile(DataReductionPostProcess):

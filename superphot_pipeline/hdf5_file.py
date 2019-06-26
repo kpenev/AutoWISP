@@ -913,9 +913,8 @@ class HDF5File(ABC, h5py.File):
             expected_shape:    The shape to use for the dataset if an empty
                 dataset is found. If None, a zero-sized array is returned.
 
-            default_value:    If not None and the dataset does not exist, this
-                value is returned, otherwise if the dataset does not exist an
-                exception is raised.
+            default_value:    If the dataset does not exist, this value is
+                returned.
 
             substitutions:    Any arguments that should be substituted in the
                 path.

@@ -12,7 +12,7 @@ Session = sessionmaker()
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/SuperPhotPipeline',
     'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
-    echo=True
+    echo=False
 )
 
 Session.configure(bind=db_engine)

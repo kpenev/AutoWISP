@@ -53,16 +53,6 @@ def _get_source_extraction_datasets():
 
         return [
             HDF5DataSet(
-                pipeline_key=(psf_map_key_start
-                              +
-                              'srcextract_cfg_version'),
-                abspath=config_path_start + 'ConfigurationVersion',
-                dtype='numpy.uint',
-                replace_nonfinite=repr(numpy.iinfo('u4').max),
-                description='The configuration version ID from the database '
-                'for the source extraction used for this frame.'
-            ),
-            HDF5DataSet(
                 pipeline_key=psf_map_key_start + 'software_versions',
                 abspath=config_path_start + 'SoftwareVersions',
                 dtype="'S100'",
@@ -250,15 +240,14 @@ def _get_frame_datasets():
                     'StationID',
                     'numpy.uint',
                     None,
-                    'ID of station that took this observation'
+                    'ID of station that took this observation.'
                 ),
                 (
                     'CMPOS',
                     'CameraPosition',
                     'numpy.uint',
                     None,
-                    'ID of the position of the camera on a multi-telescope '
-                    'mount'
+                    'ID of the position of the camera on the mount.'
                 ),
                 (
                     'COLOR',
@@ -490,15 +479,18 @@ def _get_data_reduction_attribute_datasets(db_session):
             hdf5_structure_version_id=dr_structure_version_id,
             pipeline_key=pipeline_key
         ).one()
-        lc_path = (
-            transform_dr_to_lc_path(dr_attribute.parent)
-            +
-            ('/Configuration' if is_config else '')
-            +
-            '/'
-            +
-            dr_attribute.name
-        )
+        if pipeline_key == 'srcextract.cfg.binning':
+            lc_path = '/SourceExtraction/PSFMap/Configuration/ImageBinFactor'
+        else:
+            lc_path = (
+                transform_dr_to_lc_path(dr_attribute.parent)
+                +
+                ('/Configuration' if is_config else '')
+                +
+                '/'
+                +
+                dr_attribute.name
+            )
         args = dict(
             pipeline_key=pipeline_key,
             abspath=lc_path,
