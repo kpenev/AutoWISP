@@ -36,8 +36,8 @@ def organize_configurations(configurations_list):
                 LCDataReader.set_field_entry(
                     component + '.' + LCDataReader.cfg_index_id,
                     config_id,
-                    frame_index,
-                    dim_values
+                    frame_index=frame_index,
+                    dim_values=dim_values
                 )
     return result
 

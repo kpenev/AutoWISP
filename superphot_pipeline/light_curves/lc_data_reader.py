@@ -326,8 +326,11 @@ class LCDataReader:
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
+            #False positve
+            #pylint: disable=invalid-sequence-index
             cls._ra_dec[:, src_index] = (cls._catalogue[src]['RA'],
                                          cls._catalogue[src]['Dec'])
+            #pylint: enable=invalid-sequence-index
 
         result = LCDataReader()
         return result
@@ -455,6 +458,7 @@ class LCDataReader:
     def set_field_entry(cls,
                         quantity,
                         value,
+                        *,
                         frame_index,
                         dim_values,
                         source_index=None):
@@ -690,8 +694,8 @@ class LCDataReader:
                             default_value=get_dset_default(quantity),
                             **self._get_substitutions(quantity, dim_values)
                         ),
-                        frame_index,
-                        dim_values
+                        frame_index=frame_index,
+                        dim_values=dim_values
                     )
                 except OSError:
                     _logger.warning(
@@ -731,9 +735,9 @@ class LCDataReader:
                             continue
                         self.set_field_entry(quantity,
                                              dataset[phot_src_ind],
-                                             frame_index,
-                                             dim_values,
-                                             data_slice_src_ind)
+                                             frame_index=frame_index,
+                                             dim_values=dim_values,
+                                             source_index=data_slice_src_ind)
                 except OSError:
                     _logger.warning(
                         'Dataset identified by %s does not exist in %s for %s',
@@ -828,7 +832,7 @@ class LCDataReader:
                 for quantity, values in data.items():
                     self.set_field_entry('skypos.' + quantity,
                                          values[source_index],
-                                         frame_index,
+                                         frame_index=frame_index,
                                          dim_values=(),
                                          source_index=source_index)
 
@@ -871,9 +875,9 @@ class LCDataReader:
                         continue
                     self.set_field_entry('srcextract.psf_map.eval',
                                          value,
-                                         frame_index,
-                                         (param_index,),
-                                         data_slice_src_ind)
+                                         frame_index=frame_index,
+                                         dim_values=(param_index,),
+                                         source_index=data_slice_src_ind)
 
         fill_header_keywords()
         source_data = data_reduction.get_source_data(
