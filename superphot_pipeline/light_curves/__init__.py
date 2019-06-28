@@ -2,4 +2,4 @@
 
 from .light_curve_file import LightCurveFile
 from .lc_data_slice import LCDataSlice
-from .lc_data_reader import LCDataReader
+from .lc_data_io import LCDataIO

@@ -8,12 +8,8 @@ from os.path import join as join_paths, dirname
 
 from collections import namedtuple
 
-from superphot_pipeline.light_curves.lc_data_reader import LCDataReader
 from superphot_pipeline.light_curves.collect_light_curves import\
-    organize_configurations,\
-    print_organized_configurations
-from superphot_pipeline import DataReductionFile
-from superphot_pipeline.hat.file_parsers import parse_fname_keywords
+    collect_light_curves
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
@@ -43,14 +39,4 @@ if __name__ == '__main__':
                               magfit_version=0,
                               srcproj_version=0)
 
-    with DataReductionFile(dr_fname, 'r') as dummy_dr:
-        read_data = LCDataReader.create(configuration,
-                                        dummy_dr.parse_hat_source_id,
-                                        parse_fname_keywords,
-                                        **path_substitutions)
-
-    config, skipped = read_data((dr_fname, 0))
-    print('Configurations:' + repr(config))
-    print('Skipped: ' + repr(skipped))
-
-    print_organized_configurations(organize_configurations([config]))
+    collect_light_curves([dr_fname], configuration, **path_substitutions)

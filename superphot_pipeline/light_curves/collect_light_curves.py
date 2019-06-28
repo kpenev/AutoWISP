@@ -1,62 +1,36 @@
 """Functions for creating light curves from DR files."""
 
-from .lc_data_reader import LCDataReader
+from superphot_pipeline.hat.file_parsers import parse_fname_keywords
+from superphot_pipeline import DataReductionFile
+from .lc_data_io import LCDataIO
 
-def organize_configurations(configurations_list):
+def collect_light_curves(dr_filenames, configuration, **path_substitutions):
     """
-    Fill the cfg attributes and the cfg ID columns of the data slice.
+    Add the data from a collection of DR files to LCs, creating LCs if needed.
 
     Args:
-        configurations_list:    The list of configurations returned by
-            LCDataReader for the data currently in the slice. It is assumed that
-            the configurations follow the same order as the data slice entries.
+        dr_filenames([str]):    The filenames of the data reduction files to add
+            to LCs.
+
+        configuration:    Object with attributes configuring the LC collection
+            procedure.
+
+        path_substitutions:    Any substitutions to resolve paths within DR and
+            LC files to data to read/write (e.g. versions of various
+            componenents).
 
     Returns:
-        dict:
-            The keys are configuration components and the values are
-            dictionaries with keys the coordinates along each dimension of
-            the configuration index dataset and values lists of
-            the configurations for the component with indices in the list
-            corresponding to the entries added to the config ID columns in
-            ReadLCData.lc_data_slice.
+        [(src ID part 1, src ID part 2, ...)];
+            The sources for which new lightcurves were created.
     """
 
-    result = {component: dict()
-              for component in LCDataReader.config_components}
-    for frame_index, configurations in enumerate(configurations_list):
-        for component, component_config in configurations.items():
-            for dim_values, config in component_config:
-                if dim_values not in result[component]:
-                    result[component][dim_values] = dict()
-                if config in result[component][dim_values]:
-                    config_id = result[component][dim_values][config]
-                else:
-                    config_id = len(result[component][dim_values])
-                    result[component][dim_values][config] = config_id
-                LCDataReader.set_field_entry(
-                    component + '.' + LCDataReader.cfg_index_id,
-                    config_id,
-                    frame_index=frame_index,
-                    dim_values=dim_values
-                )
-    return result
+    with DataReductionFile(dr_filenames[0], 'r') as first_dr:
+        data_io = LCDataIO.create(configuration,
+                                  first_dr.parse_hat_source_id,
+                                  parse_fname_keywords,
+                                  **path_substitutions)
 
-def print_organized_configurations(organized_config):
-    """Print the result of organize_configurations() nicely formatted."""
+    config_skipped = list(map(data_io.read, enumerate(dr_filenames)))
 
-    print('Organized configurations:')
-    for component, component_config in organized_config.items():
-        print('\t' + component + ':')
-        for dim_values, config_list in component_config.items():
-            dim_id = dict(
-                zip(
-                    filter(
-                        lambda dim: dim not in ['frame', 'source'],
-                        LCDataReader.config_components[component][0]
-                    ),
-                    dim_values
-                )
-            )
-            print('\t\t' + repr(dim_id) + ':')
-            for config in config_list:
-                print('\t\t\t' + repr(config))
+    data_io.prepare_for_writing([entry[0] for entry in config_skipped])
+    data_io.print_organized_configurations()

@@ -94,7 +94,12 @@ class LCDataSlice(Structure):
         perframe_bytes = 0
         for dset_name, dset_dimensions in dataset_dimensions.items():
             if 'frame' in dset_dimensions or 'source' in dset_dimensions:
-                atomic_ctypes[dset_name] = cls.get_ctype(get_dtype(dset_name))
+                if dset_name == 'source_in_frame':
+                    atomic_ctypes[dset_name] = c_bool
+                else:
+                    atomic_ctypes[dset_name] = cls.get_ctype(
+                        get_dtype(dset_name)
+                    )
 
                 dset_size[dset_name] = 1
                 for dimension in dset_dimensions:
