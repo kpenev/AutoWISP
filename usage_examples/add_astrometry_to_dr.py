@@ -11,7 +11,7 @@ from astropy.io import fits
 from superphot_pipeline import DataReductionFile
 
 if __name__ == '__main__':
-    data_dir = join_paths(dirname(__file__), 'test_data')
+    data_dir = join_paths(dirname(__file__), 'test_data', '10-20170306')
 
     dr_fname = join_paths(data_dir, '10-464933_2_R1.hdf5')
     fits_fname = join_paths(data_dir, '10-464933_2_R1.fits.fz')
