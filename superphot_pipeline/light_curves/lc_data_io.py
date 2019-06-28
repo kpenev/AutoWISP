@@ -5,6 +5,8 @@ import re
 from multiprocessing import Value
 from traceback import format_exception
 import sys
+import os
+from os.path import dirname, exists
 import itertools
 import logging
 
@@ -20,8 +22,6 @@ from superphot_pipeline import DataReductionFile
 
 from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
-
-_logger = logging.getLogger(__name__)
 
 class LCDataIO:
     """
@@ -88,6 +88,7 @@ class LCDataIO:
             ReadLCData.lc_data_slice. Gets initialized by prepare_for_writing().
     """
 
+    _logger = logging.getLogger(__name__)
     dataset_dimensions = dict()
     header_datasets = dict()
     config_components = dict()
@@ -665,9 +666,11 @@ class LCDataIO:
                         )
                     found_config = True
                 except OSError:
-                    _logger.warning('Failed to read %s from DR file for %s.',
-                                    dset_key,
-                                    repr(substitutions))
+                    self._logger.warning(
+                        'Failed to read %s from DR file for %s.',
+                        dset_key,
+                        repr(substitutions)
+                    )
                     value = None
 
                 config_list.append(
@@ -780,7 +783,7 @@ class LCDataIO:
                         dim_values=dim_values
                     )
                 except OSError:
-                    _logger.warning(
+                    self._logger.warning(
                         'Attribute %s not found in %s for %s',
                         quantity,
                         repr(data_reduction.filename),
@@ -834,7 +837,7 @@ class LCDataIO:
                     )
 
                 except OSError:
-                    _logger.warning(
+                    self._logger.warning(
                         'Dataset identified by %s does not exist in %s for %s',
                         quantity,
                         repr(data_reduction.filename),
@@ -1204,6 +1207,12 @@ class LCDataIO:
             defined_indices = self._get_lc_data(quantity='source_in_frame',
                                                 dimension_values=(),
                                                 source_index=source_index)
+
+            lc_directory = dirname(light_curve_fname)
+            if not exists(lc_directory):
+                self._logger.info('Created LC directory: %s', lc_directory)
+                os.makedev(lc_directory)
+
             with LightCurveFile(light_curve_fname, 'r+') as light_curve:
                 self._write_configurations(light_curve, defined_indices)
                 self._write_slice_data(light_curve,

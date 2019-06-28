@@ -29,8 +29,24 @@ def collect_light_curves(dr_filenames, configuration, **path_substitutions):
                                   first_dr.parse_hat_source_id,
                                   parse_fname_keywords,
                                   **path_substitutions)
+    frame_chunk = data_io.max_dimension_size['frame']
+    sources_lc_fnames = [(source_id, configuration.lc_fname_pattern % source_id)
+                         for source_id in data_io.source_destinations.keys()]
 
-    config_skipped = list(map(data_io.read, enumerate(dr_filenames)))
+    num_processed = 0
+    while num_processed < len(dr_filenames):
+        stop_processing = min(len(dr_filenames), num_processed + frame_chunk)
+        config_skipped = list(
+            map(
+                data_io.read,
+                enumerate(dr_filenames[num_processed: stop_processing])
+            )
+        )
 
-    data_io.prepare_for_writing([entry[0] for entry in config_skipped])
-    data_io.print_organized_configurations()
+        data_io.prepare_for_writing([entry[0] for entry in config_skipped])
+        data_io.print_organized_configurations()
+
+        for write_arg in sources_lc_fnames:
+            data_io.write(write_arg)
+
+        num_processed = stop_processing
