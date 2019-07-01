@@ -973,10 +973,26 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
+    @staticmethod
+    def _replace_nonfinite(data, replace_nonfinite):
+        """Return (copy of) data with non-finite values replaced."""
+
+        if replace_nonfinite is None:
+            data_copy = data
+        else:
+            finite = numpy.isfinite(data)
+            if finite.all():
+                data_copy = data
+            else:
+                data_copy = numpy.copy(data)
+                data_copy[numpy.logical_not(finite)] = replace_nonfinite
+
+
     def add_dataset(self,
                     dataset_key,
                     data,
                     if_exists='overwrite',
+                    unlimited=False,
                     **substitutions):
         """
         Adds a single dataset to self.
@@ -990,11 +1006,10 @@ class HDF5File(ABC, h5py.File):
             data:    The values that should be written, a numpy array with
                 an appropriate data type.
 
-            replace_nonfinite:    If not None, any non-finite values are
-                replaced with this value, it is also used as the fill value for
-                the dataset.
-
             if_exists:    See same name argument to add_attribute.
+
+            unlimited(bool):    Should the first dimension of the dataset be
+                unlimited (i.e. data can be added later)?
 
             substitututions:    Any arguments that should be substituted in the
                 dataset path.
@@ -1017,21 +1032,35 @@ class HDF5File(ABC, h5py.File):
                               (dataset_key, dataset_path, self.filename))
             self._delete_obsolete_dataset(dataset_key, **substitutions)
 
-        if dataset_config.replace_nonfinite is None:
-            fillvalue = None
-            data_copy = data
-        else:
-            fillvalue = dataset_config.replace_nonfinite
-            finite = numpy.isfinite(data)
-            if finite.all():
-                data_copy = data
+        data_copy = self._replace_nonfinite(data,
+                                            dataset_config.replace_nonfinite)
+
+        creation_args = self.get_dataset_creation_args(dataset_key,
+                                                       **substitutions)
+        if unlimited:
+            shape_tail = data.shape[1:]
+
+            if hasattr(self, '_chunk_size'):
+                #pylint: disable=no-member
+                creation_args['chunks'] = (self._chunk_size,) + shape_tail
+                #pylint: enable=no-member
             else:
-                data_copy = numpy.copy(data)
-                data_copy[numpy.logical_not(finite)] = fillvalue
+                creation_args['chunks'] = True
+
+            creation_args['maxshape'] = (None,) + shape_tail
+
+        print('Creating dataset: %s under %s'
+              %
+              (
+                  repr(dataset_path),
+                  self.filename
+              ))
+        print('\tdata = ' + repr(data))
+        print('\tcreation args: ' + repr(creation_args))
         self.create_dataset(
             dataset_path,
             data=data_copy,
-            **self.get_dataset_creation_args(dataset_key, **substitutions)
+            **creation_args
         )
 
     def __init__(self,
