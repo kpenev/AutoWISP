@@ -693,6 +693,14 @@ def _get_attributes(db_session):
         +
         [
             HDF5Attribute(
+                pipeline_key='confirmed_lc_length',
+                parent='/',
+                name='LightCurveLength',
+                dtype='numpy.uint',
+                description='How many data points are currently present in the '
+                'lightcurve.'
+            ),
+            HDF5Attribute(
                 pipeline_key='apphot.cfg.aperture',
                 parent=transform_dr_to_lc_path(aperture_size_attribute.parent),
                 name=aperture_size_attribute.name,
