@@ -99,7 +99,7 @@ class LCDataIO:
     _multivalued_entry_datasets = ['srcextract_psf_param',
                                    'sky_coord']
     cfg_index_id = 'cfg_index'
-    _organized_configurations = dict()
+    _organized_config = dict()
 
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
@@ -585,9 +585,11 @@ class LCDataIO:
             source_index=source_index
         ) * num_frames * num_entries
 
-        source_data = cls._get_slice_field(quantity)[
-            first_index : first_index + num_frames * num_entries
-        ]
+        slice_data = cls._get_slice_field(quantity)
+        source_data = numpy.frombuffer(
+            slice_data,
+            numpy.dtype(slice_data).base
+        )[first_index : first_index + num_frames * num_entries]
         source_data.shape = ((num_frames, num_entries) if num_entries > 1
                              else (num_frames,))
 
@@ -1090,38 +1092,32 @@ class LCDataIO:
             None
         """
 
-        if not cls._organized_configurations:
+        if not cls._organized_config:
             raise IOError('Call prepare_for_writing() method after each slice '
                           'input is complete.')
 
-        for config_component, (substitutions, configurations) in\
-                cls._organized_configurations.items():
-
-            index_pipeline_key = config_component + '.cfg_index'
+        for component, component_config in cls._organized_config.items():
+            index_pipeline_key = component + '.cfg_index'
             id_dtype = light_curve.get_dtype(index_pipeline_key)
-
-            config_ids_to_add = numpy.frombuffer(
-                cls._get_slice_field(index_pipeline_key),
-                id_dtype
-            )[defined_indices]
-
-            index_dset = numpy.empty(config_ids_to_add.size, dtype=numpy.int)
-            for (
-                    index_dset_index,
-                    (config, slice_config_id)
-            ) in enumerate(configurations.items()):
-                if slice_config_id in config_ids_to_add:
-                    index_dset[index_dset_index] = (
-                        light_curve.add_configuration(
-                            config_component,
-                            config
-                        )
-                    )
-            light_curve.extend_dataset(
-                index_pipeline_key,
-                index_dset,
-                **substitutions
+            config_ids_to_add = set(
+                numpy.frombuffer(
+                    cls._get_slice_field(index_pipeline_key),
+                    id_dtype
+                )[defined_indices]
             )
+
+            for dim_values, config_list in component_config.items():
+
+                config_to_add = []
+                for config, slice_config_id in config_list:
+                    if slice_config_id in config_ids_to_add:
+                        config_to_add.append(config)
+
+                light_curve.add_configurations(
+                    component,
+                    config_to_add,
+                    **cls._get_substitutions(index_pipeline_key, dim_values)
+                )
 
     @classmethod
     def _write_slice_data(cls, light_curve, source_index, defined_indices):
@@ -1207,13 +1203,15 @@ class LCDataIO:
             defined_indices = self._get_lc_data(quantity='source_in_frame',
                                                 dimension_values=(),
                                                 source_index=source_index)
+            if not defined_indices.any():
+                return
 
             lc_directory = dirname(light_curve_fname)
             if not exists(lc_directory):
                 self._logger.info('Created LC directory: %s', lc_directory)
-                os.makedev(lc_directory)
+                os.makedirs(lc_directory)
 
-            with LightCurveFile(light_curve_fname, 'r+') as light_curve:
+            with LightCurveFile(light_curve_fname, 'a') as light_curve:
                 self._write_configurations(light_curve, defined_indices)
                 self._write_slice_data(light_curve,
                                        source_index,
