@@ -371,10 +371,12 @@ class LCDataIO:
                     result = b''
                 else:
                     assert False
-            elif lc_dtype is numpy.string_:
-                if isinstance(value, bytes):
-                    return value
-                return value.encode('ascii')
+            elif numpy.dtype(lc_dtype).kind == 'S':
+                if isinstance(value, str):
+                    return value.encode('ascii')
+                if value.size > 1:
+                    return HashableArray(value)
+                return value
             elif isinstance(value, str) and (value == 'NaN'):
                 return value.encode('ascii')
             else:
@@ -569,12 +571,17 @@ class LCDataIO:
 
         dimensions = cls.dataset_dimensions[quantity]
 
-        assert 'frame' in dimensions
+        if 'frame' not in dimensions:
+            raise IOError('Adding %s dataset, which does not depend on frame'
+                          %
+                          quantity)
 
         if dimensions[-1] in cls._multivalued_entry_datasets:
             num_entries = cls.max_dimension_size[dimensions[-1]]
         else:
             num_entries = 1
+
+        print('%s num entries: %d' % (quantity, num_entries))
 
         num_frames = cls.max_dimension_size['frame']
 
@@ -583,13 +590,27 @@ class LCDataIO:
             dim_values=dimension_values,
             frame_index=0,
             source_index=source_index
-        ) * num_frames * num_entries
+        ) * num_entries
 
         slice_data = cls._get_slice_field(quantity)
+        print('Slice data: ' + repr(slice_data))
         source_data = numpy.frombuffer(
             slice_data,
             numpy.dtype(slice_data).base
         )[first_index : first_index + num_frames * num_entries]
+        print(
+            'Slice index range (dim: %s, values: %s, src_ind = %d): %d -- %d'
+            %
+            (
+                repr(dimensions),
+                repr(dimension_values),
+                source_index,
+                first_index,
+                first_index + num_frames * num_entries
+            )
+        )
+        print('Source data (shape: %s): %s' % (repr(source_data.shape),
+                                               repr(source_data)))
         source_data.shape = ((num_frames, num_entries) if num_entries > 1
                              else (num_frames,))
 
@@ -1077,12 +1098,15 @@ class LCDataIO:
                     print('\t\t\t' + repr(config_id) + ' -> ' + repr(config))
 
     @classmethod
-    def _write_configurations(cls, light_curve, defined_indices):
+    def _write_configurations(cls, light_curve, source_index, defined_indices):
         """
         Add all configurations to the LC and fix their config_ids in slice.
 
         Args:
             light_curve(LightCurveFile):    The light curve to update.
+
+            source_index(int):    The index of the source for which the
+                lightcurve is being updated within the slice.
 
             defined_indices(numpy.array(dtype=bool)):    Array of flags
                 indicating for each entry in the data slice should be included
@@ -1099,17 +1123,19 @@ class LCDataIO:
         for component, component_config in cls._organized_config.items():
             index_pipeline_key = component + '.cfg_index'
             id_dtype = light_curve.get_dtype(index_pipeline_key)
-            config_ids_to_add = set(
-                numpy.frombuffer(
-                    cls._get_slice_field(index_pipeline_key),
-                    id_dtype
-                )[defined_indices]
-            )
-
             for dim_values, config_list in component_config.items():
 
+                config_ids_to_add = set(
+                    cls._get_lc_data(
+                        quantity=index_pipeline_key,
+                        dimension_values=dim_values,
+                        source_index=source_index,
+                        defined_indices=defined_indices
+                    )
+                )
+
                 config_to_add = []
-                for config, slice_config_id in config_list:
+                for config, slice_config_id in config_list.items():
                     if slice_config_id in config_ids_to_add:
                         config_to_add.append(config)
 
@@ -1123,8 +1149,14 @@ class LCDataIO:
     def _write_slice_data(cls, light_curve, source_index, defined_indices):
         """Add all non-configuration datasets to the light curve."""
 
-        for quantity in cls.dataset_dimensions:
-            if quantity.endswith('.' + cls.cfg_index_id):
+        for quantity, dimensions in cls.dataset_dimensions.items():
+            if (
+                    quantity.endswith('.' + cls.cfg_index_id)
+                    or
+                    'frame' not in dimensions
+                    or
+                    quantity == 'source_in_frame'
+            ):
                 continue
             for dim_values in cls._get_dimensions_iterator(quantity):
                 light_curve.extend_dataset(
@@ -1203,6 +1235,8 @@ class LCDataIO:
             defined_indices = self._get_lc_data(quantity='source_in_frame',
                                                 dimension_values=(),
                                                 source_index=source_index)
+            print('Defined indices (%s): %s' % (defined_indices.shape,
+                                                repr(defined_indices)))
             if not defined_indices.any():
                 return
 
@@ -1212,7 +1246,9 @@ class LCDataIO:
                 os.makedirs(lc_directory)
 
             with LightCurveFile(light_curve_fname, 'a') as light_curve:
-                self._write_configurations(light_curve, defined_indices)
+                self._write_configurations(light_curve,
+                                           source_index,
+                                           defined_indices)
                 self._write_slice_data(light_curve,
                                        source_index,
                                        defined_indices)

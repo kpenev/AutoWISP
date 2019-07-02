@@ -82,7 +82,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         message += '\t %s = %s\n' % (key, repr(value))
             raise IOError(message)
 
-        substitution_set = set(substitutions.items())
+        substitution_set = frozenset(substitutions.items())
         if (
                 component in self._configurations
                 and
@@ -90,8 +90,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         ):
             return self._configurations[component][substitution_set]
 
-        stored_configurations = zip(*[self._get_hashable_dataset(pipeline_key)
-                                      for pipeline_key in quantities])
+        stored_configurations = list(
+            zip(*[self._get_hashable_dataset(pipeline_key, **substitutions)
+                  for pipeline_key in quantities])
+        )
         if len(set(stored_configurations)) != len(stored_configurations):
             report_indistinct_configurations(stored_configurations)
         stored_config_sets = [frozenset(zip(quantities, config))
@@ -140,7 +142,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             for config_index, new_config in enumerate(configurations):
                 config_hash = hash(new_config)
                 if config_keys is None:
-                    config_keys = [entry[0] in entry in new_config]
+                    config_keys = [entry[0] for entry in new_config]
                     stored_configurations = self._get_configurations(
                         component,
                         config_keys,
@@ -168,16 +170,21 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         new_config
                     )
                     for key, value in new_config:
-                        config_data_to_add[key].append(value)
+                        config_data_to_add[key].append(
+                            value.unwrap() if isinstance(value, HashableArray)
+                            else value
+                        )
             for key in config_data_to_add:
                 config_data_to_add[key] = numpy.array(
                     config_data_to_add[key],
-                    dtype=h5py.check_dtype(vlen=self.get_dtype(key))
+                    dtype=h5py.check_dtype(
+                        vlen=numpy.dtype(self.get_dtype(key))
+                    )
                 )
             config_data_to_add[component + '.cfg_index'] = index_dset
             return config_data_to_add
 
-        for pipeline_key, new_data in get_new_data():
+        for pipeline_key, new_data in get_new_data().items():
             self.extend_dataset(pipeline_key, new_data, **substitutions)
 
     def extend_dataset(self,
@@ -213,14 +220,23 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         """
 
         def add_new_data(dataset,
-                         confirmed_length,
-                         new_data,
-                         replace_nonfinite):
+                         confirmed_length):
             """Add new_data to the given dataset after confirmed_length."""
 
-            data_copy = self._replace_nonfinite(new_data, replace_nonfinite)
+            data_copy = self._replace_nonfinite(
+                new_data,
+                numpy.dtype(
+                    self.get_dataset_creation_args(
+                        dataset_key,
+                        **substitutions
+                    )['dtype']
+                ),
+                dataset_config.replace_nonfinite
+            )
 
-            new_dataset_size = confirmed_length + len(new_data)
+            print('Data copy: ' + repr(data_copy))
+
+            new_dataset_size = confirmed_length + len(data_copy)
             if new_dataset_size < len(dataset):
                 try:
                     all_data = np.concatenate((dataset[:confirmed_length],
@@ -253,6 +269,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
+
+        print('Extending %s, %s with %s'
+              %
+              (self.filename, dataset_key, repr(new_data)))
 
         if dataset_path in self:
             dataset = self[dataset_path]
@@ -296,10 +316,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     raise IOError('Unexpected lightcurve length resolution: '
                                   +
                                   repr(resolve_size))
-            add_new_data(dataset,
-                         confirmed_length,
-                         new_data,
-                         dataset_config.replace_nonfinite)
+            add_new_data(dataset, confirmed_length)
         else:
             self.add_dataset(dataset_key,
                              new_data,

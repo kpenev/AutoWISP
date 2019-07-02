@@ -473,6 +473,8 @@ class HDF5File(ABC, h5py.File):
         if isinstance(result, str):
             result = numpy.dtype(result)
 
+        print('Data type for %s: %s' % (element_key, repr(result)))
+
         return result
 
     #The path_substitutions arg is used by overloading functions.
@@ -519,6 +521,7 @@ class HDF5File(ABC, h5py.File):
         if dataset_config.replace_nonfinite is not None:
             result['fillvalue'] = dataset_config.replace_nonfinite
 
+        print('Creation args for %s: %s' % (dataset_key, repr(result)))
         return result
     #pylint: enable=unused-argument
 
@@ -974,19 +977,38 @@ class HDF5File(ABC, h5py.File):
         return result
 
     @staticmethod
-    def _replace_nonfinite(data, replace_nonfinite):
+    def _replace_nonfinite(data, expected_dtype, replace_nonfinite):
         """Return (copy of) data with non-finite values replaced."""
 
-        if replace_nonfinite is None:
-            data_copy = data
-        else:
-            finite = numpy.isfinite(data)
-            if finite.all():
-                data_copy = data
-            else:
-                data_copy = numpy.copy(data)
-                data_copy[numpy.logical_not(finite)] = replace_nonfinite
+        if (
+                data.dtype.kind == 'S'
+                and
+                (
+                    (
+                        expected_dtype is not None
+                        and
+                        numpy.dtype(expected_dtype).kind == 'f'
+                    )
+                    or
+                    (data == b'NaN').all()
+                )
+        ):
+            assert (data == b'NaN').all()
+            return numpy.full(
+                fill_value=(replace_nonfinite or numpy.nan),
+                dtype=numpy.float64,
+                shape=data.shape
+            )
 
+        if replace_nonfinite is None:
+            return data
+
+        finite = numpy.isfinite(data)
+        if finite.all():
+            return data
+        data_copy = numpy.copy(data)
+        data_copy[numpy.logical_not(finite)] = replace_nonfinite
+        return data_copy
 
     def add_dataset(self,
                     dataset_key,
@@ -1032,11 +1054,28 @@ class HDF5File(ABC, h5py.File):
                               (dataset_key, dataset_path, self.filename))
             self._delete_obsolete_dataset(dataset_key, **substitutions)
 
-        data_copy = self._replace_nonfinite(data,
-                                            dataset_config.replace_nonfinite)
-
         creation_args = self.get_dataset_creation_args(dataset_key,
                                                        **substitutions)
+
+        print('Creating dataset: %s under %s'
+              %
+              (
+                  repr(dataset_path),
+                  self.filename
+              ))
+        print('\tdata = ' + repr(data))
+
+        print('\tcreation args: ' + repr(creation_args))
+
+
+        data_copy = self._replace_nonfinite(
+            data,
+            creation_args.get('dtype'),
+            dataset_config.replace_nonfinite
+        )
+
+        print('\tFormatted data: ' +  repr(data_copy))
+
         if unlimited:
             shape_tail = data.shape[1:]
 
@@ -1049,17 +1088,18 @@ class HDF5File(ABC, h5py.File):
 
             creation_args['maxshape'] = (None,) + shape_tail
 
-        print('Creating dataset: %s under %s'
-              %
-              (
-                  repr(dataset_path),
-                  self.filename
-              ))
-        print('\tdata = ' + repr(data))
-        print('\tcreation args: ' + repr(creation_args))
+        if data_copy.dtype.kind == 'S':
+            assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
+            creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
+            print('\t dtype -> ' + repr(creation_args['dtype']))
+
+        if 'scaleoffset' in creation_args:
+            assert numpy.isfinite(data_copy).all()
+
         self.create_dataset(
             dataset_path,
             data=data_copy,
+            shape=data.shape,
             **creation_args
         )
 

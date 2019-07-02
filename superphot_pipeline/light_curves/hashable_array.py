@@ -31,6 +31,7 @@ class HashableArray:
             - tight: If True, a copy of the input ndaray is created.
         """
 
+        assert not isinstance(wrapped, HashableArray)
         self._tight = tight
         self._wrapped = numpy.array(wrapped) if tight else wrapped
         self._hash = int(sha1(wrapped.view(numpy.uint8)).hexdigest(), 16)
