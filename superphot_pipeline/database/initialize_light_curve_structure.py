@@ -55,7 +55,7 @@ def _get_source_extraction_datasets():
             HDF5DataSet(
                 pipeline_key=psf_map_key_start + 'software_versions',
                 abspath=config_path_start + 'SoftwareVersions',
-                dtype="'S100'",
+                dtype='numpy.string_',
                 description='An Nx2 array of strings consisting of software '
                 'elements and their versions used for source extraction.',
             )
@@ -502,6 +502,8 @@ def _get_data_reduction_attribute_datasets(db_session):
             args['compression_options'] = '9'
         else:
             args['scaleoffset'] = scaleoffset
+            if dr_attribute.dtype == 'numpy.float64':
+                args['replace_nonfinite'] = repr(numpy.finfo('f4').min)
 
         result.append(HDF5DataSet(**args))
 
