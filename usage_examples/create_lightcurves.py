@@ -26,10 +26,10 @@ if __name__ == '__main__':
         max_apertures=39,
         max_magfit_iterations=6,
         catalogue_fname=join_paths(data_dir,
-                                   'cat_object_G10124500_139_2.ucac4'),
+                                   'lc_dump_catalogue.ucac4'),
         lc_fname_pattern=join_paths(lc_dir, '%d-%d-%d.hdf5'),
         srcextract_psf_params=['S', 'D', 'K'],
-        memblocksize=1023**3
+        memblocksize=(80.0 * 1024**2)
     )
 
     path_substitutions = dict(srcextract_version=0,

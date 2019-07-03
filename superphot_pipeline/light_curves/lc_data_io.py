@@ -1005,10 +1005,21 @@ class LCDataIO:
             background=False,
             **self._path_substitutions
         )
-        source_data = merge_with_catalogue_information(source_data)
 
         data_slice_source_indices = [self.source_destinations.get(tuple(src_id))
                                      for src_id in source_data['ID']]
+
+        skipped_indices = []
+        for skip_ind, slice_ind in enumerate(data_slice_source_indices):
+            if slice_ind is None:
+                skipped_indices.append(skip_ind)
+
+        skipped_sources = numpy.copy(source_data['ID'][skipped_indices])
+
+        source_data = numpy.delete(source_data, skipped_indices)
+
+        source_data = merge_with_catalogue_information(source_data)
+
         fill_direct_from_dr(data_slice_source_indices)
         fill_sky_position_datasets(data_slice_source_indices)
         fill_srcextract_psf_map(source_data, data_slice_source_indices)
@@ -1017,12 +1028,6 @@ class LCDataIO:
                                             dtype=bool),
                           dim_values=(),
                           data_slice_source_indices=data_slice_source_indices)
-
-        skipped_sources = []
-        for src, slice_ind in zip(source_data['ID'],
-                                  data_slice_source_indices):
-            if slice_ind is None:
-                skipped_sources.append(src)
 
         return skipped_sources
     #pylint: enable=too-many-locals
@@ -1122,7 +1127,6 @@ class LCDataIO:
 
         for component, component_config in cls._organized_config.items():
             index_pipeline_key = component + '.cfg_index'
-            id_dtype = light_curve.get_dtype(index_pipeline_key)
             for dim_values, config_list in component_config.items():
 
                 config_ids_to_add = set(

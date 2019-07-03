@@ -13,7 +13,7 @@ from superphot_pipeline import DataReductionFile
 if __name__ == '__main__':
     data_dir = join_paths(dirname(__file__), 'test_data', '10-20170306')
 
-    for fnum in [464933, 465248]:
+    for fnum in [464933, 465210, 465211, 465215, 465216, 465217, 465218, 465219, 465248]:
         dr_fname = join_paths(data_dir, '10-%d_2_R1.hdf5' % fnum)
         fits_fname = join_paths(data_dir, '10-%d_2_R1.fits.fz' % fnum)
 
