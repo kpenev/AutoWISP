@@ -2,6 +2,10 @@
 .*.swp
 .*.swo
 
+# Ignore debug files
+*.out
+*_structure.xml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
