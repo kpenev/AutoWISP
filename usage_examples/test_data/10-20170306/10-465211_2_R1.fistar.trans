@@ -1,0 +1,20 @@
+# Created by anmatch 0.4.7.x
+# Invoked command: anmatch --comment --col-inp 2,3 --input /mnt/md0/DSLR_DATA/SonyAlpha/ASTROM/10-20170306/10-465211_2_R1.fistar --max-distance 1.5 --output-transformation /mnt/md0/DSLR_DATA/SonyAlpha/ASTROM/10-20170306/10-465211_2_R1.fistar.trans --input-reference test.ucac4 --col-ref 2,3 --output /mnt/md0/DSLR_DATA/SonyAlpha/ASTROM/10-20170306/10-465211_2_R1.fistar.match --order 5 --ra 153.030 --dec 44.989 --anet indexpath# Type: polynomial of order=5 (number of coefficients: 21)
+type = polynomial
+order = 5
+# Initial transformation of (x_img,y_img):
+offset = 0, 0
+scale = 1
+basisshift = 0, 0
+# Coefficients of the x fit: 
+dxfit=      1991.51,     -256.419,      1.77255,   0.00874132, -0.000827833,  -0.00250111,   -0.0988869,  5.29781e-05,   -0.0350353,  -0.00324942, -0.000327294,  0.000317927,  -3.3162e-05,  9.66451e-05,   0.00130333,   0.00457179, -9.23454e-06,   0.00103208,  5.88146e-05,   0.00105486,   0.00199101
+# Coefficients of the y fit: 
+dyfit=      1329.47,      1.77397,       256.38,   0.00398397,  -0.00211928,   0.00152717,   0.00127001,    0.0338734,  0.000524666,    0.0977257, -0.000302115, -2.36569e-05, -0.000266017, -0.000208398,  0.000833421,  -0.00015624, -0.000921043,  1.22597e-05, -0.000840553, -8.05666e-05,  -0.00292715
+# Residual: 0.226407
+# Unitarity: 0.00490539
+# Points: 4338 35352 4420 (number of: matched, reference, input)
+# Ratio: 98.14 (percent)
+# Timing: 0.059 2.169 0.056 (total, anet, coordinate match: in seconds)
+# anet tweak order: 3
+# All: 0.226407 0.00490539 4338 35352 4420 98.14 0.059 2.169 0.056 3
+# 2MASS: 153.0480838 45.0016887 3983 2659 0.392755 (RA, DEC, imagw, imagh, rot)
