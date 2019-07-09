@@ -32,6 +32,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             return []
 
         if isinstance(values[0], numpy.ndarray):
+            if h5py.check_dtype(vlen=values[0].dtype) is bytes:
+                return [HashableArray(numpy.array(list(v))) for v in values]
             return [HashableArray(v) for v in values]
         if values.dtype.kind == 'f':
             return [v if numpy.isfinite(v) else 'NaN' for v in values]
@@ -111,7 +113,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         super().__init__(*args, **kwargs)
         self._configurations = dict()
 
-    def add_configurations(self, component, configurations, **substitutions):
+    def add_configurations(self,
+                           component,
+                           configurations,
+                           resolve_size,
+                           **substitutions):
         """
         Add a list of configurations to the LC, merging with existing ones.
 
@@ -126,8 +132,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 configuration should be an iterable of 2-tuples formatted like
                 (`pipeline_key`, `value`).
 
+            resolve_size(str):    How to deal with confirm LC length differing
+                from actual? See extend_dataset() for details.
 
-            substitutions:
+            substitutions:    Any substitutions required to fully resolve the
+                paths to the configuration and configuration index datasets.
 
         Returns:
             None
@@ -185,7 +194,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             return config_data_to_add
 
         for pipeline_key, new_data in get_new_data().items():
-            self.extend_dataset(pipeline_key, new_data, **substitutions)
+            self.extend_dataset(pipeline_key,
+                                new_data,
+                                resolve_size=resolve_size,
+                                **substitutions)
 
     def extend_dataset(self,
                        dataset_key,
@@ -223,14 +235,17 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                          confirmed_length):
             """Add new_data to the given dataset after confirmed_length."""
 
+            dtype = self.get_dataset_creation_args(
+                dataset_key,
+                **substitutions
+            ).get('dtype')
+            if dtype is None:
+                dtype = new_data.dtype
+            else:
+                dtype = numpy.dtype(dtype)
             data_copy = self._replace_nonfinite(
                 new_data,
-                numpy.dtype(
-                    self.get_dataset_creation_args(
-                        dataset_key,
-                        **substitutions
-                    )['dtype']
-                ),
+                dtype,
                 dataset_config.replace_nonfinite
             )
 
@@ -261,10 +276,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 )
             else:
                 dataset.resize(new_dataset_size, 0)
-                if h5py.check_dtype(vlen=dataset.dtype) is not None:
-                    dataset[confirmed_length:] = list(data_copy)
-                else:
-                    dataset[confirmed_length:] = data_copy
+                dataset[confirmed_length:] = data_copy
 
 
         dataset_config = self._file_structure[dataset_key]

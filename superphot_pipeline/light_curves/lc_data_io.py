@@ -354,6 +354,13 @@ class LCDataIO:
         if lc_dtype is None:
             lc_dtype = value.dtype
         try:
+            try:
+                if not numpy.isfinite(value):
+                    value = 'NaN'
+            except ValueError:
+                assert numpy.isfinite(value).all()
+            except TypeError:
+                pass
             if value is None:
                 if numpy.dtype(lc_dtype).kind == 'b':
                     result = False
@@ -1103,7 +1110,11 @@ class LCDataIO:
                     print('\t\t\t' + repr(config_id) + ' -> ' + repr(config))
 
     @classmethod
-    def _write_configurations(cls, light_curve, source_index, defined_indices):
+    def _write_configurations(cls,
+                              light_curve,
+                              source_index,
+                              defined_indices,
+                              resolve_lc_size='actual'):
         """
         Add all configurations to the LC and fix their config_ids in slice.
 
@@ -1146,11 +1157,16 @@ class LCDataIO:
                 light_curve.add_configurations(
                     component,
                     config_to_add,
-                    **cls._get_substitutions(index_pipeline_key, dim_values)
+                    **cls._get_substitutions(index_pipeline_key, dim_values),
+                    resolve_size=resolve_lc_size
                 )
 
     @classmethod
-    def _write_slice_data(cls, light_curve, source_index, defined_indices):
+    def _write_slice_data(cls,
+                          light_curve,
+                          source_index,
+                          defined_indices,
+                          resolve_lc_size):
         """Add all non-configuration datasets to the light curve."""
 
         for quantity, dimensions in cls.dataset_dimensions.items():
@@ -1169,6 +1185,7 @@ class LCDataIO:
                                      dimension_values=dim_values,
                                      source_index=source_index,
                                      defined_indices=defined_indices),
+                    resolve_size=resolve_lc_size,
                     **cls._get_substitutions(quantity, dim_values)
                 )
 
@@ -1252,9 +1269,11 @@ class LCDataIO:
             with LightCurveFile(light_curve_fname, 'a') as light_curve:
                 self._write_configurations(light_curve,
                                            source_index,
-                                           defined_indices)
+                                           defined_indices,
+                                           resolve_lc_size='actual')
                 self._write_slice_data(light_curve,
                                        source_index,
-                                       defined_indices)
+                                       defined_indices,
+                                       resolve_lc_size='actual')
         except Exception as ex:
             raise IOError('While writing source: ' + repr(source_id)) from ex
