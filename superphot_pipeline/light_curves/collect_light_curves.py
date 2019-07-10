@@ -36,6 +36,7 @@ def collect_light_curves(dr_filenames, configuration, **path_substitutions):
     num_processed = 0
     while num_processed < len(dr_filenames):
         stop_processing = min(len(dr_filenames), num_processed + frame_chunk)
+        data_io.prepare_for_reading()
         config_skipped = list(
             map(
                 data_io.read,

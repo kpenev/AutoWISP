@@ -116,6 +116,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
     def add_configurations(self,
                            component,
                            configurations,
+                           config_indices,
                            resolve_size,
                            **substitutions):
         """
@@ -132,6 +133,10 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 configuration should be an iterable of 2-tuples formatted like
                 (`pipeline_key`, `value`).
 
+            config_indices(array of int):    For each frame, the corresponding
+                entry is the index within configurations of the configuration
+                that applies for that frame.
+
             resolve_size(str):    How to deal with confirm LC length differing
                 from actual? See extend_dataset() for details.
 
@@ -145,7 +150,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         def get_new_data():
             """Return a dict of pipeline_key, data of the updates needed."""
 
-            index_dset = numpy.empty(len(configurations), dtype=numpy.int)
+            index_dset = numpy.empty(config_indices.shape, dtype=numpy.int)
 
             config_keys = None
             for config_index, new_config in enumerate(configurations):
@@ -167,13 +172,17 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         #pylint: enable=unsupported-membership-test
 
                 if config_hash in stored_configurations:
-                    index_dset[config_index] = stored_configurations[
+                    index_dset[
+                        config_indices==config_index
+                    ] = stored_configurations[
                         config_hash
                     ][
                         0
                     ]
                 else:
-                    index_dset[config_index] = len(stored_configurations)
+                    index_dset[config_indices==config_index] = len(
+                        stored_configurations
+                    )
                     stored_configurations[config_hash] = (
                         index_dset[config_index],
                         new_config

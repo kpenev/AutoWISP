@@ -9,6 +9,7 @@ import os
 from os.path import dirname, exists
 import itertools
 import logging
+from ctypes import memset, sizeof
 
 import h5py
 import numpy
@@ -1041,6 +1042,13 @@ class LCDataIO:
     #pylint: enable=too-many-statements
 
     @classmethod
+    def prepare_for_reading(cls):
+        """Must be called every time a new batch of frames is being read."""
+
+        to_reset = cls._get_slice_field('source_in_frame')
+        memset(to_reset, 0, sizeof(to_reset))
+
+    @classmethod
     def prepare_for_writing(cls, configurations_collection):
         """
         Prepare for writing after a slice of data has been read.
@@ -1140,23 +1148,22 @@ class LCDataIO:
             index_pipeline_key = component + '.cfg_index'
             for dim_values, config_list in component_config.items():
 
-                config_ids_to_add = set(
-                    cls._get_lc_data(
-                        quantity=index_pipeline_key,
-                        dimension_values=dim_values,
-                        source_index=source_index,
-                        defined_indices=defined_indices
-                    )
+                config_ids = cls._get_lc_data(
+                    quantity=index_pipeline_key,
+                    dimension_values=dim_values,
+                    source_index=source_index,
+                    defined_indices=defined_indices
                 )
 
                 config_to_add = []
                 for config, slice_config_id in config_list.items():
-                    if slice_config_id in config_ids_to_add:
+                    if slice_config_id in config_ids:
                         config_to_add.append(config)
 
                 light_curve.add_configurations(
                     component,
                     config_to_add,
+                    config_ids,
                     **cls._get_substitutions(index_pipeline_key, dim_values),
                     resolve_size=resolve_lc_size
                 )

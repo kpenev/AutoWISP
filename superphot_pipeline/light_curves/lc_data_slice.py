@@ -122,7 +122,6 @@ class LCDataSlice(Structure):
                 )
                 #pylint: enable=logging-not-lazy
 
-
         num_frames = min(int(max_mem / perframe_bytes), 1000)
 
         cls._fields_ = [
