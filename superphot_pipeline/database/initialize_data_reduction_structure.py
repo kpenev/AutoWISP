@@ -128,13 +128,22 @@ def _get_source_extraction_attributes():
                 pipeline_key='srcextract.software_versions',
                 parent=_default_paths['srcextract']['root'],
                 name='SoftwareVersions',
-                dtype="'S100'",
+                dtype='numpy.string_',
                 description='An Nx2 array of strings consisting of '
                 'software elements and their versions used for source '
                 'extraction.'
             ),
             HDF5Attribute(
-                pipeline_key='srcextract.binning',
+                pipeline_key='srcextract.psf_map.software_versions',
+                parent=_default_paths['srcextract']['root'],
+                name='SoftwareVersions',
+                dtype='numpy.string_',
+                description='An Nx2 array of strings consisting of '
+                'software elements and their versions used for source '
+                'extraction.'
+            ),
+            HDF5Attribute(
+                pipeline_key='srcextract.cfg.binning',
                 parent=_default_paths['srcextract']['root'],
                 name='ImageBinFactor',
                 dtype='numpy.uint',
@@ -142,15 +151,6 @@ def _get_source_extraction_attributes():
                 'image was binned in the x and y directions respectively '
                 'before passing to the source extractor. Useful for way out of '
                 'focus images.'
-            ),
-            HDF5Attribute(
-                pipeline_key='srcextract.columns',
-                parent=(_default_paths['srcextract']['root']
-                        +
-                        _default_paths['srcextract']['sources']),
-                name='Columns',
-                dtype="'S100'",
-                description='A list of the source extraction columns stored.'
             )
         ]
         +
@@ -258,7 +258,7 @@ def _get_skytoframe_attributes():
             pipeline_key='skytoframe.software_versions',
             parent=parent,
             name='SoftwareVersions',
-            dtype="'S100'",
+            dtype='numpy.string_',
             description='An Nx2 array of strings consisting of '
             'software elements and their versions used for deriving the sky to '
             'frame transformation.'
@@ -463,7 +463,7 @@ def _get_source_projection_attributes():
             pipeline_key='srcproj.software_versions',
             parent=root_path,
             name='SoftwareVersions',
-            dtype="'S100'",
+            dtype='numpy.string_',
             description='An Nx2 array of strings consisting of '
             'software elements and their versions used for projecting '
             'catalogue sources to the frame.'
@@ -472,7 +472,7 @@ def _get_source_projection_attributes():
             pipeline_key='srcproj.recognized_hat_id_prefixes',
             parent=(root_path + _default_paths['srcproj']['prefix']),
             name='RecognizedHATIDPrefixes',
-            dtype="'S100'",
+            dtype='numpy.string_',
             description='A list of all possible prefixes to source HAT-IDs.'
         )
     ]
@@ -591,7 +591,7 @@ def _get_background_attributes():
             pipeline_key='bg.sofware_versions',
             parent=_default_paths['background'],
             name='SoftwareVersions',
-            dtype="'S100'",
+            dtype='numpy.string_',
             description='An Nx2 array of strings consisting of '
             'software elements and their versions used for estimating the '
             'backgrund for each source.'
@@ -1057,7 +1057,7 @@ def _get_shapefit_attributes():
                 pipeline_key='shapefit.sofware_versions',
                 parent=parent_path,
                 name='SoftwareVersions',
-                dtype="'S100'",
+                dtype='numpy.string_',
                 description='An Nx2 array of strings consisting of '
                 'software elements and their versions usef during PSF/PRF'
                 ' fitting.'
@@ -1182,7 +1182,7 @@ def _get_apphot_attributes():
                 pipeline_key='apphot.sofware_versions',
                 parent=root_path,
                 name='SoftwareVersions',
-                dtype="'S100'",
+                dtype='numpy.string_',
                 description='An Nx2 array of strings consisting of '
                 'software elements and their versions used for aperture '
                 'photometry.'
@@ -1338,7 +1338,7 @@ def _get_datasets():
         [
             HDF5DataSet(
                 pipeline_key='fitsheader',
-                abspath='FITSHeader',
+                abspath='/FITSHeader',
                 dtype="'i1'",
                 description='A binary dump of the header of the calibrated '
                 'frames corresponding to this DR file.'

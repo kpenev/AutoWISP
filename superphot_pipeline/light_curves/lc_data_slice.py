@@ -1,10 +1,16 @@
 """Define a class holding a slice of LC data organize by source."""
 
+import logging
 from ctypes import\
+    c_bool,\
     c_int8, c_int16, c_int32, c_int64,\
-    c_float, c_double, c_longdouble,\
     c_uint64, c_uint32, c_uint16, c_uint8,\
+    c_float, c_double, c_longdouble,\
     Structure, sizeof
+
+import numpy
+
+_logger = logging.getLogger(__name__)
 
 class LCDataSlice(Structure):
     """A time-slice of LC data to be shared between LC dumping processes."""
@@ -15,6 +21,12 @@ class LCDataSlice(Structure):
     @staticmethod
     def get_ctype(dtype):
         """Return the appropriate c-types type to use for the given dtype."""
+
+        if not isinstance(dtype, numpy.dtype):
+            dtype = numpy.dtype(dtype)
+
+        if dtype.kind == 'b':
+            return c_bool
 
         if dtype.kind == 'i':
             assert dtype.itemsize <= 8
@@ -76,28 +88,46 @@ class LCDataSlice(Structure):
                 The number of frames that will fit into the structure.
         """
 
-        atomic_ctypes = {
-            dset_name: cls.get_ctype(get_dtype(dset_name))
-            for dset_name in dataset_dimensions
-        }
+        atomic_ctypes = dict()
 
         dset_size = dict()
         perframe_bytes = 0
-        for dset_name, dset_dimensions in dataset_dimensions:
-            dset_size[dset_name] = 1
-            for dimension in dset_dimensions:
-                if dimension != 'frame':
-                    dset_size[dset_name] *= max_dimension_size[dimension]
-            perframe_bytes += (sizeof(atomic_ctypes[dset_name])
-                               *
-                               dset_size[dset_name])
+        for dset_name, dset_dimensions in dataset_dimensions.items():
+            if 'frame' in dset_dimensions or 'source' in dset_dimensions:
+                if dset_name == 'source_in_frame':
+                    atomic_ctypes[dset_name] = c_bool
+                else:
+                    atomic_ctypes[dset_name] = cls.get_ctype(
+                        get_dtype(dset_name)
+                    )
+
+                dset_size[dset_name] = 1
+                for dimension in dset_dimensions:
+                    if dimension != 'frame':
+                        dset_size[dset_name] *= max_dimension_size[dimension]
+                perframe_bytes += (sizeof(atomic_ctypes[dset_name])
+                                   *
+                                   dset_size[dset_name])
+
+                #Too complicated to make lazy
+                #pylint: disable=logging-not-lazy
+                _logger.debug(
+                    'Dset: %s size = %d (' % (dset_name, dset_size[dset_name])
+                    +
+                    ' x '.join(
+                        '(%d %s)' % (max_dimension_size[dimension], dimension)
+                        for dimension in filter(lambda d: d != 'frame',
+                                                dset_dimensions)
+                    )
+                )
+                #pylint: enable=logging-not-lazy
 
         num_frames = min(int(max_mem / perframe_bytes), 1000)
 
         cls._fields_ = [
             (
                 dset_name.replace('.', '_'),
-                num_entries * atomic_ctypes[dset_name]
+                num_frames * num_entries * atomic_ctypes[dset_name]
             )
             for dset_name, num_entries in dset_size.items()
         ]

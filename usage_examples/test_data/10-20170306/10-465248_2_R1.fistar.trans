@@ -1,0 +1,20 @@
+# Created by anmatch 0.4.7.x
+# Invoked command: anmatch --comment --col-inp 2,3 --input /data/HAT10DSLR/ASTROM/10-20170306/10-465248_2_R1.fistar --max-distance 1.5 --output-transformation /data/HAT10DSLR/ASTROM/10-20170306/10-465248_2_R1.fistar.trans --input-reference test.ucac4 --col-ref 2,3 --output /data/HAT10DSLR/ASTROM/10-20170306/10-465248_2_R1.fistar.match --order 5 --ra 153.030 --dec 44.989 --anet indexpath# Type: polynomial of order=5 (number of coefficients: 21)
+type = polynomial
+order = 5
+# Initial transformation of (x_img,y_img):
+offset = 0, 0
+scale = 1
+basisshift = 0, 0
+# Coefficients of the x fit: 
+dxfit=      1991.52,      -256.42,      1.74401,   0.00568161,  -0.00191759,  -0.00236016,   -0.0961699,  0.000431459,   -0.0343279,  -0.00101688,  9.91143e-05,  0.000288501,  3.04723e-05,  0.000545988,   0.00147714,   0.00371735, -3.10922e-05,    0.0010821, -0.000128195,  0.000582905,  0.000857481
+# Coefficients of the y fit: 
+dyfit=      1329.48,      1.75336,      256.382,   0.00366293,  -0.00334835,  -0.00017796,  -0.00011138,    0.0343313, -0.000210703,    0.0996201, -0.000357598,  9.07837e-05, -0.000161683,  -0.00016043,    0.0013614,  0.000292295,  -0.00102428, -4.43777e-05, -0.000962049,  0.000394723,  -0.00368052
+# Residual: 0.24028
+# Unitarity: 0.00482894
+# Points: 4366 35352 4441 (number of: matched, reference, input)
+# Ratio: 98.31 (percent)
+# Timing: 0.060 1.772 0.058 (total, anet, coordinate match: in seconds)
+# anet tweak order: 3
+# All: 0.24028 0.00482894 4366 35352 4441 98.31 0.060 1.772 0.058 3
+# 2MASS: 153.0465647 45.0029908 3983 2659 0.386594 (RA, DEC, imagw, imagh, rot)

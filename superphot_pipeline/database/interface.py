@@ -10,8 +10,9 @@ Session = sessionmaker()
 #pylint: enable=invalid-name
 
 db_engine = create_engine(
-    'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/SuperPhotPipeline',
-    echo=True
+    #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/SuperPhotPipeline',
+    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
+    echo=False
 )
 
 Session.configure(bind=db_engine)
