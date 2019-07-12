@@ -97,8 +97,7 @@ class LCDataIO:
     _catalogue = dict()
     _ra_dec = []
     _path_substitutions = dict()
-    _multivalued_entry_datasets = ['srcextract_psf_param',
-                                   'sky_coord']
+    _multivalued_entry_datasets = ['sky_coord']
     cfg_index_id = 'cfg_index'
     _organized_config = dict()
 
@@ -176,6 +175,7 @@ class LCDataIO:
                         set(dimensions)
                     )
                 )
+
                 found_match = False
                 for key_type, type_rex in key_rex.items():
                     if type_rex.search(lc_quantity):
@@ -190,11 +190,8 @@ class LCDataIO:
                         if key_type == 'persource':
                             dimensions += ('source',)
 
-                if lc_quantity in ['srcextract.psf_map.residual',
-                                   'srcextract.psf_map.num_fit_src']:
-                    dimensions += ('srcextract_psf_param',)
-                elif lc_quantity in ['skytoframe.cfg.frame_center',
-                                     'skytoframe.sky_center']:
+                if lc_quantity in ['skytoframe.cfg.frame_center',
+                                   'skytoframe.sky_center']:
                     dimensions += ('sky_coord',)
 
                 cls.dataset_dimensions[lc_quantity] = dimensions
@@ -344,6 +341,8 @@ class LCDataIO:
                                          cls._catalogue[src]['Dec'])
             #pylint: enable=invalid-sequence-index
 
+        print('Max dimension size: ' + repr(cls.max_dimension_size))
+
         return cls()
 
     #Handling the many branches is exactly the point.
@@ -412,7 +411,10 @@ class LCDataIO:
     #pylint: enable=too-many-branches
 
     @classmethod
-    def _get_dimensions_iterator(cls, dimensions):
+    def _get_dimensions_iterator(cls,
+                                 dimensions,
+                                 contract_multivalue=True,
+                                 skip_dimensions=('frame', 'source')):
         """
         Return iterator over all possible values for a set of dimensions.
 
@@ -421,6 +423,9 @@ class LCDataIO:
                 to iterate over all dimensions other than `'frame'` and
                 `'source'` or a tuple contaning all dimensions to iterate over.
 
+            contract_multivalue(bool):    If true, multi-valued dimensions are
+                treated as if they have a size of 1.
+
         Returns:
             iterator:
                 Covering all possible combinatinos of values for each dimensions
@@ -428,16 +433,18 @@ class LCDataIO:
         """
 
         if isinstance(dimensions, str):
-            dimensions = filter(
-                lambda dim: dim not in ['frame', 'source'],
-                cls.dataset_dimensions[dimensions]
-            )
+            dimensions = cls.dataset_dimensions[dimensions]
 
         return itertools.product(
             *(
-                range(1 if dim in cls._multivalued_entry_datasets
-                      else cls.max_dimension_size[dim])
-                for dim in dimensions
+                range(
+                    1 if (contract_multivalue
+                          and
+                          dim in cls._multivalued_entry_datasets)
+                    else cls.max_dimension_size[dim]
+                )
+                for dim in filter(lambda dim: dim not in skip_dimensions,
+                                  dimensions)
             )
         )
 
@@ -458,12 +465,16 @@ class LCDataIO:
         """
 
         if isinstance(dimensions, str):
-            dimensions = filter(
-                lambda dim: dim not in ['frame', 'source'],
-                cls.dataset_dimensions[dimensions]
-            )
+            dimensions = cls.dataset_dimensions[dimensions]
 
-        return dict(
+        print('Substitution dimensions: '
+              +
+              repr(dimensions)
+              +
+              ' = '
+              +
+              repr(dimension_values))
+        result = dict(
             zip(
                 filter(
                     lambda dim: dim not in ['frame', 'source'],
@@ -473,6 +484,15 @@ class LCDataIO:
             ),
             **cls._path_substitutions
         )
+
+        if 'srcextract_psf_param' in result:
+            result['srcextract_psf_param'] = cls._config.srcextract_psf_params[
+                result['srcextract_psf_param']
+            ]
+
+        print('Substitutions: ' + repr(result))
+
+        return result
 
     @classmethod
     def _get_field_index(cls,
@@ -490,6 +510,8 @@ class LCDataIO:
             dim_values += (source_index, frame_index)
         else:
             assert (
+                not dimensions
+                or
                 dimensions[-1] == 'frame'
                 or
                 (
@@ -505,6 +527,17 @@ class LCDataIO:
             index = index * cls.max_dimension_size[dimension] + coord
 
         return index
+
+    @classmethod
+    def _get_num_entries(cls, dimensions):
+        """Return how many entries are in a single value for the given dims."""
+
+        for dimension_name in reversed(dimensions):
+            if dimension_name not in ['frame', 'source']:
+                if dimension_name in cls._multivalued_entry_datasets:
+                    return cls.max_dimension_size[dimension_name]
+                return 1
+        return 1
 
     @classmethod
     def _set_field_entry(cls,
@@ -541,9 +574,9 @@ class LCDataIO:
                                      frame_index,
                                      source_index)
 
-        if dimensions[-1] in cls._multivalued_entry_datasets:
-            num_entries = len(value)
-            assert num_entries == cls.max_dimension_size[dimensions[-1]]
+        num_entries = cls._get_num_entries(dimensions)
+        if num_entries > 1:
+            assert num_entries == len(value)
             for param_index, param_value in enumerate(value):
                 cls._get_slice_field(quantity)[index * num_entries
                                                +
@@ -584,10 +617,7 @@ class LCDataIO:
                           %
                           quantity)
 
-        if dimensions[-1] in cls._multivalued_entry_datasets:
-            num_entries = cls.max_dimension_size[dimensions[-1]]
-        else:
-            num_entries = 1
+        num_entries = cls._get_num_entries(dimensions)
 
         print('%s num entries: %d' % (quantity, num_entries))
 
@@ -801,17 +831,17 @@ class LCDataIO:
         def fill_from_attribute(quantity):
             """Fill the value of a quantity equal to a DR attribute."""
 
-            for dim_values in self._get_dimensions_iterator(quantity):
+            print('Filling attribute quantity: ' +  repr(quantity))
+            dimensions = self.dataset_dimensions[quantity]
+            for dim_values in self._get_dimensions_iterator(
+                    dimensions,
+                    skip_dimensions=('frame', 'source', 'srcextract_psf_param')
+            ):
                 try:
-                    self._set_field_entry(
+                    attribute_value = data_reduction.get_attribute(
                         quantity,
-                        data_reduction.get_attribute(
-                            quantity,
-                            default_value=get_dset_default(quantity),
-                            **self._get_substitutions(quantity, dim_values)
-                        ),
-                        frame_index=frame_index,
-                        dim_values=dim_values
+                        default_value=get_dset_default(quantity),
+                        **self._get_substitutions(quantity, dim_values)
                     )
                 except OSError:
                     self._logger.warning(
@@ -819,6 +849,27 @@ class LCDataIO:
                         quantity,
                         repr(data_reduction.filename),
                         repr(self._get_substitutions(quantity, dim_values))
+                    )
+                if 'srcextract_psf_param' in dimensions:
+                    assert (
+                        len(attribute_value)
+                        ==
+                        self.max_dimension_size['srcextract_psf_param']
+                    )
+                    assert not dim_values
+                    for param_index, param_value in enumerate(attribute_value):
+                        self._set_field_entry(
+                            quantity,
+                            param_value,
+                            frame_index=frame_index,
+                            dim_values=(param_index,)
+                        )
+                else:
+                    self._set_field_entry(
+                        quantity,
+                        attribute_value,
+                        frame_index=frame_index,
+                        dim_values=dim_values
                     )
 
         def fill_source_field(quantity,
@@ -1185,6 +1236,15 @@ class LCDataIO:
                     quantity == 'source_in_frame'
             ):
                 continue
+
+            print(
+                'Writing %s: dimensions = %s'
+                %
+                (
+                    repr(quantity),
+                    repr(dimensions)
+                )
+            )
             for dim_values in cls._get_dimensions_iterator(quantity):
                 light_curve.extend_dataset(
                     quantity,
@@ -1195,6 +1255,7 @@ class LCDataIO:
                     resolve_size=resolve_lc_size,
                     **cls._get_substitutions(quantity, dim_values)
                 )
+            print('Finished writing ' + repr(quantity))
 
     def read(self, frame):
         """
