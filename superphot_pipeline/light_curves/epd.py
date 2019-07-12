@@ -89,14 +89,29 @@ class EPDCorrection:
 
 if __name__ == '__main__':
     correct = EPDCorrection(
-        used_variables=dict(x=('srcproj.x', dict()),
-                            y=('srcproj.y', dict()),
-                            fistarS=('srcextract.psf_map.eval',
-                                     dict(srcextract_psf_param='S')),
-                            fistarD=('srcextract.psf_map.eval',
-                                     dict(srcextract_psf_param='D')),
-                            fistarK=('srcextract.psf_map.eval',
-                                     dict(srcextract_psf_param='K'))),
+        used_variables=dict(
+            x=('srcproj.x', dict()),
+            y=('srcproj.y', dict()),
+            fistarS=('srcextract.psf_map.eval',
+                     dict(srcextract_psf_param='S')),
+            fistarD=('srcextract.psf_map.eval',
+                     dict(srcextract_psf_param='D')),
+            fistarK=('srcextract.psf_map.eval',
+                     dict(srcextract_psf_param='K')),
+            num_fit_src_s=('srcextract.psf_map.num_fit_src',
+                           dict(srcextract_psf_param='S')),
+            num_fit_src_d=('srcextract.psf_map.num_fit_src',
+                           dict(srcextract_psf_param='D')),
+            num_fit_src_k=('srcextract.psf_map.num_fit_src',
+                           dict(srcextract_psf_param='K')),
+            residual_s=('srcextract.psf_map.residual',
+                        dict(srcextract_psf_param='S')),
+            residual_d=('srcextract.psf_map.residual',
+                        dict(srcextract_psf_param='D')),
+            residual_k=('srcextract.psf_map.residual',
+                        dict(srcextract_psf_param='K')),
+            fnum=('fitsheader.fnum', dict())
+        ),
         fit_points_filter_expression=None,
         fit_terms_expression=None,
         fit_datasets=None
