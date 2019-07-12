@@ -69,7 +69,7 @@ def _get_source_extraction_datasets():
                 pipeline_key=psf_map_key_start + 'eval',
                 abspath=(_default_paths['srcextract_psf_map']
                          +
-                         '/%(srcextract_psf_param)s'),
+                         '/%(srcextract_psf_param)s/Value'),
                 dtype='numpy.float64',
                 scaleoffset=4,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
@@ -376,8 +376,11 @@ def _get_frame_datasets():
 
     return get_per_frame_datasets() + get_config_datasets()
 
-def transform_dr_to_lc_path(dr_path):
+def transform_dr_to_lc_path(pipeline_key, dr_path):
     """Return the path in a light curve file corresponding to a DR file path."""
+
+    if pipeline_key == 'srcextract.cfg.binning':
+        return '/SourceExtraction/PSFMap'
 
     result = re.sub(_version_rex, '', dr_path)
     for dr_string, lc_string in [
@@ -388,6 +391,10 @@ def transform_dr_to_lc_path(dr_path):
             ('/CatalogueSources', '/SkyToFrameTransformation')
     ]:
         result = re.sub(dr_string, lc_string, result)
+
+    if pipeline_key in ['srcextract.psf_map.residual',
+                        'srcextract.psf_map.num_fit_src']:
+        result += '/%(srcextract_psf_param)s'
 
     return result
 
@@ -479,18 +486,17 @@ def _get_data_reduction_attribute_datasets(db_session):
             hdf5_structure_version_id=dr_structure_version_id,
             pipeline_key=pipeline_key
         ).one()
-        if pipeline_key == 'srcextract.cfg.binning':
-            lc_path = '/SourceExtraction/PSFMap/Configuration/ImageBinFactor'
-        else:
-            lc_path = (
-                transform_dr_to_lc_path(dr_attribute.parent)
-                +
-                ('/Configuration' if is_config else '')
-                +
-                '/'
-                +
-                dr_attribute.name
-            )
+
+        lc_path = (
+            transform_dr_to_lc_path(pipeline_key, dr_attribute.parent)
+            +
+            ('/Configuration' if is_config else '')
+            +
+            '/'
+            +
+            dr_attribute.name
+        )
+
         args = dict(
             pipeline_key=pipeline_key,
             abspath=lc_path,
@@ -537,7 +543,7 @@ def _get_data_reduction_dataset_datasets(db_session):
             pipeline_key=pipeline_key
         ).one()
 
-        lc_path = transform_dr_to_lc_path(dr_dataset.abspath)
+        lc_path = transform_dr_to_lc_path(pipeline_key, dr_dataset.abspath)
         if pipeline_key.endswith('magfit.magnitude'):
             lc_path += '/Magnitude'
 
@@ -622,12 +628,14 @@ def _get_configuration_index_datasets(db_session):
 
     dr_structure_version_id = _get_structure_version_id(db_session)
     for photometry_method in ['shapefit', 'apphot']:
+        pipeline_key = photometry_method + '.magfit.magnitude'
         magfit_dataset = db_session.query(HDF5DataSet).filter_by(
             hdf5_structure_version_id=dr_structure_version_id,
-            pipeline_key=photometry_method + '.magfit.magnitude'
+            pipeline_key=pipeline_key
         ).one()
 
         magfit_path = transform_dr_to_lc_path(
+            pipeline_key,
             magfit_dataset.abspath
         ).rsplit(
             '/',
@@ -704,7 +712,8 @@ def _get_attributes(db_session):
             ),
             HDF5Attribute(
                 pipeline_key='apphot.cfg.aperture',
-                parent=transform_dr_to_lc_path(aperture_size_attribute.parent),
+                parent=transform_dr_to_lc_path('apphot.cfg.aperture',
+                                               aperture_size_attribute.parent),
                 name=aperture_size_attribute.name,
                 dtype=aperture_size_attribute.dtype,
                 description=aperture_size_attribute.description
