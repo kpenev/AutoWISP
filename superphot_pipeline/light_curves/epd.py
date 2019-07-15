@@ -1,37 +1,92 @@
 #!/usr/bin/env python3
 
+"""Define class for performing EPD correction on lightcurves."""
+
 import scipy
 
 from superphot_pipeline import LightCurveFile
-
-"""Define class for performing EPD correction on lightcurves."""
+from superphot_pipeline.light_curves.lc_data_io import _config_dset_key_rex
 
 class EPDCorrection:
     """
     Class for deriving and applying EPD corrections to lightcurves.
 
     Attributes:
+        fit_points_filter_expression:    See __init__.
+
+        fit_terms_expression:    See __init__.
+
+        fit_datasets:    See __init__.
+
+        _config_indices(dict):    A dictionary of the already read-in
+            configuration indices (re-used if requested again).
     """
+
+    def _get_config_indices(self,
+                            dataset_key,
+                            light_curve,
+                            **substitutions):
+        """Return the config index dset for indexing the given config dset."""
+
+        substitution_key = frozenset(substitutions.items())
+        config_component = dataset_key
+        while True:
+            try:
+                result = self._config_indices.get(config_component)
+                if result is not None:
+                    result = result.get(substitution_key)
+                if result is None:
+                    result = light_curve.get_dataset(
+                        config_component + '.cfg_index',
+                        **substitutions
+                    )
+                    if config_component not in self._config_indices:
+                        self._config_indices[config_component] = dict()
+                    self._config_indices[config_component][substitution_key] = (
+                        result
+                    )
+
+                return result
+            except KeyError:
+                config_component = config_component.rsplit('.', 1)[0]
 
     def _get_independent_variables(self, light_curve):
         """Return scipy structured array of the independent variables."""
+
+        def result_column_dtype(dset_key):
+            """The type to use for the given column in the result."""
+
+            result = light_curve.get_dtype(dset_key)
+            if result == scipy.string_:
+                return scipy.dtype('O')
+            return result
 
         def create_empty_result(result_size):
             """Create an uninitialized dasates to hold the result."""
 
             return scipy.empty(
-                data.size,
+                result_size,
                 dtype=[
-                    (vname, light_curve.get_dtype(dset_key))
+                    (vname, result_column_dtype(dset_key))
                     for vname, (dset_key, subs) in self.used_variables.items()
                 ]
             )
-
 
         result = None
         for var_name, (dataset_key,
                        substitutions) in self.used_variables.items():
             data = light_curve.get_dataset(dataset_key, **substitutions)
+
+            if _config_dset_key_rex.search(dataset_key):
+                print('Converting configuration: ' + repr(data))
+                config_indices = self._get_config_indices(
+                    dataset_key,
+                    light_curve,
+                    **substitutions
+                )
+                data = data[config_indices]
+                print('To: ' + repr(data))
+
             if result is None:
                 result = create_empty_result(data.size)
             else:
@@ -79,6 +134,8 @@ class EPDCorrection:
         self.fit_terms_expression = fit_terms_expression
         self.fit_datasets = fit_datasets
 
+        self._config_indices = dict()
+
     def __call__(self, lc_fname):
         """Fit and correct the given lightcurve."""
 
@@ -110,7 +167,8 @@ if __name__ == '__main__':
                         dict(srcextract_psf_param='D')),
             residual_k=('srcextract.psf_map.residual',
                         dict(srcextract_psf_param='K')),
-            fnum=('fitsheader.fnum', dict())
+            fnum=('fitsheader.fnum', dict()),
+            channel=('fitsheader.cfg.color', dict())
         ),
         fit_points_filter_expression=None,
         fit_terms_expression=None,

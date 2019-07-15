@@ -24,6 +24,15 @@ from superphot_pipeline import DataReductionFile
 from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
 
+_config_dset_key_rex = re.compile(
+    '|'.join([
+        r'_cfg_version$',
+        r'.software_versions$',
+        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
+        r'^srcextract\.psf_map\.cfg\.'
+    ])
+)
+
 class LCDataIO:
     """
     A callable class which gathers a slice of LC data from frames/DR files.
@@ -125,14 +134,7 @@ class LCDataIO:
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
             key_rex = dict(
-                config=re.compile(
-                    '|'.join([
-                        r'_cfg_version$',
-                        r'.software_versions$',
-                        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
-                        r'^srcextract\.psf_map\.cfg\.'
-                    ])
-                ),
+                config=_config_dset_key_rex,
                 perframe=re.compile(
                     '|'.join([
                         r'skytoframe\.(sky_center|residual|unitarity)$',
