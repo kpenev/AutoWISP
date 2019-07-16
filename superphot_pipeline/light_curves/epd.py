@@ -5,6 +5,10 @@
 import scipy
 
 from superphot_pipeline import LightCurveFile
+from superphot_pipeline.evaluator import Evaluator
+from superphot_pipeline.fit_expression import\
+    Interface as FitTermsInterface,\
+    iterative_fit
 from superphot_pipeline.light_curves.lc_data_io import _config_dset_key_rex
 
 class EPDCorrection:
@@ -17,6 +21,9 @@ class EPDCorrection:
         fit_terms_expression:    See __init__.
 
         fit_datasets:    See __init__.
+
+        iterative_fit_config(dict):    Configuration to use for iterative
+            fitting. See iterative_fit() for details.
 
         _config_indices(dict):    A dictionary of the already read-in
             configuration indices (re-used if requested again).
@@ -96,10 +103,13 @@ class EPDCorrection:
         return result
 
     def __init__(self,
+                 *,
                  used_variables,
                  fit_points_filter_expression,
                  fit_terms_expression,
-                 fit_datasets):
+                 fit_datasets,
+                 fit_weights=None,
+                 **iterative_fit_config):
         """
         Configure the fitting.
 
@@ -121,9 +131,16 @@ class EPDCorrection:
                 only variables from `used_variables` which expands to the
                 various terms to use in a linear least squares EPD correction.
 
-            fit_datasets[]:    A list of 2-tuples of pipeline keys
+            fit_datasets([]):    A list of 2-tuples of pipeline keys
                 corresponding to each variable and an associated dictionary of
                 path substitutions identifying datasets to fit and correct.
+
+            fit_weights([]):    Weights to use when fitting each fit_dataset.
+                Should have exactly the same structure and shape as
+                fit_datasets. If None all points get equal weight.
+
+            iterative_fit_config:    Any other arguments to pass directly to
+                iterative_fit().
 
         Returns:
             None
@@ -131,8 +148,10 @@ class EPDCorrection:
 
         self.used_variables = used_variables
         self.fit_points_filter_expression = fit_points_filter_expression
-        self.fit_terms_expression = fit_terms_expression
+        self.fit_terms = FitTermsInterface(fit_terms_expression)
         self.fit_datasets = fit_datasets
+        self.fit_weights = fit_weights
+        self.iterative_fit_config = iterative_fit_config
 
         self._config_indices = dict()
 
@@ -141,6 +160,58 @@ class EPDCorrection:
 
         with LightCurveFile(lc_fname, 'r') as light_curve:
             indep_variables = self._get_independent_variables(light_curve)
+            print('Indep vars (shape: %s) = %s' % (repr(indep_variables.shape),
+                                                   repr(indep_variables)))
+
+            evaluate = Evaluator(indep_variables)
+
+            predictors = self.fit_terms(evaluate)
+
+            fit_points = (
+                evaluate(self.fit_points_filter_expression)
+                if self.fit_points_filter_expression is not None else
+                scipy.ones(predictors.shape[1], dtype=bool)
+            )
+            predictors = predictors[:, fit_points]
+
+            assert (self.fit_weights is None
+                    or
+                    len(self.fit_datasets) == len(self.fit_weights))
+
+            for to_fit in (self.fit_datasets if self.fit_weights is None
+                           else zip(self.fit_datasets, fit_weights)):
+
+                if self.fit_weights is None:
+                    fit_data, substitutions = to_fit
+                    fit_weights = None
+                else:
+                    (fit_data, substitutions), fit_weights = to_fit
+                    fit_weights = light_curve.get_dataset(
+                        fit_weights,
+                        **substitutions
+                    )[fit_points]
+                fit_data = light_curve.get_dataset(fit_data,
+                                                   **substitutions)[fit_points]
+
+
+                #Those should come from self.iteritave_fit_config.
+                #pylint: disable=missing-kwoa
+                (
+                    best_fit_coef,
+                    square_residuals,
+                    non_rejected_points
+                ) = iterative_fit(
+                    predictors=predictors,
+                    target_values=fit_data,
+                    weights=fit_weights,
+                    **self.iterative_fit_config
+                )
+                #pylint: enable=missing-kwoa
+                assert best_fit_coef is not None
+
+                corrected = fit_data - scipy.dot(best_fit_coef,
+                                                 predictors)
+                print('Corrected ' + repr(to_fit) + ': ' + repr(corrected))
 
         return indep_variables
 
@@ -171,8 +242,12 @@ if __name__ == '__main__':
             channel=('fitsheader.cfg.color', dict())
         ),
         fit_points_filter_expression=None,
-        fit_terms_expression=None,
-        fit_datasets=None
+        fit_terms_expression='O2{x}',
+        fit_datasets=[('srcproj.y', dict()), ('srcproj.x', dict())],
+        error_avg='nanmedian',
+        rej_level=5,
+        max_rej_iter=20,
+        fit_identifier='position vs x',
     )
     print(
         repr(

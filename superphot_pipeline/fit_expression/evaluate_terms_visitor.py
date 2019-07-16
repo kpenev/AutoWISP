@@ -2,6 +2,8 @@
 
 import numpy
 
+from asteval import asteval
+
 from superphot_pipeline.evaluator import Evaluator
 from .FitTermsParser import FitTermsParser
 from .process_terms_visitor import ProcessTermsVisitor
@@ -80,14 +82,19 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
         Define the data used to evaluate the terms.
 
         Args:
-            data(numpy structured array):    Should contain fields with all
-                variables required by the terms in the expression.
+            data(numpy structured array or asteval.Interpreter):    If array,
+                should contain fields with all variables required by the terms
+                in the expression. If interpreter should have all these
+                variables in its a symbol table.
 
         Returns:
             None
         """
 
-        self.evaluate_term = Evaluator(data)
+        if isinstance(data, asteval.Interpreter):
+            self.evaluate_term = data
+        else:
+            self.evaluate_term = Evaluator(data)
         self._current_expansion_terms = None
         self._expansion_term_index = None
 
