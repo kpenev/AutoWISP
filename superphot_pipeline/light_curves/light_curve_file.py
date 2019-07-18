@@ -117,7 +117,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                            component,
                            configurations,
                            config_indices,
-                           resolve_size,
+                           resolve_size=None,
+                           config_index_selection=None,
                            **substitutions):
         """
         Add a list of configurations to the LC, merging with existing ones.
@@ -139,6 +140,12 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
             resolve_size(str):    How to deal with confirm LC length differing
                 from actual? See extend_dataset() for details.
+
+            config_index_selection:    Either None, or a slice for the
+                configuration index dataset to set the new indices. If None, the
+                new indices are appended at the end of the configuration index
+                dataset, otherwise, it must selected exactly the same number of
+                elements as are foundf in config_indices.
 
             substitutions:    Any substitutions required to fully resolve the
                 paths to the configuration and configuration index datasets.
@@ -173,14 +180,14 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
                 if config_hash in stored_configurations:
                     index_dset[
-                        config_indices==config_index
+                        config_indices == config_index
                     ] = stored_configurations[
                         config_hash
                     ][
                         0
                     ]
                 else:
-                    index_dset[config_indices==config_index] = len(
+                    index_dset[config_indices == config_index] = len(
                         stored_configurations
                     )
                     stored_configurations[config_hash] = (
@@ -203,10 +210,26 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             return config_data_to_add
 
         for pipeline_key, new_data in get_new_data().items():
-            self.extend_dataset(pipeline_key,
-                                new_data,
-                                resolve_size=resolve_size,
-                                **substitutions)
+            if (
+                    config_index_selection is not None
+                    and
+                    pipeline_key == (component + '.cfg_index')
+            ):
+                self.add_dataset(dataset_key=pipeline_key,
+                                 data=None,
+                                 if_exists='ignore',
+                                 unlimited=True,
+                                 shape=new_data.shape,
+                                 dtype=new_data.dtype,
+                                 **substitutions)
+                self[self._file_structure[pipeline_key].abspath
+                     %
+                     substitutions][corrected_selection] = new_data
+            else:
+                self.extend_dataset(pipeline_key,
+                                    new_data,
+                                    resolve_size=resolve_size,
+                                    **substitutions)
 
     def extend_dataset(self,
                        dataset_key,
@@ -258,8 +281,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 dataset_config.replace_nonfinite
             )
 
-            print('Data copy: ' + repr(data_copy))
-
             new_dataset_size = confirmed_length + len(data_copy)
             if new_dataset_size < len(dataset):
                 try:
@@ -290,10 +311,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
-
-        print('Extending %s, %s with %s'
-              %
-              (self.filename, dataset_key, repr(new_data)))
 
         if dataset_path in self:
             dataset = self[dataset_path]
@@ -343,4 +360,49 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                              new_data,
                              unlimited=True,
                              **substitutions)
+
+    def add_corrected_dataset(self,
+                              original_key,
+                              corrected_key,
+                              corrected_values,
+                              corrected_selection,
+                              **substitutions):
+        """
+        Add corrected values for a dataset (e.g. after EPD or TFA).
+
+        Args:
+            original_key(str):    The pipeline key identifying the original
+                dataset that was corrected.
+
+            corrected_key(str):    The pipeline key identifying the dataset
+                where the corrected values should be stored.
+
+            corrected_values:    The resulting values after the correction has
+                been applied.
+
+            corrected_selection:    Some sort of slice on the dataset that
+                identifies the points which were corrected.
+
+            substitutions:    Any arguments that need to be substituted in the
+                paths of the original and corrected datasets to get a unique
+                entry.
+
+        Returns:
+            None
+        """
+
+        original_dset = self[self._file_structure[original_key].abspath
+                             %
+                             substitutions]
+        self.add_dataset(dataset_key=corrected_key,
+                         data=None,
+                         if_exists='ignore',
+                         unlimited=True,
+                         shape=original_dset.shape,
+                         dtype=original_dset.dtype,
+                         **substitutions)
+        self[self._file_structure[corrected_key].abspath
+             %
+             substitutions][corrected_selection] = corrected_values
+
 #pylint: enable=too-many-ancestors

@@ -469,13 +469,6 @@ class LCDataIO:
         if isinstance(dimensions, str):
             dimensions = cls.dataset_dimensions[dimensions]
 
-        print('Substitution dimensions: '
-              +
-              repr(dimensions)
-              +
-              ' = '
-              +
-              repr(dimension_values))
         result = dict(
             zip(
                 filter(
@@ -491,8 +484,6 @@ class LCDataIO:
             result['srcextract_psf_param'] = cls._config.srcextract_psf_params[
                 result['srcextract_psf_param']
             ]
-
-        print('Substitutions: ' + repr(result))
 
         return result
 
@@ -621,8 +612,6 @@ class LCDataIO:
 
         num_entries = cls._get_num_entries(dimensions)
 
-        print('%s num entries: %d' % (quantity, num_entries))
-
         num_frames = cls.max_dimension_size['frame']
 
         first_index = cls._get_field_index(
@@ -633,24 +622,10 @@ class LCDataIO:
         ) * num_entries
 
         slice_data = cls._get_slice_field(quantity)
-        print('Slice data: ' + repr(slice_data))
         source_data = numpy.frombuffer(
             slice_data,
             numpy.dtype(slice_data).base
         )[first_index : first_index + num_frames * num_entries]
-        print(
-            'Slice index range (dim: %s, values: %s, src_ind = %d): %d -- %d'
-            %
-            (
-                repr(dimensions),
-                repr(dimension_values),
-                source_index,
-                first_index,
-                first_index + num_frames * num_entries
-            )
-        )
-        print('Source data (shape: %s): %s' % (repr(source_data.shape),
-                                               repr(source_data)))
         source_data.shape = ((num_frames, num_entries) if num_entries > 1
                              else (num_frames,))
 
@@ -833,7 +808,6 @@ class LCDataIO:
         def fill_from_attribute(quantity):
             """Fill the value of a quantity equal to a DR attribute."""
 
-            print('Filling attribute quantity: ' +  repr(quantity))
             dimensions = self.dataset_dimensions[quantity]
             for dim_values in self._get_dimensions_iterator(
                     dimensions,
@@ -1239,14 +1213,6 @@ class LCDataIO:
             ):
                 continue
 
-            print(
-                'Writing %s: dimensions = %s'
-                %
-                (
-                    repr(quantity),
-                    repr(dimensions)
-                )
-            )
             for dim_values in cls._get_dimensions_iterator(quantity):
                 light_curve.extend_dataset(
                     quantity,
@@ -1257,7 +1223,6 @@ class LCDataIO:
                     resolve_size=resolve_lc_size,
                     **cls._get_substitutions(quantity, dim_values)
                 )
-            print('Finished writing ' + repr(quantity))
 
     def read(self, frame):
         """
@@ -1326,8 +1291,6 @@ class LCDataIO:
             defined_indices = self._get_lc_data(quantity='source_in_frame',
                                                 dimension_values=(),
                                                 source_index=source_index)
-            print('Defined indices (%s): %s' % (defined_indices.shape,
-                                                repr(defined_indices)))
             if not defined_indices.any():
                 return
 
