@@ -3,10 +3,6 @@
 
 #TODO: Figure out proper structure with multiple versions of all components.
 
-#TODO: Add configuration index datasets under:
-#   - Background
-#   - SkyToFrameTransformation
-
 import re
 
 import numpy
@@ -29,7 +25,7 @@ _default_paths = dict(
     srcextract_psf_map='/SourceExtraction/PSFMap',
     catalogue='/SkyToFrameTransformation',
     magfit='/MagnitudeFitting',
-    sky_position='/SkyPosition'
+    sky_position='/SkyPosition',
 )
 
 def _get_structure_version_id(db_session, product='data_reduction'):
@@ -383,6 +379,7 @@ def transform_dr_to_lc_path(pipeline_key, dr_path):
         return '/SourceExtraction/PSFMap'
 
     result = re.sub(_version_rex, '', dr_path)
+
     for dr_string, lc_string in [
             ('/FittedMagnitudes', _default_paths['magfit']),
             ('/ProjectedSources', '/ProjectedPosition'),
@@ -519,6 +516,7 @@ def _get_data_reduction_dataset_datasets(db_session):
     """Return datasets built from entries for the source in DR datasets."""
 
     result = []
+    magfit_datasets = []
 
     dr_structure_version_id = _get_structure_version_id(db_session)
     for pipeline_key in ['srcproj.x',
@@ -560,8 +558,10 @@ def _get_data_reduction_dataset_datasets(db_session):
                 description=dr_dataset.description
             )
         )
+        if pipeline_key.endswith('magfit.magnitude'):
+            magfit_datasets.append(result[-1])
 
-    return result
+    return result, magfit_datasets
 
 def _get_sky_position_datasets():
     """Return datasets describing when and where on the sky the source is."""
@@ -611,6 +611,127 @@ def _get_sky_position_datasets():
         )
     ]
 
+def _get_epd_datasets(magfit_datasets):
+    """
+    Create the default datasets for storing EPD results.
+
+    Args:
+        magfit_datasets(dict):    The light curve datasets containing the
+            magnitude fitted magnitudes indexed by the photometry method.
+    """
+
+    result = []
+    for magfit_dset in magfit_datasets:
+        assert magfit_dset.abspath.endswith('/Magnitude')
+        epd_root_path = magfit_dset.abspath[:-len('Magnitude')] + 'EPD/'
+        epd_key = magfit_dset.pipeline_key.replace('.magfit.', '.epd.')
+        property_key_prefix = epd_key.rsplit('.', 1)[0]
+        config_key_prefix = property_key_prefix + '.cfg.'
+        epd_cfg_path = epd_root_path + 'FitProperties/'
+
+        result.extend([
+            HDF5DataSet(
+                pipeline_key=epd_key,
+                abspath=(epd_root_path + 'Magnitude'),
+                dtype=magfit_dset.dtype,
+                scaleoffset=magfit_dset.scaleoffset,
+                compression=magfit_dset.compression,
+                compression_options=magfit_dset.compression_options,
+                replace_nonfinite=magfit_dset.replace_nonfinite,
+                description='The EPD corrected magnitude fitted magnitudes.'
+            ),
+            HDF5DataSet(
+                pipeline_key=(property_key_prefix + '.fit_residual'),
+                abspath=(epd_cfg_path + 'FitResidual'),
+                dtype=magfit_dset.dtype,
+                scaleoffset=3,
+                replace_nonfinite=repr(numpy.finfo('f4').min),
+                description='The residual of the last iteration of the '
+                'iterative rejction EPD fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=(property_key_prefix + '.num_fit_points'),
+                abspath=(epd_cfg_path + 'NumberFitPoints'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='The number of points used in the last iteration of'
+                'the iterative rejction EPD fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'variables',
+                abspath=(epd_cfg_path + 'Variables'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The list of variables and the datasets they '
+                'correspond to used in the fitting.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_filter',
+                abspath=(epd_cfg_path + 'Filter'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='Filtering applied to select points to which to '
+                'apply the correction.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_terms',
+                abspath=(epd_cfg_path + 'CorrectionExpression'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The expression that expands to the terms to '
+                'include in the EPD fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_weights',
+                abspath=(epd_cfg_path + 'WeightsExpression'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The expression that expands to the weights used '
+                'for each point in the EPD fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'error_avg',
+                abspath=(epd_cfg_path + 'ErrorAveraging'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='How to calculate the scale for rejecting sources.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'rej_level',
+                abspath=(epd_cfg_path + 'RejectionLevel'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='Points rej_level times average error away from the'
+                ' best fit are rejected and the fit is repeated.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'max_rej_iter',
+                abspath=(epd_cfg_path + 'MaxRejectionIterations'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='Stop rejecting outlier points after this number '
+                'of rejection/refitting cycles.'
+            ),
+            HDF5DataSet(
+                pipeline_key=(property_key_prefix + '.cfg_index'),
+                abspath=(epd_root_path + 'FitPropertiesIndex'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='The index within the datasets containing EPD fit '
+                'properties applicable to each data point.'
+            )
+        ])
+    return result
+
 def _get_configuration_index_datasets(db_session):
     """Return a list of datasets of indicies within configuration datasets."""
 
@@ -628,14 +749,13 @@ def _get_configuration_index_datasets(db_session):
 
     dr_structure_version_id = _get_structure_version_id(db_session)
     for photometry_method in ['shapefit', 'apphot']:
-        pipeline_key = photometry_method + '.magfit.magnitude'
         magfit_dataset = db_session.query(HDF5DataSet).filter_by(
             hdf5_structure_version_id=dr_structure_version_id,
-            pipeline_key=pipeline_key
+            pipeline_key=photometry_method + '.magfit.magnitude'
         ).one()
 
         magfit_path = transform_dr_to_lc_path(
-            pipeline_key,
+            magfit_dataset.pipeline_key,
             magfit_dataset.abspath
         ).rsplit(
             '/',
@@ -725,6 +845,11 @@ def _get_attributes(db_session):
 def _get_datasets(db_session):
     """Return a list of all datasets in light curves."""
 
+
+    (
+        dr_dataset_datasets,
+        magfit_datasets
+    ) = _get_data_reduction_dataset_datasets(db_session)
     return (
         _get_source_extraction_datasets()
         +
@@ -732,11 +857,13 @@ def _get_datasets(db_session):
         +
         _get_data_reduction_attribute_datasets(db_session)
         +
-        _get_data_reduction_dataset_datasets(db_session)
+        dr_dataset_datasets
         +
         _get_configuration_index_datasets(db_session)
         +
         _get_sky_position_datasets()
+        +
+        _get_epd_datasets(magfit_datasets)
     )
 
 def get_default_light_curve_structure(db_session):

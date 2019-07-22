@@ -46,7 +46,7 @@ def iterative_fit(predictors,
             The best fit coefficients.
 
         float:
-            The square residuals of the best fit.
+            The average square residual of the best fit.
 
         int:
             The number of non-rejected points used in the last fit iteration.
