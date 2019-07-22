@@ -263,9 +263,11 @@ class HDF5File(ABC, h5py.File):
                             %
                             substitutions)
             if dataset_path not in self:
-                raise IOError("Requried dataset ('%s') '%s' does not exist in '%s'"
-                              %
-                              (dataset_key, dataset_path, self.filename))
+                raise IOError(
+                    "Requried dataset ('%s') '%s' does not exist in '%s'"
+                    %
+                    (dataset_key, dataset_path, self.filename)
+                )
 
     @classmethod
     def get_element_type(cls, element_id):
@@ -445,7 +447,6 @@ class HDF5File(ABC, h5py.File):
             add_dataset(require_parent(path, True), dataset)
 
         for attribute_key in self.elements['attribute']:
-            print('Adding attribute ' + attribute_key)
             attribute = self._file_structure[attribute_key]
             path = attribute.parent.lstrip('/').split('/')
             add_attribute(require_parent(path, False), attribute)
@@ -472,8 +473,6 @@ class HDF5File(ABC, h5py.File):
 
         if isinstance(result, str):
             result = numpy.dtype(result)
-
-        print('Data type for %s: %s' % (element_key, repr(result)))
 
         return result
 
@@ -521,7 +520,6 @@ class HDF5File(ABC, h5py.File):
         if dataset_config.replace_nonfinite is not None:
             result['fillvalue'] = dataset_config.replace_nonfinite
 
-        print('Creation args for %s: %s' % (dataset_key, repr(result)))
         return result
     #pylint: enable=unused-argument
 
@@ -1015,6 +1013,8 @@ class HDF5File(ABC, h5py.File):
                     data,
                     if_exists='overwrite',
                     unlimited=False,
+                    shape=None,
+                    dtype=None,
                     **substitutions):
         """
         Adds a single dataset to self.
@@ -1026,12 +1026,22 @@ class HDF5File(ABC, h5py.File):
             dataset_key:    The key identifying the dataset to add.
 
             data:    The values that should be written, a numpy array with
-                an appropriate data type.
+                an appropriate data type or None if an empty dataset should be
+                created.
 
             if_exists:    See same name argument to add_attribute.
 
             unlimited(bool):    Should the first dimension of the dataset be
                 unlimited (i.e. data can be added later)?
+
+            shape(tuple(int,...)):    The shape of the dataset to create if data
+                is None, otherwise the shape of the data is used. Just like if
+                data is specified, the first dimension will be ignored if
+                unlimited is True. It is an error to specify both data and
+                shape!
+
+            dtype:    The data type for the new dataset if the data is None. It
+                is an error to specify both dtype and data!
 
             substitututions:    Any arguments that should be substituted in the
                 dataset path.
@@ -1057,27 +1067,23 @@ class HDF5File(ABC, h5py.File):
         creation_args = self.get_dataset_creation_args(dataset_key,
                                                        **substitutions)
 
-        print('Creating dataset: %s under %s'
-              %
-              (
-                  repr(dataset_path),
-                  self.filename
-              ))
-        print('\tdata = ' + repr(data))
+        if data is None:
+            data_copy = None
+        else:
+            data_copy = self._replace_nonfinite(
+                data,
+                creation_args.get('dtype'),
+                dataset_config.replace_nonfinite
+            )
 
-        print('\tcreation args: ' + repr(creation_args))
-
-
-        data_copy = self._replace_nonfinite(
-            data,
-            creation_args.get('dtype'),
-            dataset_config.replace_nonfinite
-        )
-
-        print('\tFormatted data: ' +  repr(data_copy))
+        if data is not None:
+            assert shape is None
+            assert dtype is None
+            shape = data.shape
+            dtype = data_copy.dtype
 
         if unlimited:
-            shape_tail = data.shape[1:]
+            shape_tail = shape[1:]
 
             if hasattr(self, '_chunk_size'):
                 #pylint: disable=no-member
@@ -1088,18 +1094,17 @@ class HDF5File(ABC, h5py.File):
 
             creation_args['maxshape'] = (None,) + shape_tail
 
-        if data_copy.dtype.kind == 'S':
+        if dtype.kind == 'S':
             assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
             creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
-            print('\t dtype -> ' + repr(creation_args['dtype']))
 
         if 'scaleoffset' in creation_args:
-            assert numpy.isfinite(data_copy).all()
+            assert data is None or numpy.isfinite(data_copy).all()
 
         self.create_dataset(
             dataset_path,
             data=data_copy,
-            shape=data.shape,
+            shape=shape,
             **creation_args
         )
 

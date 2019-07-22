@@ -145,7 +145,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 configuration index dataset to set the new indices. If None, the
                 new indices are appended at the end of the configuration index
                 dataset, otherwise, it must selected exactly the same number of
-                elements as are foundf in config_indices.
+                elements as are found in config_indices.
 
             substitutions:    Any substitutions required to fully resolve the
                 paths to the configuration and configuration index datasets.
@@ -224,7 +224,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                                  **substitutions)
                 self[self._file_structure[pipeline_key].abspath
                      %
-                     substitutions][corrected_selection] = new_data
+                     substitutions][config_index_selection] = new_data
             else:
                 self.extend_dataset(pipeline_key,
                                     new_data,
