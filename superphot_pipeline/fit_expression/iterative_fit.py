@@ -128,7 +128,14 @@ def iterative_fit(predictors,
                      num_free_coef)
         if len(target_values) < num_free_coef:
             return None, None, 0
-        best_fit_coef = scipy.linalg.lstsq(predictors.T, target_values, None)[0]
+        best_fit_coef, residues, rank, sv = scipy.linalg.lstsq(
+            predictors.T,
+            target_values,
+            None,
+            lapack_driver='gelsy'
+        )
+        logger.debug('Fit: coef = %s, residues = %s, rank = %s, sv = %s',
+                     repr(best_fit_coef), repr(residues), rank, sv)
         bad_ind, fit_res2 = rejected_indices(
             scipy.dot(best_fit_coef, predictors) - target_values,
             weights

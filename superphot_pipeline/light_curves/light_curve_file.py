@@ -401,8 +401,16 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                          shape=original_dset.shape,
                          dtype=original_dset.dtype,
                          **substitutions)
-        self[self._file_structure[corrected_key].abspath
-             %
-             substitutions][corrected_selection] = corrected_values
 
+        destination_config = self._file_structure[corrected_key]
+        self[
+            destination_config.abspath % substitutions
+        ][
+            corrected_selection
+        ] = self._replace_nonfinite(
+            corrected_values,
+            self.get_dataset_creation_args(corrected_key,
+                                           **substitutions).get('dtype'),
+            destination_config.replace_nonfinite
+        )
 #pylint: enable=too-many-ancestors
