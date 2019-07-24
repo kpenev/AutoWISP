@@ -133,6 +133,7 @@ class LCDataIO:
             config_components = dict()
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
+            ignore_rex = re.compile(r'\.epd\.')
             key_rex = dict(
                 config=_config_dset_key_rex,
                 perframe=re.compile(
@@ -177,6 +178,9 @@ class LCDataIO:
                         set(dimensions)
                     )
                 )
+
+                if ignore_rex.search(lc_quantity):
+                    continue
 
                 found_match = False
                 for key_type, type_rex in key_rex.items():
