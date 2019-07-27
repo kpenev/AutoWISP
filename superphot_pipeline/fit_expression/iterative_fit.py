@@ -5,6 +5,7 @@ import scipy
 import scipy.linalg
 
 
+#TODO: Use SVD downdating algorithm for removing outliers.
 def iterative_fit(predictors,
                   target_values,
                   *,

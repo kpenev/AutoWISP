@@ -1,6 +1,7 @@
 """Define aclass for applying TFA corrections to lightcurves."""
 
 import scipy
+from scipy.spatial import cKDTree
 
 from superphot_pipeline.fit_expression import iterative_fit
 
@@ -72,9 +73,10 @@ class TFA:
 
 
         Returns:
-            scipy.array(shape=(num stars, num photometries), dtype=bool):
-                A 2-D boolean array with True for each star that can server
-                as a valid template for a given photometry method.
+            scipy.array(shape=(num_photometries, num_template_stars),
+                        dtype=(scipy.int, #)):
+                A 2-D array of source IDs identifying stars selected to serve as
+                templates for each photometry method.
         """
 
         def select_typcial_rms_stars(not_saturated):
@@ -110,6 +112,29 @@ class TFA:
                                      epd_statistics['epd_rms'] < max_rms)
 
 
+        def select_template_stars(allowed_stars):
+            """Select TFA template stars from the set of allowed ones."""
+
+            min_xi = epd_statistics['xi'].min()
+            max_xi = epd_statistics['xi'].max()
+            min_eta = epd_statistics['eta'].min()
+            max_eta = epd_statistics['eta'].max()
+            grid_res = self._configuration.sqrt_num_templates
+            query_points = scipy.mgrid[
+                min_xi : max_xi : grid_res * 1j,
+                min_eta : max_eta : grid_res * 1j
+            ].transpose().reshape(grid_res * grid_res, 2)
+            tree = cKDTree(
+                data=scipy.stack(
+                    (
+                        epd_statistics['xi'][allowed_stars],
+                        epd_statistics['eta'][allowed_stars]
+                    )
+                ).transpose()
+            )
+            template_indices = tree.query(query_points)
+            return epd_statistics['ID'][allowed_stars][template_indices]
+
         saturated = (epd_statistics['mag']
                      <
                      self._configuration.saturation_magnitude)
@@ -118,7 +143,7 @@ class TFA:
             self._configuration.min_observations_quantile
         )
 
-        return scipy.logical_and(
+        allowed_stars = scipy.logical_and(
             scipy.logical_and(
                 (
                     epd_statistics['mag']
@@ -135,6 +160,19 @@ class TFA:
                 )
             )
         )
+
+        id_dtype = (epd_statistics['ID'].dtype, epd_statistics['ID'].shape)
+        num_photometries = epd_statistics['epd_rms'][0].size
+        sqrt_num_templates = self._configuration.sqrt_num_templates**2
+
+        result = scipy.empty(shape=(num_photometries, sqrt_num_templates),
+                             dtype=id_dtype)
+        for photometry_index in range(num_photometries):
+            result[photometry_index] = select_template_stars(
+                allowed_stars[:, photometry_index]
+            )
+
+        return result
 
     def __init__(self, epd_statistics, configuration):
         """
@@ -182,3 +220,4 @@ class TFA:
         """
 
         self._configuration = configuration
+        template_stars = self._select_template_stars(epd_statistics)
