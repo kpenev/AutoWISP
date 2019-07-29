@@ -7,7 +7,6 @@ from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.fit_expression import\
     Interface as FitTermsInterface,\
     iterative_fit
-from superphot_pipeline.light_curves.lc_data_io import _config_dset_key_rex
 
 #Attempts to re-organize reduced readability
 #pylint: disable=too-many-instance-attributes
@@ -32,84 +31,13 @@ class EPDCorrection:
         iterative_fit_config(dict):    Configuration to use for iterative
             fitting. See iterative_fit() for details.
 
-        _config_indices(dict):    A dictionary of the already read-in
-            configuration indices (re-used if requested again).
-
         _fit_config([]):    A list storing the configuration used for the
             fitting. Formatter properly for passing as the only entry directly
             to LightCurveFile.add_configurations().
     """
 
-    def _get_config_indices(self,
-                            dataset_key,
-                            light_curve,
-                            **substitutions):
-        """Return the config index dset for indexing the given config dset."""
-
-        substitution_key = frozenset(substitutions.items())
-        config_component = dataset_key
-        while True:
-            try:
-                result = self._config_indices.get(config_component)
-                if result is not None:
-                    result = result.get(substitution_key)
-                if result is None:
-                    result = light_curve.get_dataset(
-                        config_component + '.cfg_index',
-                        **substitutions
-                    )
-                    if config_component not in self._config_indices:
-                        self._config_indices[config_component] = dict()
-                    self._config_indices[config_component][substitution_key] = (
-                        result
-                    )
-
-                return result
-            except KeyError:
-                config_component = config_component.rsplit('.', 1)[0]
-
     def _get_independent_variables(self, light_curve):
         """Return scipy structured array of the independent variables."""
-
-        def result_column_dtype(dset_key):
-            """The type to use for the given column in the result."""
-
-            result = light_curve.get_dtype(dset_key)
-            if result == scipy.string_:
-                return scipy.dtype('O')
-            return result
-
-        def create_empty_result(result_size):
-            """Create an uninitialized dasates to hold the result."""
-
-            return scipy.empty(
-                result_size,
-                dtype=[
-                    (vname, result_column_dtype(dset_key))
-                    for vname, (dset_key, subs) in self.used_variables.items()
-                ]
-            )
-
-        result = None
-        for var_name, (dataset_key,
-                       substitutions) in self.used_variables.items():
-            data = light_curve.get_dataset(dataset_key, **substitutions)
-
-            if _config_dset_key_rex.search(dataset_key):
-                config_indices = self._get_config_indices(
-                    dataset_key,
-                    light_curve,
-                    **substitutions
-                )
-                data = data[config_indices]
-
-            if result is None:
-                result = create_empty_result(data.size)
-            else:
-                assert data.shape == result.shape
-            result[var_name] = data
-
-        return result
 
     def _get_fit_configurations(self, fit_terms_expression):
         """Return the current fitting configurations (see self._fit_config)."""
@@ -278,7 +206,6 @@ class EPDCorrection:
         self.fit_weights = fit_weights
         self.iterative_fit_config = iterative_fit_config
 
-        self._config_indices = dict()
         self._fit_config = self._get_fit_configurations(fit_terms_expression)
 
     def __call__(self, lc_fname):
@@ -297,7 +224,9 @@ class EPDCorrection:
         """
 
         with LightCurveFile(lc_fname, 'r+') as light_curve:
-            evaluate = Evaluator(self._get_independent_variables(light_curve))
+            evaluate = Evaluator(
+                light_curve.read_data_array(self.used_variables)
+            )
 
             predictors = FitTermsInterface(self.fit_terms_expression)(evaluate)
 

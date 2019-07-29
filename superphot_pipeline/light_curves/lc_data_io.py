@@ -23,15 +23,7 @@ from superphot_pipeline import DataReductionFile
 
 from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
-
-_config_dset_key_rex = re.compile(
-    '|'.join([
-        r'_cfg_version$',
-        r'.software_versions$',
-        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
-        r'^srcextract\.psf_map\.cfg\.'
-    ])
-)
+from .light_curve_file import _config_dset_key_rex
 
 class LCDataIO:
     """

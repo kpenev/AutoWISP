@@ -4,6 +4,8 @@ import scipy
 from scipy.spatial import cKDTree
 
 from superphot_pipeline.fit_expression import iterative_fit
+from .lc_data_io import _config_dset_key_rex
+from .light_curve_file import LightCurveFile
 
 class TFA:
     """
@@ -43,34 +45,7 @@ class TFA:
             min_observations: median of the number of observations for all LCs
 
         Args:
-            epd_statistics(scipy structured array):    An array containing
-                information about the input sources and summary statistics for
-                their EPD fit. The array must contain the following fields:
-
-                ID ((scipy.int, #)):
-                    Array if integers uniquely identifying the source (see
-                    DataReductionFile.get_source_data for more info.
-
-                mag (scipy.float64):
-                    The magnitude of the source per the catalogue in the band
-                    most approximating the observations.
-
-                xi(scipy.float64):
-                    The pre-projected `xi` coordinate of the source from the
-                    catalogue.
-
-                eta(scipy.float64):
-                    The pre-projected `eta` coordinate of the source from the
-                    catalogue.
-
-                epd_rms ((scipy.float64, #)):
-                    Array of the RMS residuals of the EPD fit for each source
-                    for each photometry method.
-
-                num_finite_epd((scipy.uint, #)):
-                    Array of the number of finite observations with EPD
-                    corrections.
-
+            epd_statistics:    See __init__().
 
         Returns:
             scipy.array(shape=(num_photometries, num_template_stars),
@@ -174,11 +149,97 @@ class TFA:
 
         return result
 
+    def _prepare_template_data(self, epd_statistics, max_padding_factor=1.1):
+        """
+        Organize the template star data into predictors and observation IDs.
+
+        Args:
+            epd_statistics:    See __init__().
+
+            max_padding_factor(float):    Because light curves are read
+                sequentially, at early times the ultimate number of observations
+                is unknown. Any time observations exceed the size of the
+                currently allocated array for the result, the result is resized
+                to to accomodate this factor times the newly required length of
+                observations, hopefully avoiding too many resize operations.
+
+        Returns:
+            numpy.array:
+                The brightness measurements from all the templates for all the
+                photometry methods at all observatin points where at least one
+                template has a measurement. Entries at observation points not
+                represented in a template are zero. The shape of the array is:
+                (
+                    number photemetry methods,
+                    number template stars,
+                    number observations
+                ).
+
+            numpy.array:
+                The sorted observation IDs for which at least one template has a
+                measurement.
+        """
+
+        template_stars = self._select_template_stars(epd_statistics)
+
+        num_photometries, num_templates = template_stars.shape()[:2]
+
+        template_measurements = None
+        for phot_index, phot_source_ids in enumerate(template_stars):
+            for source_id in phot_source_ids:
+                with LightCurveFile(
+                        self._configuration.lc_fname_pattern % source_source_id,
+                        'r'
+                ) as light_curve:
+                    if (
+                            self._configuration.fit_points_filter_variables
+                            is not None
+                    ):
+                        fit_points = Evaluator(
+                            light_curve.read_data_array(
+                                self._configuration.fit_points_filter_variables
+                            )
+                        )(
+                            self._configuration.fit_points_filter_variables
+                        )
+        template_measurements = scipy.empty(
+            shape=(num_photometries, num_templates, 0),
+            dtype=scipy.float64
+        )
+
     def __init__(self, epd_statistics, configuration):
         """
         Get ready to apply TFA corrections.
 
         Args:
+            epd_statistics(scipy structured array):    An array containing
+                information about the input sources and summary statistics for
+                their EPD fit. The array must contain the following fields:
+
+                ID ((scipy.int, #)):
+                    Array if integers uniquely identifying the source (see
+                    DataReductionFile.get_source_data for more info.
+
+                mag (scipy.float64):
+                    The magnitude of the source per the catalogue in the band
+                    most approximating the observations.
+
+                xi(scipy.float64):
+                    The pre-projected `xi` coordinate of the source from the
+                    catalogue.
+
+                eta(scipy.float64):
+                    The pre-projected `eta` coordinate of the source from the
+                    catalogue.
+
+                epd_rms ((scipy.float64, #)):
+                    Array of the RMS residuals of the EPD fit for each source
+                    for each photometry method.
+
+                num_finite_epd((scipy.uint, #)):
+                    Array of the number of finite observations with EPD
+                    corrections.
+
             configuration:    An object with attributes specifying how TFA
                 should be done. At least the following attributes must be
                 defined (extra ones are ignored):
@@ -215,9 +276,38 @@ class TFA:
                 sqrt_num_templates
                     The number of template stars is the square of this number.
 
+                observation_id
+                    The datasets to use for matching observations across light
+                    curves. For example, the following works for HAT:
+                    ```
+                    (fitseader.cfg.stid, fitsheader.cfg.cmpos, fitsheader.fnum)
+                    ```.
+
+                lc_fname_pattern
+                    A %-substitution pattern that expands to the filename of a
+                    lightcurve given a source ID.
+
+                fit_datasets
+                    See same name argument to EPDCorrection.__init__().
+
+                fit_points_filter_varibales
+                    See used_variables argument to EPDCorrection.__init__(). In
+                    this case only required to evaluate
+                    fit_points_filter_expression.
+
+                fit_points_filter_expression
+                    See same name argument to EPDCorrection.__init__().
+
         Returns:
             None
         """
 
         self._configuration = configuration
-        template_stars = self._select_template_stars(epd_statistics)
+
+        assert (epd_statistics['epd_rms'][0].size
+                ==
+                len(configuration.fit_datasets))
+
+        assert (epd_statistics['num_finite_epd'][0].size
+                ==
+                len(configuration.fit_datasets)

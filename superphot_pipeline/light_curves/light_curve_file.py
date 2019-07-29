@@ -1,5 +1,7 @@
 """Define a class for working with light curve files."""
 
+import re
+
 import numpy
 import h5py
 
@@ -7,10 +9,25 @@ from superphot_pipeline.database.hdf5_file_structure import\
     HDF5FileDatabaseStructure
 from .hashable_array import HashableArray
 
+_config_dset_key_rex = re.compile(
+    '|'.join([
+        r'_cfg_version$',
+        r'.software_versions$',
+        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
+        r'^srcextract\.psf_map\.cfg\.'
+    ])
+)
+
 #Come from H5py.
 #pylint: disable=too-many-ancestors
 class LightCurveFile(HDF5FileDatabaseStructure):
-    """Interface for working with the pipeline generated light curve files."""
+    """
+    Interface for working with the pipeline generated light curve files.
+
+    Attributes:
+        _config_indices(dict):    A dictionary of the already read-in
+            configuration indices (re-used if requested again).
+    """
 
     @classmethod
     def _product(cls):
@@ -112,6 +129,87 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         super().__init__(*args, **kwargs)
         self._configurations = dict()
+        self._config_indices = dict()
+
+    def get_config_indices(self, dataset_key, **substitutions):
+        """Return the config index dset for indexing the given config dset."""
+
+        substitution_key = frozenset(substitutions.items())
+        config_component = dataset_key
+        while True:
+            try:
+                result = self._config_indices.get(config_component)
+                if result is not None:
+                    result = result.get(substitution_key)
+                if result is None:
+                    result = self.get_dataset(
+                        config_component + '.cfg_index',
+                        **substitutions
+                    )
+                    if config_component not in self._config_indices:
+                        self._config_indices[config_component] = dict()
+                    self._config_indices[config_component][substitution_key] = (
+                        result
+                    )
+
+                return result
+            except KeyError:
+                config_component = config_component.rsplit('.', 1)[0]
+
+    def read_data_array(self, variables):
+        """
+        Return a numpy structured array of the given variables.
+
+        Args:
+            variables([(str, (str, dict))]):     The variables to read. Each entry
+                should consist of a variable name and a 2-tuple giving the
+                dataset key to use for that variable, along with any
+                substitutions required to fully resolve the dataset path.
+
+        Retuns:
+            numpy.array:
+                Array with field names the variables specified on input
+                containing the specified data. Configuration datasets are
+                expanded to lightcurve points using the corresponding
+                configuration index.
+        """
+
+        def result_column_dtype(dset_key):
+            """The type to use for the given column in the result."""
+
+            result = self.get_dtype(dset_key)
+            if result == numpy.string_:
+                return numpy.dtype('O')
+            return result
+
+        def create_empty_result(result_size):
+            """Create an uninitialized dasates to hold the result."""
+
+            return numpy.empty(
+                result_size,
+                dtype=[
+                    (vname, result_column_dtype(dset_key))
+                    for vname, (dset_key, subs) in variables.items()
+                ]
+            )
+
+        result = None
+        for var_name, (dataset_key, substitutions) in variables.items():
+            data = self.get_dataset(dataset_key, **substitutions)
+
+            if _config_dset_key_rex.search(dataset_key):
+                config_indices = self.get_config_indices(dataset_key,
+                                                         **substitutions)
+                data = data[config_indices]
+
+            if result is None:
+                result = create_empty_result(data.size)
+            else:
+                assert data.shape == result.shape
+            result[var_name] = data
+
+        return result
+
 
     def add_configurations(self,
                            component,
