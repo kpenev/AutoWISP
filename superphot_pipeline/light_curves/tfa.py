@@ -1,10 +1,13 @@
 """Define aclass for applying TFA corrections to lightcurves."""
 
 import scipy
+#pylint false positive
+#pylint: disable=no-name-in-module
 from scipy.spatial import cKDTree
+#pylint: enable=no-name-in-module
 
+from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.fit_expression import iterative_fit
-from .lc_data_io import _config_dset_key_rex
 from .light_curve_file import LightCurveFile
 
 class TFA:
@@ -149,6 +152,8 @@ class TFA:
 
         return result
 
+    #Organized into pieces as much as I could figure out how to.
+    #pylint: disable=too-many-locals
     def _prepare_template_data(self, epd_statistics, max_padding_factor=1.1):
         """
         Organize the template star data into predictors and observation IDs.
@@ -180,32 +185,163 @@ class TFA:
                 measurement.
         """
 
+        def read_template_data(light_curve, phot_dset_key, substitutions):
+            """Read the data for a single photometry method in a template LC."""
+
+
+            phot_data = light_curve.get_dataset(phot_dset_key, **substitutions)
+            phot_observation_ids = light_curve.read_data_array({
+                str(i): (dset_key, substitutions)
+                for i, dset_key in enumerate(self._configuration.observation_id)
+            })
+            assert phot_data.shape == phot_observation_ids.shape
+
+            if self._configuration.fit_points_filter_variables is not None:
+                selected_points = Evaluator(
+                    light_curve.read_data_array(
+                        self._configuration.fit_points_filter_variables
+                    )
+                )(
+                    self._configuration.fit_points_filter_variables
+                )
+                assert selected_points.shape == phot_data.shape
+                phot_data = phot_data[selected_points]
+                phot_observation_ids = phot_observation_ids[selected_points]
+
+            return phot_data, phot_observation_ids
+
+        def initialize_result(phot_data,
+                              phot_observation_ids,
+                              num_photometries,
+                              num_templates):
+            """Create the result arrays for the first time."""
+
+            template_measurements = scipy.zeros(
+                shape=(phot_data.size * max_padding_factor,
+                       num_templates,
+                       num_photometries),
+                dtype=phot_data.dtype
+            )
+
+            sorting_indices = scipy.argsort(phot_observation_ids)
+
+            template_measurements[:phot_data.size, 0, 0] = phot_data[
+                sorting_indices
+            ]
+
+            template_observation_ids = phot_observation_ids[sorting_indices]
+
+            return template_measurements, template_observation_ids
+
+        def add_to_result(*,
+                          phot_data,
+                          phot_observation_ids,
+                          phot_index,
+                          source_index,
+                          template_measurements,
+                          template_observation_ids):
+            """Add a single template/photometry combination to result arrays."""
+
+            phot_destination_ind = scipy.searchsorted(
+                template_observation_ids[:num_observations],
+                phot_observation_ids
+            )
+            matched_observations = (
+                template_observation_ids[phot_destination_ind]
+                ==
+                phot_observation_ids
+            )
+            template_measurements[
+                phot_destination_ind[matched_observations],
+                source_index,
+                phot_index,
+            ] = phot_data[matched_observations]
+
+            unmatched_observations = scipy.logical_not(matched_observations)
+
+            if not unmatched_observations.any():
+                return
+
+            observations_to_append = phot_observation_ids[
+                unmatched_observations
+            ]
+            phot_to_append = phot_data[unmatched_observations]
+
+            combined_observation_ids = scipy.union1d(
+                template_observation_ids,
+                observations_to_append
+            )
+
+            if template_observation_ids.size < combined_observation_ids.size:
+                template_measurements.resize(
+                    (combined_observation_ids.size,)
+                    +
+                    template_measurements.shape[1:]
+                )
+
+            template_measurements[
+                scipy.searchsorted(combined_observation_ids,
+                                   template_observation_ids),
+                :,
+                :
+            ] = template_measurements
+            template_measurements[
+                scipy.searchsorted(combined_observation_ids,
+                                   observations_to_append),
+                :,
+                :
+            ] = phot_to_append
+
         template_stars = self._select_template_stars(epd_statistics)
 
         num_photometries, num_templates = template_stars.shape()[:2]
 
         template_measurements = None
-        for phot_index, phot_source_ids in enumerate(template_stars):
-            for source_id in phot_source_ids:
+        for (
+                phot_index,
+                (
+                    phot_source_ids,
+                    (
+                        phot_dset_key,
+                        substitutions
+                    )
+                )
+        ) in enumerate(zip(template_stars, self._configuration.fit_datasets)):
+            for source_index, source_id in enumerate(phot_source_ids):
                 with LightCurveFile(
-                        self._configuration.lc_fname_pattern % source_source_id,
+                        self._configuration.lc_fname_pattern % source_id,
                         'r'
                 ) as light_curve:
-                    if (
-                            self._configuration.fit_points_filter_variables
-                            is not None
-                    ):
-                        fit_points = Evaluator(
-                            light_curve.read_data_array(
-                                self._configuration.fit_points_filter_variables
-                            )
-                        )(
-                            self._configuration.fit_points_filter_variables
+                    phot_data, phot_observation_ids = read_template_data(
+                        light_curve,
+                        phot_dset_key,
+                        substitutions
+                    )
+                    if template_measurements is None:
+                        (
+                            template_measurements,
+                            template_observation_ids
+                        ) = initialize_result(phot_data,
+                                              phot_observation_ids,
+                                              num_photometries,
+                                              num_templates)
+                        num_observations = phot_data.size
+                    else:
+                        add_to_result(
+                            phot_data=phot_data,
+                            phot_observation_ids=phot_observation_ids,
+                            phot_index=phot_index,
+                            source_index=source_index,
+                            template_measurements=template_measurements,
+                            template_observation_ids=template_observation_ids
                         )
-        template_measurements = scipy.empty(
-            shape=(num_photometries, num_templates, 0),
-            dtype=scipy.float64
+        template_measurements.resize(
+            (phot_observation_ids.size,)
+            +
+            template_measurements.shape[1:]
         )
+        return template_measurements.transpose(), phot_observation_ids
+    #pylint: enable=too-many-locals
 
     def __init__(self, epd_statistics, configuration):
         """
@@ -310,4 +446,6 @@ class TFA:
 
         assert (epd_statistics['num_finite_epd'][0].size
                 ==
-                len(configuration.fit_datasets)
+                len(configuration.fit_datasets))
+
+        self._template_data = self._prepare_template_data(epd_statistics)
