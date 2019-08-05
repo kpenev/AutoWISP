@@ -622,7 +622,7 @@ class LCDataIO:
         slice_data = cls._get_slice_field(quantity)
         source_data = numpy.frombuffer(
             slice_data,
-            numpy.dtype(slice_data).base
+            numpy.dtype(slice_data._type_).base
         )[first_index : first_index + num_frames * num_entries]
         source_data.shape = ((num_frames, num_entries) if num_entries > 1
                              else (num_frames,))
