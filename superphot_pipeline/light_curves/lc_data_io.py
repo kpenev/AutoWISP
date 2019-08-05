@@ -25,6 +25,8 @@ from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
 from .light_curve_file import _config_dset_key_rex
 
+#TODO: Add catalogue information as top-level attributes
+#TODO: Add xi and eta as config datasets
 class LCDataIO:
     """
     A callable class which gathers a slice of LC data from frames/DR files.
