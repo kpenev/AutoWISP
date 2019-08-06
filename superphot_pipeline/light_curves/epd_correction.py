@@ -36,9 +36,6 @@ class EPDCorrection:
             to LightCurveFile.add_configurations().
     """
 
-    def _get_independent_variables(self, light_curve):
-        """Return scipy structured array of the independent variables."""
-
     def _get_fit_configurations(self, fit_terms_expression):
         """Return the current fitting configurations (see self._fit_config)."""
 
@@ -208,6 +205,17 @@ class EPDCorrection:
 
         self._fit_config = self._get_fit_configurations(fit_terms_expression)
 
+    @staticmethod
+    def get_result_dtype(num_photometries):
+        """Return the data type for the result of __call__."""
+
+        return [('ID', (scipy.int_, 3)),
+                ('mag', scipy.float64),
+                ('xi', scipy.float64),
+                ('eta', scipy.float64),
+                ('rms', (scipy.float64, num_photometries)),
+                ('num_finite', (scipy.uint, num_photometries))]
+
     def __call__(self, lc_fname):
         """
         Fit and correct the given lightcurve.
@@ -241,9 +249,12 @@ class EPDCorrection:
                     or
                     len(self.fit_datasets) == len(self.fit_weights))
 
-            result = scipy.empty(len(self.fit_datasets),
-                                 dtype=[('rms', scipy.float64),
-                                        ('num_finite', scipy.uint)])
+            num_photometries = len(self.fit_datasets)
+
+            result = scipy.empty(
+                1,
+                dtype=self.get_result_dtype(num_photometries)
+            )
 
             for fit_index, to_fit in enumerate(
                     self.fit_datasets if self.fit_weights is None
@@ -291,7 +302,7 @@ class EPDCorrection:
                         non_rejected_points=fit_results[2]
                     )
 
-                result[fit_index]['rms'] = scipy.sqrt(
+                result['rms'][0][fit_index] = scipy.sqrt(
                     scipy.nanmean(
                         scipy.power(
                             fit_results['corrected_values'],
@@ -299,7 +310,7 @@ class EPDCorrection:
                         )
                     )
                 )
-                result[fit_index]['num_finite'] = scipy.isfinite(
+                result['num_finite'][0][fit_index] = scipy.isfinite(
                     fit_results['corrected_values']
                 ).sum()
 

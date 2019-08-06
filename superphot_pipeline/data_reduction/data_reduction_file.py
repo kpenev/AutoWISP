@@ -483,6 +483,13 @@ class DataReductionFile(DataReductionPostProcess):
             int(source_str)
         )
 
+    def get_hat_source_id_str(self, source_id):
+        """Return the string representation of 3-integer HAT-id."""
+
+        return (self._hat_id_prefixes[source_id[0]].decode()
+                +
+                '-%03d-%07d' % tuple(source_id[1:]))
+
     def get_source_count(self, **path_substitutions):
         """
         Return the number of sources for the given tool versions.
