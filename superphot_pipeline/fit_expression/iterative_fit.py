@@ -5,7 +5,15 @@ import scipy
 import scipy.linalg
 
 
-#TODO: Use SVD downdating algorithm for removing outliers.
+#TODO: switch to QR and use downdating to remove outliers.
+#TODO: accept QR decomposition directly to accomodate TFA
+#Using QR, the algorithm for solving without weights is:
+#```
+#    q, r= scipy.linalg.qr(a, mode='economic')
+#    q_rhs = scipy.dot(q.T, rhs)
+#    solution = scipy.linalg.solve_triangular(r, q_rhs)
+#```
+#To accomodate weights one can scale q.
 def iterative_fit(predictors,
                   target_values,
                   *,

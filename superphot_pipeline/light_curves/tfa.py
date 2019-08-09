@@ -3,6 +3,7 @@
 from matplotlib import pyplot
 
 import scipy
+import scipy.linalg
 #pylint false positive
 #pylint: disable=no-name-in-module
 from scipy.spatial import cKDTree
@@ -59,7 +60,21 @@ class TFA:
             None
         """
 
-        def create_xi_eta_plot(phot_template_indices,
+        def split_epd_statistics(phot_template_indices, phot_index):
+            """Split the EPD statistics into selected/allowed/rejected."""
+
+            selected = epd_statistics[phot_template_indices]
+
+            rejected = scipy.ones(epd_statistics.shape, dtype=bool)
+            rejected[allowed_stars[:, phot_index]] = False
+            rejected = epd_statistics[rejected]
+            allowed = epd_statistics[allowed_stars[:, phot_index]]
+
+            return selected, allowed, rejected
+
+        def create_xi_eta_plot(selected,
+                               allowed,
+                               rejected,
                                phot_index,
                                **fname_substitutions):
             """Create a plot of projected catalogue positions."""
@@ -69,7 +84,6 @@ class TFA:
                 phot_index=phot_index,
                 **fname_substitutions
             )
-            selected = epd_statistics[phot_template_indices]
 
             axis = pyplot.gca()
 
@@ -81,30 +95,80 @@ class TFA:
                     +
                     (grid_eta - source['eta'])**2
                 )**0.5
-                if radius < 0.3:
-                    axis.add_artist(
-                        pyplot.Circle(
-                            (grid_xi, grid_eta),
-                            radius,
-                            facecolor='grey',
-                            edgecolor='none'
-                        )
+                axis.add_artist(
+                    pyplot.Circle(
+                        (grid_xi, grid_eta),
+                        radius,
+                        facecolor='grey',
+                        edgecolor='none'
                     )
+                )
 
-            rejected = scipy.ones(epd_statistics.shape, dtype=bool)
-            rejected[allowed_stars[:, phot_index]] = False
-            rejected = epd_statistics[rejected]
             axis.plot(rejected['xi'], rejected['eta'], 'rx', markersize=1)
 
-            allowed = epd_statistics[allowed_stars[:, phot_index]]
             axis.plot(allowed['xi'], allowed['eta'], 'b.', markersize=1)
 
             axis.plot(selected['xi'], selected['eta'], 'g+', markersize=1)
             pyplot.savefig(plot_fname)
             pyplot.cla()
 
+        def create_mag_rms_plot(selected,
+                                allowed,
+                                rejected,
+                                phot_index,
+                                **fname_substitutions):
+            """Create a plot of RMS vs magnitude showing template selection."""
+
+            fname_substitutions['plot_id'] = 'mag_rms'
+            plot_fname = plot_fname_pattern % dict(
+                phot_index=phot_index,
+                **fname_substitutions
+            )
+            pyplot.semilogy(rejected['mag'],
+                            rejected['rms'][:, phot_index],
+                            'rx')
+            pyplot.semilogy(allowed['mag'],
+                            allowed['rms'][:, phot_index],
+                            'b.')
+            pyplot.semilogy(selected['mag'],
+                            selected['rms'][:, phot_index],
+                            'g+')
+            pyplot.savefig(plot_fname)
+            pyplot.cla()
+
+        def create_mag_nobs_plot(selected,
+                                 allowed,
+                                 rejected,
+                                 phot_index,
+                                 **fname_substitutions):
+            """Create a plot of number of observations vs magnitude."""
+
+            fname_substitutions['plot_id'] = 'mag_nobs'
+            plot_fname = plot_fname_pattern % dict(
+                phot_index=phot_index,
+                **fname_substitutions
+            )
+            pyplot.plot(rejected['mag'],
+                        rejected['num_finite'][:, phot_index],
+                        'rx')
+            pyplot.plot(allowed['mag'],
+                        allowed['num_finite'][:, phot_index],
+                        'b.')
+            pyplot.plot(selected['mag'],
+                        selected['num_finite'][:, phot_index],
+                        'g+')
+            pyplot.savefig(plot_fname)
+            pyplot.cla()
+
         for phot_index, phot_template_indices in enumerate(template_indices):
-            create_xi_eta_plot(phot_template_indices, phot_index=phot_index)
+            plot_args = (
+                split_epd_statistics(phot_template_indices, phot_index)
+                +
+                (phot_index,)
+            )
+            create_xi_eta_plot(*plot_args)
+            create_mag_rms_plot(*plot_args)
+            create_mag_nobs_plot(*plot_args)
 
 
     def _select_template_stars(self, epd_statistics):
@@ -140,10 +204,10 @@ class TFA:
             epd_statistics:    See __init__().
 
         Returns:
-            scipy.array(shape=(num_photometries, num_template_stars),
-                        dtype=scipy.int):
-                A 2-D array of indices within epd_statistics identifying stars
-                selected to serve as templates for each photometry method.
+            [scipy.array(shape=(num_template_stars,), dtype=scipy.int)]:
+                A list of sorted 1-D arrays of indices within epd_statistics
+                identifying stars selected to serve as templates for each
+                photometry method.
         """
 
         def select_typical_rms_stars(not_saturated):
@@ -206,9 +270,11 @@ class TFA:
                     )
                 ).transpose()
             )
-            template_indices = tree.query(
-                self.get_xi_eta_grid(epd_statistics)
-            )[1]
+            template_indices = scipy.unique(
+                tree.query(
+                    self.get_xi_eta_grid(epd_statistics)
+                )[1]
+            )
             print('Template indices: ' + repr(template_indices))
             return scipy.nonzero(allowed_stars)[0][template_indices]
 
@@ -239,13 +305,14 @@ class TFA:
         )
 
         num_photometries = epd_statistics['rms'][0].size
-        sqrt_num_templates = self._configuration.sqrt_num_templates**2
 
-        result = scipy.empty(shape=(num_photometries, sqrt_num_templates),
-                             dtype=scipy.int_)
+        result = []
+
         for photometry_index in range(num_photometries):
-            result[photometry_index] = select_template_stars(
-                allowed_stars[:, photometry_index]
+            result.append(
+                select_template_stars(
+                    allowed_stars[:, photometry_index]
+                )
             )
 
         if hasattr(self._configuration, 'selected_plots'):
@@ -273,20 +340,25 @@ class TFA:
                 observations, hopefully avoiding too many resize operations.
 
         Returns:
-            numpy.array:
+            [scipy.array]:
+                The source IDs of the stars selected to serve as templates for
+                each photometry method.
+
+            [scipy.array]:
                 The brightness measurements from all the templates for all the
                 photometry methods at all observatin points where at least one
                 template has a measurement. Entries at observation points not
-                represented in a template are zero. The shape of the array is:
+                represented in a template are zero. The shape of each array is:
                 (
-                    number photemetry methods,
-                    number template stars,
+                    number template stars
                     number observations
-                ).
+                ), and there are number of photemetry methods arrays in the
+                list.
 
-            numpy.array:
+
+            [scipy.array]:
                 The sorted observation IDs for which at least one template has a
-                measurement.
+                measurement for each photometry method.
         """
 
         def read_template_data(light_curve, phot_dset_key, substitutions):
@@ -300,13 +372,13 @@ class TFA:
             })
             assert phot_data.shape == phot_observation_ids.shape
 
-            if self._configuration.fit_points_filter_variables is not None:
+            if self._configuration.fit_points_filter_expression is not None:
                 selected_points = Evaluator(
                     light_curve.read_data_array(
                         self._configuration.fit_points_filter_variables
                     )
                 )(
-                    self._configuration.fit_points_filter_variables
+                    self._configuration.fit_points_filter_expression
                 )
                 assert selected_points.shape == phot_data.shape
                 phot_data = phot_data[selected_points]
@@ -316,20 +388,18 @@ class TFA:
 
         def initialize_result(phot_data,
                               phot_observation_ids,
-                              num_photometries,
                               num_templates):
             """Create the result arrays for the first time."""
 
             template_measurements = scipy.zeros(
-                shape=(phot_data.size * max_padding_factor,
-                       num_templates,
-                       num_photometries),
+                shape=(round(phot_data.size * max_padding_factor),
+                       num_templates),
                 dtype=phot_data.dtype
             )
 
             sorting_indices = scipy.argsort(phot_observation_ids)
 
-            template_measurements[:phot_data.size, 0, 0] = phot_data[
+            template_measurements[:phot_data.size, 0] = phot_data[
                 sorting_indices
             ]
 
@@ -340,7 +410,6 @@ class TFA:
         def add_to_result(*,
                           phot_data,
                           phot_observation_ids,
-                          phot_index,
                           source_index,
                           template_measurements,
                           template_observation_ids):
@@ -358,7 +427,6 @@ class TFA:
             template_measurements[
                 phot_destination_ind[matched_observations],
                 source_index,
-                phot_index,
             ] = phot_data[matched_observations]
 
             unmatched_observations = scipy.logical_not(matched_observations)
@@ -398,59 +466,58 @@ class TFA:
 
         template_star_indices = self._select_template_stars(epd_statistics)
 
+        template_measurements = []
+        template_observation_ids = []
 
-        num_photometries, num_templates = template_star_indices.shape
-
-        template_measurements = None
-        for (
-                phot_index,
-                (
-                    phot_source_indices,
-                    (
-                        phot_dset_key,
-                        substitutions
-                    )
-                )
-        ) in enumerate(
-            zip(template_star_indices,
-                self._configuration.fit_datasets)
+        for (phot_source_indices, fit_dataset) in zip(
+                template_star_indices,
+                self._configuration.fit_datasets
         ):
+            phot_template_measurements = None
+            num_templates = phot_source_indices.size
             for source_index, source_id in enumerate(
                     epd_statistics['ID'][phot_source_indices]
             ):
                 with LightCurveFile(
-                        self._configuration.lc_fname_pattern % source_id,
+                        self._configuration.lc_fname_pattern % tuple(source_id),
                         'r'
                 ) as light_curve:
                     phot_data, phot_observation_ids = read_template_data(
                         light_curve,
-                        phot_dset_key,
-                        substitutions
+                        *fit_dataset[:2]
                     )
-                    if template_measurements is None:
+                    if phot_template_measurements is None:
                         (
-                            template_measurements,
-                            template_observation_ids
+                            phot_template_measurements,
+                            phot_template_observation_ids
                         ) = initialize_result(phot_data,
                                               phot_observation_ids,
-                                              num_photometries,
                                               num_templates)
                         num_observations = phot_data.size
                     else:
                         add_to_result(
                             phot_data=phot_data,
                             phot_observation_ids=phot_observation_ids,
-                            phot_index=phot_index,
                             source_index=source_index,
-                            template_measurements=template_measurements,
-                            template_observation_ids=template_observation_ids
+                            template_measurements=phot_template_measurements,
+                            template_observation_ids=(
+                                phot_template_observation_ids
+                            )
                         )
-        template_measurements.resize(
-            (phot_observation_ids.size,)
-            +
-            template_measurements.shape[1:]
+            phot_template_measurements.resize(
+                (phot_template_observation_ids.size,)
+                +
+                phot_template_measurements.shape[1:]
+            )
+
+            template_measurements.append(phot_template_measurements)
+            template_observation_ids.append(phot_template_observation_ids)
+
+        return (
+            template_star_indices,
+            template_measurements,
+            template_observation_ids
         )
-        return template_measurements.transpose(), phot_observation_ids
     #pylint: enable=too-many-locals
 
     def __init__(self, epd_statistics, configuration):
@@ -566,4 +633,11 @@ class TFA:
                 ==
                 len(configuration.fit_datasets))
 
-        self._template_data = self._prepare_template_data(epd_statistics)
+        (
+            self._template_source_ids,
+            template_measurements,
+            self._template_observation_ids
+        ) = self._prepare_template_data(epd_statistics)
+
+        self._template_qr = scipy.linalg.qr(template_measurements,
+                                            mode='economic')

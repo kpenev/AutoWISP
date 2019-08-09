@@ -241,10 +241,10 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_key not in self._file_structure:
             raise KeyError(
-                "The key '%s' does not exist in the list of configured data "
-                "reduction file entries."
+                "The key '%s' does not exist in the list of configured %s file "
+                "entries."
                 %
-                dataset_key
+                (dataset_key, self._product())
             )
 
         if (

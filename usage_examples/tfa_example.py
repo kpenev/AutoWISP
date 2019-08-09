@@ -24,7 +24,7 @@ if __name__ == '__main__':
                                            'observation_id',
                                            'lc_fname_pattern',
                                            'fit_datasets',
-                                           'fit_points_filter_varibales',
+                                           'fit_points_filter_variables',
                                            'fit_points_filter_expression',
                                            'selected_plots'])
 
@@ -37,10 +37,10 @@ if __name__ == '__main__':
         faint_mag_limit=12.0,
         min_observations_quantile=0.7,
         sqrt_num_templates=32,
-        observation_id=('fitseader.cfg.stid',
+        observation_id=('fitsheader.cfg.stid',
                         'fitsheader.cfg.cmpos',
                         'fitsheader.fnum'),
-        lc_fname_pattern='%d-%d-%d.hdf5',
+        lc_fname_pattern=join_paths(data_dir, '%d-%d-%d.hdf5'),
         fit_datasets=(
             [
                 (
@@ -59,7 +59,7 @@ if __name__ == '__main__':
                 for ap_ind in range(39)
             ]
         ),
-        fit_points_filter_varibales=dict(),
+        fit_points_filter_variables=dict(),
         fit_points_filter_expression=None,
         selected_plots='tfa_templates_%(plot_id)s_%(phot_index)03d.pdf'
     )
