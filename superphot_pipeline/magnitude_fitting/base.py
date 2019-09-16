@@ -38,8 +38,6 @@ class MagnitudeFit(ABC):
 
         _catalogue:    See `master_catalogue` argument to __init__().
 
-        _output_lock:    See `output_lock` argument to __init__().
-
         _source_name_format:    See `source_name_format` argument to __init__().
     """
 
@@ -492,9 +490,6 @@ class MagnitudeFit(ABC):
                       group (i.e. a group of sources which participate in
                       magnitude fitting together, excluding sources belonging to
                       other groups).
-
-            output_lock:    A lock to use for ensuring only one thread is
-                outputting at a time.
 
             magfit_collector(MasterPhotrefCollector):    Object collecting
                 fitted magnitedes for generating statistics of the scatter after
