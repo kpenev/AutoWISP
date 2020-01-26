@@ -5,6 +5,7 @@
 # Ignore debug files
 *.out
 *_structure.xml
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

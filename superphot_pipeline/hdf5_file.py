@@ -1111,7 +1111,8 @@ class HDF5File(ABC, h5py.File):
     def __init__(self,
                  fname=None,
                  mode=None,
-                 layout_version=None):
+                 layout_version=None,
+                 **kwargs):
         """
         Opens the given HDF5 file in the given mode.
 
@@ -1124,12 +1125,18 @@ class HDF5File(ABC, h5py.File):
                 of the layout that will be used for its structure. Leave None
                 to use the latest defined.
 
+            kwargs:    Any additional arguments. Passed directly to h5py.File.
+
         Returns:
             None
         """
 
         if fname is None:
             assert mode is None
+            super().__init__('memory_only',
+                             mode='w',
+                             driver='core',
+                             backing_store=False)
         else:
             old_file = os.path.exists(fname)
             if mode[0] != 'r':
@@ -1142,7 +1149,7 @@ class HDF5File(ABC, h5py.File):
                             raise
 
             try:
-                h5py.File.__init__(self, fname, mode)
+                super().__init__(fname, mode, **kwargs)
             except IOError:
                 raise HDF5LayoutError(
                     'Problem opening %s in mode=%s'%(fname, mode)
