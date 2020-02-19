@@ -4,8 +4,13 @@
 
 from argparse import ArgumentParser
 
-from superphot import PiecewiseBicubicPSFMap
+import scipy
+from astropy.io import fits
+
+from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
 from superphot.utils import explore_prf
+
+from superphot_pipeline import DataReductionFile
 
 def parse_command_line():
     """Parse command line to attributes of an object."""
@@ -19,5 +24,61 @@ def parse_command_line():
 
     return explore_prf.parse_command_line(parser)
 
+def get_psf_map(dr_fname):
+    """Return the PSF map contained in the given DR file."""
+
+    dummy_tool = SubPixPhot()
+    io_tree = SuperPhotIOTree(dummy_tool)
+
+    with DataReductionFile(dr_fname, 'r') as dr_file:
+        dr_file.fill_aperture_photometry_input_tree(io_tree)
+
+    result = PiecewiseBicubicPSFMap(io_tree)
+
+    return result
+
+def main(cmdline_args):
+    """Avoid polluting global namespace."""
+
+    with fits.open(cmdline_args.frame_fname, 'readonly') as frame:
+        #False positive
+        #pylint: disable=no-member
+        if frame[0].header['NAXIS']:
+            image_resolution = (frame[0].header['NAXIS2'],
+                                frame[0].header['NAXIS1'])
+        else:
+            image_resolution = (frame[1].header['NAXIS2'],
+                                frame[1].header['NAXIS1'])
+
+    image_slices = explore_prf.get_image_slices(cmdline_args.split_image)
+
+    slice_prf_data = explore_prf.extract_pixel_data(cmdline_args, image_slices)
+
+    prf_map = get_psf_map(cmdline_args.dr_fname)
+
+    slice_splines = [
+        prf_map(
+            x=scipy.array([
+                (
+                    x_image_slice.start
+                    +
+                    (x_image_slice.stop or image_resolution[0])
+                ) / 2.0
+            ]),
+            y=scipy.array([
+                (
+                    y_image_slice.start
+                    +
+                    (y_image_slice.stop or image_resolution[1])
+                ) / 2.0
+            ])
+        )
+        for x_image_slice, y_image_slice in image_slices
+    ]
+
+    explore_prf.show_plots([entry[0] for entry in slice_prf_data],
+                           slice_splines,
+                           cmdline_args)
+
 if __name__ == '__main__':
-    cmdline_args = parse_command_line()
+    main(parse_command_line())
