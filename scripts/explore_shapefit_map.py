@@ -5,6 +5,7 @@
 from argparse import ArgumentParser
 
 import scipy
+from numpy.lib import recfunctions
 from astropy.io import fits
 
 from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
@@ -24,7 +25,7 @@ def parse_command_line():
 
     return explore_prf.parse_command_line(parser)
 
-def get_psf_map(dr_fname):
+def get_psf_map_sources(dr_fname):
     """Return the PSF map contained in the given DR file."""
 
     dummy_tool = SubPixPhot()
@@ -33,9 +34,16 @@ def get_psf_map(dr_fname):
     with DataReductionFile(dr_fname, 'r') as dr_file:
         dr_file.fill_aperture_photometry_input_tree(io_tree)
 
-    result = PiecewiseBicubicPSFMap(io_tree)
+        sources = dr_file.get_source_data(shapefit=True, apphot=False)
 
-    return result
+    magnitudes = scipy.copy(sources['mag'])
+    recfunctions.rename_fields(sources, dict(mag='flux'))
+    sources['flux'] = explore_prf.flux_from_magnitude(
+        magnitudes,
+        io_tree.get('magnitude_1adu')
+    )
+    print('Sources: ' + repr(sources))
+    return PiecewiseBicubicPSFMap(io_tree), sources
 
 def main(cmdline_args):
     """Avoid polluting global namespace."""
