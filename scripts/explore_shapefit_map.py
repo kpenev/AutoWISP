@@ -34,15 +34,20 @@ def get_psf_map_sources(dr_fname):
     with DataReductionFile(dr_fname, 'r') as dr_file:
         dr_file.fill_aperture_photometry_input_tree(io_tree)
 
-        sources = dr_file.get_source_data(shapefit=True, apphot=False)
+        sources = dr_file.get_source_data(magfit_iterations=[0],
+                                          shapefit=True,
+                                          apphot=False,
+                                          shapefit_version=0,
+                                          srcproj_version=0,
+                                          background_version=0)
 
     magnitudes = scipy.copy(sources['mag'])
-    recfunctions.rename_fields(sources, dict(mag='flux'))
+    sources.dtype.names = tuple('flux' if field == 'mag' else field
+                                for field in sources.dtype.names)
     sources['flux'] = explore_prf.flux_from_magnitude(
         magnitudes,
-        io_tree.get('magnitude_1adu')
+        io_tree.get('psffit.magnitude_1adu')
     )
-    print('Sources: ' + repr(sources))
     return PiecewiseBicubicPSFMap(io_tree), sources
 
 def main(cmdline_args):
@@ -58,11 +63,13 @@ def main(cmdline_args):
             image_resolution = (frame[1].header['NAXIS2'],
                                 frame[1].header['NAXIS1'])
 
+    prf_map, sources = get_psf_map_sources(cmdline_args.dr_fname)
+
     image_slices = explore_prf.get_image_slices(cmdline_args.split_image)
 
-    slice_prf_data = explore_prf.extract_pixel_data(cmdline_args, image_slices)
-
-    prf_map = get_psf_map(cmdline_args.dr_fname)
+    slice_prf_data = explore_prf.extract_pixel_data(cmdline_args,
+                                                    image_slices,
+                                                    sources=sources)
 
     slice_splines = [
         prf_map(
