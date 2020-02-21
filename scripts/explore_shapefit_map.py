@@ -63,6 +63,9 @@ def main(cmdline_args):
             image_resolution = (frame[1].header['NAXIS2'],
                                 frame[1].header['NAXIS1'])
 
+
+        #pylint: enable=no-member
+
     prf_map, sources = get_psf_map_sources(cmdline_args.dr_fname)
 
     image_slices = explore_prf.get_image_slices(cmdline_args.split_image)
@@ -77,21 +80,21 @@ def main(cmdline_args):
                 (
                     x_image_slice.start
                     +
-                    (x_image_slice.stop or image_resolution[0])
+                    (x_image_slice.stop or image_resolution[1])
                 ) / 2.0
             ]),
             y=scipy.array([
                 (
                     y_image_slice.start
                     +
-                    (y_image_slice.stop or image_resolution[1])
+                    (y_image_slice.stop or image_resolution[0])
                 ) / 2.0
             ])
         )
         for x_image_slice, y_image_slice in image_slices
     ]
 
-    explore_prf.show_plots([entry[0] for entry in slice_prf_data],
+    explore_prf.show_plots(slice_prf_data,
                            slice_splines,
                            cmdline_args)
 
