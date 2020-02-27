@@ -1,0 +1,29 @@
+superphot_pipeline package
+==========================
+
+.. automodule:: superphot_pipeline
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    superphot_pipeline.astrometry
+    superphot_pipeline.fake_image
+    superphot_pipeline.image_calibration
+
+Submodules
+----------
+
+.. toctree::
+
+   superphot_pipeline.hdf5_file
+   superphot_pipeline.image_smoothing
+   superphot_pipeline.image_utilities
+   superphot_pipeline.iterative_rejection_util
+   superphot_pipeline.pipeline_exceptions
+   superphot_pipeline.processor
+

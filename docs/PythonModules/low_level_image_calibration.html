@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Low Level Image Calibration Interface &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Low Level Master Stack Interface" href="low_level_master_stack.html" />
+    <link rel="prev" title="Logging" href="logging.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="low_level_master_stack.html" title="Low Level Master Stack Interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="logging.html" title="Logging"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="logging.html"
+                        title="previous chapter">Logging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="low_level_master_stack.html"
+                        title="next chapter">Low Level Master Stack Interface</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PythonModules/low_level_image_calibration.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="low-level-image-calibration-interface">
+<h1>Low Level Image Calibration Interface<a class="headerlink" href="#low-level-image-calibration-interface" title="Permalink to this headline">¶</a></h1>
+<p>In the first release of the pipeline all images are assumed to be in FITS format
+and only FITS images are produced. As described in the image calibration step of
+the <a class="reference internal" href="../processing_steps.html"><span class="doc">Pipeline Steps</span></a> image calibration produces two images for each
+input image. Those are stored as a two-extension FITS files. The first extension
+is the calibrated image and the second extension are the error estimates for
+each pixel. While the input images can be either integer or floating point, the
+calibrated images are always floating point.</p>
+<p>The ImageCalibration python module defines a class (Calibrator) that provides
+the lowest level interface for performing calibrations. The calibration requires
+specifying overscan area(s) to use, overscan correction method(s), master
+bias/dark/flat, and gain to assume for the input raw frames (single floating
+point value), the area in the image which actually contains image pixels (must
+match the dimensions of the masters). We will refer to these as calibration
+parameters from now on.</p>
+<p>The typical work flow is as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Create a Calibrator instance, optionally specifying calibration
+parameters.</li>
+<li>Optionally, specify further or overwrite previously specified calibration
+parameters as attributes to the object.</li>
+<li>Call the object with the  filename of the image to calibrate and the
+output filename for the calibrated image. All calibration parameters
+can be replaced, for this image only, through additional keyword
+arguments. Any masters not specified or set to None are not applied.
+Hence to calibrate a raw flat frame, set master_flat = None.</li>
+<li>Repeat steps 2 and 3 for all images which need calibrating.</li>
+</ol>
+</div></blockquote>
+<p>For example, in order to calibrate flat frames called raw1.fits and raw2.fits
+(with a resolution of 4096x4116) with overscan region consisting of the first 20
+rows applied by subtracting a simple median:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">SuperPhotPipeline.ImageCalibration</span> <span class="k">import</span> <span class="n">Calibrator</span><span class="p">,</span> <span class="n">OverscanMethods</span>
+
+<span class="n">calibrate</span> <span class="o">=</span> <span class="n">Calibrator</span><span class="p">(</span>
+    <span class="n">overscans</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)],</span>
+    <span class="n">overscan_method</span> <span class="o">=</span> <span class="n">OverscanMethos</span><span class="o">.</span><span class="n">median</span><span class="p">,</span>
+    <span class="n">master_bias</span> <span class="o">=</span> <span class="s1">&#39;masters/master_bias1.fits&#39;</span><span class="p">,</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="mf">16.0</span><span class="p">,</span>
+    <span class="n">image_area</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">4096</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mi">4116</span>
+<span class="p">)</span>
+<span class="n">calibrate</span><span class="o">.</span><span class="n">set_masters</span><span class="p">(</span><span class="n">dark</span> <span class="o">=</span> <span class="s1">&#39;masters/master_dark3.fits&#39;</span><span class="p">)</span>
+<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span> <span class="o">=</span> <span class="s1">&#39;raw1.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span> <span class="o">=</span> <span class="s1">&#39;calib1.fits&#39;</span><span class="p">)</span>
+<span class="n">calibrate</span><span class="p">(</span><span class="n">raw</span> <span class="o">=</span> <span class="s1">&#39;raw2.fits&#39;</span><span class="p">,</span> <span class="n">calibrated</span> <span class="o">=</span> <span class="s1">&#39;calib2.fits&#39;</span><span class="p">,</span> <span class="n">gain</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Users can define their own overscan methods. All that is required is a function
+that takes the input image (numpy array-like object), an overscans dictionary
+defining the overscan area and returns the overscan corrected image as a numpy
+floating point array-like object.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="low_level_master_stack.html" title="Low Level Master Stack Interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="logging.html" title="Logging"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

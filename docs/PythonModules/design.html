@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Design of the pipeline code structure &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Image Calibration Implementation" href="image_calibration.html" />
+    <link rel="prev" title="Crash Recovery" href="crash_recovery.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="image_calibration.html" title="Image Calibration Implementation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="crash_recovery.html" title="Crash Recovery"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Design of the pipeline code structure</a><ul>
+<li><a class="reference internal" href="#processors">Processors</a></li>
+<li><a class="reference internal" href="#code-layout">Code layout</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="crash_recovery.html"
+                        title="previous chapter">Crash  Recovery</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="image_calibration.html"
+                        title="next chapter">Image Calibration Implementation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PythonModules/design.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="design-of-the-pipeline-code-structure">
+<h1>Design of the pipeline code structure<a class="headerlink" href="#design-of-the-pipeline-code-structure" title="Permalink to this headline">¶</a></h1>
+<p>This document outlines the basic design of the pipeline aimed at achieving
+maximum flexibility and extendability.</p>
+<div class="section" id="processors">
+<h2>Processors<a class="headerlink" href="#processors" title="Permalink to this headline">¶</a></h2>
+<p>All pipeline processing should be done through classes that inherit from a
+common base class: PipelineProcessor, which should provide a uniform interface
+for configuring things like <a class="reference internal" href="logging.html"><span class="doc">Logging</span></a> and <a class="reference internal" href="crash_recovery.html"><span class="doc">Crash  Recovery</span></a>.
+Operations which are shared among multiple processors, yet are so atomic that
+they could not issue useful logging messages or upon crash can only be recovered
+by discarding all progress should avoid this mechanism and be implemented as
+stand-alone functions.</p>
+</div>
+<div class="section" id="code-layout">
+<h2>Code layout<a class="headerlink" href="#code-layout" title="Permalink to this headline">¶</a></h2>
+<p>Each main-level step in <a class="reference internal" href="../processing_steps.html"><span class="doc">Pipeline Steps</span></a> (i.e. those with a single
+number) sit in separate python modules, with first level sub-steps implemented
+as classes each sitting in its own <code class="docutils literal"><span class="pre">.py</span></code> file. In order to avoid excessively
+long import statements the <code class="docutils literal"><span class="pre">__init__.py</span></code> files for each main-level module
+should import the individual classes from their respective python files and
+adding them to its <code class="docutils literal"><span class="pre">__all__</span></code> variable.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="image_calibration.html" title="Image Calibration Implementation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="crash_recovery.html" title="Crash Recovery"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+superphot_pipeline.astrometry package
+=====================================
+
+.. automodule:: superphot_pipeline.astrometry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   superphot_pipeline.astrometry.transformation
+

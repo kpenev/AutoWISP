@@ -1,0 +1,7 @@
+superphot_pipeline.iterative_rejection_util module
+==================================================
+
+.. automodule:: superphot_pipeline.iterative_rejection_util
+    :members:
+    :undoc-members:
+    :show-inheritance:

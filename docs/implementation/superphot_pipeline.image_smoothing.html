@@ -1,0 +1,800 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.image_smoothing module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.image_utilities module" href="superphot_pipeline.image_utilities.html" />
+    <link rel="prev" title="superphot_pipeline.hdf5_file module" href="superphot_pipeline.hdf5_file.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_utilities.html" title="superphot_pipeline.image_utilities module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.hdf5_file.html" title="superphot_pipeline.hdf5_file module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.image_smoothing module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.hdf5_file.html"
+                        title="previous chapter">superphot_pipeline.hdf5_file module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_utilities.html"
+                        title="next chapter">superphot_pipeline.image_utilities module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.image_smoothing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.image_smoothing">
+<span id="superphot-pipeline-image-smoothing-module"></span><h1>superphot_pipeline.image_smoothing module<a class="headerlink" href="#module-superphot_pipeline.image_smoothing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-b092d3c137a2db7fff1cc9f097fdf9e26ab39dc7.png" alt="Inheritance diagram of ABC, ChainSmoother, ImageSmoother, PolynomialImageSmoother, SeparableLinearImageSmoother, SplineImageSmoother, WrapFilterAsSmoother" usemap="#inheritance257dc64bde" class="inheritance"/>
+<map id="inheritance257dc64bde" name="inheritance257dc64bde">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="551,5,625,29"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="418,77,759,101"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="5,149,345,173"/>
+<area shape="rect" id="node5" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="369,149,808,173"/>
+<area shape="rect" id="node7" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the scipy or astropy image filters in a smoother." alt="" coords="832,149,1214,173"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="176,221,582,245"/>
+<area shape="rect" id="node6" href="#superphot_pipeline.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="607,221,986,245"/>
+</map>
+<p>Define classes for smoothing images.</p>
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">ChainSmoother</code><span class="sig-paren">(</span><em>*smoothers</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superphot_pipeline.image_smoothing.ImageSmoother" title="superphot_pipeline.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal"><span class="pre">superphot_pipeline.image_smoothing.ImageSmoother</span></code></a></p>
+<img src="../_images/inheritance-aa60775180eb598fb57bd652d3df3d609dd3a92d.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.ChainSmoother" usemap="#inheritance931276a210" class="inheritance"/>
+<map id="inheritance931276a210" name="inheritance931276a210">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="139,5,213,29"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="5,77,347,101"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="6,149,346,173"/>
+</map>
+<p>Combine more than one smoothers, each is applied sequentially.</p>
+<p>Works much like a list of smoothers, except it adds smooth and detrend
+methods.</p>
+<dl class="docutils">
+<dt>Attrs:</dt>
+<dd><dl class="first last docutils">
+<dt>smoothing_chain:    The current list of smoothers and the order in which</dt>
+<dd>they are applied. The first will be applied to the input image, the
+second will be applied to the result of the first etc.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.__delitem__">
+<code class="descname">__delitem__</code><span class="sig-paren">(</span><em>position</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.__delitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.__delitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete smoothe at position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*smoothers</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a chain combining the given smoothers in the given order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>smoothers</strong> &#8211; A list of the image smoothers to combine.</li>
+<li><strong>kwargs</strong> &#8211; Any arguments to pass to parent constructor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.__setitem__">
+<code class="descname">__setitem__</code><span class="sig-paren">(</span><em>position</em>, <em>smoother</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.__setitem__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.__setitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the smoother at position.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother._apply_smoothing">
+<code class="descname">_apply_smoothing</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother._apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother._apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth the given image using the current chain of smoothers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.append">
+<code class="descname">append</code><span class="sig-paren">(</span><em>smoother</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new smoother to the end of the sequence.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like list clear.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.extend">
+<code class="descname">extend</code><span class="sig-paren">(</span><em>smoothers</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.extend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add multiple smoothers to the end of the chain.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>position</em>, <em>smoother</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like list insert.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.pop">
+<code class="descname">pop</code><span class="sig-paren">(</span><em>position=-1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like list pop.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ChainSmoother.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>smoother</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ChainSmoother.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ChainSmoother.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like list remove.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.ImageSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">ImageSmoother</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ImageSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ImageSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">abc.ABC</span></code></a></p>
+<img src="../_images/inheritance-5082eea9f2bb5a8b9fbcb1d0ba43a2c13d98f20c.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.ImageSmoother" usemap="#inheritance1a3d4c2eeb" class="inheritance"/>
+<map id="inheritance1a3d4c2eeb" name="inheritance1a3d4c2eeb">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="139,5,213,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="5,77,347,101"/>
+</map>
+<p>Define the interface for applying smoothing algorithms to images.</p>
+<dl class="docutils">
+<dt>Attrs:</dt>
+<dd><p class="first">bin_factor:    See same name argument to smooth().</p>
+<p class="last">zoom_interp_order:    See same name argument to smooth().</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ImageSmoother.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ImageSmoother.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ImageSmoother.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set default pre-shrink/post-zoom bin factor and interpolation order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> &#8211; All arguments except bin_factor, interp_order and padding
+mode(see smooth()) are ignored.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ImageSmoother._apply_smoothing">
+<code class="descname">_apply_smoothing</code><span class="sig-paren">(</span><em>image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ImageSmoother._apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ImageSmoother._apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a smooth version of the given image (no pre-shrinking).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> &#8211; The image to smooth.</li>
+<li><strong>kwargs</strong> &#8211; Any arguments configuring how smoothing is to
+be performed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>The smoothed version of the image per the currently</dt>
+<dd><p class="first last">defined smoothing.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">smooth_image</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ImageSmoother.detrend">
+<code class="descname">detrend</code><span class="sig-paren">(</span><em>image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ImageSmoother.detrend"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ImageSmoother.detrend" title="Permalink to this definition">¶</a></dt>
+<dd><p>De-trend the input image by its smooth version (see smooth).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.ImageSmoother.smooth">
+<code class="descname">smooth</code><span class="sig-paren">(</span><em>image</em>, <em>*</em>, <em>bin_factor=None</em>, <em>zoom_interp_order=None</em>, <em>padding_mode='reflect'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#ImageSmoother.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.ImageSmoother.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sandwich smoothing between initial binning and final zoom.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> &#8211; The image to smooth.</li>
+<li><strong>bin_factor</strong> &#8211; The factor to pre-bin the image by (see
+bin_image() for details). After smoothing the image is zoomed by
+the same factor to recover the original size. If None, the value
+defined at construction is used, otherwise this value applies
+for this image only.</li>
+<li><strong>interp_order</strong> &#8211; The interpolation order to use when zooming the
+image at the end. If None, the interpolation order defined at
+construction is used, otherwise this value applies for this
+image only.</li>
+<li><strong>padding_mode</strong> &#8211; How to pad the image to have an integer number of
+bins, if pre-binning and post-zooming is used.</li>
+<li><strong>kwargs</strong> &#8211; Any arguments configuring how smoothing is to
+be performed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The smoothed version of the image.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">smooth_image</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.PolynomialImageSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">PolynomialImageSmoother</code><span class="sig-paren">(</span><em>*</em>, <em>num_x_terms=None</em>, <em>num_y_terms=None</em>, <em>outlier_threshold=None</em>, <em>max_iterations=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#PolynomialImageSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" title="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother"><code class="xref py py-class docutils literal"><span class="pre">superphot_pipeline.image_smoothing.SeparableLinearImageSmoother</span></code></a></p>
+<img src="../_images/inheritance-3902a5d3471dc8b881e218fe8dcf8920fd23a610.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.PolynomialImageSmoother" usemap="#inheritance5022055393" class="inheritance"/>
+<map id="inheritance5022055393" name="inheritance5022055393">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="188,5,262,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="54,77,396,101"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,149,445,173"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="22,221,428,245"/>
+</map>
+<p>Smooth image is modeled as a polynomial in x times another polynomial in y.</p>
+<dl class="staticmethod">
+<dt id="superphot_pipeline.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals">
+<em class="property">static </em><code class="descname">_get_powerlaw_pixel_integrals</code><span class="sig-paren">(</span><em>power</em>, <em>resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#PolynomialImageSmoother._get_powerlaw_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>power</strong> &#8211; The power of the corresponding coordinate of the term we
+are integrating.</li>
+<li><strong>resolution</strong> &#8211; The resolution of the image in the dimension in which to
+calculate the pixel integrlas.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A 1-D scipy array with the i-th entry being the</dt>
+<dd><p class="first last">integral of the scaled x coordinate to the given power over
+each pixel.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integrals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.image_smoothing.PolynomialImageSmoother.get_x_pixel_integrals">
+<em class="property">static </em><code class="descname">get_x_pixel_integrals</code><span class="sig-paren">(</span><em>power</em>, <em>resolution</em><span class="sig-paren">)</span><a class="headerlink" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother.get_x_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>power</strong> &#8211; The power of the corresponding coordinate of the term we
+are integrating.</li>
+<li><strong>resolution</strong> &#8211; The resolution of the image in the dimension in which to
+calculate the pixel integrlas.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A 1-D scipy array with the i-th entry being the</dt>
+<dd><p class="first last">integral of the scaled x coordinate to the given power over
+each pixel.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integrals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.image_smoothing.PolynomialImageSmoother.get_y_pixel_integrals">
+<em class="property">static </em><code class="descname">get_y_pixel_integrals</code><span class="sig-paren">(</span><em>power</em>, <em>resolution</em><span class="sig-paren">)</span><a class="headerlink" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother.get_y_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integrals over one pixel dimension of x^power for each pixel.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>power</strong> &#8211; The power of the corresponding coordinate of the term we
+are integrating.</li>
+<li><strong>resolution</strong> &#8211; The resolution of the image in the dimension in which to
+calculate the pixel integrlas.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A 1-D scipy array with the i-th entry being the</dt>
+<dd><p class="first last">integral of the scaled x coordinate to the given power over
+each pixel.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integrals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">SeparableLinearImageSmoother</code><span class="sig-paren">(</span><em>*</em>, <em>num_x_terms=None</em>, <em>num_y_terms=None</em>, <em>outlier_threshold=None</em>, <em>max_iterations=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superphot_pipeline.image_smoothing.ImageSmoother" title="superphot_pipeline.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal"><span class="pre">superphot_pipeline.image_smoothing.ImageSmoother</span></code></a></p>
+<img src="../_images/inheritance-b6f358b1b62016da016390305e77318d7188f3cf.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" usemap="#inheritance3214f574d6" class="inheritance"/>
+<map id="inheritance3214f574d6" name="inheritance3214f574d6">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="188,5,262,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="54,77,396,101"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,149,445,173"/>
+</map>
+<p>Handle smoothing function = product of linear functions in each dimension.</p>
+<p>In more detail this is a base class that perform smoothing with a smoothing
+function consisting of the product of separate smoothing functions in x and
+y, each of which predicts pixel values as a linear combination of some
+parameters.</p>
+<dl class="docutils">
+<dt>Attrs:</dt>
+<dd><dl class="first last docutils">
+<dt>num_x_terms:    The number of terms in the smoothing function in the x</dt>
+<dd>direction.</dd>
+<dt>num_y_terms:    The number of terms in the smoothing function in the y</dt>
+<dd>direction.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*</em>, <em>num_x_terms=None</em>, <em>num_y_terms=None</em>, <em>outlier_threshold=None</em>, <em>max_iterations=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the default smoothing configuration (overwritable on use).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_x_terms</strong> &#8211; See same name argument to _apply_smoothing().</li>
+<li><strong>num_y_terms</strong> &#8211; See same name argument to _apply_smoothing().</li>
+<li><strong>outlier_threshold</strong> &#8211; See same name argument to _apply_smoothing().</li>
+<li><strong>max_iterations</strong> &#8211; <p>See same name argument to _apply_smoothing().</p>
+<p>kwargs:    Any arguments to pass to parent&#8217;s __init__.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._apply_smoothing">
+<code class="descname">_apply_smoothing</code><span class="sig-paren">(</span><em>image</em>, <em>*</em>, <em>num_x_terms=None</em>, <em>num_y_terms=None</em>, <em>outlier_threshold=None</em>, <em>max_iterations=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother._apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a smooth version of the given image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> &#8211; The image to smooth.</li>
+<li><strong>num_x_terms</strong> &#8211; The number of parameters of the x
+smoothing function.</li>
+<li><strong>num_y_terms</strong> &#8211; The number of parameters of the y
+smoothing function.</li>
+<li><strong>outlier_threshold</strong> &#8211; The threshold for discarding pixel values as
+being outliers. See same name argument
+to iterative_rej_linear_leastsq().</li>
+<li><strong>max_iterations</strong> &#8211; The maximum number of reject/re-fit iterations
+allowed. See same name argument
+to iterative_rej_linear_leastsq().</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>The best approximation of the input image possible</dt>
+<dd><p class="first last">with the smoothing function.</p>
+</dd>
+<dt>residual:    The root mean square residual returned</dt>
+<dd><p class="first last">by iterative_rej_linear_leastsq()</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">smooth_image</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._get_smoothing_matrix">
+<code class="descname">_get_smoothing_matrix</code><span class="sig-paren">(</span><em>num_x_terms</em>, <em>num_y_terms</em>, <em>y_resolution</em>, <em>x_resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother._get_smoothing_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._get_smoothing_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return matrix giving flattened smooth image when applied to fit params.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_x_terms</strong> &#8211; See same name argument to _apply_smoothing().</li>
+<li><strong>num_y_terms</strong> &#8211; See same name argument to _apply_smoothing().</li>
+<li><strong>x_resolution</strong> &#8211; The number of image columns.</li>
+<li><strong>y_resolution</strong> &#8211; The number of image rows.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>An (x_res * y_res) by (num_x_terms * num_y_terms) matrix</dt>
+<dd><p class="first last">which when applied to a set of parameters returns the value of
+each image pixel per the smoothing function.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">matrix</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals">
+<code class="descname">get_x_pixel_integrals</code><span class="sig-paren">(</span><em>param_ind</em>, <em>x_resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother.get_x_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the x smoothing func. integral over pixels for 1 nonzero param.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>param_ind</strong> &#8211; The index of the input parameter which is non-zero.</li>
+<li><strong>x_resolution</strong> &#8211; The resolution of the input image in the
+x direction.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A 1-D scipy array with length equal to the</dt>
+<dd><p class="first last">x-resolution of the image with the i-th entry being the integral
+of the x part of the smoothing function the i-th pixel.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integrals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals">
+<code class="descname">get_y_pixel_integrals</code><span class="sig-paren">(</span><em>param_ind</em>, <em>y_resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SeparableLinearImageSmoother.get_y_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>See get_x_pixel_integrals.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">SplineImageSmoother</code><span class="sig-paren">(</span><em>*</em>, <em>num_x_nodes=None</em>, <em>num_y_nodes=None</em>, <em>spline_degree=3</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" title="superphot_pipeline.image_smoothing.SeparableLinearImageSmoother"><code class="xref py py-class docutils literal"><span class="pre">superphot_pipeline.image_smoothing.SeparableLinearImageSmoother</span></code></a></p>
+<img src="../_images/inheritance-a6659c3070230e1b8b24570d9b4e0e1411016188.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.SplineImageSmoother" usemap="#inheritance5a44db139d" class="inheritance"/>
+<map id="inheritance5a44db139d" name="inheritance5a44db139d">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="188,5,262,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="54,77,396,101"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,149,445,173"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="36,221,414,245"/>
+</map>
+<p>Smooth image is modeled as a product of cubic splines in x and y.</p>
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*</em>, <em>num_x_nodes=None</em>, <em>num_y_nodes=None</em>, <em>spline_degree=3</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set-up spline interpolation with the given number of nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_x_nodes</strong> &#8211; The number of spline nodes for the x spline.</li>
+<li><strong>num_y_nodes</strong> &#8211; The number of spline nodes for the y spline.</li>
+<li><strong>kwargs</strong> &#8211; Forwarded directly
+to SeparableLinearImageSmoother.__init__() after
+<cite>num_x_terms = num_x_nodes</cite> and <cite>num_y_terms = num_y_nodes</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother._apply_smoothing">
+<code class="descname">_apply_smoothing</code><span class="sig-paren">(</span><em>image</em>, <em>*</em>, <em>num_x_nodes=None</em>, <em>num_y_nodes=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother._apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother._apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle change in interpolation nodes needed by integrals functions.</p>
+<dl class="docutils">
+<dt>Args:    See SeparableLinearImageSmoother._apply_smoothing() except the</dt>
+<dd>names of num_x_terms and num_y_terms have been changed to
+num_x_nodes and num_y_nodes respectively.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals">
+<em class="property">static </em><code class="descname">get_spline_pixel_integrals</code><span class="sig-paren">(</span><em>node_index</em>, <em>resolution</em>, <em>num_nodes</em>, <em>spline_degree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother.get_spline_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the integrals over one pixel dimension of a basis spline.</p>
+<p>The spline basis functions are defined as an interpolating spline (i.e.
+no smoothing) over y values that are one for the <cite>node_index</cite>-th node
+and zero everywhere else.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node_index</strong> &#8211; The node at which the spline should evaluate to
+one. All other nodes get a value of zero.</li>
+<li><strong>resolution</strong> &#8211; The resolution of the image in the dimension in which
+to calculate the pixel integrlas.</li>
+<li><strong>num_nodes</strong> &#8211; The number of nodes in the spline. The image is scaled
+to have a dimension of <cite>num_nodes - 1</cite> and nodes are set at
+integer values.</li>
+<li><strong>spline_degree</strong> &#8211; The degree of the spline to use.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A 1-D scipy array with the i-th entry being the</dt>
+<dd><p class="first last">integral of the spline over the i-th pixel.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">integrals</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother.get_x_pixel_integrals">
+<code class="descname">get_x_pixel_integrals</code><span class="sig-paren">(</span><em>param_ind</em>, <em>x_resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother.get_x_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother.get_x_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return integrals of the param_ind-th x direction spline basis function.</p>
+<p>Args:    See SeparableLinearImageSmoother.get_x_pixel_integrals()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">See SeparableLinearImageSmoother.get_x_pixel_integrals()</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.SplineImageSmoother.get_y_pixel_integrals">
+<code class="descname">get_y_pixel_integrals</code><span class="sig-paren">(</span><em>param_ind</em>, <em>y_resolution</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#SplineImageSmoother.get_y_pixel_integrals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.SplineImageSmoother.get_y_pixel_integrals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return integrals of the param_ind-th y direction spline basis function.</p>
+<p>Args:    See SeparableLinearImageSmoother.get_y_pixel_integrals()</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">See SeparableLinearImageSmoother.get_y_pixel_integrals()</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="superphot_pipeline.image_smoothing.WrapFilterAsSmoother">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.image_smoothing.</code><code class="descname">WrapFilterAsSmoother</code><span class="sig-paren">(</span><em>smoothing_filter</em>, <em>*</em>, <em>bin_factor=None</em>, <em>zoom_interp_order=None</em>, <em>**filter_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#WrapFilterAsSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#superphot_pipeline.image_smoothing.ImageSmoother" title="superphot_pipeline.image_smoothing.ImageSmoother"><code class="xref py py-class docutils literal"><span class="pre">superphot_pipeline.image_smoothing.ImageSmoother</span></code></a></p>
+<img src="../_images/inheritance-3de7743c050384f41a2a782d11c3def447e8be6c.png" alt="Inheritance diagram of superphot_pipeline.image_smoothing.WrapFilterAsSmoother" usemap="#inheritancecc7c7f0761" class="inheritance"/>
+<map id="inheritancecc7c7f0761" name="inheritancecc7c7f0761">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="159,5,233,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="25,77,367,101"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the scipy or astropy image filters in a smoother." alt="" coords="5,149,387,173"/>
+</map>
+<p>Wrap one of the scipy or astropy image filters in a smoother.</p>
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.WrapFilterAsSmoother.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>smoothing_filter</em>, <em>*</em>, <em>bin_factor=None</em>, <em>zoom_interp_order=None</em>, <em>**filter_config</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#WrapFilterAsSmoother.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the given filter through the ImageSmoother interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>smoothing_filter</strong> &#8211; The filter to apply to smooth images.</li>
+<li><strong>bin_factor</strong> &#8211; See ImageSmoother.smooth().</li>
+<li><strong>zoom_interp_order</strong> &#8211; See ImageSmoother.smooth().</li>
+<li><strong>filter_config</strong> &#8211; Any arguments to pass to the filter when applying,
+unless overwritten by arguments to smooth() or detrend().</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.image_smoothing.WrapFilterAsSmoother._apply_smoothing">
+<code class="descname">_apply_smoothing</code><span class="sig-paren">(</span><em>image</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_smoothing.html#WrapFilterAsSmoother._apply_smoothing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother._apply_smoothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth the given image with the filter supplied on construction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image</strong> &#8211; The image to smooth.</li>
+<li><strong>kwargs</strong> &#8211; Additional or replacement arguments to pass to the filter
+when applying.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_utilities.html" title="superphot_pipeline.image_utilities module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.hdf5_file.html" title="superphot_pipeline.hdf5_file module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

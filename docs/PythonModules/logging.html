@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Logging &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Low Level Image Calibration Interface" href="low_level_image_calibration.html" />
+    <link rel="prev" title="Image Calibration Implementation" href="image_calibration.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="image_calibration.html" title="Image Calibration Implementation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Logging</a><ul>
+<li><a class="reference internal" href="#common-logger-mechanism">Common logger mechanism</a></li>
+<li><a class="reference internal" href="#adding-context-information">Adding context information</a><ul>
+<li><a class="reference internal" href="#identifying-information-of-the-data-being-processed">1. Identifying information of the data being processed.</a></li>
+<li><a class="reference internal" href="#identifying-information-about-the-processing-going-on">2. Identifying information about the processing going on.</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="image_calibration.html"
+                        title="previous chapter">Image Calibration Implementation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="low_level_image_calibration.html"
+                        title="next chapter">Low Level Image Calibration Interface</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PythonModules/logging.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="logging">
+<h1>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h1>
+<p>## Design considerations</p>
+<p>Logging all steps taken by a pipeline is a critical task to allow users to
+monitor progress, debug and tune the various steps. Designing a logging system
+which is flexible enough to handle all the various tasks that the pipeline will
+perform, while at the same time supporting easy automated processing to generate
+things like progress reports, statistics for various quantities of interest etc
+is a non-trivial task. A badly designed logging system could lead to numerous
+headaches down the line.</p>
+<p>The requirements the selected logging scheme employed by the pipeline must
+satisfy are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Offer a unifom mechanism to provide a logger and context information to
+each pipeline processor.</li>
+<li>Handle parallel processing without mangling the log.</li>
+<li>Allow configuring the formatting of log files and/or logging to database
+in a uniform way for all pipeline processors.</li>
+</ol>
+</div></blockquote>
+<div class="section" id="common-logger-mechanism">
+<h2>Common logger mechanism<a class="headerlink" href="#common-logger-mechanism" title="Permalink to this headline">¶</a></h2>
+<p>Since the logging module ensures that a logger with the same name always returns
+the same instance, the common <code class="docutils literal"><span class="pre">__init__</span></code> method of all pipeline processors
+simply need to create child loggers in a tree leading to the same base logger.
+This is trivially accomplished by each module using a logger with a name given
+by <code class="docutils literal"><span class="pre">__name__</span></code>.</p>
+</div>
+<div class="section" id="adding-context-information">
+<h2>Adding context information<a class="headerlink" href="#adding-context-information" title="Permalink to this headline">¶</a></h2>
+<p>This is also handled by the python logging module. In fact there are <a class="reference external" href="https://docs.python.org/3/howto/logging-cookbook.html#context-info">two
+mechanisms</a> to choose
+from: LoggerAdapters and Filters. In the SuperPhot pipeline we will use Filters,
+since it results in easier handling of the extra contextual information by
+formatters and handlers.</p>
+<p>What remains to decide is what contextual information to add. Some possibilities
+include:</p>
+<div class="section" id="identifying-information-of-the-data-being-processed">
+<h3>1. Identifying information of the data being processed.<a class="headerlink" href="#identifying-information-of-the-data-being-processed" title="Permalink to this headline">¶</a></h3>
+<p>This could be for example the frame being calibrated/astrometried/photometered,
+the lightcurve being dumped/EPD-d/TFA-d. However, some steps work on collections
+of data (e.g. stacking frames to a master, multi-frame PSF/PRF fitting, dumping
+lightcurves for multiple sources from multiple frames). So the exact format and
+entries become processor specific.</p>
+<p>One possibily of handling this difficulty is to define a super-set of fields and
+simply have some set to <code class="docutils literal"><span class="pre">None</span></code> depending on the situation.</p>
+<p>Another possibility is to define a formatt for each separate set of
+possibilities. If this is chosen, there should be some identifying flag in the
+message identifying the formatter used to allow for easy automatic parsing.</p>
+</div>
+<div class="section" id="identifying-information-about-the-processing-going-on">
+<h3>2. Identifying information about the processing going on.<a class="headerlink" href="#identifying-information-about-the-processing-going-on" title="Permalink to this headline">¶</a></h3>
+<p>This could be for example identifying whether an image being read was requested
+by the image calibration or astrometry or photometry module. However, how much
+granularity do we want. Do we specify that an image was requested by the mask
+creation vs the bias subtraction part of the image calibration module.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="image_calibration.html" title="Image Calibration Implementation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

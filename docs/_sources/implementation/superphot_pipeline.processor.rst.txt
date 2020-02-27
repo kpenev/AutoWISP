@@ -1,0 +1,7 @@
+superphot_pipeline.processor module
+===================================
+
+.. automodule:: superphot_pipeline.processor
+    :members:
+    :undoc-members:
+    :show-inheritance:

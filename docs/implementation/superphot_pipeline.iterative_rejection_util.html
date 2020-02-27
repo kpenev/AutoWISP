@@ -1,0 +1,264 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.iterative_rejection_util module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.pipeline_exceptions module" href="superphot_pipeline.pipeline_exceptions.html" />
+    <link rel="prev" title="superphot_pipeline.image_utilities module" href="superphot_pipeline.image_utilities.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.pipeline_exceptions.html" title="superphot_pipeline.pipeline_exceptions module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_utilities.html" title="superphot_pipeline.image_utilities module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.iterative_rejection_util module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_utilities.html"
+                        title="previous chapter">superphot_pipeline.image_utilities module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.pipeline_exceptions.html"
+                        title="next chapter">superphot_pipeline.pipeline_exceptions module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.iterative_rejection_util.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.iterative_rejection_util">
+<span id="superphot-pipeline-iterative-rejection-util-module"></span><h1>superphot_pipeline.iterative_rejection_util module<a class="headerlink" href="#module-superphot_pipeline.iterative_rejection_util" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-dd8133a62532a727b13bdf15db6e35dbd4381e69.png" alt="Inheritance diagram of ConvergenceError" usemap="#inheritanceb0655e66e9" class="inheritance"/>
+<map id="inheritanceb0655e66e9" name="inheritanceb0655e66e9">
+<area shape="rect" id="node1" href="superphot_pipeline.pipeline_exceptions.html#superphot_pipeline.pipeline_exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="5,5,373,29"/>
+</map>
+<p>A collection of general purpose statistical manipulations of scipy arrays.</p>
+<dl class="function">
+<dt id="superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq">
+<code class="descclassname">superphot_pipeline.iterative_rejection_util.</code><code class="descname">iterative_rej_linear_leastsq</code><span class="sig-paren">(</span><em>matrix</em>, <em>rhs</em>, <em>outlier_threshold</em>, <em>max_iterations=inf</em>, <em>return_predicted=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/iterative_rejection_util.html#iterative_rej_linear_leastsq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform linear leasts squares fit iteratively rejecting outliers.</p>
+<p>The returned function finds vector x that minimizes the square difference
+between matrix.dot(x) and rhs, iterating between fitting and  rejecting RHS
+entries which are too far from the fit.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>matrix</strong> &#8211; The matrix defining the linear least squares problem.</li>
+<li><strong>rhs</strong> &#8211; The RHS of the least squares problem.</li>
+<li><strong>outlier_threshold</strong> &#8211; The RHS entries are considered outliers if they
+devite from the fit by more than this values times the root mean
+square of the fit residuals.</li>
+<li><strong>max_iterations</strong> &#8211; The maximum number of rejection/re-fitting iterations
+allowed. Zero for simple fit with no rejections.</li>
+<li><strong>return_predicted</strong> &#8211; Should the best-fit values for the RHS be returned?</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The best fit coefficients.</p>
+<p>residual:    The root mean square residual of the latest fit iteration.</p>
+<dl class="docutils">
+<dt>predicted:    The predicted values for the RHS. Only available if</dt>
+<dd><p class="first last"><cite>return_predicted==True</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">solution</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="superphot_pipeline.iterative_rejection_util.iterative_rej_polynomial_fit">
+<code class="descclassname">superphot_pipeline.iterative_rejection_util.</code><code class="descname">iterative_rej_polynomial_fit</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>order</em>, <em>*leastsq_args</em>, <em>**leastsq_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/iterative_rejection_util.html#iterative_rej_polynomial_fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.iterative_rejection_util.iterative_rej_polynomial_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; The x (independent variable) in the polynomial.</li>
+<li><strong>y</strong> &#8211; The value predicted by the polynomial (y).</li>
+<li><strong>order</strong> &#8211; The maximum power of x term to include in the
+polynomial expansion.</li>
+<li><strong>leastsq_args</strong> &#8211; Passed directly to iterative_rej_linear_leastsq().</li>
+<li><strong>leastsq_kwargs</strong> &#8211; Passed directly to iterative_rej_linear_leastsq().</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>See iterative_rej_linear_leastsq()</p>
+<p>residual:    See iterative_rej_linear_leastsq()</p>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">solution</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="superphot_pipeline.iterative_rejection_util.iterative_rejection_average">
+<code class="descclassname">superphot_pipeline.iterative_rejection_util.</code><code class="descname">iterative_rejection_average</code><span class="sig-paren">(</span><em>array</em>, <em>outlier_threshold</em>, <em>average_func=&lt;function nanmedian&gt;</em>, <em>max_iter=inf</em>, <em>axis=0</em>, <em>require_convergence=False</em>, <em>mangle_input=False</em>, <em>keepdims=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/iterative_rejection_util.html#iterative_rejection_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.iterative_rejection_util.iterative_rejection_average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Avarage with iterative rejection of outliers along an axis.</p>
+<p class="rubric">Notes</p>
+<p>A more efficient implementation is possible for median.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>array</strong> &#8211; The array to compute the average of.</li>
+<li><strong>outlier_threshold</strong> &#8211; Outliers are defined as outlier_threshold * (root
+maen square deviation around the average). Non-finite values are
+always outliers. This value could also be a 2-tuple with one
+positive and one negative entry, specifying the thresholds in the
+positive and negative directions separately.</li>
+<li><strong>average_func</strong> &#8211; A function which returns the average to compute (e.g.
+scipy.nanmean or scipy.nanmedian), must ignore nan values.</li>
+<li><strong>max_iter</strong> &#8211; The maximum number of rejection - re-fitting iterations
+to perform.</li>
+<li><strong>axis</strong> &#8211; The axis along which to compute the average.</li>
+<li><strong>require_convergence</strong> &#8211; If the maximum number of iterations is reached
+and still there are entries that should be rejected this argument
+determines what happens. If True, an exception is raised, if False,
+the last result is returned as final.</li>
+<li><strong>mangle_input</strong> &#8211; Is this function allowed to mangle the input array.</li>
+<li><strong>keepdims</strong> &#8211; See the keepdims argument of scipy.mean</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>An array with all axes of a other than axis being the same</dt>
+<dd><p class="first last">and the dimension along the axis-th axis being 1. Each entry if of
+average is independently computed from all other entries.</p>
+</dd>
+<dt>stdev:    An empirical estimate of the standard deviation around the</dt>
+<dd><p class="first last">returned <cite>average</cite> for each pixel. Calculated as RMS of the
+difference between individual values and the average divided by one
+less than the number of pixels contributing to that particular
+pixel&#8217;s average. Has the same shape as <cite>average</cite>.</p>
+</dd>
+<dt>num_averaged:    The number of non-rejected non-NaN values included</dt>
+<dd><p class="first last">in the average of each pixel. Same shape as <cite>average</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">average</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.pipeline_exceptions.html" title="superphot_pipeline.pipeline_exceptions module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_utilities.html" title="superphot_pipeline.image_utilities module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

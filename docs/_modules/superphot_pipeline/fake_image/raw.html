@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.fake_image.raw &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for superphot_pipeline.fake_image.raw</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define a class for creating fake raw images.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s1">&#39;$Id: a00e5dc58dd0a45a5bcbd790ff3e271ce8f97a9d $&#39;</span>
+
+<span class="c1">#TODO: dead pixels and/or columns</span>
+<span class="c1">#(currently can partially be emulated be setting zero flat field)</span>
+<span class="c1">#TODO: cosmic ray hits</span>
+<span class="c1">#TODO: charge overflow: partial (i.e. anti-blooming gates) or full</span>
+<span class="c1">#TODO: non-linearity</span>
+<div class="viewcode-block" id="FakeRawImage"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage">[docs]</a><span class="k">class</span> <span class="nc">FakeRawImage</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create fake raw images with all bells and whistles.</span>
+
+<span class="sd">    Currently implemented:</span>
+<span class="sd">        * sky &amp; stars</span>
+
+<span class="sd">        * bias, dark and flat instrumental effects</span>
+
+<span class="sd">        * bias and/or dark overscan areas</span>
+
+<span class="sd">        * hot pixels (simply set high dark current)</span>
+
+<span class="sd">        * discretization noise</span>
+
+<span class="sd">        * poisson noise</span>
+
+<span class="sd">    Examples:</span>
+
+<span class="sd">        &gt;&gt;&gt; from superphot_pipeline.fake_image import FakeRawImage</span>
+<span class="sd">        &gt;&gt;&gt; import numpy</span>
+
+<span class="sd">        &gt;&gt;&gt; #Create a 1044x1024 image with the first 10 pixels in x being a bias</span>
+<span class="sd">        &gt;&gt;&gt; #area and the next 10 being a dark area.</span>
+<span class="sd">        &gt;&gt;&gt; image = FakeRawImage(full_resolution=dict(x=1044, y=1024),</span>
+<span class="sd">        &gt;&gt;&gt;                      image_area=dict(xmin=20,</span>
+<span class="sd">        &gt;&gt;&gt;                                      xmax=1044,</span>
+<span class="sd">        &gt;&gt;&gt;                                      ymin=0,</span>
+<span class="sd">        &gt;&gt;&gt;                                      ymax=1024))</span>
+
+<span class="sd">        &gt;&gt;&gt; #Bias level is 12.5 ADU</span>
+<span class="sd">        &gt;&gt;&gt; image.add_bias(12.5)</span>
+
+<span class="sd">        &gt;&gt;&gt; #Dark current is 2.3 ADU/s except for a hot column at x=100 with 10x</span>
+<span class="sd">        &gt;&gt;&gt; #the dark current.</span>
+<span class="sd">        &gt;&gt;&gt; dark = numpy.full((1044, 1024), 12.5)</span>
+<span class="sd">        &gt;&gt;&gt; dark[:, 100] = 125.0</span>
+<span class="sd">        &gt;&gt;&gt; image.set_dark(</span>
+<span class="sd">        &gt;&gt;&gt;     rate=dark,</span>
+<span class="sd">        &gt;&gt;&gt;     areas=[dict(xmin=10, xmax=20, ymin=0, ymax=1024)]</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+
+<span class="sd">        &gt;&gt;&gt; #Define a flat field which is a quadratic function in both x and y.</span>
+<span class="sd">        &gt;&gt;&gt; x, y = numpy.meshgrid(numpy.arange(1024), numpy.arange(1024))</span>
+<span class="sd">        &gt;&gt;&gt; flat = (2.0 - ((x - 512.0) / 512.0)**2) / 2.0</span>
+<span class="sd">        &gt;&gt;&gt; image.set_flat_field(flat)</span>
+
+<span class="sd">        &gt;&gt;&gt; #Add simple stars</span>
+<span class="sd">        &gt;&gt;&gt; star = numpy.array([[0.25, 0.50, 0.25],</span>
+<span class="sd">        &gt;&gt;&gt;                     [0.50, 1.00, 0.50],</span>
+<span class="sd">        &gt;&gt;&gt;                     [0.25, 0.50, 0.25]])</span>
+<span class="sd">        &gt;&gt;&gt; sky_flux = numpy.zeros((1024, 1024))</span>
+<span class="sd">        &gt;&gt;&gt; for star_x in numpy.arange(50.0, 1024.0 - 50.0, 50.0):</span>
+<span class="sd">        &gt;&gt;&gt;     for star_y in numpy.arange(50.0, 1024.0 - 50.0, 50.0):</span>
+<span class="sd">        &gt;&gt;&gt;         sky_flux[star_y - 1 : star_y + 2,</span>
+<span class="sd">        &gt;&gt;&gt;                  star_x - 1 : star_x + 2] = star</span>
+<span class="sd">        &gt;&gt;&gt; image.set_sky(sky_flux)</span>
+
+<span class="sd">        &gt;&gt;&gt; #Get image with the given parameters with 30s exposure</span>
+<span class="sd">        &gt;&gt;&gt; exp1 = image(5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FakeRawImage.__init__"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full_resolution</span><span class="p">,</span> <span class="n">image_area</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start creating a fake image with the given parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            full_resolution:    The full resolution of the image to create,</span>
+<span class="sd">                including the light sensitive area, but also overscan areas etc.</span>
+<span class="sd">                Should be dict(x=&lt;int&gt;, y=&lt;int&gt;).</span>
+
+<span class="sd">            image_area:    The light sensitivy part of the image. The format is:</span>
+<span class="sd">                `dict(xmin = &lt;int&gt;, xmax = &lt;int&gt;, ymin = &lt;int&gt;, ymax = &lt;int&gt;)`</span>
+
+<span class="sd">            gain:    The gain to assume for the A to D converter in electrons</span>
+<span class="sd">                per ADU. Setting a non-finite value (+-infinity or NaN) disables</span>
+<span class="sd">                poisson noise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">full_resolution</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">full_resolution</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;xmin&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;ymin&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span><span class="p">[</span><span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;ymin&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;ymax&#39;</span><span class="p">],</span>
+                                   <span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;xmin&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="n">image_area</span><span class="p">[</span><span class="s1">&#39;xmax&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span> <span class="o">=</span> <span class="n">gain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">=</span> <span class="mf">0.0</span></div>
+
+<div class="viewcode-block" id="FakeRawImage.add_bias"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.add_bias">[docs]</a>    <span class="k">def</span> <span class="nf">add_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ADU&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a bias level to the full image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            bias:    The noiseless bias level to add. Should be a single value,</span>
+<span class="sd">                a single row or column matching or a 2-D image with the y index</span>
+<span class="sd">                being first. The row, column or the image should matchthe full</span>
+<span class="sd">                reselotion of the fake image, not just the image area.</span>
+
+<span class="sd">            units:    Is the bias level specified in &#39;electrons&#39; or in amplifier</span>
+<span class="sd">                units (&#39;ADU&#39;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">units</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ADU&#39;</span><span class="p">,</span> <span class="s1">&#39;electrons&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">+=</span> <span class="n">bias</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;ADU&#39;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FakeRawImage.set_dark"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.set_dark">[docs]</a>    <span class="k">def</span> <span class="nf">set_dark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">areas</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ADU&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the rate at which dark current accumulates.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rate:    The noiseless rate per unit time at which dark current</span>
+<span class="sd">                accumulates. See `bias` argument of `add_bias` for details on</span>
+<span class="sd">                the possible formats.</span>
+
+<span class="sd">            areas:    List of areas specified using the same format as the</span>
+<span class="sd">                `image_area` argument of __init__ specifying the areas which</span>
+<span class="sd">                accumulate dark current but no light.</span>
+
+<span class="sd">            units:    Is the dark rate specified in &#39;ADU&#39; or &#39;electrons&#39; per</span>
+<span class="sd">                unit time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="n">dark_rate_multiplier</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;ADU&#39;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">image_y_res</span><span class="p">,</span> <span class="n">image_x_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">image_y_res</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">image_x_res</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">dark_rate_multiplier</span>
+
+        <span class="k">for</span> <span class="n">dark_area</span> <span class="ow">in</span> <span class="n">areas</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span><span class="p">[</span>
+                <span class="n">dark_area</span><span class="p">[</span><span class="s1">&#39;ymin&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="n">dark_area</span><span class="p">[</span><span class="s1">&#39;ymax&#39;</span><span class="p">],</span>
+                <span class="n">dark_area</span><span class="p">[</span><span class="s1">&#39;xmin&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="n">dark_area</span><span class="p">[</span><span class="s1">&#39;xmax&#39;</span><span class="p">]</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">dark_rate_multiplier</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">*=</span> <span class="n">rate</span></div>
+
+
+
+<div class="viewcode-block" id="FakeRawImage.set_flat_field"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.set_flat_field">[docs]</a>    <span class="k">def</span> <span class="nf">set_flat_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flat</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the sensitivity map of the fake imaging system.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            flat:    The noiseless map of the throughput of the system times the</span>
+<span class="sd">                sensitivy of each pixel. Should have the same resolution as the</span>
+<span class="sd">                image area (not the full image).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">flat</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">=</span> <span class="n">flat</span></div>
+
+<div class="viewcode-block" id="FakeRawImage.set_sky"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.set_sky">[docs]</a>    <span class="k">def</span> <span class="nf">set_sky</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sky_flux</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;ADU&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the flux arriving from the sky (with or without stars).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sky_flux:    The image that a perfect imaging system (no bias, dark</span>
+<span class="sd">                of flat) would see. Should only cover the imaging area.</span>
+
+<span class="sd">            units:    Is the sky flux specified in &#39;ADU&#39; or &#39;electrons&#39; per</span>
+<span class="sd">                unit time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">sky_flux</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">=</span> <span class="n">sky_flux</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;ADU&#39;</span> <span class="k">else</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FakeRawImage.__call__"><a class="viewcode-back" href="../../../implementation/superphot_pipeline.fake_image.raw.html#superphot_pipeline.fake_image.FakeRawImage.__call__">[docs]</a>    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exposure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simulate an exposure of the given duration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            exposure:    The amount of time to expose for in units consistent</span>
+<span class="sd">                with the units used for the rates specified.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            image:    A 2-D numpy array containing the simulated exposure image</span>
+<span class="sd">                sprinkled with random poisson noise if gain is finite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dark_rate</span> <span class="o">*</span> <span class="n">exposure</span>
+
+        <span class="n">x_res</span><span class="p">,</span> <span class="n">y_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">image</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_res</span><span class="p">,</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_offset</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_res</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">_sky</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flat</span> <span class="o">*</span> <span class="n">exposure</span>
+              <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">):</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">poisson</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">image</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">))</span>
+                     <span class="o">/</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_gain</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

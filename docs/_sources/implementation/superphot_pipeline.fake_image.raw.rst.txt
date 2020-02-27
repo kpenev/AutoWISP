@@ -1,0 +1,7 @@
+superphot_pipeline.fake_image.raw module
+========================================
+
+.. automodule:: superphot_pipeline.fake_image.raw
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.astrometry package &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.astrometry.transformation module" href="superphot_pipeline.astrometry.transformation.html" />
+    <link rel="prev" title="superphot_pipeline package" href="superphot_pipeline.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.astrometry.transformation.html" title="superphot_pipeline.astrometry.transformation module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.html" title="superphot_pipeline package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.astrometry package</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.html"
+                        title="previous chapter">superphot_pipeline package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.astrometry.transformation.html"
+                        title="next chapter">superphot_pipeline.astrometry.transformation module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.astrometry.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.astrometry">
+<span id="superphot-pipeline-astrometry-package"></span><h1>superphot_pipeline.astrometry package<a class="headerlink" href="#module-superphot_pipeline.astrometry" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-95b295924eb0536bc57b2f2aa053d4efaaa4213c.png" alt="Inheritance diagram of Transformation" usemap="#inheritance82b2d5b1ca" class="inheritance"/>
+<map id="inheritance82b2d5b1ca" name="inheritance82b2d5b1ca">
+<area shape="rect" id="node1" href="superphot_pipeline.astrometry.transformation.html#superphot_pipeline.astrometry.transformation.Transformation" target="_top" title="A clas that applies transformations generated by anmatch." alt="" coords="5,5,387,29"/>
+</map>
+<p>Module implementing the low-level astrometry.</p>
+<dl class="class">
+<dt id="superphot_pipeline.astrometry.Transformation">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.astrometry.</code><code class="descname">Transformation</code><span class="sig-paren">(</span><em>trans_fname=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<img src="../_images/inheritance-6f839d86e1199ed0b60b28c46c6ea9187858b72e.png" alt="Inheritance diagram of superphot_pipeline.astrometry.Transformation" usemap="#inheritance5122321a4c" class="inheritance"/>
+<map id="inheritance5122321a4c" name="inheritance5122321a4c">
+<area shape="rect" id="node1" href="superphot_pipeline.astrometry.transformation.html#superphot_pipeline.astrometry.transformation.Transformation" target="_top" title="A clas that applies transformations generated by anmatch." alt="" coords="5,5,387,29"/>
+</map>
+<p>A clas that applies transformations generated by anmatch.</p>
+<dl class="method">
+<dt id="superphot_pipeline.astrometry.Transformation.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>sources</em>, <em>save_intermediate=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the x and y coordinates to which the given (ra, dec) project to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sources</strong> &#8211; The sky position to project to frame coordinates. Should
+have keys named <cite>&#8216;RA&#8217;</cite> and <cite>&#8216;Dec&#8217;</cite> in degrees.</li>
+<li><strong>save_intermediate</strong> &#8211; Should the intermediate coordinates be saved.
+Those are the coordinates after apllying the sky projection and
+before applying the polynomial transformation.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>The position in pixels relative to the lower left</dt>
+<dd><p class="first last">frame of the corner to which the given sky position projects
+under the currently defined transformation, as a numpy array
+with fields named <cite>&#8216;x&#8217;</cite> and <cite>&#8216;y&#8217;</cite>. If <cite>save_intermediate</cite> is
+True, the result also contains fields called <cite>&#8216;xi&#8217;</cite> and <cite>&#8216;eta&#8217;</cite>
+containing the intermediate coordinates.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">projected</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.astrometry.Transformation.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>trans_fname=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>See set_transformation().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.astrometry.Transformation.evaluate_polynomial">
+<code class="descname">evaluate_polynomial</code><span class="sig-paren">(</span><em>projected</em>, <em>transformed</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation.evaluate_polynomial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation.evaluate_polynomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the currently defined polynomial transfomation to (xi, eta).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>projected</strong> &#8211; The projected (c.f. gnomonic_projection()) coordinates
+to transform. Should have <cite>&#8216;xi&#8217;</cite> and <cite>&#8216;eta&#8217;</cite> keys containing the
+projected coordinates to transform in degrees.</li>
+<li><strong>transformed</strong> &#8211; A numpy array with <cite>&#8216;x&#8217;</cite> and <cite>&#8216;y&#8217;</cite> fields to fill
+with the transformed coordinates (in pixels).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.astrometry.Transformation.gnomonic_projection">
+<code class="descname">gnomonic_projection</code><span class="sig-paren">(</span><em>sources</em>, <em>projected</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation.gnomonic_projection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation.gnomonic_projection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project the given sky position to a tangent plane (gnomonic projection).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sources</strong> &#8211; The the sky position to project (should have <cite>&#8216;RA&#8217;</cite> and
+<cite>&#8216;Dec&#8217;</cite> keys coordinates in degrees.</li>
+<li><strong>projected</strong> &#8211; A numpy array with <cite>&#8216;xi&#8217;</cite> and <cite>&#8216;eta&#8217;</cite> fields to fill
+with the projected coordinates (in degrees).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.astrometry.Transformation.read_anmatch_transformation">
+<code class="descname">read_anmatch_transformation</code><span class="sig-paren">(</span><em>trans_fname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/astrometry/transformation.html#Transformation.read_anmatch_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.astrometry.Transformation.read_anmatch_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the transformation to apply from the given file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>trans_fname</strong> &#8211; The name of the transformation to parse for the
+transformation to apply.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="superphot_pipeline.astrometry.transformation.html">superphot_pipeline.astrometry.transformation module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="superphot_pipeline.astrometry.transformation.html#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.astrometry.transformation.html" title="superphot_pipeline.astrometry.transformation module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.html" title="superphot_pipeline package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

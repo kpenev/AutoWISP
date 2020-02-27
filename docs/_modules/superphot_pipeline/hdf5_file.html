@@ -1,0 +1,1774 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.hdf5_file &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for superphot_pipeline.hdf5_file</h1><div class="highlight"><pre>
+<span></span><span class="c1">#Only a single class is defined so hardly makes sense split.</span>
+<span class="c1">#pylint: disable=too-many-lines</span>
+<span class="sd">&quot;&quot;&quot;Define a class for working with HDF5 files.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">xml.dom.minidom</span> <span class="k">as</span> <span class="nn">dom</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">from</span> <span class="nn">traceback</span> <span class="k">import</span> <span class="n">format_exception</span><span class="p">,</span> <span class="n">print_exception</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">exc_info</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="k">import</span> <span class="n">literal_eval</span>
+
+<span class="kn">from</span> <span class="nn">superphot_pipeline.pipeline_exceptions</span> <span class="k">import</span> <span class="n">HDF5LayoutError</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s1">&#39;$Id: efb749f3fe17ea5aaa414c3a0a615e75809b3073 $&#39;</span>
+
+<span class="c1">#This is a h5py issue not an issue with this module</span>
+<span class="c1">#pylint: disable=too-many-ancestors</span>
+<div class="viewcode-block" id="HDF5File"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File">[docs]</a><span class="k">class</span> <span class="nc">HDF5File</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for HDF5 pipeline products.</span>
+
+<span class="sd">    Supports defining the structure from the database or XML file, as  well as</span>
+<span class="sd">    generating markdown, and XML files describing the structure.</span>
+
+<span class="sd">    Implements backwards compatibility for different versions of the structure</span>
+<span class="sd">    of files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_destination_versions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="HDF5File.get_layout_root_tag_name"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_layout_root_tag_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_layout_root_tag_name</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The name of the root tag in the layout configuration.&quot;&quot;&quot;</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Identifying strings for the recognized elements of the HDF5 file.</span>
+
+<span class="sd">        Shoul be a dictionary-like object with values being a set of strings</span>
+<span class="sd">        containing the identifiers of the HDF5 elements and keys:</span>
+
+<span class="sd">            * dataset: Identifiers for the datasets that could be included in</span>
+<span class="sd">                the file.</span>
+
+<span class="sd">            * attribute: Identifiers for the attributes that could be included</span>
+<span class="sd">                in the file.</span>
+
+<span class="sd">            * link: Identifiers for the links that could be included in</span>
+<span class="sd">                the file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">element_uses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A dictionary specifying what each dataset or property is used for.</span>
+
+<span class="sd">        This structure has two keys: `&#39;dataset&#39;` and `&#39;attribute&#39;` each of which</span>
+<span class="sd">        should contain a dictionary with keys `self.elements[&#39;dataset&#39;]` or</span>
+<span class="sd">        `self.elements[&#39;attribute&#39;]` and values are lists of strings</span>
+<span class="sd">        specifying uses (only needed for generating documentation).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">default_destinations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dictionary of where to place newly created elements in the HDF5 file.</span>
+
+<span class="sd">        There is an entry for all non-group elements as defined by</span>
+<span class="sd">        self.get_element_type(). Each entry is a dictionary:</span>
+
+<span class="sd">            * parent: The path to the parent group/dataset where the new</span>
+<span class="sd">                entry will be created.</span>
+
+<span class="sd">            * parent_type: The type of the parent - &#39;group&#39; or &#39;dataset&#39;.</span>
+
+<span class="sd">            * name: The name to give to the new dataset. It may contain</span>
+<span class="sd">                a substitution of %(ap_ind)?.</span>
+
+<span class="sd">            * creation_args: For datasets only. Should specify additional</span>
+<span class="sd">                arguments for the create_dataset method.</span>
+
+<span class="sd">            * replace_nonfinite: For floating point datasets only. Specifies</span>
+<span class="sd">                a value with which to replace any non-finite dataset entries</span>
+<span class="sd">                before writing to the file. (Workaround the scaleoffset filter</span>
+<span class="sd">                problem with non-finite values). After extracting a dataset, any</span>
+<span class="sd">                values found to equal this are replaced by not-a-number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_destinations</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">destinations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Specifies the destinations for self.elements in the current file.</span>
+
+<span class="sd">        See self.default_destinations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">destination_versions</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destiantions for self.elements for all known file structure versions.</span>
+
+<span class="sd">        This is a dictionary indexed by configuration version number containing</span>
+<span class="sd">        entries identical to self.default_destinations for each configured</span>
+<span class="sd">        version of the HDF5 structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_destination_versions</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HDF5File.write_text_to_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.write_text_to_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">write_text_to_dataset</span><span class="p">(</span><span class="n">text</span><span class="p">,</span>
+                              <span class="n">h5group</span><span class="p">,</span>
+                              <span class="n">dset_path</span><span class="p">,</span>
+                              <span class="n">creation_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="o">**</span><span class="n">attributes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds ASCII text/file as a dateset to an HDF5 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text:    The text or file to add. If it is an open file, the</span>
+<span class="sd">                contents is dumped, if it is a python2 string or a python3</span>
+<span class="sd">                bytes, the value is stored.</span>
+
+<span class="sd">            h5group:    An HDF5 group (could be the root group, i.e. an</span>
+<span class="sd">                h5py.File opened for writing).</span>
+
+<span class="sd">            dset_path:    The path for the new dataset, either absolute or</span>
+<span class="sd">                relative to h5group.</span>
+
+<span class="sd">            creation_args:    Keyword arguments to pass to create_dataset(). If</span>
+<span class="sd">                None, defaults to dict(compression=&#39;gzip&#39;, compression_opts=9).</span>
+
+<span class="sd">            compression_opts:    see same name argument</span>
+<span class="sd">                in h5py.File.create_dataset.</span>
+
+<span class="sd">            attributes:    Added as attributes with the same name to the</span>
+<span class="sd">                the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">creation_args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">creation_args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span>
+                                 <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">text</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;i1&#39;</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">text</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">h5group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">dset_path</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">creation_args</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HDF5File.read_text_from_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.read_text_from_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">read_text_from_dataset</span><span class="p">(</span><span class="n">h5dset</span><span class="p">,</span> <span class="n">as_file</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a text from an HDF5 dataset.</span>
+
+<span class="sd">        The inverse of text_to_dataset().</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            h5dset:    The dataset containing the text to read.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            text:    Numpy byte array (dtype=&#39;i1&#39;) containing the text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">h5dset</span><span class="o">.</span><span class="n">len</span><span class="p">(),),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">h5dset</span><span class="o">.</span><span class="n">len</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">h5dset</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">as_file</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">text</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HDF5File.write_fitsheader_to_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.write_fitsheader_to_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">write_fitsheader_to_dataset</span><span class="p">(</span><span class="n">fitsheader</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a FITS header to an HDF5 file as a dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fitsheader:    The header to save (fits.Header instance).</span>
+
+<span class="sd">            args:    Passed directly to text_to_dataset().</span>
+
+<span class="sd">            kwargs:    Passed directly to text_to_dataset(.)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fitsheader</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1">#pylint false positive</span>
+            <span class="c1">#pylint: disable=no-member</span>
+            <span class="k">with</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fitsheader</span><span class="p">,</span> <span class="s1">&#39;readonly&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fitsfile</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">fitsfile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+                <span class="k">if</span> <span class="n">header</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">header</span> <span class="o">=</span> <span class="n">fitsfile</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+                <span class="n">fitsheader_string</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">cards</span><span class="p">))</span>
+            <span class="c1">#pylint: enable=no-member</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fitsheader_string</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fitsheader</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+        <span class="n">fitsheader_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">fitsheader_string</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+        <span class="n">HDF5File</span><span class="o">.</span><span class="n">write_text_to_dataset</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HDF5File.read_fitsheader_from_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.read_fitsheader_from_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">read_fitsheader_from_dataset</span><span class="p">(</span><span class="n">h5dset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads a FITS header from an HDF5 dataset.</span>
+
+<span class="sd">        The inverse of fitsheader_to_dataset().</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            h5dset:    The dataset containing the header to read.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            header:    Instance of fits.Header.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fitsheader_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">h5dset</span><span class="o">.</span><span class="n">len</span><span class="p">(),),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+        <span class="n">h5dset</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+                                          <span class="n">endcard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                          <span class="n">padding</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">newlines</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="o">.</span><span class="n">size</span><span class="o">/</span><span class="mi">80</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+            <span class="n">newlines</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">fitsheader_array</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="p">,</span>
+                                            <span class="nb">slice</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span>
+                                            <span class="n">numpy</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">))</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">fromfile</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">fitsheader_array</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">header</span></div>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="HDF5File.get_hdf5_dtype"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_hdf5_dtype">[docs]</a>    <span class="k">def</span> <span class="nf">get_hdf5_dtype</span><span class="p">(</span><span class="n">dtype_string</span><span class="p">,</span> <span class="n">hdf5_element_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the dtype argument to when creating an HDF5 entry.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dtype_string:    The string from the XML or database configuration</span>
+<span class="sd">                specifying the type.</span>
+
+<span class="sd">            hdf5_element_type:    What is the element being created - dataset</span>
+<span class="sd">                or attribute.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype:    Whatever should be passed as the dtype argument when</span>
+<span class="sd">                creating the given entry in the HDF5 file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dtype_string</span> <span class="o">!=</span> <span class="s1">&#39;S&#39;</span> <span class="ow">or</span> <span class="n">hdf5_element_type</span> <span class="o">==</span> <span class="s1">&#39;attribute&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype_string</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">h5py</span><span class="o">.</span><span class="n">special_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File.get_element_type"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_element_type">[docs]</a>    <span class="k">def</span> <span class="nf">get_element_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">element_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the type of HDF5 entry that corresponds to the given ID.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            element_id:    The identifying string for an element present in the</span>
+<span class="sd">                HDF5 file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            hdf5_type:    The type of HDF5 structure to create for this element.</span>
+<span class="sd">                One of: &#39;group&#39;, &#39;dataset&#39;, &#39;attribute&#39;, &#39;link&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#pylint false positive</span>
+        <span class="c1">#pylint: disable=no-member</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">element_type</span><span class="p">,</span> <span class="n">recognized</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1">#pylint: enable=no-member</span>
+            <span class="k">if</span> <span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">recognized</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">element_type</span>
+        <span class="k">return</span> <span class="s1">&#39;group&#39;</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File.get_documentation_order"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_documentation_order">[docs]</a>    <span class="k">def</span> <span class="nf">get_documentation_order</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">element_type</span><span class="p">,</span> <span class="n">element_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a sorting key for the elements in a documentation level.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            element_type:    The type of entry this element corresponds to in</span>
+<span class="sd">                the HDF5 file (group, dataset, attribute or link).</span>
+
+<span class="sd">            element_id:    The identifying string of this element.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            sort_key:    An integer such that elements for which lower values</span>
+<span class="sd">                are returned should appear before elements with higher values in</span>
+<span class="sd">                the documentation if the two are on the same level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">check_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">element_type</span> <span class="o">==</span> <span class="n">check_type</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="n">offset</span>
+                    <span class="o">+</span>
+                    <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span>
+                     <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="n">element_type</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element_id</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">+=</span> <span class="mi">1000</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">offset</span> <span class="o">+=</span> <span class="mi">100</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="n">element_type</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span><span class="s2">&quot;Unrecognized element type: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                              <span class="o">%</span>
+                              <span class="n">element_type</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File._add_paths"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File._add_paths">[docs]</a>    <span class="k">def</span> <span class="nf">_add_paths</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">xml_part</span><span class="p">,</span> <span class="n">parent_path</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">parent_type</span><span class="o">=</span><span class="s1">&#39;group&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add the paths in a part of an XML document.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xml_part:    A part of an XML docuemnt to parse (parsed</span>
+<span class="sd">                through xml.dom.minidom).</span>
+
+<span class="sd">            parent_path:    The path under which xml_part lives.</span>
+
+<span class="sd">            parent_type:    The type of entry the parent is (&#39;group&#39;</span>
+<span class="sd">                or &#39;dataset&#39;).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">parse_compression</span><span class="p">(</span><span class="n">compression_str</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Parses a string defining how to compress a dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                compression_str:    The string defiring the compression. Allowed</span>
+<span class="sd">                    values (can be combined with &#39;;&#39;):</span>
+
+<span class="sd">                    * gzip:&lt;level&gt;:    uses gzip based compression of the</span>
+<span class="sd">                        specified level</span>
+
+<span class="sd">                    * shuffle:    enables the shuffle filter.</span>
+
+<span class="sd">                    * scaleoffset:&lt;precision&gt;:    Uses the scale-offset filter.</span>
+<span class="sd">                        The precision is ignored if the dataset contains</span>
+<span class="sd">                        integral values and if it contains floating point values</span>
+<span class="sd">                        it specifies the number of digits after the decimal</span>
+<span class="sd">                        point to preserve.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                compression_args:    A dictionary of extra arguments to pass to</span>
+<span class="sd">                    the h5py create_dataset function in order to enable the</span>
+<span class="sd">                    specified compression.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">subfilter</span> <span class="ow">in</span> <span class="n">compression_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">subfilter</span> <span class="o">==</span> <span class="s1">&#39;shuffle&#39;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s1">&#39;shuffle&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">method</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">subfilter</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;scaleoffset&#39;</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scaleoffset</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;gzip&#39;</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="s1">&#39;gzip&#39;</span><span class="p">,</span>
+                                      <span class="n">compression_opts</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                            <span class="s2">&quot;Unrecognized compression filter &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                            <span class="o">%</span>
+                            <span class="n">method</span>
+                        <span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="n">xml_element</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Return the tag of the XML element replacing if necessary.&quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">xml_element</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;element_name&#39;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">xml_element</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;element_name&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">xml_element</span><span class="o">.</span><span class="n">tagName</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Structure configuration contains elemenst with no &#39;type&#39; &quot;</span>
+                <span class="s2">&quot;attribute.&quot;</span>
+                <span class="o">%</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span>
+            <span class="p">)</span>
+        <span class="n">part_type</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">get_name</span><span class="p">(</span><span class="n">xml_part</span><span class="p">)</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">part_type</span> <span class="o">!=</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Root entry of </span><span class="si">%s</span><span class="s2">Structure configuration has type=&#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span>
+                    <span class="s2">&quot;instead of &#39;group&#39;&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">(),</span> <span class="n">part_type</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">part_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
+        <span class="k">elif</span> <span class="n">parent_path</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+            <span class="n">part_path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span><span class="o">+</span><span class="n">get_name</span><span class="p">(</span><span class="n">xml_part</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">part_path</span> <span class="o">=</span> <span class="n">parent_path</span><span class="o">+</span><span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">get_name</span><span class="p">(</span><span class="n">xml_part</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">part_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Structure configuration contains &#39;</span><span class="si">%s</span><span class="s2">&#39; with type &#39;</span><span class="si">%s</span><span class="s2">&#39;, only &quot;</span>
+                <span class="s2">&quot;&#39;group&#39;, &#39;attribute&#39;, &#39;dataset&#39; and &#39;link&#39; are allowed!&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">(),</span> <span class="n">part_type</span><span class="p">,</span> <span class="n">part_path</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Value defined for the group &#39;</span><span class="si">%s</span><span class="s2">&#39; in </span><span class="si">%s</span><span class="s2">Structure &quot;</span>
+                    <span class="s2">&quot;configuration.&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span><span class="n">part_path</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">())</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">part_value</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_default_destinations</span><span class="p">[</span><span class="n">part_value</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">parent</span><span class="o">=</span><span class="n">parent_path</span><span class="p">,</span>
+                    <span class="n">parent_type</span><span class="o">=</span><span class="n">parent_type</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">get_name</span><span class="p">(</span><span class="n">xml_part</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">this_destination</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_default_destinations</span><span class="p">[</span><span class="n">part_value</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;compression&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">part_type</span> <span class="o">!=</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                            <span class="s2">&quot;Compression defined for the </span><span class="si">%s</span><span class="s2"> &#39;</span><span class="si">%s</span><span class="s2">&#39; in &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">Structure configuration. Only datasets can &quot;</span>
+                            <span class="s2">&quot;be compressed!&quot;</span>
+                            <span class="o">%</span>
+                            <span class="p">(</span><span class="n">part_type</span><span class="p">,</span> <span class="n">part_path</span><span class="p">,</span>
+                             <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">())</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">this_destination</span><span class="p">[</span><span class="s1">&#39;creation_args&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parse_compression</span><span class="p">(</span>
+                            <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;compression&#39;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">this_destination</span><span class="p">[</span><span class="s1">&#39;creation_args&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;replace_nonfinite&#39;</span><span class="p">):</span>
+                    <span class="k">assert</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span>
+                    <span class="n">this_destination</span><span class="p">[</span><span class="s1">&#39;replace_nonfinite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span>
+                        <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;replace_nonfinite&#39;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasAttribute</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">):</span>
+                    <span class="n">this_destination</span><span class="p">[</span><span class="s1">&#39;creation_args&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="n">dtype</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_hdf5_dtype</span><span class="p">(</span>
+                            <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">),</span>
+                            <span class="n">part_type</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasChildNodes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;attribute&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Configuration for </span><span class="si">%s</span><span class="s2"> file has structure under the &quot;</span>
+                    <span class="s2">&quot;attribute &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">(),</span> <span class="n">part_path</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">child</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">firstChild</span>
+            <span class="k">while</span> <span class="n">child</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">child</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">child_type</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">and</span> <span class="n">child_type</span> <span class="o">!=</span> <span class="s1">&#39;attribute&#39;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                            <span class="s2">&quot;HDF5 file structure  configuration involves a &quot;</span>
+                            <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; (&#39;</span><span class="si">%s</span><span class="s2">&#39;) under the dataset &#39;</span><span class="si">%s</span><span class="s2">&#39;, only &quot;</span>
+                            <span class="s2">&quot;attributes are allowed.&quot;</span>
+                            <span class="o">%</span>
+                            <span class="p">(</span>
+                                <span class="n">child_type</span><span class="p">,</span>
+                                <span class="n">get_name</span><span class="p">(</span><span class="n">child</span><span class="p">),</span>
+                                <span class="n">part_path</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_add_paths</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">part_path</span><span class="p">,</span> <span class="n">part_type</span><span class="p">)</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">nextSibling</span></div>
+
+    <span class="c1">#TODO: Fix to work ith markdown rather than markup.</span>
+<div class="viewcode-block" id="HDF5File.generate_wiki"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.generate_wiki">[docs]</a>    <span class="k">def</span> <span class="nf">generate_wiki</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_part</span><span class="p">,</span> <span class="n">current_indent</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">format_for</span><span class="o">=</span><span class="s1">&#39;TRAC&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the part of the wiki corresponding to a part of the XML tree.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xml_part:    The part of the XML tree to wikify.</span>
+
+<span class="sd">            current_indent:    The indent to use for the root element</span>
+<span class="sd">                of xml_part.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            wiki:    a python string with the wiki text to add (newlines</span>
+<span class="sd">                and all).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">camel_case_rex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;[A-Z][a-z]+([A-Z][a-z]+)+&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">camel_case</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Returns True iff the given string is CamelCase.&quot;&quot;&quot;</span>
+
+            <span class="n">match</span> <span class="o">=</span> <span class="n">camel_case_rex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">match</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">()</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;The string to add to the wiki for the given description.&quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;- [[span(</span><span class="si">%s</span><span class="s1">, style=color: grey)]]&#39;</span> <span class="o">%</span> <span class="n">description</span>
+            <span class="k">return</span> <span class="n">description</span>
+
+
+        <span class="k">def</span> <span class="nf">format_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns the string to represent a group.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                name:    The name of the group.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                wiki_group:    The properly formatted string stating the name of</span>
+<span class="sd">                    the given group, as it should be added to the wiki.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">camel_case</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;!&#39;</span> <span class="o">+</span> <span class="n">name</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">&#39;- [[span(</span><span class="si">%s</span><span class="s1">, style=color: orange; font-size: 150</span><span class="si">%%</span><span class="s1">, &#39;</span>
+                    <span class="s1">&#39;id=anchor)]]&#39;</span>
+                    <span class="o">%</span>
+                    <span class="n">name</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&lt;li&gt;&lt;b&gt;&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;&lt;/b&gt;&#39;</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">format_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">used_by</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">has_attributes</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns the string to represent a dataset.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                name:    The name of the dataset.</span>
+
+<span class="sd">                used_by:    A list of &quot;things&quot; that use the dataset.</span>
+
+<span class="sd">                description:    A brief description of the dataset.</span>
+
+<span class="sd">                has_attributes:    Does the dataset have attributes.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                wiki_dataset:    The properly formatted string containing all</span>
+<span class="sd">                    the supplied information about the dataset, as it should be</span>
+<span class="sd">                    added to the wiki.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">used_by</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;- &#39;&#39;&#39;__</span><span class="si">%s</span><span class="s2">__&#39;&#39;&#39;^</span><span class="si">%s</span><span class="s2">^: &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">used_by</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;- __</span><span class="si">%s</span><span class="s1">__: &#39;</span> <span class="o">%</span> <span class="n">name</span>
+                <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&lt;li&gt;&lt;u&gt;&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;&lt;/u&gt;: &#39;</span>
+                <span class="k">if</span> <span class="n">used_by</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;&lt;sup&gt;&#39;</span> <span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">used_by</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&lt;/sup&gt;: &#39;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">has_attributes</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/li&gt;&#39;</span>
+                <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">def</span> <span class="nf">format_attribute</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">used_by</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns the string to represent an attribute.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                name:    The name of the attribute.</span>
+
+<span class="sd">                used_by:    A list of &quot;things&quot;  that use the attribute</span>
+
+<span class="sd">                description:    A brief description of the attribute (optional).</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                wiki_attribute:    The properly formatted string containing all</span>
+<span class="sd">                    the supplied information about the attribute, as it should</span>
+<span class="sd">                    be added to the wiki.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">formatted_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;!&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="k">if</span> <span class="n">camel_case</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">used_by</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;- &#39;&#39;&#39;</span><span class="si">%s</span><span class="s2">&#39;&#39;&#39;^</span><span class="si">%s</span><span class="s2">^: &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">formatted_name</span><span class="p">,</span>
+                                                   <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">used_by</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;- &#39;</span> <span class="o">+</span> <span class="n">formatted_name</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span>
+                <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&lt;li&gt;&#39;</span>
+                        <span class="o">+</span>
+                        <span class="n">name</span>
+                        <span class="o">+</span>
+                        <span class="s1">&#39;: &#39;</span>
+                        <span class="o">+</span>
+                        <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+                        <span class="o">+</span>
+                        <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">format_link</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Returns the string to represent a link.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                name:    The name of the link.</span>
+
+<span class="sd">                description:    A brief description of the link.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                wiki_link:    The properly formatted string containing all the</span>
+<span class="sd">                    supplied information about the link, as it should be added</span>
+<span class="sd">                    to the wiki.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">formatted_name</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;!&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="k">if</span> <span class="n">camel_case</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">else</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;- [[span(</span><span class="si">%s</span><span class="s1">, style=color: DarkTurquoise)]]: &#39;</span>
+                        <span class="o">%</span>
+                        <span class="n">formatted_name</span>
+                        <span class="o">+</span>
+                        <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">))</span>
+            <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&lt;li&gt;&lt;i&gt;&#39;</span>
+                    <span class="o">+</span>
+                    <span class="n">name</span>
+                    <span class="o">+</span>
+                    <span class="s1">&#39;&lt;/i&gt;: &#39;</span>
+                    <span class="o">+</span>
+                    <span class="n">format_description</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+                    <span class="o">+</span>
+                    <span class="s1">&#39;&lt;/li&gt;&#39;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">format_header</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;The header of the wiki page (legend, description, ...)&quot;&quot;&quot;</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="n">legend_start</span> <span class="o">=</span> <span class="s1">&#39;= Legend: =&#39;</span>
+                <span class="n">legend_end</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">format_start</span> <span class="o">=</span> <span class="s1">&#39;= Single Frame HDF5 File version </span><span class="si">%s</span><span class="s1"> =</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">legend_start</span> <span class="o">=</span> <span class="s1">&#39;# Legend:</span><span class="se">\n</span><span class="s1">&lt;ul&gt;&#39;</span>
+                <span class="n">legend_end</span> <span class="o">=</span> <span class="s1">&#39;    &lt;/ul&gt;</span><span class="se">\n</span><span class="s1">&lt;/ul&gt;&#39;</span>
+                <span class="n">format_start</span> <span class="o">=</span> <span class="s1">&#39;# Single Frame HDF5 File version </span><span class="si">%s</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+
+            <span class="n">legend_end</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;TRAC&#39;</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&lt;/ul&gt;&#39;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">legend_start</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="n">format_group</span><span class="p">(</span><span class="s1">&#39;group&#39;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;GitHub&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    &lt;ul&gt;&#39;</span>
+
+            <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                       <span class="o">+</span>
+                       <span class="p">(</span><span class="s1">&#39;        &#39;</span> <span class="o">+</span> <span class="n">format_dataset</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span>
+                                                    <span class="p">[</span><span class="s1">&#39;[usedby&#39;</span><span class="p">,</span> <span class="s1">&#39;[...]]&#39;</span><span class="p">],</span>
+                                                    <span class="s1">&#39;description&#39;</span><span class="p">,</span>
+                                                    <span class="kc">False</span><span class="p">))</span>
+                       <span class="o">+</span>
+                       <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                       <span class="o">+</span>
+                       <span class="p">(</span><span class="s1">&#39;        &#39;</span> <span class="o">+</span> <span class="n">format_attribute</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span>
+                                                      <span class="p">[</span><span class="s1">&#39;[usedby&#39;</span><span class="p">,</span> <span class="s1">&#39;[...]]&#39;</span><span class="p">],</span>
+                                                      <span class="s1">&#39;[description]&#39;</span><span class="p">))</span>
+                       <span class="o">+</span>
+                       <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+                       <span class="o">+</span>
+                       <span class="s1">&#39;        &#39;</span> <span class="o">+</span> <span class="n">format_link</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">==</span> <span class="s1">&#39;GitHub&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">    &lt;/ul&gt;&#39;</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">result</span>
+                <span class="o">+</span>
+                <span class="n">legend_end</span>
+                <span class="o">+</span>
+                <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">Elements which depend on the aperture used for aperture&#39;</span>
+                <span class="s1">&#39;photometry must contain a substitution of </span><span class="si">%(ap_ind)s</span><span class="s1"> &#39;</span>
+                <span class="s1">&#39;in their names, unless only a single aperture is &#39;</span>
+                <span class="s1">&#39;being used.</span><span class="se">\n\n</span><span class="s1">Elements which are required by the pipeline&#39;</span>
+                <span class="s1">&#39; are bold.</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+                <span class="o">+</span>
+                <span class="n">format_start</span><span class="o">%</span><span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">sort_children</span><span class="p">():</span>
+            <span class="sd">&quot;&quot;&quot;Orders all the child nodes as they should be processed.&quot;&quot;&quot;</span>
+
+            <span class="n">child_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">child</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">firstChild</span>
+            <span class="k">while</span> <span class="n">child</span><span class="p">:</span>
+                <span class="n">child_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="n">child</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">nextSibling</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">child_nodes</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">child</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_documentation_order</span><span class="p">(</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">),</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="n">part_type</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
+        <span class="n">part_description</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">tagName</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">format_header</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hdf5_name</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">tagName</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">current_indent</span>
+            <span class="k">if</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">format_group</span><span class="p">(</span><span class="n">hdf5_name</span><span class="p">,</span> <span class="n">part_description</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span>
+                <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_uses</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">format_dataset</span><span class="p">(</span><span class="n">hdf5_name</span><span class="p">,</span>
+                                         <span class="n">users</span><span class="p">,</span>
+                                         <span class="n">part_description</span><span class="p">,</span>
+                                         <span class="n">xml_part</span><span class="o">.</span><span class="n">hasChildNodes</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;attribute&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">format_attribute</span><span class="p">(</span>
+                    <span class="n">hdf5_name</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">element_uses</span><span class="p">[</span><span class="s1">&#39;attribute&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">[]),</span>
+                    <span class="n">part_description</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">part_type</span> <span class="o">==</span> <span class="s1">&#39;link&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">format_link</span><span class="p">(</span><span class="n">hdf5_name</span><span class="p">,</span> <span class="n">part_description</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">xml_part</span><span class="o">.</span><span class="n">hasChildNodes</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">!=</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">current_indent</span> <span class="o">+</span> <span class="s1">&#39;&lt;ul&gt;&#39;</span>
+            <span class="n">new_indent</span> <span class="o">=</span> <span class="n">current_indent</span> <span class="o">+</span> <span class="s1">&#39;    &#39;</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">sort_children</span><span class="p">():</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_wiki</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">new_indent</span><span class="p">,</span> <span class="n">format_for</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">format_for</span> <span class="o">!=</span> <span class="s1">&#39;TRAC&#39;</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">current_indent</span> <span class="o">+</span> <span class="s1">&#39;&lt;/ul&gt;&lt;/li&gt;&#39;</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="HDF5File._wiki_other_version_links"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File._wiki_other_version_links">[docs]</a>    <span class="k">def</span> <span class="nf">_wiki_other_version_links</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version_list</span><span class="p">,</span> <span class="n">target_version</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Text to add to wiki to link to other configuration versions.&quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">= Other Versions: =</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">version_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="n">target_version</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> * &#39;</span>
+                    <span class="o">+</span>
+                    <span class="s1">&#39;Version </span><span class="si">%(ver)s</span><span class="s1">: [wiki:</span><span class="si">%(product)s</span><span class="s1">Format_v</span><span class="si">%(ver)s</span><span class="s1">]&#39;</span>
+                    <span class="o">%</span>
+                    <span class="nb">dict</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span>
+                         <span class="n">product</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">())</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File.configure_from_xml"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.configure_from_xml">[docs]</a>    <span class="k">def</span> <span class="nf">configure_from_xml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">xml</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">make_default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the file structure from an xml.dom.minidom document.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            xml:    The xml.dom.minidom document defining the structure.</span>
+
+<span class="sd">            project_id:    The project ID this configuration applies to.</span>
+
+<span class="sd">            make_default:    Should this configuration be saved as the</span>
+<span class="sd">                default one?</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_add_custom_elements&#39;</span><span class="p">):</span>
+            <span class="c1">#pylint false positive: we check for this method before calling.</span>
+            <span class="c1">#pylint: disable=no-member</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_add_custom_elements</span><span class="p">()</span>
+            <span class="c1">#pylint: enable=no-member</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">getAttribute</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">))</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_add_paths</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">firstChild</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_destination_versions</span><span class="p">[</span><span class="n">version</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_default_destinations</span>
+        <span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_structure_project_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_default_project_id</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">make_default</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_default_version</span> <span class="o">=</span> <span class="n">version</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_project_id</span> <span class="o">=</span> <span class="n">project_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_default_destinations</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_configured_from_db</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File.configure_from_db"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.configure_from_db">[docs]</a>    <span class="k">def</span> <span class="nf">configure_from_db</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span>
+                          <span class="n">db</span><span class="p">,</span>
+                          <span class="n">target_project_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">target_version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">datatype_from_db</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">save_to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">update_trac</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">generate_markdown</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the defined the structure of the file from the database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            db:    An instance of CalibDB connected to the calibration database.</span>
+
+<span class="sd">            target_project_id:    The project ID to configure for (falls back to</span>
+<span class="sd">                the configuration for project_id=0 if no configuration is found</span>
+<span class="sd">                for the requested value. Default: 0.</span>
+
+<span class="sd">            target_version:    The configuration version to set as default. If</span>
+<span class="sd">                None (default), the largest configuration value found is used.</span>
+
+<span class="sd">            datatype_from_db:    Should the information about data type be read</span>
+<span class="sd">                form the database?</span>
+
+<span class="sd">            save_to_file:    If not None, a file with the given names is created</span>
+<span class="sd">                contaning an XML representation of the HDF5 file structure</span>
+<span class="sd">                costructed from the database.</span>
+
+<span class="sd">            generate_markdown:    Generates markdown files suitable for</span>
+<span class="sd">                committing to a GitHub repository as documentation. If given,</span>
+<span class="sd">                this argument should be a directory where the files should be</span>
+<span class="sd">                saved. Otherwise it should be something that tests as False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">build_xml</span><span class="p">(</span><span class="n">db_config</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Builds a DOM structure from the database configuration.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                db_config:    The entries in the database defining</span>
+<span class="sd">                    the configuration.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                dom_document:    A xml.dom.minidom document with</span>
+<span class="sd">                    the configuration.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">def</span> <span class="nf">create_elements</span><span class="p">(</span><span class="n">dom_document</span><span class="p">):</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Creates DOM elements for all entries with no hierarchy.</span>
+
+<span class="sd">                Args:</span>
+<span class="sd">                    dom_document:    The DOM document to create elements with.</span>
+
+<span class="sd">                Returns:</span>
+<span class="sd">                    elements:    A dictionary indexed by</span>
+<span class="sd">                        %(component)s.%(element)s of DOM elements for each entry</span>
+<span class="sd">                        with all their attributes properly set.</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+
+                <span class="n">hdf5_structure</span> <span class="o">=</span> <span class="n">dom_document</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">hdf5_structure</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
+
+                <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">result</span><span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">hdf5_structure</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">db_entry</span> <span class="ow">in</span> <span class="n">db_config</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">datatype_from_db</span><span class="p">:</span>
+                        <span class="p">(</span>
+                            <span class="n">component</span><span class="p">,</span>
+                            <span class="n">element</span><span class="p">,</span>
+                            <span class="n">parent</span><span class="p">,</span>
+                            <span class="n">h5name</span><span class="p">,</span>
+                            <span class="n">datatype</span><span class="p">,</span>
+                            <span class="n">compression</span><span class="p">,</span>
+                            <span class="n">replace_nonfinite</span><span class="p">,</span>
+                            <span class="n">description</span>
+                        <span class="p">)</span> <span class="o">=</span> <span class="n">db_entry</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="p">(</span>
+                            <span class="n">component</span><span class="p">,</span>
+                            <span class="n">element</span><span class="p">,</span>
+                            <span class="n">parent</span><span class="p">,</span>
+                            <span class="n">h5name</span><span class="p">,</span>
+                            <span class="n">compression</span><span class="p">,</span>
+                            <span class="n">replace_nonfinite</span><span class="p">,</span>
+                            <span class="n">description</span>
+                        <span class="p">)</span> <span class="o">=</span> <span class="n">db_entry</span>
+                    <span class="n">element_id</span> <span class="o">=</span> <span class="n">component</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">element</span>
+
+                    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
+                        <span class="n">parent</span> <span class="o">=</span> <span class="n">component</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">parent</span>
+                        <span class="k">if</span> <span class="n">parent</span> <span class="o">==</span> <span class="n">element_id</span><span class="p">:</span>
+                            <span class="n">parent</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+
+                    <span class="n">new_element</span> <span class="o">=</span> <span class="n">dom_document</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span>
+                        <span class="n">h5name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                            <span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                            <span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                            <span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">element_type</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_element_type</span><span class="p">(</span><span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+                    <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">element_type</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">h5name</span><span class="o">.</span><span class="n">isalnum</span><span class="p">():</span>
+                        <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;element_name&#39;</span><span class="p">,</span> <span class="n">h5name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">element_type</span> <span class="o">!=</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                        <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">,</span>
+                                                 <span class="n">element_id</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">datatype_from_db</span><span class="p">:</span>
+                            <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">datatype</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                                <span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;dataset&#39;</span>
+                                <span class="ow">and</span>
+                                <span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="p">):</span>
+                            <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;replace_nonfinite&#39;</span><span class="p">,</span>
+                                                     <span class="nb">repr</span><span class="p">(</span><span class="n">replace_nonfinite</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">compression</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;compression&#39;</span><span class="p">,</span> <span class="n">compression</span><span class="p">)</span>
+                    <span class="n">new_element</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">element_id</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">element</span><span class="o">=</span><span class="n">new_element</span><span class="p">,</span>
+                                              <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">Document</span><span class="p">()</span>
+            <span class="n">element_dict</span> <span class="o">=</span> <span class="n">create_elements</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">element_id</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">element_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">element_id</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">element</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">element_dict</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">parent</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                                <span class="s2">&quot;Requested that &#39;</span><span class="si">%s</span><span class="s2">&#39; be placed under &#39;</span><span class="si">%s</span><span class="s2">&#39; but &quot;</span>
+                                <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not configured.&quot;</span>
+                                <span class="o">%</span>
+                                <span class="p">(</span><span class="n">element_id</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">parent</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+                    <span class="n">element_dict</span><span class="p">[</span><span class="n">parent</span><span class="p">][</span><span class="s1">&#39;element&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span>
+                        <span class="n">element</span><span class="p">[</span><span class="s1">&#39;element&#39;</span><span class="p">]</span>
+                    <span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">element_dict</span><span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">][</span><span class="s1">&#39;element&#39;</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">result</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s1">&#39;_add_custom_elements&#39;</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_add_custom_elements</span><span class="p">()</span>
+        <span class="n">version_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">structure_project_id</span> <span class="o">=</span> <span class="n">target_project_id</span>
+        <span class="n">default_project_id</span> <span class="o">=</span> <span class="n">target_project_id</span>
+        <span class="k">while</span> <span class="n">version_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">version_list</span> <span class="o">=</span> <span class="n">db</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s1">&#39;SELECT `version` FROM `</span><span class="si">%s</span><span class="s1">` WHERE `project_id`=</span><span class="si">%%</span><span class="s1">s GROUP BY&#39;</span>
+                    <span class="s1">&#39; `version`&#39;</span>
+                    <span class="o">%</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_db_table</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="n">structure_project_id</span><span class="p">,),</span>
+                <span class="n">no_simplify</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">version_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">structure_project_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                        <span class="s1">&#39;No </span><span class="si">%s</span><span class="s1"> structure defined for project id </span><span class="si">%d</span><span class="s1"> or 0!&#39;</span>
+                        <span class="o">%</span>
+                        <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">(),</span> <span class="n">target_project_id</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="n">structure_project_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">version_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">version_list</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">target_version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target_version</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">version_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">version_list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;No configuration found for project ID </span><span class="si">%d</span><span class="s2">, version </span><span class="si">%d</span><span class="s2"> in `</span><span class="si">%s</span><span class="s2">`&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span><span class="n">target_project_id</span><span class="p">,</span> <span class="n">target_version</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_db_table</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">update_trac</span><span class="p">:</span>
+            <span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">()</span>
+            <span class="n">ssl_context</span><span class="o">.</span><span class="n">check_hostname</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">ssl_context</span><span class="o">.</span><span class="n">verify_mode</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">CERT_NONE</span>
+            <span class="n">ssl_context</span><span class="o">.</span><span class="n">verify_flags</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">VERIFY_DEFAULT</span>
+            <span class="n">wiki_server</span> <span class="o">=</span> <span class="n">xmlrpclib</span><span class="o">.</span><span class="n">ServerProxy</span><span class="p">(</span>
+                <span class="s1">&#39;https://kpenev:shakakaa@hat.astro.princeton.edu/projects/&#39;</span>
+                <span class="s1">&#39;HATreduc/login/rpc&#39;</span><span class="p">,</span>
+                <span class="n">context</span><span class="o">=</span><span class="n">ssl_context</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">wiki</span>
+        <span class="k">for</span> <span class="n">version</span> <span class="ow">in</span> <span class="n">version_list</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;SELECT `component`, `element`, `parent`, `hdf5_name`,&#39;</span>
+            <span class="k">if</span> <span class="n">datatype_from_db</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">+=</span> <span class="s1">&#39; `dtype`,&#39;</span>
+            <span class="n">query</span> <span class="o">+=</span> <span class="p">(</span><span class="s1">&#39; `compression`, `replace_nonfinite`, `description` &#39;</span>
+                      <span class="s1">&#39;FROM `</span><span class="si">%s</span><span class="s1">` WHERE `project_id`=</span><span class="si">%%</span><span class="s1">s AND `version`=</span><span class="si">%%</span><span class="s1">s&#39;</span><span class="p">)</span>
+            <span class="n">db_config</span> <span class="o">=</span> <span class="n">db</span><span class="p">(</span><span class="n">query</span> <span class="o">%</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_db_table</span><span class="p">,</span>
+                           <span class="p">(</span><span class="n">structure_project_id</span><span class="p">,</span> <span class="n">version</span><span class="p">),</span>
+                           <span class="n">no_simplify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">xml</span> <span class="o">=</span> <span class="n">build_xml</span><span class="p">(</span><span class="n">db_config</span><span class="p">)</span>
+            <span class="n">xml</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">save_to_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_to_file</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">PROJID</span><span class="o">=</span><span class="n">structure_project_id</span><span class="p">,</span>
+                                             <span class="n">VERSION</span><span class="o">=</span><span class="n">version</span><span class="p">),</span>
+                         <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">())</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">update_trac</span> <span class="ow">or</span> <span class="n">generate_markdown</span><span class="p">:</span>
+                <span class="n">page_name</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">get_layout_root_tag_name</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;Format&#39;</span>
+                <span class="n">page_text</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">generate_wiki</span><span class="p">(</span>
+                    <span class="n">xml</span><span class="o">.</span><span class="n">firstChild</span><span class="p">,</span>
+                    <span class="n">format_for</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;TRAC&#39;</span> <span class="k">if</span> <span class="n">update_trac</span> <span class="k">else</span> <span class="s1">&#39;GitHub&#39;</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">version</span> <span class="o">!=</span> <span class="n">target_version</span><span class="p">:</span>
+                    <span class="n">page_name</span> <span class="o">+=</span> <span class="s1">&#39;_v&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">update_trac</span><span class="p">:</span>
+                    <span class="n">page_text</span> <span class="o">+=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_wiki_other_version_links</span><span class="p">(</span>
+                        <span class="n">version_list</span><span class="p">,</span>
+                        <span class="n">version</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">update_trac</span><span class="p">:</span>
+                    <span class="n">wiki_server</span><span class="o">.</span><span class="n">putPage</span><span class="p">(</span><span class="n">page_name</span><span class="p">,</span> <span class="n">page_text</span><span class="p">,</span> <span class="nb">dict</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">join_paths</span><span class="p">(</span><span class="n">generate_markdown</span><span class="p">,</span> <span class="n">page_name</span> <span class="o">+</span> <span class="s1">&#39;.md&#39;</span><span class="p">),</span>
+                             <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">page_text</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">configure_from_xml</span><span class="p">(</span><span class="n">xml</span><span class="p">,</span>
+                                   <span class="n">structure_project_id</span><span class="p">,</span>
+                                   <span class="n">version</span> <span class="o">==</span> <span class="n">target_version</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_structure_project_id</span> <span class="o">=</span> <span class="n">structure_project_id</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_default_project_id</span> <span class="o">=</span> <span class="n">default_project_id</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_calibration_station</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">station</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">configure_filenames</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_configured_from_db</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HDF5File.get_version_dtype"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_version_dtype">[docs]</a>    <span class="k">def</span> <span class="nf">get_version_dtype</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">element_id</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        What get_dtype would return for LC configured with the given version.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            element_id:    The string identifier for the quantity to return the</span>
+<span class="sd">                data type for.</span>
+
+<span class="sd">            version:    The structure version for which to return the data type.</span>
+<span class="sd">                If None, uses the latest configured version.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype:    A numpy style data type to use for the quantity in LCs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_default_destinations</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">destination_versions</span><span class="p">[</span><span class="n">version</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">destination</span><span class="p">[</span><span class="n">element_id</span><span class="p">][</span><span class="s1">&#39;creation_args&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HDF5File.get_dtype"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_dtype">[docs]</a>    <span class="k">def</span> <span class="nf">get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return numpy style data type string for the given element_id.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">element_id</span><span class="p">][</span><span class="s1">&#39;creation_args&#39;</span><span class="p">][</span><span class="s1">&#39;dtype&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HDF5File.add_attribute"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.add_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">add_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">attribute_key</span><span class="p">,</span>
+                      <span class="n">attribute_value</span><span class="p">,</span>
+                      <span class="n">attribute_dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">if_exists</span><span class="o">=</span><span class="s1">&#39;overwrite&#39;</span><span class="p">,</span>
+                      <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>
+                      <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single attribute to a dateset or a group.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute_key:    The key in _destinations that corresponds to the</span>
+<span class="sd">                attribute to add. If the key is not one of the recognized keys,</span>
+<span class="sd">                h5file is not modified and the function silently exits.</span>
+
+<span class="sd">            attribute_value:    The value to give the attribute.</span>
+
+<span class="sd">            attribute_dtype:    Data type for the new attribute, None to</span>
+<span class="sd">                determine automatically.</span>
+
+<span class="sd">            if_exists:    What should be done if the attribute exists? Possible</span>
+<span class="sd">                values are:</span>
+<span class="sd">                - ignore:    do not update but return the attribute&#39;s value.</span>
+
+<span class="sd">                - overwrite:    Change the value to the specified one.</span>
+
+<span class="sd">                - error: raise an exception.</span>
+
+<span class="sd">            logger:    An object to pass log messages to.</span>
+<span class="sd">            log_extra:    Extra information to attach to the log messages.</span>
+
+<span class="sd">            substitutions:    variables to substitute in HDF5 paths and names.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">attribute_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Not adding &#39;</span><span class="si">%s</span><span class="s2">&#39; attribute, since no destination is defined&quot;</span>
+                    <span class="s2">&quot; for it.&quot;</span>
+                    <span class="o">%</span>
+                    <span class="n">attribute_key</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">parent_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;group&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Attempting to add a attribute to non-existant </span><span class="si">%s</span><span class="s2"> (&#39;</span><span class="si">%s</span><span class="s2">&#39;) &quot;</span>
+                    <span class="s2">&quot;in &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span>
+                        <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent_type&#39;</span><span class="p">],</span>
+                        <span class="n">parent_path</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">parent_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Defining &#39;</span><span class="si">%s%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&#39;=&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span><span class="p">,</span>
+                    <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span><span class="p">,</span>
+                    <span class="n">attribute_value</span>
+                <span class="p">),</span>
+                <span class="n">extra</span><span class="o">=</span><span class="n">log_extra</span>
+            <span class="p">)</span>
+        <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">attribute_name</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s1">&#39;ignore&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s1">&#39;error&#39;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;Attribute &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&#39; already exists!&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">if_exists</span> <span class="o">==</span> <span class="s1">&#39;overwrite&#39;</span>
+
+        <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">attribute_name</span><span class="p">,</span>
+                            <span class="n">attribute_value</span><span class="p">,</span>
+                            <span class="n">dtype</span><span class="o">=</span><span class="n">attribute_dtype</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5File.add_link"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.add_link">[docs]</a>    <span class="k">def</span> <span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a soft link to the HDF5 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target:    The path to create a soft link to.</span>
+
+<span class="sd">            name:    The name to give to the link. Overwritten if it existts and</span>
+<span class="sd">                is a link.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Error.HDF5:    if an object with the same name as the link exists,</span>
+<span class="sd">                but is not a link.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Linking &#39;</span><span class="si">%s</span><span class="s2">&#39; -&gt; &#39;</span><span class="si">%s</span><span class="s2">&#39; in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                         <span class="o">%</span>
+                         <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+                         <span class="n">extra</span><span class="o">=</span><span class="n">log_extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">getclass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">getlink</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">h5py</span><span class="o">.</span><span class="n">SoftLink</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Removing old symlink &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span>
+                                 <span class="n">extra</span><span class="o">=</span><span class="n">log_extra</span><span class="p">)</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                    <span class="s2">&quot;An object named &#39;</span><span class="si">%s</span><span class="s2">&#39; already exists in &#39;</span><span class="si">%s</span><span class="s2">&#39;, and is not&quot;</span>
+                    <span class="s2">&quot; a link. Not overwriting!&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">SoftLink</span><span class="p">(</span><span class="n">target</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5File._delete_obsolete_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File._delete_obsolete_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">_delete_obsolete_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                 <span class="n">parent</span><span class="p">,</span>
+                                 <span class="n">name</span><span class="p">,</span>
+                                 <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete obsolete HDF5 dataset if it exists and update repacking flag.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent:    The parent group this entry belongs to.</span>
+
+<span class="sd">            name:    The name of the entry to check and delete. If the entry is</span>
+<span class="sd">                not a dataset, an error is raised.</span>
+
+<span class="sd">            logger:    An object to issue log messages to.</span>
+
+<span class="sd">            log_extra:    Extra information to add to log messages.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Error.HDF5:    if an entry with the given name exists under parent,</span>
+<span class="sd">                but is not a dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Deleteing obsolete dataset &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&#39; in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                               <span class="o">%</span>
+                               <span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+            <span class="k">if</span> <span class="s1">&#39;Repack&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;Repack&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;Repack&#39;</span><span class="p">]</span>
+                    <span class="o">+</span>
+                    <span class="s1">&#39;,</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s1">&#39;Repack&#39;</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="s1">&#39;,</span><span class="si">%s</span><span class="s1">/</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">)))</span>
+            <span class="k">del</span> <span class="n">parent</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HDF5File.dump_file_like"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.dump_file_like">[docs]</a>    <span class="k">def</span> <span class="nf">dump_file_like</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">file_like</span><span class="p">,</span>
+                       <span class="n">destination</span><span class="p">,</span>
+                       <span class="n">link_name</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">external_log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>
+                       <span class="n">log_dumping</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a byte-by-byte dump of a file-like object to self.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_like:    A file-like object to dump.</span>
+
+<span class="sd">            destination:    The path in self to use for the dump.</span>
+
+<span class="sd">            link_name:    If this argument converts to True, a link with the</span>
+<span class="sd">                given name is created pointing to destination.</span>
+
+<span class="sd">            logger:    An object to emit log messages to.</span>
+
+<span class="sd">            external_log_extra:    extra information to add to log message.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete_obsolete_dataset</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span>
+                                      <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                                      <span class="n">logger</span><span class="p">,</span>
+                                      <span class="n">external_log_extra</span><span class="p">)</span>
+        <span class="n">text_to_dataset</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">file_like</span>
+                <span class="k">if</span> <span class="n">file_like</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;i1&#39;</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">parent</span><span class="p">,</span>
+            <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+            <span class="n">creation_args</span><span class="o">=</span><span class="n">destination</span><span class="p">[</span><span class="s1">&#39;creation_args&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">link_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span>
+                <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+                <span class="n">link_name</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">log_extra</span><span class="o">=</span><span class="n">log_extra</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5File.add_file_dump"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.add_file_dump">[docs]</a>    <span class="k">def</span> <span class="nf">add_file_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">fname</span><span class="p">,</span>
+                      <span class="n">destination</span><span class="p">,</span>
+                      <span class="n">link_name</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">delete_original</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">external_log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">()):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a byte by byte dump of a file to the data reduction file.</span>
+
+<span class="sd">        If the file does not exist an empty dataset is created.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fname:    The name of the file to dump.</span>
+
+<span class="sd">            destination:    Passed directly to dump_file_like.</span>
+
+<span class="sd">            link_name:    Passed directly to dump_file_like.</span>
+
+<span class="sd">            delete_original:    If True, the file being dumped is</span>
+<span class="sd">                deleted (default).</span>
+
+<span class="sd">            logger:    An object to emit log messages to.</span>
+
+<span class="sd">            external_log_extra:    extra information to add to log message.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;Adding dump of &#39;</span><span class="si">%s</span><span class="s2">&#39; to &#39;</span><span class="si">%s</span><span class="s2">&#39; as &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                    <span class="o">%</span>
+                    <span class="p">(</span>
+                        <span class="n">fname</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+                        <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">],</span>
+                        <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="o">+</span>
+                    <span class="p">(</span><span class="s2">&quot; and linking as &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">link_name</span> <span class="k">if</span> <span class="n">link_name</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="n">extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">log_extra</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="n">external_log_extra</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_file_like</span><span class="p">(</span>
+            <span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">destination</span><span class="p">,</span>
+            <span class="n">link_name</span><span class="p">,</span>
+            <span class="n">logger</span><span class="p">,</span>
+            <span class="n">external_log_extra</span><span class="p">,</span>
+            <span class="n">log_dumping</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">delete_original</span> <span class="ow">and</span> <span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5File.get_file_dump"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_file_dump">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dump_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns as a string (with name attribute) a previously dumped file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dump_key:    The key in self._destinations identifying the file</span>
+<span class="sd">                to extract.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dump:    The text of the dumped file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dump_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;The key &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in the list of configured data &quot;</span>
+                <span class="s2">&quot;reduction file entries.&quot;</span>
+                <span class="o">%</span>
+                <span class="n">dump_key</span>
+            <span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">dump_key</span><span class="p">]</span>
+        <span class="n">dset_name</span> <span class="o">=</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dset_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span><span class="s2">&quot;No &#39;</span><span class="si">%s</span><span class="s2">&#39; dataset found in data reduction &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                                  <span class="o">%</span>
+                                  <span class="p">(</span><span class="n">dset_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">text_from_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">dset_name</span><span class="p">],</span> <span class="n">as_file</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">dset_name</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="HDF5File.get_attribute"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">get_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                      <span class="n">attribute_key</span><span class="p">,</span>
+                      <span class="n">default_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="o">**</span><span class="n">substitutions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the attribute identified by the given key.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute_key:    The key of the attribute to return. It must be one</span>
+<span class="sd">                of the standard keys.</span>
+
+<span class="sd">            default_value:    If this is not None this values is returned if the</span>
+<span class="sd">                attribute does not exist in the file, if None, not finding the</span>
+<span class="sd">                attribute rasies Error.Sanity.</span>
+
+<span class="sd">            substitutions:    Any keys that must be substituted in the path</span>
+<span class="sd">                (i.e. ap_ind, config_id, ...).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            value:    The value of the attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">attribute_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;The key &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in the list of configured data &quot;</span>
+                <span class="s2">&quot;reduction file entries.&quot;</span>
+                <span class="o">%</span>
+                <span class="n">attribute_key</span>
+            <span class="p">)</span>
+        <span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">attribute_key</span><span class="p">]</span>
+        <span class="n">parent_path</span> <span class="o">=</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">%</span> <span class="n">substitutions</span>
+        <span class="k">if</span> <span class="n">parent_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default_value</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;Requested attribute &#39;</span><span class="si">%s</span><span class="s2">&#39; from a non-existent </span><span class="si">%s</span><span class="s2">: &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span>
+                    <span class="n">attribute_name</span><span class="p">,</span>
+                    <span class="n">destination</span><span class="p">[</span><span class="s1">&#39;parent_type&#39;</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+                    <span class="n">parent_path</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">attribute_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">default_value</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;The attribute &#39;</span><span class="si">%s</span><span class="s2">&#39; is not defined for &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span><span class="n">attribute_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">parent_path</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parent</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="HDF5File.get_single_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.get_single_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">get_single_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">dataset_key</span><span class="p">,</span>
+                           <span class="n">sub_entry</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">expected_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="o">**</span><span class="n">substitute</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a single dataset as a numpy float or int array.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_key:    The key in self._destinations identifying the</span>
+<span class="sd">                dataset to read.</span>
+
+<span class="sd">            sub_entry:    If the dataset_key does not identify a single dataset,</span>
+<span class="sd">                this value is used to select from among the multiple possible</span>
+<span class="sd">                datasets (e.g. &#39;field&#39; or &#39;source&#39; for source IDs)</span>
+
+<span class="sd">            expected_size:    The size to use for the dataset if an empty</span>
+<span class="sd">                dataset is found. If None, a zero-sized array is returned.</span>
+
+<span class="sd">            optional:    If not None and the dataset does not exist, this value</span>
+<span class="sd">                is returned, otherwise if the dataset does not exist an</span>
+<span class="sd">                exception is raised.</span>
+
+<span class="sd">            substitute:    Any arguments that should be substituted in the path</span>
+<span class="sd">                (e.g. ap_ind or config_id).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            data:    A numpy int/float array containing the identified dataset</span>
+<span class="sd">                from the HDF5 file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;</span><span class="si">%(parent)s</span><span class="s1">/</span><span class="si">%(name)s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">])</span>
+               <span class="o">%</span>
+               <span class="n">substitute</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">optional</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s2">&quot;Requested dataset &#39;</span><span class="si">%s</span><span class="s2">&#39; does not exist in &#39;</span><span class="si">%s</span><span class="s2">&#39;!&quot;</span>
+                <span class="o">%</span>
+                <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">sub_entry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">sub_entry</span><span class="p">]</span>
+        <span class="n">variable_length_dtype</span> <span class="o">=</span> <span class="n">h5py</span><span class="o">.</span><span class="n">check_dtype</span><span class="p">(</span><span class="n">vlen</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">variable_length_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">result_dtype</span> <span class="o">=</span> <span class="n">variable_length_dtype</span>
+        <span class="k">elif</span> <span class="n">numpy</span><span class="o">.</span><span class="n">can_cast</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="n">result_dtype</span> <span class="o">=</span> <span class="nb">int</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result_dtype</span> <span class="o">=</span> <span class="nb">float</span>
+        <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span>
+                       <span class="k">if</span> <span class="n">expected_shape</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span>
+                       <span class="n">expected_shape</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">result_dtype</span>
+            <span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">variable_length_dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dataset</span><span class="p">[:]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">result_dtype</span><span class="p">)</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">read_direct</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+                <span class="s1">&#39;replace_nonfinite&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">]</span>
+                <span class="ow">and</span>
+                <span class="p">(</span>
+                    <span class="n">dataset</span><span class="o">.</span><span class="n">fillvalue</span> <span class="o">!=</span> <span class="mi">0</span>
+                    <span class="ow">or</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span><span class="p">[</span><span class="n">dataset_key</span><span class="p">][</span><span class="s1">&#39;replace_nonfinite&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">result</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">fillvalue</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">fillvalue</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="HDF5File.add_single_dataset"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.add_single_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">add_single_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">parent</span><span class="p">,</span>
+                           <span class="n">name</span><span class="p">,</span>
+                           <span class="n">data</span><span class="p">,</span>
+                           <span class="n">creation_args</span><span class="p">,</span>
+                           <span class="n">replace_nonfinite</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">log_extra</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>
+                           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a single dataset to self.</span>
+
+<span class="sd">        If the target dataset already exists, it is deleted first and the</span>
+<span class="sd">        name of the dataset is added to the root level Repack attribute.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            parent:    The full path of the group under which to place the new</span>
+<span class="sd">                dataset (created if it does not exist).</span>
+
+<span class="sd">            name:    The name of the dataset.</span>
+
+<span class="sd">            data:    The values that should be written, a numpy array with</span>
+<span class="sd">                appropriate type already set.</span>
+
+<span class="sd">            creation_args:    Additional arguments to pass to the create_dataset</span>
+<span class="sd">                method.</span>
+
+<span class="sd">            replace_nonfinite:    If not None, any non-finite values are</span>
+<span class="sd">                replaced with this value, it is also used as the fill value for</span>
+<span class="sd">                the dataset.</span>
+
+<span class="sd">            logger:    An object to send log messages to.</span>
+
+<span class="sd">            log_extra:    Extra information to add to log messages</span>
+
+<span class="sd">            kwargs:    Ignored.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Creating dataset &#39;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">&#39; in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                         <span class="o">%</span>
+                         <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+                         <span class="n">extra</span><span class="o">=</span><span class="n">log_extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">parent_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_group</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent_group</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_delete_obsolete_dataset</span><span class="p">(</span><span class="n">parent_group</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">log_extra</span><span class="p">)</span>
+        <span class="n">fillvalue</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">replace_nonfinite</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">finite</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">fillvalue</span> <span class="o">=</span> <span class="n">replace_nonfinite</span>
+            <span class="k">if</span> <span class="n">finite</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">data_copy</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data_copy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">data_copy</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">finite</span><span class="p">)]</span> <span class="o">=</span> <span class="n">replace_nonfinite</span>
+
+        <span class="k">if</span> <span class="n">fillvalue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parent_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                        <span class="n">data</span><span class="o">=</span><span class="n">data_copy</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">creation_args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parent_group</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">name</span><span class="p">,</span>
+                                        <span class="n">data</span><span class="o">=</span><span class="n">data_copy</span><span class="p">,</span>
+                                        <span class="n">fillvalue</span><span class="o">=</span><span class="n">fillvalue</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">creation_args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HDF5File.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.hdf5_file.html#superphot_pipeline.hdf5_file.HDF5File.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">fname</span><span class="p">,</span>
+                 <span class="n">mode</span><span class="p">,</span>
+                 <span class="n">project_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">db_config_version</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Opens the given HDF5 file in the given mode.&quot;&quot;&quot;</span>
+
+        <span class="n">old_file</span> <span class="o">=</span> <span class="n">exists</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="k">raise</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">HDF5LayoutError</span><span class="p">(</span>
+                <span class="s1">&#39;Problem opening </span><span class="si">%s</span><span class="s1"> in mode=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+                <span class="o">+</span>
+                <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">()))</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;a&#39;</span> <span class="ow">and</span> <span class="n">old_file</span><span class="p">):</span>
+            <span class="n">found_project_id</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_configured_from_db</span><span class="p">:</span>
+                <span class="k">for</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span>\
+                        <span class="ow">in</span>\
+                        <span class="bp">self</span><span class="o">.</span><span class="n">destination_versions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">structure_project_id</span> <span class="o">=</span> <span class="n">HDF5File</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="p">,</span>
+                            <span class="s1">&#39;file_structure.project_id&#39;</span><span class="p">,</span>
+                            <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span>
+                        <span class="p">)</span>
+                        <span class="n">found_project_id</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                    <span class="k">except</span> <span class="n">Error</span><span class="o">.</span><span class="n">HDF5</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                <span class="k">assert</span> <span class="n">found_project_id</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure_project_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="n">structure_project_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure_project_id</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project_id</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_default_project_id</span>
+                    <span class="k">if</span> <span class="n">project_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span>
+                    <span class="n">project_id</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="n">HDF5File</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="p">,</span>
+                    <span class="s1">&#39;file_structure.version&#39;</span><span class="p">,</span>
+                    <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">destination_versions</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_version</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project_id</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_destinations</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">project_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_project_id</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_project_id</span> <span class="o">=</span> <span class="n">project_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_version</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_version</span>
+                             <span class="k">if</span> <span class="n">db_config_version</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span>
+                             <span class="n">db_config_version</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_destinations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">destination_versions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_version</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span>
+                <span class="s1">&#39;file_structure.project_id&#39;</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="mi">0</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure_project_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_structure_project_id</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="s1">&#39;file_structure.version&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version</span><span class="p">)</span></div></div>
+<span class="c1">#pylint: enable=too-many-ancestors</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>
