@@ -3,9 +3,9 @@
 """A script for visually exploring the results of a PSF/PRF fit."""
 
 from argparse import ArgumentParser
+import functools
 
 import scipy
-from numpy.lib import recfunctions
 from astropy.io import fits
 
 from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
@@ -21,6 +21,20 @@ def parse_command_line():
         'dr_fname',
         help='The filename of the data reduction file containing the PSF/PRF '
         'map to explore.'
+    )
+    parser.add_argument(
+        '--subpix-map',
+        default=None,
+        help='If passed, should point to a FITS image to be used as the '
+        'sub-pixel sensitivity map. Otherwise, uniform pixels are assumed.'
+    )
+    parser.add_argument(
+        '--assume-psf',
+        action='store_true',
+        default=False,
+        help='If passed, the map contained in the given file is integrated, '
+        'possibly combined with the sub-pixel map, to predict the response of '
+        'pixels assuming the map is a PSF (as opposed to PRF) map.'
     )
 
     return explore_prf.parse_command_line(parser)
@@ -93,6 +107,25 @@ def main(cmdline_args):
         )
         for x_image_slice, y_image_slice in image_slices
     ]
+    if cmdline_args.assume_psf:
+        if cmdline_args.subpix_map is None:
+            slice_splines = [
+                psf.predict_pixel for psf in slice_splines
+            ]
+        else:
+            with fits.open(cmdline_args.subpix_map) as subpix_file:
+                slice_splines = [
+                    functools.partial(
+                        psf.predict_pixel,
+                        #False positive
+                        #pylint: disable=no-member
+                        subpix_map=(subpix_file[0].data
+                                    if subpix_file[0].header['NAXIS'] > 0 else
+                                    subpix_file[1].data)
+                        #pylint: enable=no-member
+                    )
+                    for psf in slice_splines
+                ]
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
