@@ -1,0 +1,876 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.hdf5_file module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.image_smoothing module" href="superphot_pipeline.image_smoothing.html" />
+    <link rel="prev" title="superphot_pipeline.image_calibration.overscan_methods module" href="superphot_pipeline.image_calibration.overscan_methods.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_smoothing.html" title="superphot_pipeline.image_smoothing module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_calibration.overscan_methods.html" title="superphot_pipeline.image_calibration.overscan_methods module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.hdf5_file module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_calibration.overscan_methods.html"
+                        title="previous chapter">superphot_pipeline.image_calibration.overscan_methods module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_smoothing.html"
+                        title="next chapter">superphot_pipeline.image_smoothing module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.hdf5_file.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.hdf5_file">
+<span id="superphot-pipeline-hdf5-file-module"></span><h1>superphot_pipeline.hdf5_file module<a class="headerlink" href="#module-superphot_pipeline.hdf5_file" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-d9ddb9821108f07fa66aaef7bacc77fb1f851040.png" alt="Inheritance diagram of ABC, HDF5File, HDF5LayoutError, StringIO" usemap="#inheritance8b7c063efb" class="inheritance"/>
+<map id="inheritance8b7c063efb" name="inheritance8b7c063efb">
+<area shape="rect" id="node1" title="Text I/O implementation using an in&#45;memory buffer." alt="" coords="115,5,207,29"/>
+<area shape="rect" id="node2" title="Helper class that provides a standard way to create an ABC using" alt="" coords="84,437,158,461"/>
+<area shape="rect" id="node15" href="#superphot_pipeline.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="58,509,306,533"/>
+<area shape="rect" id="node11" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="496,221,689,245"/>
+<area shape="rect" id="node12" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="246,293,486,317"/>
+<area shape="rect" id="node9" title="Mixin class that allows sharing information between objects which" alt="" coords="5,221,236,245"/>
+<area shape="rect" id="node10" title="Base class for high&#45;level interface objects." alt="" coords="50,293,213,317"/>
+<area shape="rect" id="node14" title="Represents an HDF5 group." alt="" coords="169,365,318,389"/>
+<area shape="rect" id="node13" title="Represents an HDF5 file." alt="" coords="182,437,305,461"/>
+<area shape="rect" id="node16" href="superphot_pipeline.pipeline_exceptions.html#superphot_pipeline.pipeline_exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="777,5,1140,29"/>
+</map>
+<p>Define a class for working with HDF5 files.</p>
+<dl class="class">
+<dt id="superphot_pipeline.hdf5_file.HDF5File">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.hdf5_file.</code><code class="descname">HDF5File</code><span class="sig-paren">(</span><em>fname</em>, <em>mode</em>, <em>project_id=None</em>, <em>db_config_version=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">abc.ABC</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">h5py._hl.files.File</span></code></p>
+<img src="../_images/inheritance-2a200cecfa8fc8f62cb53daf43e40865854dd75e.png" alt="Inheritance diagram of superphot_pipeline.hdf5_file.HDF5File" usemap="#inheritanceb8d26fc977" class="inheritance"/>
+<map id="inheritanceb8d26fc977" name="inheritanceb8d26fc977">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="84,437,158,461"/>
+<area shape="rect" id="node14" href="#superphot_pipeline.hdf5_file.HDF5File" target="_top" title="Base class for HDF5 pipeline products." alt="" coords="58,509,306,533"/>
+<area shape="rect" id="node10" title="Wraps a Group, AttributeManager or DimensionManager object to provide" alt="" coords="496,221,689,245"/>
+<area shape="rect" id="node11" title="Wraps a Group or AttributeManager object to provide a mutable" alt="" coords="246,293,486,317"/>
+<area shape="rect" id="node8" title="Mixin class that allows sharing information between objects which" alt="" coords="5,221,236,245"/>
+<area shape="rect" id="node9" title="Base class for high&#45;level interface objects." alt="" coords="50,293,213,317"/>
+<area shape="rect" id="node13" title="Represents an HDF5 group." alt="" coords="169,365,318,389"/>
+<area shape="rect" id="node12" title="Represents an HDF5 file." alt="" coords="182,437,305,461"/>
+</map>
+<p>Base class for HDF5 pipeline products.</p>
+<p>Supports defining the structure from the database or XML file, as  well as
+generating markdown, and XML files describing the structure.</p>
+<p>Implements backwards compatibility for different versions of the structure
+of files.</p>
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>fname</em>, <em>mode</em>, <em>project_id=None</em>, <em>db_config_version=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the given HDF5 file in the given mode.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File._add_paths">
+<em class="property">classmethod </em><code class="descname">_add_paths</code><span class="sig-paren">(</span><em>xml_part</em>, <em>parent_path='/'</em>, <em>parent_type='group'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File._add_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File._add_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the paths in a part of an XML document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xml_part</strong> &#8211; A part of an XML docuemnt to parse (parsed
+through xml.dom.minidom).</li>
+<li><strong>parent_path</strong> &#8211; The path under which xml_part lives.</li>
+<li><strong>parent_type</strong> &#8211; The type of entry the parent is (&#8216;group&#8217;
+or &#8216;dataset&#8217;).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File._delete_obsolete_dataset">
+<code class="descname">_delete_obsolete_dataset</code><span class="sig-paren">(</span><em>parent</em>, <em>name</em>, <em>logger=None</em>, <em>log_extra={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File._delete_obsolete_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File._delete_obsolete_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete obsolete HDF5 dataset if it exists and update repacking flag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parent</strong> &#8211; The parent group this entry belongs to.</li>
+<li><strong>name</strong> &#8211; The name of the entry to check and delete. If the entry is
+not a dataset, an error is raised.</li>
+<li><strong>logger</strong> &#8211; An object to issue log messages to.</li>
+<li><strong>log_extra</strong> &#8211; Extra information to add to log messages.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">Error.HDF5</span></code> &#8211; if an entry with the given name exists under parent,
+but is not a dataset.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File._wiki_other_version_links">
+<code class="descname">_wiki_other_version_links</code><span class="sig-paren">(</span><em>version_list</em>, <em>target_version</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File._wiki_other_version_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File._wiki_other_version_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text to add to wiki to link to other configuration versions.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.add_attribute">
+<code class="descname">add_attribute</code><span class="sig-paren">(</span><em>attribute_key</em>, <em>attribute_value</em>, <em>attribute_dtype=None</em>, <em>if_exists='overwrite'</em>, <em>logger=None</em>, <em>log_extra={}</em>, <em>**substitutions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.add_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.add_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a single attribute to a dateset or a group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>attribute_key</strong> &#8211; The key in _destinations that corresponds to the
+attribute to add. If the key is not one of the recognized keys,
+h5file is not modified and the function silently exits.</li>
+<li><strong>attribute_value</strong> &#8211; The value to give the attribute.</li>
+<li><strong>attribute_dtype</strong> &#8211; Data type for the new attribute, None to
+determine automatically.</li>
+<li><strong>if_exists</strong> &#8211; <p>What should be done if the attribute exists? Possible
+values are:
+- ignore:    do not update but return the attribute&#8217;s value.</p>
+<ul>
+<li>overwrite:    Change the value to the specified one.</li>
+<li>error: raise an exception.</li>
+</ul>
+</li>
+<li><strong>logger</strong> &#8211; An object to pass log messages to.</li>
+<li><strong>log_extra</strong> &#8211; Extra information to attach to the log messages.</li>
+<li><strong>substitutions</strong> &#8211; variables to substitute in HDF5 paths and names.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.add_file_dump">
+<code class="descname">add_file_dump</code><span class="sig-paren">(</span><em>fname</em>, <em>destination</em>, <em>link_name=False</em>, <em>delete_original=True</em>, <em>logger=None</em>, <em>external_log_extra={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.add_file_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.add_file_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a byte by byte dump of a file to the data reduction file.</p>
+<p>If the file does not exist an empty dataset is created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fname</strong> &#8211; The name of the file to dump.</li>
+<li><strong>destination</strong> &#8211; Passed directly to dump_file_like.</li>
+<li><strong>link_name</strong> &#8211; Passed directly to dump_file_like.</li>
+<li><strong>delete_original</strong> &#8211; If True, the file being dumped is
+deleted (default).</li>
+<li><strong>logger</strong> &#8211; An object to emit log messages to.</li>
+<li><strong>external_log_extra</strong> &#8211; extra information to add to log message.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.add_link">
+<code class="descname">add_link</code><span class="sig-paren">(</span><em>target</em>, <em>name</em>, <em>logger=None</em>, <em>log_extra={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.add_link"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.add_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a soft link to the HDF5 file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target</strong> &#8211; The path to create a soft link to.</li>
+<li><strong>name</strong> &#8211; The name to give to the link. Overwritten if it existts and
+is a link.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">Error.HDF5</span></code> &#8211; if an object with the same name as the link exists,
+but is not a link.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.add_single_dataset">
+<code class="descname">add_single_dataset</code><span class="sig-paren">(</span><em>parent</em>, <em>name</em>, <em>data</em>, <em>creation_args</em>, <em>replace_nonfinite=None</em>, <em>logger=None</em>, <em>log_extra={}</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.add_single_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.add_single_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a single dataset to self.</p>
+<p>If the target dataset already exists, it is deleted first and the
+name of the dataset is added to the root level Repack attribute.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parent</strong> &#8211; The full path of the group under which to place the new
+dataset (created if it does not exist).</li>
+<li><strong>name</strong> &#8211; The name of the dataset.</li>
+<li><strong>data</strong> &#8211; The values that should be written, a numpy array with
+appropriate type already set.</li>
+<li><strong>creation_args</strong> &#8211; Additional arguments to pass to the create_dataset
+method.</li>
+<li><strong>replace_nonfinite</strong> &#8211; If not None, any non-finite values are
+replaced with this value, it is also used as the fill value for
+the dataset.</li>
+<li><strong>logger</strong> &#8211; An object to send log messages to.</li>
+<li><strong>log_extra</strong> &#8211; Extra information to add to log messages</li>
+<li><strong>kwargs</strong> &#8211; Ignored.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.configure_from_db">
+<em class="property">classmethod </em><code class="descname">configure_from_db</code><span class="sig-paren">(</span><em>db</em>, <em>target_project_id=0</em>, <em>target_version=None</em>, <em>datatype_from_db=False</em>, <em>save_to_file=None</em>, <em>update_trac=False</em>, <em>generate_markdown=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.configure_from_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.configure_from_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the defined the structure of the file from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>db</strong> &#8211; An instance of CalibDB connected to the calibration database.</li>
+<li><strong>target_project_id</strong> &#8211; The project ID to configure for (falls back to
+the configuration for project_id=0 if no configuration is found
+for the requested value. Default: 0.</li>
+<li><strong>target_version</strong> &#8211; The configuration version to set as default. If
+None (default), the largest configuration value found is used.</li>
+<li><strong>datatype_from_db</strong> &#8211; Should the information about data type be read
+form the database?</li>
+<li><strong>save_to_file</strong> &#8211; If not None, a file with the given names is created
+contaning an XML representation of the HDF5 file structure
+costructed from the database.</li>
+<li><strong>generate_markdown</strong> &#8211; Generates markdown files suitable for
+committing to a GitHub repository as documentation. If given,
+this argument should be a directory where the files should be
+saved. Otherwise it should be something that tests as False.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.configure_from_xml">
+<em class="property">classmethod </em><code class="descname">configure_from_xml</code><span class="sig-paren">(</span><em>xml</em>, <em>project_id=0</em>, <em>make_default=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.configure_from_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.configure_from_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the file structure from an xml.dom.minidom document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xml</strong> &#8211; The xml.dom.minidom document defining the structure.</li>
+<li><strong>project_id</strong> &#8211; The project ID this configuration applies to.</li>
+<li><strong>make_default</strong> &#8211; Should this configuration be saved as the
+default one?</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.default_destinations">
+<code class="descname">default_destinations</code><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.default_destinations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of where to place newly created elements in the HDF5 file.</p>
+<p>There is an entry for all non-group elements as defined by
+self.get_element_type(). Each entry is a dictionary:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>parent: The path to the parent group/dataset where the new</dt>
+<dd>entry will be created.</dd>
+</dl>
+</li>
+<li>parent_type: The type of the parent - &#8216;group&#8217; or &#8216;dataset&#8217;.</li>
+<li><dl class="first docutils">
+<dt>name: The name to give to the new dataset. It may contain</dt>
+<dd>a substitution of %(ap_ind)?.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>creation_args: For datasets only. Should specify additional</dt>
+<dd>arguments for the create_dataset method.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>replace_nonfinite: For floating point datasets only. Specifies</dt>
+<dd>a value with which to replace any non-finite dataset entries
+before writing to the file. (Workaround the scaleoffset filter
+problem with non-finite values). After extracting a dataset, any
+values found to equal this are replaced by not-a-number.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.destination_versions">
+<code class="descname">destination_versions</code><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.destination_versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>classmethod(function) -&gt; method</p>
+<p>Convert a function to be a class method.</p>
+<p>A class method receives the class as implicit first argument,
+just like an instance method receives the instance.
+To declare a class method, use this idiom:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>class C:</dt>
+<dd><p class="first">&#64;classmethod
+def f(cls, arg1, arg2, ...):</p>
+<blockquote class="last">
+<div>...</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<p>It can be called either on the class (e.g. C.f()) or on an instance
+(e.g. C().f()).  The instance is ignored except for its class.
+If a class method is called for a derived class, the derived class
+object is passed as the implied first argument.</p>
+<p>Class methods are different than C++ or Java static methods.
+If you want those, see the staticmethod builtin.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.destinations">
+<code class="descname">destinations</code><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.destinations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies the destinations for self.elements in the current file.</p>
+<p>See self.default_destinations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.dump_file_like">
+<code class="descname">dump_file_like</code><span class="sig-paren">(</span><em>file_like</em>, <em>destination</em>, <em>link_name=False</em>, <em>logger=None</em>, <em>external_log_extra={}</em>, <em>log_dumping=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.dump_file_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.dump_file_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a byte-by-byte dump of a file-like object to self.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_like</strong> &#8211; A file-like object to dump.</li>
+<li><strong>destination</strong> &#8211; The path in self to use for the dump.</li>
+<li><strong>link_name</strong> &#8211; If this argument converts to True, a link with the
+given name is created pointing to destination.</li>
+<li><strong>logger</strong> &#8211; An object to emit log messages to.</li>
+<li><strong>external_log_extra</strong> &#8211; extra information to add to log message.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.element_uses">
+<code class="descname">element_uses</code><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.element_uses" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary specifying what each dataset or property is used for.</p>
+<p>This structure has two keys: <cite>&#8216;dataset&#8217;</cite> and <cite>&#8216;attribute&#8217;</cite> each of which
+should contain a dictionary with keys <cite>self.elements[&#8216;dataset&#8217;]</cite> or
+<cite>self.elements[&#8216;attribute&#8217;]</cite> and values are lists of strings
+specifying uses (only needed for generating documentation).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.elements">
+<code class="descname">elements</code><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identifying strings for the recognized elements of the HDF5 file.</p>
+<p>Shoul be a dictionary-like object with values being a set of strings
+containing the identifiers of the HDF5 elements and keys:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>dataset: Identifiers for the datasets that could be included in</dt>
+<dd>the file.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>attribute: Identifiers for the attributes that could be included</dt>
+<dd>in the file.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>link: Identifiers for the links that could be included in</dt>
+<dd>the file.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.generate_wiki">
+<code class="descname">generate_wiki</code><span class="sig-paren">(</span><em>xml_part</em>, <em>current_indent=''</em>, <em>format_for='TRAC'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.generate_wiki"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.generate_wiki" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the part of the wiki corresponding to a part of the XML tree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>xml_part</strong> &#8211; The part of the XML tree to wikify.</li>
+<li><strong>current_indent</strong> &#8211; The indent to use for the root element
+of xml_part.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>a python string with the wiki text to add (newlines</dt>
+<dd><p class="first last">and all).</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">wiki</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_attribute">
+<code class="descname">get_attribute</code><span class="sig-paren">(</span><em>attribute_key</em>, <em>default_value=None</em>, <em>**substitutions</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the attribute identified by the given key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>attribute_key</strong> &#8211; The key of the attribute to return. It must be one
+of the standard keys.</li>
+<li><strong>default_value</strong> &#8211; If this is not None this values is returned if the
+attribute does not exist in the file, if None, not finding the
+attribute rasies Error.Sanity.</li>
+<li><strong>substitutions</strong> &#8211; Any keys that must be substituted in the path
+(i.e. ap_ind, config_id, ...).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The value of the attribute.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">value</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_documentation_order">
+<em class="property">classmethod </em><code class="descname">get_documentation_order</code><span class="sig-paren">(</span><em>element_type</em>, <em>element_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_documentation_order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_documentation_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a sorting key for the elements in a documentation level.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>element_type</strong> &#8211; The type of entry this element corresponds to in
+the HDF5 file (group, dataset, attribute or link).</li>
+<li><strong>element_id</strong> &#8211; The identifying string of this element.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>An integer such that elements for which lower values</dt>
+<dd><p class="first last">are returned should appear before elements with higher values in
+the documentation if the two are on the same level.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">sort_key</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_dtype">
+<code class="descname">get_dtype</code><span class="sig-paren">(</span><em>element_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_dtype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return numpy style data type string for the given element_id.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_element_type">
+<em class="property">classmethod </em><code class="descname">get_element_type</code><span class="sig-paren">(</span><em>element_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_element_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_element_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the type of HDF5 entry that corresponds to the given ID.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>element_id</strong> &#8211; The identifying string for an element present in the
+HDF5 file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>The type of HDF5 structure to create for this element.</dt>
+<dd>One of: &#8216;group&#8217;, &#8216;dataset&#8217;, &#8216;attribute&#8217;, &#8216;link&#8217;.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">hdf5_type</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_file_dump">
+<code class="descname">get_file_dump</code><span class="sig-paren">(</span><em>dump_key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_file_dump"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_file_dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns as a string (with name attribute) a previously dumped file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dump_key</strong> &#8211; The key in self._destinations identifying the file
+to extract.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The text of the dumped file.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dump</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_hdf5_dtype">
+<em class="property">static </em><code class="descname">get_hdf5_dtype</code><span class="sig-paren">(</span><em>dtype_string</em>, <em>hdf5_element_type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_hdf5_dtype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_hdf5_dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the dtype argument to when creating an HDF5 entry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dtype_string</strong> &#8211; The string from the XML or database configuration
+specifying the type.</li>
+<li><strong>hdf5_element_type</strong> &#8211; What is the element being created - dataset
+or attribute.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>Whatever should be passed as the dtype argument when</dt>
+<dd><p class="first last">creating the given entry in the HDF5 file.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dtype</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_layout_root_tag_name">
+<em class="property">classmethod </em><code class="descname">get_layout_root_tag_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_layout_root_tag_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_layout_root_tag_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the root tag in the layout configuration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_single_dataset">
+<code class="descname">get_single_dataset</code><span class="sig-paren">(</span><em>dataset_key</em>, <em>sub_entry=None</em>, <em>expected_shape=None</em>, <em>optional=None</em>, <em>**substitute</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_single_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_single_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a single dataset as a numpy float or int array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dataset_key</strong> &#8211; The key in self._destinations identifying the
+dataset to read.</li>
+<li><strong>sub_entry</strong> &#8211; If the dataset_key does not identify a single dataset,
+this value is used to select from among the multiple possible
+datasets (e.g. &#8216;field&#8217; or &#8216;source&#8217; for source IDs)</li>
+<li><strong>expected_size</strong> &#8211; The size to use for the dataset if an empty
+dataset is found. If None, a zero-sized array is returned.</li>
+<li><strong>optional</strong> &#8211; If not None and the dataset does not exist, this value
+is returned, otherwise if the dataset does not exist an
+exception is raised.</li>
+<li><strong>substitute</strong> &#8211; Any arguments that should be substituted in the path
+(e.g. ap_ind or config_id).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>A numpy int/float array containing the identified dataset</dt>
+<dd><p class="first last">from the HDF5 file.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.get_version_dtype">
+<em class="property">classmethod </em><code class="descname">get_version_dtype</code><span class="sig-paren">(</span><em>element_id</em>, <em>version=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.get_version_dtype"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.get_version_dtype" title="Permalink to this definition">¶</a></dt>
+<dd><p>What get_dtype would return for LC configured with the given version.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>element_id</strong> &#8211; The string identifier for the quantity to return the
+data type for.</li>
+<li><strong>version</strong> &#8211; The structure version for which to return the data type.
+If None, uses the latest configured version.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A numpy style data type to use for the quantity in LCs.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dtype</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.read_fitsheader_from_dataset">
+<em class="property">static </em><code class="descname">read_fitsheader_from_dataset</code><span class="sig-paren">(</span><em>h5dset</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.read_fitsheader_from_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.read_fitsheader_from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a FITS header from an HDF5 dataset.</p>
+<p>The inverse of fitsheader_to_dataset().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h5dset</strong> &#8211; The dataset containing the header to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Instance of fits.Header.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">header</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.read_text_from_dataset">
+<em class="property">static </em><code class="descname">read_text_from_dataset</code><span class="sig-paren">(</span><em>h5dset</em>, <em>as_file=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.read_text_from_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.read_text_from_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a text from an HDF5 dataset.</p>
+<p>The inverse of text_to_dataset().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h5dset</strong> &#8211; The dataset containing the text to read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Numpy byte array (dtype=&#8217;i1&#8217;) containing the text.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">text</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.write_fitsheader_to_dataset">
+<em class="property">static </em><code class="descname">write_fitsheader_to_dataset</code><span class="sig-paren">(</span><em>fitsheader</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.write_fitsheader_to_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.write_fitsheader_to_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a FITS header to an HDF5 file as a dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fitsheader</strong> &#8211; The header to save (fits.Header instance).</li>
+<li><strong>args</strong> &#8211; Passed directly to text_to_dataset().</li>
+<li><strong>kwargs</strong> &#8211; Passed directly to text_to_dataset(.)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="superphot_pipeline.hdf5_file.HDF5File.write_text_to_dataset">
+<em class="property">static </em><code class="descname">write_text_to_dataset</code><span class="sig-paren">(</span><em>text</em>, <em>h5group</em>, <em>dset_path</em>, <em>creation_args=None</em>, <em>**attributes</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/hdf5_file.html#HDF5File.write_text_to_dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.hdf5_file.HDF5File.write_text_to_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds ASCII text/file as a dateset to an HDF5 file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>text</strong> &#8211; The text or file to add. If it is an open file, the
+contents is dumped, if it is a python2 string or a python3
+bytes, the value is stored.</li>
+<li><strong>h5group</strong> &#8211; An HDF5 group (could be the root group, i.e. an
+h5py.File opened for writing).</li>
+<li><strong>dset_path</strong> &#8211; The path for the new dataset, either absolute or
+relative to h5group.</li>
+<li><strong>creation_args</strong> &#8211; Keyword arguments to pass to create_dataset(). If
+None, defaults to dict(compression=&#8217;gzip&#8217;, compression_opts=9).</li>
+<li><strong>compression_opts</strong> &#8211; see same name argument
+in h5py.File.create_dataset.</li>
+<li><strong>attributes</strong> &#8211; Added as attributes with the same name to the
+the dataset.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_smoothing.html" title="superphot_pipeline.image_smoothing module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_calibration.overscan_methods.html" title="superphot_pipeline.image_calibration.overscan_methods module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

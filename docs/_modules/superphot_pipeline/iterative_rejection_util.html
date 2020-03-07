@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.iterative_rejection_util &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for superphot_pipeline.iterative_rejection_util</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A collection of general purpose statistical manipulations of scipy arrays.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span>
+
+<span class="kn">from</span> <span class="nn">superphot_pipeline.pipeline_exceptions</span> <span class="k">import</span> <span class="n">ConvergenceError</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s1">&#39;$Id: 268e4abdc3ca6320776c791952863d516176e633 $&#39;</span>
+
+<span class="c1">#Too many arguments indeed, but most would never be needed.</span>
+<span class="c1">#Breaking up into smaller pieces will decrease readability</span>
+<span class="c1">#pylint: disable=too-many-arguments</span>
+<span class="c1">#pylint: disable=too-many-locals</span>
+<div class="viewcode-block" id="iterative_rejection_average"><a class="viewcode-back" href="../../implementation/superphot_pipeline.iterative_rejection_util.html#superphot_pipeline.iterative_rejection_util.iterative_rejection_average">[docs]</a><span class="k">def</span> <span class="nf">iterative_rejection_average</span><span class="p">(</span><span class="n">array</span><span class="p">,</span>
+                                <span class="n">outlier_threshold</span><span class="p">,</span>
+                                <span class="n">average_func</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">nanmedian</span><span class="p">,</span>
+                                <span class="n">max_iter</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                <span class="n">require_convergence</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">mangle_input</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Avarage with iterative rejection of outliers along an axis.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        A more efficient implementation is possible for median.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        array:    The array to compute the average of.</span>
+
+<span class="sd">        outlier_threshold:    Outliers are defined as outlier_threshold * (root</span>
+<span class="sd">            maen square deviation around the average). Non-finite values are</span>
+<span class="sd">            always outliers. This value could also be a 2-tuple with one</span>
+<span class="sd">            positive and one negative entry, specifying the thresholds in the</span>
+<span class="sd">            positive and negative directions separately.</span>
+
+<span class="sd">        average_func:    A function which returns the average to compute (e.g.</span>
+<span class="sd">            scipy.nanmean or scipy.nanmedian), must ignore nan values.</span>
+
+<span class="sd">        max_iter:    The maximum number of rejection - re-fitting iterations</span>
+<span class="sd">            to perform.</span>
+
+<span class="sd">        axis:    The axis along which to compute the average.</span>
+
+<span class="sd">        require_convergence:    If the maximum number of iterations is reached</span>
+<span class="sd">            and still there are entries that should be rejected this argument</span>
+<span class="sd">            determines what happens. If True, an exception is raised, if False,</span>
+<span class="sd">            the last result is returned as final.</span>
+
+<span class="sd">        mangle_input:    Is this function allowed to mangle the input array.</span>
+
+<span class="sd">        keepdims:    See the keepdims argument of scipy.mean</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        average:    An array with all axes of a other than axis being the same</span>
+<span class="sd">            and the dimension along the axis-th axis being 1. Each entry if of</span>
+<span class="sd">            average is independently computed from all other entries.</span>
+
+<span class="sd">        stdev:    An empirical estimate of the standard deviation around the</span>
+<span class="sd">            returned `average` for each pixel. Calculated as RMS of the</span>
+<span class="sd">            difference between individual values and the average divided by one</span>
+<span class="sd">            less than the number of pixels contributing to that particular</span>
+<span class="sd">            pixel&#39;s average. Has the same shape as `average`.</span>
+
+<span class="sd">        num_averaged:    The number of non-rejected non-NaN values included</span>
+<span class="sd">            in the average of each pixel. Same shape as `average`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">working_array</span> <span class="o">=</span> <span class="p">(</span><span class="n">array</span> <span class="k">if</span> <span class="n">mangle_input</span> <span class="k">else</span> <span class="n">scipy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">array</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outlier_threshold</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+        <span class="n">threshold_plus</span> <span class="o">=</span> <span class="n">outlier_threshold</span>
+        <span class="n">threshold_minus</span> <span class="o">=</span> <span class="o">-</span><span class="n">outlier_threshold</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">outlier_threshold</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="n">outlier_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">outlier_threshold</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">outlier_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">threshold_plus</span><span class="p">,</span> <span class="n">threshold_minus</span> <span class="o">=</span> <span class="n">outlier_threshold</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">threshold_minus</span><span class="p">,</span> <span class="n">threshold_plus</span> <span class="o">=</span> <span class="n">outlier_threshold</span>
+
+    <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">found_outliers</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">while</span> <span class="n">found_outliers</span> <span class="ow">and</span> <span class="n">iteration</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="n">average</span> <span class="o">=</span> <span class="n">average_func</span><span class="p">(</span><span class="n">working_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">difference</span> <span class="o">=</span> <span class="n">working_array</span> <span class="o">-</span> <span class="n">average</span>
+        <span class="n">rms</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">scipy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+                <span class="n">scipy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">difference</span><span class="p">),</span>
+                <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+                <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">outliers</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">difference</span> <span class="o">&lt;</span> <span class="n">threshold_minus</span> <span class="o">*</span> <span class="n">rms</span><span class="p">,</span>
+                                    <span class="n">difference</span> <span class="o">&gt;</span> <span class="n">threshold_plus</span> <span class="o">*</span> <span class="n">rms</span><span class="p">)</span>
+
+        <span class="n">found_outliers</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">found_outliers</span><span class="p">:</span>
+            <span class="n">working_array</span><span class="p">[</span><span class="n">outliers</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">if</span> <span class="n">found_outliers</span> <span class="ow">and</span> <span class="n">require_convergence</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ConvergenceError</span><span class="p">(</span>
+            <span class="s1">&#39;Computing &#39;</span>
+            <span class="o">+</span>
+            <span class="n">average_func</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="o">+</span>
+            <span class="s1">&#39; with iterative rejection did not converge after &#39;</span>
+            <span class="o">+</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
+            <span class="o">+</span>
+            <span class="s1">&#39; iterations!&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">num_averaged</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">working_array</span><span class="p">)),</span>
+                             <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+                             <span class="n">keepdims</span><span class="o">=</span><span class="n">keepdims</span><span class="p">)</span>
+
+    <span class="n">stdev</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">scipy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">scipy</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">working_array</span> <span class="o">-</span> <span class="n">average</span><span class="p">),</span>
+                          <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+                          <span class="n">keepdims</span><span class="o">=</span><span class="n">keepdims</span><span class="p">)</span>
+            <span class="o">/</span>
+            <span class="p">(</span><span class="n">num_averaged</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">keepdims</span><span class="p">:</span>
+        <span class="n">average</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">average</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">average</span><span class="p">,</span> <span class="n">stdev</span><span class="p">,</span> <span class="n">num_averaged</span></div>
+<span class="c1">#pylint: enable=too-many-arguments</span>
+<span class="c1">#pylint: enable=too-many-locals</span>
+
+<div class="viewcode-block" id="iterative_rej_linear_leastsq"><a class="viewcode-back" href="../../implementation/superphot_pipeline.iterative_rejection_util.html#superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq">[docs]</a><span class="k">def</span> <span class="nf">iterative_rej_linear_leastsq</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span>
+                                 <span class="n">rhs</span><span class="p">,</span>
+                                 <span class="n">outlier_threshold</span><span class="p">,</span>
+                                 <span class="n">max_iterations</span><span class="o">=</span><span class="n">scipy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                                 <span class="n">return_predicted</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform linear leasts squares fit iteratively rejecting outliers.</span>
+
+<span class="sd">    The returned function finds vector x that minimizes the square difference</span>
+<span class="sd">    between matrix.dot(x) and rhs, iterating between fitting and  rejecting RHS</span>
+<span class="sd">    entries which are too far from the fit.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        matrix:    The matrix defining the linear least squares problem.</span>
+
+<span class="sd">        rhs:    The RHS of the least squares problem.</span>
+
+<span class="sd">        outlier_threshold:    The RHS entries are considered outliers if they</span>
+<span class="sd">            devite from the fit by more than this values times the root mean</span>
+<span class="sd">            square of the fit residuals.</span>
+
+<span class="sd">        max_iterations:    The maximum number of rejection/re-fitting iterations</span>
+<span class="sd">            allowed. Zero for simple fit with no rejections.</span>
+
+<span class="sd">        return_predicted:    Should the best-fit values for the RHS be returned?</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        solution:    The best fit coefficients.</span>
+
+<span class="sd">        residual:    The root mean square residual of the latest fit iteration.</span>
+
+<span class="sd">        predicted:    The predicted values for the RHS. Only available if</span>
+<span class="sd">            `return_predicted==True`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">num_surviving</span> <span class="o">=</span> <span class="n">rhs</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fit_rhs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">rhs</span><span class="p">)</span>
+    <span class="n">fit_matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">fit_coef</span><span class="p">,</span> <span class="n">residual</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">fit_matrix</span><span class="p">,</span> <span class="n">fit_rhs</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">residual</span> <span class="o">/=</span> <span class="n">num_surviving</span>
+        <span class="k">if</span> <span class="n">iteration</span> <span class="o">==</span> <span class="n">max_iterations</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">outliers</span> <span class="o">=</span> <span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">fit_rhs</span> <span class="o">-</span> <span class="n">fit_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fit_coef</span><span class="p">))</span>
+                    <span class="o">&gt;</span>
+                    <span class="n">outlier_threshold</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">residual</span><span class="p">)</span>
+        <span class="n">num_surviving</span> <span class="o">-=</span> <span class="n">outliers</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">fit_rhs</span><span class="p">[</span><span class="n">outliers</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">fit_matrix</span><span class="p">[</span><span class="n">outliers</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">outliers</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">break</span>
+        <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">return_predicted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fit_coef</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">residual</span><span class="p">),</span> <span class="n">matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fit_coef</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fit_coef</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span></div>
+
+<span class="c1">#x and y are perfectly readable arguments for a fitting function.</span>
+<span class="c1">#pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="iterative_rej_polynomial_fit"><a class="viewcode-back" href="../../implementation/superphot_pipeline.iterative_rejection_util.html#superphot_pipeline.iterative_rejection_util.iterative_rej_polynomial_fit">[docs]</a><span class="k">def</span> <span class="nf">iterative_rej_polynomial_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span>
+                                 <span class="n">y</span><span class="p">,</span>
+                                 <span class="n">order</span><span class="p">,</span>
+                                 <span class="o">*</span><span class="n">leastsq_args</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">leastsq_kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x:    The x (independent variable) in the polynomial.</span>
+
+<span class="sd">        y:    The value predicted by the polynomial (y).</span>
+
+<span class="sd">        order:    The maximum power of x term to include in the</span>
+<span class="sd">            polynomial expansion.</span>
+
+<span class="sd">        leastsq_args:    Passed directly to iterative_rej_linear_leastsq().</span>
+
+<span class="sd">        leastsq_kwargs:    Passed directly to iterative_rej_linear_leastsq().</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        solution:    See iterative_rej_linear_leastsq()</span>
+
+<span class="sd">        residual:    See iterative_rej_linear_leastsq()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">order</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">matrix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">order</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">matrix</span><span class="p">[:,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[:,</span> <span class="n">column</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">iterative_rej_linear_leastsq</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span>
+                                        <span class="n">y</span><span class="p">,</span>
+                                        <span class="o">*</span><span class="n">leastsq_args</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">leastsq_kwargs</span><span class="p">)</span></div>
+<span class="c1">#pylint: enable=invalid-name</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

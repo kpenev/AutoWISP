@@ -1,0 +1,5 @@
+<map id="inheritancecc7c7f0761" name="inheritancecc7c7f0761">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="159,5,233,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="25,77,367,101"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the scipy or astropy image filters in a smoother." alt="" coords="5,149,387,173"/>
+</map>

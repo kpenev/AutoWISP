@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Crash Recovery &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Design of the pipeline code structure" href="design.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="contents.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="design.html" title="Design of the pipeline code structure"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="&lt;no title&gt;"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="contents.html"
+                        title="previous chapter">&lt;no title&gt;</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="design.html"
+                        title="next chapter">Design of the pipeline code structure</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PythonModules/crash_recovery.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="crash-recovery">
+<h1>Crash  Recovery<a class="headerlink" href="#crash-recovery" title="Permalink to this headline">¶</a></h1>
+<p>It is imperative that the pipeline is robust against potential crashes at any
+point during processing. Here we outline the mechanism (to be) used to
+accomplish this.</p>
+<p>Dangerous situations arising due to a crash in the middle of an operation that:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>creates or updates a file</li>
+<li>must create/update multiple files in a consistent way</li>
+<li>creates/updates file(s) and marks that in the database</li>
+<li>must perform several database modifications in a consistent way</li>
+</ol>
+</div></blockquote>
+<p>The recovery system maintains recovery information in a database table, named
+<code class="docutils literal"><span class="pre">RecoveryInformation</span></code> as well as original copies of files being updated in a
+temporary directory.</p>
+<p>The table gets updated before any risky operation starts with information on how
+to restore the filesystem to the state before the operation begins. Database
+updates are performed only at the very end of the operation. The update is
+performed through a database session which combines  that with the removing of
+the relevant recovery information from <code class="docutils literal"><span class="pre">RecoveryInformation</span></code>.</p>
+<p>In order to allow recovery from both new files and file updates, the
+<code class="docutils literal"><span class="pre">RecoveryInformation</span></code> maintains a list of updated files as well a copy of the
+original file in a temporary location. For new files the original file entry is
+<code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>The order of operations is as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>The original files are copied to the temporary location</li>
+<li>The list of final and original copies is added to the database in a single
+session.</li>
+<li>The operation is performed</li>
+<li>The databese is updated as required by the operation and to delete the
+entries in <code class="docutils literal"><span class="pre">RecoveryInformation</span></code> created during step 1.</li>
+<li>The temporary copies of the original files are deleted.</li>
+</ol>
+</div></blockquote>
+<p>Upon starting of the pipeline recovery proceeds as follows:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Any file in the temporary directory not listed in the
+<code class="docutils literal"><span class="pre">RecoveryInformation</span></code> table are deleted.</li>
+<li>Any updated files listed in <code class="docutils literal"><span class="pre">RecoveryInformation</span></code> are overwritten by
+their originals.</li>
+<li>The <code class="docutils literal"><span class="pre">RecoveryInformation</span></code> table is emptied.</li>
+<li>The temporary directory is emptied.</li>
+</ol>
+</div></blockquote>
+<p>This way if interruption occurs during:</p>
+<blockquote>
+<div><ul class="simple">
+<li>step 1: any copies of original files made will be deleted during recovery
+step 1 and the state of the database and file system will be exactly as it
+was before the operation started.</li>
+<li>step 2: the database will be automatically rolled back by the database and
+again file system and database will be in their original states.</li>
+<li>step 3: any updates to the file system will be undone by recovery step 2
+and step 3 will restore the database.</li>
+<li>step 4: The database update will be rolled back by the database and we
+will be back to the case above.</li>
+<li>step 5: the database will already have the final state for the operation
+and recovery step 1 will take the file system to the desired final state.</li>
+</ul>
+</div></blockquote>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="design.html" title="Design of the pipeline code structure"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="contents.html" title="&lt;no title&gt;"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+superphot_pipeline.image_calibration.overscan_methods module
+============================================================
+
+.. automodule:: superphot_pipeline.image_calibration.overscan_methods
+    :members:
+    :undoc-members:
+    :show-inheritance:

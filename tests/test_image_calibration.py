@@ -12,7 +12,7 @@ from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 
 git_id = '$Id$'
 
-if __name__ == '__main__':
+def test_full_calibration():
     calibrate = Calibrator(
         #The first 20 lines of the image are overscan area.
         overscans=[dict(xmin=0, xmax=4096, ymin=0, ymax=20)],
@@ -45,3 +45,26 @@ if __name__ == '__main__':
               calibrated='calib2.fits',
               gain=8.0,
               overscans=None)
+
+def test_no_calibration():
+    """"Just pretend to calibrate images, to create input for other steps."""
+
+    calibrate = Calibrator(
+        raw_hdu=0,
+
+        #Pixuels above this have their values possibly turncated and/or leaked.
+        saturation_threshold=4000,
+
+        #The area within the raw frame containing the image:
+        image_area=dict(xmin=6, xmax=650, ymin=11, ymax=500)
+    )
+    raw_fname = os.path.expanduser(
+        '~/tmp/ETS_HATP32/RAW/HATP-32171220020012.FITS'
+    )
+    calibrate(
+        raw=raw_fname,
+        calibrated=raw_fname.replace('/RAW/', '/CAL/')
+    )
+
+if __name__ == '__main__':
+    test_no_calibration()

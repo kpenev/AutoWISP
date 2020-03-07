@@ -1,0 +1,7 @@
+superphot_pipeline.image_calibration.calibrator module
+======================================================
+
+.. automodule:: superphot_pipeline.image_calibration.calibrator
+    :members:
+    :undoc-members:
+    :show-inheritance:

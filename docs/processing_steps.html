@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pipeline Steps &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="PythonModules/contents.html" />
+    <link rel="prev" title="Welcome to SuperPhotPipeline’s documentation!" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="PythonModules/contents.html" title="&lt;no title&gt;"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SuperPhotPipeline’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pipeline Steps</a><ul>
+<li><a class="reference internal" href="#image-calibration">1. Image calibration:</a><ul>
+<li><a class="reference internal" href="#split-raw-frames-by-type">1.1 Split raw frames by type:</a></li>
+<li><a class="reference internal" href="#id1">1.2 Image Calibration</a><ul>
+<li><a class="reference internal" href="#create-mask">1.2.1 Create mask</a></li>
+<li><a class="reference internal" href="#overscan-corrections">1.2.1 Overscan corrections</a></li>
+<li><a class="reference internal" href="#bias-level-and-dark-current-is-subtracted">1.2.2. Bias level and dark current is subtracted</a></li>
+<li><a class="reference internal" href="#flat-field-corrections-are-applied">1.2.2. Flat field corrections are applied</a></li>
+<li><a class="reference internal" href="#the-image-is-trimmed-to-only-the-image-area">1.2.3. The image is trimmed to only the image area</a></li>
+<li><a class="reference internal" href="#individual-pixel-errors-are-calculated">1.2.4. Individual pixel errors are calculated</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generate-master-frames">1.3 Generate master frames:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#astrometry">2. Astrometry:</a><ul>
+<li><a class="reference internal" href="#extract-sources">2.1 Extract sources:</a></li>
+<li><a class="reference internal" href="#match-to-external-catalogue">2.2 Match to external catalogue.</a></li>
+<li><a class="reference internal" href="#solve-for-the-transformation">2.3 Solve for the transformation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#photometry">3. Photometry:</a><ul>
+<li><a class="reference internal" href="#prf-psf-fitting">3.1 PRF/PSF fitting:</a></li>
+<li><a class="reference internal" href="#aperture-photometry">3.2 Aperture photometry:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#magnitude-fitting">4. Magnitude fitting:</a></li>
+<li><a class="reference internal" href="#dumping-lightcurves">5. Dumping lightcurves:</a></li>
+<li><a class="reference internal" href="#lightcurve-post-processing">6. Lightcurve post-processing:</a><ul>
+<li><a class="reference internal" href="#external-parameter-decorrelation-epd">6.1 External Parameter Decorrelation (EPD):</a></li>
+<li><a class="reference internal" href="#trend-filtering-algorithm-tfa">6.2 Trend filtering algorithm (TFA):</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to SuperPhotPipeline&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="PythonModules/contents.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/processing_steps.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pipeline-steps">
+<h1>Pipeline Steps<a class="headerlink" href="#pipeline-steps" title="Permalink to this headline">¶</a></h1>
+<p>The pipeline operations can be broken down into 5 big steps each of which is
+further broken down into multiple smaller steps:</p>
+<div class="section" id="image-calibration">
+<h2>1. Image calibration:<a class="headerlink" href="#image-calibration" title="Permalink to this headline">¶</a></h2>
+<p>Take the raw data and calibrate it for various instrumental effects.</p>
+<p>See <a class="reference internal" href="PythonModules/image_calibration.html"><span class="doc">Image Calibration Implementation</span></a> for implementation
+documentation.</p>
+<div class="section" id="split-raw-frames-by-type">
+<h3>1.1 Split raw frames by type:<a class="headerlink" href="#split-raw-frames-by-type" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul>
+<li><p class="first">Calibration frames:</p>
+<blockquote>
+<div><ul class="simple">
+<li>bias: Frames with zero exposure intended to measure the behavior of
+the A-to-D converter.</li>
+<li>dark: Frames with no light falling on the detector intended to measure
+the rate of accumulation of charge in the detector pixels in the
+absence of light.</li>
+<li>flat: Frames with uniform illumination falling on the detector
+intended to measure the sensitivity to light of the system coming from
+different directions.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Object frames: Images of the night sky from which photometry is to be
+extracted. Those can further be split into sub-groups from which
+independent lightcurves need to be generated. For example if several
+different exposure times were used, or there could be a number of filters
+or other chages in the optical system between frames which may produce
+better results if processed independently.</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id1">
+<h3>1.2 Image Calibration<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Before raw images are used, they need to be calibrated. The sequence of steps
+is:</p>
+<blockquote>
+<div><ul class="simple">
+<li>calibrate raw bias frames</li>
+<li>generate master bias frames</li>
+<li>calibrate raw dark frames using the master biases</li>
+<li>generate master dark frames</li>
+<li>calibrate raw flat frames using the master biases and master darks</li>
+<li>generate master flat frames</li>
+<li>calibrate raw object frames</li>
+</ul>
+</div></blockquote>
+<div class="section" id="create-mask">
+<h4>1.2.1 Create mask<a class="headerlink" href="#create-mask" title="Permalink to this headline">¶</a></h4>
+<p>Create a mask image noting pixels which are saturated (i.e. near the full-well
+capacity). Also marks pixels neighboring saturatied pixels in the leak direction
+as recipients of leaked charge. Also transfers any masks in the masters used,
+including taking separate mask-only files.</p>
+</div>
+<div class="section" id="overscan-corrections">
+<h4>1.2.1 Overscan corrections<a class="headerlink" href="#overscan-corrections" title="Permalink to this headline">¶</a></h4>
+<p>In many instances, the imaging device provides extra areas that attempt to
+measure bias level and dark current, e.g. by continuing to read pixels past the
+physical number of pixels in the device, thus measuring the bias or by having an
+area of pixels which are somehow shielded from light, thus measuring the dark
+level in real time. Such corrections are supierior to the master frames in that
+they measure the instantaneous bias and dark level, which may vary over time due
+to for example the temperature of the detector varying. However, bias level and
+dark current in particular can vary from pixel to pixel, which is not captured
+by these real-time areas. Hence, the best strategy is a combination of both, and
+is different for different detectors.</p>
+<p>The pipeline allows (but does not require) such areas to be used to estimate
+some smooth function of image position to subtract from each raw image, and then
+the masters are applied to the result. This works mathematically, because the
+masters will also have their values corrected for the bias and dark measured by
+these areas from the individual frames that were used to construct them. In this
+scheme, the master frames are used only to capture the pixel to pixel
+differences in bias and dark current. We refer to these areas as &#8220;overscan&#8221;,
+although that term really means only one type of such area.</p>
+<p>While overscan corrections are applied to all raw frames,</p>
+</div>
+<div class="section" id="bias-level-and-dark-current-is-subtracted">
+<h4>1.2.2. Bias level and dark current is subtracted<a class="headerlink" href="#bias-level-and-dark-current-is-subtracted" title="Permalink to this headline">¶</a></h4>
+<p>This step simply subtracts the master bias and the master dark from the target
+image.</p>
+<p>The master bias is not subtracted from raw bias frames (since the reason for
+calibrating those is to generate the master bias), and for raw dark frames,
+master bias corrections are applied, but master dark are not. All other image
+types get the full set of corrections.</p>
+</div>
+<div class="section" id="flat-field-corrections-are-applied">
+<h4>1.2.2. Flat field corrections are applied<a class="headerlink" href="#flat-field-corrections-are-applied" title="Permalink to this headline">¶</a></h4>
+<p>This is a very simple step which simply takes the ratio of the bias and dark
+corrected frame and the master flat, pixel by pixel.</p>
+<p>This step is skipped for raw bias, dark and flat frames, and applied to all
+object frames.</p>
+</div>
+<div class="section" id="the-image-is-trimmed-to-only-the-image-area">
+<h4>1.2.3. The image is trimmed to only the image area<a class="headerlink" href="#the-image-is-trimmed-to-only-the-image-area" title="Permalink to this headline">¶</a></h4>
+<p>This step removes overscan, dark and other areas that are used during the
+calibration process, but lose their meaning afterwards.</p>
+<p>This step is apllied to all raw frames.</p>
+</div>
+<div class="section" id="individual-pixel-errors-are-calculated">
+<h4>1.2.4. Individual pixel errors are calculated<a class="headerlink" href="#individual-pixel-errors-are-calculated" title="Permalink to this headline">¶</a></h4>
+<p>In the original image, the error in the value of each pixel is simply given by
+(pixel value / gain)<sup>0.5</sup>. However, once the above corrections are
+applied this is no longer true. The de-biasing and de-darking adds the (small)
+noise in the master frames (and the overscan corrections), the scaling by the
+flat introduces the error in the master flat, but also changes the &#8220;gain&#8221;
+differently for ecah pixel. In order to properly handle all those, calibrating
+raw frames in the pipeline produces two images: the calibrated image and an
+error estimate image giving the so called 1-sigma error estimate (in 68% of the
+cases the true amount of light that fell on the detector deviates no more than
+the given amount from the reported value).</p>
+<p>This is done for all raw frames.</p>
+</div>
+</div>
+<div class="section" id="generate-master-frames">
+<h3>1.3 Generate master frames:<a class="headerlink" href="#generate-master-frames" title="Permalink to this headline">¶</a></h3>
+<p>Master frames are stacks of individual calibrated calibration frames. As a
+result their signal to noise ratio is greatly increased, compared to individual
+un-stacked frames, allowing for much better calibration. In each case, the
+frames are split into groups in which the effect being measured is not expected
+to var and the individual frames are stacked, with suspicious (outlier in some
+way) frames are discarded.</p>
+</div>
+</div>
+<div class="section" id="astrometry">
+<h2>2. Astrometry:<a class="headerlink" href="#astrometry" title="Permalink to this headline">¶</a></h2>
+<p>Find a transformation that allows you to map sky coordinates (RA, Dec) into
+image coorditanes. This allows the use of external catalogue data for more
+precise positions of the sources than can be extracted from survey images and
+also the use of auxiliary data provided in the catalogue about each source, in
+the subsequent processing steps of the pipeline.</p>
+<p>Astrometry is accomplished in 3 steps:</p>
+<div class="section" id="extract-sources">
+<h3>2.1 Extract sources:<a class="headerlink" href="#extract-sources" title="Permalink to this headline">¶</a></h3>
+<p>Find sources (stars) in the individual calibrated object frames.</p>
+</div>
+<div class="section" id="match-to-external-catalogue">
+<h3>2.2 Match to external catalogue.<a class="headerlink" href="#match-to-external-catalogue" title="Permalink to this headline">¶</a></h3>
+<p>Match the extracted sources to the sources listed in an external
+catalogue.</p>
+</div>
+<div class="section" id="solve-for-the-transformation">
+<h3>2.3 Solve for the transformation<a class="headerlink" href="#solve-for-the-transformation" title="Permalink to this headline">¶</a></h3>
+<p>Find a smooth transformation that maps the catalogue (RA, Dec) coordinates to
+the positions of the extracted sources as close as possible. The key word here
+is smooth. That is the transformation should only have a few free parameters to
+be tuned on thousands of sources. As a result the transformation parameters are
+determined to very high accuracy and precision, thus providing more precise
+image positions than source extraction by transforming high precision catalogue
+positions through this high S/N transformation.</p>
+</div>
+</div>
+<div class="section" id="photometry">
+<h2>3. Photometry:<a class="headerlink" href="#photometry" title="Permalink to this headline">¶</a></h2>
+<p>For each calibrated object frames, extract flux measuruments for catalogue
+sources which map to some position within the frame using the astrometric
+transformation derived in the previous step. There are many flavors of
+photomety. This pipeline supports three: PRF fitting, PSF fitting and aperture
+photometry, with aperture photometry requiring PSF fitting.</p>
+<div class="section" id="prf-psf-fitting">
+<h3>3.1 PRF/PSF fitting:<a class="headerlink" href="#prf-psf-fitting" title="Permalink to this headline">¶</a></h3>
+<p>Each point source once it is imaged by our observing system produces a
+particular distribution of light on the detector. The idea of PRF and PSF
+fitting is to model that distribution as some smooth parametric function
+centered on the projected source position that has an integral of 1 times an
+amplitude. The amplitude of course is then a measure of the flux of the source,
+while the parameters of the function specify its shape in some way.</p>
+<p>To review the terms:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Point Spread Function or PSF: PSF(dx, dy) is the amount of light that hits
+the surface of the detector offset by (dx, dy) from the projected position
+of the source. In order to actually predict what a particular detector
+pixel will measure, one computes the integral of the PSF times a sub-pixel
+sensitivity map over the area of the pixel.</li>
+<li>Pixel Response Function or PRF: PRF(dx, dy) is the value that a pixel with
+a center offset by (dx, dy) from the projected source position will
+register.  Note that dx and dy can be arbitrary real values and not just
+integers. The PRF already folds in its definition the sub-pixel
+sensitivity map, and other detector characteristics. Further, since the
+PRF is the PSF convolved with the sub-pixel sensitiity map it is generally
+smoother than the PSF and thus easier to model.</li>
+</ul>
+</div></blockquote>
+<p>In this pipeline we use <a class="reference external" href="https://github.com/kpenev/SuperPhot">SuperPhot</a> to
+perform PSF and PRF fitting. For the gory details of how this is done, see the
+<a class="reference external" href="https://kpenev.github.io/SuperPhot/">SuperPhot documentation</a>. Briefly, the
+PSF and PRF are modeled as piecewise bi-cubic functions with a number of free
+parameters.  These parameters are in turn forced to vary smoothly as a function
+of source and image properties across sources and across images.</p>
+</div>
+<div class="section" id="aperture-photometry">
+<h3>3.2 Aperture photometry:<a class="headerlink" href="#aperture-photometry" title="Permalink to this headline">¶</a></h3>
+<p>For each source, sum-up the flux in the image within a series of concentric
+circles centered on the projected source position. In order to properly handle
+the inevitable pixels that are partiallly within an aperture, knowledge of the
+distribution of light accross these pixels as well as the sub-pixel sensitivy
+map is required.</p>
+<p>This taks is again carried out by <a class="reference external" href="https://github.com/kpenev/SuperPhot">SuperPhot</a>. See the <a class="reference external" href="https://kpenev.github.io/SuperPhot/">documentation</a> for further details.</p>
+</div>
+</div>
+<div class="section" id="magnitude-fitting">
+<h2>4. Magnitude fitting:<a class="headerlink" href="#magnitude-fitting" title="Permalink to this headline">¶</a></h2>
+<p>In ground based applications, the night sky is imaged through variable amount of
+atmosphere, which itself is subject to changes (i.e. clouds, humidity, etc.). In
+addition various instrumental effects are generally present. The purpose of the
+magnitude fitting step is to eliminate as much as possible effects that modify
+the measured source brightness within an image in a manner that depends
+smoothly on the properties of the source.</p>
+<p>In short, a reference frame is selected (and later generated). Then for each
+individual frame (target frame from now on) a smooth multiplicative correction
+is derived that when applied to the brightness measurements in the target frame
+matches the brightness measurements in the reference frame as closely as
+possible.</p>
+<p>In the pipeline this is actually done twice. The first time, a single frame
+which appears to be of very high quality (sharp PSF, high atmospheric
+transparency, dark sky etc.) is used as the reference frame. The corrected
+brightness measurements of the individua frames are then stacked to produce a
+much highe signal to noise &#8220;master reference frame&#8221;, which is then used in a
+second iteration of the magnitude fitting process to generate the final fitted
+magnitudes.</p>
+</div>
+<div class="section" id="dumping-lightcurves">
+<h2>5. Dumping lightcurves:<a class="headerlink" href="#dumping-lightcurves" title="Permalink to this headline">¶</a></h2>
+<p>This is a simple transpose operation. In all previous steps, the photometry is
+extracted simultaneously for all sources in a given image or in a short series
+of images. In order to study each source&#8217;s individual variability, the
+measurements from all frames for that source must be collected together. This
+step simply performs that reorganization. For each catalogue source, all
+available measurements from the individual frames are collected in a file,
+possibly combined with earlier measurements from say a different but overlapping
+pointing of the telescope or with another instrumental set-up.</p>
+</div>
+<div class="section" id="lightcurve-post-processing">
+<h2>6. Lightcurve post-processing:<a class="headerlink" href="#lightcurve-post-processing" title="Permalink to this headline">¶</a></h2>
+<p>Even though we have tried hard to eliminate as many &#8220;instrumental&#8221; effects as
+possible from teh lightcurves generated above, there will still be some present.
+Namely those that violate the assumptions behind magnitude fitting. Further, for
+many applications, e.g. planet hunting, the goal is to identify a signal with a
+very specific shape. In this case, it is desirable to filter out even real
+astrophysical signals in order to boost the sensitivity to lower amplitude
+effects. In order to achieve this, several post-processing steps are carried out
+by the pipeline.</p>
+<div class="section" id="external-parameter-decorrelation-epd">
+<h3>6.1 External Parameter Decorrelation (EPD):<a class="headerlink" href="#external-parameter-decorrelation-epd" title="Permalink to this headline">¶</a></h3>
+<p>This simply removes from each individual lightcurve the linear combintion of
+user specified instrumental and other time variable parameters that explain the
+most variance. Clearly care must be taken when selecting the parameters to
+decorrelate against, lest they vary on similar timescales as the target signal.
+If this happens, this step will highly distort if not eliminate the target
+signal.</p>
+</div>
+<div class="section" id="trend-filtering-algorithm-tfa">
+<h3>6.2 Trend filtering algorithm (TFA):<a class="headerlink" href="#trend-filtering-algorithm-tfa" title="Permalink to this headline">¶</a></h3>
+<p>In this step signals which are shared by mulitple sources are removed from each
+source&#8217;s lightcurve. The idea is that most instrumental effects will affect
+multiple sources in a similar way, and thus signals common to several sources
+are suspected of being instrumental, rather than real astrophysical variability.
+Again this steps has the potential to distort or eliminate target signals, so it
+should be used with care. If the shape of the target signal is known, there are
+versions of this procedure which tend to preserve it.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="PythonModules/contents.html" title="&lt;no title&gt;"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SuperPhotPipeline’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SuperPhotPipeline  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

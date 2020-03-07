@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.fake_image.raw module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.image_calibration package" href="superphot_pipeline.image_calibration.html" />
+    <link rel="prev" title="superphot_pipeline.fake_image package" href="superphot_pipeline.fake_image.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_calibration.html" title="superphot_pipeline.image_calibration package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.fake_image.html" title="superphot_pipeline.fake_image package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="superphot_pipeline.fake_image.html" accesskey="U">superphot_pipeline.fake_image package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.fake_image.raw module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.fake_image.html"
+                        title="previous chapter">superphot_pipeline.fake_image package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_calibration.html"
+                        title="next chapter">superphot_pipeline.image_calibration package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.fake_image.raw.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.fake_image.raw">
+<span id="superphot-pipeline-fake-image-raw-module"></span><h1>superphot_pipeline.fake_image.raw module<a class="headerlink" href="#module-superphot_pipeline.fake_image.raw" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-06384889fcff262c5194638f4f0255405db72dfc.png" alt="Inheritance diagram of FakeRawImage" usemap="#inheritancebb59675ca4" class="inheritance"/>
+<map id="inheritancebb59675ca4" name="inheritancebb59675ca4">
+<area shape="rect" id="node1" href="#superphot_pipeline.fake_image.raw.FakeRawImage" target="_top" title="Create fake raw images with all bells and whistles." alt="" coords="5,5,334,29"/>
+</map>
+<p>Define a class for creating fake raw images.</p>
+<dl class="class">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage">
+<em class="property">class </em><code class="descclassname">superphot_pipeline.fake_image.raw.</code><code class="descname">FakeRawImage</code><span class="sig-paren">(</span><em>full_resolution</em>, <em>image_area</em>, <em>gain=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<img src="../_images/inheritance-cac29c3f800e935aa4214faf8a1d1362737266b7.png" alt="Inheritance diagram of superphot_pipeline.fake_image.raw.FakeRawImage" usemap="#inheritance7c0b56b14f" class="inheritance"/>
+<map id="inheritance7c0b56b14f" name="inheritance7c0b56b14f">
+<area shape="rect" id="node1" href="#superphot_pipeline.fake_image.raw.FakeRawImage" target="_top" title="Create fake raw images with all bells and whistles." alt="" coords="5,5,334,29"/>
+</map>
+<p>Create fake raw images with all bells and whistles.</p>
+<dl class="docutils">
+<dt>Currently implemented:</dt>
+<dd><ul class="first last simple">
+<li>sky &amp; stars</li>
+<li>bias, dark and flat instrumental effects</li>
+<li>bias and/or dark overscan areas</li>
+<li>hot pixels (simply set high dark current)</li>
+<li>discretization noise</li>
+<li>poisson noise</li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">superphot_pipeline.fake_image</span> <span class="k">import</span> <span class="n">FakeRawImage</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Create a 1044x1024 image with the first 10 pixels in x being a bias</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#area and the next 10 being a dark area.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span> <span class="o">=</span> <span class="n">FakeRawImage</span><span class="p">(</span><span class="n">full_resolution</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1044</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">1024</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>                     <span class="n">image_area</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">xmax</span><span class="o">=</span><span class="mi">1044</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                                     <span class="n">ymax</span><span class="o">=</span><span class="mi">1024</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Bias level is 12.5 ADU</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span><span class="o">.</span><span class="n">add_bias</span><span class="p">(</span><span class="mf">12.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Dark current is 2.3 ADU/s except for a hot column at x=100 with 10x</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#the dark current.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dark</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1044</span><span class="p">,</span> <span class="mi">1024</span><span class="p">),</span> <span class="mf">12.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dark</span><span class="p">[:,</span> <span class="mi">100</span><span class="p">]</span> <span class="o">=</span> <span class="mf">125.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span><span class="o">.</span><span class="n">set_dark</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">rate</span><span class="o">=</span><span class="n">dark</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">areas</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">1024</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Define a flat field which is a quadratic function in both x and y.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1024</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1024</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">flat</span> <span class="o">=</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">-</span> <span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="mf">512.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">512.0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span><span class="o">.</span><span class="n">set_flat_field</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Add simple stars</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">star</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="p">[</span><span class="mf">0.50</span><span class="p">,</span> <span class="mf">1.00</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sky_flux</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">star_x</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">1024.0</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="n">star_y</span> <span class="ow">in</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">1024.0</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">sky_flux</span><span class="p">[</span><span class="n">star_y</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">star_y</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                 <span class="n">star_x</span> <span class="o">-</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">star_x</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">star</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">image</span><span class="o">.</span><span class="n">set_sky</span><span class="p">(</span><span class="n">sky_flux</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1">#Get image with the given parameters with 30s exposure</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exp1</span> <span class="o">=</span> <span class="n">image</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>exposure</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.__call__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate an exposure of the given duration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exposure</strong> &#8211; The amount of time to expose for in units consistent
+with the units used for the rates specified.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>A 2-D numpy array containing the simulated exposure image</dt>
+<dd>sprinkled with random poisson noise if gain is finite.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">image</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>full_resolution</em>, <em>image_area</em>, <em>gain=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start creating a fake image with the given parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>full_resolution</strong> &#8211; The full resolution of the image to create,
+including the light sensitive area, but also overscan areas etc.
+Should be dict(x=&lt;int&gt;, y=&lt;int&gt;).</li>
+<li><strong>image_area</strong> &#8211; The light sensitivy part of the image. The format is:
+<cite>dict(xmin = &lt;int&gt;, xmax = &lt;int&gt;, ymin = &lt;int&gt;, ymax = &lt;int&gt;)</cite></li>
+<li><strong>gain</strong> &#8211; The gain to assume for the A to D converter in electrons
+per ADU. Setting a non-finite value (+-infinity or NaN) disables
+poisson noise.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.add_bias">
+<code class="descname">add_bias</code><span class="sig-paren">(</span><em>bias</em>, <em>units='ADU'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.add_bias"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.add_bias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a bias level to the full image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>bias</strong> &#8211; The noiseless bias level to add. Should be a single value,
+a single row or column matching or a 2-D image with the y index
+being first. The row, column or the image should matchthe full
+reselotion of the fake image, not just the image area.</li>
+<li><strong>units</strong> &#8211; Is the bias level specified in &#8216;electrons&#8217; or in amplifier
+units (&#8216;ADU&#8217;).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.set_dark">
+<code class="descname">set_dark</code><span class="sig-paren">(</span><em>rate</em>, <em>areas</em>, <em>units='ADU'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.set_dark"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.set_dark" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the rate at which dark current accumulates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>rate</strong> &#8211; The noiseless rate per unit time at which dark current
+accumulates. See <cite>bias</cite> argument of <cite>add_bias</cite> for details on
+the possible formats.</li>
+<li><strong>areas</strong> &#8211; List of areas specified using the same format as the
+<cite>image_area</cite> argument of __init__ specifying the areas which
+accumulate dark current but no light.</li>
+<li><strong>units</strong> &#8211; Is the dark rate specified in &#8216;ADU&#8217; or &#8216;electrons&#8217; per
+unit time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.set_flat_field">
+<code class="descname">set_flat_field</code><span class="sig-paren">(</span><em>flat</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.set_flat_field"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.set_flat_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the sensitivity map of the fake imaging system.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>flat</strong> &#8211; The noiseless map of the throughput of the system times the
+sensitivy of each pixel. Should have the same resolution as the
+image area (not the full image).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="superphot_pipeline.fake_image.raw.FakeRawImage.set_sky">
+<code class="descname">set_sky</code><span class="sig-paren">(</span><em>sky_flux</em>, <em>units='ADU'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/fake_image/raw.html#FakeRawImage.set_sky"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.fake_image.raw.FakeRawImage.set_sky" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the flux arriving from the sky (with or without stars).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sky_flux</strong> &#8211; The image that a perfect imaging system (no bias, dark
+of flat) would see. Should only cover the imaging area.</li>
+<li><strong>units</strong> &#8211; Is the sky flux specified in &#8216;ADU&#8217; or &#8216;electrons&#8217; per
+unit time.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_calibration.html" title="superphot_pipeline.image_calibration package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.fake_image.html" title="superphot_pipeline.fake_image package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="superphot_pipeline.fake_image.html" >superphot_pipeline.fake_image package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

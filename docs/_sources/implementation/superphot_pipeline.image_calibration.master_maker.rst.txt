@@ -1,0 +1,7 @@
+superphot_pipeline.image_calibration.master_maker module
+========================================================
+
+.. automodule:: superphot_pipeline.image_calibration.master_maker
+    :members:
+    :undoc-members:
+    :show-inheritance:
