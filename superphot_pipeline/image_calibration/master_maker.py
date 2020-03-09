@@ -180,7 +180,8 @@ class MasterMaker(Processor):
               average_func,
               min_valid_values,
               max_iter,
-              exclude_mask):
+              exclude_mask,
+              custom_header=dict()):
         """
         Create a master by stacking a list of frames.
 
@@ -213,6 +214,9 @@ class MasterMaker(Processor):
                 the corresponding pixels being excluded from the averaging.
                 Other mask flags in the input frames are ignored, treated
                 as clean.
+
+            custom_header(dict):    A collection of keywords to use in addition
+                to/instead of what is in the input frames header.
 
         Returns:
             (tuple):
@@ -306,7 +310,7 @@ class MasterMaker(Processor):
             return None, None, None, None, []
 
         pixel_values = None
-        master_header = fits.Header()
+        master_header = fits.Header(**custom_header)
         frame_index = 0
         discarded_frames = []
         for frame_fname in frame_list:
@@ -367,6 +371,7 @@ class MasterMaker(Processor):
                  *,
                  compress=True,
                  allow_overwrite=False,
+                 custom_header=dict(),
                  **stacking_options):
         """
         Create a master by stacking the given frames.
@@ -402,6 +407,7 @@ class MasterMaker(Processor):
         #pylint: disable=missing-kwoa
         values, stdev, mask, header, discarded_frames = self.stack(
             frame_list,
+            custom_header=custom_header,
             **stacking_options
         )
         #pylint: enable=missing-kwoa
