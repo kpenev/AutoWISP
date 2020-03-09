@@ -310,7 +310,7 @@ class MasterMaker(Processor):
             return None, None, None, None, []
 
         pixel_values = None
-        master_header = fits.Header(**custom_header)
+        master_header = fits.Header(custom_header.items())
         frame_index = 0
         discarded_frames = []
         for frame_fname in frame_list:
