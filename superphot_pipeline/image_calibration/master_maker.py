@@ -90,11 +90,14 @@ class MasterMaker(Processor):
 
             delete_indices = []
             for card_index, master_card in enumerate(master_header.cards):
-                delete = next(
-                    (False for frame_card in frame_header.cards
-                     if frame_card[:2] == master_card[:2]),
-                    True
-                )
+                delete = False
+                for frame_card in frame_header.cards:
+                    if(
+                            frame_card[0] == master_card[0]
+                            and
+                            frame_card[1] != master_card[1]
+                    ):
+                        delete = True
                 if delete:
                     if master_card[0] == 'IMAGETYP':
                         raise ImageMismatchError(
