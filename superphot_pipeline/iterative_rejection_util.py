@@ -89,6 +89,7 @@ def iterative_rejection_average(array,
     iteration = 0
     found_outliers = True
     while found_outliers and iteration < max_iter:
+        print('Average iteration: ' + repr(iteration))
         average = average_func(working_array, axis=axis, keepdims=True)
         difference = working_array - average
         rms = scipy.sqrt(
@@ -105,6 +106,7 @@ def iterative_rejection_average(array,
 
         if found_outliers:
             working_array[outliers] = scipy.nan
+        print('Found outliers: ' + repr(found_outliers))
 
     if found_outliers and require_convergence:
         raise ConvergenceError(
