@@ -92,7 +92,7 @@ def iterative_rejection_average(array,
         average = average_func(working_array, axis=axis, keepdims=True)
         difference = working_array - average
         rms = scipy.sqrt(
-            scipy.mean(
+            scipy.nanmean(
                 scipy.square(difference),
                 axis=axis,
                 keepdims=True
