@@ -60,7 +60,8 @@ class MasterMaker(Processor):
     @staticmethod
     def _update_stack_header(master_header,
                              frame_header,
-                             filename):
+                             filename,
+                             first_time):
         """
         Update the master header per header from one of the individual frames.
 
@@ -81,11 +82,24 @@ class MasterMaker(Processor):
             filename:    The filename where the header was read from. Only used
                 for reporting errors.
 
+            first_time:    Is this the first time this function is called for
+                the current stack? Subsequent calls remove keywords that are
+                discrepant between current header and the new frame being
+                stacked.
+
         Returns:
             None
         """
 
-        if master_header:
+        if first_time:
+            master_header.extend(
+                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
+            )
+            if 'IMAGETYP' not in master_header:
+                raise BadImageError('Image %s does not define IMAGETYP'
+                                    %
+                                    filename)
+        else:
             print('Checking master header against ' + filename)
 
             delete_indices = []
@@ -118,14 +132,6 @@ class MasterMaker(Processor):
             for index in delete_indices:
                 del master_header[index]
             print('%d cards remain' % len(master_header.cards))
-        else:
-            master_header.extend(
-                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
-            )
-            if 'IMAGETYP' not in master_header:
-                raise BadImageError('Image %s does not define IMAGETYP'
-                                    %
-                                    filename)
 
     def __init__(self,
                  *,
@@ -316,6 +322,7 @@ class MasterMaker(Processor):
         master_header = fits.Header(custom_header.items())
         frame_index = 0
         discarded_frames = []
+        first_frame = True
         for frame_fname in frame_list:
             image, mask, header = read_image_components(frame_fname,
                                                         read_error=False,
@@ -326,7 +333,9 @@ class MasterMaker(Processor):
             else:
                 MasterMaker._update_stack_header(master_header,
                                                  header,
-                                                 frame_fname)
+                                                 frame_fname,
+                                                 first_frame)
+                first_frame = False
 
                 if pixel_values is None:
                     pixel_values = numpy.empty((len(frame_list),) + image.shape)
