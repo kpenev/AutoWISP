@@ -126,11 +126,15 @@ def iterative_rejection_average(array,
                              axis=axis,
                              keepdims=keepdims)
     print("num_averaged computed", num_averaged)
-    average = scipy.nanmean(scipy.square(working_array - average),
-                            axis=axis,
-                            keepdims=keepdims)
-    rms = None
-    stdev = scipy.sqrt(average / (num_averaged - 1))
+    stdev = (
+        scipy.sqrt(
+            scipy.nanmean(scipy.square(working_array - average),
+                          axis=axis,
+                          keepdims=keepdims)
+            /
+            (num_averaged - 1)
+        )
+    )
 
     print("stdev nanmean and sqrt stuff computed")
 
