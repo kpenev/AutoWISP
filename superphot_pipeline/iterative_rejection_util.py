@@ -26,7 +26,7 @@ def iterative_rejection_average(array,
     Notes:
         A more efficient implementation is possible for median.
 
-    Args:iterative_rejection_util.py
+    Args:
         array:    The array to compute the average of.
 
         outlier_threshold:    Outliers are defined as outlier_threshold * (root
@@ -126,15 +126,11 @@ def iterative_rejection_average(array,
                              axis=axis,
                              keepdims=keepdims)
     print("num_averaged computed", num_averaged)
-    stdev = (
-        scipy.sqrt(
-            scipy.nanmean(scipy.square(working_array - average),
-                          axis=axis,
-                          keepdims=keepdims)
-            /
-            (num_averaged - 1)
-        )
-    )
+    average = scipy.nanmean(scipy.square(working_array - average),
+                            axis=axis,
+                            keepdims=keepdims)
+    rms = None
+    stdev = scipy.sqrt(average / (num_averaged - 1))
 
     print("stdev nanmean and sqrt stuff computed")
 
