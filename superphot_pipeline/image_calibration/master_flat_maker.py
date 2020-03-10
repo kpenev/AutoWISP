@@ -399,6 +399,9 @@ class MasterFlatMaker(MasterMaker):
                     frame too close in pointing to them.
         """
 
+        if self.master_stack_config['min_pointing_separation'] is None:
+            return frame_list, []
+
         frame_pointings = [get_pointing_from_header(f) for f in frame_list]
         colocated = numpy.full(len(frame_list), False)
         for reference_index, reference_pointing in enumerate(frame_pointings):
