@@ -26,7 +26,7 @@ def iterative_rejection_average(array,
     Notes:
         A more efficient implementation is possible for median.
 
-    Args:
+    Args:iterative_rejection_util.py
         array:    The array to compute the average of.
 
         outlier_threshold:    Outliers are defined as outlier_threshold * (root
@@ -106,8 +106,9 @@ def iterative_rejection_average(array,
 
         if found_outliers:
             working_array[outliers] = scipy.nan
-        print('Found %d outliers.'found_outliers.sum())
-
+        print('Found %d outliers.',found_outliers.sum())
+        iteration = iteration + 1
+    print("Exited found_outliers while loop")
     if found_outliers and require_convergence:
         raise ConvergenceError(
             'Computing '
@@ -124,9 +125,9 @@ def iterative_rejection_average(array,
     num_averaged = scipy.sum(scipy.logical_not(scipy.isnan(working_array)),
                              axis=axis,
                              keepdims=keepdims)
-
+    print("num_averaged computed", num_averaged)
     stdev = (
-        scipy.sq
+        scipy.sqrt(
             scipy.nanmean(scipy.square(working_array - average),
                           axis=axis,
                           keepdims=keepdims)
@@ -135,9 +136,12 @@ def iterative_rejection_average(array,
         )
     )
 
+    print("stdev nanmean and sqrt stuff computed")
+
     if not keepdims:
         average = scipy.squeeze(average, axis)
 
+    print("Finished average function!!!!")
     return average, stdev, num_averaged
 #pylint: enable=too-many-arguments
 #pylint: enable=too-many-locals
