@@ -268,6 +268,8 @@ class MasterFlatMaker(MasterMaker):
         )
         return stamp_statistics
 
+    #Splitting will not improve readability
+    #pylint: disable=too-many-locals
     def _classify_from_stamps(self,
                               frame_list,
                               stamp_statistics_config,
@@ -296,7 +298,7 @@ class MasterFlatMaker(MasterMaker):
 
         stamp_statistics = self._get_stamp_statistics(
             frame_list,
-            **self.stamp_statistics_config
+            **stamp_statistics_config
         )
 
         if(
@@ -385,6 +387,7 @@ class MasterFlatMaker(MasterMaker):
                 [frame_list[i] for i in low],
                 [frame_list[i] for i in medium],
                 [frame_list[i] for i in cloudy])
+    #pylint: disable=too-many-locals
 
     def _find_colocated(self, frame_list):
         """
@@ -647,6 +650,8 @@ class MasterFlatMaker(MasterMaker):
         return corrected_image / corrected_image.mean()
 
     #TODO: implement full header documentation.
+    #More configuration can be overwritten for master flats.
+    #pylint: disable=arguments-differ
     def __call__(self,
                  frame_list,
                  high_master_fname,
@@ -787,11 +792,11 @@ class MasterFlatMaker(MasterMaker):
                 more_cloudy_frames = super().__call__(
                     frames['low'],
                     low_master_fname,
-                    min_valid_frames=min_low_combine['low'],
+                    min_valid_frames=min_combine['low'],
                     **{
                         **self.master_stack_config['master_stack_options'],
                         'custom_header': custom_header,
-                        **stacking_options.get('master_stack_options', {})
+                        **master_stack_config.get('master_stack_options', {})
                     }
                 )
                 frames['cloudy'].extend(more_cloudy_frames)
@@ -809,3 +814,4 @@ class MasterFlatMaker(MasterMaker):
                   +
                   '\n\t\t'.join(filenames))
         return frames
+    #pylint: disable=arguments-differ
