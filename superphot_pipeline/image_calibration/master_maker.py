@@ -224,8 +224,7 @@ class MasterMaker(Processor):
                 Other mask flags in the input frames are ignored, treated
                 as clean.
 
-            custom_header(dict):    A collection of keywords to use in addition
-                to/instead of what is in the input frames header.
+            custom_header:    See same name argument to __call__().
 
         Returns:
             (tuple):
@@ -401,6 +400,9 @@ class MasterMaker(Processor):
 
             allow_overwrite:    See same name argument
                 to superphot_pipeline.image_calibration.fits_util.create_result.
+
+            custom_header(dict):    A collection of keywords to use in addition
+                to/instead of what is in the input frames header.
 
             stacking_options:    Keyword only arguments allowing overriding the
                 stacking configuration specified at construction for this

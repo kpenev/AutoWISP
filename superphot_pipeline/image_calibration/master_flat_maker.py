@@ -640,7 +640,6 @@ class MasterFlatMaker(MasterMaker):
 
         return corrected_image / corrected_image.mean()
 
-    #TODO: implement configuration overwrite through staicking_options.
     #TODO: implement full header documentation.
     def __call__(self,
                  frame_list,
@@ -649,6 +648,7 @@ class MasterFlatMaker(MasterMaker):
                  *,
                  compress=True,
                  allow_overwrite=False,
+                 custom_header=dict(),
                  **stacking_options):
         """
         Attempt to create high & low master flat from the given frames.
@@ -673,6 +673,10 @@ class MasterFlatMaker(MasterMaker):
             stacking_options:    Keyword only arguments allowing overriding the
                 stacking configuration specified at construction for this
                 stack only.
+
+            custom_header:    See same name argument to
+                :func:`superphot_pipeline.image_calibration.master_maker.MasterMaker.__call__`
+                .
 
         Returns:
             dict:
@@ -729,7 +733,11 @@ class MasterFlatMaker(MasterMaker):
             ) = self.stack(
                 frames['high'],
                 min_valid_frames=self.master_stack_config['min_high_combine'],
-                **self.master_stack_config['large_scale_stack_options']
+                **{
+                    **self.master_stack_config['large_scale_stack_options'],
+                    'custom_header': custom_header,
+                    **stacking_options['large_scale_stack_options']
+                }
             )
             assert not discarded_frames
 
@@ -737,7 +745,11 @@ class MasterFlatMaker(MasterMaker):
                 frames['high'],
                 high_master_fname,
                 min_valid_frames=self.master_stack_config['min_high_combine'],
-                **self.master_stack_config['master_stack_options']
+                **{
+                    **self.master_stack_config['master_stack_options'],
+                    'custom_header': custom_header,
+                    **stacking_options['master_stack_options']
+                }
             )
             frames['cloudy'].extend(more_cloudy_frames)
             for frame in more_cloudy_frames:
@@ -750,7 +762,11 @@ class MasterFlatMaker(MasterMaker):
                     min_valid_frames=(
                         self.master_stack_config['min_low_combine']
                     ),
-                    **self.master_stack_config['master_stack_options']
+                    **{
+                        **self.master_stack_config['master_stack_options'],
+                        'custom_header': custom_header,
+                        **stacking_options['master_stack_options']
+                    }
                 )
                 frames['cloudy'].extend(more_cloudy_frames)
                 for frame in more_cloudy_frames:
