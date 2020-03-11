@@ -355,7 +355,7 @@ class MasterFlatMaker(MasterMaker):
                <
                stamp_select_config['max_low_mean'])
 
-        if stamp_select_config['cloudy_frame_threshold'] is not None:
+        if self.stamp_select_config.get('cloudy_frame_threshold') is not None:
             cloudy = (
                 numpy.abs(stamp_statistics['variance'] - best_fit_variance)
                 >
