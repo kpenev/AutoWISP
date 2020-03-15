@@ -89,10 +89,11 @@ def iterative_rejection_average(array,
     iteration = 0
     found_outliers = True
     while found_outliers and iteration < max_iter:
+        print('Average iteration: ' + repr(iteration))
         average = average_func(working_array, axis=axis, keepdims=True)
         difference = working_array - average
         rms = scipy.sqrt(
-            scipy.mean(
+            scipy.nanmean(
                 scipy.square(difference),
                 axis=axis,
                 keepdims=True
@@ -105,7 +106,9 @@ def iterative_rejection_average(array,
 
         if found_outliers:
             working_array[outliers] = scipy.nan
-
+        print('Found %d outliers.',found_outliers.sum())
+        iteration = iteration + 1
+    print("Exited found_outliers while loop")
     if found_outliers and require_convergence:
         raise ConvergenceError(
             'Computing '
@@ -122,7 +125,7 @@ def iterative_rejection_average(array,
     num_averaged = scipy.sum(scipy.logical_not(scipy.isnan(working_array)),
                              axis=axis,
                              keepdims=keepdims)
-
+    print("num_averaged computed", num_averaged)
     stdev = (
         scipy.sqrt(
             scipy.nanmean(scipy.square(working_array - average),
@@ -133,9 +136,12 @@ def iterative_rejection_average(array,
         )
     )
 
+    print("stdev nanmean and sqrt stuff computed")
+
     if not keepdims:
         average = scipy.squeeze(average, axis)
 
+    print("Finished average function!!!!")
     return average, stdev, num_averaged
 #pylint: enable=too-many-arguments
 #pylint: enable=too-many-locals
