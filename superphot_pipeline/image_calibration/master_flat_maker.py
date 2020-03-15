@@ -733,8 +733,8 @@ class MasterFlatMaker(MasterMaker):
         frames['high'], frames['low'], frames['medium'], frames['cloudy'] = (
             self._classify_from_stamps(
                 isolated_frames,
-                **{**self.stamp_statistics_config, **stamp_statistics_config},
-                **{**self.stamp_select_config, **stamp_select_config}
+                {**self.stamp_statistics_config, **stamp_statistics_config},
+                {**self.stamp_select_config, **stamp_select_config}
             )
         )
 
