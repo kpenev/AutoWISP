@@ -53,6 +53,13 @@ def get_psf_map_sources(dr_fname):
 def main(cmdline_args):
     """Avoid polluting global namespace."""
 
+    if cmdline_args.skip_existing_plots:
+        all_plots_exist = True
+        for plot_fname in explore_prf.list_plot_filenames(cmdline_args):
+            all_plots_exist = all_plots_exist and os.path.exists(plot_fname)
+        if all_plots_exist:
+            return
+
     with fits.open(cmdline_args.frame_fname, 'readonly') as frame:
         #False positive
         #pylint: disable=no-member
