@@ -245,7 +245,7 @@ class MagnitudeFit(ABC):
             for col_index, col_name in enumerate(new_column_names):
                 new_column_data[col_index][source_ind] = cat_source[col_name]
 
-        if hasattr(self.config, 'grouping'):
+        if getattr(self.config, 'grouping', None) is not None:
             new_column_names += ('fit_group',)
             new_column_data.append([])
 
@@ -573,7 +573,7 @@ class MagnitudeFit(ABC):
                 self._add_catalogue_info(phot)
             )
             evaluator = Evaluator(phot)
-            if hasattr(self.config, 'grouping'):
+            if getattr(self.config, 'grouping', None) is not None:
                 self._set_group(evaluator, phot)
 
             self.logger.debug('Checking for existing solution.')
