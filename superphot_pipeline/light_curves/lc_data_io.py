@@ -27,7 +27,6 @@ from .light_curve_file import _config_dset_key_rex
 
 #TODO: Add catalogue information as top-level attributes.
 #TODO: Add xi and eta as config datasets.
-#TODO: Allow optional non-config header keywords.
 class LCDataIO:
     """
     A callable class which gathers a slice of LC data from frames/DR files.
@@ -810,8 +809,22 @@ class LCDataIO:
                         hdr_quantity != self.cfg_index_id
                 ):
                     assert len(self.dataset_dimensions[lc_quantity]) == 1
+                    header_key = hdr_quantity.upper()
+                    value = frame_header.get(header_key)
+                    assert (
+                        value is not None
+                        or
+                        self._optional_header == 'all'
+                        or
+                        (
+                            self._optional_header is not None
+                            and
+                            header_key in self._optional_header
+                        )
+                    )
+
                     self._get_slice_field(lc_quantity)[frame_index] = (
-                        frame_header[hdr_quantity.upper()]
+                        value
                     )
 
         def get_dset_default(quantity):
