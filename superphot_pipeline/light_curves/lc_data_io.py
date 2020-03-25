@@ -247,6 +247,7 @@ class LCDataIO:
                config,
                source_id_parser,
                dr_fname_parser,
+               get_jd,
                *,
                source_list=None,
                optional_header=None,
@@ -281,6 +282,9 @@ class LCDataIO:
 
             dr_fname_parser:    A callable that parser the filename of DR files
                 returning extra keywrds to add to the header.
+
+            get_jd:    A function that should return the JD of the middle of the
+                exposure for a given FITS header.
 
             source_list:    A list that includes all sources for which
                 lightcurves will be generated. Sources should be formatted
@@ -354,6 +358,7 @@ class LCDataIO:
         cls._config = config
         cls._optional_header = optional_header
         cls._observatory = observatory
+        cls._get_jd = get_jd
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
@@ -1004,7 +1009,7 @@ class LCDataIO:
                                      lon=frame_header['SITELONG'] * units.deg,
                                      height=frame_header['SITEALT'] * units.m)
 
-            obs_time = Time(2.4e6 + frame_header['JD'],
+            obs_time = Time(self._get_jd(frame_header),
                             format='jd',
                             location=location)
 
