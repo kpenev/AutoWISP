@@ -1323,24 +1323,26 @@ class LCDataIO:
                 frame_header.update(self._observatory)
 
         try:
-            lc_example = LightCurveFile()
-            frame_index, dr_fname = frame
-            with DataReductionFile(dr_fname, 'r') as data_reduction:
-                frame_header = dict(
-                    data_reduction.get_frame_header().items()
-                )
-                fix_header(frame_header)
-                configurations = self._get_configurations(data_reduction,
-                                                          frame_header,
-                                                          lc_example.get_dtype)
+            with LightCurveFile() as lc_example:
+                frame_index, dr_fname = frame
+                with DataReductionFile(dr_fname, 'r') as data_reduction:
+                    frame_header = dict(
+                        data_reduction.get_frame_header().items()
+                    )
+                    fix_header(frame_header)
+                    configurations = self._get_configurations(
+                        data_reduction,
+                        frame_header,
+                        lc_example.get_dtype
+                    )
 
-                skipped_sources = self._add_to_data_slice(
-                    data_reduction=data_reduction,
-                    frame_header=frame_header,
-                    frame_index=frame_index,
-                    lc_example=lc_example
-                )
-            return configurations, skipped_sources
+                    skipped_sources = self._add_to_data_slice(
+                        data_reduction=data_reduction,
+                        frame_header=frame_header,
+                        frame_index=frame_index,
+                        lc_example=lc_example
+                    )
+                return configurations, skipped_sources
         except Exception as ex:
             raise IOError('While reading: ' + repr(frame)) from ex
 
