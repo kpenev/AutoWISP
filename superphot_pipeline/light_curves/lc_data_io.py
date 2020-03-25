@@ -358,7 +358,8 @@ class LCDataIO:
         cls._config = config
         cls._optional_header = optional_header
         cls._observatory = observatory
-        cls._get_jd = get_jd
+
+        cls._get_jd = staticmethod(get_jd)
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
