@@ -4,7 +4,10 @@ from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 from superphot_pipeline import DataReductionFile
 from .lc_data_io import LCDataIO
 
-def collect_light_curves(dr_filenames, configuration, **path_substitutions):
+def collect_light_curves(dr_filenames,
+                         configuration,
+                         dr_fname_parser=parse_fname_keywords,
+                         **path_substitutions):
     """
     Add the data from a collection of DR files to LCs, creating LCs if needed.
 
@@ -27,7 +30,7 @@ def collect_light_curves(dr_filenames, configuration, **path_substitutions):
     with DataReductionFile(dr_filenames[0], 'r') as first_dr:
         data_io = LCDataIO.create(configuration,
                                   first_dr.parse_hat_source_id,
-                                  parse_fname_keywords,
+                                  dr_fname_parser,
                                   **path_substitutions)
     frame_chunk = data_io.max_dimension_size['frame']
     sources_lc_fnames = [(source_id, configuration.lc_fname_pattern % source_id)
