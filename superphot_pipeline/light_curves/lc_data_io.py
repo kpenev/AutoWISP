@@ -25,8 +25,9 @@ from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
 from .light_curve_file import _config_dset_key_rex
 
-#TODO: Add catalogue information as top-level attributes
-#TODO: Add xi and eta as config datasets
+#TODO: Add catalogue information as top-level attributes.
+#TODO: Add xi and eta as config datasets.
+#TODO: Allow optional non-config header keywords.
 class LCDataIO:
     """
     A callable class which gathers a slice of LC data from frames/DR files.
@@ -247,16 +248,17 @@ class LCDataIO:
                config,
                source_id_parser,
                dr_fname_parser,
+               *,
                source_list=None,
+               optional_header=None,
                **path_substitutions):
         """
         Configure the class for use in multiprocessing LC collection.
 
         Args:
-            config:    The configuratoin of how to generate the lightcurves as
-                returned by the rawlc_config function or as parsed from the
-                command line. In the latter case, the configuration should
-                contain the extra attributes:
+            config:    The configuratoin of how to generate the lightcurves,
+                usually as parsed from the command line. In the latter case, the
+                configuration should contain the following attributes:
 
                     - max_apertures: The maximum number of photometriec
                       apertures in any input frame.
@@ -273,6 +275,19 @@ class LCDataIO:
                     - memblocksize: The maximum amount of memory (in bytes) to
                       allocate for temporaririly storing source information
                       before dumping to LC.
+
+                    - optional_header: Indicate which header keywords could
+                        be missing from the FITS header. Missking keywors will
+                        be replaced by appropriate values indicating an unknown
+                        value. Should be in one of 3 formats:
+
+                            - `None`: all expected header keywords must be present
+                              in every frame.
+
+                            - `'all'`: No header keywords are required.
+
+                            - iterable of strings: to be querried by the python
+                              `in` keyword.
 
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
@@ -332,6 +347,7 @@ class LCDataIO:
 
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
+        cls._optional_header = optional_header
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
@@ -701,7 +717,20 @@ class LCDataIO:
                             **substitutions,
                         )
                     found_config = True
-                except OSError:
+                except (OSError, KeyError) if self._optional_header else OSError:
+                    if (
+                            dset_key in self.header_datasets
+                            and
+                            self._optional_header != 'all'
+                            and
+                            (
+                                self.header_datasets[dset_key].upper()
+                                not in
+                                self._optional_header
+                            )
+                    ):
+                        raise
+
                     self._logger.warning(
                         'Failed to read %s from DR file for %s.',
                         dset_key,
@@ -1251,11 +1280,8 @@ class LCDataIO:
                 frame_header['FILVER'] = 0
             if 'MNTSTATE' not in frame_header:
                 frame_header['MNTSTATE'] = 'unkwnown'
-            #This is actually intended to fail if MNTSTAT is not bool type
-            #pylint: disable=singleton-comparison
-            elif frame_header['MNTSTATE'] == True:
+            elif frame_header['MNTSTATE'] is True:
                 frame_header['MNTSTATE'] = 'T'
-            #pylint: enable=singleton-comparison
             frame_header.update(self.dr_fname_parser(dr_fname))
 
         try:
