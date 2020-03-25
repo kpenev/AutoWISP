@@ -6,8 +6,10 @@ from .lc_data_io import LCDataIO
 
 def collect_light_curves(dr_filenames,
                          configuration,
+                         *,
                          dr_fname_parser=parse_fname_keywords,
                          optional_header=None,
+                         observatory=None,
                          **path_substitutions):
     """
     Add the data from a collection of DR files to LCs, creating LCs if needed.
@@ -37,6 +39,7 @@ def collect_light_curves(dr_filenames,
                                   first_dr.parse_hat_source_id,
                                   dr_fname_parser,
                                   optional_header=optional_header,
+                                  observatory=observatory,
                                   **path_substitutions)
     frame_chunk = data_io.max_dimension_size['frame']
     sources_lc_fnames = [(source_id, configuration.lc_fname_pattern % source_id)

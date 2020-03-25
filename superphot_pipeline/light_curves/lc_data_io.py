@@ -250,6 +250,7 @@ class LCDataIO:
                *,
                source_list=None,
                optional_header=None,
+               observatory=None,
                **path_substitutions):
         """
         Configure the class for use in multiprocessing LC collection.
@@ -300,6 +301,10 @@ class LCDataIO:
                     - iterable of strings: to be querried by the python
                       `in` keyword.
 
+            observatory(None or dict):    If specified, should be a dictionary
+                with keys `'SITELAT'`, `'SITELONG'`, and `'SITEALT'` which
+                overwrite or add the header information for the observatory's
+                location on earth.
 
             path_substitutions:    Path substitutions to be kept fixed during
                 the entire lightcurve dumping process. Used to resolve paths
@@ -348,6 +353,7 @@ class LCDataIO:
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
         cls._optional_header = optional_header
+        cls._observatory = observatory
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
@@ -1304,7 +1310,11 @@ class LCDataIO:
                 frame_header['MNTSTATE'] = 'unkwnown'
             elif frame_header['MNTSTATE'] is True:
                 frame_header['MNTSTATE'] = 'T'
+
             frame_header.update(self.dr_fname_parser(dr_fname))
+
+            if self._observatory is not None:
+                frame_header.update(self._observatory)
 
         try:
             lc_example = LightCurveFile()
