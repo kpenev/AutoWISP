@@ -275,19 +275,6 @@ class LCDataIO:
                       allocate for temporaririly storing source information
                       before dumping to LC.
 
-                    - optional_header: Indicate which header keywords could
-                        be missing from the FITS header. Missking keywors will
-                        be replaced by appropriate values indicating an unknown
-                        value. Should be in one of 3 formats:
-
-                            - `None`: all expected header keywords must be present
-                              in every frame.
-
-                            - `'all'`: No header keywords are required.
-
-                            - iterable of strings: to be querried by the python
-                              `in` keyword.
-
             source_id_parser:    A callable that can convert string source IDs
                 to the corresponding tuple of integers source IDs.
 
@@ -299,6 +286,20 @@ class LCDataIO:
                 as (field, source) tuples of two integers. Sources not in this
                 list are ignored. If None, the sources in the catalogue are used
                 instead.
+
+            optional_header: Indicate which header keywords could
+                be missing from the FITS header. Missking keywors will
+                be replaced by appropriate values indicating an unknown
+                value. Should be in one of 3 formats:
+
+                    - `None`: all expected header keywords must be present
+                      in every frame.
+
+                    - `'all'`: No header keywords are required.
+
+                    - iterable of strings: to be querried by the python
+                      `in` keyword.
+
 
             path_substitutions:    Path substitutions to be kept fixed during
                 the entire lightcurve dumping process. Used to resolve paths
@@ -822,6 +823,14 @@ class LCDataIO:
                             header_key in self._optional_header
                         )
                     )
+                    if value is None:
+                        lc_dtype = numpy.dtype(
+                            type(self._get_slice_field(lc_quantity)[frame_index])
+                        )
+                        if lc_dtype.kind == 'f':
+                            value = numpy.nan
+                        elif lc_dtype.kind == 'S':
+                            value = b''
 
                     self._get_slice_field(lc_quantity)[frame_index] = (
                         value
