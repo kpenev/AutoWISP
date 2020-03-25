@@ -1,5 +1,8 @@
 """Functions for creating light curves from DR files."""
 
+import os.path
+import os
+
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 from superphot_pipeline.hat.header_util import get_jd as get_hat_jd
 from superphot_pipeline import DataReductionFile
@@ -52,6 +55,13 @@ def collect_light_curves(dr_filenames,
     frame_chunk = data_io.max_dimension_size['frame']
     sources_lc_fnames = [(source_id, configuration.lc_fname_pattern % source_id)
                          for source_id in data_io.source_destinations.keys()]
+
+    for dirname in {
+        os.path.abspath(os.path.dirname(lc_fname))
+        for _, lc_fname in sources_lc_fnames
+    }:
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
 
     num_processed = 0
     while num_processed < len(dr_filenames):
