@@ -887,6 +887,7 @@ class LCDataIO:
                         repr(data_reduction.filename),
                         repr(self._get_substitutions(quantity, dim_values))
                     )
+                    continue
                 if 'srcextract_psf_param' in dimensions:
                     assert (
                         len(attribute_value)
