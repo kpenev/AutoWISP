@@ -1,5 +1,7 @@
 """Define class for performing EPD correction on lightcurves."""
 
+from itertools import repeat
+
 import scipy
 
 from superphot_pipeline import LightCurveFile
@@ -185,9 +187,11 @@ class EPDCorrection:
                 like `'shapefit.epd.cfg.fit_terms'`, and
                 `'shapefit.epd.residual'`.
 
-            fit_weights([]):    Weights to use when fitting each fit_dataset.
-                Should have exactly the same structure and shape as
-                fit_datasets. If None all points get equal weight.
+            fit_weights(str or [str]):    Weights to use when fitting each
+                fit_dataset. Follows the same format as
+                `fit_points_filter_expression`. Can be either a single
+                expression, which is applied to all datasets or a list of
+                expressions, one for each entry in `fit_datasets`.
 
             iterative_fit_config:    Any other arguments to pass directly to
                 iterative_fit().
@@ -216,6 +220,8 @@ class EPDCorrection:
                 ('rms', (scipy.float64, num_photometries)),
                 ('num_finite', (scipy.uint, num_photometries))]
 
+    #No straightforward way to simplify.
+    #pylint: disable=too-many-locals
     def __call__(self, lc_fname):
         """
         Fit and correct the given lightcurve.
@@ -245,31 +251,28 @@ class EPDCorrection:
             )
             predictors = predictors[:, fit_points]
 
-            assert (self.fit_weights is None
-                    or
-                    len(self.fit_datasets) == len(self.fit_weights))
-
-            num_photometries = len(self.fit_datasets)
+            if self.fit_weights is None:
+                fit_weight_iter = repeat(None)
+            elif isinstance(self.fit_weights, str):
+                fit_weight_iter = repeat(evaluate(self.fit_weights)[fit_points])
+            else:
+                assert len(self.fit_datasets) == len(self.fit_weights)
+                fit_weight_iter = (
+                    evaluate(weight_expression)[fit_points]
+                    for weight_expression in self.fit_weights
+                )
 
             result = scipy.empty(
                 1,
-                dtype=self.get_result_dtype(num_photometries)
+                dtype=self.get_result_dtype(len(self.fit_datasets))
             )
 
-            for fit_index, to_fit in enumerate(
-                    self.fit_datasets if self.fit_weights is None
-                    else zip(self.fit_datasets, fit_weights)
+            for fit_index, (to_fit, fit_weights) in enumerate(
+                    zip(self.fit_datasets,
+                        fit_weight_iter)
             ):
 
-                if self.fit_weights is None:
-                    original_dset_key, substitutions = to_fit[:2]
-                    fit_weights = None
-                else:
-                    original_dset_key, substitutions = to_fit[0][:2]
-                    fit_weights = light_curve.get_dataset(
-                        to_fit[1],
-                        **substitutions
-                    )[fit_points]
+                original_dset_key, substitutions = to_fit[:2]
                 fit_data = light_curve.get_dataset(original_dset_key,
                                                    **substitutions)[fit_points]
 
@@ -321,5 +324,6 @@ class EPDCorrection:
                     light_curve=light_curve,
                 )
         return result
+    #pylint: disable=too-many-locals
 #pylint: enable=too-many-instance-attributes
 #pylint: enable=too-few-public-methods
