@@ -54,15 +54,18 @@ class EPDCorrection:
                            substitutions) in self.used_variables.items()
         ])
         result = []
-        for fit_target in (self.fit_datasets if self.fit_weights is None
-                           else zip(self.fit_datasets, fit_weights)):
+        for fit_target, fit_weights in zip(
+                self.fit_datasets,
+                (
+                    repeat(self.fit_weights or '') if (
+                        self.fit_weights is None
+                        or
+                        isinstance(self.fit_weights, str)
+                    ) else self.fit_weights
+                )
+        ):
 
-            if self.fit_weights is None:
-                pipeline_key_prefix = fit_target[2]
-                fit_weights = b''
-            else:
-                pipeline_key_prefix = fit_target[0][2]
-                fit_weights = fit_target[1].encode('ascii')
+            pipeline_key_prefix = fit_target[2]
 
             if self.fit_points_filter_expression is None:
                 point_filter = b''
@@ -88,7 +91,7 @@ class EPDCorrection:
                     ),
                     (
                         pipeline_key_prefix + 'fit_weights',
-                        fit_weights
+                        fit_weights.encode('ascii')
                     ),
                     (
                         pipeline_key_prefix + 'error_avg',
@@ -217,8 +220,8 @@ class EPDCorrection:
                 ('mag', scipy.float64),
                 ('xi', scipy.float64),
                 ('eta', scipy.float64),
-                ('rms', (scipy.float64, num_photometries)),
-                ('num_finite', (scipy.uint, num_photometries))]
+                ('rms', (scipy.float64, (num_photometries,))),
+                ('num_finite', (scipy.uint, (num_photometries,)))]
 
     #No straightforward way to simplify.
     #pylint: disable=too-many-locals
