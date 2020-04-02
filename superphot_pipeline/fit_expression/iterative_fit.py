@@ -113,7 +113,11 @@ def iterative_fit(predictors,
         predictors = scipy.multiply(predictors, weights)
         target_values = scipy.multiply(target_values, weights)
     num_free_coef = len(predictors)
-    bad_ind = scipy.logical_not(scipy.isfinite(target_values)).nonzero()[0]
+
+    bad_ind = scipy.logical_not(scipy.isfinite(target_values))
+    if weights is not None:
+        bad_ind = scipy.logical_or(bad_ind, weights <= 0)
+    bad_ind = bad_ind.nonzero()[0]
 
     #Intended just to limit the number of iterations
     #pylint: disable=unused-variable
