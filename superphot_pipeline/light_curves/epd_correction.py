@@ -3,6 +3,7 @@
 from itertools import repeat
 
 import scipy
+from numpy.lib import recfunctions
 
 from superphot_pipeline import LightCurveFile
 from superphot_pipeline.evaluator import Evaluator
@@ -213,24 +214,66 @@ class EPDCorrection:
         self._fit_config = self._get_fit_configurations(fit_terms_expression)
 
     @staticmethod
-    def get_result_dtype(num_photometries):
+    def get_result_dtype(num_photometries, extra_predictors=None):
         """Return the data type for the result of __call__."""
 
-        return [('ID', (scipy.int_, 3)),
+        return (
+            [
+                ('ID', (scipy.int_, 3)),
                 ('mag', scipy.float64),
                 ('xi', scipy.float64),
                 ('eta', scipy.float64),
                 ('rms', (scipy.float64, (num_photometries,))),
-                ('num_finite', (scipy.uint, (num_photometries,)))]
+                ('num_finite', (scipy.uint, (num_photometries,)))
+            ]
+            +
+            [
+                (predictor_name, scipy.float64)
+                for predictor_name in (
+                    [] if extra_predictors is None
+                    else (extra_predictors.keys()
+                          if isinstance(extra_predictors, dict) else
+                          extra_predictors.dtype.names)
+                )
+            ]
+        )
 
-    #No straightforward way to simplify.
+    #Re-factored as much as I could (KP)
     #pylint: disable=too-many-locals
-    def __call__(self, lc_fname):
+    def __call__(self,
+                 lc_fname,
+                 get_fit_data=LightCurveFile.get_dataset,
+                 extra_predictors=None,
+                 save=True):
         """
         Fit and correct the given lightcurve.
 
         Args:
             lc_fname(str):    The filename of the light curve to fit.
+
+            get_fit_data(callable):    A function that takes a LightCurveFile
+                instance, dataset key and substitutions and returns either a
+                single array which is the dataset to calculate and apply EPD
+                correction to, or a 2-tuple of arrays, the first of which is
+                used to calculate the EPD correction and the second one is what
+                the calculated correction is applied to. The intention is to
+                allow for protecting a signal from being modified by the fit, in
+                which case the first dataset should have the protected signal
+                removed from it, and the second dataset should be the original
+                datasets stored in the lightcurve.
+
+            extra_predictors(None, dict, or scipy structured array):
+                Additional predictor datasets to add to the ones configured
+                through __init__, for this lightcurve only. The intent is to
+                allow for reconstructive EPD, by passing an expected signal or a
+                set of signals which are fit simultaneously to the EPD
+                corrections. The derived corrections for these components are
+                not applied when calculating the corrected dataset, but the best
+                fit amplitudes are added to the result.
+
+            save(bool):    Should the result be saved to the lightcurve. Can be
+                used to disable saving if the current EPD evaluation is not the
+                final one during reconstructive EPD.
 
         Returns:
             numpy.array(dtype=[('rms', numpy.float64),
@@ -238,14 +281,31 @@ class EPDCorrection:
                 The RMS of the corrected values and the number of finite points
                 for each corrected dataset in the order in which the datasets
                 were supplied to __init__().
+
+            numpy.array(dtype=[(extra predictor 1, numpy.float64),
+                               ...]:
+                The best-fit amplitudes for the `extra_derctors`.
         """
 
-        with LightCurveFile(lc_fname, 'r+') as light_curve:
+        def prepare_fit(extra_predictor_order):
+            """Return predictors, weights and an array flagging points to fit."""
+
             evaluate = Evaluator(
                 light_curve.read_data_array(self.used_variables)
             )
 
             predictors = FitTermsInterface(self.fit_terms_expression)(evaluate)
+
+            if extra_predictors:
+                predictors = recfunctions.append_fields(
+                    predictors,
+                    extra_predictor_order,
+                    [
+                        extra_predictors[predictor]
+                        for predictor in extra_predictor_order
+                    ],
+                    usemask=False
+                )
 
             fit_points = (
                 evaluate(self.fit_points_filter_expression)
@@ -264,69 +324,163 @@ class EPDCorrection:
                     evaluate(weight_expression)[fit_points]
                     for weight_expression in self.fit_weights
                 )
+            return predictors, fit_weight_iter, fit_points
 
-            result = scipy.empty(
-                1,
-                dtype=self.get_result_dtype(len(self.fit_datasets))
+        def correct_one_dataset(light_curve,
+                                *,
+                                predictors,
+                                fit_target,
+                                weights,
+                                fit_index,
+                                result,
+                                num_extra_predictors):
+            """
+            Calculate and apply EPD correction to a single dataset.
+
+            Args:
+                light_curve(LightCurveFile):    The opened for writing light
+                    curve to apply EPD corrections to.
+
+                fit_target((str, dict)):    The dataset key and substitutions
+                    identifying a uniquedataset in the lightcurve to fit.
+
+                predictors(structured array):    The predictors to use for EPD
+                    corrections, including the `extra_predictors`.
+
+                weights(array):    The weight to use for each point in the
+                    dataset being fit.
+
+                fit_index(int):    The index of the dataset being fit within the
+                    list of datasets that will be fit for this lightcurve.
+
+                result:    The result variable for the parent update for this
+                    fit.
+
+                num_extra_predictors(int):    How many extra predictors are
+                    there.
+
+            Returns:
+                (float, float, float64 array):
+                    * The square root of the average square residuals after the
+                      fit.
+
+                    * The `'num_finite'` entry in the parent's result.
+
+                    * A list of the best-fit amplitudes of the
+                      `extra_predictors` signals.
+            """
+
+            raw_values = get_fit_data(light_curve, fit_target[0], **fit_target[1])
+            if isinstance(raw_values, tuple):
+                raw_values, fit_data = raw_values
+            else:
+                fit_data = raw_values
+
+            raw_values = raw_values[fit_points]
+            fit_data = fit_data[fit_points]
+
+            #Those should come from self.iteritave_fit_config.
+            #pylint: disable=missing-kwoa
+            fit_results = iterative_fit(
+                predictors=predictors,
+                target_values=fit_data,
+                weights=weights,
+                **self.iterative_fit_config
             )
+            #pylint: enable=missing-kwoa
 
-            for fit_index, (to_fit, fit_weights) in enumerate(
-                    zip(self.fit_datasets,
-                        fit_weight_iter)
-            ):
+            if fit_results[0] is None:
+                if extra_predictors:
+                    for predictor in result.dtype.names[-num_extra_predictors:]:
+                        result[predictor][0][fit_index] = scipy.nan
 
-                original_dset_key, substitutions = to_fit[:2]
-                fit_data = light_curve.get_dataset(original_dset_key,
-                                                   **substitutions)[fit_points]
-
-                #Those should come from self.iteritave_fit_config.
-                #pylint: disable=missing-kwoa
-                fit_results = iterative_fit(
-                    predictors=predictors,
-                    target_values=fit_data,
-                    weights=fit_weights,
-                    **self.iterative_fit_config
+                fit_results = dict(
+                    corrected_values=scipy.full(raw_values.shape,
+                                                scipy.nan,
+                                                dtype=raw_values.dtype),
+                    fit_residual=scipy.nan,
+                    non_rejected_points=0,
                 )
-                #pylint: enable=missing-kwoa
 
-                if fit_results[0] is None:
-                    fit_results = dict(
-                        corrected_values=scipy.full(fit_data.shape,
-                                                    scipy.nan,
-                                                    dtype=fit_data.dtype),
-                        fit_residual=scipy.nan,
-                        non_rejected_points=0
+            else:
+                if extra_predictors:
+                    for predictor, amplitude in zip(
+                            result.dtype.names[-num_extra_predictors:],
+                            fit_results[0][-num_extra_predictors:]
+                    ):
+                        result[predictor][0][fit_index] = amplitude
+                    corrected_values = (
+                        raw_values
+                        -
+                        scipy.dot(fit_results[0][:-num_extra_predictors],
+                                  predictors[:-num_extra_predictors])
                     )
                 else:
-                    fit_results = dict(
-                        corrected_values=(
-                            fit_data
-                            -
-                            scipy.dot(fit_results[0], predictors)
-                        ),
-                        fit_residual=fit_results[1]**0.5,
-                        non_rejected_points=fit_results[2]
-                    )
+                    corrected_values = (raw_values
+                                        -
+                                        scipy.dot(fit_results[0], predictors))
 
-                result['rms'][0][fit_index] = scipy.sqrt(
-                    scipy.nanmean(
-                        scipy.power(
-                            fit_results['corrected_values'],
-                            2
-                        )
-                    )
+                fit_results = dict(
+                    corrected_values=corrected_values,
+                    fit_residual=fit_results[1]**0.5,
+                    non_rejected_points=fit_results[2],
                 )
-                result['num_finite'][0][fit_index] = scipy.isfinite(
-                    fit_results['corrected_values']
-                ).sum()
 
+            if save:
                 self._save_result(
                     fit_index=fit_index,
                     **fit_results,
                     fit_points=fit_points,
                     light_curve=light_curve,
                 )
+
+            result['rms'][0][fit_index] = scipy.sqrt(
+                scipy.nanmean(
+                    scipy.power(
+                        fit_results['corrected_values'],
+                        2
+                    )
+                )
+            )
+            result['num_finite'][0][fit_index] = scipy.isfinite(
+                fit_results['corrected_values']
+            ).sum()
+
+        if extra_predictors is None:
+            num_extra_predictors = 0
+        elif isinstance(extra_predictors, dict):
+            num_extra_predictors = len(extra_predictors)
+        else:
+            num_extra_predictors = len(extra_predictors.dtype.names)
+
+        with LightCurveFile(lc_fname, 'r+') as light_curve:
+
+            result = scipy.empty(
+                1,
+                dtype=self.get_result_dtype(len(self.fit_datasets),
+                                            extra_predictors)
+            )
+
+            predictors, fit_weight_iter, fit_points = prepare_fit(
+                result.dtype.names[-num_extra_predictors:] if extra_predictors
+                else []
+            )
+
+            for fit_index, to_fit in enumerate(
+                    zip(self.fit_datasets,
+                        fit_weight_iter)
+            ):
+                correct_one_dataset(
+                    light_curve=light_curve,
+                    predictors=predictors,
+                    fit_target=to_fit[0],
+                    weights=to_fit[1],
+                    fit_index=fit_index,
+                    result=result,
+                    num_extra_predictors=num_extra_predictors
+                )
+
         return result
-    #pylint: disable=too-many-locals
+    #pylint: enable=too-many-locals
 #pylint: enable=too-many-instance-attributes
 #pylint: enable=too-few-public-methods
