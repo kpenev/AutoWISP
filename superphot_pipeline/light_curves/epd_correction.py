@@ -255,8 +255,8 @@ class EPDCorrection:
                 instance, dataset key and substitutions and returns either a
                 single array which is the dataset to calculate and apply EPD
                 correction to, or a 2-tuple of arrays, the first of which is
-                used to calculate the EPD correction and the second one is what
-                the calculated correction is applied to. The intention is to
+                what the calculated correction is applied to, and the second one
+                is used to calculate the EPD correction. The intention is to
                 allow for protecting a signal from being modified by the fit, in
                 which case the first dataset should have the protected signal
                 removed from it, and the second dataset should be the original
