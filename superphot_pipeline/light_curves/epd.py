@@ -111,6 +111,7 @@ def reconstructive_epd_transit(lc_fname,
                                transit_model,
                                transit_parameters,
                                fit_parameter_flags,
+                               num_limbdark_coef,
                                **epd_config):
     """
     Perform a reconstructive EPD on a lightcurve assuming it contains a transit.
@@ -128,6 +129,10 @@ def reconstructive_epd_transit(lc_fname,
         fit_parameter_flags(scipy bool array):    Flags indicating parameters
             whose values should be fit for (by having a corresponding entry of
             True). Must match exactly the shape of transit_parameters.
+
+        num_limbdark_coef(int):    How many of the transit parameters are limb
+            darkening coefficinets? Those need to be passed to the model
+            separately.
 
         epd_config:    Configuration of how to carry out the EPD, once the
             transit model is removed from the lightcurve.
@@ -148,9 +153,12 @@ def reconstructive_epd_transit(lc_fname,
         def __init__(self):
             """Create the EPD object."""
 
-            self.epd = ReconstructiveEPDTransit(transit_model,
-                                                fit_amplitude=False,
-                                                **epd_config)
+            self.epd = ReconstructiveEPDTransit(
+                transit_model,
+                fit_amplitude=False,
+                fit_identifier='Reconstructive EPD',
+                **epd_config
+            )
             self.transit_parameters = numpy.copy(transit_parameters)
 
         def __call__(self, fit_params):
@@ -169,13 +177,25 @@ def reconstructive_epd_transit(lc_fname,
 
             self.transit_parameters[fit_parameter_flags] = fit_params
             return self.epd(lc_fname,
-                            *self.transit_parameters,
+                            self.transit_parameters[0],
+                            self.transit_parameters[1 : num_limbdark_coef + 1],
+                            *self.transit_parameters[num_limbdark_coef + 1 : ],
                             save=False)['rms']
     #pylint: enable=too-few-public-methods
 
     rms_function = MinimizeFunction()
-    minimize_result = minimize(rms_function, transit_parameters)
-    assert minimize_result.success
     best_fit_transit = numpy.copy(transit_parameters)
-    best_fit_transit[fit_parameter_flags] = minimize_result.x
-    return rms_function.epd(lc_fname, *best_fit_transit)
+
+    if fit_parameter_flags.any():
+        minimize_result = minimize(rms_function,
+                                   transit_parameters[fit_parameter_flags])
+        assert minimize_result.success
+        best_fit_transit[fit_parameter_flags] = minimize_result.x
+
+    return (
+        best_fit_transit,
+        rms_function.epd(lc_fname,
+                         best_fit_transit[0],
+                         best_fit_transit[1: num_limbdark_coef + 1],
+                         *best_fit_transit[num_limbdark_coef + 1 : ])
+    )

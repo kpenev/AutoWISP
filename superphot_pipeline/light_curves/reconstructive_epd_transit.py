@@ -58,7 +58,7 @@ class ReconstructiveEPDTransit(EPDCorrection):
 
         return (
             raw_magnitudes,
-            raw_magnitudes + magnitude_change(light_curve,
+            raw_magnitudes - magnitude_change(light_curve,
                                               self.transit_model,
                                               *self.transit_parameters[0],
                                               **self.transit_parameters[1])
@@ -102,5 +102,5 @@ class ReconstructiveEPDTransit(EPDCorrection):
                                        transit_parameters_kw)
             extra_predictors = None
 
-        super().__call__(lc_fname, self.get_fit_data, extra_predictors, save)
+        return super().__call__(lc_fname, self.get_fit_data, extra_predictors, save)
     #pylint: enable=arguments-differ

@@ -37,7 +37,7 @@ def magnitude_change(light_curve,
 
     transit_model.set_data(
         light_curve.read_data_array(
-            dict(BJD=('skypos.BJD', substitutions))
+            dict(BJD=('skypos.BJD', dict()))
         )['BJD']
     )
     return -2.5 * numpy.log10(
