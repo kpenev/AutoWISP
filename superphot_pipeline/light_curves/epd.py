@@ -11,6 +11,7 @@ from superphot_pipeline import DataReductionFile
 from superphot_pipeline.light_curves.epd_correction import EPDCorrection
 from superphot_pipeline.light_curves.reconstructive_epd_transit import\
     ReconstructiveEPDTransit
+from superphot_pipeline.database.interface import db_engine
 
 def save_statistics(epd_statistics, filename):
     """Save the given statistics (result of parallel_epd) to the given file."""
@@ -100,7 +101,7 @@ def parallel_epd(lc_fnames,
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
 
-    with Pool(num_parallel_processes) as epd_pool:
+    with Pool(num_parallel_processes, db_engine.dispose()) as epd_pool:
         result = numpy.concatenate(epd_pool.map(correct, lc_fnames))
 
     logger.info('Finished EPD.')
