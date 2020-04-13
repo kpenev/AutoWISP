@@ -1,0 +1,6 @@
+<map id="inheritance5a44db139d" name="inheritance5a44db139d">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="188,5,262,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="54,77,396,101"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="5,149,445,173"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="36,221,414,245"/>
+</map>

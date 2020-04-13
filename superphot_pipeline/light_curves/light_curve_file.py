@@ -161,10 +161,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         Return a numpy structured array of the given variables.
 
         Args:
-            variables([(str, (str, dict))]):     The variables to read. Each entry
-                should consist of a variable name and a 2-tuple giving the
-                dataset key to use for that variable, along with any
-                substitutions required to fully resolve the dataset path.
+            variables([dict]):     The variables to read. Each key
+                is a variable name in the resulting array and the corresponding
+                value is a  2-tuple giving the dataset key to use for that
+                variable, along with any substitutions required to fully resolve
+                the dataset path.
 
         Retuns:
             numpy.array:

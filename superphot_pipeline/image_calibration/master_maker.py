@@ -60,7 +60,8 @@ class MasterMaker(Processor):
     @staticmethod
     def _update_stack_header(master_header,
                              frame_header,
-                             filename):
+                             filename,
+                             first_time):
         """
         Update the master header per header from one of the individual frames.
 
@@ -81,20 +82,36 @@ class MasterMaker(Processor):
             filename:    The filename where the header was read from. Only used
                 for reporting errors.
 
+            first_time:    Is this the first time this function is called for
+                the current stack? Subsequent calls remove keywords that are
+                discrepant between current header and the new frame being
+                stacked.
+
         Returns:
             None
         """
 
-        if master_header:
+        if first_time:
+            master_header.extend(
+                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
+            )
+            if 'IMAGETYP' not in master_header:
+                raise BadImageError('Image %s does not define IMAGETYP'
+                                    %
+                                    filename)
+        else:
             print('Checking master header against ' + filename)
 
             delete_indices = []
             for card_index, master_card in enumerate(master_header.cards):
-                delete = next(
-                    (False for frame_card in frame_header.cards
-                     if frame_card[:2] == master_card[:2]),
-                    True
-                )
+                delete = False
+                for frame_card in frame_header.cards:
+                    if(
+                            frame_card[0] == master_card[0]
+                            and
+                            frame_card[1] != master_card[1]
+                    ):
+                        delete = True
                 if delete:
                     if master_card[0] == 'IMAGETYP':
                         raise ImageMismatchError(
@@ -115,14 +132,6 @@ class MasterMaker(Processor):
             for index in delete_indices:
                 del master_header[index]
             print('%d cards remain' % len(master_header.cards))
-        else:
-            master_header.extend(
-                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
-            )
-            if 'IMAGETYP' not in master_header:
-                raise BadImageError('Image %s does not define IMAGETYP'
-                                    %
-                                    filename)
 
     def __init__(self,
                  *,
@@ -180,7 +189,8 @@ class MasterMaker(Processor):
               average_func,
               min_valid_values,
               max_iter,
-              exclude_mask):
+              exclude_mask,
+              custom_header=dict()):
         """
         Create a master by stacking a list of frames.
 
@@ -213,6 +223,8 @@ class MasterMaker(Processor):
                 the corresponding pixels being excluded from the averaging.
                 Other mask flags in the input frames are ignored, treated
                 as clean.
+
+            custom_header:    See same name argument to __call__().
 
         Returns:
             (tuple):
@@ -306,9 +318,10 @@ class MasterMaker(Processor):
             return None, None, None, None, []
 
         pixel_values = None
-        master_header = fits.Header()
+        master_header = fits.Header(custom_header.items())
         frame_index = 0
         discarded_frames = []
+        first_frame = True
         for frame_fname in frame_list:
             image, mask, header = read_image_components(frame_fname,
                                                         read_error=False,
@@ -319,7 +332,9 @@ class MasterMaker(Processor):
             else:
                 MasterMaker._update_stack_header(master_header,
                                                  header,
-                                                 frame_fname)
+                                                 frame_fname,
+                                                 first_frame)
+                first_frame = False
 
                 if pixel_values is None:
                     pixel_values = numpy.empty((len(frame_list),) + image.shape)
@@ -367,6 +382,7 @@ class MasterMaker(Processor):
                  *,
                  compress=True,
                  allow_overwrite=False,
+                 custom_header=dict(),
                  **stacking_options):
         """
         Create a master by stacking the given frames.
@@ -385,6 +401,9 @@ class MasterMaker(Processor):
             allow_overwrite:    See same name argument
                 to superphot_pipeline.image_calibration.fits_util.create_result.
 
+            custom_header(dict):    A collection of keywords to use in addition
+                to/instead of what is in the input frames header.
+
             stacking_options:    Keyword only arguments allowing overriding the
                 stacking configuration specified at construction for this
                 stack only.
@@ -402,6 +421,7 @@ class MasterMaker(Processor):
         #pylint: disable=missing-kwoa
         values, stdev, mask, header, discarded_frames = self.stack(
             frame_list,
+            custom_header=custom_header,
             **stacking_options
         )
         #pylint: enable=missing-kwoa

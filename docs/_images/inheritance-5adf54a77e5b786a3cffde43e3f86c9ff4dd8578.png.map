@@ -1,0 +1,7 @@
+<map id="inheritancea68c423a04" name="inheritancea68c423a04">
+<area shape="rect" id="node1" href="#superphot_pipeline.pipeline_exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="5,5,354,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.pipeline_exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="379,5,746,29"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.pipeline_exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="770,5,1133,29"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.pipeline_exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="1157,5,1539,29"/>
+<area shape="rect" id="node5" href="#superphot_pipeline.pipeline_exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="1564,5,1935,29"/>
+</map>

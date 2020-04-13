@@ -1,0 +1,7 @@
+superphot_pipeline
+==================
+
+.. toctree::
+   :maxdepth: 4
+
+   superphot_pipeline

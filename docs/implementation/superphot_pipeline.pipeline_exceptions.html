@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.pipeline_exceptions module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.processor module" href="superphot_pipeline.processor.html" />
+    <link rel="prev" title="superphot_pipeline.iterative_rejection_util module" href="superphot_pipeline.iterative_rejection_util.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.processor.html" title="superphot_pipeline.processor module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.iterative_rejection_util.html" title="superphot_pipeline.iterative_rejection_util module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.pipeline_exceptions module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.iterative_rejection_util.html"
+                        title="previous chapter">superphot_pipeline.iterative_rejection_util module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.processor.html"
+                        title="next chapter">superphot_pipeline.processor module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.pipeline_exceptions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.pipeline_exceptions">
+<span id="superphot-pipeline-pipeline-exceptions-module"></span><h1>superphot_pipeline.pipeline_exceptions module<a class="headerlink" href="#module-superphot_pipeline.pipeline_exceptions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-5adf54a77e5b786a3cffde43e3f86c9ff4dd8578.png" alt="Inheritance diagram of BadImageError, ConvergenceError, HDF5LayoutError, ImageMismatchError, OutsideImageError" usemap="#inheritancea68c423a04" class="inheritance"/>
+<map id="inheritancea68c423a04" name="inheritancea68c423a04">
+<area shape="rect" id="node1" href="#superphot_pipeline.pipeline_exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="5,5,354,29"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.pipeline_exceptions.ConvergenceError" target="_top" title="Some iterative procedure failed to converge." alt="" coords="379,5,746,29"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.pipeline_exceptions.HDF5LayoutError" target="_top" title="Error caused by invalid specification of HDF5 layout." alt="" coords="770,5,1133,29"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.pipeline_exceptions.ImageMismatchError" target="_top" title="Attempt to combine incompatible images in some way." alt="" coords="1157,5,1539,29"/>
+<area shape="rect" id="node5" href="#superphot_pipeline.pipeline_exceptions.OutsideImageError" target="_top" title="Attempt to access image data outside the bounds of the image." alt="" coords="1564,5,1935,29"/>
+</map>
+<p>Collection of non-standard exceptions raised by the pipeline.</p>
+<dl class="exception">
+<dt id="superphot_pipeline.pipeline_exceptions.BadImageError">
+<em class="property">exception </em><code class="descclassname">superphot_pipeline.pipeline_exceptions.</code><code class="descname">BadImageError</code><a class="reference internal" href="../_modules/superphot_pipeline/pipeline_exceptions.html#BadImageError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.pipeline_exceptions.BadImageError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">ValueError</span></code></a></p>
+<p>An image does not look like it is expected to.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="superphot_pipeline.pipeline_exceptions.ConvergenceError">
+<em class="property">exception </em><code class="descclassname">superphot_pipeline.pipeline_exceptions.</code><code class="descname">ConvergenceError</code><a class="reference internal" href="../_modules/superphot_pipeline/pipeline_exceptions.html#ConvergenceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.pipeline_exceptions.ConvergenceError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">RuntimeError</span></code></a></p>
+<p>Some iterative procedure failed to converge.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="superphot_pipeline.pipeline_exceptions.HDF5LayoutError">
+<em class="property">exception </em><code class="descclassname">superphot_pipeline.pipeline_exceptions.</code><code class="descname">HDF5LayoutError</code><a class="reference internal" href="../_modules/superphot_pipeline/pipeline_exceptions.html#HDF5LayoutError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.pipeline_exceptions.HDF5LayoutError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">RuntimeError</span></code></a></p>
+<p>Error caused by invalid specification of HDF5 layout.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="superphot_pipeline.pipeline_exceptions.ImageMismatchError">
+<em class="property">exception </em><code class="descclassname">superphot_pipeline.pipeline_exceptions.</code><code class="descname">ImageMismatchError</code><a class="reference internal" href="../_modules/superphot_pipeline/pipeline_exceptions.html#ImageMismatchError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.pipeline_exceptions.ImageMismatchError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">ValueError</span></code></a></p>
+<p>Attempt to combine incompatible images in some way.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="superphot_pipeline.pipeline_exceptions.OutsideImageError">
+<em class="property">exception </em><code class="descclassname">superphot_pipeline.pipeline_exceptions.</code><code class="descname">OutsideImageError</code><a class="reference internal" href="../_modules/superphot_pipeline/pipeline_exceptions.html#OutsideImageError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.pipeline_exceptions.OutsideImageError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IndexError" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">IndexError</span></code></a></p>
+<p>Attempt to access image data outside the bounds of the image.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.processor.html" title="superphot_pipeline.processor module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.iterative_rejection_util.html" title="superphot_pipeline.iterative_rejection_util module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

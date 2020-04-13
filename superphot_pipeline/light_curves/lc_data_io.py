@@ -25,8 +25,8 @@ from . import LCDataSlice, LightCurveFile
 from .hashable_array import HashableArray
 from .light_curve_file import _config_dset_key_rex
 
-#TODO: Add catalogue information as top-level attributes
-#TODO: Add xi and eta as config datasets
+#TODO: Add catalogue information as top-level attributes.
+#TODO: Add xi and eta as config datasets.
 class LCDataIO:
     """
     A callable class which gathers a slice of LC data from frames/DR files.
@@ -247,16 +247,19 @@ class LCDataIO:
                config,
                source_id_parser,
                dr_fname_parser,
+               get_jd,
+               *,
                source_list=None,
+               optional_header=None,
+               observatory=None,
                **path_substitutions):
         """
         Configure the class for use in multiprocessing LC collection.
 
         Args:
-            config:    The configuratoin of how to generate the lightcurves as
-                returned by the rawlc_config function or as parsed from the
-                command line. In the latter case, the configuration should
-                contain the extra attributes:
+            config:    The configuratoin of how to generate the lightcurves,
+                usually as parsed from the command line. In the latter case, the
+                configuration should contain the following attributes:
 
                     - max_apertures: The maximum number of photometriec
                       apertures in any input frame.
@@ -280,11 +283,32 @@ class LCDataIO:
             dr_fname_parser:    A callable that parser the filename of DR files
                 returning extra keywrds to add to the header.
 
+            get_jd:    A function that should return the JD of the middle of the
+                exposure for a given FITS header.
+
             source_list:    A list that includes all sources for which
                 lightcurves will be generated. Sources should be formatted
                 as (field, source) tuples of two integers. Sources not in this
                 list are ignored. If None, the sources in the catalogue are used
                 instead.
+
+            optional_header: Indicate which header keywords could
+                be missing from the FITS header. Missking keywors will
+                be replaced by appropriate values indicating an unknown
+                value. Should be in one of 3 formats:
+
+                    - `None`: all expected header keywords must be present
+                      in every frame.
+
+                    - `'all'`: No header keywords are required.
+
+                    - iterable of strings: to be querried by the python
+                      `in` keyword.
+
+            observatory(None or dict):    If specified, should be a dictionary
+                with keys `'SITELAT'`, `'SITELONG'`, and `'SITEALT'` which
+                overwrite or add the header information for the observatory's
+                location on earth.
 
             path_substitutions:    Path substitutions to be kept fixed during
                 the entire lightcurve dumping process. Used to resolve paths
@@ -332,6 +356,10 @@ class LCDataIO:
 
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
+        cls._optional_header = optional_header
+        cls._observatory = observatory
+
+        cls._get_jd = staticmethod(get_jd)
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
@@ -701,7 +729,20 @@ class LCDataIO:
                             **substitutions,
                         )
                     found_config = True
-                except OSError:
+                except (OSError, KeyError) if self._optional_header else OSError:
+                    if (
+                            dset_key in self.header_datasets
+                            and
+                            self._optional_header != 'all'
+                            and
+                            (
+                                self.header_datasets[dset_key].upper()
+                                not in
+                                self._optional_header
+                            )
+                    ):
+                        raise
+
                     self._logger.warning(
                         'Failed to read %s from DR file for %s.',
                         dset_key,
@@ -781,8 +822,30 @@ class LCDataIO:
                         hdr_quantity != self.cfg_index_id
                 ):
                     assert len(self.dataset_dimensions[lc_quantity]) == 1
+                    header_key = hdr_quantity.upper()
+                    value = frame_header.get(header_key)
+                    assert (
+                        value is not None
+                        or
+                        self._optional_header == 'all'
+                        or
+                        (
+                            self._optional_header is not None
+                            and
+                            header_key in self._optional_header
+                        )
+                    )
+                    if value is None:
+                        lc_dtype = numpy.dtype(
+                            type(self._get_slice_field(lc_quantity)[frame_index])
+                        )
+                        if lc_dtype.kind == 'f':
+                            value = numpy.nan
+                        elif lc_dtype.kind == 'S':
+                            value = b''
+
                     self._get_slice_field(lc_quantity)[frame_index] = (
-                        frame_header[hdr_quantity.upper()]
+                        value
                     )
 
         def get_dset_default(quantity):
@@ -824,6 +887,7 @@ class LCDataIO:
                         repr(data_reduction.filename),
                         repr(self._get_substitutions(quantity, dim_values))
                     )
+                    continue
                 if 'srcextract_psf_param' in dimensions:
                     assert (
                         len(attribute_value)
@@ -947,7 +1011,7 @@ class LCDataIO:
                                      lon=frame_header['SITELONG'] * units.deg,
                                      height=frame_header['SITEALT'] * units.m)
 
-            obs_time = Time(2.4e6 + frame_header['JD'],
+            obs_time = Time(self._get_jd(frame_header),
                             format='jd',
                             location=location)
 
@@ -1251,32 +1315,35 @@ class LCDataIO:
                 frame_header['FILVER'] = 0
             if 'MNTSTATE' not in frame_header:
                 frame_header['MNTSTATE'] = 'unkwnown'
-            #This is actually intended to fail if MNTSTAT is not bool type
-            #pylint: disable=singleton-comparison
-            elif frame_header['MNTSTATE'] == True:
+            elif frame_header['MNTSTATE'] is True:
                 frame_header['MNTSTATE'] = 'T'
-            #pylint: enable=singleton-comparison
+
             frame_header.update(self.dr_fname_parser(dr_fname))
 
-        try:
-            lc_example = LightCurveFile()
-            frame_index, dr_fname = frame
-            with DataReductionFile(dr_fname, 'r') as data_reduction:
-                frame_header = dict(
-                    data_reduction.get_frame_header().items()
-                )
-                fix_header(frame_header)
-                configurations = self._get_configurations(data_reduction,
-                                                          frame_header,
-                                                          lc_example.get_dtype)
+            if self._observatory is not None:
+                frame_header.update(self._observatory)
 
-                skipped_sources = self._add_to_data_slice(
-                    data_reduction=data_reduction,
-                    frame_header=frame_header,
-                    frame_index=frame_index,
-                    lc_example=lc_example
-                )
-            return configurations, skipped_sources
+        try:
+            with LightCurveFile() as lc_example:
+                frame_index, dr_fname = frame
+                with DataReductionFile(dr_fname, 'r') as data_reduction:
+                    frame_header = dict(
+                        data_reduction.get_frame_header().items()
+                    )
+                    fix_header(frame_header)
+                    configurations = self._get_configurations(
+                        data_reduction,
+                        frame_header,
+                        lc_example.get_dtype
+                    )
+
+                    skipped_sources = self._add_to_data_slice(
+                        data_reduction=data_reduction,
+                        frame_header=frame_header,
+                        frame_index=frame_index,
+                        lc_example=lc_example
+                    )
+                return configurations, skipped_sources
         except Exception as ex:
             raise IOError('While reading: ' + repr(frame)) from ex
 

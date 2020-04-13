@@ -1,0 +1,9 @@
+<map id="inheritance257dc64bde" name="inheritance257dc64bde">
+<area shape="rect" id="node1" title="Helper class that provides a standard way to create an ABC using" alt="" coords="551,5,625,29"/>
+<area shape="rect" id="node3" href="#superphot_pipeline.image_smoothing.ImageSmoother" target="_top" title="Define the interface for applying smoothing algorithms to images." alt="" coords="418,77,759,101"/>
+<area shape="rect" id="node2" href="#superphot_pipeline.image_smoothing.ChainSmoother" target="_top" title="Combine more than one smoothers, each is applied sequentially." alt="" coords="5,149,345,173"/>
+<area shape="rect" id="node5" href="#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother" target="_top" title="Handle smoothing function = product of linear functions in each dimension." alt="" coords="369,149,808,173"/>
+<area shape="rect" id="node7" href="#superphot_pipeline.image_smoothing.WrapFilterAsSmoother" target="_top" title="Wrap one of the scipy or astropy image filters in a smoother." alt="" coords="832,149,1214,173"/>
+<area shape="rect" id="node4" href="#superphot_pipeline.image_smoothing.PolynomialImageSmoother" target="_top" title="Smooth image is modeled as a polynomial in x times another polynomial in y." alt="" coords="176,221,582,245"/>
+<area shape="rect" id="node6" href="#superphot_pipeline.image_smoothing.SplineImageSmoother" target="_top" title="Smooth image is modeled as a product of cubic splines in x and y." alt="" coords="607,221,986,245"/>
+</map>

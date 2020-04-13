@@ -193,7 +193,7 @@ class MasterFlatMaker(MasterMaker):
         >>> )
     """
 
-    def _get_stamp_statistics(self, frame_list):
+    def _get_stamp_statistics(self, frame_list, **stamp_statistics_config):
         """
         Get relevant information from the stamp of a single input flat frame.
 
@@ -220,10 +220,10 @@ class MasterFlatMaker(MasterMaker):
 
             y_size = int(image.shape[0]
                          *
-                         self.stamp_statistics_config['fraction'])
+                         stamp_statistics_config['fraction'])
             x_size = int(image.shape[1]
                          *
-                         self.stamp_statistics_config['fraction'])
+                         stamp_statistics_config['fraction'])
             x_off = (image.shape[1] - x_size) // 2
             y_off = (image.shape[0] - y_size) // 2
             num_saturated = numpy.bitwise_and(
@@ -248,15 +248,15 @@ class MasterFlatMaker(MasterMaker):
             ):
                 stamp_statistics[frame_index] = numpy.nan, numpy.nan, numpy.nan
             else:
-                smooth_stamp = self.stamp_statistics_config['smoother'].detrend(
+                smooth_stamp = stamp_statistics_config['smoother'].detrend(
                     image[y_off : y_off + y_size, x_off : x_off + x_size]
                 )
                 stamp_statistics[frame_index] = iterative_rejection_average(
                     smooth_stamp.flatten(),
-                    average_func=self.stamp_statistics_config['average'],
-                    max_iter=self.stamp_statistics_config['max_iter'],
+                    average_func=stamp_statistics_config['average'],
+                    max_iter=stamp_statistics_config['max_iter'],
                     outlier_threshold=(
-                        self.stamp_statistics_config['outlier_threshold']
+                        stamp_statistics_config['outlier_threshold']
                     ),
                     mangle_input=True
                 )
@@ -268,7 +268,12 @@ class MasterFlatMaker(MasterMaker):
         )
         return stamp_statistics
 
-    def _classify_from_stamps(self, frame_list):
+    #Splitting will not improve readability
+    #pylint: disable=too-many-locals
+    def _classify_from_stamps(self,
+                              frame_list,
+                              stamp_statistics_config,
+                              stamp_select_config):
         """
         Classify frames by intensity: (high/low/ntermediate), or flag as cloudy.
 
@@ -291,21 +296,24 @@ class MasterFlatMaker(MasterMaker):
                     their central stamps.
         """
 
-        stamp_statistics = self._get_stamp_statistics(frame_list)
+        stamp_statistics = self._get_stamp_statistics(
+            frame_list,
+            **stamp_statistics_config
+        )
 
         if(
-                self.stamp_select_config['cloudy_night_threshold'] is not None
+                stamp_select_config['cloudy_night_threshold'] is not None
                 or
-                self.stamp_select_config['cloudy_frame_threshold'] is not None
+                stamp_select_config['cloudy_frame_threshold'] is not None
         ):
             fit_coef, residual, best_fit_variance = iterative_rej_polynomial_fit(
                 x=stamp_statistics['mean'],
                 y=stamp_statistics['variance'],
                 order=2,
-                outlier_threshold=self.stamp_select_config[
+                outlier_threshold=stamp_select_config[
                     'var_mean_fit_threshold'
                 ],
-                max_iterations=self.stamp_select_config[
+                max_iterations=stamp_select_config[
                     'var_mean_fit_iterations'
                 ],
                 return_predicted=True
@@ -330,30 +338,30 @@ class MasterFlatMaker(MasterMaker):
 
             if(
                     (
-                        self.stamp_select_config['cloudy_night_threshold']
+                        stamp_select_config['cloudy_night_threshold']
                         is not None
                     )
                     and
                     (
                         residual
                         >
-                        self.stamp_select_config['cloudy_night_threshold']
+                        stamp_select_config['cloudy_night_threshold']
                     )
             ):
                 return [], [], [], frame_list
 
         high = (stamp_statistics['mean']
                 >
-                self.stamp_select_config['min_high_mean'])
+                stamp_select_config['min_high_mean'])
         low = (stamp_statistics['mean']
                <
-               self.stamp_select_config['max_low_mean'])
+               stamp_select_config['max_low_mean'])
 
-        if self.stamp_select_config['cloudy_frame_threshold'] is not None:
+        if self.stamp_select_config.get('cloudy_frame_threshold') is not None:
             cloudy = (
                 numpy.abs(stamp_statistics['variance'] - best_fit_variance)
                 >
-                self.stamp_select_config['cloudy_frame_threshold'] * residual
+                stamp_select_config['cloudy_frame_threshold'] * residual
             )
         else:
             cloudy = False
@@ -379,6 +387,7 @@ class MasterFlatMaker(MasterMaker):
                 [frame_list[i] for i in low],
                 [frame_list[i] for i in medium],
                 [frame_list[i] for i in cloudy])
+    #pylint: disable=too-many-locals
 
     def _find_colocated(self, frame_list):
         """
@@ -398,6 +407,9 @@ class MasterFlatMaker(MasterMaker):
                     The list of frames which have at least one other
                     frame too close in pointing to them.
         """
+
+        if self.master_stack_config['min_pointing_separation'] is None:
+            return frame_list, []
 
         frame_pointings = [get_pointing_from_header(f) for f in frame_list]
         colocated = numpy.full(len(frame_list), False)
@@ -637,8 +649,9 @@ class MasterFlatMaker(MasterMaker):
 
         return corrected_image / corrected_image.mean()
 
-    #TODO: implement configuration overwrite through staicking_options.
     #TODO: implement full header documentation.
+    #More configuration can be overwritten for master flats.
+    #pylint: disable=arguments-differ
     def __call__(self,
                  frame_list,
                  high_master_fname,
@@ -646,7 +659,10 @@ class MasterFlatMaker(MasterMaker):
                  *,
                  compress=True,
                  allow_overwrite=False,
-                 **stacking_options):
+                 stamp_statistics_config=dict(),
+                 stamp_select_config=dict(),
+                 master_stack_config=dict(),
+                 custom_header=dict()):
         """
         Attempt to create high & low master flat from the given frames.
 
@@ -667,9 +683,18 @@ class MasterFlatMaker(MasterMaker):
                 :func:`superphot_pipeline.image_calibration.fits_util.create_result`
                 .
 
-            stacking_options:    Keyword only arguments allowing overriding the
-                stacking configuration specified at construction for this
-                stack only.
+            stamp_statistics_config(dict):    Overwrite the configuration
+                for extracting stamp statistics for this set of frames only.
+
+            stamp_select_config(dict):    Overwrite the stamp selection
+                configuration for this set of frames only.
+
+            master_stack_config(dict):    Overwrite the configuration for how to
+                stack frames to a master for this set of frames only.
+
+            custom_header:    See same name argument to
+                :func:`superphot_pipeline.image_calibration.master_maker.MasterMaker.__call__`
+                .
 
         Returns:
             dict:
@@ -706,7 +731,11 @@ class MasterFlatMaker(MasterMaker):
         print('Colocated:\n\t' + '\n\t'.join(frames['colocated']))
 
         frames['high'], frames['low'], frames['medium'], frames['cloudy'] = (
-            self._classify_from_stamps(isolated_frames)
+            self._classify_from_stamps(
+                isolated_frames,
+                {**self.stamp_statistics_config, **stamp_statistics_config},
+                {**self.stamp_select_config, **stamp_select_config}
+            )
         )
 
         print('Stamp frame classification:')
@@ -715,7 +744,18 @@ class MasterFlatMaker(MasterMaker):
                   +
                   '\n\t\t'.join(filenames))
 
-        if len(frames['high']) >= self.master_stack_config['min_high_combine']:
+        min_combine = dict(
+            high=master_stack_config.get(
+                'min_high_combine',
+                self.master_stack_config['min_high_combine']
+            ),
+            low=master_stack_config.get(
+                'min_low_combine',
+                self.master_stack_config['min_low_combine']
+            )
+        )
+
+        if len(frames['high']) >= min_combine['high']:
             self._master_large_scale = dict()
             (
                 self._master_large_scale['values'],
@@ -725,29 +765,39 @@ class MasterFlatMaker(MasterMaker):
                 discarded_frames
             ) = self.stack(
                 frames['high'],
-                min_valid_frames=self.master_stack_config['min_high_combine'],
-                **self.master_stack_config['large_scale_stack_options']
+                min_valid_frames=min_combine['high'],
+                **{
+                    **self.master_stack_config['large_scale_stack_options'],
+                    'custom_header': custom_header,
+                    **master_stack_config.get('large_scale_stack_options', {})
+                }
             )
             assert not discarded_frames
 
             more_cloudy_frames = super().__call__(
                 frames['high'],
                 high_master_fname,
-                min_valid_frames=self.master_stack_config['min_high_combine'],
-                **self.master_stack_config['master_stack_options']
+                min_valid_frames=min_combine['high'],
+                **{
+                    **self.master_stack_config['master_stack_options'],
+                    'custom_header': custom_header,
+                    **master_stack_config.get('master_stack_options', {})
+                }
             )
             frames['cloudy'].extend(more_cloudy_frames)
             for frame in more_cloudy_frames:
                 frames['high'].remove(frame)
 
-            if len(frames['low']) > self.master_stack_config['min_low_combine']:
+            if len(frames['low']) > min_combine['low']:
                 more_cloudy_frames = super().__call__(
                     frames['low'],
                     low_master_fname,
-                    min_valid_frames=(
-                        self.master_stack_config['min_low_combine']
-                    ),
-                    **self.master_stack_config['master_stack_options']
+                    min_valid_frames=min_combine['low'],
+                    **{
+                        **self.master_stack_config['master_stack_options'],
+                        'custom_header': custom_header,
+                        **master_stack_config.get('master_stack_options', {})
+                    }
                 )
                 frames['cloudy'].extend(more_cloudy_frames)
                 for frame in more_cloudy_frames:
@@ -756,8 +806,7 @@ class MasterFlatMaker(MasterMaker):
                 print(('Skipping low master flat since only %d frames remain, '
                        'but %d are required')
                       %
-                      (len(frames['low']),
-                       self.master_stack_config['min_low_combine']))
+                      (len(frames['low']), min_combine['low']))
 
         print('Final frame classification:')
         for key, filenames in frames.items():
@@ -765,3 +814,4 @@ class MasterFlatMaker(MasterMaker):
                   +
                   '\n\t\t'.join(filenames))
         return frames
+    #pylint: disable=arguments-differ

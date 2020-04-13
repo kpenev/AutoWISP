@@ -1,0 +1,686 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.image_smoothing &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for superphot_pipeline.image_smoothing</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Define classes for smoothing images.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">scipy.linalg</span>
+<span class="kn">import</span> <span class="nn">scipy.interpolate</span>
+
+<span class="kn">from</span> <span class="nn">superphot_pipeline.iterative_rejection_util</span> <span class="k">import</span>\
+    <span class="n">iterative_rej_linear_leastsq</span>
+<span class="kn">from</span> <span class="nn">superphot_pipeline.image_utilities</span> <span class="k">import</span> <span class="n">zoom_image</span><span class="p">,</span> <span class="n">bin_image</span>
+
+<span class="n">git_id</span> <span class="o">=</span> <span class="s1">&#39;$Id: 9cdb88bef88a8ee0c8bfe6ba40efd5191eda98a6 $&#39;</span>
+
+<div class="viewcode-block" id="ImageSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ImageSmoother">[docs]</a><span class="k">class</span> <span class="nc">ImageSmoother</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Define the interface for applying smoothing algorithms to images.</span>
+
+<span class="sd">    Attrs:</span>
+<span class="sd">        bin_factor:    See same name argument to smooth().</span>
+
+<span class="sd">        zoom_interp_order:    See same name argument to smooth().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ImageSmoother._apply_smoothing"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ImageSmoother._apply_smoothing">[docs]</a>    <span class="k">def</span> <span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a smooth version of the given image (no pre-shrinking).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    The image to smooth.</span>
+
+<span class="sd">            kwargs:    Any arguments configuring how smoothing is to</span>
+<span class="sd">                be performed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            smooth_image:    The smoothed version of the image per the currently</span>
+<span class="sd">                defined smoothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="ImageSmoother.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ImageSmoother.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set default pre-shrink/post-zoom bin factor and interpolation order.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            kwargs:    All arguments except bin_factor, interp_order and padding</span>
+<span class="sd">                mode(see smooth()) are ignored.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_factor</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bin_factor&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zoom_interp_order</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zoom_interp_order&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;padding_mode&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageSmoother.smooth"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ImageSmoother.smooth">[docs]</a>    <span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">image</span><span class="p">,</span>
+               <span class="o">*</span><span class="p">,</span>
+               <span class="n">bin_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">zoom_interp_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">padding_mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sandwich smoothing between initial binning and final zoom.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    The image to smooth.</span>
+
+<span class="sd">            bin_factor:    The factor to pre-bin the image by (see</span>
+<span class="sd">                bin_image() for details). After smoothing the image is zoomed by</span>
+<span class="sd">                the same factor to recover the original size. If None, the value</span>
+<span class="sd">                defined at construction is used, otherwise this value applies</span>
+<span class="sd">                for this image only.</span>
+
+<span class="sd">            interp_order:    The interpolation order to use when zooming the</span>
+<span class="sd">                image at the end. If None, the interpolation order defined at</span>
+<span class="sd">                construction is used, otherwise this value applies for this</span>
+<span class="sd">                image only.</span>
+
+<span class="sd">            padding_mode:    How to pad the image to have an integer number of</span>
+<span class="sd">                bins, if pre-binning and post-zooming is used.</span>
+
+<span class="sd">            kwargs:    Any arguments configuring how smoothing is to</span>
+<span class="sd">                be performed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            smooth_image:    The smoothed version of the image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">bin_factor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">bin_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_factor</span>
+        <span class="k">if</span> <span class="n">zoom_interp_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">zoom_interp_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoom_interp_order</span>
+
+        <span class="k">if</span> <span class="n">bin_factor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">zoom_interp_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_smoothing</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">y_res</span><span class="p">,</span> <span class="n">x_res</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="n">x_res</span> <span class="o">%</span> <span class="n">bin_factor</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">y_res</span> <span class="o">%</span> <span class="n">bin_factor</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">y_padding</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">y_res</span> <span class="o">/</span> <span class="n">bin_factor</span><span class="p">))</span> <span class="o">*</span> <span class="n">bin_factor</span> <span class="o">-</span> <span class="n">y_res</span>
+            <span class="n">x_padding</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x_res</span> <span class="o">/</span> <span class="n">bin_factor</span><span class="p">))</span> <span class="o">*</span> <span class="n">bin_factor</span> <span class="o">-</span> <span class="n">x_res</span>
+            <span class="n">left_padding</span> <span class="o">=</span> <span class="n">x_padding</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">bottom_padding</span> <span class="o">=</span> <span class="n">y_padding</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                              <span class="p">((</span><span class="n">bottom_padding</span><span class="p">,</span> <span class="n">y_padding</span> <span class="o">-</span> <span class="n">bottom_padding</span><span class="p">),</span>
+                               <span class="p">(</span><span class="n">left_padding</span><span class="p">,</span> <span class="n">x_padding</span> <span class="o">-</span> <span class="n">left_padding</span><span class="p">)),</span>
+                              <span class="n">mode</span><span class="o">=</span><span class="p">(</span><span class="n">padding_mode</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">padding_mode</span><span class="p">))</span>
+
+        <span class="n">smooth_image</span> <span class="o">=</span> <span class="n">zoom_image</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apply_smoothing</span><span class="p">(</span>
+                <span class="n">bin_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">bin_factor</span><span class="p">),</span>
+                <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">),</span>
+            <span class="n">bin_factor</span><span class="p">,</span>
+            <span class="n">zoom_interp_order</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">x_res</span> <span class="o">%</span> <span class="n">bin_factor</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y_res</span> <span class="o">%</span> <span class="n">bin_factor</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">smooth_image</span>
+
+
+        <span class="k">return</span> <span class="n">smooth_image</span><span class="p">[</span><span class="n">bottom_padding</span> <span class="p">:</span> <span class="n">bottom_padding</span> <span class="o">+</span> <span class="n">y_res</span><span class="p">,</span>
+                            <span class="n">left_padding</span> <span class="p">:</span> <span class="n">left_padding</span> <span class="o">+</span> <span class="n">x_res</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ImageSmoother.detrend"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ImageSmoother.detrend">[docs]</a>    <span class="k">def</span> <span class="nf">detrend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;De-trend the input image by its smooth version (see smooth).&quot;&quot;&quot;</span>
+
+        <span class="n">smooth_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image</span> <span class="o">/</span> <span class="n">smooth_image</span> <span class="o">*</span> <span class="n">scipy</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">smooth_image</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SeparableLinearImageSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother">[docs]</a><span class="k">class</span> <span class="nc">SeparableLinearImageSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handle smoothing function = product of linear functions in each dimension.</span>
+
+<span class="sd">    In more detail this is a base class that perform smoothing with a smoothing</span>
+<span class="sd">    function consisting of the product of separate smoothing functions in x and</span>
+<span class="sd">    y, each of which predicts pixel values as a linear combination of some</span>
+<span class="sd">    parameters.</span>
+
+<span class="sd">    Attrs:</span>
+<span class="sd">        num_x_terms:    The number of terms in the smoothing function in the x</span>
+<span class="sd">            direction.</span>
+
+<span class="sd">        num_y_terms:    The number of terms in the smoothing function in the y</span>
+<span class="sd">            direction.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="SeparableLinearImageSmoother.get_x_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_x_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">get_x_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the x smoothing func. integral over pixels for 1 nonzero param.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            param_ind:    The index of the input parameter which is non-zero.</span>
+
+<span class="sd">            x_resolution:    The resolution of the input image in the</span>
+<span class="sd">                x direction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            integrals:    A 1-D scipy array with length equal to the</span>
+<span class="sd">                x-resolution of the image with the i-th entry being the integral</span>
+<span class="sd">                of the x part of the smoothing function the i-th pixel.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="SeparableLinearImageSmoother.get_y_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.get_y_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">get_y_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;See get_x_pixel_integrals.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="SeparableLinearImageSmoother._get_smoothing_matrix"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._get_smoothing_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">_get_smoothing_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                              <span class="n">num_x_terms</span><span class="p">,</span>
+                              <span class="n">num_y_terms</span><span class="p">,</span>
+                              <span class="n">y_resolution</span><span class="p">,</span>
+                              <span class="n">x_resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return matrix giving flattened smooth image when applied to fit params.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">             num_x_terms:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">             num_y_terms:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">             x_resolution:    The number of image columns.</span>
+
+<span class="sd">             y_resolution:    The number of image rows.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            matrix:    An (x_res * y_res) by (num_x_terms * num_y_terms) matrix</span>
+<span class="sd">                which when applied to a set of parameters returns the value of</span>
+<span class="sd">                each image pixel per the smoothing function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">x_resolution</span> <span class="o">*</span> <span class="n">y_resolution</span><span class="p">,</span>
+                              <span class="n">num_x_terms</span> <span class="o">*</span> <span class="n">num_y_terms</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">x_term_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_x_terms</span><span class="p">):</span>
+            <span class="n">x_integrals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_x_pixel_integrals</span><span class="p">(</span><span class="n">x_term_index</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">y_term_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_y_terms</span><span class="p">):</span>
+                <span class="n">y_integrals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_y_pixel_integrals</span><span class="p">(</span><span class="n">y_term_index</span><span class="p">,</span>
+                                                         <span class="n">y_resolution</span><span class="p">)</span>
+                <span class="n">matrix</span><span class="p">[</span>
+                    <span class="p">:,</span>
+                    <span class="n">x_term_index</span> <span class="o">+</span> <span class="n">y_term_index</span> <span class="o">*</span> <span class="n">num_x_terms</span>
+                <span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">y_integrals</span><span class="p">,</span> <span class="n">x_integrals</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="SeparableLinearImageSmoother.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span>
+                 <span class="n">num_x_terms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_y_terms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">outlier_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Define the default smoothing configuration (overwritable on use).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">             num_x_terms:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">             num_y_terms:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">             outlier_threshold:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">             max_iterations:    See same name argument to _apply_smoothing().</span>
+
+<span class="sd">            kwargs:    Any arguments to pass to parent&#39;s __init__.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_x_terms</span> <span class="o">=</span> <span class="n">num_x_terms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_y_terms</span> <span class="o">=</span> <span class="n">num_y_terms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outlier_threshold</span> <span class="o">=</span> <span class="n">outlier_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span> <span class="o">=</span> <span class="n">max_iterations</span></div>
+
+    <span class="c1">#The abstract method was deliberately defined wit flexible arguments</span>
+    <span class="c1">#pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="SeparableLinearImageSmoother._apply_smoothing"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SeparableLinearImageSmoother._apply_smoothing">[docs]</a>    <span class="k">def</span> <span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">image</span><span class="p">,</span>
+                         <span class="o">*</span><span class="p">,</span>
+                         <span class="n">num_x_terms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">num_y_terms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">outlier_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">max_iterations</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a smooth version of the given image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    The image to smooth.</span>
+
+<span class="sd">            num_x_terms:    The number of parameters of the x</span>
+<span class="sd">                smoothing function.</span>
+
+<span class="sd">            num_y_terms:    The number of parameters of the y</span>
+<span class="sd">                smoothing function.</span>
+
+<span class="sd">            outlier_threshold:    The threshold for discarding pixel values as</span>
+<span class="sd">                being outliers. See same name argument</span>
+<span class="sd">                to iterative_rej_linear_leastsq().</span>
+
+<span class="sd">            max_iterations:    The maximum number of reject/re-fit iterations</span>
+<span class="sd">                allowed. See same name argument</span>
+<span class="sd">                to iterative_rej_linear_leastsq().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            smooth_image:    The best approximation of the input image possible</span>
+<span class="sd">                with the smoothing function.</span>
+
+<span class="sd">            residual:    The root mean square residual returned</span>
+<span class="sd">                by iterative_rej_linear_leastsq()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">outlier_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">outlier_threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outlier_threshold</span>
+        <span class="k">if</span> <span class="n">max_iterations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_iterations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iterations</span>
+        <span class="k">if</span> <span class="n">num_x_terms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_x_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_x_terms</span>
+        <span class="k">if</span> <span class="n">num_y_terms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_y_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_y_terms</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_smoothing_matrix</span><span class="p">(</span><span class="n">num_x_terms</span><span class="p">,</span>
+                                            <span class="n">num_y_terms</span><span class="p">,</span>
+                                            <span class="o">*</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="n">fit_coef</span> <span class="o">=</span> <span class="n">iterative_rej_linear_leastsq</span><span class="p">(</span>
+            <span class="n">matrix</span><span class="p">,</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+            <span class="n">outlier_threshold</span><span class="o">=</span><span class="n">outlier_threshold</span><span class="p">,</span>
+            <span class="n">max_iterations</span><span class="o">=</span><span class="n">max_iterations</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">smooth_image</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fit_coef</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smooth_image</span></div></div>
+    <span class="c1">#pylint: enable=arguments-differ</span>
+
+<div class="viewcode-block" id="PolynomialImageSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.PolynomialImageSmoother">[docs]</a><span class="k">class</span> <span class="nc">PolynomialImageSmoother</span><span class="p">(</span><span class="n">SeparableLinearImageSmoother</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Smooth image is modeled as a polynomial in x times another polynomial in y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="PolynomialImageSmoother._get_powerlaw_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.PolynomialImageSmoother._get_powerlaw_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">_get_powerlaw_pixel_integrals</span><span class="p">(</span><span class="n">power</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the integrals over one pixel dimension of x^power for each pixel.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            power:    The power of the corresponding coordinate of the term we</span>
+<span class="sd">                are integrating.</span>
+
+<span class="sd">            resolution:    The resolution of the image in the dimension in which to</span>
+<span class="sd">                calculate the pixel integrlas.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            integrals:    A 1-D scipy array with the i-th entry being the</span>
+<span class="sd">                integral of the scaled x coordinate to the given power over</span>
+<span class="sd">                each pixel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pix_left</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">pix_left</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">power</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">-</span>
+            <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">pix_left</span> <span class="o">/</span> <span class="n">resolution</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="n">power</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">power</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="n">get_x_pixel_integrals</span> <span class="o">=</span> <span class="n">_get_powerlaw_pixel_integrals</span>
+    <span class="n">get_y_pixel_integrals</span> <span class="o">=</span> <span class="n">_get_powerlaw_pixel_integrals</span></div>
+
+<div class="viewcode-block" id="SplineImageSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother">[docs]</a><span class="k">class</span> <span class="nc">SplineImageSmoother</span><span class="p">(</span><span class="n">SeparableLinearImageSmoother</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Smooth image is modeled as a product of cubic splines in x and y.&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SplineImageSmoother.get_spline_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother.get_spline_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">get_spline_pixel_integrals</span><span class="p">(</span><span class="n">node_index</span><span class="p">,</span>
+                                   <span class="n">resolution</span><span class="p">,</span>
+                                   <span class="n">num_nodes</span><span class="p">,</span>
+                                   <span class="n">spline_degree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the integrals over one pixel dimension of a basis spline.</span>
+
+<span class="sd">        The spline basis functions are defined as an interpolating spline (i.e.</span>
+<span class="sd">        no smoothing) over y values that are one for the `node_index`-th node</span>
+<span class="sd">        and zero everywhere else.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node_index:    The node at which the spline should evaluate to</span>
+<span class="sd">                one. All other nodes get a value of zero.</span>
+
+<span class="sd">            resolution:    The resolution of the image in the dimension in which</span>
+<span class="sd">                to calculate the pixel integrlas.</span>
+
+<span class="sd">            num_nodes:    The number of nodes in the spline. The image is scaled</span>
+<span class="sd">                to have a dimension of `num_nodes - 1` and nodes are set at</span>
+<span class="sd">                integer values.</span>
+
+<span class="sd">            spline_degree:    The degree of the spline to use.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">             integrals:    A 1-D scipy array with the i-th entry being the</span>
+<span class="sd">                integral of the spline over the i-th pixel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">interp_y</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">)</span>
+        <span class="n">interp_y</span><span class="p">[</span><span class="n">node_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">integrate</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span>
+            <span class="n">scipy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">num_nodes</span><span class="p">),</span>
+            <span class="n">interp_y</span><span class="p">,</span>
+            <span class="n">k</span><span class="o">=</span><span class="n">spline_degree</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">antiderivative</span><span class="p">()</span>
+        <span class="n">cumulative_integrals</span> <span class="o">=</span> <span class="n">integrate</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">resolution</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                                         <span class="o">*</span>
+                                         <span class="p">((</span><span class="n">num_nodes</span>  <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">resolution</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cumulative_integrals</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">cumulative_integrals</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="SplineImageSmoother.get_x_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother.get_x_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">get_x_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">x_resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return integrals of the param_ind-th x direction spline basis function.</span>
+
+<span class="sd">        Args:    See SeparableLinearImageSmoother.get_x_pixel_integrals()</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            See SeparableLinearImageSmoother.get_x_pixel_integrals()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spline_pixel_integrals</span><span class="p">(</span><span class="n">param_ind</span><span class="p">,</span>
+                                               <span class="n">x_resolution</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">num_x_nodes</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">spline_degree</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SplineImageSmoother.get_y_pixel_integrals"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother.get_y_pixel_integrals">[docs]</a>    <span class="k">def</span> <span class="nf">get_y_pixel_integrals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_ind</span><span class="p">,</span> <span class="n">y_resolution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return integrals of the param_ind-th y direction spline basis function.</span>
+
+<span class="sd">        Args:    See SeparableLinearImageSmoother.get_y_pixel_integrals()</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            See SeparableLinearImageSmoother.get_y_pixel_integrals()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_spline_pixel_integrals</span><span class="p">(</span><span class="n">param_ind</span><span class="p">,</span>
+                                               <span class="n">y_resolution</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">num_y_nodes</span><span class="p">,</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">spline_degree</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SplineImageSmoother.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span>
+                 <span class="n">num_x_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">num_y_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">spline_degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set-up spline interpolation with the given number of nodes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            num_x_nodes:    The number of spline nodes for the x spline.</span>
+
+<span class="sd">            num_y_nodes:    The number of spline nodes for the y spline.</span>
+
+<span class="sd">            kwargs:    Forwarded directly</span>
+<span class="sd">                to SeparableLinearImageSmoother.__init__() after</span>
+<span class="sd">                `num_x_terms = num_x_nodes` and `num_y_terms = num_y_nodes`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">num_x_terms</span><span class="o">=</span><span class="n">num_x_nodes</span><span class="p">,</span>
+                         <span class="n">num_y_terms</span><span class="o">=</span><span class="n">num_y_nodes</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_x_nodes</span> <span class="o">=</span> <span class="n">num_x_nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_y_nodes</span> <span class="o">=</span> <span class="n">num_y_nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spline_degree</span> <span class="o">=</span> <span class="n">spline_degree</span></div>
+
+    <span class="c1">#Different parameters are deliberate</span>
+    <span class="c1">#pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="SplineImageSmoother._apply_smoothing"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.SplineImageSmoother._apply_smoothing">[docs]</a>    <span class="k">def</span> <span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">image</span><span class="p">,</span>
+                         <span class="o">*</span><span class="p">,</span>
+                         <span class="n">num_x_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">num_y_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle change in interpolation nodes needed by integrals functions.</span>
+
+<span class="sd">        Args:    See SeparableLinearImageSmoother._apply_smoothing() except the</span>
+<span class="sd">            names of num_x_terms and num_y_terms have been changed to</span>
+<span class="sd">            num_x_nodes and num_y_nodes respectively.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">num_x_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_x_nodes</span> <span class="o">=</span> <span class="n">num_x_nodes</span>
+        <span class="k">if</span> <span class="n">num_y_nodes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_y_nodes</span> <span class="o">=</span> <span class="n">num_y_nodes</span>
+
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_apply_smoothing</span><span class="p">(</span><span class="n">image</span><span class="p">,</span>
+                                        <span class="n">num_x_terms</span><span class="o">=</span><span class="n">num_x_nodes</span><span class="p">,</span>
+                                        <span class="n">num_y_terms</span><span class="o">=</span><span class="n">num_y_nodes</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+    <span class="c1">#pylint: enable=arguments-differ</span>
+
+<div class="viewcode-block" id="WrapFilterAsSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.WrapFilterAsSmoother">[docs]</a><span class="k">class</span> <span class="nc">WrapFilterAsSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Wrap one of the scipy or astropy image filters in a smoother.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="WrapFilterAsSmoother.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.WrapFilterAsSmoother.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">smoothing_filter</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span>
+                 <span class="n">bin_factor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">zoom_interp_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">filter_config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply the given filter through the ImageSmoother interface.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smoothing_filter:    The filter to apply to smooth images.</span>
+
+<span class="sd">            bin_factor:    See ImageSmoother.smooth().</span>
+
+<span class="sd">            zoom_interp_order:    See ImageSmoother.smooth().</span>
+
+<span class="sd">            filter_config:    Any arguments to pass to the filter when applying,</span>
+<span class="sd">                unless overwritten by arguments to smooth() or detrend().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">bin_factor</span><span class="o">=</span><span class="n">bin_factor</span><span class="p">,</span>
+                         <span class="n">zoom_interp_order</span><span class="o">=</span><span class="n">zoom_interp_order</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_config</span> <span class="o">=</span> <span class="n">filter_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">smoothing_filter</span></div>
+
+<div class="viewcode-block" id="WrapFilterAsSmoother._apply_smoothing"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.WrapFilterAsSmoother._apply_smoothing">[docs]</a>    <span class="k">def</span> <span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Smooth the given image with the filter supplied on construction.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image:    The image to smooth.</span>
+
+<span class="sd">            kwargs:    Additional or replacement arguments to pass to the filter</span>
+<span class="sd">                when applying.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">filter_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_config</span>
+        <span class="n">filter_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="o">**</span><span class="n">filter_kwargs</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ChainSmoother"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother">[docs]</a><span class="k">class</span> <span class="nc">ChainSmoother</span><span class="p">(</span><span class="n">ImageSmoother</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Combine more than one smoothers, each is applied sequentially.</span>
+
+<span class="sd">    Works much like a list of smoothers, except it adds smooth and detrend</span>
+<span class="sd">    methods.</span>
+
+<span class="sd">    Attrs:</span>
+<span class="sd">        smoothing_chain:    The current list of smoothers and the order in which</span>
+<span class="sd">            they are applied. The first will be applied to the input image, the</span>
+<span class="sd">            second will be applied to the result of the first etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ChainSmoother.__init__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">smoothers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a chain combining the given smoothers in the given order.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            smoothers:    A list of the image smoothers to combine.</span>
+
+<span class="sd">            kwargs:    Any arguments to pass to parent constructor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">smoothers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.append"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new smoother to the end of the sequence.&quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoother</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smoother</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.extend"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.extend">[docs]</a>    <span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoothers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add multiple smoothers to the end of the chain.&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoothers</span><span class="p">,</span> <span class="n">ChainSmoother</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">smoothers</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">smth</span> <span class="ow">in</span> <span class="n">smoothers</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smth</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">smoothers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.insert"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Like list insert.&quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">smoother</span><span class="p">,</span> <span class="n">ImageSmoother</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.remove"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Like list remove.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">smoother</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.pop"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Like list pop.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">position</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.clear"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Like list clear.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.__delitem__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.__delitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete smoothe at position.&quot;&quot;&quot;</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">[</span><span class="n">position</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ChainSmoother.__setitem__"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother.__setitem__">[docs]</a>    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">smoother</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace the smoother at position.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">smoother</span></div>
+
+    <span class="c1">#It makes no sense to take configuration argumens.</span>
+    <span class="c1">#pylint: disable=arguments-differ</span>
+<div class="viewcode-block" id="ChainSmoother._apply_smoothing"><a class="viewcode-back" href="../../implementation/superphot_pipeline.image_smoothing.html#superphot_pipeline.image_smoothing.ChainSmoother._apply_smoothing">[docs]</a>    <span class="k">def</span> <span class="nf">_apply_smoothing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Smooth the given image using the current chain of smoothers.&quot;&quot;&quot;</span>
+
+        <span class="n">smooth_image</span> <span class="o">=</span> <span class="n">image</span>
+        <span class="k">for</span> <span class="n">smoother</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_chain</span><span class="p">:</span>
+            <span class="n">smooth_image</span> <span class="o">=</span> <span class="n">smoother</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">smooth_image</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">smooth_image</span></div></div>
+    <span class="c1">#pylint: enable=arguments-differ</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

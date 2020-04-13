@@ -1,0 +1,7 @@
+superphot_pipeline.hdf5_file module
+===================================
+
+.. automodule:: superphot_pipeline.hdf5_file
+    :members:
+    :undoc-members:
+    :show-inheritance:

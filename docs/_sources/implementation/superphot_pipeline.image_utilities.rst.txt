@@ -1,0 +1,7 @@
+superphot_pipeline.image_utilities module
+=========================================
+
+.. automodule:: superphot_pipeline.image_utilities
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -623,8 +623,6 @@ class DataReductionFile(DataReductionPostProcess):
                     result.append(var_name)
             return result
 
-
-
         result = dict()
         result['source_data'] = self.get_source_data(
             magfit_iterations=[0],
@@ -846,11 +844,17 @@ class DataReductionFile(DataReductionPostProcess):
             apphot(bool):    Should the result include aperture photometry
                 measurements.
 
-            shape_map_variables:    Should the result include the variables on
-                which the star shape map depents?
+            shape_map_variables(bool):    Should the result include the
+                variables on which the star shape map depents?
 
-            string_source_ids:    Should source IDs be formatted as strings
-                (True) or a set of integers (False)?
+            string_source_ids(bool):    Should source IDs be formatted as
+                strings (True) or a set of integers (False)?
+
+            background(bool):    Should the result include information about the
+                background behind the sources?
+
+            position(bool):    Should the result include the (x, y) positions of
+                the sources.
 
             path_substitutions:    See get_source_count().
 

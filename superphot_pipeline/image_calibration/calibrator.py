@@ -263,7 +263,7 @@ class Calibrator(Processor):
                         )
 
         check_area(calib_params['image_area'], 'image_area')
-        if calib_params['overscans'] is not None:
+        if calib_params['overscans']['areas'] is not None:
             for overscan_area in calib_params['overscans']['areas']:
                 check_area(overscan_area, 'overscan')
 

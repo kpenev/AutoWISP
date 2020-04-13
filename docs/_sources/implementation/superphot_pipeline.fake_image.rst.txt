@@ -1,0 +1,15 @@
+superphot_pipeline.fake_image package
+=====================================
+
+.. automodule:: superphot_pipeline.fake_image
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   superphot_pipeline.fake_image.raw
+

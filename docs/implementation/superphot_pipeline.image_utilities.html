@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>superphot_pipeline.image_utilities module &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline.iterative_rejection_util module" href="superphot_pipeline.iterative_rejection_util.html" />
+    <link rel="prev" title="superphot_pipeline.image_smoothing module" href="superphot_pipeline.image_smoothing.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.iterative_rejection_util.html" title="superphot_pipeline.iterative_rejection_util module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_smoothing.html" title="superphot_pipeline.image_smoothing module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" accesskey="U">superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">superphot_pipeline.image_utilities module</a><ul>
+<li><a class="reference internal" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="superphot_pipeline.image_smoothing.html"
+                        title="previous chapter">superphot_pipeline.image_smoothing module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="superphot_pipeline.iterative_rejection_util.html"
+                        title="next chapter">superphot_pipeline.iterative_rejection_util module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/implementation/superphot_pipeline.image_utilities.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-superphot_pipeline.image_utilities">
+<span id="superphot-pipeline-image-utilities-module"></span><h1>superphot_pipeline.image_utilities module<a class="headerlink" href="#module-superphot_pipeline.image_utilities" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="class-inheritance-diagram">
+<h2>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Permalink to this headline">¶</a></h2>
+<img src="../_images/inheritance-dcc8bee185d3e9b3feacc189e0cf132e5bb4b4d0.png" alt="Inheritance diagram of BadImageError, SkyCoord" usemap="#inheritancefdac22e3a7" class="inheritance"/>
+<map id="inheritancefdac22e3a7" name="inheritancefdac22e3a7">
+<area shape="rect" id="node1" title="High&#45;level object providing a flexible interface for celestial coordinate" alt="" coords="5,77,298,101"/>
+<area shape="rect" id="node2" title="Mixin class to provide shape&#45;changing methods." alt="" coords="28,5,275,29"/>
+<area shape="rect" id="node3" href="superphot_pipeline.pipeline_exceptions.html#superphot_pipeline.pipeline_exceptions.BadImageError" target="_top" title="An image does not look like it is expected to." alt="" coords="300,5,649,29"/>
+</map>
+<p>A collection of functions for working with pipeline images.</p>
+<dl class="function">
+<dt id="superphot_pipeline.image_utilities.bin_image">
+<code class="descclassname">superphot_pipeline.image_utilities.</code><code class="descname">bin_image</code><span class="sig-paren">(</span><em>image</em>, <em>bin_factor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_utilities.html#bin_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_utilities.bin_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bins the image to a lower resolution (must be exact factor of image shape).</p>
+<p>The output pixels are the sum of the pixels in each bin.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> &#8211; The image to bin.</li>
+<li><strong>bin_factor</strong> &#8211; Either a single integer in which case this is the binning
+in both directions, or a pair of integers, specifying different
+binnin in each direction.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>The binned image with a resolution decreased by the</dt>
+<dd><p class="first last">binning factor for each axis, which has the same total flux as the
+input image.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">binned_image</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="superphot_pipeline.image_utilities.get_pointing_from_header">
+<code class="descclassname">superphot_pipeline.image_utilities.</code><code class="descname">get_pointing_from_header</code><span class="sig-paren">(</span><em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_utilities.html#get_pointing_from_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_utilities.get_pointing_from_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the sky coordinates of this frame&#8217;s pointing per its header.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>frame</strong> &#8211; <p>The frame to return the pointing of. Could be in one of the
+following formats:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>string: the filanema of a FITS frame. The pointing information</dt>
+<dd>is extracted from the header of the first non-trivial HDU.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>HDUList: Same as above, only this time the file is</dt>
+<dd>already opened.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>astropy.io.fits ImageHDU or TableHDU, containing the header to</dt>
+<dd>extract the pointing information from.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>asrtopy.io.fits.Header instance: the header from which to</dt>
+<dd>extract the pointing information.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>An instance of astropy.coordinates.SkyCoord containing the</dt>
+<dd>frame pointing information contained in the header.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">pointing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="superphot_pipeline.image_utilities.read_image_components">
+<code class="descclassname">superphot_pipeline.image_utilities.</code><code class="descname">read_image_components</code><span class="sig-paren">(</span><em>fits_fname</em>, <em>*</em>, <em>read_image=True</em>, <em>read_error=True</em>, <em>read_mask=True</em>, <em>read_header=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_utilities.html#read_image_components"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_utilities.read_image_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read image, its error estimate, mask and header from pipeline FITS file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fits_fname</strong> &#8211; The filename of the FITS file to read the componets of.
+Must have been produced by the pipeline.</li>
+<li><strong>read_image</strong> &#8211; Should the pixel values of the primary image be read.</li>
+<li><strong>read_error</strong> &#8211; Should the error extension be searched for and read.</li>
+<li><strong>read_mask</strong> &#8211; Should the mask extension be searched for and read.</li>
+<li><strong>read_header</strong> &#8211; Should the header of the image extension be returned.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The primary image in the file. Always present.</p>
+<dl class="docutils">
+<dt>error:   The error estimate of image, identified by IMAGETYP==&#8217;error&#8217;.</dt>
+<dd><p class="first last">Set to None if none of the extensions have IMAGETYP==&#8217;error&#8217;. This
+is omitted from the output if <cite>read_error == False</cite>.</p>
+</dd>
+<dt>mask:    A bitmask of quality flags for each image pixel (identified</dt>
+<dd><p class="first last">by IMAGETYP=&#8217;mask&#8217;). Set to None if none of the extensions
+have IMAGETYP=&#8217;mask&#8217;. This is omitted from the output if
+<cite>read_mask == False</cite>.</p>
+</dd>
+<dt>header:   The header of the image HDU in the file. This is omitted from</dt>
+<dd><p class="first last">the output if <cite>read_header == False</cite>.</p>
+</dd>
+</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">image</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="superphot_pipeline.image_utilities.zoom_image">
+<code class="descclassname">superphot_pipeline.image_utilities.</code><code class="descname">zoom_image</code><span class="sig-paren">(</span><em>image</em>, <em>zoom</em>, <em>interp_order</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/superphot_pipeline/image_utilities.html#zoom_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#superphot_pipeline.image_utilities.zoom_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase the resolution of an image using flux conserving interpolation.</p>
+<p>Interpolation is performed using the following recipe:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">create a cumulative image (C), i.e. C(x, y) = sum(
+image(x&#8217;, y&#8217;), {x&#8217;, 0, x}, {y&#8217;, 0, y}). Note that C&#8217;s x and y
+resolutions are both bigger than image&#8217;s by one with all entries in
+the first row and the first column being zero.</p>
+</li>
+<li><p class="first">Interpolate the cumulative image using a bivariate spline to get a
+continuous cumulative flux F(x, y).</p>
+</li>
+<li><p class="first">Create the final image I by setting each pixel to the flux implied
+by F(x, y) from step 2, i.e. if zx is the zoom factor along x and zy
+is the zoom factor along y:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">I</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">=</span> <span class="n">F</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">z</span><span class="p">)</span>
+          <span class="o">-</span> <span class="n">F</span><span class="p">((</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="o">/</span><span class="n">z</span><span class="p">)</span>
+          <span class="o">-</span> <span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">z</span><span class="p">)</span>
+          <span class="o">+</span> <span class="n">F</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="o">/</span><span class="n">z</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div></blockquote>
+<p>Since this is a flux conserving method, zooming and then binning an image
+reproduces the original image with close to machine precision.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image</strong> &#8211; The image to zoom.</li>
+<li><strong>zoom</strong> &#8211; The factor(s) by which to zoom the image. Should be either an
+integer defining a common zoom factor both dimensions or a pair of
+numbers, specifying the zoom along each axis (y first, then x).</li>
+<li><strong>interp_order</strong> &#8211; The order of the interpolation of the cumulative array.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.iterative_rejection_util.html" title="superphot_pipeline.iterative_rejection_util module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="superphot_pipeline.image_smoothing.html" title="superphot_pipeline.image_smoothing module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >superphot_pipeline</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="superphot_pipeline.html" >superphot_pipeline package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

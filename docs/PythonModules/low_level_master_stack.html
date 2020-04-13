@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Low Level Master Stack Interface &#8212; SuperPhotPipeline  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="superphot_pipeline" href="../implementation/modules.html" />
+    <link rel="prev" title="Low Level Image Calibration Interface" href="low_level_image_calibration.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../implementation/modules.html" title="superphot_pipeline"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" accesskey="U">&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Low Level Master Stack Interface</a><ul>
+<li><a class="reference internal" href="#master-bias-dark">Master Bias/Dark</a></li>
+<li><a class="reference internal" href="#master-flat">Master Flat</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="low_level_image_calibration.html"
+                        title="previous chapter">Low Level Image Calibration Interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../implementation/modules.html"
+                        title="next chapter">superphot_pipeline</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/PythonModules/low_level_master_stack.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="low-level-master-stack-interface">
+<h1>Low Level Master Stack Interface<a class="headerlink" href="#low-level-master-stack-interface" title="Permalink to this headline">¶</a></h1>
+<p>Given a user-specified set of calibrated FITS frames produced as described in
+<a class="reference internal" href="low_level_image_calibration.html"><span class="doc">Low Level Image Calibration Interface</span></a>, this module stacks them to create master
+frames. The stacking procedure and example usage for each master types is as
+follows:</p>
+<div class="section" id="master-bias-dark">
+<h2>Master Bias/Dark<a class="headerlink" href="#master-bias-dark" title="Permalink to this headline">¶</a></h2>
+<p>The procedure for generating one of these two types of masters is that each
+pixels in the output image in generated from the corresponding pixels in the
+individual input images by iterating between the following two steps:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Finding the median.</li>
+<li>Rejecting values differing from the median by more than some specified
+threshold times the root mean square deviation from the median.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="master-flat">
+<h2>Master Flat<a class="headerlink" href="#master-flat" title="Permalink to this headline">¶</a></h2>
+<p>Since flat frames can be images of the sky or of perhaps a dome with changing
+illumination, special care must be taken to compensate for changes in the large
+scale structure from one calibrated flat frame to the other. Further, with sky
+frames there is always the possibility of clouds, so there needs to be an
+automated procedure for detecting clouds in individual frames and discarding
+them, or of detecting cloudy flat collections and refusing to generate a master
+flat altogether. The procedure used by HATSouth is as follows:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">For each flat a mean and standard devation are calculated:</p>
+<blockquote>
+<div><p>1.1. A central stamp is cut-off from each flat</p>
+<p>1.2. The stamp is smoothed by:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fitrans</span> <span class="n">stamp</span><span class="o">.</span><span class="n">fits</span> <span class="o">--</span><span class="n">smooth</span> <span class="n">polynomial</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">detrend</span>
+</pre></div>
+</div>
+<p>Translation:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A second order polynomial is fit to the pixel values.</li>
+<li>More than 3-sigma outliers are rejected and the fit is repeated.</li>
+<li>The image is then divided by the best-fit surface.</li>
+</ul>
+</div></blockquote>
+<p>1.3. The number of non-saturated (actually completely clean) pixels is
+calculated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fiinfo</span> <span class="n">stamp</span><span class="o">.</span><span class="n">fits</span> <span class="o">-</span><span class="n">m</span>
+</pre></div>
+</div>
+<p>find a line starting with 8 dashes (&#8216;-&#8216;) and use the number of pixels
+fiinfo reports for that line.</p>
+<p>1.4. if 1 - (number of pixels from step 4) / (total pixels in stamp) is
+bigger than some number reject the frame.</p>
+<p>1.5. If the frame is not rejected, iteratively rejected mean and
+standard deviation are calculated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fiinfo</span> <span class="o">--</span><span class="n">statistics</span> <span class="n">mean</span><span class="p">,</span><span class="n">iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">A check is performed for clouds:</p>
+<blockquote>
+<div><p>2.1. Fit a quadratic to the standard deviation vs mean from step 1
+above. More text on this longe line:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">lfit</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;m:1,s:2&#39;</span>\
+    <span class="o">-</span><span class="n">v</span> <span class="s1">&#39;a,b,c&#39;</span>\
+    <span class="o">-</span><span class="n">f</span> <span class="s1">&#39;a*m^2+b*m+c&#39;</span>\
+    <span class="o">-</span><span class="n">y</span> <span class="s1">&#39;s^2&#39;</span>\
+    <span class="o">-</span><span class="n">r</span> <span class="s1">&#39;2.0&#39;</span>\
+    <span class="o">-</span><span class="n">n</span> <span class="mi">2</span>\
+    <span class="o">--</span><span class="n">residual</span>
+</pre></div>
+</div>
+<p>Translation:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Fit a quadratic to (standard deviation)^2 vs (mean) from step 1.</li>
+<li>Discard all points more than two sigma away from the fit go back
+to 2.1.1, for up to two iterations.</li>
+<li>Get the best fit coefficients and the residual from the last fit.</li>
+</ul>
+</div></blockquote>
+<p>2.2. If the fit residual as reported by lfit is larger than some
+critical value, the entire group of flats is discarded and no master is
+generated.</p>
+<p>2.3. If the fit is acceptable, but a frame is too far away from the
+best-fit line, the frame is discarded.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Flats are split into low and high:</p>
+<blockquote>
+<div><p>3.1. The median (MEDMEAN below) and the median absolute deviation from
+the median (MADMED) of all means from step 1 is calculated.</p>
+<p>3.2. Frames with mean above MEDMEAN - (rej_params.min_level * MADMED)
+and above some absolute threshold are considered high.</p>
+<p>3.3. Frames below a different threshold are considered low.</p>
+<p>3.4. Frames that are neither low nor high are discarded.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Frames for which the pointing as described in the header is within some
+critical arc-distance are discarded. So are frames missing pointing
+information in their headers.</p>
+</li>
+<li><p class="first">If after all rejection steps above, the number of flats is not at least
+some specified threshold, no master is generated.</p>
+</li>
+<li><p class="first">A preliminary master flat is created from all high flats using an
+iteratively rejected median:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ficombine</span> <span class="o">--</span><span class="n">mode</span> <span class="s1">&#39;rejmed,sigma=4,iterations=1&#39;</span>\
+<span class="n">calib_flat1</span><span class="o">.</span><span class="n">fits</span>\
+<span class="n">calib_flat2</span><span class="o">.</span><span class="n">fits</span>\
+<span class="o">...</span>\
+<span class="o">--</span><span class="n">output</span> <span class="n">preliminary_master</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>Translation:</p>
+<p>Each pixel of the preliminary_master.fits image is the median of the
+corresponding pixels of the individual frames, with a single iteration of
+rejecting pixels more than 4 standard devitaions away and re-fitting.</p>
+</li>
+<li><p class="first">Scale each individual calibrated flat frame to the same large scale
+structure as the preliminary master flat from step 6. For
+calib_flat1.fits the commands are:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fiarith</span> <span class="s2">&quot;&#39;preliminary_master.fits&#39;/&#39;calib_flat1.fits&#39;&quot;</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">shrink</span> <span class="mi">4</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="nb">input</span> <span class="o">-</span> \
+  <span class="o">--</span><span class="n">smooth</span> <span class="n">median</span><span class="p">,</span><span class="n">hsize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span><span class="n">spline</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">iterations</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span><span class="n">unity</span>\
+  <span class="o">--</span><span class="n">output</span> <span class="o">-</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">zoom</span> <span class="mi">4</span>\
+<span class="o">|</span> <span class="n">fiarith</span> <span class="s2">&quot;&#39;calib_flat1.fits&#39;*&#39;-&#39;*4&quot;</span> <span class="o">--</span><span class="n">output</span> <span class="n">scaled_flat1</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>Translation:</p>
+<p>For each individual calibrated flat (target):</p>
+<ul>
+<li><p class="first">Calculate the ratio of the preliminary master to the target.</p>
+</li>
+<li><p class="first">Take each 4x4 array of pixels and average all their values into a
+single pixels of the output image, thus reducing the resolution by a
+factor of 4 in each direction.</p>
+</li>
+<li><p class="first">Perform median box-filtering with a box half-size of 6 pixels,
+somehow combined with cubic spline fitting, with a single iteration
+of discarding pixels more than 5 sigma discrepant. The resulting
+image is the fit scaled to have a mean of 1.</p>
+</li>
+<li><p class="first">Expand the image back up by a factor of 4, using</p>
+<blockquote>
+<div><p>&#8220;a biquadratic subpixel-level interpolation and therefore exact
+flux  conservation.&#8221;</p>
+</div></blockquote>
+<p>To quote from the fitrans &#8211;long-help message.</p>
+</li>
+<li><p class="first">The individual flat is multiplied by the expanded image and by an
+additional factor of 4 to make its large scale structure the same as
+the preliminary master flat.</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Calculate the maximum deviation between each scaled frame and the
+preliminary master in a stamp near the center spanning 75% of each
+dimension of the input scaled flat. Assuming a frame resolution of
+4096x4096:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fiarith</span> <span class="s2">&quot;&#39;scaled_flat1.fits&#39;/&#39;preliminary_master.fits&#39;-1&quot;</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">shrink</span> <span class="mi">4</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">offset</span> <span class="s1">&#39;128,128&#39;</span> <span class="o">--</span><span class="n">size</span> <span class="s1">&#39;768,768&#39;</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">smooth</span> <span class="s1">&#39;median,hsize=4,iterations=1,sigma=3&#39;</span>\
+<span class="o">|</span> <span class="n">fitrans</span> <span class="o">--</span><span class="n">zoom</span> <span class="mi">4</span>\
+<span class="o">|</span> <span class="n">fiinfo</span> <span class="o">--</span><span class="n">data</span> <span class="s1">&#39;min,max&#39;</span>
+</pre></div>
+</div>
+<p>The deviation is the maximum in absolute value of the two values
+returned.</p>
+<p>Translation</p>
+<blockquote>
+<div><ul class="simple">
+<li>Create an image with each pixel being the fractional difference
+between the scaled flat from step 7 and the preliminary master from
+step 6.</li>
+<li>Shrink the image by a factor of four along each dimension.</li>
+<li>Cut-out the central 75% of the relusting frame.</li>
+<li>Smooth the cut-out by median box-filter with a box half-size of 4
+pixels, with a single iteration of rejecting more than 3-sigma
+outliers and re-smoothing.</li>
+<li>The result is zoomed back up using bi-quadratic interpolation.</li>
+<li>Get the largest absolute value of the smoothed image.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">If the deviation from step 8 is bigger than some critical value (0.05 for
+HATSouth) the frame is rejected as cloudy.</p>
+</li>
+<li><p class="first">If enough unrejected frames remain, a master flat is generated by median
+combining with rejecting outliers:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ficombine</span> <span class="o">--</span><span class="n">mode</span> <span class="s1">&#39;rejmed,iterations=2,lower=3,upper=2&#39;</span>\
+<span class="n">scaled_flat1</span><span class="o">.</span><span class="n">fits</span>\
+<span class="n">scaled_flat2</span><span class="o">.</span><span class="n">fits</span>\
+<span class="o">...</span>\
+<span class="o">--</span><span class="n">output</span> <span class="n">master_flat</span><span class="o">.</span><span class="n">fits</span>
+</pre></div>
+</div>
+<p>Each pixel of the final master flat is the median of the corresponding
+pixels of the surviving individual scaled flats with up to two
+iterations of rejecting more than 3-sigma outliers in the downward
+directions and 2-sigma in the upward direction.</p>
+</li>
+</ol>
+</div></blockquote>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../implementation/modules.html" title="superphot_pipeline"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="low_level_image_calibration.html" title="Low Level Image Calibration Interface"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">SuperPhotPipeline  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="contents.html" >&lt;no title&gt;</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Kaloyan Penev.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+superphot_pipeline.image_calibration package
+============================================
+
+.. automodule:: superphot_pipeline.image_calibration
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   superphot_pipeline.image_calibration.calibrator
+   superphot_pipeline.image_calibration.fits_util
+   superphot_pipeline.image_calibration.mask_utilities
+   superphot_pipeline.image_calibration.master_flat_maker
+   superphot_pipeline.image_calibration.master_maker
+   superphot_pipeline.image_calibration.overscan_methods
+

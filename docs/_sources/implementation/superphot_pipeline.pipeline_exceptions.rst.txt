@@ -1,0 +1,7 @@
+superphot_pipeline.pipeline_exceptions module
+=============================================
+
+.. automodule:: superphot_pipeline.pipeline_exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
