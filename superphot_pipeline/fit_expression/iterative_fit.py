@@ -129,7 +129,7 @@ def iterative_fit_qr(weighted_predictors,
         if bad_ind.size > max_downdates:
             #False positive
             #pylint: disable=unexpected-keyword-arg
-            weighted_qrp = scipy.linalg.qr(weighted_predictors,
+            weighted_qrp = scipy.linalg.qr(weighted_predictors.T,
                                            mode='economic',
                                            pivoting=True)
             #pylint: enable=unexpected-keyword-arg
@@ -161,7 +161,7 @@ def iterative_fit_qr(weighted_predictors,
         if bad_ind.size == 0:
             return best_fit_coef, fit_res2, len(weighted_target)
 
-        return best_fit_coef, fit_res2, len(weighted_target)
+    return best_fit_coef, fit_res2, len(weighted_target)
 #pylint: enable=too-many-locals
 
 def iterative_fit(predictors,
@@ -229,15 +229,15 @@ def iterative_fit(predictors,
 
     #False positive
     #pylint: disable=unexpected-keyword-arg
-    qrp = scipy.linalg.qr(predictors, mode='economic', pivoting=True)
+    qrp = scipy.linalg.qr(predictors.T, mode='economic', pivoting=True)
     #pylint: enable=unexpected-keyword-arg
 
-    iterative_fit_qr(predictors,
-                     qrp,
-                     target_values,
-                     weights=weights,
-                     max_downdates=max_downdates,
-                     error_avg=error_avg,
-                     rej_level=rej_level,
-                     max_rej_iter=max_rej_iter,
-                     fit_identifier=fit_identifier)
+    return iterative_fit_qr(predictors,
+                            qrp,
+                            target_values,
+                            weights=weights,
+                            max_downdates=max_downdates,
+                            error_avg=error_avg,
+                            rej_level=rej_level,
+                            max_rej_iter=max_rej_iter,
+                            fit_identifier=fit_identifier)
