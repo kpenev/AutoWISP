@@ -8,7 +8,6 @@ lightcurve format.
 """
 
 import numpy
-import pytransit
 
 def magnitude_change(light_curve,
                      transit_model,

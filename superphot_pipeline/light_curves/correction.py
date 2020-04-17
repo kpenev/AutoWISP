@@ -19,6 +19,7 @@ class Correction:
     def _get_config_key_prefix(fit_target):
         """Return the prefix of the pipeline key for storing configuration."""
 
+        print('Fit target: ' + repr(fit_target))
         return fit_target[2].rsplit('.', 1)[0] + '.cfg.'
 
 

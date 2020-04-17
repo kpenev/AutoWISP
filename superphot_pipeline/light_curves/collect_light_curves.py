@@ -8,6 +8,8 @@ from superphot_pipeline.hat.header_util import get_jd as get_hat_jd
 from superphot_pipeline import DataReductionFile
 from .lc_data_io import LCDataIO
 
+#This is simple enough
+#pylint: disable=too-many-locals
 def collect_light_curves(dr_filenames,
                          configuration,
                          get_jd=get_hat_jd,
@@ -57,8 +59,8 @@ def collect_light_curves(dr_filenames,
                          for source_id in data_io.source_destinations.keys()]
 
     for dirname in {
-        os.path.abspath(os.path.dirname(lc_fname))
-        for _, lc_fname in sources_lc_fnames
+            os.path.abspath(os.path.dirname(lc_fname))
+            for _, lc_fname in sources_lc_fnames
     }:
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -81,3 +83,4 @@ def collect_light_curves(dr_filenames,
             data_io.write(write_arg)
 
         num_processed = stop_processing
+#pylint: enable=too-many-locals

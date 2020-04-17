@@ -5,12 +5,13 @@ from itertools import repeat
 import scipy
 from numpy.lib import recfunctions
 
-from superphot_pipeline import LightCurveFile
 from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.fit_expression import\
     Interface as FitTermsInterface,\
     iterative_fit
-from superphot_pipeline.light_curves.correction import Correction
+
+from .light_curve_file import LightCurveFile
+from .correction import Correction
 
 #Attempts to re-organize reduced readability
 #pylint: disable=too-many-instance-attributes

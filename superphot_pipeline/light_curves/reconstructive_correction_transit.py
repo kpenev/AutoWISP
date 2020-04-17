@@ -1,7 +1,7 @@
 """Definet class performing reconstructive detrending on LCs with transits."""
 
-from superphot_pipeline.light_curves.transit_model import magnitude_change
-from superphot_pipeline import LightCurveFile
+from .transit_model import magnitude_change
+from .light_curve_file import LightCurveFile
 
 class ReconstructiveCorrectionTransit:
     """

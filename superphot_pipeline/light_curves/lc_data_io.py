@@ -21,9 +21,9 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 from superphot_pipeline.magnitude_fitting import read_master_catalogue
 from superphot_pipeline import DataReductionFile
 
-from . import LCDataSlice, LightCurveFile
+from .light_curve_file import LightCurveFile, _config_dset_key_rex
+from .lc_data_slice import LCDataSlice
 from .hashable_array import HashableArray
-from .light_curve_file import _config_dset_key_rex
 
 #TODO: Add catalogue information as top-level attributes.
 #TODO: Add xi and eta as config datasets.

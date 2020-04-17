@@ -106,7 +106,7 @@ def iterative_rejection_average(array,
 
         if found_outliers:
             working_array[outliers] = scipy.nan
-        print('Found %d outliers.',found_outliers.sum())
+        print('Found %d outliers.', found_outliers.sum())
         iteration = iteration + 1
     print("Exited found_outliers while loop")
     if found_outliers and require_convergence:
