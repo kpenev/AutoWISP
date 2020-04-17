@@ -1,12 +1,11 @@
-"""Definet class performing reconstructive EPD on LCs with transits."""
+"""Definet class performing reconstructive detrending on LCs with transits."""
 
 from superphot_pipeline.light_curves.transit_model import magnitude_change
-from superphot_pipeline.light_curves.epd_correction import EPDCorrection
 from superphot_pipeline import LightCurveFile
 
-class ReconstructiveEPDTransit(EPDCorrection):
+class ReconstructiveCorrectionTransit:
     """
-    Class for EPD corrections that protect known on suspected transit signals.
+    Class for corrections that protect known or suspected transit signals.
 
     Attributes:
         transit_model:    See same name argument to __init__()
@@ -19,9 +18,8 @@ class ReconstructiveEPDTransit(EPDCorrection):
 
     def __init__(self,
                  transit_model,
-                 *epd_args,
-                 fit_amplitude=True,
-                 **epd_kwargs):
+                 correction,
+                 fit_amplitude=True):
         """
         Configure the fitting.
 
@@ -29,21 +27,19 @@ class ReconstructiveEPDTransit(EPDCorrection):
             transit_model:    If not None, this should be one of the models
                 implemented in pytransit.
 
+            correction(Correction):    An instance of one of the correction
+                classes.
+
             fit_amplitude(bool):    Should the amplitude of the model be
                 fit along with the EPD correction coefficients? If not, the
                 amplitude of the signal is assumed known.
 
-            epd_args:    Passed directly as positional arguments to parent class
-                __init__().
-
-            epd_kwargs:    Passed directly as keyword arguments to parent class
-                __init__().
 
         Returns:
             None
         """
 
-        super().__init__(*epd_args, **epd_kwargs)
+        self.correction = correction
         self.transit_model = transit_model
         self.transit_parameters = None
         self.fit_amplitude = fit_amplitude
@@ -102,5 +98,5 @@ class ReconstructiveEPDTransit(EPDCorrection):
                                        transit_parameters_kw)
             extra_predictors = None
 
-        return super().__call__(lc_fname, self.get_fit_data, extra_predictors, save)
+        return self.correction(lc_fname, self.get_fit_data, extra_predictors, save)
     #pylint: enable=arguments-differ

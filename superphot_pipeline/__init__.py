@@ -6,7 +6,9 @@ from superphot_pipeline.data_reduction.data_reduction_file import\
 from superphot_pipeline.light_curves.light_curve_file import LightCurveFile
 from superphot_pipeline.light_curves.epd import\
     parallel_epd,\
-    reconstructive_epd_transit,\
     save_statistics as save_epd_statistics,\
     load_statistics as load_epd_statistics
+from superphot_pipeline.light_curves.apply_reconstructive_correction import\
+    apply_reconstructive_correction_transit
+from superphot_pipeline.light_curves.epd_correction import EPDCorrection
 from superphot_pipeline.light_curves.tfa_correction import TFACorrection
