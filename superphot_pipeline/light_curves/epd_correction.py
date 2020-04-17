@@ -63,16 +63,13 @@ class EPDCorrection(Correction):
                 )
         ):
 
-            pipeline_key_prefix = fit_target[2]
+            pipeline_key_prefix = self._get_config_key_prefix(fit_target)
 
             if self.fit_points_filter_expression is None:
                 point_filter = b''
             else:
                 point_filter = self.fit_points_filter_expression.encode('ascii')
 
-            pipeline_key_prefix = (pipeline_key_prefix.rsplit('.', 1)[0]
-                                   +
-                                   '.cfg.')
             result.append(
                 [
                     (
@@ -90,20 +87,10 @@ class EPDCorrection(Correction):
                     (
                         pipeline_key_prefix + 'fit_weights',
                         fit_weights.encode('ascii')
-                    ),
-                    (
-                        pipeline_key_prefix + 'error_avg',
-                        self.iterative_fit_config['error_avg'].encode('ascii')
                     )
                 ]
                 +
-                [
-                    (
-                        pipeline_key_prefix + cfg_key,
-                        self.iterative_fit_config[cfg_key]
-                    )
-                    for cfg_key in ['rej_level', 'max_rej_iter']
-                ]
+                self._get_io_iterative_fit_config(pipeline_key_prefix)
             )
 
         return result
@@ -159,31 +146,6 @@ class EPDCorrection(Correction):
         self.fit_terms_expression = fit_terms_expression
         self.fit_weights = fit_weights
         self._io_fit_config = self._get_fit_configurations(fit_terms_expression)
-
-    @staticmethod
-    def get_result_dtype(num_photometries, extra_predictors=None):
-        """Return the data type for the result of __call__."""
-
-        return (
-            [
-                ('ID', (scipy.int_, 3)),
-                ('mag', scipy.float64),
-                ('xi', scipy.float64),
-                ('eta', scipy.float64),
-                ('rms', (scipy.float64, (num_photometries,))),
-                ('num_finite', (scipy.uint, (num_photometries,)))
-            ]
-            +
-            [
-                (predictor_name, scipy.float64)
-                for predictor_name in (
-                    [] if extra_predictors is None
-                    else (extra_predictors.keys()
-                          if isinstance(extra_predictors, dict) else
-                          extra_predictors.dtype.names)
-                )
-            ]
-        )
 
     #Re-factored as much as I could (KP)
     #pylint: disable=too-many-locals
@@ -307,14 +269,7 @@ class EPDCorrection(Correction):
                     there.
 
             Returns:
-                (float, float, float64 array):
-                    * The square root of the average square residuals after the
-                      fit.
-
-                    * The `'num_finite'` entry in the parent's result.
-
-                    * A list of the best-fit amplitudes of the
-                      `extra_predictors` signals.
+                None
             """
 
             raw_values = get_fit_data(light_curve,

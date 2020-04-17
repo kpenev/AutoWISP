@@ -10,17 +10,61 @@ from scipy.spatial import cKDTree
 #pylint: enable=no-name-in-module
 
 from superphot_pipeline.evaluator import Evaluator
-from superphot_pipeline.fit_expression import iterative_fit
+from superphot_pipeline.fit_expression import iterative_fit, iterative_fit_qr
 from .light_curve_file import LightCurveFile
+from .correction import Correction
 
-class TFA:
+class TFACorrection(Correction):
     """
     Class for performing TFA corrections to a set of lightcurves.
 
     Attributes:
         _configuration:    An object with attributes configuring how TFA is to
             be done (see `configuration` argument to __init__()).
+
+        _template_qr([]):    The QR decomposition of the template lightcurves.
+            Each entry is the value returned by scipy.linalg.qr for one of the
+            fit datasets.
     """
+
+    def _get_io_configurations(self):
+        """
+        Return properly formatted configuration to pass to :func:`_save_result`.
+        """
+
+        def default_format(config):
+            """Encode strings as ascii, leave everything else unchanged."""
+
+            try:
+                return config.encode('ascii')
+            except AttributeError:
+                return config
+
+        result = []
+        for fit_target in self.fit_datasets:
+            pipeline_key_prefix = self._get_config_key_prefix(fit_target)
+            result.append(
+                [
+                    (
+                        pipeline_key_prefix + cfg_key,
+                        default_format(getattr(self._configuration, cfg_key))
+                    )
+                    for cfg_key in ['saturation_magnitude',
+                                    'mag_rms_dependence_order',
+                                    'mag_rms_outlier_threshold',
+                                    'max_rms_max_rej_iter',
+                                    'max_rms',
+                                    'faint_mag_limit',
+                                    'min_observations_quantile',
+                                    'sqrt_num_templates',
+                                    'fit_points_filter_variables',
+                                    'fit_points_filter_expression']
+                ]
+                +
+                self._get_io_iterative_fit_config(pipeline_key_prefix)
+            )
+
+        return result
 
     def get_xi_eta_grid(self, epd_statistics):
         """Return a grid of (xi, eta) values to select closest templates to."""
@@ -262,6 +306,8 @@ class TFA:
         def select_template_stars(allowed_stars):
             """Select TFA template stars from the set of allowed ones."""
 
+            #False positive
+            #pylint: disable=not-callable
             tree = cKDTree(
                 data=scipy.stack(
                     (
@@ -270,6 +316,7 @@ class TFA:
                     )
                 ).transpose()
             )
+            #pylint: enable=not-callable
             template_indices = scipy.unique(
                 tree.query(
                     self.get_xi_eta_grid(epd_statistics)
@@ -323,6 +370,25 @@ class TFA:
 
         return result
 
+    def _get_observation_ids(self, light_curve, substitutions):
+        """Return the observation IDs from the given light curve."""
+
+        return light_curve.read_data_array({
+            str(i): (dset_key, substitutions)
+            for i, dset_key in enumerate(self._configuration.observation_id)
+        })
+
+    def get_fit_points(self, light_curve):
+        """Return a bool array indicating which points from LC to use in fit."""
+
+        return Evaluator(
+            light_curve.read_data_array(
+                self._configuration.fit_points_filter_variables
+            )
+        )(
+            self._configuration.fit_points_filter_expression
+        )
+
     #Organized into pieces as much as I could figure out how to.
     #pylint: disable=too-many-locals
     def _prepare_template_data(self, epd_statistics, max_padding_factor=1.1):
@@ -346,7 +412,7 @@ class TFA:
 
             [scipy.array]:
                 The brightness measurements from all the templates for all the
-                photometry methods at all observatin points where at least one
+                photometry methods at all observation points where at least one
                 template has a measurement. Entries at observation points not
                 represented in a template are zero. The shape of each array is:
                 (
@@ -354,7 +420,6 @@ class TFA:
                     number observations
                 ), and there are number of photemetry methods arrays in the
                 list.
-
 
             [scipy.array]:
                 The sorted observation IDs for which at least one template has a
@@ -366,20 +431,12 @@ class TFA:
 
 
             phot_data = light_curve.get_dataset(phot_dset_key, **substitutions)
-            phot_observation_ids = light_curve.read_data_array({
-                str(i): (dset_key, substitutions)
-                for i, dset_key in enumerate(self._configuration.observation_id)
-            })
+            phot_observation_ids = self._get_observation_ids(light_curve,
+                                                             substitutions)
             assert phot_data.shape == phot_observation_ids.shape
 
             if self._configuration.fit_points_filter_expression is not None:
-                selected_points = Evaluator(
-                    light_curve.read_data_array(
-                        self._configuration.fit_points_filter_variables
-                    )
-                )(
-                    self._configuration.fit_points_filter_expression
-                )
+                selected_points = self.get_fit_points(light_curve)
                 assert selected_points.shape == phot_data.shape
                 phot_data = phot_data[selected_points]
                 phot_observation_ids = phot_observation_ids[selected_points]
@@ -416,7 +473,7 @@ class TFA:
             """Add a single template/photometry combination to result arrays."""
 
             phot_destination_ind = scipy.searchsorted(
-                template_observation_ids[:num_observations],
+                template_observation_ids,
                 phot_observation_ids
             )
             matched_observations = (
@@ -432,7 +489,7 @@ class TFA:
             unmatched_observations = scipy.logical_not(matched_observations)
 
             if not unmatched_observations.any():
-                return
+                return template_observation_ids
 
             observations_to_append = phot_observation_ids[
                 unmatched_observations
@@ -464,6 +521,8 @@ class TFA:
                 :
             ] = phot_to_append
 
+            return combined_observation_ids
+
         template_star_indices = self._select_template_stars(epd_statistics)
 
         template_measurements = []
@@ -493,9 +552,8 @@ class TFA:
                         ) = initialize_result(phot_data,
                                               phot_observation_ids,
                                               num_templates)
-                        num_observations = phot_data.size
                     else:
-                        add_to_result(
+                        phot_template_observation_ids = add_to_result(
                             phot_data=phot_data,
                             phot_observation_ids=phot_observation_ids,
                             source_index=source_index,
@@ -520,7 +578,7 @@ class TFA:
         )
     #pylint: enable=too-many-locals
 
-    def __init__(self, epd_statistics, configuration):
+    def __init__(self, epd_statistics, configuration, **iterative_fit_config):
         """
         Get ready to apply TFA corrections.
 
@@ -566,10 +624,10 @@ class TFA:
                     typical rms vs magnitude.
 
                 mag_rms_outlier_threshold
-                    Stars are allowed to be in the template if their RMS in more
-                    than this many sigma away from the mag-rms fit. This is also
-                    the threshold used for rejecting outliers when doing the
-                    iterative fit for the rms as a function of magnutude.
+                    Stars are not allowed to be in the template if their RMS is
+                    more than this many sigma away from the mag-rms fit. This is
+                    also the threshold used for rejecting outliers when doing
+                    the iterative fit for the rms as a function of magnutude.
 
                 mag_rms_max_rej_iter
                     The maximum number of rejection fit iterations to do when
@@ -619,11 +677,18 @@ class TFA:
                     showing the template selection in action. If not specified,
                     no such plots are generated.
 
+            iterative_fit_config:    Any other arguments to pass directly to
+                iterative_fit_qr().
+
         Returns:
             None
         """
 
+        super().__init__(configuration.fit_datasets, **iterative_fit_config)
+
         self._configuration = configuration
+
+        self._io_configurations = self._get_io_configurations()
 
         assert (epd_statistics['rms'][0].size
                 ==
@@ -635,9 +700,131 @@ class TFA:
 
         (
             self._template_source_ids,
-            template_measurements,
+            self.template_measurements,
             self._template_observation_ids
         ) = self._prepare_template_data(epd_statistics)
 
-        self._template_qr = scipy.linalg.qr(template_measurements,
-                                            mode='economic')
+        #False positive
+        #pylint: disable=unexpected-keyword-arg
+        self._template_qrp = [
+            scipy.linalg.qr(template_measurements.T,
+                            mode='economic',
+                            pivoting=True)
+            for template_measurements in self.template_measurements
+        ]
+        #pylint: enable=unexpected-keyword-arg
+
+    def __call__(self,
+                 lc_fname,
+                 get_fit_data=LightCurveFile.get_dataset,
+                 extra_predictors=None,
+                 save=True):
+
+        """
+        Apply TFA to the given LC, optionally protecting an expected signal.
+        """
+
+        def correct_one_dataset(light_curve,
+                                fit_target,
+                                fit_index,
+                                result):
+            """
+            Calculate and apply TFA correction to a single dataset.
+
+            Args:
+                light_curve(LightCurveFile):    The opened for writing light
+                    curve to apply EPD corrections to.
+
+                fit_target((str, dict)):    The dataset key and substitutions
+                    identifying a uniquedataset in the lightcurve to fit.
+
+                fit_index(int):    The index of the dataset being fit within the
+                    list of datasets that will be fit for this lightcurve.
+
+                result:    The result variable for the parent update for this
+                    fit.
+
+            Returns:
+                None
+            """
+
+            raw_values = get_fit_data(light_curve,
+                                      fit_target[0],
+                                      **fit_target[1])
+            lc_observation_ids = self._get_observation_ids(light_curve,
+                                                           fit_target[1])
+            if isinstance(raw_values, tuple):
+                raw_values, fit_data = raw_values
+            else:
+                fit_data = raw_values
+
+            matched_indices = scipy.searchsorted(
+                self._template_observation_ids[fit_index],
+                lc_observation_ids
+            )
+            fit_points = scipy.logical_and(
+                (
+                    lc_observation_ids
+                    ==
+                    self._template_observation_ids[fit_index][matched_indices]
+                ),
+                self.get_fit_points(light_curve)
+            )
+            matched_indices = matched_indices[fit_points]
+
+            matched_fit_data = scipy.full(
+                self._template_observation_ids[fit_index].shape,
+                scipy.nan
+            )
+            matched_fit_data[matched_indices] = fit_data[fit_points]
+
+            #Error average specified through iterative_fit_config
+            #pylint: disable=missing-kwoa
+            fit_results = iterative_fit_qr(self.template_measurements[fit_index],
+                                           self._template_qrp[fit_index],
+                                           matched_fit_data,
+                                           **self.iterative_fit_config)
+            #pylint: enable=missing-kwoa
+            fit_results = self._process_fit(
+                fit_results=fit_results,
+                raw_values=raw_values[fit_points],
+                predictors=self.template_measurements[
+                    fit_index
+                ][
+                    :,
+                    matched_indices
+                ],
+                fit_index=fit_index,
+                result=result,
+                num_extra_predictors=0
+            )
+            if save:
+                self._save_result(
+                    fit_index=fit_index,
+                    configuration=self._io_configurations[fit_index],
+                    **fit_results,
+                    fit_points=fit_points,
+                    light_curve=light_curve
+                )
+
+        if extra_predictors is not None:
+            raise NotImplementedError(
+                'Adding extra templates is not implemented yet.'
+            )
+
+        with LightCurveFile(lc_fname, 'r+') as light_curve:
+            result = scipy.empty(
+                1,
+                dtype=self.get_result_dtype(len(self.fit_datasets),
+                                            extra_predictors)
+            )
+
+            for fit_index, fit_target in enumerate(self.fit_datasets):
+                correct_one_dataset(
+                    light_curve,
+                    fit_target,
+                    fit_index,
+                    result
+                )
+
+        return result

@@ -15,6 +15,46 @@ class Correction:
             fitting. See iterative_fit() for details.
     """
 
+    @staticmethod
+    def _get_config_key_prefix(fit_target):
+        """Return the prefix of the pipeline key for storing configuration."""
+
+        return fit_target[2].rsplit('.', 1)[0] + '.cfg.'
+
+
+    def _get_io_iterative_fit_config(self, pipeline_key_prefix):
+        """
+        Return the iterative fit portion of the configuration to save in the LC.
+
+        Args:
+            pipeline_key_prefix(str):    The part of the pipeline key specifying
+                which configuration is being defined (i.e. everything except the
+                last item in the key).
+
+        Returns:
+            [()]:
+                A list of tuples of the configuration options contained in
+                :attr:`iterative_fit_config`.
+        """
+
+        return (
+            [
+                (
+                    pipeline_key_prefix + 'error_avg',
+                    self.iterative_fit_config['error_avg'].encode('ascii')
+                )
+            ]
+            +
+            [
+                (
+                    pipeline_key_prefix + cfg_key,
+                    self.iterative_fit_config[cfg_key]
+                )
+                for cfg_key in ['rej_level', 'max_rej_iter']
+            ]
+        )
+
+
     def _save_result(self,
                      *,
                      fit_index,
@@ -170,6 +210,33 @@ class Correction:
             fit_results['corrected_values']
         ).sum()
         return fit_results
+
+    @staticmethod
+    def get_result_dtype(num_photometries, extra_predictors=None):
+        """Return the data type for the result of __call__."""
+
+        return (
+            [
+                ('ID', (scipy.int_, 3)),
+                ('mag', scipy.float64),
+                ('xi', scipy.float64),
+                ('eta', scipy.float64),
+                ('rms', (scipy.float64, (num_photometries,))),
+                ('num_finite', (scipy.uint, (num_photometries,)))
+            ]
+            +
+            [
+                (predictor_name, scipy.float64)
+                for predictor_name in (
+                    [] if extra_predictors is None
+                    else (extra_predictors.keys()
+                          if isinstance(extra_predictors, dict) else
+                          extra_predictors.dtype.names)
+                )
+            ]
+        )
+
+
 
     def __init__(self, fit_datasets, **iterative_fit_config):
         """
