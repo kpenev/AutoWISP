@@ -611,9 +611,9 @@ def _get_sky_position_datasets():
         )
     ]
 
-def _get_epd_datasets(magfit_datasets):
+def _get_detrended_datasets(magfit_datasets, mode='epd'):
     """
-    Create the default datasets for storing EPD results.
+    Create the default datasets for storing detrending results.
 
     Args:
         magfit_datasets(dict):    The light curve datasets containing the
@@ -623,80 +623,55 @@ def _get_epd_datasets(magfit_datasets):
     result = []
     for magfit_dset in magfit_datasets:
         assert magfit_dset.abspath.endswith('/Magnitude')
-        epd_root_path = magfit_dset.abspath[:-len('Magnitude')] + 'EPD/'
-        epd_key = magfit_dset.pipeline_key.replace('.magfit.', '.epd.')
-        property_key_prefix = epd_key.rsplit('.', 1)[0]
+        root_path = magfit_dset.abspath[:-len('Magnitude')] + mode.upper() + '/'
+        detrend_key = magfit_dset.pipeline_key.replace('.magfit.',
+                                                   '.' + moder.lower() + '.')
+        property_key_prefix = detrend_key.rsplit('.', 1)[0]
         config_key_prefix = property_key_prefix + '.cfg.'
-        epd_cfg_path = epd_root_path + 'FitProperties/'
+        cfg_path = root_path + 'FitProperties/'
 
         result.extend([
             HDF5DataSet(
-                pipeline_key=epd_key,
-                abspath=(epd_root_path + 'Magnitude'),
+                pipeline_key=detrend_key,
+                abspath=(root_path + 'Magnitude'),
                 dtype=magfit_dset.dtype,
                 scaleoffset=magfit_dset.scaleoffset,
                 compression=magfit_dset.compression,
                 compression_options=magfit_dset.compression_options,
                 replace_nonfinite=magfit_dset.replace_nonfinite,
-                description='The EPD corrected magnitude fitted magnitudes.'
+                description=('The %s corrected magnitude fitted magnitudes.'
+                             %
+                             mode)
             ),
             HDF5DataSet(
                 pipeline_key=(property_key_prefix + '.fit_residual'),
-                abspath=(epd_cfg_path + 'FitResidual'),
+                abspath=(cfg_path + 'FitResidual'),
                 dtype=magfit_dset.dtype,
                 scaleoffset=3,
                 replace_nonfinite=repr(numpy.finfo('f4').min),
-                description='The residual of the last iteration of the '
-                'iterative rejction EPD fit.'
+                description=(
+                    'The residual of the last iteration of the iterative '
+                    'rejction %s fit.'
+                    %
+                    mode
+                )
             ),
             HDF5DataSet(
                 pipeline_key=(property_key_prefix + '.num_fit_points'),
-                abspath=(epd_cfg_path + 'NumberFitPoints'),
+                abspath=(cfg_path + 'NumberFitPoints'),
                 dtype='numpy.uint',
                 compression='gzip',
                 compression_options='9',
-                description='The number of points used in the last iteration of'
-                'the iterative rejction EPD fit.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'variables',
-                abspath=(epd_cfg_path + 'Variables'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The list of variables and the datasets they '
-                'correspond to used in the fitting.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_filter',
-                abspath=(epd_cfg_path + 'Filter'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='Filtering applied to select points to which to '
-                'apply the correction.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_terms',
-                abspath=(epd_cfg_path + 'CorrectionExpression'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The expression that expands to the terms to '
-                'include in the EPD fit.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_weights',
-                abspath=(epd_cfg_path + 'WeightsExpression'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The expression that expands to the weights used '
-                'for each point in the EPD fit.'
+                description=(
+                    'The number of points used in the last iteration of the '
+                    'iterative rejction %s fit.'
+                    %
+                    mode
+                )
             ),
             HDF5DataSet(
                 pipeline_key=config_key_prefix + 'error_avg',
-                abspath=(epd_cfg_path + 'ErrorAveraging'),
+                abspath=(cfg_path + 'ErrorAveraging'),
                 dtype='numpy.string_',
                 compression='gzip',
                 compression_options='9',
@@ -704,7 +679,7 @@ def _get_epd_datasets(magfit_datasets):
             ),
             HDF5DataSet(
                 pipeline_key=config_key_prefix + 'rej_level',
-                abspath=(epd_cfg_path + 'RejectionLevel'),
+                abspath=(cfg_path + 'RejectionLevel'),
                 dtype='numpy.float64',
                 compression='gzip',
                 compression_options='9',
@@ -713,7 +688,7 @@ def _get_epd_datasets(magfit_datasets):
             ),
             HDF5DataSet(
                 pipeline_key=config_key_prefix + 'max_rej_iter',
-                abspath=(epd_cfg_path + 'MaxRejectionIterations'),
+                abspath=(cfg_path + 'MaxRejectionIterations'),
                 dtype='numpy.uint',
                 compression='gzip',
                 compression_options='9',
@@ -722,14 +697,160 @@ def _get_epd_datasets(magfit_datasets):
             ),
             HDF5DataSet(
                 pipeline_key=(property_key_prefix + '.cfg_index'),
-                abspath=(epd_root_path + 'FitPropertiesIndex'),
+                abspath=(root_path + 'FitPropertiesIndex'),
                 dtype='numpy.uint',
                 compression='gzip',
                 compression_options='9',
-                description='The index within the datasets containing EPD fit '
-                'properties applicable to each data point.'
+                description=(
+                    'The index within the datasets containing %s fit '
+                    'properties applicable to each data point.'
+                    %
+                    mode
+                )
             )
         ])
+    if mode == 'epd':
+        result.extend([
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'variables',
+                abspath=(cfg_path + 'Variables'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The list of variables and the datasets they '
+                'correspond to used in the fitting.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_terms',
+                abspath=(cfg_path + 'CorrectionExpression'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The expression that expands to the terms to '
+                'include in the EPD fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_filter',
+                abspath=(cfg_path + 'Filter'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='Filtering applied to select points to which to '
+                'apply the correction.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_weights',
+                abspath=(cfg_path + 'WeightsExpression'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description=(
+                    'The expression that expands to the weights used for each '
+                    'point in the %s fit.'
+                    %
+                    mode
+                )
+            )
+        ])
+    elif mode == 'tfa':
+        result.extend([
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'saturation_magnitude',
+                abspath=(cfg_path + 'SaturationMagnitude'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='The magnitude below which sources are considered '
+                'saturated and hence are excused from the rms vs magnitude fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'mag_rms_dependence_order',
+                abspath=(cfg_path + 'MagnitudeRMSDependenceOrder'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='The polynomial order of the dependence to fit for '
+                'RMS (after EPD) vs magnitude, when identifying quiet stars.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'mag_rms_outlier_threshold',
+                abspath=(cfg_path + 'MagRMSOutlierThreshold'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='Stars are not allowed to be in the template if '
+                'their RMS is more than this many sigma away from the mag-rms '
+                'fit. This is also the threshold used for rejecting outliers '
+                'when doing the iterative fit for the rms as a function of '
+                'magnutude.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'mag_rms_max_rej_iter',
+                abspath=(cfg_path + 'MaxMagRMSRejectionIterations'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='The maximum number of rejection fit iterations to '
+                'do when deriving the rms(mag) dependence.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'max_rms',
+                abspath=(cfg_path + 'MaxRMS'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='Stars are allowed to be in the template only if '
+                'their RMS is no larger than this.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'faint_mag_limit',
+                abspath=(cfg_path + 'FaintMagnitudeLimit'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='Stars fainter than this cannot be template stars.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'min_observations_quantile',
+                abspath=(cfg_path + 'MinimumObservationsQuantile'),
+                dtype='numpy.float64',
+                compression='gzip',
+                compression_options='9',
+                description='The minimum number of observations required of '
+                'template stars is this quantile among the input collection of '
+                'stars.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'num_templates',
+                abspath=(cfg_path + 'NumberTemplates'),
+                dtype='numpy.uint',
+                compression='gzip',
+                compression_options='9',
+                description='The maximum number of template stars to use.'
+
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_points_filter_variables',
+                abspath=(cfg_path + 'PointsFilterVariables'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The variables to use for selecting which points '
+                'from a LC can be part of a template or can participate in the '
+                'de-trending fit.'
+            ),
+            HDF5DataSet(
+                pipeline_key=config_key_prefix + 'fit_points_filter_expression'
+                abspath=(cfg_path + 'PointsFilterExpression'),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The expression defining which points from a LC can'
+                ' be part of a template or can participate in the de-trending '
+                'fit.'
+            )
+        ])
+
     return result
 
 def _get_configuration_index_datasets(db_session):
@@ -863,7 +984,9 @@ def _get_datasets(db_session):
         +
         _get_sky_position_datasets()
         +
-        _get_epd_datasets(magfit_datasets)
+        _get_detrended_datasets(magfit_datasets, 'epd')
+        +
+        _get_detrended_datasets(magfit_datasets, 'tfa')
     )
 
 def get_default_light_curve_structure(db_session):
