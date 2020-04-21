@@ -38,7 +38,7 @@ class TFACorrection(Correction):
             try:
                 return config.encode('ascii')
             except AttributeError:
-                return config
+                return b'None' if config is None else config
 
         result = []
         for fit_target in self.fit_datasets:
@@ -47,12 +47,17 @@ class TFACorrection(Correction):
                 [
                     (
                         pipeline_key_prefix + cfg_key,
-                        default_format(getattr(self._configuration, cfg_key))
+                        default_format(
+                            getattr(self._configuration,
+                                    cfg_key,
+                                    None
+                                    )
+                        )
                     )
                     for cfg_key in ['saturation_magnitude',
                                     'mag_rms_dependence_order',
                                     'mag_rms_outlier_threshold',
-                                    'max_rms_max_rej_iter',
+                                    'mag_rms_max_rej_iter',
                                     'max_rms',
                                     'faint_mag_limit',
                                     'min_observations_quantile',
@@ -131,7 +136,7 @@ class TFACorrection(Correction):
 
             axis = pyplot.gca()
 
-            grid = self.get_xi_eta_grid(epd_statistics)
+            grid = self.get_xi_eta_grid(allowed)
 
             for (grid_xi, grid_eta), source in zip(grid, selected):
                 radius = (
@@ -148,11 +153,16 @@ class TFACorrection(Correction):
                     )
                 )
 
-            axis.plot(rejected['xi'], rejected['eta'], 'rx', markersize=1)
+            axis.plot(grid[:, 0], grid[:, 1], 'ok')
+            axis.plot(rejected['xi'], rejected['eta'], 'rx', markersize=3)
 
-            axis.plot(allowed['xi'], allowed['eta'], 'b.', markersize=1)
+            axis.plot(allowed['xi'], allowed['eta'], 'b.', markersize=3)
 
-            axis.plot(selected['xi'], selected['eta'], 'g+', markersize=1)
+            axis.plot(selected['xi'],
+                      selected['eta'],
+                      'g+',
+                      markersize=5,
+                      markeredgewidth=4)
             pyplot.savefig(plot_fname)
             pyplot.cla()
 
@@ -177,6 +187,7 @@ class TFACorrection(Correction):
             pyplot.semilogy(selected['mag'],
                             selected['rms'][:, phot_index],
                             'g+')
+            pyplot.ylim(1e-3, 0.1)
             pyplot.savefig(plot_fname)
             pyplot.cla()
 
@@ -266,39 +277,39 @@ class TFACorrection(Correction):
             )
             predictors[0, :] = 1
             for mag_order in range(1, predictors.shape[0]):
-                predictors[mag_order, :] = (predictors[mag_order - 1, :]
-                                            *
-                                            epd_statistics['mag'][not_saturated])
+                predictors[mag_order, :] = (
+                    predictors[mag_order - 1, :]
+                    *
+                    epd_statistics['mag'][not_saturated]
+                )
 
             num_photometries = epd_statistics['rms'][0].size
 
-            result = scipy.empty(epd_statistics['rms'].shape, dtype=bool)
+            result = scipy.zeros(epd_statistics['rms'].shape, dtype=bool)
 
             for phot_index in range(num_photometries):
                 finite = scipy.isfinite(epd_statistics['rms'][:, phot_index])
+                in_fit = scipy.logical_and(not_saturated, finite)
                 phot_predictors = predictors[:, finite[not_saturated]]
-                fit_rms = (
-                    epd_statistics['rms'][
-                        scipy.logical_and(not_saturated, finite),
-                        phot_index
-                    ]
+                fit_lg_rms = scipy.log10(
+                    epd_statistics['rms'][in_fit, phot_index]
                 )
-                coefficients = iterative_fit(
+                coefficients, max_excess_lg_rms = iterative_fit(
                     phot_predictors,
-                    fit_rms,
+                    fit_lg_rms,
                     error_avg='nanmedian',
                     rej_level=self._configuration.mag_rms_outlier_threshold,
                     max_rej_iter=self._configuration.mag_rms_max_rej_iter,
                     fit_identifier='EPD RMS vs mag'
-                )[0]
-                excess_rms = fit_rms - scipy.dot(coefficients, phot_predictors)
-                max_rms = (self._configuration.mag_rms_outlier_threshold
-                           *
-                           scipy.std(excess_rms))
-                result[:, phot_index] = scipy.logical_and(
-                    not_saturated,
-                    epd_statistics['rms'][:, phot_index] < max_rms
+                )[:2]
+                max_excess_lg_rms = (
+                    self._configuration.mag_rms_outlier_threshold
+                    *
+                    scipy.sqrt(max_excess_lg_rms)
                 )
+                excess_lg_rms = fit_lg_rms - scipy.dot(coefficients,
+                                                       phot_predictors)
+                result[in_fit, phot_index] = (excess_lg_rms < max_excess_lg_rms)
 
             return result
 
@@ -306,6 +317,7 @@ class TFACorrection(Correction):
         def select_template_stars(allowed_stars):
             """Select TFA template stars from the set of allowed ones."""
 
+            print('RMS fit left %d allowed stars.' % allowed_stars.sum())
             #False positive
             #pylint: disable=not-callable
             tree = cKDTree(
@@ -319,7 +331,7 @@ class TFACorrection(Correction):
             #pylint: enable=not-callable
             template_indices = scipy.unique(
                 tree.query(
-                    self.get_xi_eta_grid(epd_statistics)
+                    self.get_xi_eta_grid(epd_statistics[allowed_stars])
                 )[1]
             )
             print('Template indices: ' + repr(template_indices))
@@ -333,23 +345,43 @@ class TFACorrection(Correction):
             self._configuration.min_observations_quantile
         )
 
-        allowed_stars = scipy.logical_and(
-            scipy.logical_and(
-                (
-                    epd_statistics['mag']
-                    <
-                    self._configuration.faint_mag_limit
-                )[:, None],
-                epd_statistics['num_finite'] > min_observations
-            ),
-            scipy.logical_and(
-                epd_statistics['rms'] < self._configuration.max_rms,
-                scipy.logical_or(
-                    saturated[:, None],
-                    select_typical_rms_stars(scipy.logical_not(saturated))
-                )
+        typical_rms_stars = select_typical_rms_stars(
+            scipy.logical_not(saturated)
+        )
+
+        bright_and_long_lc = scipy.logical_and(
+            (
+                epd_statistics['mag']
+                <
+                self._configuration.faint_mag_limit
+            )[:, None],
+            epd_statistics['num_finite'] >= min_observations
+        )
+        acceptable_rms = scipy.logical_and(
+            epd_statistics['rms'] < self._configuration.max_rms,
+            scipy.logical_or(
+                saturated[:, None],
+                typical_rms_stars
             )
         )
+
+        print('Requiring at least %d observations' % min_observations)
+
+        print(
+            'There are %s non-faint stars with sufficient observations'
+            %
+            bright_and_long_lc.sum(0)
+        )
+
+        print(
+            'There are %s stars with low RMS'
+            %
+            acceptable_rms.sum(0)
+        )
+
+        allowed_stars = scipy.logical_and(bright_and_long_lc, acceptable_rms)
+
+        print('There are %s overlap stars' % allowed_stars.sum(0))
 
         num_photometries = epd_statistics['rms'][0].size
 
@@ -362,7 +394,7 @@ class TFACorrection(Correction):
                 )
             )
 
-        if hasattr(self._configuration, 'selected_plots'):
+        if getattr(self._configuration, 'selected_plots', None) is not None:
             self._plot_template_selection(epd_statistics,
                                           result,
                                           allowed_stars,
@@ -477,7 +509,12 @@ class TFACorrection(Correction):
                 phot_observation_ids
             )
             matched_observations = (
-                template_observation_ids[phot_destination_ind]
+                template_observation_ids[
+                    scipy.minimum(
+                        phot_destination_ind,
+                        template_observation_ids.size - 1
+                    )
+                ]
                 ==
                 phot_observation_ids
             )
@@ -489,7 +526,7 @@ class TFACorrection(Correction):
             unmatched_observations = scipy.logical_not(matched_observations)
 
             if not unmatched_observations.any():
-                return template_observation_ids
+                return template_measurements, template_observation_ids
 
             observations_to_append = phot_observation_ids[
                 unmatched_observations
@@ -502,26 +539,73 @@ class TFACorrection(Correction):
             )
 
             if template_observation_ids.size < combined_observation_ids.size:
-                template_measurements.resize(
-                    (combined_observation_ids.size,)
-                    +
-                    template_measurements.shape[1:]
+                print('Resizing template data from shape %s to shape %s'
+                      %
+                      (
+                          template_measurements.shape,
+                          (
+                              (combined_observation_ids.size,)
+                              +
+                              template_measurements.shape[1:]
+                          )
+                      ))
+                template_measurements = scipy.resize(
+                    template_measurements,
+                    (
+                        (combined_observation_ids.size,)
+                        +
+                        template_measurements.shape[1:]
+                    )
                 )
 
+            print('Template observation IDs size: '
+                  +
+                  repr(template_observation_ids.size))
+            print('Min and max old indices: %s, %s'
+                  %
+                  (
+                      repr(
+                          scipy.searchsorted(combined_observation_ids,
+                                             template_observation_ids).min()
+                      ),
+                      repr(
+                          scipy.searchsorted(combined_observation_ids,
+                                             template_observation_ids).max()
+                      )
+                  ))
+            print(
+                'Destinations: '
+                +
+                repr(
+                    scipy.searchsorted(combined_observation_ids,
+                                       template_observation_ids)
+                )
+            )
+            print('Values at destination: '
+                  +
+                  repr(
+                      template_measurements[
+                          scipy.searchsorted(combined_observation_ids,
+                                             template_observation_ids),
+                          :
+                      ]
+                  ))
+            print(
+                'Values to set: '
+                +
+                repr(template_measurements[:template_observation_ids.size, :])
+            )
             template_measurements[
                 scipy.searchsorted(combined_observation_ids,
                                    template_observation_ids),
-                :,
                 :
-            ] = template_measurements
-            template_measurements[
-                scipy.searchsorted(combined_observation_ids,
-                                   observations_to_append),
-                :,
-                :
-            ] = phot_to_append
+            ] = template_measurements[:template_observation_ids.size, :]
+            new_indices = scipy.searchsorted(combined_observation_ids,
+                                             observations_to_append)
+            template_measurements[new_indices, :] = 0.0
+            template_measurements[new_indices, source_index] = phot_to_append
 
-            return combined_observation_ids
+            return template_measurements, combined_observation_ids
 
         template_star_indices = self._select_template_stars(epd_statistics)
 
@@ -553,7 +637,10 @@ class TFACorrection(Correction):
                                               phot_observation_ids,
                                               num_templates)
                     else:
-                        phot_template_observation_ids = add_to_result(
+                        (
+                            phot_template_measurements,
+                            phot_template_observation_ids
+                        ) = add_to_result(
                             phot_data=phot_data,
                             phot_observation_ids=phot_observation_ids,
                             source_index=source_index,
@@ -675,7 +762,8 @@ class TFACorrection(Correction):
 
                 [selected_plots] (str):    Optional template for naming plots
                     showing the template selection in action. If not specified,
-                    no such plots are generated.
+                    no such plots are generated. Should include %(plot_id)s and
+                    %(phot_index)d substitutions.
 
             iterative_fit_config:    Any other arguments to pass directly to
                 iterative_fit_qr().
@@ -762,14 +850,16 @@ class TFACorrection(Correction):
                 self._template_observation_ids[fit_index],
                 lc_observation_ids
             )
-            fit_points = scipy.logical_and(
-                (
-                    lc_observation_ids
-                    ==
-                    self._template_observation_ids[fit_index][matched_indices]
-                ),
-                self.get_fit_points(light_curve)
+            fit_points = (
+                lc_observation_ids
+                ==
+                self._template_observation_ids[fit_index][matched_indices]
             )
+            if self._configuration.fit_points_filter_expression is not None:
+                fit_points = scipy.logical_and(
+                    fit_points,
+                    self.get_fit_points(light_curve)
+                )
             matched_indices = matched_indices[fit_points]
 
             matched_fit_data = scipy.full(
@@ -780,10 +870,12 @@ class TFACorrection(Correction):
 
             #Error average specified through iterative_fit_config
             #pylint: disable=missing-kwoa
-            fit_results = iterative_fit_qr(self.template_measurements[fit_index],
-                                           self._template_qrp[fit_index],
-                                           matched_fit_data,
-                                           **self.iterative_fit_config)
+            fit_results = iterative_fit_qr(
+                self.template_measurements[fit_index],
+                self._template_qrp[fit_index],
+                matched_fit_data,
+                **self.iterative_fit_config
+            )
             #pylint: enable=missing-kwoa
             fit_results = self._process_fit(
                 fit_results=fit_results,
