@@ -12,13 +12,16 @@ from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
 
-def save_correction_statistics(epd_statistics, filename):
-    """Save the given statistics (result of parallel_epd) to the given file."""
+def save_correction_statistics(correction_statistics, filename):
+    """Save the given statistics (result of apply_parallel_correction)."""
 
-    print('EPD statistics:\n' + repr(epd_statistics))
+    print('Correction statistics:\n' + repr(correction_statistics))
     mem_dr = DataReductionFile()
     dframe = pandas.DataFrame(
-        {column: epd_statistics[column] for column in ['mag', 'xi', 'eta']},
+        {
+            column: correction_statistics[column]
+            for column in ['mag', 'xi', 'eta']
+        },
     )
 
     dframe.insert(
@@ -26,16 +29,16 @@ def save_correction_statistics(epd_statistics, filename):
         '2MASSID',
         [
             mem_dr.get_hat_source_id_str(int_id)
-            for int_id in epd_statistics['ID']
+            for int_id in correction_statistics['ID']
         ]
     )
 
-    num_photometries = epd_statistics['rms'][0].size
+    num_photometries = correction_statistics['rms'][0].size
 
     for prefix in ['rms', 'num_finite']:
         for phot_index in range(num_photometries):
             dframe[prefix + '_%02d' % phot_index] = (
-                epd_statistics[prefix][:, phot_index]
+                correction_statistics[prefix][:, phot_index]
             )
 
     with open(filename, 'w') as outf:
@@ -95,8 +98,8 @@ def apply_parallel_correction(lc_fnames,
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
 
-    with Pool(num_parallel_processes) as epd_pool:
-        result = numpy.concatenate(epd_pool.map(correct, lc_fnames))
+    with Pool(num_parallel_processes) as correction_pool:
+        result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 
     logger.info('Finished detrending.')
 
@@ -110,10 +113,10 @@ def apply_reconstructive_correction_transit(lc_fname,
                                             fit_parameter_flags,
                                             num_limbdark_coef):
     """
-    Perform a reconstructive EPD on a lightcurve assuming it contains a transit.
+    Perform a reconstructive correction on a LC assuming it contains a transit.
 
     The corrected lightcurve, preserving the best-fit transit is saved in the
-    lightcurve just like for non-reconstructive EPD.
+    lightcurve just like for non-reconstructive corrections.
 
     Args:
         transit_model:    Object which supports the transit model intefrace of
@@ -137,8 +140,8 @@ def apply_reconstructive_correction_transit(lc_fname,
         (scipy array, scipy array):
             * The best fit transit parameters
 
-            * The return value of ReconstructiveEPDTransit.__call__() for the
-              best-fit transit parameters.
+            * The return value of ReconstructiveCorrectionTransit.__call__() for
+              the best-fit transit parameters.
     """
 
     #This is intended to server as a callable.
@@ -147,9 +150,9 @@ def apply_reconstructive_correction_transit(lc_fname,
         """Suitable callable for scipy.optimize.minimize()."""
 
         def __init__(self):
-            """Create the EPD object."""
+            """Create the underlying correction object."""
 
-            self.epd = ReconstructiveCorrectionTransit(
+            self.correct = ReconstructiveCorrectionTransit(
                 transit_model,
                 correct,
                 fit_amplitude=False,
@@ -158,7 +161,7 @@ def apply_reconstructive_correction_transit(lc_fname,
 
         def __call__(self, fit_params):
             """
-            Return the RMS residual of the EPD after removing a transit model.
+            Return the RMS residual of the corrected LC around a transit model.
 
             Args:
                 fit_params(scipy array):    The values of the mutable model
@@ -166,16 +169,18 @@ def apply_reconstructive_correction_transit(lc_fname,
 
             Returns:
                 float:
-                    RMS of the residuals after EPD correctiong around the
-                    transit model with the given parameters.
+                    RMS of the residuals after correcting around the transit
+                    model with the given parameters.
             """
 
             self.transit_parameters[fit_parameter_flags] = fit_params
-            return self.epd(lc_fname,
-                            self.transit_parameters[0],
-                            self.transit_parameters[1 : num_limbdark_coef + 1],
-                            *self.transit_parameters[num_limbdark_coef + 1 : ],
-                            save=False)['rms']
+            return self.correct(
+                lc_fname,
+                self.transit_parameters[0],
+                self.transit_parameters[1 : num_limbdark_coef + 1],
+                *self.transit_parameters[num_limbdark_coef + 1 : ],
+                save=False
+            )['rms']
     #pylint: enable=too-few-public-methods
 
     rms_function = MinimizeFunction()
@@ -189,8 +194,8 @@ def apply_reconstructive_correction_transit(lc_fname,
 
     return (
         best_fit_transit,
-        rms_function.epd(lc_fname,
-                         best_fit_transit[0],
-                         best_fit_transit[1: num_limbdark_coef + 1],
-                         *best_fit_transit[num_limbdark_coef + 1 : ])
+        rms_function.correct(lc_fname,
+                             best_fit_transit[0],
+                             best_fit_transit[1: num_limbdark_coef + 1],
+                             *best_fit_transit[num_limbdark_coef + 1 : ])
     )
