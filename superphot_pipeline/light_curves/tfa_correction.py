@@ -46,7 +46,12 @@ class TFACorrection(Correction):
             result.append(
                 [
                     (
-                        pipeline_key_prefix + cfg_key,
+                        (
+                            pipeline_key_prefix
+                            +
+                            ('num_templates' if cfg_key == 'sqrt_num_templates'
+                             else cfg_key)
+                        ),
                         default_format(
                             getattr(self._configuration,
                                     cfg_key,
@@ -421,6 +426,29 @@ class TFACorrection(Correction):
             self._configuration.fit_points_filter_expression
         )
 
+    def read_template_data(self, light_curve, phot_dset_key, substitutions):
+        """Read the data for a single photometry method in a template LC."""
+
+
+        phot_data = light_curve.get_dataset(phot_dset_key, **substitutions)
+        phot_observation_ids = self._get_observation_ids(light_curve,
+                                                         substitutions)
+        assert phot_data.shape == phot_observation_ids.shape
+
+        selected_points = scipy.isfinite(phot_data)
+
+        if self._configuration.fit_points_filter_expression is not None:
+            selected_points = scipy.logical_and(
+                selected_points,
+                self.get_fit_points(light_curve)
+            )
+
+        assert selected_points.shape == phot_data.shape
+        phot_data = phot_data[selected_points]
+        phot_observation_ids = phot_observation_ids[selected_points]
+
+        return phot_data, phot_observation_ids
+
     #Organized into pieces as much as I could figure out how to.
     #pylint: disable=too-many-locals
     def _prepare_template_data(self, epd_statistics, max_padding_factor=1.1):
@@ -457,23 +485,6 @@ class TFACorrection(Correction):
                 The sorted observation IDs for which at least one template has a
                 measurement for each photometry method.
         """
-
-        def read_template_data(light_curve, phot_dset_key, substitutions):
-            """Read the data for a single photometry method in a template LC."""
-
-
-            phot_data = light_curve.get_dataset(phot_dset_key, **substitutions)
-            phot_observation_ids = self._get_observation_ids(light_curve,
-                                                             substitutions)
-            assert phot_data.shape == phot_observation_ids.shape
-
-            if self._configuration.fit_points_filter_expression is not None:
-                selected_points = self.get_fit_points(light_curve)
-                assert selected_points.shape == phot_data.shape
-                phot_data = phot_data[selected_points]
-                phot_observation_ids = phot_observation_ids[selected_points]
-
-            return phot_data, phot_observation_ids
 
         def initialize_result(phot_data,
                               phot_observation_ids,
@@ -607,25 +618,26 @@ class TFACorrection(Correction):
 
             return template_measurements, combined_observation_ids
 
-        template_star_indices = self._select_template_stars(epd_statistics)
+        template_stars = (
+            epd_statistics['ID'][phot_source_indices]
+            for phot_source_indices in self._select_template_stars(epd_statistics)
+        )
 
         template_measurements = []
         template_observation_ids = []
 
-        for (phot_source_indices, fit_dataset) in zip(
-                template_star_indices,
+        for (phot_template_stars, fit_dataset) in zip(
+                template_stars,
                 self._configuration.fit_datasets
         ):
             phot_template_measurements = None
-            num_templates = phot_source_indices.size
-            for source_index, source_id in enumerate(
-                    epd_statistics['ID'][phot_source_indices]
-            ):
+            num_templates = phot_template_stars.shape[0]
+            for source_index, source_id in enumerate(phot_template_stars):
                 with LightCurveFile(
                         self._configuration.lc_fname_pattern % tuple(source_id),
                         'r'
                 ) as light_curve:
-                    phot_data, phot_observation_ids = read_template_data(
+                    phot_data, phot_observation_ids = self.read_template_data(
                         light_curve,
                         *fit_dataset[:2]
                     )
@@ -659,13 +671,57 @@ class TFACorrection(Correction):
             template_observation_ids.append(phot_template_observation_ids)
 
         return (
-            template_star_indices,
+            template_stars,
             template_measurements,
             template_observation_ids
         )
     #pylint: enable=too-many-locals
 
-    def __init__(self, epd_statistics, configuration, **iterative_fit_config):
+    def _verify_template_data(self):
+        """Assert that template data is correctly organized."""
+
+        for (
+                phot_source_ids,
+                phot_template_data,
+                phot_template_observation_ids,
+                fit_dataset
+        ) in zip(
+            self._template_source_ids,
+            self.template_measurements,
+            self._template_observation_ids,
+            self._configuration.fit_datasets
+        ):
+            for source_id, template_data, template_observation_ids in zip(
+                    phot_source_ids,
+                    phot_template_data.T,
+                    phot_template_observation_ids
+            ):
+                template_selection = (template_data != 0.0)
+                with LightCurveFile(
+                        self._configuration.lc_fname_pattern % tuple(source_id),
+                        'r'
+                ) as light_curve:
+                    lc_data, lc_observation_ids = self.read_template_data(
+                        light_curve,
+                        *fit_dataset[:2]
+                    )
+                    lc_selection = (lc_data != 0.0)
+                    assert (
+                        template_data[template_selection]
+                        ==
+                        lc_data[lc_selection]
+                    )
+                    assert (
+                        template_observation_ids[template_selection]
+                        ==
+                        lc_observation_ids[lc_selection]
+                    )
+
+    def __init__(self,
+                 epd_statistics,
+                 configuration,
+                 verify_template_data=False,
+                 **iterative_fit_config):
         """
         Get ready to apply TFA corrections.
 
@@ -765,6 +821,10 @@ class TFACorrection(Correction):
                     no such plots are generated. Should include %(plot_id)s and
                     %(phot_index)d substitutions.
 
+            verify_template_data(bool):    If True a series of assert statements
+                are issued to check that the photometry data is correctly
+                matched to observation IDs. Only useful for debugging.
+
             iterative_fit_config:    Any other arguments to pass directly to
                 iterative_fit_qr().
 
@@ -792,10 +852,13 @@ class TFACorrection(Correction):
             self._template_observation_ids
         ) = self._prepare_template_data(epd_statistics)
 
+        if verify_template_data:
+            self._verify_template_data()
+
         #False positive
         #pylint: disable=unexpected-keyword-arg
         self._template_qrp = [
-            scipy.linalg.qr(template_measurements.T,
+            scipy.linalg.qr(template_measurements,
                             mode='economic',
                             pivoting=True)
             for template_measurements in self.template_measurements
@@ -871,7 +934,7 @@ class TFACorrection(Correction):
             #Error average specified through iterative_fit_config
             #pylint: disable=missing-kwoa
             fit_results = iterative_fit_qr(
-                self.template_measurements[fit_index],
+                self.template_measurements[fit_index].T,
                 self._template_qrp[fit_index],
                 matched_fit_data,
                 **self.iterative_fit_config
@@ -883,9 +946,9 @@ class TFACorrection(Correction):
                 predictors=self.template_measurements[
                     fit_index
                 ][
-                    :,
-                    matched_indices
-                ],
+                    matched_indices,
+                    :
+                ].T,
                 fit_index=fit_index,
                 result=result,
                 num_extra_predictors=0
