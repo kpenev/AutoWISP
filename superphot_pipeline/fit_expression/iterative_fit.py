@@ -134,7 +134,7 @@ def iterative_fit_qr(weighted_predictors,
                                            pivoting=True)
             #pylint: enable=unexpected-keyword-arg
         else:
-            for i in bad_ind:
+            for i in scipy.flip(bad_ind):
                 weighted_qrp = (
                     #False positive
                     #pylint: disable=no-member
