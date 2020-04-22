@@ -463,7 +463,7 @@ def _get_source_projection_attributes():
             pipeline_key='srcproj.software_versions',
             parent=root_path,
             name='SoftwareVersions',
-            dtype='numpy.string_',
+            dtype="'S100'",
             description='An Nx2 array of strings consisting of '
             'software elements and their versions used for projecting '
             'catalogue sources to the frame.'
@@ -472,7 +472,7 @@ def _get_source_projection_attributes():
             pipeline_key='srcproj.recognized_hat_id_prefixes',
             parent=(root_path + _default_paths['srcproj']['prefix']),
             name='RecognizedHATIDPrefixes',
-            dtype='numpy.string_',
+            dtype="'S100'",
             description='A list of all possible prefixes to source HAT-IDs.'
         )
     ]
