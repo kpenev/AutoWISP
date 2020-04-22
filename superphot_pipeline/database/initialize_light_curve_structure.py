@@ -624,8 +624,10 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
     for magfit_dset in magfit_datasets:
         assert magfit_dset.abspath.endswith('/Magnitude')
         root_path = magfit_dset.abspath[:-len('Magnitude')] + mode.upper() + '/'
-        detrend_key = magfit_dset.pipeline_key.replace('.magfit.',
-                                                   '.' + moder.lower() + '.')
+        detrend_key = magfit_dset.pipeline_key.replace(
+            '.magfit.',
+            '.' + mode.lower() + '.'
+        )
         property_key_prefix = detrend_key.rsplit('.', 1)[0]
         config_key_prefix = property_key_prefix + '.cfg.'
         cfg_path = root_path + 'FitProperties/'
@@ -709,147 +711,147 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 )
             )
         ])
-    if mode == 'epd':
-        result.extend([
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'variables',
-                abspath=(cfg_path + 'Variables'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The list of variables and the datasets they '
-                'correspond to used in the fitting.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_terms',
-                abspath=(cfg_path + 'CorrectionExpression'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The expression that expands to the terms to '
-                'include in the EPD fit.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_filter',
-                abspath=(cfg_path + 'Filter'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='Filtering applied to select points to which to '
-                'apply the correction.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_weights',
-                abspath=(cfg_path + 'WeightsExpression'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description=(
-                    'The expression that expands to the weights used for each '
-                    'point in the %s fit.'
-                    %
-                    mode
+        if mode == 'epd':
+            result.extend([
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'variables',
+                    abspath=(cfg_path + 'Variables'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The list of variables and the datasets they '
+                    'correspond to used in the fitting.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'fit_terms',
+                    abspath=(cfg_path + 'CorrectionExpression'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The expression that expands to the terms to '
+                    'include in the EPD fit.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'fit_filter',
+                    abspath=(cfg_path + 'Filter'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description='Filtering applied to select points to which to '
+                    'apply the correction.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'fit_weights',
+                    abspath=(cfg_path + 'WeightsExpression'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description=(
+                        'The expression that expands to the weights used for each '
+                        'point in the %s fit.'
+                        %
+                        mode
+                    )
                 )
-            )
-        ])
-    elif mode == 'tfa':
-        result.extend([
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'saturation_magnitude',
-                abspath=(cfg_path + 'SaturationMagnitude'),
-                dtype='numpy.float64',
-                compression='gzip',
-                compression_options='9',
-                description='The magnitude below which sources are considered '
-                'saturated and hence are excused from the rms vs magnitude fit.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'mag_rms_dependence_order',
-                abspath=(cfg_path + 'MagnitudeRMSDependenceOrder'),
-                dtype='numpy.uint',
-                compression='gzip',
-                compression_options='9',
-                description='The polynomial order of the dependence to fit for '
-                'RMS (after EPD) vs magnitude, when identifying quiet stars.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'mag_rms_outlier_threshold',
-                abspath=(cfg_path + 'MagRMSOutlierThreshold'),
-                dtype='numpy.float64',
-                compression='gzip',
-                compression_options='9',
-                description='Stars are not allowed to be in the template if '
-                'their RMS is more than this many sigma away from the mag-rms '
-                'fit. This is also the threshold used for rejecting outliers '
-                'when doing the iterative fit for the rms as a function of '
-                'magnutude.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'mag_rms_max_rej_iter',
-                abspath=(cfg_path + 'MaxMagRMSRejectionIterations'),
-                dtype='numpy.uint',
-                compression='gzip',
-                compression_options='9',
-                description='The maximum number of rejection fit iterations to '
-                'do when deriving the rms(mag) dependence.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'max_rms',
-                abspath=(cfg_path + 'MaxRMS'),
-                dtype='numpy.float64',
-                compression='gzip',
-                compression_options='9',
-                description='Stars are allowed to be in the template only if '
-                'their RMS is no larger than this.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'faint_mag_limit',
-                abspath=(cfg_path + 'FaintMagnitudeLimit'),
-                dtype='numpy.float64',
-                compression='gzip',
-                compression_options='9',
-                description='Stars fainter than this cannot be template stars.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'min_observations_quantile',
-                abspath=(cfg_path + 'MinimumObservationsQuantile'),
-                dtype='numpy.float64',
-                compression='gzip',
-                compression_options='9',
-                description='The minimum number of observations required of '
-                'template stars is this quantile among the input collection of '
-                'stars.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'num_templates',
-                abspath=(cfg_path + 'NumberTemplates'),
-                dtype='numpy.uint',
-                compression='gzip',
-                compression_options='9',
-                description='The maximum number of template stars to use.'
+            ])
+        elif mode == 'tfa':
+            result.extend([
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'saturation_magnitude',
+                    abspath=(cfg_path + 'SaturationMagnitude'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The magnitude below which sources are considered '
+                    'saturated and hence are excused from the rms vs magnitude fit.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'mag_rms_dependence_order',
+                    abspath=(cfg_path + 'MagnitudeRMSDependenceOrder'),
+                    dtype='numpy.uint',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The polynomial order of the dependence to fit for '
+                    'RMS (after EPD) vs magnitude, when identifying quiet stars.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'mag_rms_outlier_threshold',
+                    abspath=(cfg_path + 'MagRMSOutlierThreshold'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='Stars are not allowed to be in the template if '
+                    'their RMS is more than this many sigma away from the mag-rms '
+                    'fit. This is also the threshold used for rejecting outliers '
+                    'when doing the iterative fit for the rms as a function of '
+                    'magnutude.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'mag_rms_max_rej_iter',
+                    abspath=(cfg_path + 'MaxMagRMSRejectionIterations'),
+                    dtype='numpy.uint',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The maximum number of rejection fit iterations to '
+                    'do when deriving the rms(mag) dependence.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'max_rms',
+                    abspath=(cfg_path + 'MaxRMS'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='Stars are allowed to be in the template only if '
+                    'their RMS is no larger than this.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'faint_mag_limit',
+                    abspath=(cfg_path + 'FaintMagnitudeLimit'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='Stars fainter than this cannot be template stars.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'min_observations_quantile',
+                    abspath=(cfg_path + 'MinimumObservationsQuantile'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The minimum number of observations required of '
+                    'template stars is this quantile among the input collection of '
+                    'stars.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'num_templates',
+                    abspath=(cfg_path + 'NumberTemplates'),
+                    dtype='numpy.uint',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The maximum number of template stars to use.'
 
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_points_filter_variables',
-                abspath=(cfg_path + 'PointsFilterVariables'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The variables to use for selecting which points '
-                'from a LC can be part of a template or can participate in the '
-                'de-trending fit.'
-            ),
-            HDF5DataSet(
-                pipeline_key=config_key_prefix + 'fit_points_filter_expression'
-                abspath=(cfg_path + 'PointsFilterExpression'),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The expression defining which points from a LC can'
-                ' be part of a template or can participate in the de-trending '
-                'fit.'
-            )
-        ])
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'fit_points_filter_variables',
+                    abspath=(cfg_path + 'PointsFilterVariables'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The variables to use for selecting which points '
+                    'from a LC can be part of a template or can participate in the '
+                    'de-trending fit.'
+                ),
+                HDF5DataSet(
+                    pipeline_key=config_key_prefix + 'fit_points_filter_expression',
+                    abspath=(cfg_path + 'PointsFilterExpression'),
+                    dtype='numpy.string_',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The expression defining which points from a LC can'
+                    ' be part of a template or can participate in the de-trending '
+                    'fit.'
+                )
+            ])
 
     return result
 
