@@ -350,7 +350,7 @@ class TFACorrection(Correction):
             self._configuration.min_observations_quantile
         )
 
-        typical_rms_stars = select_typical_rms_stars(
+        acceptable_rms = select_typical_rms_stars(
             scipy.logical_not(saturated)
         )
 
@@ -362,12 +362,19 @@ class TFACorrection(Correction):
             )[:, None],
             epd_statistics['num_finite'] >= min_observations
         )
+        if self._configuration.allow_saturated_templates:
+            acceptable_rms = scipy.logical_or(
+                saturated[:, None],
+                acceptable_rms
+            )
+        else:
+            acceptable_rms = scipy.logical_and(
+                scipy.logical_not(saturated)[:, None],
+                acceptable_rms
+            )
         acceptable_rms = scipy.logical_and(
             epd_statistics['rms'] < self._configuration.max_rms,
-            scipy.logical_or(
-                saturated[:, None],
-                typical_rms_stars
-            )
+            acceptable_rms
         )
 
         print('Requiring at least %d observations' % min_observations)
@@ -761,6 +768,10 @@ class TFACorrection(Correction):
                 saturation_magnitude
                     The magnitude at which sources start to saturate. See
                     _select_template_stars()
+
+                allow_saturated_templates
+                    Whether saturated stars should be represented in the
+                    templates.
 
                 mag_rms_dependence_order
                     The maximum order of magnitude to include in the fit for
