@@ -625,10 +625,10 @@ class TFACorrection(Correction):
 
             return template_measurements, combined_observation_ids
 
-        template_stars = (
+        template_stars = [
             epd_statistics['ID'][phot_source_indices]
             for phot_source_indices in self._select_template_stars(epd_statistics)
-        )
+        ]
 
         template_measurements = []
         template_observation_ids = []
@@ -698,10 +698,9 @@ class TFACorrection(Correction):
             self._template_observation_ids,
             self._configuration.fit_datasets
         ):
-            for source_id, template_data, template_observation_ids in zip(
+            for source_id, template_data in zip(
                     phot_source_ids,
-                    phot_template_data.T,
-                    phot_template_observation_ids
+                    phot_template_data.T
             ):
                 template_selection = (template_data != 0.0)
                 with LightCurveFile(
@@ -717,12 +716,12 @@ class TFACorrection(Correction):
                         template_data[template_selection]
                         ==
                         lc_data[lc_selection]
-                    )
+                    ).all()
                     assert (
-                        template_observation_ids[template_selection]
+                        phot_template_observation_ids[template_selection]
                         ==
                         lc_observation_ids[lc_selection]
-                    )
+                    ).all()
 
     def __init__(self,
                  epd_statistics,
