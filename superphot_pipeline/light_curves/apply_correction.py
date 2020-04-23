@@ -8,6 +8,7 @@ from scipy.optimize import minimize
 import pandas
 
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.database.interface import db_engine
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
@@ -98,7 +99,7 @@ def apply_parallel_correction(lc_fnames,
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
 
-    with Pool(num_parallel_processes) as correction_pool:
+    with Pool(num_parallel_processes, db_engine.dispose()) as correction_pool:
         result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 
     logger.info('Finished detrending.')
