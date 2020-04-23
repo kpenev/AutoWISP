@@ -143,13 +143,16 @@ def iterative_fit_qr(weighted_predictors,
                     weighted_qrp[2]
                 )
 
-        #False positive
-        #pylint: disable=no-member
-        best_fit_coef = scipy.linalg.solve_triangular(
-            weighted_qrp[1],
-            scipy.dot(weighted_qrp[0].T, weighted_target)
-        )[permutation]
-        #pylint: enable=no-member
+        try:
+            #False positive
+            #pylint: disable=no-member
+            best_fit_coef = scipy.linalg.solve_triangular(
+                weighted_qrp[1],
+                scipy.dot(weighted_qrp[0].T, weighted_target)
+            )[permutation]
+            #pylint: enable=no-member
+        except scipy.linalg.LinAlgError:
+            return None, None, 0
 
         bad_ind, fit_res2 = rejected_indices(
             scipy.dot(best_fit_coef, weighted_predictors) - weighted_target,
