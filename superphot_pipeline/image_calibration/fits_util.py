@@ -33,7 +33,9 @@ def create_result(image_list,
 
         result_fname:    The filename under which to save the craeted image.
 
-        compress:    Should the created image be compressed?
+        compress:    Should the created image be compressed? If value other than
+            False or None is used, compression is enabled and this parameter
+            specifies the quantization level of the compression.
 
         allow_overwrite:    If a file named **result_fname** already exists,
             should it be overwritten (otherwise throw an exception).
@@ -63,12 +65,12 @@ def create_result(image_list,
     for hdu in hdu_list:
         hdu.update_header()
 
-    if compress:
+    if compress is not False and compress is not None:
         hdu_list = fits.HDUList(
             [fits.PrimaryHDU()]
             +
             [
-                fits.CompImageHDU(hdu.data, hdu.header)
+                fits.CompImageHDU(hdu.data, hdu.header, quantize_level=compress)
                 for hdu in hdu_list
             ]
         )
