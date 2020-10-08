@@ -3,6 +3,7 @@
 import os.path
 import os
 from glob import glob
+import logging
 
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
@@ -12,6 +13,8 @@ import scipy
 import scipy.interpolate
 
 from superphot_pipeline.pipeline_exceptions import BadImageError
+
+_logger = logging.getLogger(__name__)
 
 git_id = '$Id$'
 
@@ -332,8 +335,12 @@ def create_snapshot(fits_fname,
 
         if os.path.exists(snapshot_fname):
             if skip_existing:
+                _logger.info('Snapshot %s already exists, skipping!',
+                             repr(snapshot_fname))
                 return
             if overwrite:
+                _logger.info('Overwriting snapshot %s',
+                             repr(snapshot_fname))
                 os.remove(snapshot_fname)
             else:
                 raise OSError(
@@ -364,6 +371,8 @@ def create_snapshot(fits_fname,
         snapshot_dir = os.path.dirname(snapshot_fname)
         if snapshot_dir and not os.path.exists(snapshot_dir):
             if create_directories:
+                _logger.info('Creating snaphot directory: %s',
+                             repr(snapshot_dir))
                 os.makedirs(snapshot_dir)
             else:
                 raise OSError(
@@ -376,7 +385,7 @@ def create_snapshot(fits_fname,
                 )
 
         Image.fromarray(scaled_data[::-1, :], 'L').save(snapshot_fname)
-
+        _logger.debug('Creating snapshot: %s', repr(snapshot_fname))
 
 def fits_image_generator(image_collection):
     """
