@@ -1,9 +1,12 @@
 """A collection of functions for working with pipeline images."""
 
-from os.path import exists
+import os.path
+import os
+
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
-
+from astropy.visualization import ZScaleInterval
+from PIL import Image
 import scipy
 import scipy.interpolate
 
@@ -145,10 +148,16 @@ def zoom_image(image, zoom, interp_order):
         return image
 
     y_res, x_res = image.shape
+    #False positive
+    #pylint: disable=no-member
     cumulative_image = scipy.empty((y_res + 1, x_res + 1))
+    #pylint: enable=no-member
     cumulative_image[0, :] = 0
     cumulative_image[:, 0] = 0
+    #False positive
+    #pylint: disable=no-member
     cumulative_image[1:, 1:] = scipy.cumsum(scipy.cumsum(image, axis=0), axis=1)
+    #pylint: enable=no-member
 
     try:
         spline_kx, spline_ky = interp_order
@@ -156,19 +165,29 @@ def zoom_image(image, zoom, interp_order):
         spline_kx = spline_ky = interp_order
 
     cumulative_flux = scipy.interpolate.RectBivariateSpline(
+        #False positive
+        #pylint: disable=no-member
         scipy.arange(y_res + 1),
         scipy.arange(x_res + 1),
+        #pylint: enable=no-member
         cumulative_image,
         kx=spline_kx,
         ky=spline_ky
     )
 
     cumulative_image = cumulative_flux(
+        #False positive
+        #pylint: disable=no-member
         scipy.arange(y_res * y_zoom + 1) / y_zoom,
         scipy.arange(x_res * x_zoom + 1) / x_zoom,
+        #pylint: enable=no-member
         grid=True
     )
+
+    #False positive
+    #pylint: disable=no-member
     return scipy.diff(scipy.diff(cumulative_image, axis=0), axis=1)
+    #pylint: enable=no-member
 #pylint: enable=anomalous-backslash-in-string
 
 def bin_image(image, bin_factor):
@@ -234,7 +253,7 @@ def get_pointing_from_header(frame):
     """
 
     try:
-        if exists(frame):
+        if os.path.exists(frame):
             with fits.open(frame) as hdulist:
                 return get_pointing_from_header(hdulist)
     except TypeError:
@@ -255,3 +274,131 @@ def get_pointing_from_header(frame):
 
     assert isinstance(frame, fits.Header)
     return SkyCoord(ra=frame['ra'] * 15.0, dec=frame['dec'], unit='deg')
+
+def create_snapshot(fits_fname,
+                    snapshot_fname_pattern,
+                    *,
+                    image_index=0,
+                    overwrite=False,
+                    skip_existing=False,
+                    create_directories=True):
+    """
+    Create a snapshot (e.g. JPEG image) from a fits file in zscale.
+
+    Args:
+        fits_fname(str):    The FITS image to create a snapshot of.
+
+        snapshot_fname_pattern(str):    A %-substitution pattern that when
+            filled using the header and the extra keyword FITS_ROOT (set to the
+            filename of the FITS file with path and extension removed) expands
+            to the filename to save the snapshot as.
+
+        image_index(int):    Offset from the first non-empty HDU in the FITS
+            file to make a snapshot of.
+
+        overwrite(bool):    If a file called `snapshot_fname` already exists, an
+            `OSError` is raised if this argument and `skip_existing` are both
+            False (default). That file is overwritten if this argument is True
+            and `skip_existing` is False.
+
+        skip_existing(bool):    If True and a file already exists with the name
+            determined for the snapshot, this function exists immediately
+            without error.
+
+        create_directories(bool):    Whether the script is allowed to create
+            the directories where the output snapshot will be stored. `OSError`
+            is raised if this argument is False and the destination directory
+            does not exist.
+
+    Returns:
+        None
+    """
+
+    with fits.open(fits_fname, 'readonly') as fits_image:
+        #False positive
+        #pylint: disable=no-member
+        fits_hdu = fits_image[image_index if fits_image[0].header['NAXIS']
+                              else image_index + 1]
+        #pylint: enable=no-member
+        snapshot_fname = (
+            snapshot_fname_pattern
+            %
+            dict(
+                fits_hdu.header,
+                FITS_ROOT=os.path.splitext(os.path.basename(fits_fname))[0]
+            )
+        )
+
+        if os.path.exists(snapshot_fname):
+            if skip_existing:
+                return
+            if overwrite:
+                os.remove(snapshot_fname)
+            else:
+                raise OSError(
+                    'Failed to create FITS snapshot %s. File already exists!'
+                    %
+                    repr(snapshot_fname)
+                )
+
+        data = fits_hdu.data
+        zscale_min, zscale_max = ZScaleInterval().get_limits(data)
+        #False positive
+        #pylint: disable=no-member
+        scaled_data = (
+            255
+            *
+            (
+                scipy.minimum(scipy.maximum(zscale_min, data), zscale_max)
+                -
+                zscale_min
+            ) / (
+                zscale_max
+                -
+                zscale_min
+            )
+        ).astype(scipy.uint8)
+        #pylint: enable=no-member
+
+        snapshot_dir = os.path.dirname(snapshot_fname)
+        if snapshot_dir and not os.path.exists(snapshot_dir):
+            if create_directories:
+                os.makedirs(snapshot_dir)
+            else:
+                raise OSError(
+                    'Output directory %s for saving snapshot %s does not exist'
+                    %
+                    (
+                        repr(snapshot_dir),
+                        repr(snapshot_fname)
+                    )
+                )
+
+        Image.fromarray(scaled_data[::-1, :], 'L').save(snapshot_fname)
+
+
+def fits_image_generator(image_collection):
+    """
+    Iterate over input images specified directly or as directories.
+
+    Args:
+        image_collection(list):    Should include either fits images and/or
+        directories. In the latter case, all files with `.fits` in their
+        filename in the specified directory are included (sub-directories are
+        not searched).
+
+    Yields:
+        The images specified in the `image_colleciton` argument.
+    """
+
+    for entry in image_collection:
+        if os.path.isdir(entry):
+            for fits_fname in sorted(
+                    glob(
+                        os.path.join(entry, '*.fits.fz*')
+                    )
+            ):
+                yield fits_fname
+        else:
+            yield entry
+
