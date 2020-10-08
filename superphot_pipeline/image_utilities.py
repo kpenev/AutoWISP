@@ -2,6 +2,7 @@
 
 import os.path
 import os
+from glob import glob
 
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
@@ -401,4 +402,3 @@ def fits_image_generator(image_collection):
                 yield fits_fname
         else:
             yield entry
-
