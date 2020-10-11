@@ -45,9 +45,9 @@ def read_image_components(fits_fname,
                 The primary image in the file. Always present.
 
             2-D array:
-                The error estimate of image, identified by ``IMAGETYP=='error'``.
-                Set to None if none of the extensions have
-                ``IMAGETYP=='error'``. This is omitted from the output if
+                The error estimate of image, identified by
+                ``IMAGETYP=='error'``. Set to None if none of the extensions
+                have ``IMAGETYP=='error'``. This is omitted from the output if
                 ``read_error == False``.
 
             2-D array:
@@ -279,6 +279,33 @@ def get_pointing_from_header(frame):
     assert isinstance(frame, fits.Header)
     return SkyCoord(ra=frame['ra'] * 15.0, dec=frame['dec'], unit='deg')
 
+def zscale_image(image_data):
+    """Return the given image ZScaled to 8 bits."""
+
+    zscale_min, zscale_max = ZScaleInterval().get_limits(image_data)
+
+    return (
+        255
+        *
+        (
+            #False positive
+            #pylint: disable=no-member
+            scipy.minimum(scipy.maximum(zscale_min, image_data), zscale_max)
+            #pylint: enable=no-member
+            -
+            zscale_min
+        ) / (
+            zscale_max
+            -
+            zscale_min
+        )
+    ).astype(
+        #False positive
+        #pylint: disable=no-member
+        scipy.uint8
+        #pylint: enable=no-member
+    )
+
 def create_snapshot(fits_fname,
                     snapshot_fname_pattern,
                     *,
@@ -349,24 +376,7 @@ def create_snapshot(fits_fname,
                     repr(snapshot_fname)
                 )
 
-        data = fits_hdu.data
-        zscale_min, zscale_max = ZScaleInterval().get_limits(data)
-        #False positive
-        #pylint: disable=no-member
-        scaled_data = (
-            255
-            *
-            (
-                scipy.minimum(scipy.maximum(zscale_min, data), zscale_max)
-                -
-                zscale_min
-            ) / (
-                zscale_max
-                -
-                zscale_min
-            )
-        ).astype(scipy.uint8)
-        #pylint: enable=no-member
+        scaled_data = zscale_image(fits_hdu.data)
 
         snapshot_dir = os.path.dirname(snapshot_fname)
         if snapshot_dir and not os.path.exists(snapshot_dir):
