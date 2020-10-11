@@ -6,3 +6,4 @@ from superphot_pipeline.data_reduction.data_reduction_file import\
 from superphot_pipeline.light_curves.light_curve_file import LightCurveFile
 from superphot_pipeline.light_curves.epd_correction import EPDCorrection
 from superphot_pipeline.light_curves.tfa_correction import TFACorrection
+from superphot_pipeline.source_finder import SourceFinder
