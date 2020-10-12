@@ -19,6 +19,7 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageTk
 from astropy.io import fits
+import numpy
 
 from command_line_util import get_default_frame_processing_cmdline
 
@@ -26,6 +27,7 @@ from superphot_pipeline.image_utilities import\
     fits_image_generator,\
     zscale_image
 from superphot_pipeline import SourceFinder
+from superphot_pipeline.evaluator import Evaluator
 #pylint: enable=wrong-import-position
 
 def parse_configuration(default_config_files=('find_sources.cfg',),
@@ -51,6 +53,13 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
         'this is in units of standard deviations.'
     )
     parser.add_argument(
+        '--filter',
+        default=None,
+        help='Apply a filter to the extracted sources to discard artefacts. '
+        'Should be an expression involving extracted source columns that '
+        'evaluates to True (keep) or False (discard).'
+    )
+    parser.add_argument(
         '--tune',
         action='store_true',
         help='If this argument is passed, only the first image is processed '
@@ -62,6 +71,7 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
 
 def mark_extracted_sources(image,
                            sources,
+                           filter_expression=None,
                            shape='ellipse',
                            size=15,
                            **shape_format):
@@ -79,30 +89,38 @@ def mark_extracted_sources(image,
         shape(str):    The shape to draw. Either `'ellipse'` or `'rectangle'`.
 
         shape_format:    Any keyword arguments to pass directly to the
-            corresponding method of the image (e.g. `outline`, or `width`).
+            corresponding method of the image (e.g. `width`).
 
     Returns
         None
     """
 
     mark_source = getattr(image, shape)
-    for source in sources:
-        mark_source([source['x'] - size / 2, source['y'] - size/2,
-                     source['x'] + size / 2, source['y'] + size/2],
-                    **shape_format)
+    if filter_expression is None:
+        selected = numpy.full(sources.shape, True)
+    else:
+        selected = Evaluator(sources)(filter_expression)
+
+    for flagged, color in [(selected, 'lightgreen'),
+                           (numpy.logical_not(selected), 'salmon')]:
+        for source in sources[flagged]:
+            mark_source([source['x'] - size / 2, source['y'] - size/2,
+                         source['x'] + size / 2, source['y'] + size/2],
+                        outline=color,
+                        **shape_format)
 
 #Out of my control
 #pylint: disable=too-many-ancestors
 class SourceExtractionTuner(tkinter.Frame):
     """Application for manually tuning source extraction."""
 
-    def _display_image(self, sources):
+    def _display_image(self, sources, filter_expression):
         """Display the image, annotated to show the given sources."""
 
         annotated_image = self._image['zscaled'].copy()
         mark_extracted_sources(PIL.ImageDraw.Draw(annotated_image),
                                sources,
-                               outline='lightgreen',
+                               filter_expression=filter_expression,
                                width=1)
         self._image['photo'] = PIL.ImageTk.PhotoImage(
             annotated_image,
@@ -133,8 +151,14 @@ class SourceExtractionTuner(tkinter.Frame):
                 %
                 repr(threshold)
             )
+
+        filter_expression = self._widgets['filter_entry'].get()
+        if not filter_expression.strip():
+            filter_expression = None
+
         self._display_image(
-            self.find_sources(self._fits_images[0], threshold=threshold)
+            self.find_sources(self._fits_images[0], threshold=threshold),
+            filter_expression=filter_expression
         )
 
     def _create_active_widgets(self):
@@ -162,6 +186,13 @@ class SourceExtractionTuner(tkinter.Frame):
             width=100
         )
         result['threshold_entry'].insert(0, repr(self.configuration.threshold))
+
+        result['filter_entry'] = tkinter.Entry(
+            result['controls_frame']
+        )
+        if self.configuration.filter:
+            result['filter_entry'].insert(0, repr(self.configuration.filter))
+
         result['update_button'] = tkinter.Button(
             result['controls_frame'],
             text='Update',
@@ -169,6 +200,7 @@ class SourceExtractionTuner(tkinter.Frame):
         )
         result['nsources_label'] = tkinter.ttk.Label(result['controls_frame'],
                                                      text='')
+
         return result
 
     def _arrange_widgets(self):
@@ -208,7 +240,16 @@ class SourceExtractionTuner(tkinter.Frame):
             column=0, row=1, sticky=tkinter.E
         )
         self._widgets['threshold_entry'].grid(column=1, row=1)
-        self._widgets['update_button'].grid(column=2, row=0, rowspan=2)
+
+        tkinter.ttk.Label(
+            self._widgets['controls_frame'],
+            text='Filter expression:'
+        ).grid(
+            column=0, row=2, sticky=(tkinter.E, tkinter.W)
+        )
+        self._widgets['filter_entry'].grid(column=1, row=2)
+
+        self._widgets['update_button'].grid(column=2, row=0, rowspan=3)
 
     def quit(self):
         """Exit the application."""
