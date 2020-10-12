@@ -16,6 +16,7 @@ import logging
 
 import matplotlib.pyplot
 import PIL.Image
+import PIL.ImageDraw
 import PIL.ImageTk
 from astropy.io import fits
 
@@ -38,7 +39,7 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
     parser.add_argument(
         '--tool',
         default='fistar',
-        choices=['fistar', 'hatphot'],
+        choices=['fistar', 'hatphot', 'mock'],
         help='What tool to use for fintding sources in the images.'
     )
     parser.add_argument(
@@ -59,17 +60,57 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
 
     return parser.parse_args()
 
+def mark_extracted_sources(image,
+                           sources,
+                           shape='ellipse',
+                           size=10,
+                           **shape_format):
+    """
+    Annotate the given image to show the positions of the given sources.
+
+    Args:
+        image(PIL.ImageDraw):    The image to draw shapes on to indicate the
+            positions of sources.
+
+        sources(numpy array):    The sources to annotate on the
+            image. Must be iterable and each entry must support indexing by name
+            with at least `'x'` and `'y'' keys defined.
+
+        shape(str):    The shape to draw. Either `'ellipse'` or `'rectangle'`.
+
+        shape_format:    Any keyword arguments to pass directly to the
+            corresponding method of the image (e.g. `outline`, or `width`).
+
+    Returns
+        None
+    """
+
+    mark_source = getattr(image, shape)
+    for source in sources:
+        mark_source([source['x'] - size / 2, source['y'] - size/2,
+                     source['x'] + size / 2, source['y'] + size/2],
+                    **shape_format)
+
 #Out of my control
 #pylint: disable=too-many-ancestors
 class SourceExtractionTuner(tkinter.Frame):
     """Application for manually tuning source extraction."""
 
-    def _display_image(self):
-        """Display the image in the canvas."""
+    def _display_image(self, sources):
+        """Display the image, annotated to show the given sources."""
 
+        annotated_image = self._image['zscaled'].copy()
+        mark_extracted_sources(PIL.ImageDraw.Draw(annotated_image),
+                               sources,
+                               outline='green',
+                               width=3)
+        self._image['photo'] = PIL.ImageTk.PhotoImage(
+            annotated_image,
+            master=self._widgets['canvas']
+        )
         self._widgets['canvas'].create_image(0,
                                              0,
-                                             image=self._image['zscaled'],
+                                             image=self._image['photo'],
                                              anchor='nw')
 
     def _update(self):
@@ -91,7 +132,7 @@ class SourceExtractionTuner(tkinter.Frame):
                 %
                 repr(threshold)
             )
-        print('Threshold: ' + repr(threshold))
+        self._display_image(self.find_sources(self._fits_images[0]))
 
     def _create_widgets(self):
         """Return a dictionary of all the widgets needed."""
@@ -182,17 +223,14 @@ class SourceExtractionTuner(tkinter.Frame):
 
         self._widgets = self._create_widgets()
 
-        self._image['zscaled'] = PIL.ImageTk.PhotoImage(
-            PIL.Image.fromarray(
-                zscale_image(self._image['data']),
-                'L'
-            ),
-            master=self._widgets['canvas']
-        )
+        self._image['zscaled'] = PIL.Image.fromarray(
+            zscale_image(self._image['data']),
+            'L'
+        ).convert('RGB')
 
         self._arrange_widgets()
 
-        self._display_image()
+        self._update()
 
 #pylint: enable=too-many-ancestors
 
