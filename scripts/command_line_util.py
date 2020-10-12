@@ -50,6 +50,13 @@ def get_default_frame_processing_cmdline(description,
         'thrown.'
     )
     parser.add_argument(
+        '--prevent-dir-creation',
+        dest='allow_dir_creation',
+        action='store_false',
+        help='Prohibit the script from creating directories needed to store the'
+        ' output files. By default it is allowed.'
+    )
+    parser.add_argument(
         '--log-level',
         choices=('DEBUG', 'INFO', 'WARNING', 'ERROR'),
         default='INFO',
