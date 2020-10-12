@@ -50,10 +50,11 @@ class SourceFinder:
             with fits.open(fits_fname) as fits_file:
                 #False positive
                 #pylint: disable=no-member
-                xresolution = fits_file[0].header['NAXIS1']
-                yresolution = fits_file[0].header['NAXIS2']
+                hdu_index = 0 if fits_file[0].header['NAXIS'] else 1
+                xresolution = fits_file[hdu_index].header['NAXIS1']
+                yresolution = fits_file[hdu_index].header['NAXIS2']
                 #pylint: disable=no-member
-                med_pixel = numpy.median(fits_file[0]).data
+                med_pixel = numpy.median(fits_file[hdu_index].data)
             nsources = 1000
             result = numpy.empty(
                 nsources,
