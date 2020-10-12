@@ -18,14 +18,16 @@ class SourceFinder:
                  tool='hatphot',
                  threshold=10,
                  allow_overwrite=False,
-                 allow_dir_creation=False):
+                 allow_dir_creation=False,
+                 always_return_sources=False):
         """Prepare to use the specified tool and define faint limit."""
 
         self.configuration = dict(
             tool=tool,
             threshold=threshold,
             allow_overwrite=allow_overwrite,
-            allow_dir_creation=allow_dir_creation
+            allow_dir_creation=allow_dir_creation,
+            always_return_sources=always_return_sources
         )
 
     def __call__(self, fits_fname, source_fname=None, **configuration):
@@ -104,17 +106,23 @@ class SourceFinder:
                                     configuration['allow_dir_creation'])
                 with open(source_fname, 'wb') as destination:
                     start_extraction(*extraction_args, destination).wait()
-                return None
+                if not configuration['always_return_sources']:
+                    return None
+                sources_file = source_fname
+            else:
+                extraction_process = start_extraction(*extraction_args)
+                sources_file = extraction_process.stdout
 
-            extraction_process = start_extraction(*extraction_args)
             result = numpy.genfromtxt(
-                extraction_process.stdout,
+                sources_file,
                 names=source_finder_util.get_srcextract_columns(
                     configuration['tool']
                 ),
                 dtype=None,
                 deletechars=''
             )
-            extraction_process.communicate()
+
+            if not source_fname:
+                extraction_process.communicate()
             return result
 #pylint: enable=too-few-public-methods

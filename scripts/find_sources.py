@@ -18,14 +18,17 @@ import matplotlib.pyplot
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageTk
-from astropy.io import fits
 import numpy
 
 from command_line_util import get_default_frame_processing_cmdline
 
 from superphot_pipeline.image_utilities import\
     fits_image_generator,\
-    zscale_image
+    zscale_image,\
+    read_image_components
+from superphot_pipeline.file_utilities import\
+    get_fits_fname_root,\
+    prepare_file_output
 from superphot_pipeline import SourceFinder
 from superphot_pipeline.evaluator import Evaluator
 #pylint: enable=wrong-import-position
@@ -66,6 +69,12 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
         'but the user is presented with a dailog to change the threshold and '
         'the detected sources are shown on top of the image in zscale.'
     )
+    parser.add_argument(
+        '--save-srcfind-snapshots',
+        default=None,
+        help='A %%-substitution pattern to save jpegs showing the extracted '
+        'sources.'
+    )
 
     return parser.parse_args()
 
@@ -95,7 +104,8 @@ def mark_extracted_sources(image,
         None
     """
 
-    mark_source = getattr(image, shape)
+    draw_on_image = PIL.ImageDraw.Draw(image)
+    mark_source = getattr(draw_on_image, shape)
     if filter_expression is None:
         selected = numpy.full(sources.shape, True)
     else:
@@ -118,7 +128,7 @@ class SourceExtractionTuner(tkinter.Frame):
         """Display the image, annotated to show the given sources."""
 
         annotated_image = self._image['zscaled'].copy()
-        mark_extracted_sources(PIL.ImageDraw.Draw(annotated_image),
+        mark_extracted_sources(annotated_image,
                                sources,
                                filter_expression=filter_expression,
                                width=1)
@@ -273,13 +283,15 @@ class SourceExtractionTuner(tkinter.Frame):
                                          allow_dir_creation=True)
 
         self._fits_images = list(fits_image_generator(configuration.images))
-        with fits.open(self._fits_images[0], 'readonly') as fits_image:
-            self._image = dict(
-                #False positive
-                #pylint: disable=no-member
-                data=fits_image[0 if fits_image[0].header['NAXIS'] else 1].data,
-                #pylint: enable=no-member
-            )
+        self._image = dict(
+            #False positive
+            #pylint: disable=no-member
+            data=read_image_components(self._fits_images[0],
+                                       read_error=False,
+                                       read_mask=False,
+                                       read_header=False)[0]
+            #pylint: enable=no-member
+        )
 
         self._widgets = self._create_active_widgets()
 
@@ -316,6 +328,40 @@ def main(configuration):
     logging.basicConfig(level=getattr(logging, configuration.log_level))
     if configuration.tune:
         tune(configuration)
+        return
+
+    find_sources = SourceFinder(
+        tool=configuration.tool,
+        threshold=configuration.threshold,
+        allow_overwrite=configuration.allow_overwrite,
+        allow_dir_creation=configuration.allow_dir_creation,
+        always_return_sources=bool(configuration.save_srcfind_snapshots)
+    )
+
+    for image_fname in fits_image_generator(configuration.images):
+        sources = find_sources(image_fname)
+        if configuration.save_srcfind_snapshots:
+            #False positive
+            #pylint: disable=unbalanced-tuple-unpacking
+            image, header = read_image_components(image_fname,
+                                                  read_error=False,
+                                                  read_mask=False)
+            #pylint: enable=unbalanced-tuple-unpacking
+            image = PIL.Image.fromarray(zscale_image(image), 'L').convert('RGB')
+            mark_extracted_sources(image, sources, configuration.filter)
+            snapshot_fname = (
+                configuration.save_srcfind_snapshots
+                %
+                dict(header, FITS_ROOT=get_fits_fname_root(image_fname))
+            )
+
+            prepare_file_output(
+                snapshot_fname,
+                allow_overwrite=configuration.allow_overwrite,
+                allow_dir_creation=configuration.allow_dir_creation,
+                delete_existing=True
+            )
+            image.save(snapshot_fname)
 
 if __name__ == '__main__':
     main(parse_configuration())
