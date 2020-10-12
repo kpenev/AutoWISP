@@ -18,15 +18,16 @@ def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
 def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
     """Find sources in the given frame using fistar."""
 
-    cmdline = [
-        'fistar', unpacked_fits_fname,
-        '--sort', 'flux',
-        '--format', ','.join(get_srcextract_columns('fistar')),
-        '--algorithm', 'uplink',
-        '--flux-threshold', repr(threshold)
-    ]
-    print('Running: ' + repr(cmdline))
-    return Popen(cmdline, stdout=stdout)
+    return Popen(
+        [
+            'fistar', unpacked_fits_fname,
+            '--sort', 'flux',
+            '--format', ','.join(get_srcextract_columns('fistar')),
+            '--algorithm', 'uplink',
+            '--flux-threshold', repr(threshold)
+        ],
+        stdout=stdout
+    )
 
 def get_srcextract_columns(tool):
     """Return a list of the columns in the output source extraction file."""

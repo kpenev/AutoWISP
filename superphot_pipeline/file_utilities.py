@@ -41,13 +41,11 @@ def get_unpacked_fits(fits_fname):
 
     if packed:
         with NamedTemporaryFile(buffering=0, dir='/dev/shm') as unpacked_frame:
-            print('Unpacked frame name: ' + repr(unpacked_frame.name))
             assert call(
                 ['funpack', '-C', '-S', fits_fname],
                 stdout=unpacked_frame
             ) == 0
             call(['ls', '-lh', unpacked_frame.name])
             yield unpacked_frame.name
-            assert os.path.exists(unpacked_frame.name)
     else:
         yield fits_fname

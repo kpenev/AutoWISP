@@ -115,7 +115,6 @@ class SourceFinder:
                 dtype=None,
                 deletechars=''
             )
-            print('extracted sources: ' + repr(result))
             extraction_process.communicate()
             return result
 #pylint: enable=too-few-public-methods
