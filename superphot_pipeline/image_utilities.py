@@ -13,6 +13,7 @@ import scipy
 import scipy.interpolate
 
 from superphot_pipeline.pipeline_exceptions import BadImageError
+from superphot_pipeline.file_utilities import prepare_file_output
 
 _logger = logging.getLogger(__name__)
 
@@ -356,43 +357,23 @@ def create_snapshot(fits_fname,
             %
             dict(
                 fits_hdu.header,
-                FITS_ROOT=os.path.splitext(os.path.basename(fits_fname))[0]
+                FITS_ROOT=get_fits_fname_root(fits_fname)
             )
         )
 
-        if os.path.exists(snapshot_fname):
-            if skip_existing:
-                _logger.info('Snapshot %s already exists, skipping!',
-                             repr(snapshot_fname))
-                return
-            if overwrite:
-                _logger.info('Overwriting snapshot %s',
-                             repr(snapshot_fname))
-                os.remove(snapshot_fname)
-            else:
-                raise OSError(
-                    'Failed to create FITS snapshot %s. File already exists!'
-                    %
-                    repr(snapshot_fname)
-                )
+        snapshot_exists = prepare_file_output(
+            snapshot_fname,
+            allow_overwrite=overwrite,
+            allow_dir_creation=create_directories,
+            delete_existing=overwrite
+        )
+
+        if snapshot_exists and skip_existing:
+            _logger.info('Snapshot %s already exists, skipping!',
+                         repr(snapshot_fname))
+            return
 
         scaled_data = zscale_image(fits_hdu.data)
-
-        snapshot_dir = os.path.dirname(snapshot_fname)
-        if snapshot_dir and not os.path.exists(snapshot_dir):
-            if create_directories:
-                _logger.info('Creating snaphot directory: %s',
-                             repr(snapshot_dir))
-                os.makedirs(snapshot_dir)
-            else:
-                raise OSError(
-                    'Output directory %s for saving snapshot %s does not exist'
-                    %
-                    (
-                        repr(snapshot_dir),
-                        repr(snapshot_fname)
-                    )
-                )
 
         Image.fromarray(scaled_data[::-1, :], 'L').save(snapshot_fname)
         _logger.debug('Creating snapshot: %s', repr(snapshot_fname))
