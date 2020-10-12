@@ -46,6 +46,8 @@ def get_unpacked_fits(fits_fname):
                 ['funpack', '-C', '-S', fits_fname],
                 stdout=unpacked_frame
             ) == 0
+            call(['ls', '-lh', unpacked_frame.name])
             yield unpacked_frame.name
+            assert os.path.exists(unpacked_frame.name)
     else:
         yield fits_fname

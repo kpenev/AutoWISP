@@ -81,7 +81,7 @@ class SourceFinder:
                               *
                               configuration['threshold'])
             result['amp'] = 0.2 * result['flux']
-            result['ston'] = result['flux'] / result['bg']
+            result['s/n'] = result['flux'] / result['bg']
 
             result['s'] = 2.3 + 0.2 * numpy.random.random(nsources)
             result['d'] = 0.3 + 0.1 * numpy.random.random(nsources)
@@ -112,8 +112,10 @@ class SourceFinder:
                 names=source_finder_util.get_srcextract_columns(
                     configuration['tool']
                 ),
-                dtype=None
+                dtype=None,
+                deletechars=''
             )
-            start_extraction.communicate()
+            print('extracted sources: ' + repr(result))
+            extraction_process.communicate()
             return result
 #pylint: enable=too-few-public-methods

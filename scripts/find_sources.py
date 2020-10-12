@@ -63,7 +63,7 @@ def parse_configuration(default_config_files=('find_sources.cfg',),
 def mark_extracted_sources(image,
                            sources,
                            shape='ellipse',
-                           size=10,
+                           size=15,
                            **shape_format):
     """
     Annotate the given image to show the positions of the given sources.
@@ -102,8 +102,8 @@ class SourceExtractionTuner(tkinter.Frame):
         annotated_image = self._image['zscaled'].copy()
         mark_extracted_sources(PIL.ImageDraw.Draw(annotated_image),
                                sources,
-                               outline='green',
-                               width=3)
+                               outline='lightgreen',
+                               width=1)
         self._image['photo'] = PIL.ImageTk.PhotoImage(
             annotated_image,
             master=self._widgets['canvas']
@@ -132,7 +132,9 @@ class SourceExtractionTuner(tkinter.Frame):
                 %
                 repr(threshold)
             )
-        self._display_image(self.find_sources(self._fits_images[0]))
+        self._display_image(
+            self.find_sources(self._fits_images[0], threshold=threshold)
+        )
 
     def _create_widgets(self):
         """Return a dictionary of all the widgets needed."""

@@ -18,16 +18,15 @@ def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
 def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
     """Find sources in the given frame using fistar."""
 
-    return Popen(
-        [
-            'fistar', unpacked_fits_fname,
-            '--sort', 'flux',
-            '--format', 'id,x,y,bg,amp,s,d,k,fwhm,ellip,pa,flux,s/n,npix',
-            '--algorithm', 'uplink',
-            '--flux-threshold', repr(threshold)
-        ],
-        stdout=stdout
-    )
+    cmdline = [
+        'fistar', unpacked_fits_fname,
+        '--sort', 'flux',
+        '--format', ','.join(get_srcextract_columns('fistar')),
+        '--algorithm', 'uplink',
+        '--flux-threshold', repr(threshold)
+    ]
+    print('Running: ' + repr(cmdline))
+    return Popen(cmdline, stdout=stdout)
 
 def get_srcextract_columns(tool):
     """Return a list of the columns in the output source extraction file."""
@@ -35,5 +34,15 @@ def get_srcextract_columns(tool):
     if tool == 'hatphot':
         return ('id', 'x', 'y', 'peak', 'flux', 'fwhm', 'npix', 'round', 'pa')
     if tool == 'fistar':
-        return 'id,x,y,bg,amp,s,d,k,flux,ston,npix'.split(',')
+        return ('id',
+                'x',
+                'y',
+                'bg',
+                'amp',
+                's',
+                'd',
+                'k',
+                'flux',
+                's/n',
+                'npix')
     raise KeyError('Unrecognized sourc exatraction tool: ' + repr(tool))
