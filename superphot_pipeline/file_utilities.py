@@ -5,6 +5,9 @@ import os.path
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
 from subprocess import call
+import logging
+
+_logger = logging.getLogger(__name__)
 
 from astropy.io import fits
 
@@ -14,20 +17,28 @@ def prepare_file_output(fname,
                         delete_existing=False):
     """Ger ready to create/overwrite a file with the given name."""
 
+    result = False
     if os.path.exists(fname):
         if not allow_overwrite:
             raise OSError(
-                'Destination source extraction file %s already exists '
-                'and overwritting not allowed!'
+                'Destination file %s already exists and overwritting not '
+                'allowed!'
                 %
                 repr(fname)
             )
         if delete_existing:
+            _logger.info('Overwriting %s', fname)
             os.remove(fname)
+        else:
+            result = True
 
     out_path = os.path.dirname(fname)
     if allow_dir_creation and out_path and not os.path.exists(out_path):
+        _logger.info('Creating output directory: %s',
+                     repr(out_path))
         os.makedirs(out_path)
+
+    return result
 
 @contextmanager
 def get_unpacked_fits(fits_fname):
@@ -48,3 +59,12 @@ def get_unpacked_fits(fits_fname):
             yield unpacked_frame.name
     else:
         yield fits_fname
+
+def get_fits_fname_root(fits_fname):
+    """Return the FITS filename withou directories or extension."""
+
+    result = os.path.basename(fits_fname)
+    while True:
+        result, extension = os.path.splitext(result)
+        if not extension:
+            return result
