@@ -112,6 +112,7 @@ class SourceExtractionTuner(tkinter.Frame):
                                              0,
                                              image=self._image['photo'],
                                              anchor='nw')
+        self._widgets['nsources_label']['text'] = (str(sources.size))
 
     def _update(self):
         """Re-extract sources and mark them on the image."""
@@ -136,8 +137,8 @@ class SourceExtractionTuner(tkinter.Frame):
             self.find_sources(self._fits_images[0], threshold=threshold)
         )
 
-    def _create_widgets(self):
-        """Return a dictionary of all the widgets needed."""
+    def _create_active_widgets(self):
+        """Return a dictionary of all the widgets that will be udptade by app."""
 
         result = dict(
             xscroll=tkinter.ttk.Scrollbar(self, orient=tkinter.HORIZONTAL),
@@ -166,10 +167,12 @@ class SourceExtractionTuner(tkinter.Frame):
             text='Update',
             command=self._update
         )
+        result['nsources_label'] = tkinter.ttk.Label(result['controls_frame'],
+                                                     text='')
         return result
 
     def _arrange_widgets(self):
-        """Arranges the widgets using the tkinter grid geometry manager."""
+        """Arranges the widgets using grid geometry manager and add passive."""
 
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
@@ -190,8 +193,22 @@ class SourceExtractionTuner(tkinter.Frame):
         )
         self._widgets['controls_frame'].grid(column=0, row=2)
 
-        self._widgets['threshold_entry'].grid(column=0, row=0)
-        self._widgets['update_button'].grid(column=1, row=0)
+        tkinter.ttk.Label(
+            self._widgets['controls_frame'],
+            text='Extracted source count:'
+        ).grid(
+            column=0, row=0, sticky=tkinter.E
+        )
+        self._widgets['nsources_label'].grid(column=1, row=0)
+
+        tkinter.ttk.Label(
+            self._widgets['controls_frame'],
+            text='Threshold:'
+        ).grid(
+            column=0, row=1, sticky=tkinter.E
+        )
+        self._widgets['threshold_entry'].grid(column=1, row=1)
+        self._widgets['update_button'].grid(column=2, row=0, rowspan=2)
 
     def quit(self):
         """Exit the application."""
@@ -223,7 +240,7 @@ class SourceExtractionTuner(tkinter.Frame):
                 #pylint: enable=no-member
             )
 
-        self._widgets = self._create_widgets()
+        self._widgets = self._create_active_widgets()
 
         self._image['zscaled'] = PIL.Image.fromarray(
             zscale_image(self._image['data']),
