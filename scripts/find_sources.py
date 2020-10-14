@@ -339,20 +339,26 @@ def main(configuration):
     )
 
     for image_fname in fits_image_generator(configuration.images):
-        sources = find_sources(image_fname)
+        image, header = read_image_components(image_fname,
+                                              read_error=False,
+                                              read_mask=False)
+
+        fname_substitutions = dict(header,
+                                   FITS_ROOT=get_fits_fname_root(image_fname))
+        sources = find_sources(
+            image_fname,
+            configuration.outfname_pattern % fname_substitutions
+        )
         if configuration.save_srcfind_snapshots:
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
-            image, header = read_image_components(image_fname,
-                                                  read_error=False,
-                                                  read_mask=False)
             #pylint: enable=unbalanced-tuple-unpacking
             image = PIL.Image.fromarray(zscale_image(image), 'L').convert('RGB')
             mark_extracted_sources(image, sources, configuration.filter)
             snapshot_fname = (
                 configuration.save_srcfind_snapshots
                 %
-                dict(header, FITS_ROOT=get_fits_fname_root(image_fname))
+                fname_substitutions
             )
 
             prepare_file_output(
