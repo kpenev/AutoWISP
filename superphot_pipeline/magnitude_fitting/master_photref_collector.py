@@ -484,7 +484,7 @@ class MasterPhotrefCollector:
             master_reference_fname(str):   The file name to use for the newly
                 created master photometric reference.
 
-            catalogque:     See ``master_catalogue`` argument to
+            catalogue:     See ``master_catalogue`` argument to
                 MagnitudeFit.__init__().
 
             fit_terms_expression(str):    An expression expanding to the terms

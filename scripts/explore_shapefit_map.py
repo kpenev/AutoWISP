@@ -13,6 +13,7 @@ from superphot.utils import explore_prf
 
 from superphot_pipeline import DataReductionFile
 
+
 def parse_command_line():
     """Parse command line to attributes of an object."""
 
@@ -39,12 +40,14 @@ def parse_command_line():
 
     return explore_prf.parse_command_line(parser)
 
+
 def get_psf_map_sources(dr_fname):
     """Return the PSF map contained in the given DR file."""
 
     dummy_tool = SubPixPhot()
     io_tree = SuperPhotIOTree(dummy_tool)
 
+    #star_shape_grid
     with DataReductionFile(dr_fname, 'r') as dr_file:
         dr_file.fill_aperture_photometry_input_tree(io_tree)
 
@@ -54,7 +57,12 @@ def get_psf_map_sources(dr_fname):
                                           shapefit_version=0,
                                           srcproj_version=0,
                                           background_version=0)
-
+        inputs = dr_file.get_aperture_photometry_inputs(shapefit_version=0,
+                                                        srcproj_version=0,
+                                                        background_version=0)
+    star_shape_grid = inputs['star_shape_grid']
+    grid_x = star_shape_grid[0]
+    grid_y = star_shape_grid[1]
     magnitudes = scipy.copy(sources['mag'])
     sources.dtype.names = tuple('flux' if field == 'mag' else field
                                 for field in sources.dtype.names)
@@ -62,7 +70,8 @@ def get_psf_map_sources(dr_fname):
         magnitudes,
         io_tree.get('psffit.magnitude_1adu')
     )
-    return PiecewiseBicubicPSFMap(io_tree), sources
+    return PiecewiseBicubicPSFMap(io_tree), sources, grid_x, grid_y
+
 
 def main(cmdline_args):
     """Avoid polluting global namespace."""
@@ -87,9 +96,10 @@ def main(cmdline_args):
 
         #pylint: enable=no-member
 
-    prf_map, sources = get_psf_map_sources(cmdline_args.dr_fname)
+    prf_map, sources, grid_x, grid_y = get_psf_map_sources(cmdline_args.dr_fname)
 
-    image_slices = explore_prf.get_image_slices(cmdline_args.split_image)
+    image_slices = explore_prf.get_image_slices(cmdline_args.split_image,
+                                                cmdline_args.discard_image_boundary)
 
     slice_prf_data = explore_prf.extract_pixel_data(cmdline_args,
                                                     image_slices,
@@ -112,7 +122,7 @@ def main(cmdline_args):
                 ) / 2.0
             ])
         )
-        for x_image_slice, y_image_slice in image_slices
+        for x_image_slice, y_image_slice, x_index, y_index in image_slices
     ]
     if cmdline_args.assume_psf:
         if cmdline_args.subpix_map is None:
@@ -136,7 +146,16 @@ def main(cmdline_args):
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
+                           image_slices,
                            cmdline_args)
+
+    if cmdline_args.plot_entire_prf:
+        explore_prf.plot_entire_prf(cmdline_args,
+                                    image_slices,
+                                    grid_x,
+                                    grid_y,
+                                    sources=sources)
+
 
 if __name__ == '__main__':
     main(parse_command_line())

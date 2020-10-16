@@ -1,5 +1,8 @@
 """Define a class to apply sky-to-frame transformations."""
 
+##Perform this by adding trans file and adding a  matrix of ra/dec sources from ucac file (make the matrix of ra/dec
+# sources somehow using what the astrometry method does or FitTerms does
+
 import os.path
 import numpy
 
