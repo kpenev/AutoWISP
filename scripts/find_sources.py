@@ -26,7 +26,7 @@ from superphot_pipeline.image_utilities import\
     fits_image_generator,\
     zscale_image,\
     read_image_components
-from superphot_pipeline.file_utilities import\
+from superphot.utils.file_utilities import\
     get_fits_fname_root,\
     prepare_file_output
 from superphot_pipeline import SourceFinder

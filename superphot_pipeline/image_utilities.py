@@ -13,7 +13,9 @@ import scipy
 import scipy.interpolate
 
 from superphot_pipeline.pipeline_exceptions import BadImageError
-from superphot_pipeline.file_utilities import prepare_file_output
+from superphot.utils.file_utilities import\
+    prepare_file_output,\
+    get_fname_pattern_substitutions
 
 _logger = logging.getLogger(__name__)
 
@@ -355,10 +357,7 @@ def create_snapshot(fits_fname,
         snapshot_fname = (
             snapshot_fname_pattern
             %
-            dict(
-                fits_hdu.header,
-                FITS_ROOT=get_fits_fname_root(fits_fname)
-            )
+            get_fname_pattern_substitutions(fits_fname, fits_hdu.header)
         )
 
         snapshot_exists = prepare_file_output(

@@ -3,7 +3,7 @@
 import numpy
 from astropy.io import fits
 
-from superphot_pipeline.file_utilities import\
+from superphot.utils.file_utilities import\
     prepare_file_output,\
     get_unpacked_fits
 from superphot_pipeline import source_finder_util
