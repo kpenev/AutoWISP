@@ -2,9 +2,10 @@
 
 """A script for visually exploring the results of a PSF/PRF fit."""
 
-from argparse import ArgumentParser
 import functools
+import os.path
 
+from configargparse import ArgumentParser, DefaultsFormatter
 import scipy
 from astropy.io import fits
 
@@ -17,7 +18,12 @@ from superphot_pipeline import DataReductionFile
 def parse_command_line():
     """Parse command line to attributes of an object."""
 
-    parser = ArgumentParser(description=__doc__)
+    parser = ArgumentParser(
+        description=__doc__,
+        default_config_files=['explore_shapefit_map.cfg'],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False
+    )
     parser.add_argument(
         'dr_fname',
         help='The filename of the data reduction file containing the PSF/PRF '
@@ -96,10 +102,14 @@ def main(cmdline_args):
 
         #pylint: enable=no-member
 
-    prf_map, sources, grid_x, grid_y = get_psf_map_sources(cmdline_args.dr_fname)
+    prf_map, sources, grid_x, grid_y = get_psf_map_sources(
+        cmdline_args.dr_fname
+    )
 
-    image_slices = explore_prf.get_image_slices(cmdline_args.split_image,
-                                                cmdline_args.discard_image_boundary)
+    image_slices = explore_prf.get_image_slices(
+        cmdline_args.split_image,
+        cmdline_args.discard_image_boundary
+    )
 
     slice_prf_data = explore_prf.extract_pixel_data(cmdline_args,
                                                     image_slices,
