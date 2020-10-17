@@ -11,8 +11,10 @@ from astropy.io import fits
 
 from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
 from superphot.utils import explore_prf
+from superphot.utils.file_utilities import get_fname_pattern_substitutions
 
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.image_utilities import read_image_components
 
 
 def parse_command_line():
@@ -25,9 +27,16 @@ def parse_command_line():
         ignore_unknown_config_file_keys=False
     )
     parser.add_argument(
-        'dr_fname',
-        help='The filename of the data reduction file containing the PSF/PRF '
-        'map to explore.'
+        '--dr-pattern',
+        default=os.path.join('%(FITS_DIR)s',
+                             '..',
+                             'DR',
+                             '%(FITS_ROOT)s.trans'),
+        help="A pattern with substitutions involving any FITS header "
+        "keywords, `'%%(FITS_DIR)s'` (directory containing the frame), and/or "
+        "`'%%(FITS_ROOT)s'` (base filename of the frame without the `fits` or "
+        "`fits.fz` extension) that expands to the filename of the data "
+        "reduction file containing the PSF/PRF map to explore."
     )
     parser.add_argument(
         '--subpix-map',
@@ -47,7 +56,7 @@ def parse_command_line():
     return explore_prf.parse_command_line(parser)
 
 
-def get_psf_map_sources(dr_fname):
+def get_shape_map_sources(dr_fname):
     """Return the PSF map contained in the given DR file."""
 
     dummy_tool = SubPixPhot()
@@ -89,21 +98,19 @@ def main(cmdline_args):
         if all_plots_exist:
             return
 
-    with fits.open(cmdline_args.frame_fname, 'readonly') as frame:
-        #False positive
-        #pylint: disable=no-member
-        if frame[0].header['NAXIS']:
-            image_resolution = (frame[0].header['NAXIS2'],
-                                frame[0].header['NAXIS1'])
-        else:
-            image_resolution = (frame[1].header['NAXIS2'],
-                                frame[1].header['NAXIS1'])
+    header = read_image_components(cmdline_args.frame_fname,
+                                   read_image=False,
+                                   read_error=False,
+                                   read_mask=False)[0]
+    image_resolution = (header['NAXIS2'], header['NAXIS1'])
 
-
-        #pylint: enable=no-member
-
-    prf_map, sources, grid_x, grid_y = get_psf_map_sources(
-        cmdline_args.dr_fname
+    prf_map, sources, grid_x, grid_y = get_shape_map_sources(
+        cmdline_args.dr_pattern
+        %
+        get_fname_pattern_substitutions(
+            cmdline_args.frame_fname,
+            header
+        )
     )
 
     image_slices = explore_prf.get_image_slices(
@@ -140,7 +147,7 @@ def main(cmdline_args):
                 psf.predict_pixel for psf in slice_splines
             ]
         else:
-            with fits.open(cmdline_args.subpix_map) as subpix_file:
+            with fits.open(cmdline_args.subpix_map, 'readonly') as subpix_file:
                 slice_splines = [
                     functools.partial(
                         psf.predict_pixel,
@@ -156,7 +163,6 @@ def main(cmdline_args):
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
-                           image_slices,
                            cmdline_args)
 
     if cmdline_args.plot_entire_prf:
