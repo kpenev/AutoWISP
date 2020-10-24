@@ -66,7 +66,7 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
             num_output_terms *= len(term_set)
         self._start_expansion(num_output_terms,
                               input_term_sets[0][0].size,
-                              input_term_sets[0].dtype)
+                              input_term_sets[0][0].dtype)
         self._expansion_term_index = 0
 
     def _process_cross_product_term(self, sub_terms):
