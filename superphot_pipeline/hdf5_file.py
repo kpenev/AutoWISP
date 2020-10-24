@@ -157,7 +157,10 @@ class HDF5File(ABC, h5py.File):
         else:
             data = numpy.fromfile(text, dtype='i1')
 
-        self.add_dataset(dataset_key, data, if_exists, **substitutions)
+        self.add_dataset(dataset_key,
+                         data,
+                         if_exists=if_exists,
+                         **substitutions)
 
     def write_fitsheader_to_dataset(self,
                                     dataset_key,
@@ -378,10 +381,9 @@ class HDF5File(ABC, h5py.File):
                                 +
                                 '!'
                             )
-                        else:
-                            parent = element
-                            found = True
-                            break
+                        parent = element
+                        found = True
+                        break
                 if not found:
                     parent = etree.SubElement(parent,
                                               'group',
@@ -682,18 +684,17 @@ class HDF5File(ABC, h5py.File):
                         target_path
                     )
                 )
-            else:
-                raise IOError(
-                    "Unable to create link with key %s: a %s at '%s' already"
-                    " exists in '%s'!"
-                    %
-                    (
-                        link_key,
-                        self.hdf5_class_string(existing_class),
-                        link_path,
-                        self.filename,
-                    )
+            raise IOError(
+                "Unable to create link with key %s: a %s at '%s' already"
+                " exists in '%s'!"
+                %
+                (
+                    link_key,
+                    self.hdf5_class_string(existing_class),
+                    link_path,
+                    self.filename,
                 )
+            )
         self[link_path] = h5py.SoftLink(target_path)
         return target_path
 
@@ -1011,6 +1012,7 @@ class HDF5File(ABC, h5py.File):
     def add_dataset(self,
                     dataset_key,
                     data,
+                    *,
                     if_exists='overwrite',
                     unlimited=False,
                     shape=None,
@@ -1166,8 +1168,6 @@ class HDF5File(ABC, h5py.File):
             layout_version = (
                 self[layout_version_path].attrs[layout_version_attr]
             )
-        else:
-            layout_version = layout_version
 
         (
             self._defined_elements,

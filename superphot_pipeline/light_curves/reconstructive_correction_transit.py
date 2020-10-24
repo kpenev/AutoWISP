@@ -98,5 +98,7 @@ class ReconstructiveCorrectionTransit:
                                        transit_parameters_kw)
             extra_predictors = None
 
-        return self.correction(lc_fname, self.get_fit_data, extra_predictors, save)
+        return self.correction(lc_fname,
+                               self.get_fit_data,
+                               extra_predictors, save)
     #pylint: enable=arguments-differ

@@ -180,9 +180,11 @@ class SeparableLinearImageSmoother(ImageSmoother):
         Return matrix giving flattened smooth image when applied to fit params.
 
         Args:
-            num_x_terms:    See same name argument to :meth:`_apply_smoothing`\ .
+            num_x_terms:    See same name argument to
+                :meth:`_apply_smoothing`\ .
 
-            num_y_terms:    See same name argument to :meth:`_apply_smoothing`\ .
+            num_y_terms:    See same name argument to
+                :meth:`_apply_smoothing`\ .
 
             x_resolution:    The number of image columns.
 
@@ -220,9 +222,11 @@ class SeparableLinearImageSmoother(ImageSmoother):
         Define the default smoothing configuration (overwritable on use).
 
         Args:
-            num_x_terms:    See same name argument to :meth:`_apply_smoothing` .
+            num_x_terms:    See same name argument to
+                :meth:`_apply_smoothing` .
 
-            num_y_terms:    See same name argument to :meth:`_apply_smoothing`\ .
+            num_y_terms:    See same name argument to
+                :meth:`_apply_smoothing`\ .
 
             outlier_threshold:    See same name argument to
                 :meth:`_apply_smoothing`\ .
@@ -251,6 +255,8 @@ class SeparableLinearImageSmoother(ImageSmoother):
                          num_y_terms=None,
                          outlier_threshold=None,
                          max_iterations=None):
+        #unavoidable
+        #pylint: disable=line-too-long
         """
         Return a smooth version of the given image.
 
@@ -286,6 +292,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
                     :func:`superphot_pipeline.iterative_rejection_util.iterative_rej_linear_leastsq`
                     .
         """
+        #pylint: enable=line-too-long
 
         if outlier_threshold is None:
             outlier_threshold = self.outlier_threshold
@@ -324,8 +331,8 @@ class PolynomialImageSmoother(SeparableLinearImageSmoother):
             power:    The power of the corresponding coordinate of the term we
                 are integrating.
 
-            resolution:    The resolution of the image in the dimension in which to
-                calculate the pixel integrlas.
+            resolution:    The resolution of the image in the dimension in which
+                to calculate the pixel integrlas.
 
         Returns:
             1-D array:
@@ -466,8 +473,9 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
 
         Args:
             ():    See :meth:`SeparableLinearImageSmoother._apply_smoothing`
-                except the names of **num_x_terms** and **num_y_terms** have been
-                changed to **num_x_nodes** and **num_y_nodes** respectively.
+                except the names of **num_x_terms** and **num_y_terms** have
+                been changed to **num_x_nodes** and **num_y_nodes**
+                respectively.
 
         Returns:
             None

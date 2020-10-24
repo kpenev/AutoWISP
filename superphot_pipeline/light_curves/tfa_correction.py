@@ -627,7 +627,9 @@ class TFACorrection(Correction):
 
         template_stars = [
             epd_statistics['ID'][phot_source_indices]
-            for phot_source_indices in self._select_template_stars(epd_statistics)
+            for phot_source_indices in self._select_template_stars(
+                epd_statistics
+            )
         ]
 
         template_measurements = []

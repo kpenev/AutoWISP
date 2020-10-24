@@ -362,7 +362,7 @@ def create_snapshot(fits_fname,
 
         snapshot_exists = prepare_file_output(
             snapshot_fname,
-            allow_overwrite=overwrite,
+            allow_existing=overwrite,
             allow_dir_creation=create_directories,
             delete_existing=overwrite
         )
