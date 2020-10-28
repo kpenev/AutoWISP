@@ -405,7 +405,6 @@ class DataReductionFile(DataReductionPostProcess):
                 del result['compression']
                 result['scaleoffset'] = 2
             else:
-                assert column in ['PM_RA', 'PM_Dec', 'ePM_RA', 'ePM_Dec']
                 del result['compression']
                 result['scaleoffset'] = 1
 
