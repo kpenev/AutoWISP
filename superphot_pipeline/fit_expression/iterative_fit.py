@@ -14,7 +14,8 @@ def iterative_fit_qr(weighted_predictors,
                      error_avg,
                      rej_level,
                      max_rej_iter,
-                     fit_identifier):
+                     fit_identifier,
+                     pre_reject=False):
     """
     Same as iterative_fit() but using the QR decomposition of predictors.
 
@@ -114,7 +115,7 @@ def iterative_fit_qr(weighted_predictors,
 
     permutation = scipy.argsort(weighted_qrp[2])
 
-    for rej_iter in range(max_rej_iter + 1):
+    for rej_iter in range(-1 if pre_reject else 0, max_rej_iter + 1):
         weighted_target = scipy.delete(weighted_target, bad_ind)
         if len(weighted_target) < num_free_coef:
             return None, None, 0
@@ -143,16 +144,19 @@ def iterative_fit_qr(weighted_predictors,
                     weighted_qrp[2]
                 )
 
-        try:
-            #False positive
-            #pylint: disable=no-member
-            best_fit_coef = scipy.linalg.solve_triangular(
-                weighted_qrp[1],
-                scipy.dot(weighted_qrp[0].T, weighted_target)
-            )[permutation]
-            #pylint: enable=no-member
-        except scipy.linalg.LinAlgError:
-            return None, None, 0
+        if rej_iter < 0:
+            best_fit_coef = numpy.zeros(num_free_coef)
+        else:
+            try:
+                #False positive
+                #pylint: disable=no-member
+                best_fit_coef = scipy.linalg.solve_triangular(
+                    weighted_qrp[1],
+                    scipy.dot(weighted_qrp[0].T, weighted_target)
+                )[permutation]
+                #pylint: enable=no-member
+            except scipy.linalg.LinAlgError:
+                return None, None, 0
 
         bad_ind, fit_res2 = rejected_indices(
             scipy.dot(best_fit_coef, weighted_predictors) - weighted_target,
@@ -175,7 +179,8 @@ def iterative_fit(predictors,
                   error_avg,
                   rej_level,
                   max_rej_iter,
-                  fit_identifier):
+                  fit_identifier,
+                  pre_reject=False):
     """
     Find least squares coefficients reproducing target_values using predictors.
 
@@ -215,6 +220,10 @@ def iterative_fit(predictors,
         fit_identifier:    Identifier of what is being fit. Only used in logging
             messages.
 
+        pre_reject:    Should a rejection iteration be performed before even the
+            first fit is attempted (i.e. discard outliers even from the first
+            fit).
+
     Returns:
         scipy.array:
             The best fit coefficients.
@@ -243,4 +252,5 @@ def iterative_fit(predictors,
                             error_avg=error_avg,
                             rej_level=rej_level,
                             max_rej_iter=max_rej_iter,
-                            fit_identifier=fit_identifier)
+                            fit_identifier=fit_identifier,
+                            pre_reject=pre_reject)
