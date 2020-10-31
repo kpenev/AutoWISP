@@ -145,7 +145,7 @@ def iterative_fit_qr(weighted_predictors,
                 )
 
         if rej_iter < 0:
-            best_fit_coef = numpy.zeros(num_free_coef)
+            best_fit_coef = scipy.zeros(num_free_coef)
         else:
             try:
                 #False positive
