@@ -98,7 +98,7 @@ def apply_parallel_correction(lc_fnames,
 
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
-    else;
+    else:
         with Pool(
                 num_parallel_processes,
                 db_engine.dispose()
