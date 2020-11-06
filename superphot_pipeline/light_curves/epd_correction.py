@@ -283,6 +283,7 @@ class EPDCorrection(Correction):
 
             raw_values = raw_values[fit_points]
             fit_data = fit_data[fit_points]
+            fit_data -= scipy.nanmedian(fit_data)
 
             #Those should come from self.iteritave_fit_config.
             #pylint: disable=missing-kwoa
