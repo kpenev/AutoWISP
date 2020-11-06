@@ -252,7 +252,7 @@ class EPDCorrection(Correction):
                     curve to apply EPD corrections to.
 
                 fit_target((str, dict)):    The dataset key and substitutions
-                    identifying a uniquedataset in the lightcurve to fit.
+                    identifying a unique dataset in the lightcurve to fit.
 
                 predictors(structured array):    The predictors to use for EPD
                     corrections, including the `extra_predictors`.
