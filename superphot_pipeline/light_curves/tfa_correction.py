@@ -1,7 +1,8 @@
 """Define aclass for applying TFA corrections to lightcurves."""
 
-from matplotlib import pyplot
+import logging
 
+from matplotlib import pyplot
 import scipy
 import scipy.linalg
 #pylint false positive
@@ -26,6 +27,8 @@ class TFACorrection(Correction):
             Each entry is the value returned by scipy.linalg.qr for one of the
             fit datasets.
     """
+
+    _logger = logging.getLogger(__name__)
 
     def _get_io_configurations(self):
         """
@@ -270,35 +273,44 @@ class TFACorrection(Correction):
                 photometry method.
         """
 
-        def select_typical_rms_stars(not_saturated):
-            """Select unsaturated stars with "typical" rms for their mag."""
-
-            predictors = scipy.empty(
-                (
-                    self._configuration.mag_rms_dependence_order + 1,
-                    not_saturated.sum()
-                ),
-                dtype=scipy.float64
-            )
-            predictors[0, :] = 1
-            for mag_order in range(1, predictors.shape[0]):
-                predictors[mag_order, :] = (
-                    predictors[mag_order - 1, :]
-                    *
-                    epd_statistics['mag'][not_saturated]
-                )
-
-            num_photometries = epd_statistics['rms'][0].size
+        def select_typical_rms_stars(valid_templates):
+            """Select valid_template stars with "typical" rms for their mag."""
 
             result = scipy.zeros(epd_statistics['rms'].shape, dtype=bool)
 
-            for phot_index in range(num_photometries):
+            for phot_index, valid_phot_templates in enumerate(
+                    valid_templates.T
+            ):
+                predictors = scipy.empty(
+                    (
+                        self._configuration.mag_rms_dependence_order + 1,
+                        valid_phot_templates.sum()
+                    ),
+                    dtype=scipy.float64
+                )
+                predictors[0, :] = 1
+                for mag_order in range(1, predictors.shape[0]):
+                    predictors[mag_order, :] = (
+                        predictors[mag_order - 1, :]
+                        *
+                        epd_statistics['mag'][valid_phot_templates]
+                    )
+
+
                 finite = scipy.isfinite(epd_statistics['rms'][:, phot_index])
-                in_fit = scipy.logical_and(not_saturated, finite)
-                phot_predictors = predictors[:, finite[not_saturated]]
+                in_fit = scipy.logical_and(valid_phot_templates, finite)
+                phot_predictors = predictors[:, finite[valid_phot_templates]]
                 fit_lg_rms = scipy.log10(
                     epd_statistics['rms'][in_fit, phot_index]
                 )
+                self._logger.debug(
+                    'Fitting for typical RMS: '
+                    'predictors shape %s, '
+                    'fit data shape %s.',
+                    phot_predictors.shape,
+                    fit_lg_rms.shape
+                )
+
                 coefficients, max_excess_lg_rms = iterative_fit(
                     phot_predictors,
                     fit_lg_rms,
@@ -322,7 +334,8 @@ class TFACorrection(Correction):
         def select_template_stars(allowed_stars):
             """Select TFA template stars from the set of allowed ones."""
 
-            print('RMS fit left %d allowed stars.' % allowed_stars.sum())
+            self._logger.debug('RMS fit left %d allowed stars.',
+                               allowed_stars.sum())
             #False positive
             #pylint: disable=not-callable
             tree = cKDTree(
@@ -342,17 +355,20 @@ class TFACorrection(Correction):
             print('Template indices: ' + repr(template_indices))
             return scipy.nonzero(allowed_stars)[0][template_indices]
 
+        #TODO: simplify the logic below (too many things appear redundant)
+        self._logger.debug('Selecting templates from: %s',
+                           repr(epd_statistics))
         saturated = (epd_statistics['mag']
                      <
                      self._configuration.saturation_magnitude)
+        self._logger.debug('There are %s unsaturated stars.',
+                           scipy.logical_not(saturated).sum())
         min_observations = scipy.quantile(
             epd_statistics['num_finite'],
             self._configuration.min_observations_quantile
         )
-
-        acceptable_rms = select_typical_rms_stars(
-            scipy.logical_not(saturated)
-        )
+        self._logger.debug('Requiring at least %s observations',
+                           repr(min_observations))
 
         bright_and_long_lc = scipy.logical_and(
             (
@@ -362,6 +378,19 @@ class TFACorrection(Correction):
             )[:, None],
             epd_statistics['num_finite'] >= min_observations
         )
+
+        self._logger.debug(
+            'There are %s non-faint stars with sufficient observations',
+            bright_and_long_lc.sum(0)
+        )
+
+        acceptable_rms = select_typical_rms_stars(
+            scipy.logical_and(
+                scipy.logical_not(saturated[:, None]),
+                bright_and_long_lc
+            )
+        )
+
         if self._configuration.allow_saturated_templates:
             acceptable_rms = scipy.logical_or(
                 saturated[:, None],
@@ -377,23 +406,22 @@ class TFACorrection(Correction):
             acceptable_rms
         )
 
-        print('Requiring at least %d observations' % min_observations)
-
-        print(
-            'There are %s non-faint stars with sufficient observations'
-            %
-            bright_and_long_lc.sum(0)
-        )
-
-        print(
-            'There are %s stars with low RMS'
-            %
+        self._logger.debug('Requiring at least %d observations',
+                           min_observations)
+        self._logger.debug(
+            'There are %s stars with low RMS',
             acceptable_rms.sum(0)
         )
 
         allowed_stars = scipy.logical_and(bright_and_long_lc, acceptable_rms)
 
-        print('There are %s overlap stars' % allowed_stars.sum(0))
+        allowed_star_count = allowed_stars.sum(0)
+        allowed_stars[:, allowed_star_count == 0] = (
+            bright_and_long_lc[:, allowed_star_count == 0]
+        )
+
+        self._logger.debug('There are %s overlap stars',
+                           allowed_stars.sum(0))
 
         num_photometries = epd_statistics['rms'][0].size
 
@@ -942,6 +970,7 @@ class TFACorrection(Correction):
                 scipy.nan
             )
             matched_fit_data[matched_indices] = fit_data[fit_points]
+            matched_fit_data -= scipy.nanmedian(matched_fit_data)
 
             #Error average specified through iterative_fit_config
             #pylint: disable=missing-kwoa
