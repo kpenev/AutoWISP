@@ -146,16 +146,20 @@ def recalculate_correction_statistics(lc_fnames,
 
     for lc_index, fname in enumerate(lc_fnames):
         with LightCurveFile(fname, 'r') as lightcurve:
-            for fit_index, (dataset_key, substitutions) in enumerate(
+            for fit_index, (from_dset, substitutions, to_dset) in enumerate(
                     fit_datasets
             ):
-                (
-                    result['rms'][lc_index][fit_index],
-                    result['num_finite'][lc_index][fit_index]
-                ) = calculate_iterative_rejection_scatter(
-                    lightcurve.get_dataset(dataset_key, **substitutions),
-                    **calculate_scatter_config
-                )
+                try:
+                    (
+                        result['rms'][lc_index][fit_index],
+                        result['num_finite'][lc_index][fit_index]
+                    ) = calculate_iterative_rejection_scatter(
+                        lightcurve.get_dataset(to_dset, **substitutions),
+                        **calculate_scatter_config
+                    )
+                except OSError:
+                    result['rms'][lc_index][fit_index] = numpy.nan
+                    result['num_finite'][lc_index][fit_index] = 0
     return result
 
 
