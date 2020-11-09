@@ -33,6 +33,7 @@ def save_correction_statistics(correction_statistics, filename):
             for int_id in correction_statistics['ID']
         ]
     )
+    mem_dr.close()
 
     num_photometries = correction_statistics['rms'][0].size
 
@@ -67,6 +68,8 @@ def load_correction_statistics(filename):
 
     for index, source_id in enumerate(dframe['2MASSID']):
         result['ID'][index] = mem_dr.parse_hat_source_id(source_id)
+
+    mem_dr.close()
 
     return result
 
