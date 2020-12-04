@@ -26,3 +26,5 @@ e. a. 2019, KeplerGO/lightkurve: Lightkurve v1.0b29 (Version v1.0b29)., Zenodo, 
 `Wotan: Comprehensive time-series de-trending in Python <https://arxiv.org/abs/1906.00966>`_
 
 `The ssos Pipeline: Identification of Solar System Objects in Astronomical Images <https://ui.adsabs.harvard.edu/abs/2019arXiv190603673M/abstract>`_
+
+https://lucid.app/documents/view/181ebe97-7da6-4377-a940-dba00c045b64
