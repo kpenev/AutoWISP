@@ -21,6 +21,11 @@ def parse_command_line():
         'pipeline.'
     )
     parser.add_argument(
+        '--drop-all-tables',
+        action='store_true',
+        help='If passed all pipeline tables are deleted before new ones are created'
+    )
+    parser.add_argument(
         '--drop-hdf5-structure-tables', '--drop-structure',
         action='store_true',
         help='If passed, tables defining the structure of HDF5 files are '
@@ -61,6 +66,7 @@ if __name__ == '__main__':
 
     if cmdline_args.drop_hdf5_structure_tables:
         drop_tables_matching(re.compile('hdf5_.*'))
-
+    if cmdline_args.drop_all_tables:
+        drop_tables_matching(re.compile('.*'))
     DataModelBase.metadata.create_all()
     add_default_hdf5_structures()

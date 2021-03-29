@@ -11,8 +11,9 @@ Session = sessionmaker()
 
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/SuperPhotPipeline',
-    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
-    echo=False
+    #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
+    'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
+    echo=True
 )
 
 Session.configure(bind=db_engine)
