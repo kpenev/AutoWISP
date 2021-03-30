@@ -155,6 +155,8 @@ class LCDataIO:
 
             for lc_quantity in lc_example.elements['dataset']:
                 split_quantity = lc_quantity.split('.')
+                if split_quantity[1] in ['epf', 'tfa']:
+                    continue
                 if split_quantity[0] == 'fitsheader':
                     cls.header_datasets[lc_quantity] = split_quantity[-1]
 

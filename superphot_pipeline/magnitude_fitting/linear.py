@@ -210,4 +210,8 @@ class LinearMagnitudeFit(MagnitudeFit):
 
         super().__init__(config=config, **kwargs)
         self.fit_terms = FitTermsInterface(config.correction_parametrization)
+        print('Setting up linear interpolationg involving the following '
+              'terms:')
+        for term_index, term in enumerate(self.fit_terms.get_term_str_list()):
+            print('\t%d: %s' % (term_index, term))
 #pylint: enable=too-few-public-methods

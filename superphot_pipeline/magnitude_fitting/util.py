@@ -1,6 +1,7 @@
 """Functions for creating and working with photometric renfereneces."""
 
 from tempfile import TemporaryDirectory
+import functools
 from multiprocessing import Pool, Lock
 import logging
 
@@ -114,9 +115,9 @@ def iterative_refit(fit_dr_filenames,
 
         master_photref_fname_pattern(str):    A %-substitution pattern involving
             a %(magfit_iteration)s substitution along with any variables passed
-            through the path_substitutions arguments, that expands to the name of
-            the file to save the master photometric reference for a particular
-            iteration.
+            through the path_substitutions arguments, that expands to the name
+            of the file to save the master photometric reference for a
+            particular iteration.
 
         magfit_stat_fname_pattern(str):    Similar to
             ``master_photref_fname_pattern``, but defines the name to use for
@@ -178,7 +179,10 @@ def iterative_refit(fit_dr_filenames,
             square_diff = (old_reference[source]['mag'][0]
                            -
                            new_reference[source]['mag'][0])**2
+            #False positive
+            #pylint: disable=assignment-from-no-return
             finite_entries = numpy.isfinite(square_diff)
+            #pylint: enable=assignment-from-no-return
             print('Num photometries: ' + repr(num_photometries))
             print('square_diff (shape=%s): ' % repr(square_diff.shape)
                   +
@@ -239,11 +243,9 @@ def iterative_refit(fit_dr_filenames,
                                         master_catalogue=catalogue,
                                         magfit_collector=magfit_stat_collector)
             if configuration.num_parallel_processes > 1:
+                pool_magfit = functools.partial(magfit, **path_substitutions)
                 with Pool(configuration.num_parallel_processes) as magfit_pool:
-                    magfit_pool.map(
-                        lambda dr_fname: magfit(dr_fname, **path_substitutions),
-                        fit_dr_filenames
-                    )
+                    magfit_pool.map(pool_magfit, fit_dr_filenames)
             else:
                 for dr_fname in fit_dr_filenames:
                     magfit(dr_fname, **path_substitutions)
