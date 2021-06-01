@@ -61,5 +61,5 @@ class Camera(DataModelBase):
     )
 
     observing_session = relationship("ObservingSession", back_populates="camera")
-    camera_type = relationship("CameraType", back_populates="camera")
+    camera_type = relationship("CameraType", back_populates="cameras")
     camera_access = relationship("CameraAccess", back_populates="camera")

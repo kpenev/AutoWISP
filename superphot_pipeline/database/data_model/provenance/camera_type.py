@@ -77,4 +77,4 @@ class CameraType(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-    camera = relationship("Camera", back_populates="camera_type")
+    cameras = relationship("Camera", back_populates="camera_type")
