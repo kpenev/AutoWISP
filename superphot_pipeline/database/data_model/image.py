@@ -27,7 +27,7 @@ __all__= ['Image']
 #pylint: disable=too-few-public-methods
 
 #TODO replace proper image terms imports
-
+#TODO  image and camera should have all the resolutions for all the channels separated
 class Image(DataModelBase):
     """The table describing the image specified"""
 

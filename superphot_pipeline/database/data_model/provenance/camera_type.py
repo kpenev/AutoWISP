@@ -47,10 +47,25 @@ class CameraType(DataModelBase):
         nullable=False,
         doc='The version of the camera'
     )
-    senesor_type = Column(
+    sensor_type = Column(
         String(100),
         nullable=False,
         doc='The sensor type of the camera'
+    )
+    x_resolution = Column(
+        Integer,
+        nullable=False,
+        doc='The x_resolution of the camera'
+    )
+    y_resolution = Column(
+        Integer,
+        nullable=False,
+        doc='The y_resolution of the camera'
+    )
+    pixel_size = Column(
+        Float,
+        nullable=False,
+        doc='The pixel size of the camera'
     )
     notes = Column(
         String(1000),

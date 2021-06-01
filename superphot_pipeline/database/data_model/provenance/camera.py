@@ -20,6 +20,8 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 
 #pylint: enable=invalid-name
 
+#TODO  image and camera should have all the resolutions for all the channels separated
+
 __all__ = ['Camera']
 
 #The standard use of SQLAlchemy ORM requires classes with no public methods.
@@ -46,16 +48,6 @@ class Camera(DataModelBase):
         String(100),
         nullable=False,
         doc='The serial number of the camera'
-    )
-    x_resolution = Column(
-        Integer,
-        nullable=False,
-        doc='The x_resolution of the camera'
-    )
-    y_resolution = Column(
-        Integer,
-        nullable=False,
-        doc='The y_resolution of the camera'
     )
     notes = Column(
         String(1000),
