@@ -25,7 +25,7 @@ def import_table_definitions():
         )
     )
     for module_name in table_modules:
-        module = import_module('superphot_pipeline.database.data_model.'
+        module = import_module('superphot_pipeline.database.data_model.provenance.'
                                +
                                module_name)
         #Pylint false positive

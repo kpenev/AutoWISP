@@ -689,7 +689,6 @@ def _get_magfit_attributes(photometry_mode):
     pipeline_key_start, dset_path, iter_split = _get_magfit_key_and_path(
         photometry_mode
     )
-
     result = [
         HDF5Attribute(
             pipeline_key=pipeline_key_start + 'num_input_src',
