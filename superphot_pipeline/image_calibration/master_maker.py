@@ -380,7 +380,7 @@ class MasterMaker(Processor):
                  frame_list,
                  output_fname,
                  *,
-                 compress=True,
+                 compress=16,
                  allow_overwrite=False,
                  custom_header=dict(),
                  **stacking_options):
@@ -396,7 +396,9 @@ class MasterMaker(Processor):
 
             output_fname:    The name of the output file to create.
 
-            compress:    Should the final result be compressed?
+            compress:    If None or False, the final result is not
+                compressed. Otherwise, this is the quantization level used for
+                compressing the image (see `astropy.io.fits` documentation).
 
             allow_overwrite:    See same name argument
                 to superphot_pipeline.image_calibration.fits_util.create_result.
