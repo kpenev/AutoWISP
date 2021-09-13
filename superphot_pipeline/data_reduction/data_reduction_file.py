@@ -226,11 +226,11 @@ class DataReductionFile(DataReductionPostProcess):
                 The coefficients of the shape map. See the C++ documentation for
                 more details of the layout.
         """
-
+        print(path_substitutions)
         return (
             self._get_shapefit_map_grid(**path_substitutions),
             self.get_attribute('shapefit.cfg.psf.terms',
-                               **path_substitutions).decode(),
+                               **path_substitutions),
             self.get_dataset('shapefit.map_coef', **path_substitutions)
         )
 
