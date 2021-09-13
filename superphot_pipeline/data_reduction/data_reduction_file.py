@@ -230,7 +230,7 @@ class DataReductionFile(DataReductionPostProcess):
         return (
             self._get_shapefit_map_grid(**path_substitutions),
             self.get_attribute('shapefit.cfg.psf.terms',
-                               **path_substitutions).decode(),
+                               **path_substitutions),
             self.get_dataset('shapefit.map_coef', **path_substitutions)
         )
 
