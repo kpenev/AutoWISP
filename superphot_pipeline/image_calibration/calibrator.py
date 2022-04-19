@@ -538,7 +538,7 @@ class Calibrator(Processor):
     def __call__(self,
                  raw,
                  calibrated,
-                 compress_calibrated=True,
+                 compress_calibrated=16,
                  allow_overwrite=False,
                  **calibration_params):
         r"""
@@ -550,7 +550,9 @@ class Calibrator(Processor):
             calibrated:    The filename under which to save the
                 calibrated frame.
 
-            compress_calibrated:    Should the calibrated image be compressed.
+            compress_calibrated:    If None or False, the output image is not
+                compressed. Otherwise, this is the quantization level used for
+                compressing the image (see `astropy.io.fits` documentation).
 
             allow_overwrite:    If a file matching the calibrated image name
                 exists, should it be overwritten (otherwise raises exception).
