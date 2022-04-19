@@ -66,4 +66,4 @@ class Image(DataModelBase):
     )
 
     image_type = relationship("ImageType", back_populates="image")
-    observing_session = relationship("ObservingSession", back_populates="image")
+    observing_session = relationship("ObservingSession", back_populates="images")

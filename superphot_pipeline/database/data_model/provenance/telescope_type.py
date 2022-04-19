@@ -53,10 +53,10 @@ class TelescopeType(DataModelBase):
         nullable=False,
         doc='The focal ratio of the telescope'
     )
-    diameter = Column(
+    focal_length = Column(
         Float,
         nullable=False,
-        doc='The diameter of the telescope'
+        doc='The focal length of the telescope in mm'
     )
     notes = Column(
         String(1000),
@@ -69,4 +69,4 @@ class TelescopeType(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    telescope = relationship("Telescope", back_populates="telescope_type")
+    telescopes = relationship("Telescope", back_populates="telescope_type")

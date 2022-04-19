@@ -59,4 +59,4 @@ class Telescope(DataModelBase):
 
     observing_session = relationship("ObservingSession", back_populates="telescope")
     telescope_access = relationship("TelescopeAccess", back_populates="telescope")
-    telescope_type = relationship("TelescopeType", back_populates="telescope")
+    telescope_type = relationship("TelescopeType", back_populates="telescopes")

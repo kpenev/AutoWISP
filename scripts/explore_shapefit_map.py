@@ -4,10 +4,16 @@
 
 import functools
 import os.path
+import sys
 
+import inspect
 from configargparse import ArgumentParser, DefaultsFormatter
 import scipy
+import numpy
+numpy.set_printoptions(threshold=sys.maxsize)
 from astropy.io import fits
+import pprint
+from matplotlib import pyplot
 
 from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
 from superphot.utils import explore_prf
@@ -62,7 +68,6 @@ def get_shape_map_sources(dr_fname):
     dummy_tool = SubPixPhot()
     io_tree = SuperPhotIOTree(dummy_tool)
 
-    #star_shape_grid
     with DataReductionFile(dr_fname, 'r') as dr_file:
         dr_file.fill_aperture_photometry_input_tree(io_tree)
 
@@ -85,8 +90,10 @@ def get_shape_map_sources(dr_fname):
         magnitudes,
         io_tree.get('psffit.magnitude_1adu')
     )
+
     return PiecewiseBicubicPSFMap(io_tree), sources, grid_x, grid_y
 
+#TODO figure out this piecewise thing
 
 def main(cmdline_args):
     """Avoid polluting global namespace."""
@@ -103,7 +110,6 @@ def main(cmdline_args):
                                    read_error=False,
                                    read_mask=False)[0]
     image_resolution = (header['NAXIS2'], header['NAXIS1'])
-
     prf_map, sources, grid_x, grid_y = get_shape_map_sources(
         cmdline_args.dr_pattern
         %
@@ -112,6 +118,16 @@ def main(cmdline_args):
             header
         )
     )
+    # image_center_x = image_resolution[1] / 2
+    # image_center_y = image_resolution[0] / 2
+
+    spline_x_psf = scipy.array(scipy.linspace(grid_x.min(), grid_x.max(), cmdline_args.spline_spacing))
+    spline_y_psf = scipy.array(scipy.linspace(grid_y.min(), grid_y.max(), cmdline_args.spline_spacing))
+
+    meshgrid_x, meshgrid_y = numpy.meshgrid(spline_x_psf, spline_y_psf)
+
+    # prf = prf_map(x=scipy.array([image_center_x]), y=scipy.array([image_center_y]))
+    # eval_prf = scipy.array([prf(x=grid_x[i], y=grid_y[i]) for i in range(grid_x[0].size)])
 
     image_slices = explore_prf.get_image_slices(
         cmdline_args.split_image,
@@ -141,6 +157,10 @@ def main(cmdline_args):
         )
         for x_image_slice, y_image_slice, x_index, y_index in image_slices
     ]
+
+
+    # eval_prf = numpy.array([slice(meshgrid_x, meshgrid_y) for slice in slice_splines])
+
     if cmdline_args.assume_psf:
         if cmdline_args.subpix_map is None:
             slice_splines = [
@@ -160,10 +180,15 @@ def main(cmdline_args):
                     )
                     for psf in slice_splines
                 ]
+    #use .flatten on arrays
+    eval_prf = [slice(meshgrid_x, meshgrid_y) for slice in slice_splines]
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
                            cmdline_args)
+
+    if cmdline_args.plot_3d_spline:
+        explore_prf.plot_3d_prf(cmdline_args, meshgrid_x, meshgrid_y, eval_prf)
 
     if cmdline_args.plot_entire_prf:
         explore_prf.plot_entire_prf(cmdline_args,

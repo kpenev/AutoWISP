@@ -57,7 +57,7 @@ class Mount(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    mount_type = relationship("MountType", back_populates="mount")
+    mount_type = relationship("MountType", back_populates="mounts")
     mount_access = relationship("MountAccess", back_populates="mount")
     observing_session = relationship("ObservingSession", back_populates="mount")
 

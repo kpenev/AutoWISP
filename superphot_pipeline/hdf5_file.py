@@ -601,7 +601,7 @@ class HDF5File(ABC, h5py.File):
             if (
                     if_exists == 'ignore'
                     or
-                    parent.attrs[attribute_name] == attribute_value
+                    (parent.attrs[attribute_name] == numpy.asarray(attribute_value)).all()
             ):
                 return parent.attrs[attribute_name]
             if if_exists == 'error':

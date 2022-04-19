@@ -125,4 +125,4 @@ class ObservingSession(DataModelBase):
     mount = relationship("Mount", back_populates="observing_session")
     observatory = relationship("Observatory", back_populates="observing_session")
     target = relationship("Target", back_populates="observing_session")
-    image = relationship("Image", back_populates="observing_session")
+    images = relationship("Image", back_populates="observing_session")
