@@ -60,7 +60,8 @@ class PiecewiseBicubicPSFMap:
         Find the best fit PSF/PRF map for the given images (simultaneous fit).
 
         Args:
-            fits_fnames(str iterable):    The filenames of the FITS files to fit.
+            fits_fnames(str iterable):    The filenames of the FITS files to
+                fit.
 
             sources(numpy structured array iterable):    For each image specify
                 the sources on which to base the PSF/PRF map. Sources are
@@ -78,17 +79,21 @@ class PiecewiseBicubicPSFMap:
             None
         """
 
+        print('Starting PSF/PRF fit')
         assert len(fits_fnames) == len(sources)
         assert (output_dr_fnames is None
                 or
                 len(output_dr_fnames) == len(fits_fnames))
 
         opened_frames = [fits.open(fname, 'readonly') for fname in fits_fnames]
-        value_index = 1 if opened_frames[0].header['NAXIS'] == 0 else 0
+        value_index = 1 if opened_frames[0][0].header['NAXIS'] == 0 else 0
         error_index, mask_index = value_index + 1, value_index + 2
+        print('V=%d, E=%d, M=%d' % (value_index, error_index, mask_index))
         for frame in opened_frames:
             assert frame[error_index].header['IMAGETYP'] == 'error'
             assert frame[mask_index].header['IMAGETYP'] == 'mask'
+
+        print('Finished setting up')
 
         measure_backgrounds = [
             superphot.BackgroundExtractor(
@@ -102,6 +107,8 @@ class PiecewiseBicubicPSFMap:
         for get_bg, frame_sources in zip(measure_backgrounds, sources):
             get_bg(numpy.copy(frame_sources['x']),
                    numpy.copy(frame_sources['y']))
+
+        print('Measured background')
 
         fit_result = self._star_shape_fitter.fit(
             [
@@ -118,14 +125,20 @@ class PiecewiseBicubicPSFMap:
             require_convergence=False
         )
 
+        print('Finished fitting')
+
         if output_dr_fnames:
             for image_index, dr_fname in enumerate(output_dr_fnames):
                 with DataReductionFile(dr_fname, 'a') as dr_file:
                     dr_file.add_star_shape_fit(
-                        self.configuration['shape_terms_expression'],
+                        fit_terms_expression=self.configuration[
+                            'shape_terms_expression'
+                        ],
                         shape_fit_result_tree=fit_result,
                         num_sources=sources[image_index].size,
                         image_index=image_index,
                         fit_variables=self._eval_shape_terms.get_var_names()
                     )
+
+        print('Saved')
     #pylint: enable=too-many-locals
