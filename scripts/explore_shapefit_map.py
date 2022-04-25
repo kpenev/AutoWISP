@@ -10,7 +10,6 @@ import inspect
 from configargparse import ArgumentParser, DefaultsFormatter
 import scipy
 import numpy
-numpy.set_printoptions(threshold=sys.maxsize)
 from astropy.io import fits
 import pprint
 from matplotlib import pyplot
@@ -199,4 +198,5 @@ def main(cmdline_args):
 
 
 if __name__ == '__main__':
+    numpy.set_printoptions(threshold=sys.maxsize)
     main(parse_command_line())
