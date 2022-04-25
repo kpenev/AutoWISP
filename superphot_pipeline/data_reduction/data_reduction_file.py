@@ -8,7 +8,7 @@ import re
 import numpy
 import h5py
 
-from superphot import SmoothDependence
+from superphot_pipeline import fit_expression
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 
 from .post_process import DataReductionPostProcess
@@ -235,6 +235,7 @@ class DataReductionFile(DataReductionPostProcess):
         )
 
     def _add_shapefit_map(self,
+                          fit_terms_expression,
                           shape_fit_result_tree,
                           **path_substitutions):
         """
@@ -259,11 +260,9 @@ class DataReductionFile(DataReductionPostProcess):
                                splits,
                                if_exists='error',
                                **path_substitutions)
-        num_terms = len(
-            SmoothDependence.expand_expression(
-                shape_fit_result_tree.get('psffit.terms', str)
-            )
-        )
+        num_terms = fit_expression.Interface(
+            fit_terms_expression
+        ).number_terms()
         coefficients = shape_fit_result_tree.get(
             'psffit.psfmap',
             shape=(4,
@@ -521,6 +520,8 @@ class DataReductionFile(DataReductionPostProcess):
         return self.read_fitsheader_from_dataset('fitsheader', **substitutions)
 
     def add_star_shape_fit(self,
+                           *,
+                           fit_terms_expression,
                            shape_fit_result_tree,
                            num_sources,
                            image_index=0,
@@ -546,7 +547,8 @@ class DataReductionFile(DataReductionPostProcess):
             None
         """
 
-        self._add_shapefit_map(shape_fit_result_tree,
+        self._add_shapefit_map(fit_terms_expression,
+                               shape_fit_result_tree,
                                background_version=0,
                                shapefit_version=0)
         self._add_shapefit_sources(
