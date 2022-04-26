@@ -80,7 +80,8 @@ def main(cmdline_args):
     sources = prf_map.load(
         cmdline_args.dr_pattern
         %
-        get_fname_pattern_substitutions(cmdline_args.frame_fname, header)
+        get_fname_pattern_substitutions(cmdline_args.frame_fname, header),
+        return_sources=True
     )
 
     # image_center_x = image_resolution[1] / 2

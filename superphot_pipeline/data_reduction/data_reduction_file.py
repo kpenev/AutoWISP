@@ -230,7 +230,7 @@ class DataReductionFile(DataReductionPostProcess):
         print(path_substitutions)
         return (
             self._get_shapefit_map_grid(**path_substitutions),
-            self.get_dataset('shapefit.map_coef', **path_substitutions)
+            self.get_dataset('shapefit.map_coef', **path_substitutions),
             self.get_attribute('shapefit.cfg.psf.terms', **path_substitutions)
         )
 
@@ -611,7 +611,7 @@ class DataReductionFile(DataReductionPostProcess):
         result = dict()
         result['source_data'] = self.get_source_data(
             magfit_iterations=[0],
-            shapefit=True,
+            shape_fit=True,
             apphot=False,
             shape_map_variables=True,
             string_source_ids=True,
@@ -623,13 +623,15 @@ class DataReductionFile(DataReductionPostProcess):
         )
         (
             result['star_shape_grid'],
-            shape_map_terms_expression,
-            result['star_shape_map_coefficients']
-        ) = self._get_shapefit_map(result['source_data'], **path_substitutions)
+            result['star_shape_map_coefficients'],
+            shape_map_terms_expression
+        ) = self._get_shapefit_map(**path_substitutions)
+
+        shape_map_terms_expression = shape_map_terms_expression.decode()
 
         result['star_shape_map_terms'] = fit_expression.Interface(
             shape_map_terms_expression
-        )(source_data).T
+        )(result['source_data']).T
 
         return result, shape_map_terms_expression
 
@@ -664,9 +666,9 @@ class DataReductionFile(DataReductionPostProcess):
             shapefit_version=shapefit_version,
             srcproj_version=srcproj_version,
             background_version=background_version
-        )
+        )[0]
         tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
-        return aperture_photometry_inputs['source_data'].size,
+        return aperture_photometry_inputs['source_data'].size
 
     def add_aperture_photometry(self,
                                 apphot_result_tree,
@@ -899,6 +901,8 @@ class DataReductionFile(DataReductionPostProcess):
             if apphot:
                 num_photometries += num_apertures
 
+            print('# photometries: ' + repr(num_photometries))
+
             magnitude_shape = (len(magfit_iterations), num_photometries)
 
             if num_photometries > 0:
@@ -915,6 +919,8 @@ class DataReductionFile(DataReductionPostProcess):
                 )
                 for var_name in shape_map_var_names
             ])
+
+            print('Dtype: ' + repr(dtype))
 
             return numpy.empty(
                 shape=(num_sources,),

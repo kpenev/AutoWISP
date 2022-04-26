@@ -170,8 +170,11 @@ class PiecewiseBicubicPSFMap:
 
         if return_sources:
             sources = numpy.copy(apphot_data['source_data'])
+            print('Source data: ' + repr(apphot_data['source_data'][:3]))
             sources.dtype.names = tuple('flux' if field == 'mag' else field
                                         for field in sources.dtype.names)
+            print('Source data: ' + repr(apphot_data['source_data'][:3]))
+
             sources['flux'] = flux_from_magnitude(
                 apphot_data['source_data']['mag'],
                 self.configuration['magnitude_1adu']
