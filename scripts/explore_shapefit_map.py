@@ -111,20 +111,21 @@ def main(cmdline_args):
 
     slice_splines = [
         prf_map(
-            x=numpy.array([
+            numpy.array(
                 (
-                    x_image_slice.start
-                    +
-                    (x_image_slice.stop or image_resolution[1])
-                ) / 2.0
-            ]),
-            y=numpy.array([
-                (
-                    y_image_slice.start
-                    +
-                    (y_image_slice.stop or image_resolution[0])
-                ) / 2.0
-            ])
+                    (
+                        x_image_slice.start
+                        +
+                        (x_image_slice.stop or image_resolution[1])
+                    ) / 2.0,
+                    (
+                        y_image_slice.start
+                        +
+                        (y_image_slice.stop or image_resolution[0])
+                    ) / 2.0,
+                ),
+                dtype=[('x', float), ('y', float)]
+            )
         )
         for x_image_slice, y_image_slice, x_index, y_index in image_slices
     ]

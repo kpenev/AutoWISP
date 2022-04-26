@@ -169,7 +169,9 @@ class PiecewiseBicubicPSFMap:
         )
 
         if return_sources:
-            sources = numpy.copy(apphot_data['source_data'])
+            sources = numpy.copy(apphot_data['source_data']).astype(
+                numpy.dtype(apphot_data['source_data'].dtype.fields)
+            )
             print('Source data: ' + repr(apphot_data['source_data'][:3]))
             sources.dtype.names = tuple('flux' if field == 'mag' else field
                                         for field in sources.dtype.names)
