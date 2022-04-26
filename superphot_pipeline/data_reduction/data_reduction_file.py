@@ -627,7 +627,8 @@ class DataReductionFile(DataReductionPostProcess):
             shape_map_terms_expression
         ) = self._get_shapefit_map(**path_substitutions)
 
-        shape_map_terms_expression = shape_map_terms_expression.decode()
+        if not isinstance(shape_map_terms_expression, str):
+            shape_map_terms_expression = shape_map_terms_expression.decode()
 
         result['star_shape_map_terms'] = fit_expression.Interface(
             shape_map_terms_expression
