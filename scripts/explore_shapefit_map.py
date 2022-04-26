@@ -6,19 +6,14 @@ import functools
 import os.path
 import sys
 
-import inspect
 from configargparse import ArgumentParser, DefaultsFormatter
-import scipy
 import numpy
 from astropy.io import fits
-import pprint
-from matplotlib import pyplot
 
-from superphot import PiecewiseBicubicPSFMap, SuperPhotIOTree, SubPixPhot
 from superphot.utils import explore_prf
 from superphot.utils.file_utilities import get_fname_pattern_substitutions
 
-from superphot_pipeline import DataReductionFile
+from superphot_pipeline import PiecewiseBicubicPSFMap
 from superphot_pipeline.image_utilities import read_image_components
 
 
@@ -61,37 +56,6 @@ def parse_command_line():
     return explore_prf.parse_command_line(parser)
 
 
-def get_shape_map_sources(dr_fname):
-    """Return the PSF map contained in the given DR file."""
-
-    dummy_tool = SubPixPhot()
-    io_tree = SuperPhotIOTree(dummy_tool)
-
-    with DataReductionFile(dr_fname, 'r') as dr_file:
-        dr_file.fill_aperture_photometry_input_tree(io_tree)
-
-        sources = dr_file.get_source_data(magfit_iterations=[0],
-                                          shapefit=True,
-                                          apphot=False,
-                                          shapefit_version=0,
-                                          srcproj_version=0,
-                                          background_version=0)
-        inputs = dr_file.get_aperture_photometry_inputs(shapefit_version=0,
-                                                        srcproj_version=0,
-                                                        background_version=0)
-    star_shape_grid = inputs['star_shape_grid']
-    grid_x = star_shape_grid[0]
-    grid_y = star_shape_grid[1]
-    magnitudes = scipy.copy(sources['mag'])
-    sources.dtype.names = tuple('flux' if field == 'mag' else field
-                                for field in sources.dtype.names)
-    sources['flux'] = explore_prf.flux_from_magnitude(
-        magnitudes,
-        io_tree.get('psffit.magnitude_1adu')
-    )
-
-    return PiecewiseBicubicPSFMap(io_tree), sources, grid_x, grid_y
-
 #TODO figure out this piecewise thing
 
 def main(cmdline_args):
@@ -108,25 +72,32 @@ def main(cmdline_args):
                                    read_image=False,
                                    read_error=False,
                                    read_mask=False)[0]
+    #False positive
+    #pylint: disable=unsubscriptable-object
     image_resolution = (header['NAXIS2'], header['NAXIS1'])
-    prf_map, sources, grid_x, grid_y = get_shape_map_sources(
+    #pylint: enable=unsubscriptable-object
+    prf_map = PiecewiseBicubicPSFMap()
+    sources = prf_map.load(
         cmdline_args.dr_pattern
         %
-        get_fname_pattern_substitutions(
-            cmdline_args.frame_fname,
-            header
-        )
+        get_fname_pattern_substitutions(cmdline_args.frame_fname, header)
     )
+
     # image_center_x = image_resolution[1] / 2
     # image_center_y = image_resolution[0] / 2
 
-    spline_x_psf = scipy.array(scipy.linspace(grid_x.min(), grid_x.max(), cmdline_args.spline_spacing))
-    spline_y_psf = scipy.array(scipy.linspace(grid_y.min(), grid_y.max(), cmdline_args.spline_spacing))
+    eval_coords = [
+        numpy.linspace(grid.min(), grid.max(), cmdline_args.spline_spacing)
+        for grid in prf_map.configuration['grid']
+    ]
 
-    meshgrid_x, meshgrid_y = numpy.meshgrid(spline_x_psf, spline_y_psf)
+    eval_coords = numpy.meshgrid(*eval_coords)
 
-    # prf = prf_map(x=scipy.array([image_center_x]), y=scipy.array([image_center_y]))
-    # eval_prf = scipy.array([prf(x=grid_x[i], y=grid_y[i]) for i in range(grid_x[0].size)])
+#    prf = prf_map(x=numpy.array([image_center_x]),
+#                  y=numpy.array([image_center_y]))
+#    eval_prf = numpy.array(
+#        [prf(x=grid_x[i], y=grid_y[i]) for i in range(grid_x[0].size)]
+#    )
 
     image_slices = explore_prf.get_image_slices(
         cmdline_args.split_image,
@@ -139,14 +110,14 @@ def main(cmdline_args):
 
     slice_splines = [
         prf_map(
-            x=scipy.array([
+            x=numpy.array([
                 (
                     x_image_slice.start
                     +
                     (x_image_slice.stop or image_resolution[1])
                 ) / 2.0
             ]),
-            y=scipy.array([
+            y=numpy.array([
                 (
                     y_image_slice.start
                     +
@@ -158,7 +129,7 @@ def main(cmdline_args):
     ]
 
 
-    # eval_prf = numpy.array([slice(meshgrid_x, meshgrid_y) for slice in slice_splines])
+    # eval_prf = numpy.array([slice(*eval_coords) for slice in slice_splines])
 
     if cmdline_args.assume_psf:
         if cmdline_args.subpix_map is None:
@@ -180,20 +151,19 @@ def main(cmdline_args):
                     for psf in slice_splines
                 ]
     #use .flatten on arrays
-    eval_prf = [slice(meshgrid_x, meshgrid_y) for slice in slice_splines]
+    eval_prf = [slice(*eval_coords) for slice in slice_splines]
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
                            cmdline_args)
 
     if cmdline_args.plot_3d_spline:
-        explore_prf.plot_3d_prf(cmdline_args, meshgrid_x, meshgrid_y, eval_prf)
+        explore_prf.plot_3d_prf(cmdline_args, *eval_coords, eval_prf)
 
     if cmdline_args.plot_entire_prf:
         explore_prf.plot_entire_prf(cmdline_args,
                                     image_slices,
-                                    grid_x,
-                                    grid_y,
+                                    *eval_coords,
                                     sources=sources)
 
 

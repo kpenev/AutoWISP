@@ -219,19 +219,19 @@ class DataReductionFile(DataReductionPostProcess):
             2-D numpy.array(dtype=numpy.float64):
                 The grid used to represent source shapes.
 
-            str:
-                An expression defining the terms in the star shape map.
-
             4-D numpy.array(dtype=numpy.float64):
                 The coefficients of the shape map. See the C++ documentation for
                 more details of the layout.
+
+            str:
+                The expression specifying the terms to include in the PSF/PRF
+                dependence.
         """
         print(path_substitutions)
         return (
             self._get_shapefit_map_grid(**path_substitutions),
-            self.get_attribute('shapefit.cfg.psf.terms',
-                               **path_substitutions),
             self.get_dataset('shapefit.map_coef', **path_substitutions)
+            self.get_attribute('shapefit.cfg.psf.terms', **path_substitutions)
         )
 
     def _add_shapefit_map(self,
@@ -603,26 +603,10 @@ class DataReductionFile(DataReductionPostProcess):
                 All parameters required by
                 SuperPhotIOTree.set_aperture_photometry_inputs() directly
                 passable to that method using **.
+
+            str:
+                The expression defining which terms the PSF/PRF depends on.
         """
-
-        def get_shape_map_variable_names(source_data):
-            """Identify and return the variable names directly as c_char_p."""
-
-            result = []
-            for var_name in source_data.dtype.names:
-                if (
-                        var_name == 'enabled'
-                        or
-                        (
-                            source_data[var_name].dtype.kind == 'f'
-                            and
-                            var_name not in ['bg', 'bg_err', 'bg_npix',
-                                             'flux', 'flux_err',
-                                             'mag', 'mag_err']
-                        )
-                ):
-                    result.append(var_name)
-            return result
 
         result = dict()
         result['source_data'] = self.get_source_data(
@@ -639,13 +623,15 @@ class DataReductionFile(DataReductionPostProcess):
         )
         (
             result['star_shape_grid'],
-            result['star_shape_map_terms'],
+            shape_map_terms_expression,
             result['star_shape_map_coefficients']
-        ) = self._get_shapefit_map(**path_substitutions)
-        result['star_shape_map_varnames'] = get_shape_map_variable_names(
-            result['source_data']
-        )
-        return result
+        ) = self._get_shapefit_map(result['source_data'], **path_substitutions)
+
+        result['star_shape_map_terms'] = fit_expression.Interface(
+            shape_map_terms_expression
+        )(source_data).T
+
+        return result, shape_map_terms_expression
 
     def fill_aperture_photometry_input_tree(self,
                                             tree,
@@ -680,10 +666,7 @@ class DataReductionFile(DataReductionPostProcess):
             background_version=background_version
         )
         tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
-        return (
-            aperture_photometry_inputs['source_data'].size,
-            aperture_photometry_inputs['star_shape_map_varnames']
-        )
+        return aperture_photometry_inputs['source_data'].size,
 
     def add_aperture_photometry(self,
                                 apphot_result_tree,
@@ -1279,7 +1262,10 @@ class DataReductionFile(DataReductionPostProcess):
 
         add_attributes(include_shape_fit)
 
-    def add_hat_astrometry(self, filenames, configuration, **path_substitutions):
+    def add_hat_astrometry(self,
+                           filenames,
+                           configuration,
+                           **path_substitutions):
         """
         Add astrometry derived by fistar, and anmatch to the DR file.
 
