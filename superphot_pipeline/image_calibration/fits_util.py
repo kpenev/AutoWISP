@@ -1,5 +1,7 @@
 """Define a generic function to make 3-hdu FITS images (image, error, mask)."""
 
+from os import path, makedirs
+
 from astropy.io import fits
 import numpy
 
@@ -7,7 +9,10 @@ def create_result(image_list,
                   header,
                   result_fname,
                   compress,
-                  allow_overwrite=False):
+                  *,
+                  split_channels=False,
+                  allow_overwrite=False,
+                  **fname_substitutions):
     """
     Create a 3-extension FITS file out of 3 numpy images and header.
 
@@ -31,7 +36,7 @@ def create_result(image_list,
 
         header:    The header to use for the the primary (calibrated) image.
 
-        result_fname:    The filename under which to save the craeted image.
+        result_fname:    See Calibrator.__call__.
 
         compress:    Should the created image be compressed? If value other than
             False or None is used, compression is enabled and this parameter
@@ -40,10 +45,12 @@ def create_result(image_list,
         allow_overwrite:    If a file named **result_fname** already exists,
             should it be overwritten (otherwise throw an exception).
 
+        fname_substitutions:   Any parameters in addition to header entries
+            required to generate the output filename.
+
     Returns:
         None
     """
-
 
     header_list = [header, fits.Header(), fits.Header()]
     header_list[1]['IMAGETYP'] = 'error'
@@ -57,22 +64,34 @@ def create_result(image_list,
 
     assert (image_list[1] > 0).all()
 
-    hdu_list = fits.HDUList([
-        fits.PrimaryHDU(image_list[0], header),
-        fits.ImageHDU(image_list[1], header_list[1]),
-        fits.ImageHDU(image_list[2].astype('uint8'), header_list[2])
-    ])
-    for hdu in hdu_list:
-        hdu.update_header()
+    if not split_channels:
+        split_channels = {None: slice(None)}
 
-    if compress is not False and compress is not None:
-        hdu_list = fits.HDUList(
-            [fits.PrimaryHDU()]
-            +
-            [
-                fits.CompImageHDU(hdu.data, hdu.header, quantize_level=compress)
-                for hdu in hdu_list
-            ]
-        )
+    for channel_name, channel_slice in split_channels.items():
+        if channel_name is not None:
+            header['CLRCHNL'] = channel_name
+        hdu_list = fits.HDUList([
+            fits.PrimaryHDU(image_list[0][channel_slice], header),
+            fits.ImageHDU(image_list[1][channel_slice], header_list[1]),
+            fits.ImageHDU(image_list[2][channel_slice].astype('uint8'),
+                          header_list[2])
+        ])
+        for hdu in hdu_list:
+            hdu.update_header()
 
-    hdu_list.writeto(result_fname, overwrite=allow_overwrite)
+        if compress is not False and compress is not None:
+            hdu_list = fits.HDUList(
+                [fits.PrimaryHDU()]
+                +
+                [
+                    fits.CompImageHDU(hdu.data,
+                                      hdu.header,
+                                      quantize_level=compress)
+                    for hdu in hdu_list
+                ]
+            )
+
+        output_fname = result_fname.format(**header, **fname_substitutions)
+        if not path.exists(path.dirname(output_fname)):
+            makedirs(path.dirname(output_fname))
+        hdu_list.writeto(output_fname, overwrite=allow_overwrite)

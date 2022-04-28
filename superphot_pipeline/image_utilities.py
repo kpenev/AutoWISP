@@ -395,7 +395,7 @@ def fits_image_generator(image_collection):
         if os.path.isdir(entry):
             for fits_fname in sorted(
                     glob(
-                        os.path.join(entry, '*.fits.fz*')
+                        os.path.join(entry, '*.fits*')
                     )
             ):
                 yield fits_fname
