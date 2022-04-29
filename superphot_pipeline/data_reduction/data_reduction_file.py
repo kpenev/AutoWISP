@@ -355,7 +355,7 @@ class DataReductionFile(DataReductionPostProcess):
 
         #TODO: implement filename template from DB ofter DB has been designed.
         #pylint: disable=no-member
-        return cls.fname_template % header
+        return cls.fname_template.format(**header)
         #pylint: enable=no-member
 
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
@@ -408,6 +408,51 @@ class DataReductionFile(DataReductionPostProcess):
                 result['scaleoffset'] = 1
 
         return result
+
+
+    def add_sources(self,
+                    data,
+                    dataset_key,
+                    column_substitution_name,
+                    parse_ids=False,
+                    **path_substitutions):
+        """
+        Creates datasets out of the fields in an array of sources.
+
+        Args:
+            data(structured numpy.array):    The data about the sources to
+                add.
+
+            dataset_key(str):    The pipeline key for the dataset to add.
+
+            column_substitution_name(str):    The %-subsittution variable to
+                distinguish between the column in the array.
+
+            parse_ids(bool):    Should self.parse_hat_source_id() be used to
+                translate string IDs to datasets to insert?
+
+        Returns:
+            None
+        """
+
+        for column_name in data.dtype.names:
+            if parse_ids and column_name == 'ID':
+                id_data = self.parse_hat_source_id(data['ID'])
+                for id_part in ['prefix', 'field', 'source']:
+                    self.add_dataset(
+                        dataset_key=dataset_key,
+                        data=id_data[id_part],
+                        **{column_substitution_name: 'hat_id_' + id_part},
+                        **path_substitutions
+                    )
+            else:
+                self.add_dataset(
+                    dataset_key=dataset_key,
+                    data=data[column_name],
+                    **{column_substitution_name: column_name.replace('/','')},
+                    **path_substitutions
+                )
+
 
     def __init__(self, *args, **kwargs):
         """Open or create a data reduction file.
@@ -1290,45 +1335,6 @@ class DataReductionFile(DataReductionPostProcess):
             None
         """
 
-        def add_sources(data,
-                        dataset_key,
-                        column_substitution_name,
-                        parse_ids=False):
-            """
-            Creates datasets out of the fields in an array of sources.
-
-            Args:
-                data(structured numpy.array):    The data about the sources to
-                    add.
-
-                dataset_key(str):    The pipeline key for the dataset to add.
-
-                column_substitution_name(str):    The %-subsittution variable to
-                    distinguish between the column in the array.
-
-                parse_ids(bool):    Should self.parse_hat_source_id() be used to
-                    translate string IDs to datasets to insert?
-
-            Returns:
-                None
-            """
-
-            for column_name in data.dtype.names:
-                if parse_ids and column_name == 'ID':
-                    id_data = self.parse_hat_source_id(data['ID'])
-                    for id_part in ['prefix', 'field', 'source']:
-                        self.add_dataset(
-                            dataset_key=dataset_key,
-                            data=id_data[id_part],
-                            **{column_substitution_name: 'hat_id_' + id_part},
-                            **path_substitutions
-                        )
-                else:
-                    self.add_dataset(dataset_key=dataset_key,
-                                     data=data[column_name],
-                                     **{column_substitution_name: column_name},
-                                     **path_substitutions)
-
 
         def add_match(extracted_sources, catalogue_sources):
             """Create dset of the matched indices from catalogue & extracted."""
@@ -1429,13 +1435,15 @@ class DataReductionFile(DataReductionPostProcess):
             name.split('[', 1)[0] for name in catalogue_sources.dtype.names
         ]
 
-        add_sources(extracted_sources,
-                    'srcextract.sources',
-                    'srcextract_column_name')
-        add_sources(catalogue_sources,
-                    'catalogue.columns',
-                    'catalogue_column_name',
-                    parse_ids=True)
+        self.add_sources(extracted_sources,
+                         'srcextract.sources',
+                         'srcextract_column_name',
+                         **path_substitutions)
+        self.add_sources(catalogue_sources,
+                         'catalogue.columns',
+                         'catalogue_column_name',
+                         parse_ids=True,
+                         **path_substitutions)
         add_match(extracted_sources, catalogue_sources)
         add_trans()
         add_configuration()

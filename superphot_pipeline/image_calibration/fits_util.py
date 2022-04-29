@@ -68,13 +68,22 @@ def create_result(image_list,
         split_channels = {None: slice(None)}
 
     for channel_name, channel_slice in split_channels.items():
+        print('Slice for %s channel: ' % channel_name + repr(channel_slice))
         if channel_name is not None:
             header['CLRCHNL'] = channel_name
         hdu_list = fits.HDUList([
-            fits.PrimaryHDU(image_list[0][channel_slice], header),
-            fits.ImageHDU(image_list[1][channel_slice], header_list[1]),
-            fits.ImageHDU(image_list[2][channel_slice].astype('uint8'),
-                          header_list[2])
+            fits.PrimaryHDU(
+                numpy.array(image_list[0][channel_slice]),
+                header
+            ),
+            fits.ImageHDU(
+                numpy.array(image_list[1][channel_slice]),
+                header_list[1]
+            ),
+            fits.ImageHDU(
+                numpy.array(image_list[2][channel_slice]).astype('uint8'),
+                header_list[2]
+            )
         ])
         for hdu in hdu_list:
             hdu.update_header()

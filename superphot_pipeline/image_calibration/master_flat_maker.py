@@ -3,9 +3,8 @@
 import numpy
 
 from superphot_pipeline.image_calibration.master_maker import MasterMaker
-from superphot_pipeline.image_utilities import\
-    read_image_components,\
-    get_pointing_from_header
+from superphot_pipeline.fits_utilities import read_image_components
+from superphot_pipeline.image_utilities import get_pointing_from_header
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_smoothing import\
     ImageSmoother

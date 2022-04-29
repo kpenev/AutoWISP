@@ -13,11 +13,12 @@ from superphot_pipeline.image_calibration.mask_utilities import\
     mask_flags
 from superphot_pipeline.image_calibration.fits_util import create_result
 
-from superphot_pipeline.image_utilities import read_image_components
+from superphot_pipeline.fits_utilities import\
+    read_image_components,\
+    get_primary_header
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
-    ImageMismatchError,\
-    BadImageError
+    ImageMismatchError
 from superphot_pipeline import Processor
 
 from superphot_pipeline.image_calibration.mask_utilities import\
@@ -82,7 +83,7 @@ class Calibrator(Processor):
                 image. Treated as a format string that may involve replacement
                 fields from the resulting header, including {CLRCHNL}, which
                 gets replaced by the color channel if channel splitting is
-                performed, as well as {BASE_FNAME}, which gets replaced by the
+                performed, as well as {RAWFNAME}, which gets replaced by the
                 file name of the input FITS file with all directories and
                 `.fits` or `.fits.fz` extension stripped.
 
@@ -461,30 +462,6 @@ class Calibrator(Processor):
             )
     #pylint: enable=anomalous-backslash-in-string
 
-    @staticmethod
-    def _get_raw_header(raw_image):
-        """
-        Return the header to the first non-trivial HDU in raw_image.
-
-        Args:
-            raw_image:    An open fits file to search for a header.
-
-        Returns:
-            fits.Header:
-                The header of the first non-trivial extension in the fits file.
-        """
-
-        #pylint: disable=no-member
-        #pylint false positive.
-        for hdu in raw_image:
-            if hdu.data is not None:
-                return hdu.header
-
-        raise BadImageError("None of the extensions in %s contain any data!"
-                            %
-                            raw_image.filename())
-        #pylint: enable=no-member
-
 
     def _get_calibration_params(self, overwrite_params, raw_image):
         """Set all calibration parameters following overwrite rules."""
@@ -738,19 +715,15 @@ class Calibrator(Processor):
                 apply_flat_correction(calibration_params['flat'],
                                       calibrated_images)
 
-            raw_header = self._get_raw_header(raw_image)
+            raw_header = get_primary_header(raw_image,
+                                            add_filename_keywords=True)
 
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
-            base_fname = path.basename(raw)
-            for ext in ['.fz', '.fits']:
-                if base_fname.endswith(ext):
-                    base_fname = base_fname[:-len(ext)]
             create_result(image_list=calibrated_images,
                           header=raw_header,
                           result_fname=calibration_params['calibrated_fname'],
                           split_channels=calibration_params['split_channels'],
                           compress=calibration_params['compress_calibrated'],
-                          allow_overwrite=calibration_params['allow_overwrite'],
-                          BASE_FNAME=base_fname)
+                          allow_overwrite=calibration_params['allow_overwrite'])

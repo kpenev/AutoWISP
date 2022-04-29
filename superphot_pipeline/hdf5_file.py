@@ -737,9 +737,9 @@ class HDF5File(ABC, h5py.File):
                     dataset_path
                 )
             else:
-                repack_parent.create(repack_attribute_config.name,
-                                     dataset_path,
-                                     dtype=self.get_dtype('repack'))
+                repack_parent.attrs.create(repack_attribute_config.name,
+                                           dataset_path,
+                                           dtype=self.get_dtype('repack'))
             del self[dataset_path]
             return True
 

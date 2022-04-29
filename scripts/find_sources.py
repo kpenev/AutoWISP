@@ -24,13 +24,12 @@ from command_line_util import get_default_frame_processing_cmdline
 
 from superphot_pipeline.image_utilities import\
     fits_image_generator,\
-    zscale_image,\
-    read_image_components
+    zscale_image
+from superphot_pipeline.fits_utilities import read_image_components
+from superphot_pipeline import SourceFinder, Evaluator
 from superphot.utils.file_utilities import\
     get_fits_fname_root,\
     prepare_file_output
-from superphot_pipeline import SourceFinder
-from superphot_pipeline.evaluator import Evaluator
 #pylint: enable=wrong-import-position
 
 def parse_configuration(default_config_files=('find_sources.cfg',),
@@ -167,12 +166,13 @@ class SourceExtractionTuner(tkinter.Frame):
             filter_expression = None
 
         self._display_image(
-            self.find_sources(self._fits_images[0], threshold=threshold),
+            self.find_sources(self._fits_images[0],
+                              brightness_threshold=threshold),
             filter_expression=filter_expression
         )
 
     def _create_active_widgets(self):
-        """Return a dictionary of all the widgets that will be udptade by app."""
+        """Return dictionary of all the widgets that will be udptade by app."""
 
         result = dict(
             xscroll=tkinter.ttk.Scrollbar(self, orient=tkinter.HORIZONTAL),
@@ -277,10 +277,12 @@ class SourceExtractionTuner(tkinter.Frame):
 
         self.configuration = configuration
 
-        self.find_sources = SourceFinder(tool=configuration.tool,
-                                         threshold=configuration.threshold,
-                                         allow_overwrite=True,
-                                         allow_dir_creation=True)
+        self.find_sources = SourceFinder(
+            tool=configuration.tool,
+            brightness_threshold=configuration.threshold,
+            allow_overwrite=True,
+            allow_dir_creation=True
+        )
 
         self._fits_images = list(fits_image_generator(configuration.images))
         self._image = dict(
@@ -332,16 +334,19 @@ def main(configuration):
 
     find_sources = SourceFinder(
         tool=configuration.tool,
-        threshold=configuration.threshold,
+        brightness_threshold=configuration.threshold,
         allow_overwrite=configuration.allow_overwrite,
         allow_dir_creation=configuration.allow_dir_creation,
         always_return_sources=bool(configuration.save_srcfind_snapshots)
     )
 
     for image_fname in fits_image_generator(configuration.images):
+        #False positive
+        #pylint: disable=unbalanced-tuple-unpacking
         image, header = read_image_components(image_fname,
                                               read_error=False,
                                               read_mask=False)
+        #pylint: enable=unbalanced-tuple-unpacking
 
         fname_substitutions = dict(header,
                                    FITS_ROOT=get_fits_fname_root(image_fname))
@@ -363,7 +368,7 @@ def main(configuration):
 
             prepare_file_output(
                 snapshot_fname,
-                allow_overwrite=configuration.allow_overwrite,
+                allow_existing=configuration.allow_overwrite,
                 allow_dir_creation=configuration.allow_dir_creation,
                 delete_existing=True
             )

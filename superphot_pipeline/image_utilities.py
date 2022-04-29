@@ -12,97 +12,15 @@ from PIL import Image
 import scipy
 import scipy.interpolate
 
-from superphot_pipeline.pipeline_exceptions import BadImageError
 from superphot.utils.file_utilities import\
     prepare_file_output,\
     get_fname_pattern_substitutions
+from superphot_pipeline.pipeline_exceptions import BadImageError
+from superphot_pipeline import Evaluator
 
 _logger = logging.getLogger(__name__)
 
 git_id = '$Id$'
-
-def read_image_components(fits_fname,
-                          *,
-                          read_image=True,
-                          read_error=True,
-                          read_mask=True,
-                          read_header=True):
-    """
-    Read image, its error estimate, mask and header from pipeline FITS file.
-
-    Args:
-        fits_fname:    The filename of the FITS file to read the componets of.
-            Must have been produced by the pipeline.
-
-        read_image:    Should the pixel values of the primary image be read.
-
-        read_error:    Should the error extension be searched for and read.
-
-        read_mask:    Should the mask extension be searched for and read.
-
-        read_header:    Should the header of the image extension be returned.
-
-    Returns:
-        (tuple):
-            2-D array:
-                The primary image in the file. Always present.
-
-            2-D array:
-                The error estimate of image, identified by
-                ``IMAGETYP=='error'``. Set to None if none of the extensions
-                have ``IMAGETYP=='error'``. This is omitted from the output if
-                ``read_error == False``.
-
-            2-D array:
-                A bitmask of quality flags for each image pixel (identified by
-                ``IMAGETYP='mask'``). Set to None if none of the extensions have
-                ``IMAGETYP='mask'``. This is omitted from the output if
-                ``read_mask == False``.
-
-            astropy.io.fits.Header:
-                The header of the image HDU in the file. This is omitted from
-                the output if ``read_header == False``.  """
-
-    image = error = mask = header = None
-    with fits.open(fits_fname, mode='readonly') as input_file:
-        for hdu_index, hdu in enumerate(input_file):
-            if hdu.header['NAXIS'] == 0:
-                continue
-            if image is None:
-                image = hdu.data if read_image else True
-                if read_header:
-                    header = hdu.header
-            else:
-                if hdu.header['IMAGETYP'] == 'error':
-                    error = hdu.data
-                elif hdu.header['IMAGETYP'] == 'mask':
-                    mask = hdu.data
-                    if mask.dtype.itemsize != 1:
-                        raise BadImageError(
-                            (
-                                'Mask image (hdu #%d) of %s had data type %s '
-                                '(not int8)'
-                            )
-                            %
-                            (hdu_index, fits_fname, mask.dtype)
-                        )
-            if (
-                    image is not None
-                    and
-                    (error is not None or not read_error)
-                    and
-                    (mask is not None or not read_mask)
-            ):
-                break
-    return (
-        ((image,) if read_image else ())
-        +
-        ((error,) if read_error else ())
-        +
-        ((mask,) if read_mask else())
-        +
-        ((header,) if read_header else())
-    )
 
 #pylint: disable=anomalous-backslash-in-string
 #Triggers on doxygen commands.
@@ -377,19 +295,32 @@ def create_snapshot(fits_fname,
         Image.fromarray(scaled_data[::-1, :], 'L').save(snapshot_fname)
         _logger.debug('Creating snapshot: %s', repr(snapshot_fname))
 
-def fits_image_generator(image_collection):
+
+def fits_image_generator(image_collection, include_condition='True'):
     """
     Iterate over input images specified directly or as directories.
 
     Args:
         image_collection(list):    Should include either fits images and/or
-        directories. In the latter case, all files with `.fits` in their
-        filename in the specified directory are included (sub-directories are
-        not searched).
+            directories. In the latter case, all files with `.fits` in their
+            filename in the specified directory are included (sub-directories
+            are not searched).
+
+        include_condition(str):    Expression involving the header of the
+            images that evaluates to True/False if a particular image from the
+            specified image collection should/should not be processed.
 
     Yields:
-        The images specified in the `image_colleciton` argument.
+        The images specified in the `image_colleciton` argument that satisfy the
+        given condition.
     """
+
+    def check_condition(fits_fname):
+        """Check if the given FITS file satisfies `include_condition`."""
+
+        if include_condition == 'True':
+            return True
+        return Evaluator(fits_fname)(include_condition)
 
     for entry in image_collection:
         if os.path.isdir(entry):
@@ -398,6 +329,7 @@ def fits_image_generator(image_collection):
                         os.path.join(entry, '*.fits*')
                     )
             ):
-                yield fits_fname
-        else:
+                if check_condition(fits_fname):
+                    yield fits_fname
+        elif check_condition(entry):
             yield entry

@@ -11,7 +11,7 @@ import numpy
 
 from superphot.hat_masks import parse_hat_mask, mask_flags
 
-from superphot_pipeline.image_utilities import read_image_components
+from superphot_pipeline.fits_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import ImageMismatchError
 
 git_id = '$Id$'

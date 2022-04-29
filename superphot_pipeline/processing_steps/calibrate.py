@@ -4,13 +4,11 @@
 
 import re
 
-from configargparse import ArgumentParser, DefaultsFormatter, Action
-from asteval import Interpreter
-from astropy.io import fits
+from configargparse import Action
 
 from superphot_pipeline.image_utilities import fits_image_generator
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
-
+from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -88,21 +86,9 @@ class ParseOverscanAction(Action):
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = ArgumentParser(
-        description=__doc__,
-        default_config_files=[],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=True
-    )
+    parser = get_cmdline_parser(__doc__)
     parser.add_argument(
-        '--config-file', '-c',
-        is_config_file=True,
-        help='Specify a configuration file in liu of using command line '
-        'options. Any option can still be overriden on the command line.'
-    )
-
-    parser.add_argument(
-        'image_collection',
+        'raw_images',
         nargs='+',
         help='A combination of individual images and image directories to '
         'process. Directories are not searched recursively.'
@@ -164,6 +150,13 @@ def parse_command_line():
         help='The gain to assume for the input image (electrons/ADU). If not '
         'specified, it must be defined in the header as GAIN keyword.'
     )
+    parser.add_argument(
+        '--compress-calibrated',
+        default=None,
+        type=int,
+        help='Specify a quantization level for compressing the calibrated '
+        'image.'
+    )
     for master in ['bias', 'dark', 'flat']:
         parser.add_argument(
             '--master-' + master,
@@ -180,13 +173,13 @@ def parse_command_line():
     )
     parser.add_argument(
         '--calibrated-fname',
-        default='CAL/{BASE_FNAME}.fits.fz',
+        default='CAL/{RAWFNAME}.fits.fz',
         help='Format string to generate the filenames for saving the '
         'calibrated images. Replacement fields can be anything from the header '
         'of the generated image (including {CLRCHNL} - name of channel if '
-        'channel splitting is done), and {BASE_FNAME} - the name of the '
+        'channel splitting is done, and {RAWFNAME} - the name of the '
         'corresponding input FITS file without directories or `.fits` and '
-        '`.fits.fz` extension.'
+        '`.fits.fz` extension).'
     )
     return parser.parse_args()
 
@@ -194,21 +187,18 @@ def parse_command_line():
 def calibrate(image_collection, configuration):
     """Calibrate the images from the specified collection."""
 
-    image_condition = configuration.pop('calibrate_only_if')
     calibrate_image = Calibrator(**configuration)
-    for image_fname in fits_image_generator(image_collection):
-        if image_condition != 'True':
-            with fits.open(image_fname, 'readonly') as image:
-                for hdu in image:
-                    if hdu['NAXIS'] != 0:
-                        evaluate = Interpreter().symtable.update(hdu.header)
-                        break
-                if not evaluate(image_condition):
-                    continue
+    for image_fname in image_collection:
         calibrate_image(image_fname)
 
 
 if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
     del cmdline_config['config_file']
-    calibrate(cmdline_config.pop('image_collection'), cmdline_config)
+    calibrate(
+        fits_image_generator(
+            cmdline_config.pop('raw_images'),
+            cmdline_config.pop('calibrate_only_if')
+        ),
+        cmdline_config
+    )
