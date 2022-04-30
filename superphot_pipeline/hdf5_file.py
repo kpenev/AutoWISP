@@ -601,7 +601,11 @@ class HDF5File(ABC, h5py.File):
             if (
                     if_exists == 'ignore'
                     or
-                    (parent.attrs[attribute_name] == numpy.asarray(attribute_value)).all()
+                    (
+                        parent.attrs[attribute_name]
+                        ==
+                        numpy.asarray(attribute_value)
+                    ).all()
             ):
                 return parent.attrs[attribute_name]
             if if_exists == 'error':
@@ -1152,12 +1156,12 @@ class HDF5File(ABC, h5py.File):
 
             try:
                 super().__init__(fname, mode, **kwargs)
-            except IOError:
+            except IOError as details:
                 raise HDF5LayoutError(
                     'Problem opening %s in mode=%s'%(fname, mode)
                     +
                     ''.join(format_exception(*exc_info()))
-                )
+                ) from details
 
         layout_version_path, layout_version_attr = (
             self._layout_version_attribute
@@ -1180,4 +1184,50 @@ class HDF5File(ABC, h5py.File):
                 self._file_structure_version
             )
 
+
+    @staticmethod
+    def collect_columns(destination,
+                        name_head,
+                        name_tail,
+                        dset_name,
+                        values):
+        """
+        If dataset is 1D and name starts and ends as given, add to destination.
+
+        This function is intended to be passed to h5py.Group.visititems() after
+        fixing the first 3 arguments using functools.partial.
+
+        Args:
+            destination(dict):    The dictionary to add matching datasets to.
+                Datasets are added with keys given by the part of the name
+                between `name_head` and `name_tail`.
+
+            name_head(str):    Only datasets whose names start with this will be
+                included.
+
+            name_tail(str):    Only datasets whose names end with this will be
+                included.
+
+            dset_name(str):    The name of the dataset.
+
+        Returns:
+            None
+        """
+
+        if (
+                isinstance(values, h5py.Dataset)
+                and
+                dset_name.startswith(name_head)
+                and
+                dset_name.endswith(name_tail)
+                and
+                len(values.shape) == 1
+        ):
+            column_name = dset_name[len(name_head):]
+            if name_tail:
+                column_name = column_name[:-len(name_tail)]
+            print(dset_name + ' -> '  + column_name)
+            destination[column_name] = values[:]
+        else:
+            print(dset_name + ' no good')
 #pylint: enable=too-many-ancestors

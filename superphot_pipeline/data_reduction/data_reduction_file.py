@@ -2,8 +2,10 @@
 
 #pylint: disable=too-many-lines
 
+import string
 from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
+from functools import partial
 
 import numpy
 import h5py
@@ -16,6 +18,9 @@ from .post_process import DataReductionPostProcess
 git_id = '$Id$'
 
 #TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.
+
+#The class has to satisfy many needs, hence many public methods.
+#pylint: disable=too-many-public-methods
 
 #Out of my control (most ancestors come from h5py module).
 #pylint: disable=too-many-ancestors
@@ -452,6 +457,53 @@ class DataReductionFile(DataReductionPostProcess):
                     **{column_substitution_name: column_name.replace('/','')},
                     **path_substitutions
                 )
+
+
+    def get_sources(self,
+                    dataset_key,
+                    column_substitution_name,
+                    **path_substitutions):
+        """
+        Return a collection of sources previously stored in the DR file.
+
+        Args:
+            dataset_key(str):    The pipeline key for the dataset to add.
+
+            column_substitution_name(str):    The %-subsittution variable to
+                distinguish between the column in the array.
+
+        Returns:
+            dict:
+                The keys are the columns of the sources stored and the values
+                are 1-D numpy arrays containing the data.
+        """
+
+        path_substitutions[column_substitution_name] = '{column}'
+        parsed_path = string.Formatter().parse(
+            self._file_structure[dataset_key].abspath
+            %
+            path_substitutions
+        )
+        pre_column, verify, _, _ = next(parsed_path)
+        assert verify == 'column'
+        try:
+            name_tail = next(parsed_path)
+            for i in range(1, 4):
+                assert name_tail[i] is None
+            name_tail = name_tail[0]
+            try:
+                next(parsed_path)
+                assert False
+            except  StopIteration:
+                pass
+        except StopIteration:
+            name_tail = ''
+        parent, name_head = pre_column.rsplit('/', 1)
+        result = dict()
+        self[parent].visititems(
+            partial(self.collect_columns, result, name_head, name_tail)
+        )
+        return result
 
 
     def __init__(self, *args, **kwargs):
@@ -1452,3 +1504,4 @@ class DataReductionFile(DataReductionPostProcess):
     #pylint: enable=too-many-statements
 
 #pylint: enable=too-many-ancestors
+#pylint: enable=too-many-public-methods

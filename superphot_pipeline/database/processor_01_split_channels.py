@@ -19,7 +19,7 @@ from functools import reduce
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from superphot_pipeline.image_calibration.fits_util import create_result
-from superphot_pipeline.image_utilities import fits_image_generator
+from superphot_pipeline.image_utilities import get_fits_fnames
 from superphot_pipeline.database.interface import db_engine, db_session_scope
 from superphot_pipeline.database.data_model.base import DataModelBase
 
@@ -158,7 +158,7 @@ def split(configuration):
     """Actually perform the splitting specified by the given configuration."""
 
     logging.basicConfig(level=getattr(logging, configuration.log_level))
-    for image_fname in fits_image_generator(configuration.images):
+    for image_fname in get_fits_fnames(configuration.images):
         with db_session_scope() as db_session:
             if db_session.query.filter(Image.notes.match(image_fname)):
                 logging.debug('Splitting %s', repr(image_fname))

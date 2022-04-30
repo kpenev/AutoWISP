@@ -3,7 +3,7 @@
 """Detect stars within calibrated image(s)."""
 
 from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
-from superphot_pipeline.image_utilities import fits_image_generator
+from superphot_pipeline.image_utilities import get_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     del cmdline_config['config_file']
     cmdline_config['tool'] = cmdline_config.pop('srcfind_tool')
     find_stars(
-        fits_image_generator(
+        get_fits_fnames(
             cmdline_config.pop('calibrated_images'),
             cmdline_config.pop('srcextract_only_if')
         ),

@@ -31,7 +31,7 @@ from data_model import Image, \
 
 ###Import for proper step###
 from superphot_pipeline.image_calibration.fits_util import create_result
-from superphot_pipeline.image_utilities import fits_image_generator
+from superphot_pipeline.image_utilities import get_fits_fnames
 
 DataModelBase.metadata.bind = db_engine
 

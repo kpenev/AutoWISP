@@ -107,8 +107,12 @@ def get_primary_header(fits_image, add_filename_keywords=False):
     """
 
     if not isinstance(fits_image, fits.HDUList):
-        with fits.open(fits_image, 'readonly') as opened_fits:
-            return get_primary_header(opened_fits)
+        try:
+            with fits.open(fits_image, 'readonly') as opened_fits:
+                return get_primary_header(opened_fits)
+        except OSError:
+            with DataReductionFile(fits_image, 'r') as dr_file:
+                return dr_file.get_frame_header()
     for hdu in fits_image:
         if hdu.header['NAXIS'] != 0:
             result = hdu.header

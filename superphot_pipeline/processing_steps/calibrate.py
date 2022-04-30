@@ -6,7 +6,7 @@ import re
 
 from configargparse import Action
 
-from superphot_pipeline.image_utilities import fits_image_generator
+from superphot_pipeline.image_utilities import get_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
     del cmdline_config['config_file']
     calibrate(
-        fits_image_generator(
+        get_fits_fnames(
             cmdline_config.pop('raw_images'),
             cmdline_config.pop('calibrate_only_if')
         ),
