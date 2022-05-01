@@ -7,9 +7,10 @@ from tempfile import mkstemp
 import os
 
 import numpy
+import pandas
 
 from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
-from superphot_pipeline.image_utilities import get_dr_fnames
+from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 
 def parse_command_line():
@@ -48,7 +49,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--max-srcmatch-distance',
-        dtype=float,
+        type=float,
         default=1.0,
         help='The maximum distance between a projected and extracted source '
         'center before we declare the two could not possibly correspond to the '
@@ -62,7 +63,7 @@ def parse_command_line():
         ' power of the cartographically projected coordinates each of the '
         'frame coordinates is allowed to depend on.'
     )
-    parser.add_argumen(
+    parser.add_argument(
         '--anet-tweak',
         type=int,
         default=3,
@@ -85,6 +86,7 @@ def get_sky_coord_columns(catalogue_fname):
     """Return the column numbers of RA and Dec within the catalogue file."""
 
     with open(catalogue_fname, 'r') as catfile:
+        first_line = ''
         while not first_line:
             first_line = catfile.readline()
     assert first_line[0] == '#'
@@ -109,7 +111,7 @@ class TempAstrometryFiles:
         for file_type in self._file_types:
             handle, fname = mkstemp()
             setattr(self, '_' + file_type, handle)
-            setattr(self, file_type + 'fname', fname)
+            setattr(self, file_type + '_fname', fname)
 
     def __enter__(self):
         """Return the filenames of the temporary files."""
@@ -117,7 +119,7 @@ class TempAstrometryFiles:
         return tuple(getattr(self, file_type + '_fname')
                      for file_type in self._file_types)
 
-    def __exit__(self):
+    def __exit__(self, *ignored_args, **ignored_kwargs):
         """Close and delete the temporary files."""
 
         for file_type in self._file_types:
@@ -140,40 +142,58 @@ def solve_image(dr_fname, **configuration):
         astrometry.
     """
 
+    def print_file_contents(fname, label):
+        """Print the entire contenst of the given file."""
+
+        print(80*'*')
+        print(label.title() + ':')
+        print(80*'-')
+        with open(fname, 'r') as open_file:
+            print(open_file.read())
+        print(80*'-')
+
+
+    print('Solving: ' + repr(dr_fname))
     cat_ra_col, cat_dec_col = get_sky_coord_columns(
         configuration['astrometry_catalogue']
     )
+    print('RA, Dec columns: ' + repr((cat_ra_col, cat_dec_col)))
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         header = dr_file.get_frame_header()
-        with TempAstrometryFiles() as tempfiles:
-            sources = dr_file.get_sources(
-                'srcextract.sources',
-                'srcextract_column_name',
-                srcextract_version=configuration['srcextract_version']
+        with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
+            sources = pandas.DataFrame(
+                dr_file.get_sources(
+                    'srcextract.sources',
+                    'srcextract_column_name',
+                    srcextract_version=configuration['srcextract_version']
+                )
             )
-            x_col = sources.dtype.names.index('x')
-            y_col = sources.dtype.names.index('y')
-            numpy.savetxt(tempfiles.sources_fname, sources)
-
-        subprocess.run(
-            [
+            x_col = int(numpy.argwhere(sources.columns == 'x'))
+            y_col = int(numpy.argwhere(sources.columns == 'y'))
+            sources.to_csv(sources_fname,
+                           sep=' ',
+                           na_rep='-',
+                           float_format='%25.16e')
+            numpy.savetxt(sources_fname, sources)
+            print_file_contents(sources_fname, 'Sources')
+            command = [
                 'anmatch',
                 '--comment',
                 '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
-                '--input', tempfiles.sources_fname,
-                '--max-distance', configuration['max_srcmatch_distance'],
-                '--output-transformation', tempfiles.trans_fname,
+                '--input', sources_fname,
+                '--max-distance', repr(configuration['max_srcmatch_distance']),
+                '--output-transformation', trans_fname,
                 '--input-reference', configuration['astrometry_catalogue'],
                 '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
                                                   cat_dec_col + 1),
-                '--output', tempfiles.match_fname,
-                '--order', configuration['astrometry_order'],
-                '--ra', configuration['frame_center_estimate'][0],
-                '--dec', configuration['frame_center_estimate'][1],
+                '--output', match_fname,
+                '--order', repr(configuration['astrometry_order']),
+                '--ra', repr(configuration['frame_center_estimate'][0]),
+                '--dec', repr(configuration['frame_center_estimate'][1]),
                 '--anet',
                 ','.join([
                     'indexpath={anet_index_path}',
-                    'xsize={NAXSI1}',
+                    'xsize={NAXIS1}',
                     'ysize={NAXIS2}',
                     'xcol={x_col}',
                     'ycol={y_col}',
@@ -185,16 +205,22 @@ def solve_image(dr_fname, **configuration):
                           **header,
                           x_col=x_col+1,
                           y_col=y_col+1)
-            ],
-        )
+            ]
+            print('Executing:\n\t' + '\\\n\t'.join(command))
+            subprocess.run(command, check=True)
+            print_file_contents(match_fname, 'match')
+            print_file_contents(trans_fname, 'trans')
 
 
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
+    for dr_fname in dr_collection:
+        solve_image(dr_fname, **configuration)
+
 
 if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
     del cmdline_config['config_file']
-    solve_astrometry(get_dr_fnames(cmdline_config.pop('dr_files')),
+    solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files')),
                      cmdline_config)
