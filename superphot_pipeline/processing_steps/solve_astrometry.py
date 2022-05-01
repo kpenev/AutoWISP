@@ -5,6 +5,7 @@
 import subprocess
 from tempfile import mkstemp
 import os
+import csv
 
 import numpy
 import pandas
@@ -126,6 +127,44 @@ class TempAstrometryFiles:
             os.close(getattr(self, '_' + file_type))
             os.remove(getattr(self, file_type + '_fname'))
 
+
+def print_file_contents(fname, label):
+    """Print the entire contenst of the given file."""
+
+    print(80*'*')
+    print(label.title() + ':')
+    print(80*'-')
+    with open(fname, 'r') as open_file:
+        print(open_file.read())
+    print(80*'-')
+
+
+def create_sources_file(dr_file, sources_fname, srcextract_version):
+    """Create a file with the given name contaning the extracted sources."""
+
+    sources = dr_file.get_sources(
+        'srcextract.sources',
+        'srcextract_column_name',
+        srcextract_version=srcextract_version
+    )
+    x_col = int(numpy.argwhere(sources.columns == 'x'))
+    y_col = int(numpy.argwhere(sources.columns == 'y'))
+    sources.to_csv(sources_fname,
+                   sep=' ',
+                   na_rep='-',
+                   float_format='%.16e',
+                   quoting=csv.QUOTE_NONE,
+                   index=False,
+                   header=False)
+    print_file_contents(sources_fname, 'Sources')
+
+    return x_col, y_col
+
+
+def save_to_dr(match_fname, trans_fname, configuration, dr_file):
+    """Save the solved astrometry to the given DR file."""
+
+
 def solve_image(dr_fname, **configuration):
     """
     Find the astrometric transformation for a single image.
@@ -142,17 +181,6 @@ def solve_image(dr_fname, **configuration):
         astrometry.
     """
 
-    def print_file_contents(fname, label):
-        """Print the entire contenst of the given file."""
-
-        print(80*'*')
-        print(label.title() + ':')
-        print(80*'-')
-        with open(fname, 'r') as open_file:
-            print(open_file.read())
-        print(80*'-')
-
-
     print('Solving: ' + repr(dr_fname))
     cat_ra_col, cat_dec_col = get_sky_coord_columns(
         configuration['astrometry_catalogue']
@@ -161,21 +189,11 @@ def solve_image(dr_fname, **configuration):
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         header = dr_file.get_frame_header()
         with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
-            sources = pandas.DataFrame(
-                dr_file.get_sources(
-                    'srcextract.sources',
-                    'srcextract_column_name',
-                    srcextract_version=configuration['srcextract_version']
-                )
+            x_col, y_col = create_sources_file(
+                dr_file,
+                sources_fname,
+                configuration['srcextract_version']
             )
-            x_col = int(numpy.argwhere(sources.columns == 'x'))
-            y_col = int(numpy.argwhere(sources.columns == 'y'))
-            sources.to_csv(sources_fname,
-                           sep=' ',
-                           na_rep='-',
-                           float_format='%25.16e')
-            numpy.savetxt(sources_fname, sources)
-            print_file_contents(sources_fname, 'Sources')
             command = [
                 'anmatch',
                 '--comment',
@@ -210,6 +228,7 @@ def solve_image(dr_fname, **configuration):
             subprocess.run(command, check=True)
             print_file_contents(match_fname, 'match')
             print_file_contents(trans_fname, 'trans')
+            save_to_dr(match_fname, trans_fname, configuration, dr_file)
 
 
 def solve_astrometry(dr_collection, configuration):

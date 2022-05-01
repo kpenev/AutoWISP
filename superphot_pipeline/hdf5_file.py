@@ -1198,9 +1198,9 @@ class HDF5File(ABC, h5py.File):
         fixing the first 3 arguments using functools.partial.
 
         Args:
-            destination(dict):    The dictionary to add matching datasets to.
-                Datasets are added with keys given by the part of the name
-                between `name_head` and `name_tail`.
+            destination(pandas.DataFrame):    The DataFrame to add matching
+                datasets to. Datasets are added with column names given by the
+                part of the name between `name_head` and `name_tail`.
 
             name_head(str):    Only datasets whose names start with this will be
                 included.
@@ -1227,7 +1227,7 @@ class HDF5File(ABC, h5py.File):
             if name_tail:
                 column_name = column_name[:-len(name_tail)]
             print(dset_name + ' -> '  + column_name)
-            destination[column_name] = values[:]
+            destination.insert(len(destination.columns), column_name, values)
         else:
             print(dset_name + ' no good')
 #pylint: enable=too-many-ancestors

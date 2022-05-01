@@ -9,6 +9,7 @@ from functools import partial
 
 import numpy
 import h5py
+import pandas
 
 from superphot_pipeline import fit_expression
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
@@ -499,7 +500,7 @@ class DataReductionFile(DataReductionPostProcess):
         except StopIteration:
             name_tail = ''
         parent, name_head = pre_column.rsplit('/', 1)
-        result = dict()
+        result = pandas.DataFrame()
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
         )
