@@ -1210,6 +1210,9 @@ class HDF5File(ABC, h5py.File):
 
             dset_name(str):    The name of the dataset.
 
+            values(array-like):    The values to potentially add as the new
+                column.
+
         Returns:
             None
         """

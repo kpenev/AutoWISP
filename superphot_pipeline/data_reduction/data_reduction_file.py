@@ -504,6 +504,15 @@ class DataReductionFile(DataReductionPostProcess):
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
         )
+        try:
+            id_ind = [colname.lower() for colname in result.columns].index('id')
+            print('Setting %s as index column in sources'
+                  %
+                  result.columns[id_ind])
+            result = result.set_index(result.columns[id_ind])
+        except ValueError:
+            print('No ID column found in sources')
+            pass
         return result
 
 

@@ -147,14 +147,15 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
         'srcextract_column_name',
         srcextract_version=srcextract_version
     )
-    x_col = int(numpy.argwhere(sources.columns == 'x'))
-    y_col = int(numpy.argwhere(sources.columns == 'y'))
+    print('Sources DataFrame:\n' + repr(sources))
+    x_col = int(numpy.argwhere(sources.columns == 'x')) + 1
+    y_col = int(numpy.argwhere(sources.columns == 'y')) + 1
     sources.to_csv(sources_fname,
                    sep=' ',
                    na_rep='-',
                    float_format='%.16e',
                    quoting=csv.QUOTE_NONE,
-                   index=False,
+                   index=True,
                    header=False)
     print_file_contents(sources_fname, 'Sources')
 
@@ -164,6 +165,10 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
 def save_to_dr(match_fname, trans_fname, configuration, dr_file):
     """Save the solved astrometry to the given DR file."""
 
+    cat_sources = pandas.read_csv(configuration['astrometry_catalogue'],
+                                  sep = '\s+',
+                                  header=0,
+                                  index_col=0)
 
 def solve_image(dr_fname, **configuration):
     """
