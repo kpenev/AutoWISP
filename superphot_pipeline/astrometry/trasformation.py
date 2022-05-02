@@ -1,7 +1,10 @@
 """Define class to apply sky-to-frame transformation stored in DR files."""
 
+from functools import partial
+
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.astrometry import map_projections
+import fit_expression
 
 class Transformation:
     """
@@ -12,9 +15,21 @@ class Transformation:
             superphot_pipeline.astrometry.map_projections that is applied first
             to transform RA, Dec -> xi, eta. The latter are then projected to
             x, y.
+
+        evaluate_transformation(fit_expression.Interface):    Evaluator for the
+            pre-projected catalog -> frame coordinates transformation.
     """
 
-    def __init__(self, dr_fname=None):
+    @staticmethod
+    def _create_projected_array(num_sources, save_intermediate):
+        """Create a numpy structured array to hold the projected sources."""
+
+    @staticmethod
+    def _create_projected_data_frame(num_sources, save_intermediate):
+        """Create a pandas.DataFrame to hold the projected sources."""
+
+
+    def __init__(self, dr_fname=None, **dr_path_substitutions):
         """
         Prepare to apply the transformation stored in the given DR file.
 
@@ -28,10 +43,48 @@ class Transformation:
         """
 
         self.pre_projection = None
+        self.evaluate_transformation = None
         if dr_fname is not None:
             with DataReductionFile(dr_fname, 'r') as dr_file:
-                self.read_transformation(dr_file)
+                self.read_transformation(dr_file, **dr_path_substitutions)
 
 
-    def read_transformation(self, dr_file):
+    def read_transformation(self, dr_file, **dr_path_substitutions):
         """Read the transformation from the given DR file (already opened)."""
+
+        pre_projection_name = (
+            dr_file.get_attribute('skytoframe.sky_preprojection',
+                                  **dr_path_substitutions)
+            +
+            '_projection'
+        )
+        pre_projection_center = dr_file.get_attribute('skytoframe.sky_center',
+                                                      **dr_path_substitutions)
+        self.pre_projection = partial(
+            getattr(map_projections, pre_projection_name),
+            RA=pre_projection_center[0],
+            Dec=pre_projection_center[1]
+        )
+
+        self.evaluate_transformation = fit_expression.Interface(
+            dr_file.get_attribute('skytoframe.terms', **dr_path_substitutions)
+        )
+
+    def __call__(self, sources, save_intermediate=False):
+        """
+        Return the projected positions of the given catalogue sources.
+
+        Args:
+            sources(structure numpy array or pandas.DataFrame):    The
+                catalogue sources to project.
+
+            save_intermediate(bool):    If True, the result includes the
+                coordinate of the pre-projection, in addition to the final frame
+                coordinates.
+
+        Returns:
+            same type as sources:
+                The projected source positions with labels 'x', 'y', and
+                optionally (if save_intermediate == True) the pre-projected
+                coordinates `xi` and `eta`.
+        """
