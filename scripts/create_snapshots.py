@@ -8,7 +8,7 @@ from command_line_util import get_default_frame_processing_cmdline
 
 from superphot_pipeline.image_utilities import\
     create_snapshot,\
-    fits_image_generator
+    find_fits_fnames
 
 def parse_configuration(default_config_files=('create_snapshots.cfg',),
                         default_snapshot_pattern='%(FITS_ROOT)s.jpg'):
@@ -24,7 +24,7 @@ def create_all_snapshots(configuration):
     """Create the snapshots per the specified configuraion (from cmdline)."""
 
     logging.basicConfig(level=getattr(logging, configuration.log_level))
-    for image_fname in fits_image_generator(configuration.images):
+    for image_fname in find_fits_fnames(configuration.images):
         create_snapshot(image_fname,
                         configuration.outfname_pattern,
                         overwrite=configuration.allow_overwrite,

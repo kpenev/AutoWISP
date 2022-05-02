@@ -3,7 +3,7 @@
 """Detect stars within calibrated image(s)."""
 
 from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
-from superphot_pipeline.image_utilities import get_fits_fnames
+from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
 
@@ -69,8 +69,12 @@ def find_stars(image_collection, configuration):
         fits_header=get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode='a') as dr_file:
             dr_file.add_frame_header(fits_header)
+            extracted_sources = find_stars_in_image(image_fname)
+            print('Saving the following sources to DR file:\n'
+                  +
+                  repr(extracted_sources))
             dr_file.add_sources(
-                find_stars_in_image(image_fname),
+                extracted_sources,
                 'srcextract.sources',
                 'srcextract_column_name',
                 srcextract_version=srcextract_version
@@ -82,7 +86,7 @@ if __name__ == '__main__':
     del cmdline_config['config_file']
     cmdline_config['tool'] = cmdline_config.pop('srcfind_tool')
     find_stars(
-        get_fits_fnames(
+        find_fits_fnames(
             cmdline_config.pop('calibrated_images'),
             cmdline_config.pop('srcextract_only_if')
         ),

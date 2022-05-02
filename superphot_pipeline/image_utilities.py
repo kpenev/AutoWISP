@@ -309,7 +309,7 @@ def get_data_filenames(data_collection,
 
         recursive(bool):    Should inputs globs be searched recursively?
 
-        include_condition(str):    See get_fits_fnames()
+        include_condition(str):    See find_data_fnames()
 
     Yields:
         The files from the input collection that satisfy the given condition.

@@ -371,7 +371,7 @@ class DataReductionFile(DataReductionPostProcess):
 
         if dataset_key == 'srcextract.sources':
             column = path_substitutions['srcextract_column_name']
-            if column in ['ID', 'NumberPixels']:
+            if column.lower() in ['id', 'numberpixels']:
                 result['compression'] = 'gzip'
                 result['compression_opts'] = 9
             else:
@@ -420,7 +420,9 @@ class DataReductionFile(DataReductionPostProcess):
                     data,
                     dataset_key,
                     column_substitution_name,
+                    *,
                     parse_ids=False,
+                    ascii_columns=(),
                     **path_substitutions):
         """
         Creates datasets out of the fields in an array of sources.
@@ -437,13 +439,35 @@ class DataReductionFile(DataReductionPostProcess):
             parse_ids(bool):    Should self.parse_hat_source_id() be used to
                 translate string IDs to datasets to insert?
 
+            string_columns([str]):    A list of column names to convert to ascii
+                strings before saving.
+
         Returns:
             None
         """
 
-        for column_name in data.dtype.names:
+        def iter_data():
+            """Iterate over (column name, values) of the input data."""
+
+            if hasattr(data, 'dtype'):
+                for column_name in data.dtype.names:
+                    yield column_name, data[column_name]
+            else:
+                yield data.index.name, data.index.array
+                for column_name, series in data.items():
+                    yield column_name, series.array
+
+        for column_name, column_data in iter_data():
+            if column_name in ascii_columns:
+                column_data = column_data.astype('string_')
             if parse_ids and column_name == 'ID':
-                id_data = self.parse_hat_source_id(data['ID'])
+                print(
+                    'Parsing {col!r} column as HAT ids: {data!r}'.format(
+                        col=column_name,
+                        data=column_data
+                    )
+                )
+                id_data = self.parse_hat_source_id(column_data)
                 for id_part in ['prefix', 'field', 'source']:
                     self.add_dataset(
                         dataset_key=dataset_key,
@@ -452,9 +476,11 @@ class DataReductionFile(DataReductionPostProcess):
                         **path_substitutions
                     )
             else:
+                print('Adding {column}: {data!r}'.format(column=column_name,
+                                                         data=column_data))
                 self.add_dataset(
                     dataset_key=dataset_key,
-                    data=data[column_name],
+                    data=column_data,
                     **{column_substitution_name: column_name.replace('/','')},
                     **path_substitutions
                 )
@@ -506,12 +532,8 @@ class DataReductionFile(DataReductionPostProcess):
         )
         try:
             id_ind = [colname.lower() for colname in result.columns].index('id')
-            print('Setting %s as index column in sources'
-                  %
-                  result.columns[id_ind])
-            result = result.set_index(result.columns[id_ind])
+            result.set_index(result.columns[id_ind], inplace=True)
         except ValueError:
-            print('No ID column found in sources')
             pass
         return result
 
@@ -550,13 +572,12 @@ class DataReductionFile(DataReductionPostProcess):
                          for value, prefix in enumerate(self._hat_id_prefixes))
                 )
             )
-
         return result
 
     def parse_hat_source_id(self, source_id):
         """Return the prefix ID, field number, and source number."""
 
-        if isinstance(source_id, numpy.ndarray):
+        if hasattr(source_id, 'dtype') and source_id.shape:
             id_data = {
                 id_part: numpy.empty(
                     (len(source_id),),
@@ -579,6 +600,7 @@ class DataReductionFile(DataReductionPostProcess):
                 source_id = source_id[:c_style_end].decode()
             else:
                 source_id = source_id.decode()
+        print('Parsing HAT id: ' + repr(source_id))
         prefix_str, field_str, source_str = source_id.split('-')
         return (
             numpy.where(self._hat_id_prefixes
@@ -1210,7 +1232,6 @@ class DataReductionFile(DataReductionPostProcess):
 
     def get_source_ids(self, string_source_ids=True, **path_substitutions):
         """Return the IDs of the sources in the given DR file.
-
 
         Args:
             string_source_ids:    Should source IDs be formatted as strings

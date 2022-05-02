@@ -23,7 +23,7 @@ import numpy
 from command_line_util import get_default_frame_processing_cmdline
 
 from superphot_pipeline.image_utilities import\
-    get_fits_fnames,\
+    find_fits_fnames,\
     zscale_image
 from superphot_pipeline.fits_utilities import read_image_components
 from superphot_pipeline import SourceFinder, Evaluator
@@ -284,7 +284,7 @@ class SourceExtractionTuner(tkinter.Frame):
             allow_dir_creation=True
         )
 
-        self._fits_images = list(get_fits_fnames(configuration.images))
+        self._fits_images = list(find_fits_fnames(configuration.images))
         self._image = dict(
             #False positive
             #pylint: disable=no-member
@@ -340,7 +340,7 @@ def main(configuration):
         always_return_sources=bool(configuration.save_srcfind_snapshots)
     )
 
-    for image_fname in get_fits_fnames(configuration.images):
+    for image_fname in find_fits_fnames(configuration.images):
         #False positive
         #pylint: disable=unbalanced-tuple-unpacking
         image, header = read_image_components(image_fname,

@@ -1229,8 +1229,5 @@ class HDF5File(ABC, h5py.File):
             column_name = dset_name[len(name_head):]
             if name_tail:
                 column_name = column_name[:-len(name_tail)]
-            print(dset_name + ' -> '  + column_name)
             destination.insert(len(destination.columns), column_name, values)
-        else:
-            print(dset_name + ' no good')
 #pylint: enable=too-many-ancestors

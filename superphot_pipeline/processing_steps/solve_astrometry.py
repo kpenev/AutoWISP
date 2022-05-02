@@ -10,6 +10,7 @@ import csv
 import numpy
 import pandas
 
+from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
 from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
@@ -79,6 +80,19 @@ def parse_command_line():
         '--anet-index-path',
         default='/data/CAT/ANET_INDEX/ucac4_2014',
         help='The path of the anet index to use.'
+    )
+    parser.add_argument(
+        '--catalogue-version',
+        type=int,
+        default=0,
+        help='The version to assign to the input catalogue of sources in the '
+        'DR file.'
+    )
+    parser.add_argument(
+        '--skytoframe-version',
+        type=int,
+        default=0,
+        help='The vesrion to assign to the astrometry solution in the DR file.'
     )
     return parser.parse_args()
 
@@ -162,13 +176,175 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
     return x_col, y_col
 
 
-def save_to_dr(match_fname, trans_fname, configuration, dr_file):
+def save_match_to_dr(catalogue_sources,
+                     extracted_sources,
+                     match_fname,
+                     dr_file,
+                     **path_substitutions):
+    """Save the match to the DR file."""
+
+    matched_ids = pandas.read_csv(
+        match_fname,
+        sep=r'\s+',
+        header=None,
+        usecols=[0, len(catalogue_sources.columns) + 1],
+        names=['catalogue_id', 'extracted_id'],
+        comment='#'
+    )
+
+    catalogue_sources = catalogue_sources.index.ravel()
+    extracted_sources = extracted_sources.index.ravel()
+    print('catalogue_sources ({0!r}):\n'.format(catalogue_sources.shape)
+          +
+          repr(catalogue_sources))
+    print('extracted_sources ({0!r}):\n'.format(extracted_sources.shape)
+          +
+          repr(extracted_sources))
+    print('matched_ids ({0!r}):\n'.format(matched_ids.shape)
+          +
+          repr(matched_ids))
+
+    extracted_sorter = numpy.argsort(extracted_sources)
+    catalogue_sorter = numpy.argsort(catalogue_sources)
+    match = numpy.empty([matched_ids.index.size, 2], dtype=int)
+    print('Match destination shape: ' + repr(match.shape))
+    match[:, 0] = catalogue_sorter[
+        numpy.searchsorted(catalogue_sources,
+                           matched_ids['catalogue_id'].ravel(),
+                           sorter=catalogue_sorter)
+    ]
+    match[:, 1] = extracted_sorter[
+        numpy.searchsorted(extracted_sources,
+                           matched_ids['extracted_id'].ravel(),
+                           sorter=extracted_sorter)
+    ]
+    print('Match data: ' + repr(match))
+    dr_file.add_dataset(
+        dataset_key='skytoframe.matched',
+        data=match,
+        **path_substitutions
+    )
+
+
+def save_trans_to_dr(trans_fname,
+                     configuration,
+                     header,
+                     dr_file,
+                     **path_substitutions):
+    """Save the transformation to the DR file."""
+
+    transformation, info = parse_anmatch_transformation(trans_fname)
+    terms_expression = (r'O{order:d}{{'
+                        r'(xi-{offset[0]!r})/{scale!r}'
+                        r','
+                        r'(eta-{offset[1]!r})/{scale!r}'
+                        r'}}').format(**transformation)
+
+    dr_file.add_dataset(
+        dataset_key='skytoframe.coefficients',
+        data=numpy.stack((transformation['dxfit'],
+                          transformation['dyfit'])),
+        **path_substitutions
+    )
+    dr_file.add_attribute(
+        attribute_key='skytoframe.type',
+        attribute_value=transformation['type'],
+        **path_substitutions
+    )
+    dr_file.add_attribute(
+        attribute_key='skytoframe.terms',
+        attribute_value=terms_expression,
+        **path_substitutions
+    )
+    dr_file.add_attribute(
+        attribute_key='skytoframe.sky_center',
+        attribute_value=numpy.array([info['2mass']['RA'],
+                                     info['2mass']['DEC']]),
+        **path_substitutions
+    )
+    for entry in ['residual', 'unitarity']:
+        dr_file.add_attribute(
+            attribute_key='skytoframe.' + entry,
+            attribute_value=info[entry],
+            **path_substitutions
+        )
+    for component, config_attribute in [
+            ('srcextract', 'binning'),
+            ('skytoframe', 'srcextract_filter'),
+            ('skytoframe', 'sky_preprojection'),
+            ('skytoframe', 'max_match_distance'),
+            ('skytoframe', 'frame_center'),
+            ('skytoframe', 'weights_expression')
+    ]:
+        if config_attribute == 'max_match_distance':
+            value = configuration['max_srcmatch_distance']
+        elif config_attribute == 'frame_center':
+            value = (
+                header['NAXIS1'] / 2.0,
+                header['NAXIS2'] / 2.0
+            )
+        else:
+            value = configuration[config_attribute]
+        dr_file.add_attribute(
+            component + '.cfg.' + config_attribute,
+            value,
+            **path_substitutions
+        )
+
+
+def read_catalogue(catalogue_fname):
+    """Return the catalogue parsed to pandas.DataFrame."""
+
+    catalogue = pandas.read_csv(catalogue_fname,
+                                sep = r'\s+',
+                                header=0,
+                                index_col=0)
+    catalogue.columns = [colname.lstrip('#').split('[', 1)[0]
+                         for colname in catalogue.columns]
+    catalogue.index.name = (
+        catalogue.index.name.lstrip('#').split('[', 1)[0]
+    )
+    return catalogue
+
+
+#TODO: Add catalogue query configuration to DR
+def save_to_dr(match_fname,
+               trans_fname,
+               configuration,
+               header,
+               dr_file):
     """Save the solved astrometry to the given DR file."""
 
-    cat_sources = pandas.read_csv(configuration['astrometry_catalogue'],
-                                  sep = '\s+',
-                                  header=0,
-                                  index_col=0)
+    path_substitutions = {
+        substitution: configuration[substitution]
+        for substitution in ['srcextract_version',
+                             'catalogue_version',
+                             'skytoframe_version']
+    }
+    catalogue_sources = read_catalogue(configuration['astrometry_catalogue'])
+    extracted_sources = dr_file.get_sources(
+        'srcextract.sources',
+        'srcextract_column_name',
+        srcextract_version=configuration['srcextract_version']
+    )
+    dr_file.add_sources(catalogue_sources,
+                        'catalogue.columns',
+                        'catalogue_column_name',
+                        parse_ids=True,
+                        ascii_columns=['ID', 'phqual', 'magsrcflag'],
+                        **path_substitutions)
+
+    save_match_to_dr(catalogue_sources,
+                     extracted_sources,
+                     match_fname,
+                     dr_file,
+                     **path_substitutions)
+    save_trans_to_dr(trans_fname,
+                     configuration,
+                     header,
+                     dr_file,
+                     **path_substitutions)
+
 
 def solve_image(dr_fname, **configuration):
     """
@@ -233,7 +409,7 @@ def solve_image(dr_fname, **configuration):
             subprocess.run(command, check=True)
             print_file_contents(match_fname, 'match')
             print_file_contents(trans_fname, 'trans')
-            save_to_dr(match_fname, trans_fname, configuration, dr_file)
+            save_to_dr(match_fname, trans_fname, configuration, header, dr_file)
 
 
 def solve_astrometry(dr_collection, configuration):
@@ -245,6 +421,12 @@ def solve_astrometry(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
+    cmdline_config.update(
+        binning=1,
+        srcextract_filter='True',
+        sky_preprojection='tan',
+        weights_expression='1.0'
+    )
     del cmdline_config['config_file']
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files')),
                      cmdline_config)
