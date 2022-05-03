@@ -32,6 +32,11 @@ class PiecewiseBicubicPSFMap:
             background_annulus=(6.0, 7.0),
             require_convergence=True,
             output_dr_fnames=None,
+            dr_path_substitutions=dict(
+                background_version=0,
+                shapefit_version=0,
+                srcproj_version=0,
+            ),
             **fit_star_shape_config):
         """
         Find the best fit PSF/PRF map for the given images (simultaneous fit).
@@ -61,9 +66,14 @@ class PiecewiseBicubicPSFMap:
             require_convergence(bool):    See same name argument to
                 superphot.FitStarShape.fit()
 
-            output_fnames(str iterable):    If not None, should specify one data
-                reduction file for each input frame where the fit results are
-                saved.
+            output_dr_fnames(str iterable):    If not None, should specify one
+                data reduction file for each input frame where the fit results
+                are saved.
+
+            background_version(int), shapefit_version(int) srcproj_version(int):
+                The version numbers to use when saving projected
+                photometry sources, background extraciton, and PSF/PRF fitting
+                results.
 
             fit_star_shape_config:    Any required configuration by
                 superphot.FitStarShape.__init__()
@@ -138,7 +148,10 @@ class PiecewiseBicubicPSFMap:
                         shape_fit_result_tree=shape_fit_result_tree,
                         num_sources=sources[image_index].size,
                         image_index=image_index,
-                        fit_variables=self._eval_shape_terms.get_var_names()
+                        fit_variables=self._eval_shape_terms.get_var_names(),
+                        background_version=background_version,
+                        shapefit_version=shapefit_version,
+                        srcproj_version=srcproj_version
                     )
     #pylint: enable=too-many-locals
 

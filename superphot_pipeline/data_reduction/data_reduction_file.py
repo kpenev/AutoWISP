@@ -654,7 +654,8 @@ class DataReductionFile(DataReductionPostProcess):
                            shape_fit_result_tree,
                            num_sources,
                            image_index=0,
-                           fit_variables=('x', 'y')):
+                           fit_variables=('x', 'y'),
+                           **path_substitutions):
         """
         Add the results of a star shape fit to the DR file.
 
@@ -678,16 +679,13 @@ class DataReductionFile(DataReductionPostProcess):
 
         self._add_shapefit_map(fit_terms_expression,
                                shape_fit_result_tree,
-                               background_version=0,
-                               shapefit_version=0)
+                               **path_substitutions)
         self._add_shapefit_sources(
             shape_fit_result_tree=shape_fit_result_tree,
             num_sources=num_sources,
             image_index=image_index,
             fit_variables=fit_variables,
-            background_version=0,
-            shapefit_version=0,
-            srcproj_version=0
+            **path_substitutions
         )
         self.add_attribute(
             self._key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
@@ -700,7 +698,7 @@ class DataReductionFile(DataReductionPostProcess):
                 'true'
             ),
             if_exists='error',
-            shapefit_version=0
+            **path_substitutions
         )
         self._auto_add_tree_quantities(
             result_tree=shape_fit_result_tree,
@@ -714,8 +712,7 @@ class DataReductionFile(DataReductionPostProcess):
                           r'^apphot\.'])
             ),
             image_index=image_index,
-            background_version=0,
-            shapefit_version=0
+            **path_substitutions
         )
 
     def get_aperture_photometry_inputs(self, **path_substitutions):

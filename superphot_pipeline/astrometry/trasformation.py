@@ -2,7 +2,7 @@
 
 from functools import partial
 
-import pandas
+import numpy
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.astrometry import map_projections
@@ -23,17 +23,20 @@ class Transformation:
     """
 
     @staticmethod
-    def _create_projected_arrays(num_sources, save_intermediate):
+    def _create_projected_arrays(sources, save_intermediate, in_place):
         """Create a numpy structured array to hold the projected sources."""
 
-        projected_dtype = [('x', numpy.float64), ('y', numpy.float64)]
         intermediate_dtype = [('xi', numpy.float64), ('eta', numpy.float64)]
-        #pylint: enable=no-member
-        if save_intermediate:
-            projected_dtype.extend(intermediate_dtype)
-        sources = numpy.empty(sources.shape, dtype=projected_dtype)
+        if in_place:
+            projected = sources
+        else:
+            projected_dtype = [('x', numpy.float64), ('y', numpy.float64)]
+            #pylint: enable=no-member
+            if save_intermediate:
+                projected_dtype.extend(intermediate_dtype)
+            projected = numpy.empty(len(sources), dtype=projected_dtype)
         intermediate = (projected if save_intermediate
-                        else numpy.empty(projected_shape, intermediate_dtype))
+                        else numpy.empty(projected.shape, intermediate_dtype))
         return intermediate, projected
 
 
@@ -52,6 +55,7 @@ class Transformation:
 
         self.pre_projection = None
         self.evaluate_transformation = None
+        self._coefficients = None
         if dr_fname is not None:
             with DataReductionFile(dr_fname, 'r') as dr_file:
                 self.read_transformation(dr_file, **dr_path_substitutions)
@@ -80,7 +84,7 @@ class Transformation:
         self._coefficients = dr_file.get_attribute('skytoframe.coefficients',
                                                    **dr_path_substitutions)
 
-    def __call__(self, sources, save_intermediate=False):
+    def __call__(self, sources, save_intermediate=False, in_place=False):
         """
         Return the projected positions of the given catalogue sources.
 
@@ -92,13 +96,26 @@ class Transformation:
                 coordinate of the pre-projection, in addition to the final frame
                 coordinates.
 
+            in_place(bool):    If True, the input `sources` are updated with the
+                projected coordinates (`sources` must allow setting entries for
+                `x` and `y`  columns, also for `xi` and `eta` if
+                `save_intermediate` is True).
+
         Returns:
             numpy structured array:
                 The projected source positions with labels 'x', 'y', and
                 optionally (if save_intermediate == True) the pre-projected
-                coordinates `xi` and `eta`.
+                coordinates `xi` and `eta`. If `in_place` is True, return None.
         """
 
-        intermediate, projected = _create_projected_arrays(len(sources))
+        intermediate, projected = self._create_projected_arrays(
+            sources,
+            save_intermediate,
+            in_place
+        )
         self.pre_projection(sources, intermediate)
         terms = self.evaluate_terms(sources, intermediate)
+        for index, coord in enumerate('xy'):
+            projected[coord] = self._coefficients[index].dot(terms)
+
+        return None if in_place else projected

@@ -10,13 +10,7 @@ from superphot_pipeline import SourceFinder, DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'calibrated_images',
-        nargs='+',
-        help='A combination of individual images and image directories to '
-        'process. Directories are not searched recursively.'
-    )
+    parser = get_cmdline_parser(__doc__, 'calibrated')
     parser.add_argument(
         '--srcextract-only-if',
         default='True',

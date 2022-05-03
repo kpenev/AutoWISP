@@ -11,20 +11,19 @@ import numpy
 import pandas
 
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    get_cmdline_parser,\
+    read_catalogue
 from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'dr_files',
-        nargs='+',
-        help='A combination of individual data reduction files and directories '
-        'to process (must already contain extracted sources). Directories are '
-        'not searched recursively.'
+    parser = get_cmdline_parser(
+        __doc__,
+        'dr',
+        'The DR files must already contain extracted sources'
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
@@ -290,21 +289,6 @@ def save_trans_to_dr(trans_fname,
             value,
             **path_substitutions
         )
-
-
-def read_catalogue(catalogue_fname):
-    """Return the catalogue parsed to pandas.DataFrame."""
-
-    catalogue = pandas.read_csv(catalogue_fname,
-                                sep = r'\s+',
-                                header=0,
-                                index_col=0)
-    catalogue.columns = [colname.lstrip('#').split('[', 1)[0]
-                         for colname in catalogue.columns]
-    catalogue.index.name = (
-        catalogue.index.name.lstrip('#').split('[', 1)[0]
-    )
-    return catalogue
 
 
 #TODO: Add catalogue query configuration to DR

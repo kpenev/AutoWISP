@@ -11,7 +11,18 @@ class Evaluator(asteval.Interpreter):
     """Evaluator for expressions involving fields of numpy structured array."""
 
     def __init__(self, *data):
-        """Get ready."""
+        """
+        Get ready to evaluate expressions given data.
+
+        Args:
+            data([dict-like]):    A mapping between variable names that
+                will participate in the expressions to be evaluated and the
+                value that should be used. In case of repeating keys, later
+                entries overwrite earlier ones.
+
+        Returns:
+            None
+        """
 
         super().__init__()
         for data_entry in data:

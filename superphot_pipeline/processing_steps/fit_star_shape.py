@@ -2,19 +2,31 @@
 
 """Fit a model for the shape of stars (PSF or PRF) in images."""
 
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from multiprocessing import Pool
+
+import numpy
+from astropy.io import fits
+
+from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
+from superphot_pipeline.astrometry import Transformation
+from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.fits_utilities import get_primary_header
+from superphot_pipeline.processing_steps.manual_util import\
+    get_cmdline_parser,\
+    read_catalogue
+from superphot_pipeline.split_sources import SplitSources
 
 def parse_grid_arg(grid_str):
     """Parse the string specifying the grid on which to model PSF/PRF."""
 
     if ';' not in grid_str:
         grid_str = ';'.join([grid_str, grid_str])
-    grid = [
+    return [
         [
             float(value)
             for value in sub_grid.split(',')
         ]
-        for sub_grid in parsed_args.shape_grid.strip('"\'').split(';')
+        for sub_grid in grid_str.strip('"\'').split(';')
     ]
 
 
@@ -39,7 +51,7 @@ def parse_command_line():
 
         parser.add_argument(
             '--shapefit-disable-cover-grid',
-            dest='shapefit_src_cover_grid'
+            dest='shapefit_src_cover_grid',
             action='store_false',
             default=True,
             help='Should pixels be selected to cover the full PSF/PRF grid.'
@@ -52,7 +64,7 @@ def parse_command_line():
             ' the source is to be used for shape fitting.'
         )
         parser.add_argument(
-            '--shapefit-max-sat-frac',
+            '--shapefit-src-max-sat-frac',
             type=float,
             default=0.0,
             help='The maximum fraction of saturated pixels of a source before '
@@ -190,9 +202,22 @@ def parse_command_line():
             help='The grid to use for representing the PSF/PRF.'
         )
         parser.add_argument(
-            '--shape-terms',
+            '--shape-terms-expression', '--shape-terms',
             default='O0{(x-1991.5)/1991.5, (y-1329.5)/1329.5}',
             help='The term in the PSF shape parameter dependence.'
+        )
+        parser.add_argument(
+            '--map-variables',
+            metavar='<varname>, <expression>',
+            nargs='+',
+            default=[],
+            help='Extra variables to allow the PRF to depend on in addition to '
+            '(x and y). The <expression> can involve any catologue column , '
+            'header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables '
+            'are added as extra columns after ID, x, y to the source list '
+            'passed to fitpsf/fitprf in the order specified on the command '
+            'line. Make sure to include in the input-columns option in '
+            '--superphot-config-file.'
         )
 
 
@@ -242,12 +267,11 @@ def parse_command_line():
         )
 
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'calibrated_images',
-        nargs='+',
-        help='A combination of individual images and image directories to '
-        'process. Directories are not searched recursively.'
+    parser = get_cmdline_parser(
+        __doc__,
+        'calibrated',
+        'The corresponding DR files must alread contain an astrometric'
+        'transformation.'
     )
     parser.add_argument(
         '--shapefit-only-if',
@@ -269,6 +293,41 @@ def parse_command_line():
         'files where extracted sources are saved. Replacement fields can be '
         'anything from the header of the calibrated image.'
     )
+    parser.add_argument(
+        '--skytoframe-version',
+        type=int,
+        default=0,
+        help='The version of the sky -> frame transformation to use for '
+        'projecting the photometry catalogue.'
+    )
+    parser.add_argument(
+        '--srcproj-version',
+        type=int,
+        default=0,
+        help='The version to assign to the datasets containing projected '
+        'photometry sources.'
+    )
+    parser.add_argument(
+        '--background-version',
+        type=int,
+        default=0,
+        help='The version to assign to the newly extracted background '
+        'measurements.'
+    )
+    parser.add_argument(
+        '--shapefit-version',
+        type=int,
+        default=0,
+        help='The version to assign to the newly fit PSF/PRF map.'
+    )
+
+
+    parser.add_argument(
+        '--photometry-catalogue', '--photometry-catalog', '--cat',
+        required=True,
+        help='A file containing the list of stars to perform photometry on.'
+    )
+
 
     add_background_options(
         parser.add_argument_group('background extraction options')
@@ -289,125 +348,105 @@ def parse_command_line():
     return parser.parse_args()
 
 
+#Goal is to provide callable
+#pylint: disable=too-few-public-methods
 class SourceListCreator:
     """Class for creating PRF fitting source lists for a single frame."""
 
     def _project_sources(self, header):
         """
-        Get the frame projected positions of the catalogue sources.
+        Add to `self._sources` the projected positions and extra fit variables.
 
         Args:
             header:    The header of the FITS frame currently being processed.
+
         Returns:
-            numpy.array(dtype=[('x', float), ('y', float)]):
-                The projected sources to use for PRF fitting.
+            None
         """
 
-        for key in self.catalogue_columns:
-            header.pop(key, None)
-        self._evaluate_variable_expression.symtable.update(header)
-        print('Reading transformation: '
-              +
-              repr(self.trans_fname_pattern % header))
-        return Transformation(
-            self.trans_fname_pattern % header
+        Transformation(
+            self._dr_fname_format.format(header),
+            **self._dr_path_substitutions
         )(
-            self._evaluate_variable_expression.symtable
+            self._sources,
+            True,
+            True
         )
+        eval_var = Evaluator(header, self._sources)
+        for var_name, var_expression in self._fit_variables:
+            self._sources[var_name] = eval_var(var_expression)
 
-    def _get_fit_sources(self, header):
+
+    def _group_and_flag_in_frame(self, header):
         """
-        Return all PRF fit variables for the frame as structured numpy array.
+        Return the group each source belongs to and flag for is source in frame.
+
         Args:
-            frame_fname:    The filename of the frame to get PRF fitting
-                sources of.
+            header:    The FITS header of the frame being fit.
+
         Returns:
-            numpy.array(dtype=[('ID', 'S#'),\
-                               ('x', float), ('y', float),\
-                               ('enabled', numpy.int8),\
-                               ...]):
-                A numpy field array with fields named with all variables to
-                include in the PRF fit and containing the corresponding values,
-                except enabled, which is left uninitialized.
+            numpy.array(int):
+                The group index for each source
+
+            numpy.array(bool):
+                True iff the source center is inside the frame boundaries
         """
 
         print('Projecting sources')
-        projected_sources = self._project_sources(header)
+        self._project_sources(header)
 
         print('Grouping')
         if callable(self._grouping):
-            grouping, in_frame = self._grouping(
-                projected_sources,
-                self._evaluate_variable_expression.symtable,
+            return self._grouping(
+                self._sources,
                 (header['NAXIS2'], header['NAXIS1'])
             )
-        else:
-            grouping = self._grouping
-            in_frame = numpy.logical_and(
+
+        return (
+            self._grouping,
+            numpy.logical_and(
                 numpy.logical_and(
-                    projected_sources['x'] > 0,
-                    projected_sources['x'] < header['NAXIS1'],
+                    self._sources['x'] > 0,
+                    self._sources['x'] < header['NAXIS1'],
                 ),
                 numpy.logical_and(
-                    projected_sources['y'] > 0,
-                    projected_sources['y'] < header['NAXIS2'],
+                    self._sources['y'] > 0,
+                    self._sources['y'] < header['NAXIS2'],
                 )
             )
-
-        print('Creating final source dataset')
-        #pylint false positive.
-        #pylint: disable=no-member
-        fit_sources = numpy.empty(
-            projected_sources.size,
-            dtype=(
-                [
-                    ('ID', 'S' + str(self._id_length)),
-                    ('x', numpy.float64),
-                    ('y', numpy.float64),
-                    ('enabled', numpy.float64)
-                ]
-                +
-                [(fit_var[0], numpy.float64) for fit_var in self.fit_variables]
-            )
         )
-        #pylint: enable=no-member
-        fit_sources['x'] = projected_sources['x']
-        fit_sources['y'] = projected_sources['y']
-        fit_sources['ID'] = self._evaluate_variable_expression.symtable['ID']
 
-        print('Evaluating variable expressions.')
-        for var_name, var_expression in self.fit_variables:
-            fit_sources[var_name] = self._evaluate_variable_expression(
-                var_expression
-            )
-
-        return fit_sources[in_frame], grouping[in_frame]
 
     def __init__(self,
                  *,
-                 trans_fname_pattern,
+                 dr_fname_format,
                  catalogue_fname,
                  fit_variables,
-                 fit_fname_pattern,
                  grouping,
                  grouping_frame=None,
                  discard_faint=False,
-                 remove_group_id=None):
+                 remove_group_id=None,
+                 **dr_path_substitutions):
         """
-        Set up to evalute the given fit variable expressions.
+        Set up to create source lists for PSF/PRF fitting.
+
         Args:
-            trans_fname_pattern:    See --trans-fname-pattern command
-                line argument.
-            catalogue_fname:    See --catalogue-fname command line argument.
-            fit_variables:    See --add-fit-variable command line argument.
-            fit_fname_pattern:    See --output-fname-pattern command
-                line argument.
+            dr_fname_format:    A format string to generate the name of the
+                data reduction file that corresponds to each frame.
+
+            catalogue_fname:    The filename containing a list of catalogue
+                sources to fit the shape and measure the brightness of.
+
+            extra_fit_variables:    See --map-variables command line argument.
+
             grouping:    A splitting of the input sources in groups, each of
                 which is enabled separately during PRF fitting. Should be a
-                callable taking the input projected sources and catalogue
-                information and returning A numpy integer array indicating for
-                each source the PRF fitting group it is in. Sources assigned to
-                negative group IDs are never enabled.
+                callable taking the input projected sources, catalogue
+                information, frame header and extra fit variables and returning
+                A numpy integer array indicating for each source the PRF fitting
+                group it is in. Sources assigned to negative group IDs are never
+                enabled.
+
             grouping_frame:    If None, grouping is derived for each input
                 frames separately, potentially resulting in a different set of
                 sources enabled for each frame. If not None, it should specify
@@ -415,43 +454,42 @@ class SourceListCreator:
                 once and all subsequent fits are based on the same exact
                 sources, regardless of where on the frame they appear, as long
                 as they are within the frame.
+
             discard_faint:    See `--discard-faint` command line argument.
+
             remove_group_id:    See '--remove-group-id' command line argument.
+
+            dr_path_substitutions:    Any keywords needed to specify unique
+                paths in the data reduction files for the inputs and output
+                required for shape fitting.
+
         Returns:
             None
         """
 
-        catalogue_sources = parse_catalogue(catalogue_fname)
+        self._sources = read_catalogue(catalogue_fname)
         if discard_faint is not None:
             discard_filter, faint_limit = discard_faint.split('>')
             faint_limit = float(faint_limit)
-            catalogue_sources = catalogue_sources[
-                catalogue_sources[discard_filter] <= faint_limit
+            self._sources = self._sources[
+                self._sources[discard_filter] <= faint_limit
             ]
 
-        self._evaluate_variable_expression = asteval.Interpreter()
-        for catalogue_column in catalogue_sources.dtype.names:
-            self._evaluate_variable_expression.symtable[catalogue_column] = (
-                catalogue_sources[catalogue_column]
-            )
+        self._fit_variables = fit_variables
 
-        self.fit_variables = fit_variables
-        self.trans_fname_pattern = trans_fname_pattern
-        self.catalogue_columns = catalogue_sources.dtype.names
+        self._dr_fname_format = dr_fname_format
+        self._dr_path_substitutions = dr_path_substitutions
 
         self._id_length = max(
-            len(id_value) for id_value in catalogue_sources['ID']
+            len(id_value) for id_value in self._sources['ID']
         )
-
-        self.fit_fname_pattern = fit_fname_pattern
         self.remove_group_id = remove_group_id
 
         if grouping_frame:
-            header = get_header(grouping_frame)
-            projected_sources = self._project_sources(header)
+            header = get_primary_header(grouping_frame)
+            self._project_sources(header)
             self._grouping = grouping(
-                projected_sources,
-                self._evaluate_variable_expression.symtable,
+                self._sources,
                 #False positive
                 #pylint: disable=unsubscriptable-object
                 (header['NAXIS2'], header['NAXIS1'])
@@ -459,6 +497,7 @@ class SourceListCreator:
             )[0]
         else:
             self._grouping = grouping
+
 
     def __call__(self, frame_fname):
         """
@@ -474,9 +513,11 @@ class SourceListCreator:
         """
 
         print('Getting sources from ' + repr(frame_fname))
-        header = get_header(frame_fname)
+        header = get_primary_header(frame_fname)
 
-        fit_sources, grouping = self._get_fit_sources(header)
+        grouping, in_frame = self._group_and_flag_in_frame(header)
+        fit_sources = self._sources[in_frame]
+        grouping = grouping[in_frame]
 
         number_fit_groups = grouping.max() + 1
 
@@ -501,9 +542,71 @@ class SourceListCreator:
             print(result)
         return result
 #pylint: enable=too-few-public-methods
-#pylint: enable=too-many-instance-attributes
 
 
+def create_source_list_creator(configuration):
+    """Return a fully configured instance of SourceListCreator."""
+
+    return SourceListCreator(
+        dr_fname_format=configuration['data_reduction_fname'],
+        catalogue_fname=configuration['photometry_catalogue'],
+        fit_variables=configuration['map_variables'],
+        grouping=SplitSources(
+            magnitude_column=configuration['split_magnitude_column'],
+            radius_splits=configuration['radius_splits'],
+            mag_split_by_source_count=configuration['mag_split_source_count']
+        ),
+        **{option: configuration[option] for option in ['grouping_frame',
+                                                        'discard_faint',
+                                                        'remove_group_id',
+                                                        'skytoframe_version']}
+    )
+
+
+def get_shape_fitter_config(configuration):
+    """Return a fully configured instance of FitStarShape."""
+
+    with fits.open(configuration['subpixmap'], 'readonly') as subpixmap_file:
+        #False positive, pylint does not see data member.
+        #pylint: disable=no-member
+        subpixmap = numpy.copy(subpixmap_file[0].data).astype('float64')
+        #pylint: enable=no-member
+
+
+    result = dict(
+        require_convergence=False,
+        mode=configuration['shape_mode'],
+        grid=configuration['shape_grid'],
+        subpixmap=subpixmap,
+        bg_min_pix=configuration['shapefit_src_min_bg_pix'],
+        cover_grid=configuration['shapefit_src_cover_grid'],
+        src_max_count=configuration['shapefit_max_sources'],
+        dr_path_substitutions={
+            version_name + '_version': configuration[version_name + '_version']
+            for version_name in ['background', 'shapefit', 'srcproj']
+        }
+    )
+    for option in ['background_annulus',
+                   'gain',
+                   'magnitude_1adu',
+                   'shape_terms_expression']:
+        result[option] = configuration[option]
+    for option in ['initial_aperture',
+                   'smoothing',
+                   'max_chi2',
+                   'pixel_rejection_threshold',
+                   'max_abs_amplitude_change',
+                   'max_rel_amplitude_change',
+                   'min_convergence_rate',
+                   'max_iterations',
+                   'src_min_signal_to_noise',
+                   'src_max_sat_frac',
+                   'src_max_aperture',
+                   'src_min_pix',
+                   'src_max_pix']:
+        result[option] = configuration['shapefit_' + option]
+
+    return result
 
 
 def fit_frame_set(frame_filenames_configuration):
@@ -523,15 +626,10 @@ def fit_frame_set(frame_filenames_configuration):
     """
 
 
-    def get_dr_fname(frame_fname, fit_group):
-        """Return the filename to saving a shape fit for single frame/group."""
+    def get_dr_fname(frame_fname):
+        """Return the filename to saving a shape fit."""
 
-        header = get_header(frame_fname)
-        #False positive
-        #pylint: disable=unsupported-assignment-operation
-        header['FITGROUP'] = fit_group
-        #pylint: enable=unsupported-assignment-operation
-
+        header = get_primary_header(frame_fname)
         return configuration['data_reduction_fname'].format(header)
 
 
@@ -551,6 +649,7 @@ def fit_frame_set(frame_filenames_configuration):
     num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
 
     for fit_group in range(num_fit_groups):
+        shape_fitter_config['dr_path_substitutions']['fit_group'] = fit_group
         print('Fitting: '
               +
               '\tframe_filenames: ' + repr(frame_filenames)
@@ -558,32 +657,31 @@ def fit_frame_set(frame_filenames_configuration):
               '\tsources: ' + repr([sources[fit_group] for sources in
                                     fit_sources])
               +
-              '\tdr_fnames: ' + repr([get_dr_fname(f, fit_group) for f in
+              '\tdr_fnames: ' + repr([get_dr_fname(f) for f in
                                       frame_filenames]))
         star_shape_fitter.fit(
             fits_fnames=frame_filenames,
             sources=[sources[fit_group] for sources in fit_sources],
-            output_dr_fnames=[get_dr_fname(f, fit_group)
-                              for f in frame_filenames],
+            output_dr_fnames=[get_dr_fname(f) for f in frame_filenames],
             **shape_fitter_config
         )
         print('Done fitting')
 
 
-
 def fit_star_shapes(image_collection, configuration):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
+    image_collection = list(image_collection)
     frame_list_splits = range(0,
-                              len(configuration['frame_list']),
+                              len(image_collection),
                               configuration['num_simultaneous'])
     fit_arguments = [
         (
-            configuration['frame_list'][
+            image_collection[
                 split
                 :
                 min(split + configuration['num_simultaneous'],
-                    len(configuration['frame_list']))
+                    len(image_collection))
             ],
             configuration
         ) for split in frame_list_splits
@@ -609,7 +707,7 @@ if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
     del cmdline_config['config_file']
     fit_star_shapes(
-        find_fits_fnames(cmdline_config.pop('calibrate_images')),
-        find_fits_fnames(cmdline_config.pop('shape_fit_only_if')),
+        find_fits_fnames(cmdline_config.pop('calibrated_images'),
+                         cmdline_config.pop('shape_fit_only_if')),
         cmdline_config
     )
