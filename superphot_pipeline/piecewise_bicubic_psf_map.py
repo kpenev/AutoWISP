@@ -32,11 +32,7 @@ class PiecewiseBicubicPSFMap:
             background_annulus=(6.0, 7.0),
             require_convergence=True,
             output_dr_fnames=None,
-            dr_path_substitutions=dict(
-                background_version=0,
-                shapefit_version=0,
-                srcproj_version=0,
-            ),
+            dr_path_substitutions,
             **fit_star_shape_config):
         """
         Find the best fit PSF/PRF map for the given images (simultaneous fit).
@@ -149,13 +145,11 @@ class PiecewiseBicubicPSFMap:
                         num_sources=sources[image_index].size,
                         image_index=image_index,
                         fit_variables=self._eval_shape_terms.get_var_names(),
-                        background_version=background_version,
-                        shapefit_version=shapefit_version,
-                        srcproj_version=srcproj_version
+                        **dr_path_substitutions
                     )
     #pylint: enable=too-many-locals
 
-    def load(self, dr_fname, return_sources=False):
+    def load(self, dr_fname, return_sources=False, **dr_path_substitutions):
         """Read the PSF/PRF map from the given data reduction file."""
 
         dummy_tool = superphot.SubPixPhot()
@@ -167,9 +161,7 @@ class PiecewiseBicubicPSFMap:
                 apphot_data,
                 self.configuration['shape_terms_expression']
             ) = dr_file.get_aperture_photometry_inputs(
-                shapefit_version=0,
-                srcproj_version=0,
-                background_version=0
+                **dr_path_substitutions
             )
             io_tree.set_aperture_photometry_inputs(**apphot_data)
 
