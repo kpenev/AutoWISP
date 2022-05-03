@@ -2,6 +2,8 @@
 
 from functools import partial
 
+import pandas
+
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.astrometry import map_projections
 import fit_expression
@@ -21,12 +23,18 @@ class Transformation:
     """
 
     @staticmethod
-    def _create_projected_array(num_sources, save_intermediate):
+    def _create_projected_arrays(num_sources, save_intermediate):
         """Create a numpy structured array to hold the projected sources."""
 
-    @staticmethod
-    def _create_projected_data_frame(num_sources, save_intermediate):
-        """Create a pandas.DataFrame to hold the projected sources."""
+        projected_dtype = [('x', numpy.float64), ('y', numpy.float64)]
+        intermediate_dtype = [('xi', numpy.float64), ('eta', numpy.float64)]
+        #pylint: enable=no-member
+        if save_intermediate:
+            projected_dtype.extend(intermediate_dtype)
+        sources = numpy.empty(sources.shape, dtype=projected_dtype)
+        intermediate = (projected if save_intermediate
+                        else numpy.empty(projected_shape, intermediate_dtype))
+        return intermediate, projected
 
 
     def __init__(self, dr_fname=None, **dr_path_substitutions):
@@ -66,9 +74,11 @@ class Transformation:
             Dec=pre_projection_center[1]
         )
 
-        self.evaluate_transformation = fit_expression.Interface(
+        self.evaluate_terms = fit_expression.Interface(
             dr_file.get_attribute('skytoframe.terms', **dr_path_substitutions)
         )
+        self._coefficients = dr_file.get_attribute('skytoframe.coefficients',
+                                                   **dr_path_substitutions)
 
     def __call__(self, sources, save_intermediate=False):
         """
@@ -83,8 +93,12 @@ class Transformation:
                 coordinates.
 
         Returns:
-            same type as sources:
+            numpy structured array:
                 The projected source positions with labels 'x', 'y', and
                 optionally (if save_intermediate == True) the pre-projected
                 coordinates `xi` and `eta`.
         """
+
+        intermediate, projected = _create_projected_arrays(len(sources))
+        self.pre_projection(sources, intermediate)
+        terms = self.evaluate_terms(sources, intermediate)
