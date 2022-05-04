@@ -6,7 +6,7 @@ import numpy
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.astrometry import map_projections
-import fit_expression
+from superphot_pipeline import fit_expression
 
 class Transformation:
     """

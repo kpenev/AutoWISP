@@ -281,12 +281,6 @@ def parse_command_line():
         'image collection should/should not be processed.'
     )
     parser.add_argument(
-        '--shapefit-version',
-        type=int,
-        default=0,
-        help='The version to assign to this star shape fit in the DR files.'
-    )
-    parser.add_argument(
         '--data-reduction-fname',
         default='DR/{RAWFNAME}.h5',
         help='Format string to generate the filename(s) of the data reduction '
