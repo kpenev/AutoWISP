@@ -22,6 +22,7 @@ class PiecewiseBicubicPSFMap:
             self.load(dr_fname)
 
 
+    #TODO: Info on PSF vs PRF should be saved to DR file
     #Breaking up seems to make things worse
     #pylint: disable=too-many-locals
     def fit(self,
@@ -170,6 +171,11 @@ class PiecewiseBicubicPSFMap:
             ) = dr_file.get_aperture_photometry_inputs(
                 **dr_path_substitutions
             )
+            sources = apphot_data['source_data']
+            apphot_data['source_data'] = sources.rename(
+                columns=dict(shapefit_mag_mfit000='mag',
+                             shapefit_mag_err_mfit000='mag_err')
+            ).to_records()
             io_tree.set_aperture_photometry_inputs(**apphot_data)
 
         self._superphot_map = superphot.PiecewiseBicubicPSFMap(io_tree)
@@ -181,14 +187,6 @@ class PiecewiseBicubicPSFMap:
         )
 
         if return_sources:
-            sources = numpy.copy(apphot_data['source_data']).astype(
-                numpy.dtype(apphot_data['source_data'].dtype.fields)
-            )
-            print('Source data: ' + repr(apphot_data['source_data'][:3]))
-            sources.dtype.names = tuple('flux' if field == 'mag' else field
-                                        for field in sources.dtype.names)
-            print('Source data: ' + repr(apphot_data['source_data'][:3]))
-
             sources['flux'] = flux_from_magnitude(
                 apphot_data['source_data']['mag'],
                 self.configuration['magnitude_1adu']

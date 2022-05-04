@@ -4,7 +4,10 @@ import pandas
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
-def get_cmdline_parser(description, input_type, help_extra=''):
+def get_cmdline_parser(description,
+                       input_type,
+                       help_extra='',
+                       add_component_versions=()):
     """Return a command line parser with only a config file option defined."""
 
     parser = ArgumentParser(
@@ -39,9 +42,34 @@ def get_cmdline_parser(description, input_type, help_extra=''):
             help_extra
         )
     )
-
+    add_version_args(add_component_versions, parser)
 
     return parser
+
+
+def add_version_args(components, parser):
+    """Add arguments to select versions of the given components."""
+
+    version_arg_help = dict(
+        srcproj=(
+            'The version to assign to the datasets containing projected '
+            'photometry sources.'
+        ),
+        background=(
+            'The version to assign to the newly extracted background '
+            'measurements.'
+        ),
+        shapefit=(
+            'The version to assign to the newly fit PSF/PRF map.'
+        )
+    )
+    for comp in components:
+        parser.add_argument(
+            '--' + comp + '-version',
+            type=int,
+            default=0,
+            help=version_arg_help[comp]
+        )
 
 
 def read_catalogue(catalogue_fname):

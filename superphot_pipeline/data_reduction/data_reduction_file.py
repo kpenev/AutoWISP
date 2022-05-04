@@ -563,8 +563,9 @@ class DataReductionFile(DataReductionPostProcess):
                 given substitutions.
         """
 
+        path_substitutions['srcproj_column_name'] = 'hat_id_prefix'
         return self[
-            self._file_structure['srcproj.hat_id_prefix'].abspath
+            self._file_structure['srcproj.columns'].abspath
             %
             path_substitutions
         ].len()
@@ -825,32 +826,6 @@ class DataReductionFile(DataReductionPostProcess):
         except IOError:
             return False
 
-    def get_shape_map_variables(self, num_sources, **path_substitutions):
-        """Return a dictionary containing all stored map variables."""
-
-        found_data = dict()
-        shape_map_var_names = list(
-            filter(
-                lambda pipeline_key: (
-                    pipeline_key.startswith('srcproj.')
-                    and
-                    (not pipeline_key.startswith('srcproj.hat_id_'))
-                ),
-                self.elements['dataset']
-            )
-        )
-
-        for var_name in shape_map_var_names:
-            try:
-                found_data[var_name[len('srcproj.'):]] = self.get_dataset(
-                    var_name,
-                    expected_shape=(num_sources,),
-                    **path_substitutions
-                )
-            except IOError:
-                print('Dataset ' + var_name + ' not found!')
-        return found_data
-
     #Could not think of a reasonable way to simplify further.
     #pylint: disable=too-many-locals
     #pylint: disable=too-many-statements
@@ -859,10 +834,8 @@ class DataReductionFile(DataReductionPostProcess):
                         magfit_iterations='all',
                         shape_fit=True,
                         apphot=True,
-                        shape_map_variables=True,
                         string_source_ids=True,
                         background=True,
-                        position=True,
                         **path_substitutions):
         """
         Extract available photometry from the data reduction file.
@@ -881,33 +854,32 @@ class DataReductionFile(DataReductionPostProcess):
             apphot(bool):    Should the result include aperture photometry
                 measurements.
 
-            shape_map_variables(bool):    Should the result include the
-                variables on which the star shape map depents?
-
             string_source_ids(bool):    Should source IDs be formatted as
                 strings (True) or a set of integers (False)?
 
             background(bool):    Should the result include information about the
                 background behind the sources?
 
-            position(bool):    Should the result include the (x, y) positions of
-                the sources.
-
             path_substitutions:    See get_source_count().
 
         Returns:
-            numpy structured array:
+            pandas.Dataframe:
                 The photometry information in the current data reduction file.
-                The fields are:
+                The columns always included are:
 
-                    * ID: an array of sources IDs in the given DR file. Either a
-                      string (if string_source_ids) or (an array of) integer(s).
-                      For HAT IDs, each non-string entry is 3 integers (prefix,
-                      field, source).
+                    * ID(set as index): an array of sources IDs in the given DR
+                      file. Either a string (if string_source_ids) or 1- or
+                      3-column composite index depending on ID type.
+
+                    * <catalogue quantity> (dtype as needed): one entry for each
+                      catalogue column.
 
                     * x (numpy.float64): The x coordinates of the sources
 
                     * y (numpy.float64): The y coordinates of the sources
+
+               The following columns are included if the corresponding input
+               argument is set to True:
 
                     * bg (numpy.float64): The background estimates for the
                       sources
@@ -930,100 +902,39 @@ class DataReductionFile(DataReductionPostProcess):
 
                     * phot_flag: The quality flag for the photometry. Same
                       shape and order as ``mag``.
-
-                    * <map variable> (numpy.float64): one entry for each
-                      variable shape map depends on. The name of the field is
-                      exactly the variable name. Only included if the
-                      ``shape_map_variables`` argument is True.
         """
 
-        def initialize_result(num_sources, num_apertures, shape_map_var_names):
-            """Return empty result structure with the correct shape & dtype."""
+        def assemble_hat_id(prefix, field, source):
 
-            dtype = [
-                (('ID',) + (('S15',) if string_source_ids else (numpy.int, 3)))
-            ]
-            if background:
-                dtype.extend([('bg', numpy.float64),
-                              ('bg_err', numpy.float64),
-                              ('bg_npix', numpy.uint)])
+            return (
+                '{0}-{1:03d}-{2:07d}'.format(prefix.decode(),
+                                             field,
+                                             source)
+            ).encode('ascii')
 
-            num_photometries = 1 if shape_fit else 0
-            if apphot:
-                num_photometries += num_apertures
+        def initialize_result():
+            """Create the part of the result always included."""
 
-            print('# photometries: ' + repr(num_photometries))
-
-            magnitude_shape = (len(magfit_iterations), num_photometries)
-
-            if num_photometries > 0:
-                dtype.extend([
-                    ('mag', numpy.float64, magnitude_shape),
-                    ('mag_err', numpy.float64, magnitude_shape),
-                    ('phot_flag', numpy.uint, magnitude_shape)
-                ])
-
-            dtype.extend([
-                (
-                    var_name,
-                    numpy.bool if var_name == 'enabled' else numpy.float64
-                )
-                for var_name in shape_map_var_names
-            ])
-
-            print('Dtype: ' + repr(dtype))
-
-            return numpy.empty(
-                shape=(num_sources,),
-                dtype=dtype
-            )
-
-        def fill_source_ids(result):
-            """
-            Add the IDs of the projected sources found in the file to result.
-
-            Args:
-                result:    The array created by initialize_result() to fill with
-                    source IDs.
-
-            Returns:
-                [str]:
-                    List of the source ID strings.
-            """
-
-            hat_id_prefixes = self.get_attribute(
-                'srcproj.recognized_hat_id_prefixes',
-                **path_substitutions
-            )
+            result = self.get_sources('srcproj.columns',
+                                      'srcproj_column_name',
+                                      **path_substitutions)
+            hat_id_components = ['hat_id_prefix',
+                                 'hat_id_field',
+                                 'hat_id_source']
             if string_source_ids:
-                id_data = tuple(
-                    self.get_dataset(
-                        'srcproj.hat_id_' + id_part,
-                        **path_substitutions
-                    )
-                    for id_part in ('prefix', 'field', 'source')
+                result['ID'] = numpy.vectorize(
+                    assemble_hat_id
+                )(
+                    *[result[comp] for comp in hat_id_components]
                 )
-                for data_ind in 0, 1, 2:
-                    assert len(id_data[data_ind]) == result.size
+                for id_component in hat_id_components:
+                    del result[id_component]
+                result.set_index('ID', inplace=True)
+            elif set(hat_id_components) < set(result.columns):
+                result.set_index(hat_id_components, inplace=True)
 
-                for source_index in range(result.size):
-                    result['ID'][source_index] = (
-                        b'%s-%03d-%07d'
-                        %
-                        (
-                            hat_id_prefixes[id_data[0][source_index]],
-                            id_data[1][source_index],
-                            id_data[2][source_index]
-                        )
-                    )
-            else:
-                for component_index, id_part in enumerate(('prefix',
-                                                           'field',
-                                                           'source')):
-                    result['ID'][:, component_index] = self.get_dataset(
-                        'srcproj.hat_id_' + id_part,
-                        **path_substitutions
-                    )
+            return result
+
 
         def normalize_magfit_iterations():
             """Make sure ``magfit_iterations`` is a list of positive indices."""
@@ -1072,15 +983,15 @@ class DataReductionFile(DataReductionPostProcess):
                         dataset_key_middle = ''
                     else:
                         dataset_key_middle = 'magfit.'
-                    photometry_index = 0
                     path_substitutions['magfit_iteration'] = magfit_iter - 1
+                    column_tail = '_mfit{0:03d}'.format(magfit_iter)
                     if shape_fit:
                         result[
+                            'shapefit_'
+                            +
                             result_key
-                        ][
-                            :,
-                            iter_index,
-                            photometry_index
+                            +
+                            column_tail
                         ] = self.get_dataset(
                             (
                                 'shapefit.'
@@ -1092,18 +1003,17 @@ class DataReductionFile(DataReductionPostProcess):
                             expected_shape=result.shape,
                             **path_substitutions
                         )
-                        photometry_index += 1
                     if apphot:
                         num_apertures = (result[result_key].shape[2]
                                          -
                                          photometry_index)
                         for aperture_index in range(num_apertures):
                             result[
+                                'ap{0:03d}_'.format(aperture_index)
+                                +
                                 result_key
-                            ][
-                                :,
-                                iter_index,
-                                photometry_index
+                                +
+                                column_tail
                             ] = self.get_dataset(
                                 (
                                     'apphot.'
@@ -1116,34 +1026,12 @@ class DataReductionFile(DataReductionPostProcess):
                                 aperture_index=aperture_index,
                                 **path_substitutions
                             )
-                            photometry_index += 1
 
         shape_fit = shape_fit and self.has_shape_fit(**path_substitutions)
         magfit_iterations = normalize_magfit_iterations()
-        num_sources = self.get_source_count(**path_substitutions)
-        if shape_map_variables:
-            shape_map_var_data = self.get_shape_map_variables(
-                num_sources,
-                **path_substitutions
-            )
-        else:
-            shape_map_var_data = {
-                coordinate: self.get_dataset('srcproj.' + coordinate,
-                                             expected_shape=(num_sources,),
-                                             **path_substitutions)
-                for coordinate in (['x', 'y'] if position else [])
-            }
-
-        result = initialize_result(
-            num_sources,
-            self.get_num_apertures(**path_substitutions) if apphot else None,
-            shape_map_var_data.keys()
-        )
-
-        fill_source_ids(result)
-
-        for var_name in shape_map_var_data:
-            result[var_name] = shape_map_var_data[var_name]
+        result = initialize_result()
+        print('Read:\n' + repr(result))
+        print('Columns: ' + repr(result.columns))
 
         if background:
             fill_background(result)

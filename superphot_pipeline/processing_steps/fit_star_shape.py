@@ -296,7 +296,8 @@ def parse_command_line():
         __doc__,
         'calibrated',
         'The corresponding DR files must alread contain an astrometric'
-        'transformation.'
+        'transformation.',
+        ('srcproj', 'background', 'shapefit')
     )
     parser.add_argument(
         '--shapefit-only-if',
@@ -318,26 +319,6 @@ def parse_command_line():
         default=0,
         help='The version of the sky -> frame transformation to use for '
         'projecting the photometry catalogue.'
-    )
-    parser.add_argument(
-        '--srcproj-version',
-        type=int,
-        default=0,
-        help='The version to assign to the datasets containing projected '
-        'photometry sources.'
-    )
-    parser.add_argument(
-        '--background-version',
-        type=int,
-        default=0,
-        help='The version to assign to the newly extracted background '
-        'measurements.'
-    )
-    parser.add_argument(
-        '--shapefit-version',
-        type=int,
-        default=0,
-        help='The version to assign to the newly fit PSF/PRF map.'
     )
 
     parser.add_argument(

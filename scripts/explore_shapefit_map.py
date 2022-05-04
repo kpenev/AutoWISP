@@ -11,10 +11,12 @@ import numpy
 from astropy.io import fits
 
 from superphot.utils import explore_prf
-from superphot.utils.file_utilities import get_fname_pattern_substitutions
 
 from superphot_pipeline import PiecewiseBicubicPSFMap
-from superphot_pipeline.image_utilities import read_image_components
+from superphot_pipeline.fits_utilities import\
+    get_primary_header,\
+    read_image_components
+from superphot_pipeline.processing_steps.manual_util import add_version_args
 
 
 def parse_command_line():
@@ -24,10 +26,10 @@ def parse_command_line():
         description=__doc__,
         default_config_files=['explore_shapefit_map.cfg'],
         formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=False
+        ignore_unknown_config_file_keys=True
     )
     parser.add_argument(
-        '--dr-pattern',
+        '--data-reduction-fname',
         default=os.path.join('%(FITS_DIR)s',
                              '..',
                              'DR',
@@ -39,7 +41,7 @@ def parse_command_line():
         "reduction file containing the PSF/PRF map to explore."
     )
     parser.add_argument(
-        '--subpix-map',
+        '--subpixmap',
         default=None,
         help='If passed, should point to a FITS image to be used as the '
         'sub-pixel sensitivity map. Otherwise, uniform pixels are assumed.'
@@ -52,11 +54,10 @@ def parse_command_line():
         'possibly combined with the sub-pixel map, to predict the response of '
         'pixels assuming the map is a PSF (as opposed to PRF) map.'
     )
+    add_version_args(('srcproj', 'background', 'shapefit'), parser)
 
-    return explore_prf.parse_command_line(parser)
+    return explore_prf.parse_command_line(parser, True)
 
-
-#TODO figure out this piecewise thing
 
 def main(cmdline_args):
     """Avoid polluting global namespace."""
@@ -78,11 +79,13 @@ def main(cmdline_args):
     #pylint: enable=unsubscriptable-object
     prf_map = PiecewiseBicubicPSFMap()
     sources = prf_map.load(
-        cmdline_args.dr_pattern
-        %
-        get_fname_pattern_substitutions(cmdline_args.frame_fname, header),
-        return_sources=True
-    )
+        cmdline_args.data_reduction_fname.format_map(
+            get_primary_header(cmdline_args.frame_fname, True)
+        ),
+        return_sources=True,
+        **{component + '_version': getattr(cmdline_args, component + '_version')
+           for component in ('srcproj', 'background', 'shapefit')}
+    ).to_records()
 
     # image_center_x = image_resolution[1] / 2
     # image_center_y = image_resolution[0] / 2

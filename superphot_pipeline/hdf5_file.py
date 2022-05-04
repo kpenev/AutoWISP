@@ -1244,5 +1244,17 @@ class HDF5File(ABC, h5py.File):
             column_name = dset_name[len(name_head):]
             if name_tail:
                 column_name = column_name[:-len(name_tail)]
-            destination.insert(len(destination.columns), column_name, values)
+            enum_transform = h5py.check_enum_dtype(values.dtype)
+            if enum_transform is None:
+                insert_values = values
+            else:
+                insert_values = numpy.empty(
+                    values.shape,
+                    dtype='S' + str(max(map(len, enum_transform.keys())))
+                )
+                for new, old in enum_transform.items():
+                    insert_values[values[:] == old] = new.encode('ascii')
+            destination.insert(len(destination.columns),
+                               column_name,
+                               insert_values)
 #pylint: enable=too-many-ancestors
