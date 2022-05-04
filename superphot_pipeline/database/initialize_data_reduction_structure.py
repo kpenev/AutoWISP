@@ -271,8 +271,8 @@ def _get_skytoframe_attributes():
             parent=parent,
             name='SkyPreProjection',
             dtype='numpy.string_',
-            description='The pre-projection aronud the central coordinates used '
-            'for the sources when deriving the pre-shrunk sky to frame '
+            description='The pre-projection aronud the central coordinates used'
+            ' for the sources when deriving the pre-shrunk sky to frame '
             'transformation (\'arc\', \'tan\', ...).'
         ),
         HDF5Attribute(
@@ -435,7 +435,7 @@ def _get_sky_to_frame_links():
 def _get_source_projection_attributes():
     """Create default data reduction attributes describing source projection."""
 
-    root_path = _default_paths['srcproj']['root']
+    root_path = _default_paths['srcproj']
 
     return [
         HDF5Attribute(
@@ -449,7 +449,7 @@ def _get_source_projection_attributes():
         ),
         HDF5Attribute(
             pipeline_key='srcproj.recognized_hat_id_prefixes',
-            parent=(root_path + _default_paths['srcproj']['prefix']),
+            parent=(root_path),
             name='RecognizedHATIDPrefixes',
             dtype="'S100'",
             description='A list of all possible prefixes to source HAT-IDs.'
@@ -459,10 +459,9 @@ def _get_source_projection_attributes():
 def _get_source_projection_datasets():
     """Create default projected sources data reduction data sets."""
 
-    root_path =
     return [
         HDF5DataSet(
-            pipeline_key='srcproj.columns'
+            pipeline_key='srcproj.columns',
             abspath=(_default_paths['srcproj']
                      +
                      '/%(srcproj_column_name)s'),
@@ -953,7 +952,8 @@ def _get_shapefit_attributes():
                 'guess for the amplitudes of sources.'
             ),
             HDF5Attribute(
-                pipeline_key='shapefit.cfg.psf.bicubic.max_abs_amplitude_change',
+                pipeline_key=('shapefit.cfg.psf.bicubic.'
+                              'max_abs_amplitude_change'),
                 parent=parent_path,
                 name='MaxAbsoluteAmplitudeChange',
                 dtype='numpy.float64',
@@ -962,7 +962,8 @@ def _get_shapefit_attributes():
                 'piecewise bicubic PSF fitting converged.'
             ),
             HDF5Attribute(
-                pipeline_key='shapefit.cfg.psf.bicubic.max_rel_amplitude_change',
+                pipeline_key=('shapefit.cfg.psf.bicubic.'
+                              'max_rel_amplitude_change'),
                 parent=parent_path,
                 name='MaxRelativeAmplitudeChange',
                 dtype='numpy.float64',

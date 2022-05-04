@@ -300,8 +300,10 @@ class DataReductionFile(DataReductionPostProcess):
             else:
                 del result['compression']
                 result['scaleoffset'] = 3
-        elif dataset_key == 'catalogue.columns':
-            column = path_substitutions['catalogue_column_name']
+        elif dataset_key in ['catalogue.columns', 'srcproj.columns']:
+            column = path_substitutions[dataset_key.split('.')[0]
+                                        +
+                                        '_column_name']
             if column in ['hat_id_prefix',
                           'hat_id_field',
                           'hat_id_source',
@@ -310,14 +312,15 @@ class DataReductionFile(DataReductionPostProcess):
                           'sigRA',
                           'sigDec',
                           'phqual',
-                          'magsrcflag']:
+                          'magsrcflag',
+                          'enabled']:
                 result['compression'] = 'gzip'
                 result['compression_opts'] = 9
                 result['shuffle'] = True
             elif column in ['RA', 'Dec']:
                 del result['compression']
                 result['scaleoffset'] = 7
-            elif column in ['xi', 'eta']:
+            elif column in ['xi', 'eta', 'x', 'y']:
                 del result['compression']
                 result['scaleoffset'] = 6
             elif column in ['ucacmag',
@@ -485,16 +488,17 @@ class DataReductionFile(DataReductionPostProcess):
     def get_dtype(self, element_key):
         """Return numpy data type for the element with by the given key."""
 
-        result = super().get_dtype(element_key)
-
         if element_key.endswith('.hat_id_prefix'):
             return h5py.special_dtype(
                 enum=(
-                    result,
+                    numpy.ubyte,
                     dict((prefix, value)
                          for value, prefix in enumerate(self._hat_id_prefixes))
                 )
             )
+
+        result = super().get_dtype(element_key)
+
         return result
 
     def parse_hat_source_id(self, source_id):
@@ -504,9 +508,13 @@ class DataReductionFile(DataReductionPostProcess):
             id_data = {
                 id_part: numpy.empty(
                     (len(source_id),),
-                    dtype=self.get_dtype('srcproj.hat_id_' + id_part)
+                    dtype=id_dtype
                 )
-                for id_part in ['prefix', 'field', 'source']
+                for id_part, id_dtype in [
+                    ('prefix', self.get_dtype('.hat_id_prefix')),
+                    ('field', numpy.uint16),
+                    ('source', numpy.uint32)
+                ]
             }
 
             for source_index, this_id in enumerate(source_id):

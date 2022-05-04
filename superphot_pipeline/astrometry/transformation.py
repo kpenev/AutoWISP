@@ -65,13 +65,20 @@ class Transformation:
         """Read the transformation from the given DR file (already opened)."""
 
         pre_projection_name = (
-            dr_file.get_attribute('skytoframe.sky_preprojection',
+            dr_file.get_attribute('skytoframe.cfg.sky_preprojection',
                                   **dr_path_substitutions)
             +
             '_projection'
         )
         pre_projection_center = dr_file.get_attribute('skytoframe.sky_center',
                                                       **dr_path_substitutions)
+        print(
+            'Pre-projection: '
+            '{name}(RA={center[0]!r}, Dec={center[1]!r})'.format(
+                name=pre_projection_name,
+                center=pre_projection_center
+            )
+        )
         self.pre_projection = partial(
             getattr(map_projections, pre_projection_name),
             RA=pre_projection_center[0],
@@ -81,8 +88,8 @@ class Transformation:
         self.evaluate_terms = fit_expression.Interface(
             dr_file.get_attribute('skytoframe.terms', **dr_path_substitutions)
         )
-        self._coefficients = dr_file.get_attribute('skytoframe.coefficients',
-                                                   **dr_path_substitutions)
+        self._coefficients = dr_file.get_dataset('skytoframe.coefficients',
+                                                 **dr_path_substitutions)
 
     def __call__(self, sources, save_intermediate=False, in_place=False):
         """
@@ -114,6 +121,9 @@ class Transformation:
             in_place
         )
         self.pre_projection(sources, intermediate)
+        print('Pre-projected xi: ' + repr(intermediate['xi']))
+        print('Pre-projected eta: ' + repr(intermediate['eta']))
+
         terms = self.evaluate_terms(sources, intermediate)
         for index, coord in enumerate('xy'):
             projected[coord] = self._coefficients[index].dot(terms)

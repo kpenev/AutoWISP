@@ -1,5 +1,7 @@
 """Define projections from a sphere onto a plane."""
 
+import numpy
+
 def gnomonic_projection(sources, projected, **center):
     """
     Project the given sky position to a tangent plane (gnomonic projection).
@@ -19,7 +21,9 @@ def gnomonic_projection(sources, projected, **center):
     """
 
     degree_to_rad = numpy.pi / 180.0
-    ra_diff = (sources['RA']  * degree_to_rad - center['RA'])
+    center['RA'] *= degree_to_rad
+    center['Dec'] *= degree_to_rad
+    ra_diff = (sources['RA'] * degree_to_rad - center['RA'])
     cos_ra_diff = numpy.cos(ra_diff)
     cos_source_dec = numpy.cos(sources['Dec'] * degree_to_rad)
     cos_center_dec = numpy.cos(center['Dec'])

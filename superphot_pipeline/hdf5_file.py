@@ -1061,6 +1061,12 @@ class HDF5File(ABC, h5py.File):
         dataset_path = dataset_config.abspath % substitutions
 
         if dataset_path in self:
+            print(
+                'Dataset {0!r} already existis in {1!r}!'.format(
+                    dataset_path,
+                    self.filename
+                )
+            )
             if if_exists == 'ignore':
                 return
             if if_exists == 'error':
@@ -1107,6 +1113,15 @@ class HDF5File(ABC, h5py.File):
         if 'scaleoffset' in creation_args:
             assert data is None or numpy.isfinite(data_copy).all()
 
+        print(
+            (
+                'Creating dataset {0!r} with shape = {1!r} and config: {2!r}'
+            ).format(
+                dataset_path,
+                shape,
+                creation_args
+            )
+        )
         self.create_dataset(
             dataset_path,
             data=data_copy,

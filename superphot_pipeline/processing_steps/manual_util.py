@@ -1,5 +1,7 @@
 """Collection of functions used by many processing steps."""
 
+import pandas
+
 from configargparse import ArgumentParser, DefaultsFormatter
 
 def get_cmdline_parser(description, input_type, help_extra=''):

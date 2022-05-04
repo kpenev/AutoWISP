@@ -5,6 +5,7 @@
 from multiprocessing import Pool
 
 import numpy
+import pandas
 from astropy.io import fits
 
 from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
@@ -19,6 +20,7 @@ from superphot_pipeline.split_sources import SplitSources
 def parse_grid_arg(grid_str):
     """Parse the string specifying the grid on which to model PSF/PRF."""
 
+    grid_str = grid_str.strip('\'"')
     if ';' not in grid_str:
         grid_str = ';'.join([grid_str, grid_str])
     return [
@@ -267,6 +269,29 @@ def parse_command_line():
         )
 
 
+    def add_image_options(parser):
+        """Add options specifying the properties of the image."""
+
+        parser.add_argument(
+            '--subpixmap',
+            default=None,
+            help='The sub-pixel sensitivity map to assume. If not specified '
+            'uniform sensitivy is assumed.'
+        )
+        parser.add_argument(
+            '--gain',
+            type=float,
+            default=1.0,
+            help='The gain to assume for the input images.'
+        )
+        parser.add_argument(
+            '--magnitude-1adu',
+            type=float,
+            default=10.0,
+            help='The magnitude which corresponds to a source flux of 1ADU'
+        )
+
+
     parser = get_cmdline_parser(
         __doc__,
         'calibrated',
@@ -315,14 +340,15 @@ def parse_command_line():
         help='The version to assign to the newly fit PSF/PRF map.'
     )
 
-
     parser.add_argument(
         '--photometry-catalogue', '--photometry-catalog', '--cat',
         required=True,
         help='A file containing the list of stars to perform photometry on.'
     )
 
-
+    add_image_options(
+        parser.add_argument_group('options describing the image')
+    )
     add_background_options(
         parser.add_argument_group('background extraction options')
     )
@@ -359,7 +385,7 @@ class SourceListCreator:
         """
 
         Transformation(
-            self._dr_fname_format.format(header),
+            self._dr_fname_format.format_map(header),
             **self._dr_path_substitutions
         )(
             self._sources,
@@ -388,6 +414,7 @@ class SourceListCreator:
 
         print('Projecting sources')
         self._project_sources(header)
+        print('Projected sources:\n' + repr(self._sources))
 
         print('Grouping')
         if callable(self._grouping):
@@ -474,13 +501,15 @@ class SourceListCreator:
         self._dr_fname_format = dr_fname_format
         self._dr_path_substitutions = dr_path_substitutions
 
+        print('Sources: ' + repr(self._sources))
+
         self._id_length = max(
-            len(id_value) for id_value in self._sources['ID']
+            len(id_value) for id_value in self._sources.index
         )
         self.remove_group_id = remove_group_id
 
         if grouping_frame:
-            header = get_primary_header(grouping_frame)
+            header = get_primary_header(grouping_frame, True)
             self._project_sources(header)
             self._grouping = grouping(
                 self._sources,
@@ -507,10 +536,17 @@ class SourceListCreator:
         """
 
         print('Getting sources from ' + repr(frame_fname))
-        header = get_primary_header(frame_fname)
+        header = get_primary_header(frame_fname, True)
 
         grouping, in_frame = self._group_and_flag_in_frame(header)
+        print(
+            'Found {0:d}/{1:d} sources inside the frame.'.format(
+                in_frame.sum(),
+                len(in_frame)
+            )
+        )
         fit_sources = self._sources[in_frame]
+        print('Fit source columns: ' + repr(self._sources.columns))
         grouping = grouping[in_frame]
 
         number_fit_groups = grouping.max() + 1
@@ -520,17 +556,17 @@ class SourceListCreator:
             for remove_group_id in self.remove_group_id:
                 print('Removing group_id: ' + repr(remove_group_id))
                 del number_fit_groups[remove_group_id]
-            result = [numpy.copy(fit_sources)
+            result = [pandas.DataFrame(fit_sources, copy=True)
                       for group_id in number_fit_groups]
             for group_id in number_fit_groups:
-                print(group_id)
+                print('Group ' + str(group_id) + ':\n' + repr(result[group_id]))
                 result[group_id]['enabled'] = (grouping == group_id)
             print(result)
         else:
-            result = [numpy.copy(fit_sources)
+            result = [pandas.DataFrame(fit_sources, copy=True)
                       for group_id in range(number_fit_groups)]
             for group_id in range(number_fit_groups):
-                print(group_id)
+                print('Group ' + str(group_id) + ':\n' + repr(result[group_id]))
                 result[group_id]['enabled'] = (grouping == group_id)
 
             print(result)
@@ -560,18 +596,10 @@ def create_source_list_creator(configuration):
 def get_shape_fitter_config(configuration):
     """Return a fully configured instance of FitStarShape."""
 
-    with fits.open(configuration['subpixmap'], 'readonly') as subpixmap_file:
-        #False positive, pylint does not see data member.
-        #pylint: disable=no-member
-        subpixmap = numpy.copy(subpixmap_file[0].data).astype('float64')
-        #pylint: enable=no-member
-
-
     result = dict(
         require_convergence=False,
         mode=configuration['shape_mode'],
         grid=configuration['shape_grid'],
-        subpixmap=subpixmap,
         bg_min_pix=configuration['shapefit_src_min_bg_pix'],
         cover_grid=configuration['shapefit_src_cover_grid'],
         src_max_count=configuration['shapefit_max_sources'],
@@ -580,6 +608,17 @@ def get_shape_fitter_config(configuration):
             for version_name in ['background', 'shapefit', 'srcproj']
         }
     )
+
+    if configuration['subpixmap'] is not None:
+        with fits.open(
+                configuration['subpixmap'],
+                'readonly'
+        ) as subpixmap_file:
+            #False positive, pylint does not see data member.
+            #pylint: disable=no-member
+            subpixmap = numpy.copy(subpixmap_file[0].data).astype('float64')
+            #pylint: enable=no-member
+        result['subpixmap']=subpixmap
     for option in ['background_annulus',
                    'gain',
                    'magnitude_1adu',
@@ -623,8 +662,8 @@ def fit_frame_set(frame_filenames_configuration):
     def get_dr_fname(frame_fname):
         """Return the filename to saving a shape fit."""
 
-        header = get_primary_header(frame_fname)
-        return configuration['data_reduction_fname'].format(header)
+        header = get_primary_header(frame_fname, True)
+        return configuration['data_reduction_fname'].format_map(header)
 
 
     frame_filenames, configuration = frame_filenames_configuration
@@ -655,7 +694,8 @@ def fit_frame_set(frame_filenames_configuration):
                                       frame_filenames]))
         star_shape_fitter.fit(
             fits_fnames=frame_filenames,
-            sources=[sources[fit_group] for sources in fit_sources],
+            sources=[sources[fit_group].to_records()
+                     for sources in fit_sources],
             output_dr_fnames=[get_dr_fname(f) for f in frame_filenames],
             **shape_fitter_config
         )
@@ -702,6 +742,6 @@ if __name__ == '__main__':
     del cmdline_config['config_file']
     fit_star_shapes(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
-                         cmdline_config.pop('shape_fit_only_if')),
+                         cmdline_config.pop('shapefit_only_if')),
         cmdline_config
     )
