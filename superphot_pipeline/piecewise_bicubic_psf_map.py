@@ -137,6 +137,14 @@ class PiecewiseBicubicPSFMap:
         if output_dr_fnames:
             for image_index, dr_fname in enumerate(output_dr_fnames):
                 with DataReductionFile(dr_fname, 'a') as dr_file:
+                    dr_file.add_sources(
+                        sources[image_index],
+                        'srcproj.columns',
+                        'srcproj_column_name',
+                        parse_ids=True,
+                        ascii_columns=['ID', 'phqual', 'magsrcflag'],
+                        **dr_path_substitutions
+                    )
                     dr_file.add_star_shape_fit(
                         fit_terms_expression=self.configuration[
                             'shape_terms_expression'
@@ -144,7 +152,6 @@ class PiecewiseBicubicPSFMap:
                         shape_fit_result_tree=shape_fit_result_tree,
                         num_sources=sources[image_index].size,
                         image_index=image_index,
-                        fit_variables=self._eval_shape_terms.get_var_names(),
                         **dr_path_substitutions
                     )
     #pylint: enable=too-many-locals

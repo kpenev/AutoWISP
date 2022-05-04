@@ -25,14 +25,9 @@ _default_paths = dict(
         coefficients='/ProjectedToFrameMap',
         matched='/MatchedSources'
     ),
-    srcproj=dict(
-        root='/ProjectedSources/Version%(srcproj_version)03d',
-        prefix='/Prefix'
-    ),
+    srcproj='/ProjectedSources/Version%(srcproj_version)03d',
     background='/Background/Version%(background_version)03d',
-    shapefit=dict(
-        root='/ShapeFit/Version%(shapefit_version)03d',
-    ),
+    shapefit='/ShapeFit/Version%(shapefit_version)03d',
     apphot=dict(
         root='/AperturePhotometry/Version%(apphot_version)03d',
         apsplit='/Aperture%(aperture_index)03d'
@@ -464,64 +459,18 @@ def _get_source_projection_attributes():
 def _get_source_projection_datasets():
     """Create default projected sources data reduction data sets."""
 
-    root_path = _default_paths['srcproj']['root']
+    root_path =
     return [
         HDF5DataSet(
-            pipeline_key='srcproj.hat_id_prefix',
-            abspath=(root_path + _default_paths['srcproj']['prefix']),
-            dtype='numpy.ubyte',
-            compression='gzip',
-            compression_options='9',
-            shuffle=True,
-            description='An integer identifier of the HAT-id prefix (most of '
-            'the time HAT, but occasionally UCAC4 and possibly other values in '
-            'the future). The entry is the index within the attribute listing '
-            'all possible entries.'
-        ),
-        HDF5DataSet(
-            pipeline_key='srcproj.hat_id_field',
-            abspath=(root_path + '/Field'),
-            dtype='numpy.uint16',
-            compression='gzip',
-            compression_options='9',
-            shuffle=True,
-            description='The field number part of the HAT ID.'
-        ),
-        HDF5DataSet(
-            pipeline_key='srcproj.hat_id_source',
-            abspath=(root_path + '/Source'),
-            dtype='numpy.uint32',
-            compression='gzip',
-            compression_options='9',
-            shuffle=True,
-            description='The source number part of the HAT ID.'
-        ),
-        HDF5DataSet(
-            pipeline_key='srcproj.x',
-            abspath=(root_path + '/X'),
-            dtype='numpy.float64',
-            scaleoffset=4,
-            description='The x coordinates of the catalogue sources when '
-            'projected through the sky to frame transformation.'
-        ),
-        HDF5DataSet(
-            pipeline_key='srcproj.y',
-            abspath=(root_path + '/Y'),
-            dtype='numpy.float64',
-            scaleoffset=4,
-            description='The x coordinates of the catalogue sources when '
-            'projected through the sky to frame transformation.'
-        ),
-        #TODO: use boolean again after fixing C-code and DR class.
-        HDF5DataSet(
-            pipeline_key='srcproj.enabled',
-            abspath=(root_path + '/Enabled'),
-            dtype='numpy.bool',
-            compression='gzip',
-            compression_options='9',
-            shuffle=True,
-            description='Should the source be allowed to participate in shape '
-            'fitting, though note that enabled sources are not always used.'
+            pipeline_key='srcproj.columns'
+            abspath=(_default_paths['srcproj']
+                     +
+                     '/%(srcproj_column_name)s'),
+            dtype='manual',
+            compression='manual',
+            compression_options='manual',
+            description='A single column from the projected sources used for '
+            'photometry.'
         )
     ]
 
@@ -642,7 +591,7 @@ def _get_magfit_key_and_path(photometry_mode):
 
     pipeline_key_start = 'magfit.'
     if photometry_mode.lower() in ['psffit', 'prffit', 'shapefit']:
-        dset_path = _default_paths['shapefit']['root']
+        dset_path = _default_paths['shapefit']
         pipeline_key_start = 'shapefit.' + pipeline_key_start
     elif photometry_mode.lower() == 'apphot':
         dset_path = (_default_paths['apphot']['root']
@@ -827,7 +776,7 @@ def _get_shapefit_attributes():
             reduction files.
     """
 
-    parent_path = _default_paths['shapefit']['root']
+    parent_path = _default_paths['shapefit']
 
     def get_config_attributes():
         """Create the attributes specifying the shape fitting configuration."""
@@ -1061,7 +1010,7 @@ def _get_shapefit_attributes():
 def _get_shapefit_datasets():
     """Create the datasets to contain shape fitting results."""
 
-    root_path = _default_paths['shapefit']['root']
+    root_path = _default_paths['shapefit']
     return (
         [
             HDF5DataSet(

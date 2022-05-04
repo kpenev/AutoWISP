@@ -67,7 +67,6 @@ class DataReductionFile(DataReductionPostProcess):
         'psffit.max_iterations': 'shapefit.cfg.psf.max_iterations',
         'psffit.min_convergence_rate': 'shapefit.cfg.psf.min_convergence_rate',
         'psffit.model': 'shapefit.cfg.psf.model',
-        'psffit.terms': 'shapefit.cfg.psf.terms',
         'psffit.srcpix_cover_bicubic_grid':
         'shapefit.cfg.src.cover_bicubic_grid',
         'psffit.srcpix_max_aperture': 'shapefit.cfg.src.max_aperture',
@@ -122,87 +121,6 @@ class DataReductionFile(DataReductionPostProcess):
         assert len(result) == 2
         return result
 
-    def _add_shapefit_sources(self,
-                              shape_fit_result_tree,
-                              num_sources,
-                              image_index,
-                              fit_variables,
-                              **path_substitutions):
-        """
-        Add the sources used for shape fitting as projected sources.
-
-        Args:
-            shape_fit_result_tree:    See same name argument to
-                add_star_shape_fit().
-
-            num_sources:    See same name argument to add_star_shape_fit().
-
-            image_index:    See same name argument to add_star_shape_fit().
-
-            fit_variables:    See same name argument to add_star_shape_fit().
-
-            path_substitutions:    Values to substitute in the path to the
-                dataset (usually versions of various components).
-
-        Returns:
-            None
-        """
-
-        def add_fit_variables():
-            """Add datasets for all source variables used in the fit."""
-
-            variables = shape_fit_result_tree.get_psfmap_variables(
-                image_index,
-                len(fit_variables),
-                num_sources
-            )
-            for var_name, var_values in zip(fit_variables, variables):
-                if var_name == 'enabled':
-                    dataset_data = (
-                        var_values != 0
-                    ).astype(
-                        self.get_dtype('srcproj.' + var_name)
-                    )
-                else:
-                    dataset_data = numpy.array(
-                        var_values,
-                        dtype=self.get_dtype('srcproj.' + var_name)
-                    )
-                self.add_dataset(
-                    'srcproj.' + var_name,
-                    dataset_data,
-                    if_exists='error',
-                    **path_substitutions
-                )
-
-        def add_source_ids():
-            """Add the datasets containing the source IDs."""
-
-            source_ids = shape_fit_result_tree.get(
-                'projsrc.srcid.name.' + str(image_index),
-                numpy.dtype('S100'),
-                shape=num_sources
-            )
-
-            id_data = self.parse_hat_source_id(source_ids)
-
-            for id_part in ['prefix', 'field', 'source']:
-                self.add_dataset(
-                    'srcproj.hat_id_' + id_part,
-                    id_data[id_part],
-                    if_exists='error',
-                    **path_substitutions
-                )
-
-            self.add_attribute(
-                'srcproj.recognized_hat_id_prefixes',
-                self._hat_id_prefixes,
-                if_exists='error',
-                **path_substitutions
-            )
-
-        add_source_ids()
-        add_fit_variables()
 
     def _get_shapefit_map_grid(self, **path_substitutions):
         """Return the grid used to represent star shape from this DR file."""
@@ -266,6 +184,11 @@ class DataReductionFile(DataReductionPostProcess):
                                splits,
                                if_exists='error',
                                **path_substitutions)
+        self.add_attribute('shapefit.cfg.psf.terms',
+                           fit_terms_expression,
+                           if_exists='error',
+                           **path_substitutions)
+
         num_terms = fit_expression.Interface(
             fit_terms_expression
         ).number_terms()
@@ -654,7 +577,6 @@ class DataReductionFile(DataReductionPostProcess):
                            shape_fit_result_tree,
                            num_sources,
                            image_index=0,
-                           fit_variables=('x', 'y'),
                            **path_substitutions):
         """
         Add the results of a star shape fit to the DR file.
@@ -680,13 +602,6 @@ class DataReductionFile(DataReductionPostProcess):
         self._add_shapefit_map(fit_terms_expression,
                                shape_fit_result_tree,
                                **path_substitutions)
-        self._add_shapefit_sources(
-            shape_fit_result_tree=shape_fit_result_tree,
-            num_sources=num_sources,
-            image_index=image_index,
-            fit_variables=fit_variables,
-            **path_substitutions
-        )
         self.add_attribute(
             self._key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
             (
@@ -706,6 +621,7 @@ class DataReductionFile(DataReductionPostProcess):
             skip_quantities=re.compile(
                 '|'.join([r'^psffit\.variables$',
                           r'^psffit\.grid$',
+                          r'^psffit\.terms$',
                           r'^psffit\.psfmap$',
                           r'^psffit.srcpix_cover_bicubic_grid$',
                           r'^projsrc\.',
