@@ -90,7 +90,7 @@ def photometer_frame(frame_fname, configuration):
 
     photometer = get_photometer(configuration)
     header = get_primary_header(frame_fname, True)
-    header['FITGROUP'] = configuration['shape_fit_group']
+    header['FITGROUP'] = configuration['shapefit_group']
 
     with DataReductionFile(
             configuration['data_reduction_fname'].format_map(header),
@@ -102,7 +102,7 @@ def photometer_frame(frame_fname, configuration):
             background_version=0,
             srcproj_version=0,
             shapefit_version=0
-        )[0]
+        )
         #False positive
         #pylint: disable=unbalanced-tuple-unpacking
         pixel_values, pixel_errors, pixel_mask = read_image_components(

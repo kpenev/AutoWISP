@@ -1,6 +1,8 @@
 """Collection of functions used by many processing steps."""
 
+import numpy
 import pandas
+from astropy.io import fits
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
@@ -47,9 +49,9 @@ def get_cmdline_parser(description,
         parser.add_argument(
             '--data-reduction-fname',
             default='DR/{RAWFNAME}.h5',
-            help='Format string to generate the filename(s) of the data reduction '
-            'files where extracted sources are saved. Replacement fields can be '
-            'anything from the header of the calibrated image.'
+            help='Format string to generate the filename(s) of the data '
+            'reduction files where extracted sources are saved. Replacement '
+            'fields can be anything from the header of the calibrated image.'
         )
     if allow_parallel_processing:
         parser.add_argument(
