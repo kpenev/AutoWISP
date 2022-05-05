@@ -6,7 +6,6 @@ from multiprocessing import Pool
 
 import numpy
 import pandas
-from astropy.io import fits
 
 from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
 from superphot_pipeline.astrometry import Transformation
@@ -14,7 +13,9 @@ from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
     get_cmdline_parser,\
-    read_catalogue
+    read_catalogue,\
+    add_image_options,\
+    read_subpixmap
 from superphot_pipeline.split_sources import SplitSources
 
 def parse_grid_arg(grid_str):
@@ -32,272 +33,244 @@ def parse_grid_arg(grid_str):
     ]
 
 
+def add_background_options(parser):
+    """Add options configuring the background extraction."""
+
+    parser.add_argument(
+        '--background-annulus',
+        nargs=2,
+        type=float,
+        default=[6, 7],
+        help='The annulus to use when estimating the background under '
+        'sources.'
+    )
+
+
+def add_source_selction_options(parser):
+    """Add options configuring the selection of sources for fitting."""
+
+    parser.add_argument(
+        '--shapefit-disable-cover-grid',
+        dest='shapefit_src_cover_grid',
+        action='store_false',
+        default=True,
+        help='Should pixels be selected to cover the full PSF/PRF grid.'
+    )
+    parser.add_argument(
+        '--shapefit-src-min-bg-pix',
+        type=int,
+        default=50,
+        help='The minimum number of pixels background should be based on if'
+        ' the source is to be used for shape fitting.'
+    )
+    parser.add_argument(
+        '--shapefit-src-max-sat-frac',
+        type=float,
+        default=0.0,
+        help='The maximum fraction of saturated pixels of a source before '
+        'it is discarded from shape fitting.'
+    )
+    parser.add_argument(
+        '--shapefit-src-min-signal-to-noise',
+        type=float,
+        default=3.0,
+        help='The S/N threshold when selecting pixels around sources. '
+        'Ignored if --shapefit-cover-grid.'
+    )
+    parser.add_argument(
+        '--shapefit-src-max-aperture',
+        type=float,
+        default=10.0,
+        help='The largest distance from the source center before pixel '
+        'selection causes an error.'
+    )
+    parser.add_argument(
+        '--shapefit-src-min-pix',
+        type=int,
+        default=5,
+        help='The smallest number of pixels to require be assigned for a '
+        'source if it is to be included in the shape fit.'
+    )
+    parser.add_argument(
+        '--shapefit-src-max-pix',
+        type=int,
+        default=1000,
+        help='The largest number of pixels to require be assigned for a '
+        'source if it is to be included in the shape fit.'
+    )
+    parser.add_argument(
+        '--shapefit-max-sources',
+        type=int,
+        default=10000,
+        help='The maximum number of sources to include in the fit. Excess '
+        'sources (those with lowest signal to noise) are not included in '
+        'the shape fit, though still get photometry measured.'
+    )
+    parser.add_argument(
+        '--discard-faint',
+        default=None,
+        help='If used, should indicate a faint magnitude limit in some '
+        'band-pass, e.g. B>14.0. Sources fainter than the specified limit '
+        'will not be included in the input source lists for PRF fitting at '
+        'all.'
+    )
+
+
+def add_fitting_options(parser):
+    """Add options controlling the fitting process."""
+
+    parser.add_argument(
+        '--shapefit-smoothing',
+        type=float,
+        default=None,
+    )
+    parser.add_argument(
+        '--shapefit-max-chi2',
+        type=float,
+        default=100,
+    )
+    parser.add_argument(
+        '--shapefit-pixel-rejection-threshold',
+        type=float,
+        default=1000,
+        help='Pixels away from best fit values by more than this many '
+        'sigma are discarded from the fit.'
+    )
+    parser.add_argument(
+        '--shapefit-max-abs-amplitude-change',
+        type=float,
+        default=0,
+        help='If the absolute sum square change in amplitudes falls below '
+        'this, the fit is declared converged.'
+    )
+    parser.add_argument(
+        '--shapefit-max-rel-amplitude-change',
+        type=float,
+        default=1e-5,
+        help='If the relative sum square change in amplitudes falls below '
+        'this, the fit is declared converged.'
+    )
+    parser.add_argument(
+        '--shapefit-min-convergence-rate',
+        type=float,
+        default=-10.0,
+        help='If the rate of convergence of the amplitudes falls below '
+        'this, an error is thrown.'
+    )
+    parser.add_argument(
+        '--shapefit-max-iterations',
+        type=int,
+        default=1000,
+        help='The maximum number of shape-amplitude fitting iterations to '
+        'allow.'
+    )
+    parser.add_argument(
+        '--shapefit-initial-aperture',
+        type=float,
+        default=5.0,
+        help='The aperture to use when estimating the initial flux of '
+        'sources to start the first shape-amplitude fitting iteration.'
+    )
+    parser.add_argument(
+        '--num-simultaneous',
+        type=int,
+        default=1,
+        help='The number of frames to fit simultaneously, with a unified '
+        'PSF/PRF model. Each simultaneous group consists of consecutive '
+        'entries in the input list of frames.'
+    )
+
+
+def add_shape_options(parser):
+    """Add options defining how the PSF/PRF shape will be modeled."""
+
+    parser.add_argument(
+        '--shape-mode',
+        default='psf',
+        help='Is the mode representing PSF or PRF?'
+    )
+    parser.add_argument(
+        '--shape-grid',
+        default='-3,-2,-1,0,1,2,3',
+        type=parse_grid_arg,
+        help='The grid to use for representing the PSF/PRF.'
+    )
+    parser.add_argument(
+        '--shape-terms-expression', '--shape-terms',
+        default='O0{(x-1991.5)/1991.5, (y-1329.5)/1329.5}',
+        help='The term in the PSF shape parameter dependence.'
+    )
+    parser.add_argument(
+        '--map-variables',
+        metavar='<varname>, <expression>',
+        nargs='+',
+        default=[],
+        help='Extra variables to allow the PRF to depend on in addition to '
+        '(x and y). The <expression> can involve any catologue column , '
+        'header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables '
+        'are added as extra columns after ID, x, y to the source list '
+        'passed to fitpsf/fitprf in the order specified on the command '
+        'line. Make sure to include in the input-columns option in '
+        '--superphot-config-file.'
+    )
+
+
+def add_grouping_options(parser):
+    """Add options controlling splitting of sources into fitting groups."""
+
+    parser.add_argument(
+        '--split-magnitude-column',
+        default='B',
+        help='The catalogue column to use as the brightness indicator of '
+        'the sources when splitting into groups.'
+    )
+    parser.add_argument(
+        '--radius-splits',
+        nargs='+',
+        type=float,
+        default=[],
+        help='The threshold radius values where to split sources into '
+        'groups. By default, no splitting by radius is done.'
+    )
+    parser.add_argument(
+        '--mag-split-source-count',
+        type=int,
+        default=None,
+        help='If passed, after spltting by radius (if any), sources are '
+        'further split into groups by magnitude such that each group '
+        'contains at least this many sources. By default, no splitting by '
+        'magnitude is done.'
+    )
+    parser.add_argument(
+        '--grouping-frame',
+        default=None,
+        help='If sources are being split per any of the above arguments, '
+        'specifying a frame here results in the split being done based on '
+        'the locations of sources in this frame and thus does not change '
+        'from frame to frame. If not specified, grouping is done '
+        'independently for each frame.'
+    )
+    parser.add_argument(
+        '--remove-group-id',
+        type=int,
+        default=None,
+        nargs='+',
+        help='If passed, this will remove the groups to fit in an indexable'
+        ' fashion. Multiple values may be passed e.g. 0 1 5 where each is '
+        'the index corresponding to the group_id'
+    )
+
+
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    def add_background_options(parser):
-        """Add options configuring the background extraction."""
-
-        parser.add_argument(
-            '--background-annulus',
-            nargs=2,
-            type=float,
-            default=[6, 7],
-            help='The annulus to use when estimating the background under '
-            'sources.'
-        )
-
-
-    def add_source_selction_options(parser):
-        """Add options configuring the selection of sources for fitting."""
-
-        parser.add_argument(
-            '--shapefit-disable-cover-grid',
-            dest='shapefit_src_cover_grid',
-            action='store_false',
-            default=True,
-            help='Should pixels be selected to cover the full PSF/PRF grid.'
-        )
-        parser.add_argument(
-            '--shapefit-src-min-bg-pix',
-            type=int,
-            default=50,
-            help='The minimum number of pixels background should be based on if'
-            ' the source is to be used for shape fitting.'
-        )
-        parser.add_argument(
-            '--shapefit-src-max-sat-frac',
-            type=float,
-            default=0.0,
-            help='The maximum fraction of saturated pixels of a source before '
-            'it is discarded from shape fitting.'
-        )
-        parser.add_argument(
-            '--shapefit-src-min-signal-to-noise',
-            type=float,
-            default=3.0,
-            help='The S/N threshold when selecting pixels around sources. '
-            'Ignored if --shapefit-cover-grid.'
-        )
-        parser.add_argument(
-            '--shapefit-src-max-aperture',
-            type=float,
-            default=10.0,
-            help='The largest distance from the source center before pixel '
-            'selection causes an error.'
-        )
-        parser.add_argument(
-            '--shapefit-src-min-pix',
-            type=int,
-            default=5,
-            help='The smallest number of pixels to require be assigned for a '
-            'source if it is to be included in the shape fit.'
-        )
-        parser.add_argument(
-            '--shapefit-src-max-pix',
-            type=int,
-            default=1000,
-            help='The largest number of pixels to require be assigned for a '
-            'source if it is to be included in the shape fit.'
-        )
-        parser.add_argument(
-            '--shapefit-max-sources',
-            type=int,
-            default=10000,
-            help='The maximum number of sources to include in the fit. Excess '
-            'sources (those with lowest signal to noise) are not included in '
-            'the shape fit, though still get photometry measured.'
-        )
-        parser.add_argument(
-            '--discard-faint',
-            default=None,
-            help='If used, should indicate a faint magnitude limit in some '
-            'band-pass, e.g. B>14.0. Sources fainter than the specified limit '
-            'will not be included in the input source lists for PRF fitting at '
-            'all.'
-        )
-
-
-    def add_fitting_options(parser):
-        """Add options controlling the fitting process."""
-
-        parser.add_argument(
-            '--shapefit-smoothing',
-            type=float,
-            default=None,
-        )
-        parser.add_argument(
-            '--shapefit-max-chi2',
-            type=float,
-            default=100,
-        )
-        parser.add_argument(
-            '--shapefit-pixel-rejection-threshold',
-            type=float,
-            default=1000,
-            help='Pixels away from best fit values by more than this many '
-            'sigma are discarded from the fit.'
-        )
-        parser.add_argument(
-            '--shapefit-max-abs-amplitude-change',
-            type=float,
-            default=0,
-            help='If the absolute sum square change in amplitudes falls below '
-            'this, the fit is declared converged.'
-        )
-        parser.add_argument(
-            '--shapefit-max-rel-amplitude-change',
-            type=float,
-            default=1e-5,
-            help='If the relative sum square change in amplitudes falls below '
-            'this, the fit is declared converged.'
-        )
-        parser.add_argument(
-            '--shapefit-min-convergence-rate',
-            type=float,
-            default=-10.0,
-            help='If the rate of convergence of the amplitudes falls below '
-            'this, an error is thrown.'
-        )
-        parser.add_argument(
-            '--shapefit-max-iterations',
-            type=int,
-            default=1000,
-            help='The maximum number of shape-amplitude fitting iterations to '
-            'allow.'
-        )
-        parser.add_argument(
-            '--shapefit-initial-aperture',
-            type=float,
-            default=5.0,
-            help='The aperture to use when estimating the initial flux of '
-            'sources to start the first shape-amplitude fitting iteration.'
-        )
-        parser.add_argument(
-            '--num-simultaneous',
-            type=int,
-            default=1,
-            help='The number of frames to fit simultaneously, with a unified '
-            'PSF/PRF model. Each simultaneous group consists of consecutive '
-            'entries in the input list of frames.'
-        )
-        parser.add_argument(
-            '--num-parallel-processes',
-            type=int,
-            default=12,
-            help='The number of simultaneous fitpsf/fitprf processes to run.'
-        )
-
-
-    def add_shape_options(parser):
-        """Add options defining how the PSF/PRF shape will be modeled."""
-
-        parser.add_argument(
-            '--shape-mode',
-            default='psf',
-            help='Is the mode representing PSF or PRF?'
-        )
-        parser.add_argument(
-            '--shape-grid',
-            default='-3,-2,-1,0,1,2,3',
-            type=parse_grid_arg,
-            help='The grid to use for representing the PSF/PRF.'
-        )
-        parser.add_argument(
-            '--shape-terms-expression', '--shape-terms',
-            default='O0{(x-1991.5)/1991.5, (y-1329.5)/1329.5}',
-            help='The term in the PSF shape parameter dependence.'
-        )
-        parser.add_argument(
-            '--map-variables',
-            metavar='<varname>, <expression>',
-            nargs='+',
-            default=[],
-            help='Extra variables to allow the PRF to depend on in addition to '
-            '(x and y). The <expression> can involve any catologue column , '
-            'header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables '
-            'are added as extra columns after ID, x, y to the source list '
-            'passed to fitpsf/fitprf in the order specified on the command '
-            'line. Make sure to include in the input-columns option in '
-            '--superphot-config-file.'
-        )
-
-
-    def add_grouping_options(parser):
-        """Add options controlling splitting of sources into fitting groups."""
-
-        parser.add_argument(
-            '--split-magnitude-column',
-            default='B',
-            help='The catalogue column to use as the brightness indicator of '
-            'the sources when splitting into groups.'
-        )
-        parser.add_argument(
-            '--radius-splits',
-            nargs='+',
-            type=float,
-            default=[],
-            help='The threshold radius values where to split sources into '
-            'groups. By default, no splitting by radius is done.'
-        )
-        parser.add_argument(
-            '--mag-split-source-count',
-            type=int,
-            default=None,
-            help='If passed, after spltting by radius (if any), sources are '
-            'further split into groups by magnitude such that each group '
-            'contains at least this many sources. By default, no splitting by '
-            'magnitude is done.'
-        )
-        parser.add_argument(
-            '--grouping-frame',
-            default=None,
-            help='If sources are being split per any of the above arguments, '
-            'specifying a frame here results in the split being done based on '
-            'the locations of sources in this frame and thus does not change '
-            'from frame to frame. If not specified, grouping is done '
-            'independently for each frame.'
-        )
-        parser.add_argument(
-            '--remove-group-id',
-            type=int,
-            default=None,
-            nargs='+',
-            help='If passed, this will remove the groups to fit in an indexable'
-            ' fashion. Multiple values may be passed e.g. 0 1 5 where each is '
-            'the index corresponding to the group_id'
-        )
-
-
-    def add_image_options(parser):
-        """Add options specifying the properties of the image."""
-
-        parser.add_argument(
-            '--subpixmap',
-            default=None,
-            help='The sub-pixel sensitivity map to assume. If not specified '
-            'uniform sensitivy is assumed.'
-        )
-        parser.add_argument(
-            '--gain',
-            type=float,
-            default=1.0,
-            help='The gain to assume for the input images.'
-        )
-        parser.add_argument(
-            '--magnitude-1adu',
-            type=float,
-            default=10.0,
-            help='The magnitude which corresponds to a source flux of 1ADU'
-        )
-
-
     parser = get_cmdline_parser(
         __doc__,
-        'calibrated',
-        'The corresponding DR files must alread contain an astrometric'
-        'transformation.',
-        ('srcproj', 'background', 'shapefit')
+        input_type='calibrated + dr',
+        help_extra=('The corresponding DR files must alread contain an '
+                    'astrometric transformation.'),
+        add_component_versions=('srcproj', 'background', 'shapefit'),
+        allow_parallel_processing=True
     )
     parser.add_argument(
         '--shapefit-only-if',
@@ -305,13 +278,6 @@ def parse_command_line():
         help='Expression involving the header of the input images that '
         'evaluates to True/False if a particular image from the specified '
         'image collection should/should not be processed.'
-    )
-    parser.add_argument(
-        '--data-reduction-fname',
-        default='DR/{RAWFNAME}.h5',
-        help='Format string to generate the filename(s) of the data reduction '
-        'files where extracted sources are saved. Replacement fields can be '
-        'anything from the header of the calibrated image.'
     )
     parser.add_argument(
         '--skytoframe-version',
@@ -591,15 +557,7 @@ def get_shape_fitter_config(configuration):
     )
 
     if configuration['subpixmap'] is not None:
-        with fits.open(
-                configuration['subpixmap'],
-                'readonly'
-        ) as subpixmap_file:
-            #False positive, pylint does not see data member.
-            #pylint: disable=no-member
-            subpixmap = numpy.copy(subpixmap_file[0].data).astype('float64')
-            #pylint: enable=no-member
-        result['subpixmap']=subpixmap
+        result['subpixmap']=read_subpixmap(configuration['subpixmap'])
     for option in ['background_annulus',
                    'gain',
                    'magnitude_1adu',

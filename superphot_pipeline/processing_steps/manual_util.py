@@ -7,7 +7,8 @@ from configargparse import ArgumentParser, DefaultsFormatter
 def get_cmdline_parser(description,
                        input_type,
                        help_extra='',
-                       add_component_versions=()):
+                       add_component_versions=(),
+                       allow_parallel_processing=False):
     """Return a command line parser with only a config file option defined."""
 
     parser = ArgumentParser(
@@ -25,7 +26,7 @@ def get_cmdline_parser(description,
 
     if input_type == 'raw':
         input_name = 'raw_images'
-    elif input_type == 'calibrated':
+    elif input_type.startswith('calibrated'):
         input_name = 'calibrated_images'
     elif input_type == 'dr':
         input_name = 'dr_files'
@@ -42,6 +43,22 @@ def get_cmdline_parser(description,
             help_extra
         )
     )
+    if '+' in input_type and input_type.split('+')[1].strip() == 'dr':
+        parser.add_argument(
+            '--data-reduction-fname',
+            default='DR/{RAWFNAME}.h5',
+            help='Format string to generate the filename(s) of the data reduction '
+            'files where extracted sources are saved. Replacement fields can be '
+            'anything from the header of the calibrated image.'
+        )
+    if allow_parallel_processing:
+        parser.add_argument(
+            '--num-parallel-processes',
+            type=int,
+            default=12,
+            help='The number of simultaneous fitpsf/fitprf processes to run.'
+        )
+
     add_version_args(add_component_versions, parser)
 
     return parser
@@ -72,6 +89,29 @@ def add_version_args(components, parser):
         )
 
 
+def add_image_options(parser):
+    """Add options specifying the properties of the image."""
+
+    parser.add_argument(
+        '--subpixmap',
+        default=None,
+        help='The sub-pixel sensitivity map to assume. If not specified '
+        'uniform sensitivy is assumed.'
+    )
+    parser.add_argument(
+        '--gain',
+        type=float,
+        default=1.0,
+        help='The gain to assume for the input images.'
+    )
+    parser.add_argument(
+        '--magnitude-1adu',
+        type=float,
+        default=10.0,
+        help='The magnitude which corresponds to a source flux of 1ADU'
+    )
+
+
 def read_catalogue(catalogue_fname):
     """Return the catalogue parsed to pandas.DataFrame."""
 
@@ -85,3 +125,15 @@ def read_catalogue(catalogue_fname):
         catalogue.index.name.lstrip('#').split('[', 1)[0]
     )
     return catalogue
+
+
+def read_subpixmap(fits_fname):
+    """Read the sub-pixel sensitivity map from a FITS file."""
+
+    if fits_fname is None:
+        return numpy.ones((1, 1), dtype=float)
+    with fits.open(fits_fname, 'readonly') as subpixmap_file:
+        #False positive, pylint does not see data member.
+        #pylint: disable=no-member
+        return numpy.copy(subpixmap_file[0].data).astype('float64')
+        #pylint: enable=no-member

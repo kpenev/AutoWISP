@@ -719,6 +719,9 @@ class DataReductionFile(DataReductionPostProcess):
             srcproj_version=srcproj_version,
             background_version=background_version
         )[0]
+        aperture_photometry_inputs['source_data'] = (
+            aperture_photometry_inputs['source_data'].to_records()
+        )
         tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
         return aperture_photometry_inputs['source_data'].size
 
