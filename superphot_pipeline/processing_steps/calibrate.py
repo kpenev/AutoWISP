@@ -145,6 +145,20 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
     parser.add_argument(
+        '--bias-level-adu',
+        default=1000.0,
+        type=float,
+        help='Most detectors add an offset to the quantized pixel values, this '
+        'defines that offset (affects estimated variances).'
+    )
+
+    parser.add_argument(
+        '--read-noise-electrons',
+        default=3.0,
+        type=float,
+        help='The read noise in electrons (assumed the same for all pixels).'
+    )
+    parser.add_argument(
         '--compress-calibrated',
         default=None,
         type=int,

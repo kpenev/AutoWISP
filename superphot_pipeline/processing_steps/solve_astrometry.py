@@ -160,7 +160,6 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
         'srcextract_column_name',
         srcextract_version=srcextract_version
     )
-    print('Sources DataFrame:\n' + repr(sources))
     x_col = int(numpy.argwhere(sources.columns == 'x')) + 1
     y_col = int(numpy.argwhere(sources.columns == 'y')) + 1
     sources.to_csv(sources_fname,
@@ -170,7 +169,6 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
                    quoting=csv.QUOTE_NONE,
                    index=True,
                    header=False)
-    print_file_contents(sources_fname, 'Sources')
 
     return x_col, y_col
 
@@ -193,20 +191,10 @@ def save_match_to_dr(catalogue_sources,
 
     catalogue_sources = catalogue_sources.index.ravel()
     extracted_sources = extracted_sources.index.ravel()
-    print('catalogue_sources ({0!r}):\n'.format(catalogue_sources.shape)
-          +
-          repr(catalogue_sources))
-    print('extracted_sources ({0!r}):\n'.format(extracted_sources.shape)
-          +
-          repr(extracted_sources))
-    print('matched_ids ({0!r}):\n'.format(matched_ids.shape)
-          +
-          repr(matched_ids))
 
     extracted_sorter = numpy.argsort(extracted_sources)
     catalogue_sorter = numpy.argsort(catalogue_sources)
     match = numpy.empty([matched_ids.index.size, 2], dtype=int)
-    print('Match destination shape: ' + repr(match.shape))
     match[:, 0] = catalogue_sorter[
         numpy.searchsorted(catalogue_sources,
                            matched_ids['catalogue_id'].ravel(),
@@ -217,7 +205,6 @@ def save_match_to_dr(catalogue_sources,
                            matched_ids['extracted_id'].ravel(),
                            sorter=extracted_sorter)
     ]
-    print('Match data: ' + repr(match))
     dr_file.add_dataset(
         dataset_key='skytoframe.matched',
         data=match,
@@ -350,7 +337,6 @@ def solve_image(dr_fname, **configuration):
     cat_ra_col, cat_dec_col = get_sky_coord_columns(
         configuration['astrometry_catalogue']
     )
-    print('RA, Dec columns: ' + repr((cat_ra_col, cat_dec_col)))
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         header = dr_file.get_frame_header()
         with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
@@ -389,9 +375,7 @@ def solve_image(dr_fname, **configuration):
                           x_col=x_col+1,
                           y_col=y_col+1)
             ]
-            print('Executing:\n\t' + '\\\n\t'.join(command))
             subprocess.run(command, check=True)
-            print_file_contents(match_fname, 'match')
             print_file_contents(trans_fname, 'trans')
             save_to_dr(match_fname, trans_fname, configuration, header, dr_file)
 

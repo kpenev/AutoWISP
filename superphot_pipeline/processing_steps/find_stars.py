@@ -64,9 +64,6 @@ def find_stars(image_collection, configuration):
         with DataReductionFile(header=fits_header, mode='a') as dr_file:
             dr_file.add_frame_header(fits_header)
             extracted_sources = find_stars_in_image(image_fname)
-            print('Saving the following sources to DR file:\n'
-                  +
-                  repr(extracted_sources))
             dr_file.add_sources(
                 extracted_sources,
                 'srcextract.sources',

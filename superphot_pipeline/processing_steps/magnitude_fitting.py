@@ -3,12 +3,30 @@
 """Apply magnitude fitting to hdf5 files"""
 
 import logging
+from types import SimpleNamespace
 
 from configargparse import ArgumentParser, DefaultsFormatter
+
 from superphot_pipeline import magnitude_fitting
+from superphot_pipeline.image_utilities import find_dr_fnames
+from superphot_pipeline.processing_steps.manual_util import\
+    get_cmdline_parser
 
 def parse_command_line():
     """Return the parsed command line arguments."""
+
+    parser = get_cmdline_parser(
+        __doc__,
+        input_type='dr',
+        help_extra=('The corresponding DR files must alread contain all '
+                    'photometric measurements.'),
+        add_component_versions=('srcproj',
+                                'background',
+                                'shapefit',
+                                'apphot',
+                                'magfit'),
+        allow_parallel_processing=True
+    )
 
     parser = ArgumentParser(
         description=__doc__,
@@ -173,22 +191,39 @@ def parse_command_line():
     return arguments
 
 
-if __name__ == '__main__':
-    cmdline_args = parse_command_line()
-    cmdline_args.grouping = '(' + ', '.join(cmdline_args.grouping) + ')'
-    logging.basicConfig(level=cmdline_args.verbose)
-    path_substitutions = dict(shapefit_version=0,
-                              srcproj_version=0,
-                              apphot_version=0,
-                              background_version=0,
-                              magfit_version=0)
+def magnitude_fit(dr_collection, configuration):
+    """Perform magnitude fitting for the given DR files."""
+
+    path_substitutions = {what + '_version': configuration[what + '_version']
+                          for what in ['shapefit',
+                                       'srcproj',
+                                       'apphot',
+                                       'background',
+                                       'magfit']}
 
     magnitude_fitting.iterative_refit(
-        fit_dr_filenames=sorted(cmdline_args.dr_files),
-        single_photref_dr_fname=cmdline_args.single_photref_dr_fname,
-        master_catalogue_fname=cmdline_args.master_catalogue_fname,
-        configuration=cmdline_args,
-        master_photref_fname_pattern=cmdline_args.master_photref_fname_pattern,
-        magfit_stat_fname_pattern=cmdline_args.magfit_stat_fname_pattern,
+        fit_dr_filenames=sorted(dr_collection),
+        single_photref_dr_fname=configuration['single_photref_dr_fname'],
+        master_catalogue_fname=configuration['master_catalogue_fname'],
+        configuration=SimpleNamespace(**configuration),
+        master_photref_fname_pattern=(
+            configuration['master_photref_fname_pattern']
+        ),
+        magfit_stat_fname_pattern=configuration['magfit_stat_fname_pattern'],
         **path_substitutions
     )
+
+
+if __name__ == '__main__':
+    cmdline_config = vars(parse_command_line())
+    cmdline_config['grouping'] = (
+        '('
+        +
+        ', '.join(cmdline_config['grouping'])
+        +
+        ')'
+    )
+    del cmdline_config['config_file']
+    logging.basicConfig(level=cmdline_config.verbose)
+    magnitude_fit(find_dr_fnames(cmdline_config.pop('dr_files')),
+                  cmdline_config)

@@ -28,7 +28,7 @@ def parse_command_line():
         __doc__,
         input_type='calibrated + dr',
         help_extra='The corresponding DR files must alread contain a PSF fit.',
-        add_component_versions=('srcproj', 'background', 'shapefit'),
+        add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
         allow_parallel_processing=True
     )
     parser.add_argument(
@@ -121,9 +121,12 @@ def photometer_frame(frame_fname, configuration):
             ),
             io_tree
         )
-        dr_file.add_aperture_photometry(io_tree,
-                                        num_sources,
-                                        len(configuration['apertures']))
+        dr_file.add_aperture_photometry(
+            io_tree,
+            num_sources,
+            len(configuration['apertures']),
+            apphot_version=configuration['apphot_version']
+        )
 
 
 def photometer_image_collection(image_collection, configuration):

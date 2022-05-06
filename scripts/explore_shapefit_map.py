@@ -54,6 +54,13 @@ def parse_command_line():
         'possibly combined with the sub-pixel map, to predict the response of '
         'pixels assuming the map is a PSF (as opposed to PRF) map.'
     )
+    parser.add_argument(
+        '--gain',
+        default=None,
+        type=float,
+        help='The gain to assume for the input image (electrons/ADU). If not '
+        'specified, it must be defined in the header as GAIN keyword.'
+    )
     add_version_args(('srcproj', 'background', 'shapefit'), parser)
 
     return explore_prf.parse_command_line(parser, True)
@@ -86,6 +93,7 @@ def main(cmdline_args):
         **{component + '_version': getattr(cmdline_args, component + '_version')
            for component in ('srcproj', 'background', 'shapefit')}
     ).to_records()
+    sources['flux'] *= cmdline_args.gain
 
     # image_center_x = image_resolution[1] / 2
     # image_center_y = image_resolution[0] / 2

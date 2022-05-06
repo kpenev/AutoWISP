@@ -151,7 +151,6 @@ class DataReductionFile(DataReductionPostProcess):
                 The expression specifying the terms to include in the PSF/PRF
                 dependence.
         """
-        print(path_substitutions)
         return (
             self._get_shapefit_map_grid(**path_substitutions),
             self.get_dataset('shapefit.map_coef', **path_substitutions),
@@ -387,12 +386,6 @@ class DataReductionFile(DataReductionPostProcess):
             if column_name in ascii_columns:
                 column_data = column_data.astype('string_')
             if parse_ids and column_name == 'ID':
-                print(
-                    'Parsing {col!r} column as HAT ids: {data!r}'.format(
-                        col=column_name,
-                        data=column_data
-                    )
-                )
                 id_data = self.parse_hat_source_id(column_data)
                 for id_part in ['prefix', 'field', 'source']:
                     self.add_dataset(
@@ -402,8 +395,6 @@ class DataReductionFile(DataReductionPostProcess):
                         **path_substitutions
                     )
             else:
-                print('Adding {column}: {data!r}'.format(column=column_name,
-                                                         data=column_data))
                 self.add_dataset(
                     dataset_key=dataset_key,
                     data=column_data,
@@ -531,7 +522,6 @@ class DataReductionFile(DataReductionPostProcess):
                 source_id = source_id[:c_style_end].decode()
             else:
                 source_id = source_id.decode()
-        print('Parsing HAT id: ' + repr(source_id))
         prefix_str, field_str, source_str = source_id.split('-')
         return (
             numpy.where(self._hat_id_prefixes
@@ -727,14 +717,14 @@ class DataReductionFile(DataReductionPostProcess):
         aperture_photometry_inputs['source_data'] = (
             aperture_photometry_inputs['source_data'].to_records()
         )
-        print('Setting ApPhot inputs: '+ repr(aperture_photometry_inputs))
         tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
         return aperture_photometry_inputs['source_data'].size
 
     def add_aperture_photometry(self,
                                 apphot_result_tree,
                                 num_sources,
-                                num_apertures):
+                                num_apertures,
+                                **path_substitutions):
         """
         Add the results of aperture photometry to the DR file.
 
@@ -770,7 +760,7 @@ class DataReductionFile(DataReductionPostProcess):
             result_tree=apphot_result_tree,
             num_sources=num_sources,
             skip_quantities=re.compile(r'(?!apphot\.)|^apphot.aperture$'),
-            apphot_version=0
+            **path_substitutions
         )
 
     def get_num_apertures(self, **path_substitutions):
@@ -1039,8 +1029,6 @@ class DataReductionFile(DataReductionPostProcess):
         shape_fit = shape_fit and self.has_shape_fit(**path_substitutions)
         magfit_iterations = normalize_magfit_iterations()
         result = initialize_result()
-        print('Read:\n' + repr(result))
-        print('Columns: ' + repr(result.columns))
 
         if background:
             fill_background(result)

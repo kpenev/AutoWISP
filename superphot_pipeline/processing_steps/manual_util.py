@@ -71,15 +71,20 @@ def add_version_args(components, parser):
 
     version_arg_help = dict(
         srcproj=(
-            'The version to assign to the datasets containing projected '
-            'photometry sources.'
+            'The version of the datasets containing projected photometry '
+            'sources to use/create.'
         ),
         background=(
-            'The version to assign to the newly extracted background '
-            'measurements.'
+            'The version identifier of background measurements to use/create.'
         ),
         shapefit=(
-            'The version to assign to the newly fit PSF/PRF map.'
+            'The version identifier of PSF/PRF map fit to use/create.'
+        ),
+        apphot=(
+            'The version identifier of aperture photometry to use/create.'
+        ),
+        magfit=(
+            'The version of magnitude fitting to use/create.'
         )
     )
     for comp in components:
