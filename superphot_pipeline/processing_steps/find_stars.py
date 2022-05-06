@@ -10,7 +10,9 @@ from superphot_pipeline import SourceFinder, DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__, 'calibrated')
+    parser = get_cmdline_parser(__doc__,
+                                'calibrated',
+                                add_component_versions=('srcextract',))
     parser.add_argument(
         '--srcextract-only-if',
         default='True',
@@ -43,13 +45,6 @@ def parse_command_line():
         help='Format string to generate the filename(s) of the data reduction '
         'files where extracted sources are saved. Replacement fields can be '
         'anything from the header of the calibrated image.'
-    )
-    parser.add_argument(
-        '--srcextract-version',
-        default=0,
-        help='If you wish to have multiple source extractions performed on the '
-        'same frame specify different version numbers here so they can reside '
-        'side-by-side in the data reduction file.'
     )
     return parser.parse_args()
 

@@ -23,7 +23,8 @@ def parse_command_line():
     parser = get_cmdline_parser(
         __doc__,
         'dr',
-        'The DR files must already contain extracted sources'
+        'The DR files must already contain extracted sources',
+        ('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
@@ -71,27 +72,9 @@ def parse_command_line():
         help='The tweak argument to anmatch anet.'
     )
     parser.add_argument(
-        '--srcextract-version',
-        default=0,
-        help='The version of the extracted sources to use.'
-    )
-    parser.add_argument(
         '--anet-index-path',
         default='/data/CAT/ANET_INDEX/ucac4_2014',
         help='The path of the anet index to use.'
-    )
-    parser.add_argument(
-        '--catalogue-version',
-        type=int,
-        default=0,
-        help='The version to assign to the input catalogue of sources in the '
-        'DR file.'
-    )
-    parser.add_argument(
-        '--skytoframe-version',
-        type=int,
-        default=0,
-        help='The vesrion to assign to the astrometry solution in the DR file.'
     )
     return parser.parse_args()
 

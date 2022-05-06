@@ -70,6 +70,16 @@ def add_version_args(components, parser):
     """Add arguments to select versions of the given components."""
 
     version_arg_help = dict(
+        srcextract=(
+            'The version of the extracted sources to use/create.'
+        ),
+        catalogue=(
+            'The version of the input catalogue of sources in the DR file to '
+            'use/create.'
+        ),
+        skytoframe=(
+            'The vesrion of the astrometry solution in the DR file.'
+        ),
         srcproj=(
             'The version of the datasets containing projected photometry '
             'sources to use/create.'
