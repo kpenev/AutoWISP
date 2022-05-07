@@ -423,12 +423,16 @@ class DataReductionFile(DataReductionPostProcess):
         """
 
         path_substitutions[column_substitution_name] = '{column}'
+        print('Parsing source path: '
+              +
+              repr(self._file_structure[dataset_key].abspath))
         parsed_path = string.Formatter().parse(
             self._file_structure[dataset_key].abspath
             %
             path_substitutions
         )
         pre_column, verify, _, _ = next(parsed_path)
+        print('Pre_column: {0}, verify: {1}'.format(pre_column, verify))
         assert verify == 'column'
         try:
             name_tail = next(parsed_path)
@@ -444,6 +448,14 @@ class DataReductionFile(DataReductionPostProcess):
             name_tail = ''
         parent, name_head = pre_column.rsplit('/', 1)
         result = pandas.DataFrame()
+        print(
+            (
+                'Collecting columns frcom {0} under {1}, starting with {2} '
+                'and ending with {3}'
+            ).format(
+                self.filename, parent, name_head, name_tail
+            )
+        )
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
         )

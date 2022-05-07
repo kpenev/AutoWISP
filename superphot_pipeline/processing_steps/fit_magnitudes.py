@@ -28,27 +28,6 @@ def parse_command_line():
         allow_parallel_processing=True
     )
 
-    parser = ArgumentParser(
-        description=__doc__,
-        default_config_files=['magfit.cfg'],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=True
-    )
-    parser.add_argument(
-        'dr_files',
-        nargs='+',
-        help='A list of the data reduction files to fit.'
-    )
-
-    parser.add_argument(
-        '--config-file', '-c',
-        is_config_file=True,
-        help='Specify a configuration file in liu of using command line '
-        'options. Any option can still be overriden on the command line. '
-        'Default: %(default)s'
-    )
-
-
     parser.add_argument(
         '--single-photref-dr-fname',
         default='single_photref.hdf5.0',
@@ -63,17 +42,18 @@ def parse_command_line():
              'Default: %(default)s'
     )
     parser.add_argument(
-        '--master-photref-fname-pattern',
+        '--master-photref-fname-format',
         default='MASTERS/mphotref_iter%(magfit_iteration)03d.fits',
-        help='A %%-substitution pattern involving a %%(magfit_iteration)s '
-        'substitution along with any variables passed through the '
-        'path_substitutions arguments, that expands to the name of the file to '
-        'save the master photometric reference for a particular iteration.'
+        help='A format string involving a {magfit_iteration} substitution along'
+        ' with any variables from the header of the single photometric '
+        'reference or passed through the path_substitutions arguments, that '
+        'expands to the name of the file to save the master photometric '
+        'reference for a particular iteration.'
     )
     parser.add_argument(
-        '--magfit-stat-fname-pattern',
+        '--magfit-stat-fname-format',
         default='MASTERS/mfit_stat_iter%(magfit_iteration)03d.txt',
-        help='Similar to ``master_photref_fname_pattern``, but defines the name'
+        help='Similar to ``master_photref_fname_format``, but defines the name'
         ' to use for saving the statistics of a magnitude fitting iteration.'
     )
     parser.add_argument(
@@ -105,6 +85,12 @@ def parse_command_line():
         ),
         help='A string that expands to the terms to include in the magnitude '
         'fitting correction.'
+    )
+    parser.add_argument(
+        '--mphotref-scatter-fit-terms',
+        default='O2{r,xi,eta}',
+        help='Terms to include in the fit for the scatter when deciding which '
+        'stars to include in the master.'
     )
     parser.add_argument(
         '--reference-subpix',
@@ -168,12 +154,6 @@ def parse_command_line():
              'to be before the source is excluded. Default: %(default)s'
     )
     parser.add_argument(
-        '--num-parallel-processes',
-        type=int,
-        default=1,
-        help='How many processes to use for simultaneus fitting.'
-    )
-    parser.add_argument(
         '--max-photref-change',
         type=float,
         default=1e-4,
@@ -206,24 +186,28 @@ def magnitude_fit(dr_collection, configuration):
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
         master_catalogue_fname=configuration['master_catalogue_fname'],
         configuration=SimpleNamespace(**configuration),
-        master_photref_fname_pattern=(
-            configuration['master_photref_fname_pattern']
+        master_photref_fname_format=(
+            configuration['master_photref_fname_format']
         ),
-        magfit_stat_fname_pattern=configuration['magfit_stat_fname_pattern'],
+        magfit_stat_fname_format=configuration['magfit_stat_fname_format'],
+        master_scatter_fit_terms=configuration['mphotref_scatter_fit_terms'],
         **path_substitutions
     )
 
 
 if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
-    cmdline_config['grouping'] = (
-        '('
-        +
-        ', '.join(cmdline_config['grouping'])
-        +
-        ')'
-    )
+    if cmdline_config['grouping']:
+        cmdline_config['grouping'] = (
+            '('
+            +
+            ', '.join(cmdline_config['grouping'])
+            +
+            ')'
+        )
+    else:
+        cmdline_config['grouping'] = ('True')
     del cmdline_config['config_file']
-    logging.basicConfig(level=cmdline_config.verbose)
+    logging.basicConfig(level=cmdline_config.pop('verbose'))
     magnitude_fit(find_dr_fnames(cmdline_config.pop('dr_files')),
                   cmdline_config)
