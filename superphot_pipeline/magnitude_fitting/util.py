@@ -107,7 +107,6 @@ def get_magfit_sources(data_reduction_file,
         for phot_i in phot_index[phot_quantity]:
             assert phot_i == num_phot
 
-    print('Magfit sources:\n' + repr(result))
     return result
 
 
