@@ -11,6 +11,7 @@ from numpy.lib import recfunctions
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.evaluator import Evaluator
+from superphot_pipeline.magnitude_fitting.util import get_magfit_sources
 
 #Could not think of a sensible way to reduce number of attributes
 #pylint: disable=too-many-instance-attributes
@@ -380,7 +381,7 @@ class MagnitudeFit(ABC):
             result_ind += 1
 
         if result_ind == 0:
-            print(repr(skipped_example))
+            print(repr(not_in_ref[1]))
             self.logger.error(
                 (
                     'All %d sources discarded from %s: %d skipped '
@@ -558,58 +559,59 @@ class MagnitudeFit(ABC):
             self.logger.debug('Process %d fitting: %s.',
                               current_process().pid,
                               dr_fname)
-            data_reduction = DataReductionFile(dr_fname, mode='r+')
-            self._dr_fname = dr_fname
-            phot = data_reduction.get_source_data(magfit_iterations=[-1],
-                                                  string_source_ids=False,
-                                                  **dr_path_substitutions)
+            with DataReductionFile(dr_fname, mode='r+') as data_reduction:
+                self._dr_fname = dr_fname
+                phot = get_magfit_sources(data_reduction,
+                                          magfit_iterations=[-1],
+                                          **dr_path_substitutions)
 
-            if not phot.size:
-                self.logger.warning('Downgrading calib status.')
-                self._downgrade_calib_status()
-                return
-            self.logger.debug('Adding catalogue information.')
-            phot, no_catalogue, deleted_phot_indices = (
-                self._add_catalogue_info(phot)
-            )
-            evaluator = Evaluator(phot)
-            if getattr(self.config, 'grouping', None) is not None:
-                self._set_group(evaluator, phot)
+                if not phot.size:
+                    self.logger.warning('Downgrading calib status.')
+                    self._downgrade_calib_status()
+                    return
+                self.logger.debug('Adding catalogue information.')
+                #TODO: revive filtering by catalogue
+                no_catalogue, deleted_phot_indices = [], []
+#                (
+#                    self._add_catalogue_info(phot)
+#                )
+                evaluator = Evaluator(phot)
+                if getattr(self.config, 'grouping', None) is not None:
+                    self._set_group(evaluator, phot)
 
-            self.logger.debug('Checking for existing solution.')
-            fit_results = self._solved(phot['mag'].shape[2]) or False
-            if fit_results:
-                assert 'fit_groups' not in phot
-                fit_results = [fit_results]
-            else:
-                self.logger.debug('Matching to reference.')
-                fit_base = self._match_to_reference(phot,
-                                                    no_catalogue,
-                                                    evaluator)
-                if fit_base.size > 0:
-                    self.logger.debug('Performing linear fit.')
-                    fit_results = self._fit(fit_base)
-            if fit_results:
-                self.logger.debug('Post-processing fit.')
-                fitted = self._apply_fit(phot, fit_results)
-                assert fitted.shape == (phot['mag'].shape[0],
-                                        phot['mag'].shape[2])
-                fit_statistics = combine_fit_statistics(fit_results)
+                self.logger.debug('Checking for existing solution.')
+                fit_results = self._solved(phot['mag'].shape[2]) or False
+                if fit_results:
+                    assert 'fit_groups' not in phot
+                    fit_results = [fit_results]
+                else:
+                    self.logger.debug('Matching to reference.')
+                    fit_base = self._match_to_reference(phot,
+                                                        no_catalogue,
+                                                        evaluator)
+                    if fit_base.size > 0:
+                        self.logger.debug('Performing linear fit.')
+                        fit_results = self._fit(fit_base)
+                if fit_results:
+                    self.logger.debug('Post-processing fit.')
+                    fitted = self._apply_fit(phot, fit_results)
+                    assert fitted.shape == (phot['mag'].shape[0],
+                                            phot['mag'].shape[2])
+                    fit_statistics = combine_fit_statistics(fit_results)
 
-                self.logger.debug('Adding to DR file.')
-                data_reduction.add_magnitude_fitting(
-                    fitted_magnitudes=fitted,
-                    fit_statistics=fit_statistics,
-                    magfit_configuration=self.config,
-                    missing_indices=deleted_phot_indices,
-                    **dr_path_substitutions
-                )
-                data_reduction.close()
-                self.logger.debug('Updating calibration status.')
-                if self._magfit_collector is not None:
-                    self.logger.debug('Outputting %d sources.',
-                                      len(phot['ID']))
-                    self._magfit_collector.add_input(phot, fitted)
+                    self.logger.debug('Adding to DR file.')
+                    data_reduction.add_magnitude_fitting(
+                        fitted_magnitudes=fitted,
+                        fit_statistics=fit_statistics,
+                        magfit_configuration=self.config,
+                        missing_indices=deleted_phot_indices,
+                        **dr_path_substitutions
+                    )
+                    self.logger.debug('Updating calibration status.')
+                    if self._magfit_collector is not None:
+                        self.logger.debug('Outputting %d sources.',
+                                          len(phot['ID']))
+                        self._magfit_collector.add_input(phot, fitted)
         except Exception as ex:
             #Does not make sense to avoid building message.
             #pylint: disable=logging-not-lazy

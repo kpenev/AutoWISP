@@ -1015,9 +1015,9 @@ class DataReductionFile(DataReductionPostProcess):
                             **path_substitutions
                         )
                     if apphot:
-                        num_apertures = (result[result_key].shape[2]
-                                         -
-                                         photometry_index)
+                        num_apertures = self.get_num_apertures(
+                            **path_substitutions
+                        )
                         for aperture_index in range(num_apertures):
                             result[
                                 'ap{0:03d}_'.format(aperture_index)

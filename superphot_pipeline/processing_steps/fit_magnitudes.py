@@ -197,7 +197,7 @@ def magnitude_fit(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = vars(parse_command_line())
-    if cmdline_config['grouping']:
+    if cmdline_config['grouping'] is not None:
         cmdline_config['grouping'] = (
             '('
             +
@@ -205,8 +205,6 @@ if __name__ == '__main__':
             +
             ')'
         )
-    else:
-        cmdline_config['grouping'] = ('True')
     del cmdline_config['config_file']
     logging.basicConfig(level=cmdline_config.pop('verbose'))
     magnitude_fit(find_dr_fnames(cmdline_config.pop('dr_files')),

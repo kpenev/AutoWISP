@@ -1,6 +1,6 @@
 """Implement magnitude fitting using linear regression."""
 
-import scipy
+import numpy
 import scipy.optimize
 
 from superphot_pipeline.magnitude_fitting.base import MagnitudeFit
@@ -19,19 +19,26 @@ class LinearMagnitudeFit(MagnitudeFit):
 
             finite = True
             for var in ['x', 'y', 'bg', 'bg_err']:
-                finite = scipy.logical_and(finite,
-                                           scipy.isfinite(fit_data[var]))
+                finite = numpy.logical_and(finite,
+                                           numpy.isfinite(fit_data[var]))
 
             result = []
             for phot_ind in range(num_photometries):
                 finite_phot = finite
                 for var in ['mag', 'mag_err', 'ref_mag', 'ref_mag_err']:
-                    finite_phot = scipy.logical_and(
+                    finite_phot = numpy.logical_and(
                         finite_phot,
-                        scipy.isfinite(fit_data[var][:, 0, phot_ind])
+                        numpy.isfinite(fit_data[var][:, 0, phot_ind])
                     )
-                exclude = scipy.logical_not(finite_phot)
-                exclude = scipy.logical_or(
+                    self.logger.debug('Up to %s, %d non-finite sources',
+                                      var,
+                                      numpy.logical_not(finite_phot).sum())
+
+                exclude = numpy.logical_not(finite_phot)
+                self.logger.debug('Excluding %d non-finite sources: %s.',
+                                  exclude.sum(),
+                                  repr(exclude.nonzero()[0]))
+                exclude = numpy.logical_or(
                     exclude,
                     (
                         fit_data['mag_err'][:, 0, phot_ind]
@@ -40,6 +47,11 @@ class LinearMagnitudeFit(MagnitudeFit):
                     )
                 )
                 result.append(exclude.nonzero()[0])
+                self.logger.debug(
+                    'With too large error bar, %d sources excluded: %s',
+                    exclude.sum(),
+                    repr(result[-1])
+                )
 
             return result
 
@@ -61,18 +73,18 @@ class LinearMagnitudeFit(MagnitudeFit):
             if phot_skip_indices.size:
                 self.logger.debug('Skipping %d sources from fitting.',
                                   phot_skip_indices.size)
-                phot_predictors = scipy.delete(phot_predictors,
+                phot_predictors = numpy.delete(phot_predictors,
                                                phot_skip_indices,
                                                1)
-                weights = scipy.delete(weights, phot_skip_indices)
-                mag_difference = scipy.delete(mag_difference, phot_skip_indices)
+                weights = numpy.delete(weights, phot_skip_indices)
+                mag_difference = numpy.delete(mag_difference, phot_skip_indices)
 
             self.logger.debug('Smallest weight for photometry %d: %g',
                               phot_ind,
                               weights.min())
 
-            assert scipy.isfinite(phot_predictors).all()
-            assert scipy.isfinite(mag_difference).all()
+            assert numpy.isfinite(phot_predictors).all()
+            assert numpy.isfinite(mag_difference).all()
             assert (weights > 0).all()
 
             group_results = []
@@ -80,7 +92,7 @@ class LinearMagnitudeFit(MagnitudeFit):
                 if group_id is not None:
                     in_group = (fit_group == group_id)
                     if phot_skip_indices.size:
-                        in_group = scipy.delete(in_group, phot_skip_indices)
+                        in_group = numpy.delete(in_group, phot_skip_indices)
 
                 self.logger.debug('Fitting group %s', str(group_id))
                 coefficients, fit_res2, final_src_count = iterative_fit(
@@ -90,11 +102,11 @@ class LinearMagnitudeFit(MagnitudeFit):
                     ),
                     (
                         mag_difference if group_id is None
-                        else scipy.copy(mag_difference[in_group])
+                        else numpy.copy(mag_difference[in_group])
                     ),
                     weights=(
                         weights if group_id is None
-                        else scipy.copy(weights[in_group])
+                        else numpy.copy(weights[in_group])
                     ),
                     error_avg=self.config.error_avg,
                     rej_level=self.config.rej_level,
@@ -108,11 +120,11 @@ class LinearMagnitudeFit(MagnitudeFit):
                     self.logger.error(
                         'Rejection resulted in fewer sources than '
                         'parameters when fitting group %d\n',
-                        group_id
+                        group_id or 0
                     )
 
                 fit_residual = (None if fit_res2 is None
-                                else scipy.sqrt(fit_res2))
+                                else numpy.sqrt(fit_res2))
 
                 group_results.append(dict(coefficients=coefficients,
                                           residual=fit_residual,
@@ -129,7 +141,7 @@ class LinearMagnitudeFit(MagnitudeFit):
         fit_group = (fit_data['fit_group']
                      if 'fit_group' in fit_data.dtype.names else
                      [None])
-        fit_group_ids = scipy.unique(fit_group)
+        fit_group_ids = numpy.unique(fit_group)
         predictors = self.fit_terms(fit_data)
         print('Predictors shape: ' + repr(predictors.shape))
         for phot_ind in range(num_photometries):
@@ -147,8 +159,8 @@ class LinearMagnitudeFit(MagnitudeFit):
     def _apply_fit(self, phot, fit_results):
 
         assert len(fit_results) == phot['mag'].shape[2]
-        fitted = scipy.full((phot['mag'].shape[0], phot['mag'].shape[2]),
-                            scipy.nan)
+        fitted = numpy.full((phot['mag'].shape[0], phot['mag'].shape[2]),
+                            numpy.nan)
         predictors = self.fit_terms(phot)
         for phot_ind, phot_fit_results in enumerate(fit_results):
 
@@ -161,7 +173,7 @@ class LinearMagnitudeFit(MagnitudeFit):
                     fitted[:, phot_ind] = (
                         phot['mag'][:, 0, phot_ind]
                         +
-                        scipy.dot(fit_coef, predictors)
+                        numpy.dot(fit_coef, predictors)
                     )
                 else:
                     in_group = (phot['fit_group']
@@ -170,7 +182,7 @@ class LinearMagnitudeFit(MagnitudeFit):
                     fitted[in_group, phot_ind] = (
                         phot['mag'][in_group, 0, phot_ind]
                         +
-                        scipy.dot(fit_coef, predictors[:, in_group])
+                        numpy.dot(fit_coef, predictors[:, in_group])
                     )
 
         return fitted
