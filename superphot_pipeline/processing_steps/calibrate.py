@@ -8,7 +8,8 @@ from configargparse import Action
 
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -86,7 +87,8 @@ class ParseOverscanAction(Action):
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__, 'raw')
+    parser = ManualStepArgumentParser(description=__doc__,
+                                      input_type='raw')
     parser.add_argument(
         '--calibrate-only-if',
         default='True',

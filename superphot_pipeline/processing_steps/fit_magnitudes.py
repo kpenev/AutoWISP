@@ -5,21 +5,19 @@
 import logging
 from types import SimpleNamespace
 
-from configargparse import ArgumentParser, DefaultsFormatter
-
 from superphot_pipeline import magnitude_fitting
 from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
-    get_cmdline_parser
+    ManualStepArgumentParser
 
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(
-        __doc__,
+    parser = ManualStepArgumentParser(
+        description=__doc__,
         input_type='dr',
-        help_extra=('The corresponding DR files must alread contain all '
-                    'photometric measurements.'),
+        inputs_help_extra=('The corresponding DR files must alread contain all '
+                           'photometric measurements.'),
         add_component_versions=('srcproj',
                                 'background',
                                 'shapefit',

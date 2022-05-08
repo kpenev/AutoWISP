@@ -12,9 +12,9 @@ from superphot_pipeline.astrometry import Transformation
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
-    get_cmdline_parser,\
-    read_catalogue,\
+    ManualStepArgumentParser,\
     add_image_options,\
+    read_catalogue,\
     read_subpixmap
 from superphot_pipeline.split_sources import SplitSources
 
@@ -264,11 +264,11 @@ def add_grouping_options(parser):
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(
-        __doc__,
+    parser = ManualStepArgumentParser(
+        description=__doc__,
         input_type='calibrated + dr',
-        help_extra=('The corresponding DR files must alread contain an '
-                    'astrometric transformation.'),
+        inputs_help_extra=('The corresponding DR files must alread contain an '
+                           'astrometric transformation.'),
         add_component_versions=('srcproj', 'background', 'shapefit'),
         allow_parallel_processing=True
     )

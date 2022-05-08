@@ -12,7 +12,7 @@ import pandas
 
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 from superphot_pipeline.processing_steps.manual_util import\
-    get_cmdline_parser,\
+    ManualStepArgumentParser,\
     read_catalogue
 from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
@@ -20,11 +20,11 @@ from superphot_pipeline import DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(
-        __doc__,
-        'dr',
-        'The DR files must already contain extracted sources',
-        ('srcextract', 'catalogue', 'skytoframe')
+    parser = ManualStepArgumentParser(
+        description=__doc__,
+        input_type='dr',
+        inputs_help_extra='The DR files must already contain extracted sources',
+        add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',

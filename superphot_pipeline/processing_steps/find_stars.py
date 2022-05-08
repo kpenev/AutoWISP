@@ -2,7 +2,8 @@
 
 """Detect stars within calibrated image(s)."""
 
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
@@ -10,9 +11,9 @@ from superphot_pipeline import SourceFinder, DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__,
-                                'calibrated',
-                                add_component_versions=('srcextract',))
+    parser = ManualStepArgumentParser(description=__doc__,
+                                      input_type='calibrated',
+                                      add_component_versions=('srcextract',))
     parser.add_argument(
         '--srcextract-only-if',
         default='True',

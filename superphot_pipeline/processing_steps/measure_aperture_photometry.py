@@ -15,7 +15,7 @@ from superphot_pipeline.fits_utilities import\
     read_image_components
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.processing_steps.manual_util import\
-    get_cmdline_parser,\
+    ManualStepArgumentParser,\
     read_subpixmap
 from superphot_pipeline.processing_steps.fit_star_shape import add_image_options
 
@@ -24,10 +24,11 @@ from superphot_pipeline import DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(
-        __doc__,
+    parser = ManualStepArgumentParser(
+        description=__doc__,
         input_type='calibrated + dr',
-        help_extra='The corresponding DR files must alread contain a PSF fit.',
+        inputs_help_extra=('The corresponding DR files must alread contain a '
+                           'PSF fit.'),
         add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
         allow_parallel_processing=True
     )
