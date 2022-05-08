@@ -371,13 +371,12 @@ def solve_astrometry(dr_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
+    cmdline_config = parse_command_line()
     cmdline_config.update(
         binning=1,
         srcextract_filter='True',
         sky_preprojection='tan',
         weights_expression='1.0'
     )
-    del cmdline_config['config_file']
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files')),
                      cmdline_config)

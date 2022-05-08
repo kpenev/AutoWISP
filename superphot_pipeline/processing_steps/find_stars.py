@@ -69,8 +69,7 @@ def find_stars(image_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     cmdline_config['tool'] = cmdline_config.pop('srcfind_tool')
     find_stars(
         find_fits_fnames(

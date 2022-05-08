@@ -147,8 +147,7 @@ def photometer_image_collection(image_collection, configuration):
         pool.join()
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     photometer_image_collection(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('apphot_only_if')),

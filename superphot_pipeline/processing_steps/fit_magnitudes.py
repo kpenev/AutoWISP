@@ -2,7 +2,6 @@
 
 """Apply magnitude fitting to hdf5 files"""
 
-import logging
 from types import SimpleNamespace
 
 from superphot_pipeline import magnitude_fitting
@@ -158,15 +157,7 @@ def parse_command_line():
         help='The maximum square average change of photometric reference '
              'magnitudes to consider the iterations converged.'
     )
-    parser.add_argument(
-        '--verbose',
-        default='info',
-        choices=['debug', 'info', 'warning', 'error', 'critical'],
-        help='The type of verbosity of logger.'
-    )
-    arguments = parser.parse_args()
-    arguments.verbose = getattr(logging, arguments.verbose.upper())
-    return arguments
+    return parser.parse_args()
 
 
 def magnitude_fit(dr_collection, configuration):
@@ -194,7 +185,7 @@ def magnitude_fit(dr_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
+    cmdline_config = parse_command_line()
     if cmdline_config['grouping'] is not None:
         cmdline_config['grouping'] = (
             '('
@@ -203,7 +194,5 @@ if __name__ == '__main__':
             +
             ')'
         )
-    del cmdline_config['config_file']
-    logging.basicConfig(level=cmdline_config.pop('verbose'))
     magnitude_fit(find_dr_fnames(cmdline_config.pop('dr_files')),
                   cmdline_config)

@@ -203,8 +203,7 @@ def calibrate(image_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     calibrate(
         find_fits_fnames(
             cmdline_config.pop('raw_images'),

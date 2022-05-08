@@ -677,8 +677,7 @@ def fit_star_shapes(image_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     fit_star_shapes(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('shapefit_only_if')),

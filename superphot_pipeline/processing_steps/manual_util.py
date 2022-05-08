@@ -1,5 +1,7 @@
 """Collection of functions used by many processing steps."""
 
+import logging
+
 import numpy
 import pandas
 from astropy.io import fits
@@ -131,6 +133,25 @@ class ManualStepArgumentParser(ArgumentParser):
             )
 
         self._add_version_args(add_component_versions)
+        self.add_argument(
+            '--verbose',
+            default='info',
+            choices=['debug', 'info', 'warning', 'error', 'critical'],
+            help='The type of verbosity of logger.'
+        )
+
+
+    #pylint: disable=signature-differs
+    def parse_args(self, *args, **kwargs):
+        """Set-up logging and return cleaned up dict instead of namespace."""
+
+        result = vars(super().parse_args(*args, **kwargs))
+        del result['config_file']
+        logging.basicConfig(
+            level=getattr(logging, result.pop('verbose').upper())
+        )
+        return result
+    #pylint: enable=signature-differs
 
 
 def add_image_options(parser):
