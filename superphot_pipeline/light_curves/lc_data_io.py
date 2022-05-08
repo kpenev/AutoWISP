@@ -18,7 +18,7 @@ from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
-from superphot_pipeline.magnitude_fitting import read_master_catalogue
+from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 from superphot_pipeline import DataReductionFile
 
 from .light_curve_file import LightCurveFile, _config_dset_key_rex

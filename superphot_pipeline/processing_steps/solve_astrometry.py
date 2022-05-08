@@ -28,7 +28,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
-        required=True,
+        default='astrometry_catalogue.ucac4',
         help='A file containing (approximately) the same stars as those that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky, but it '

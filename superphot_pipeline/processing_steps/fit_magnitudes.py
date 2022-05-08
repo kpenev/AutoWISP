@@ -157,6 +157,13 @@ def parse_command_line():
         help='The maximum square average change of photometric reference '
              'magnitudes to consider the iterations converged.'
     )
+    parser.add_argument(
+        '--max-magfit-iterations',
+        type=int,
+        default=5,
+        help='The maximum number of iterations of deriving a master photometric'
+        ' referene and re-fitting to allow.'
+    )
     return parser.parse_args()
 
 
@@ -180,6 +187,7 @@ def magnitude_fit(dr_collection, configuration):
         ),
         magfit_stat_fname_format=configuration['magfit_stat_fname_format'],
         master_scatter_fit_terms=configuration['mphotref_scatter_fit_terms'],
+        max_iterations=configuration['max_magfit_iterations'],
         **path_substitutions
     )
 
