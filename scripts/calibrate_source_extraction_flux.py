@@ -34,31 +34,6 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def get_matched(dr_fname, path_substitutions):
-    """Get combined catalogue and extracted information of matched sources."""
-
-    with DataReductionFile(dr_fname, 'r') as dr_file:
-        match = dr_file.get_dataset(
-            dataset_key='skytoframe.matched',
-            **path_substitutions
-        )
-
-        catalogue = dr_file.get_sources(
-            'catalogue.columns',
-            'catalogue_column_name',
-            **path_substitutions
-        ).iloc[match[:, 0]].reset_index()
-        extracted_sources = dr_file.get_sources(
-            'srcextract.sources',
-            'srcextract_column_name',
-            **path_substitutions
-        ).iloc[match[:, 1]].reset_index()
-        return pandas.concat(
-            [catalogue, extracted_sources],
-            axis=1
-        )
-
-
 def main(dr_collection, configuration):
     """Avoid polluting the global namespace."""
 
@@ -70,7 +45,8 @@ def main(dr_collection, configuration):
     }
     offsets = pandas.Series()
     for dr_fname in dr_collection:
-        matched = get_matched(dr_fname, path_substitutions)
+        with DataReductionFile(dr_fname, 'r') as dr_file:
+            matched = dr_file.get_matched(**path_substitutions)
         magnitude = Evaluator(
             matched
         )(

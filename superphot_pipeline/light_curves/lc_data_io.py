@@ -13,13 +13,13 @@ from ctypes import memset, sizeof
 
 import h5py
 import numpy
-from numpy.lib.recfunctions import merge_arrays as merge_structured_arrays
 from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline import Evaluator
 
 from .light_curve_file import LightCurveFile, _config_dset_key_rex
 from .lc_data_slice import LCDataSlice
@@ -249,7 +249,6 @@ class LCDataIO:
                config,
                source_id_parser,
                dr_fname_parser,
-               get_jd,
                *,
                source_list=None,
                optional_header=None,
@@ -269,7 +268,7 @@ class LCDataIO:
                     - max_magfit_iterations: The maximum number of magnitude
                       fitting iterations in any input frame.
 
-                    - catalogue_fname: The filename of a catalogue file
+                    - lcdump_catalogue_fname: The filename of a catalogue file
                       containing at least RA and Dec.
 
                     - srcextract_psf_params: List of the parameters describing
@@ -285,9 +284,6 @@ class LCDataIO:
             dr_fname_parser:    A callable that parser the filename of DR files
                 returning extra keywrds to add to the header.
 
-            get_jd:    A function that should return the JD of the middle of the
-                exposure for a given FITS header.
-
             source_list:    A list that includes all sources for which
                 lightcurves will be generated. Sources should be formatted
                 as (field, source) tuples of two integers. Sources not in this
@@ -295,7 +291,7 @@ class LCDataIO:
                 instead.
 
             optional_header: Indicate which header keywords could
-                be missing from the FITS header. Missking keywors will
+                be missing from the FITS header. Missing keywors will
                 be replaced by appropriate values indicating an unknown
                 value. Should be in one of 3 formats:
 
@@ -326,12 +322,14 @@ class LCDataIO:
 
         cls._path_substitutions = path_substitutions
 
-        cls._catalogue = read_master_catalogue(config.catalogue_fname,
+        cls._catalogue = read_master_catalogue(config['lcdump_catalogue_fname'],
                                                source_id_parser)
         cls.dr_fname_parser = staticmethod(dr_fname_parser)
 
         if source_list is None:
             source_list = list(cls._catalogue.keys())
+
+        print('Creating LC Data IO with source list: ' + repr(source_list))
 
         no_light_curve = LightCurveFile()
 
@@ -341,9 +339,9 @@ class LCDataIO:
                                    for index, source in enumerate(source_list)}
         cls.max_dimension_size = dict(
             source=num_sources,
-            aperture_index=config.max_apertures,
-            magfit_iteration=config.max_magfit_iterations,
-            srcextract_psf_param=len(config.srcextract_psf_params),
+            aperture_index=config['max_apertures'],
+            magfit_iteration=config['max_magfit_iterations'],
+            srcextract_psf_param=len(config['srcextract_psf_params']),
             sky_coord=2
         )
 
@@ -353,15 +351,13 @@ class LCDataIO:
             get_dtype=no_light_curve.get_dtype,
             dataset_dimensions=cls.dataset_dimensions,
             max_dimension_size=cls.max_dimension_size,
-            max_mem=config.memblocksize
+            max_mem=config['max_memory']
         )
 
         cls.lc_data_slice = Value(LCDataSlice, lock=False)
         cls._config = config
         cls._optional_header = optional_header
         cls._observatory = observatory
-
-        cls._get_jd = staticmethod(get_jd)
 
         cls._ra_dec = numpy.empty(shape=(2, num_sources), dtype=numpy.float64)
         for src_index, src in enumerate(source_list):
@@ -382,6 +378,8 @@ class LCDataIO:
         """Return value as it would be read from the LC."""
 
         if lc_dtype is None:
+            print('Not changing dtype of {0!r} = {1!r}'.format(lc_quantity,
+                                                               value))
             lc_dtype = value.dtype
         try:
             try:
@@ -430,14 +428,14 @@ class LCDataIO:
                         numpy.array(value, dtype=vlen_type)
                     )
             return result
-        except:
+        except Exception as ex:
             raise Exception(
                 "".join(format_exception(*sys.exc_info()))
                 +
                 '\nWhile converting to LC type: %s=%s'
                 %
                 (lc_quantity, repr(value))
-            )
+            ) from ex
     #pylint: enable=too-many-branches
 
     @classmethod
@@ -509,7 +507,9 @@ class LCDataIO:
         )
 
         if 'srcextract_psf_param' in result:
-            result['srcextract_psf_param'] = cls._config.srcextract_psf_params[
+            result['srcextract_psf_param'] = cls._config[
+                'srcextract_psf_params'
+            ][
                 result['srcextract_psf_param']
             ]
 
@@ -839,12 +839,18 @@ class LCDataIO:
                     )
                     if value is None:
                         lc_dtype = numpy.dtype(
-                            type(self._get_slice_field(lc_quantity)[frame_index])
+                            type(
+                                self._get_slice_field(lc_quantity)[frame_index]
+                            )
                         )
                         if lc_dtype.kind == 'f':
                             value = numpy.nan
                         elif lc_dtype.kind == 'S':
                             value = b''
+                        elif lc_dtype.kind in ['i', 'u']:
+                            value = 0
+                        elif lc_dtype.kind in ['b']:
+                            value = False
 
                     self._get_slice_field(lc_quantity)[frame_index] = (
                         value
@@ -1013,9 +1019,13 @@ class LCDataIO:
                                      lon=frame_header['SITELONG'] * units.deg,
                                      height=frame_header['SITEALT'] * units.m)
 
-            obs_time = Time(self._get_jd(frame_header),
-                            format='jd',
-                            location=location)
+            obs_time = Time(
+                Evaluator()(
+                    self._config['jd_expression'].format_map(frame_header)
+                ),
+                format='jd',
+                location=location
+            )
 
             source_coords = SkyCoord(
                 ra=self._ra_dec[0] * units.deg,
@@ -1057,21 +1067,6 @@ class LCDataIO:
                     data_slice_source_indices=data_slice_source_indices
                 )
 
-        def merge_with_catalogue_information(source_data):
-            """Extend source_data with catalogue information."""
-
-            num_sources = len(source_data)
-            cat_data = numpy.empty(
-                num_sources,
-                dtype=next(iter(self._catalogue.values())).dtype
-            )
-            for source_index, source_id in enumerate(source_data['ID']):
-                cat_data[source_index] = self._catalogue[tuple(source_id)]
-
-            return merge_structured_arrays((source_data, cat_data),
-                                           flatten=True,
-                                           usemask=False)
-
         def fill_srcextract_psf_map(source_data,
                                     data_slice_source_indices):
             """Fill all datasets containing the source exatrction PSF map."""
@@ -1080,13 +1075,17 @@ class LCDataIO:
                 **self._path_substitutions
             )
             psf_param_values = psf_map(source_data)
+            print('Evaluated PSF params: ' + repr(psf_param_values.dtype.names))
+            print('Expected PSF params: '
+                  +
+                  repr(self._config['srcextract_psf_params']))
 
             assert(set(psf_param_values.dtype.names)
                    ==
-                   set(self._config.srcextract_psf_params))
+                   set(self._config['srcextract_psf_params']))
 
             for param_index, param_name in enumerate(
-                    self._config.srcextract_psf_params
+                    self._config['srcextract_psf_params']
             ):
                 fill_source_field(
                     quantity='srcextract.psf_map.eval',
@@ -1098,26 +1097,31 @@ class LCDataIO:
         fill_header_keywords()
         source_data = data_reduction.get_source_data(
             string_source_ids=False,
+            all_numeric_source_ids=True,
             shape_fit=False,
             apphot=False,
             shape_map_variables=False,
             background=False,
             **self._path_substitutions
         )
+        print('Read sources: ' + repr(source_data))
 
-        data_slice_source_indices = [self.source_destinations.get(tuple(src_id))
-                                     for src_id in source_data['ID']]
+        data_slice_source_indices = [self.source_destinations.get(src_id)
+                                     for src_id in source_data.index]
 
-        skipped_indices = []
-        for skip_ind, slice_ind in enumerate(data_slice_source_indices):
+        print('Destination indices: ' + repr(data_slice_source_indices))
+
+        skipped_sources = []
+        for skip_src, slice_ind in zip(source_data.index,
+                                       data_slice_source_indices):
             if slice_ind is None:
-                skipped_indices.append(skip_ind)
+                skipped_sources.append(skip_src)
 
-        skipped_sources = numpy.copy(source_data['ID'][skipped_indices])
+        print('Skipping sources: ' + repr(skipped_sources))
 
-        source_data = numpy.delete(source_data, skipped_indices)
+        source_data.drop(skipped_sources, inplace=True)
 
-        source_data = merge_with_catalogue_information(source_data)
+        print('Remaining sources: ' + repr(skipped_sources))
 
         fill_direct_from_dr(data_slice_source_indices)
         fill_sky_position_datasets(data_slice_source_indices)

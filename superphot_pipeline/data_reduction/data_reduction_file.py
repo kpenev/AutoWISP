@@ -13,8 +13,11 @@ import pandas
 
 from superphot_pipeline import fit_expression
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
+from superphot_pipeline.data_reduction.source_extracted_psf_map import\
+    SourceExtractedPSFMap
 
-from .post_process import DataReductionPostProcess
+from superphot_pipeline.database.hdf5_file_structure import\
+    HDF5FileDatabaseStructure
 
 git_id = '$Id$'
 
@@ -25,7 +28,7 @@ git_id = '$Id$'
 
 #Out of my control (most ancestors come from h5py module).
 #pylint: disable=too-many-ancestors
-class DataReductionFile(DataReductionPostProcess):
+class DataReductionFile(HDF5FileDatabaseStructure):
     """
     Interface for working with the pipeline data reduction (DR) files.
 
@@ -626,6 +629,14 @@ class DataReductionFile(DataReductionPostProcess):
             if_exists='error',
             **path_substitutions
         )
+        #TODO: set this from command line, use it in fitting and fix here!
+        self.add_attribute(
+            'shapefit.cfg.psf.ignore_dropped',
+            False,
+            if_exists='error',
+            **path_substitutions
+        )
+
         self._auto_add_tree_quantities(
             result_tree=shape_fit_result_tree,
             num_sources=num_sources,
@@ -846,6 +857,7 @@ class DataReductionFile(DataReductionPostProcess):
                         shape_fit=True,
                         apphot=True,
                         string_source_ids=True,
+                        all_numeric_source_ids=False,
                         background=True,
                         **path_substitutions):
         """
@@ -942,6 +954,20 @@ class DataReductionFile(DataReductionPostProcess):
                     del result[id_component]
                 result.set_index('ID', inplace=True)
             elif set(hat_id_components) < set(result.columns):
+                if all_numeric_source_ids:
+                    result.insert(0,
+                                  'hat_id_prefnum',
+                                  len(self._hat_id_prefixes))
+                    for new_id, old_id in enumerate(self._hat_id_prefixes):
+                        result[
+                            'hat_id_prefnum'
+                        ][
+                            result['hat_id_prefix'] == old_id
+                        ] = new_id
+                    assert (result['hat_id_prefnum'].max()
+                            <
+                            len(self._hat_id_prefixes))
+                    hat_id_components[0] = 'hat_id_prefnum'
                 result.set_index(hat_id_components, inplace=True)
 
             return result
@@ -989,7 +1015,7 @@ class DataReductionFile(DataReductionPostProcess):
                     ('mag_err', 'magnitude_error'),
                     ('phot_flag', 'quality_flag')
             ):
-                for iter_index, magfit_iter in enumerate(magfit_iterations):
+                for magfit_iter in magfit_iterations:
                     if magfit_iter == 0 or result_key != 'mag':
                         dataset_key_middle = ''
                     else:
@@ -1349,6 +1375,116 @@ class DataReductionFile(DataReductionPostProcess):
         add_trans()
         add_configuration()
 
+
+    def get_matched_sources(self, **path_substitutions):
+        """Get combined catalogue and extracted matched sources."""
+
+        match = self.get_dataset(
+            dataset_key='skytoframe.matched',
+            **path_substitutions
+        )
+
+        catalogue = self.get_sources(
+            'catalogue.columns',
+            'catalogue_column_name',
+            **path_substitutions
+        ).iloc[match[:, 0]].reset_index()
+        extracted_sources = self.get_sources(
+            'srcextract.sources',
+            'srcextract_column_name',
+            **path_substitutions
+        ).iloc[match[:, 1]].reset_index()
+        return pandas.concat(
+            [catalogue, extracted_sources],
+            axis=1
+        )
+
+
+    def save_source_extracted_psf_map(self,
+                                      *,
+                                      fit_results,
+                                      fit_terms_expression,
+                                      weights_expression,
+                                      error_avg,
+                                      rej_level,
+                                      max_rej_iter,
+                                      **path_substitutions):
+        """Create the datasets and attributes holding the fit results."""
+
+        psf_parameters = fit_results['coefficients'].keys()
+        self.add_dataset('srcextract.psf_map',
+                         numpy.stack(fit_results['coefficients'][param_name]
+                                     for param_name in psf_parameters),
+                         **path_substitutions)
+
+        for param_key, param_value in [
+                (
+                    'cfg.psf_params',
+                    numpy.array([name.encode('ascii') for name
+                                 in psf_parameters])
+                ),
+                ('cfg.terms', fit_terms_expression.encode('ascii')),
+                (
+                    'cfg.weights',
+                    (
+                        b'none' if weights_expression is None
+                        else weights_expression.encode('ascii')
+                    )
+                ),
+                ('cfg.error_avg', error_avg.encode('ascii')),
+                ('cfg.rej_level', rej_level),
+                ('cfg.max_rej_iter', max_rej_iter),
+                (
+                    'residual',
+                    numpy.array([
+                        fit_results['fit_res2'][param_name]**0.5
+                        for param_name in psf_parameters
+                    ])
+                ),
+                (
+                    'num_fit_src',
+                    numpy.array([
+                        fit_results['num_fit_src'][param_name]
+                        for param_name in psf_parameters
+                    ])
+                )
+        ]:
+            self.add_attribute('srcextract.psf_map.' + param_key,
+                               param_value,
+                               **path_substitutions)
+
+
+    def get_source_extracted_psf_map(self, **path_substitutions):
+        """
+        Return functions giving the source extraction PSF map in self.
+
+        Args:
+            path_substitutions:    Substitution arguments required to resolve
+                the path to the relevant datasets/attributes.
+
+        Returns:
+            SourceExtractedPSFMap:
+                The PSF map derived from extracted sources stored in this DR
+                file.
+        """
+
+        return SourceExtractedPSFMap(
+            psf_parameters=[
+                param_name.decode()
+                for param_name in self.get_attribute(
+                    'srcextract.psf_map.cfg.psf_params',
+                    **path_substitutions
+                )
+            ],
+            terms_expression=self.get_attribute(
+                'srcextract.psf_map.cfg.terms',
+                **path_substitutions
+            ),
+            coefficients=self.get_dataset(
+                'srcextract.psf_map',
+                **path_substitutions
+            )
+        )
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-statements
 

@@ -5,7 +5,6 @@ import os.path
 import os
 
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
-from superphot_pipeline.hat.header_util import get_jd as get_hat_jd
 from superphot_pipeline import DataReductionFile
 from .lc_data_io import LCDataIO
 
@@ -16,6 +15,7 @@ class DecodingStringFormatter(Formatter):
         """If conversion is ``'d'`` -> ``value.decode()`` else pass to parent"""
 
         if conversion == 'd':
+            print('Decoding: ' + repr(value))
             return value.decode()
         return super().convert_field(value, conversion)
 
@@ -23,7 +23,6 @@ class DecodingStringFormatter(Formatter):
 #pylint: disable=too-many-locals
 def collect_light_curves(dr_filenames,
                          configuration,
-                         get_jd=get_hat_jd,
                          *,
                          dr_fname_parser=parse_fname_keywords,
                          optional_header=None,
@@ -38,11 +37,6 @@ def collect_light_curves(dr_filenames,
 
         configuration:    Object with attributes configuring the LC collection
             procedure.
-
-        get_jd:    A function that should return the JD of the middle of the
-            exposure for a given FITS header. By default HAT-style headers are
-            assumed, which contain a JD keyword which needs to be corrected by
-            adding `2.4e6`.
 
         path_substitutions:    Any substitutions to resolve paths within DR and
             LC files to data to read/write (e.g. versions of various
@@ -59,10 +53,15 @@ def collect_light_curves(dr_filenames,
 
     srcid_formatter = DecodingStringFormatter()
     with DataReductionFile(dr_filenames[0], 'r') as first_dr:
+        configuration['srcextract_psf_params'] = [
+            param.decode() for param in first_dr.get_attribute(
+                'srcextract.psf_map.cfg.psf_params',
+                **path_substitutions
+            )
+        ]
         data_io = LCDataIO.create(configuration,
                                   first_dr.parse_hat_source_id,
                                   dr_fname_parser,
-                                  get_jd=get_jd,
                                   optional_header=optional_header,
                                   observatory=observatory,
                                   **path_substitutions)
@@ -71,8 +70,8 @@ def collect_light_curves(dr_filenames,
         (
             source_id,
             srcid_formatter.format(
-                configuration.lc_fname,
-                source_id
+                configuration['lc_fname'],
+                *source_id
             )
         )
         for source_id in data_io.source_destinations.keys()

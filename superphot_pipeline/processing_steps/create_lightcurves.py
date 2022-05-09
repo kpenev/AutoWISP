@@ -7,6 +7,7 @@ from bisect import bisect
 from asteval import Interpreter
 
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 from superphot_pipeline.light_curves.collect_light_curves import\
@@ -24,7 +25,10 @@ def parse_command_line():
                                 'background',
                                 'shapefit',
                                 'apphot',
-                                'magfit'),
+                                'magfit',
+                                'srcextract',
+                                'skytoframe',
+                                'catalogue'),
         allow_parallel_processing=True
     )
     parser.add_argument(
@@ -46,13 +50,6 @@ def parse_command_line():
         default=5,
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting allowed during magnitude fitting.'
-    )
-    parser.add_argument(
-        '--srcextract-psf-params',
-        nargs='+',
-        default=('S', 'D', 'K'),
-        help='List of the parameters describing PSF shapes of the extracted '
-        'sources.'
     )
     parser.add_argument(
         '--max-memory',
@@ -96,14 +93,23 @@ def parse_command_line():
         default='{ALTITUDE}',
         help='Same as `--latitude-deg` but for the altitude in meters.'
     )
+    parser.add_argument(
+        '--jd-expression',
+        default='{JD} + 2.4e6',
+        help='An expression involving header keywords that evaluates to the JD '
+        'of the middle of the exposure in a frame. First string `format` method'
+        'is called on the header and then the expression is evaluated.'
+    )
 
     result = parser.parse_args()
 
     mem_block_size = result.pop('mem_block_size')
     if mem_block_size == 'Mb':
-        result.max_memory = int(result.max_memory * 1024**2)
+        result['max_memory'] = int(result['max_memory'] * 1024**2)
     elif mem_block_size == 'Gb':
-        result.max_memory = int(result.max_memory * 1024**3)
+        result['max_memory'] = int(result['max_memory'] * 1024**3)
+
+    result['max_apertures'] = len(result.pop('apertures'))
 
     return result
 
@@ -118,9 +124,21 @@ def get_observatory(header, configuration):
     """Return (latitude, longitude, altitude) where given data was collected."""
 
     evaluate = Interpreter()
+    print(
+        'Observatory expressions: '
+        +
+        repr(
+            tuple(
+                configuration[coordinate].format_map(header)
+                for coordinate in ['latitude_deg',
+                                   'longitude_deg',
+                                   'altitude_meters']
+            )
+        )
+    )
     return tuple(
-        evaluate(configuration[coordinate].format(header))
-        for coordinate in ['latitude-deg', 'longitude-deg', 'altitude-meters']
+        evaluate(configuration[coordinate].format_map(header))
+        for coordinate in ['latitude_deg', 'longitude_deg', 'altitude_meters']
     )
 
 
@@ -133,26 +151,29 @@ def sort_by_observatory(dr_collection, configuration):
         with DataReductionFile(dr_fname, 'r') as dr_file:
             header = dr_file.get_frame_header()
             observatory = get_observatory(header, configuration)
-            sort_key = configuration['sort_frame_by'].format(header)
+            sort_key = configuration['sort_frame_by'].format_map(header)
             if observatory not in result:
                 result[observatory] = [dr_fname]
                 sort_keys[observatory] = [sort_key]
             else:
                 insert_pos = bisect(sort_keys[observatory], sort_key)
-                sort_keys['observatory'].insert(insert_pos, sort_key)
-                result['observatory'].insert(insert_pos, dr_fname)
+                sort_keys[observatory].insert(insert_pos, sort_key)
+                result[observatory].insert(insert_pos, dr_fname)
     return result
 
 
 def create_lightcurves(dr_collection, configuration):
     """Create lightcurves from the data in the given DR files."""
 
+    #TODO: figure out source extraction map variables from DR file
     dr_by_observatory = sort_by_observatory(dr_collection, configuration)
 
     path_substitutions = dict()
     for option, value in configuration.items():
-        if option.endswith('_verison'):
+        if option.endswith('_version'):
             path_substitutions[option] = value
+
+    print('Path substitutions: ' + repr(path_substitutions))
 
     for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
         collect_light_curves(
@@ -169,3 +190,5 @@ def create_lightcurves(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files')),
+                       cmdline_config)
