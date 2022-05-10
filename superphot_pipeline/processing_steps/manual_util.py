@@ -101,19 +101,22 @@ class ManualStepArgumentParser(ArgumentParser):
             input_name = 'calibrated_images'
         elif input_type == 'dr':
             input_name = 'dr_files'
+        else:
+            input_name = None
 
-        self.add_argument(
-            input_name,
-            nargs='+',
-            help=(
-                (
-                    'A combination of individual {0}s and {0} directories to '
-                    'process. Directories are not searched recursively.'
-                ).format(input_name[:-1].replace('_', ' '))
-                +
-                inputs_help_extra
+        if input_name is not None:
+            self.add_argument(
+                input_name,
+                nargs='+',
+                help=(
+                    (
+                        'A combination of individual {0}s and {0} directories to '
+                        'process. Directories are not searched recursively.'
+                    ).format(input_name[:-1].replace('_', ' '))
+                    +
+                    inputs_help_extra
+                )
             )
-        )
         if '+' in input_type and input_type.split('+')[1].strip() == 'dr':
             self.add_argument(
                 '--data-reduction-fname',

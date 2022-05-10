@@ -5,6 +5,7 @@
 import functools
 import os.path
 import sys
+from types import SimpleNamespace
 
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
@@ -24,7 +25,7 @@ def parse_command_line():
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=None,
+        input_type='',
         add_component_versions=('srcproj', 'background', 'shapefit')
     )
 
@@ -181,4 +182,6 @@ def main(cmdline_args):
 
 if __name__ == '__main__':
     numpy.set_printoptions(threshold=sys.maxsize)
-    main(parse_command_line())
+    config = SimpleNamespace(**parse_command_line())
+    config.frame_fname = config.frame_fname[0]
+    main(config)
