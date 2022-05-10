@@ -24,10 +24,22 @@ def parse_command_line():
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='calibrated',
+        input_type=None,
         add_component_versions=('srcproj', 'background', 'shapefit')
     )
 
+    parser.add_argument(
+        '--data-reduction-fname',
+        default=os.path.join('%(FITS_DIR)s',
+                             '..',
+                             'DR',
+                             '%(FITS_ROOT)s.trans'),
+        help="A pattern with substitutions involving any FITS header "
+        "keywords, `'%%(FITS_DIR)s'` (directory containing the frame), and/or "
+        "`'%%(FITS_ROOT)s'` (base filename of the frame without the `fits` or "
+        "`fits.fz` extension) that expands to the filename of the data "
+        "reduction file containing the PSF/PRF map to explore."
+    )
     parser.add_argument(
         '--subpixmap',
         default=None,
@@ -50,7 +62,7 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
 
-    return explore_prf.parse_command_line(parser, True, True)
+    return explore_prf.parse_command_line(parser, True, False)
 
 
 def main(cmdline_args):
