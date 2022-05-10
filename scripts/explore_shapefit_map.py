@@ -50,7 +50,7 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
 
-    return explore_prf.parse_command_line(parser, True)
+    return explore_prf.parse_command_line(parser, True, False)
 
 
 def main(cmdline_args):
