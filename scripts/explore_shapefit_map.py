@@ -16,30 +16,18 @@ from superphot_pipeline import PiecewiseBicubicPSFMap
 from superphot_pipeline.fits_utilities import\
     get_primary_header,\
     read_image_components
-from superphot_pipeline.processing_steps.manual_util import add_version_args
-
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 
 def parse_command_line():
     """Parse command line to attributes of an object."""
 
-    parser = ArgumentParser(
+    parser = ManualStepArgumentParser(
         description=__doc__,
-        default_config_files=['explore_shapefit_map.cfg'],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=True
+        input_type='dr',
+        add_component_versions=('srcproj', 'background', 'shapefit')
     )
-    parser.add_argument(
-        '--data-reduction-fname',
-        default=os.path.join('%(FITS_DIR)s',
-                             '..',
-                             'DR',
-                             '%(FITS_ROOT)s.trans'),
-        help="A pattern with substitutions involving any FITS header "
-        "keywords, `'%%(FITS_DIR)s'` (directory containing the frame), and/or "
-        "`'%%(FITS_ROOT)s'` (base filename of the frame without the `fits` or "
-        "`fits.fz` extension) that expands to the filename of the data "
-        "reduction file containing the PSF/PRF map to explore."
-    )
+
     parser.add_argument(
         '--subpixmap',
         default=None,
@@ -61,7 +49,6 @@ def parse_command_line():
         help='The gain to assume for the input image (electrons/ADU). If not '
         'specified, it must be defined in the header as GAIN keyword.'
     )
-    add_version_args(('srcproj', 'background', 'shapefit'), parser)
 
     return explore_prf.parse_command_line(parser, True)
 
