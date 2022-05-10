@@ -24,7 +24,7 @@ def parse_command_line():
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type='calibrated',
         add_component_versions=('srcproj', 'background', 'shapefit')
     )
 
@@ -50,7 +50,7 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
 
-    return explore_prf.parse_command_line(parser, True, False)
+    return explore_prf.parse_command_line(parser, True, True)
 
 
 def main(cmdline_args):
