@@ -6,6 +6,7 @@ import subprocess
 from tempfile import mkstemp
 import os
 import csv
+import logging
 
 import numpy
 import pandas
@@ -66,10 +67,11 @@ def parse_command_line():
         'frame coordinates is allowed to depend on.'
     )
     parser.add_argument(
-        '--anet-tweak',
+        '--anet-tweak-range',
         type=int,
-        default=3,
-        help='The tweak argument to anmatch anet.'
+        nargs=2,
+        default=(2, 5),
+        help='Range of tweak arguments to anmatch anet to try.'
     )
     parser.add_argument(
         '--anet-index-path',
@@ -128,7 +130,7 @@ def print_file_contents(fname, label):
     """Print the entire contenst of the given file."""
 
     print(80*'*')
-    print(label.title() + ':')
+    print(label.title() + ': ')
     print(80*'-')
     with open(fname, 'r') as open_file:
         print(open_file.read())
@@ -152,6 +154,7 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
                    quoting=csv.QUOTE_NONE,
                    index=True,
                    header=False)
+    print_file_contents(sources_fname, 'Sources file')
 
     return x_col, y_col
 
@@ -328,39 +331,54 @@ def solve_image(dr_fname, **configuration):
                 sources_fname,
                 configuration['srcextract_version']
             )
-            command = [
-                'anmatch',
-                '--comment',
-                '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
-                '--input', sources_fname,
-                '--max-distance', repr(configuration['max_srcmatch_distance']),
-                '--output-transformation', trans_fname,
-                '--input-reference', configuration['astrometry_catalogue'],
-                '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
-                                                  cat_dec_col + 1),
-                '--output', match_fname,
-                '--order', repr(configuration['astrometry_order']),
-                '--ra', repr(configuration['frame_center_estimate'][0]),
-                '--dec', repr(configuration['frame_center_estimate'][1]),
-                '--anet',
-                ','.join([
-                    'indexpath={anet_index_path}',
-                    'xsize={NAXIS1}',
-                    'ysize={NAXIS2}',
-                    'xcol={x_col}',
-                    'ycol={y_col}',
-                    'width={frame_fov_estimate}',
-                    'tweak={anet_tweak}',
-                    'log=1',
-                    'verify=1'
-                ]).format(**configuration,
-                          **header,
-                          x_col=x_col+1,
-                          y_col=y_col+1)
-            ]
-            subprocess.run(command, check=True)
-            print_file_contents(trans_fname, 'trans')
-            save_to_dr(match_fname, trans_fname, configuration, header, dr_file)
+            for tweak in range(*configuration['anet_tweak_range']):
+                try:
+                    configuration['anet_tweak'] = tweak
+                    command = [
+                        'anmatch',
+                        '--comment',
+                        '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
+                        '--input', sources_fname,
+                        '--max-distance',
+                        repr(configuration['max_srcmatch_distance']),
+                        '--output-transformation', trans_fname,
+                        '--input-reference', configuration['astrometry_catalogue'],
+                        '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
+                                                          cat_dec_col + 1),
+                        '--output', match_fname,
+                        '--order', repr(configuration['astrometry_order']),
+                        '--ra', repr(configuration['frame_center_estimate'][0]),
+                        '--dec', repr(configuration['frame_center_estimate'][1]),
+                        '--anet',
+                        ','.join([
+                            'indexpath={anet_index_path}',
+                            'xsize={NAXIS1}',
+                            'ysize={NAXIS2}',
+                            'xcol={x_col}',
+                            'ycol={y_col}',
+                            'width={frame_fov_estimate}',
+                            'tweak={anet_tweak}',
+                            'log=1',
+                            'verify=1'
+                        ]).format(**configuration,
+                                  **header,
+                                  x_col=x_col+1,
+                                  y_col=y_col+1)
+                    ]
+                    subprocess.run(command, check=True)
+                    print_file_contents(trans_fname, 'trans')
+                    save_to_dr(match_fname,
+                               trans_fname,
+                               configuration,
+                               header,
+                               dr_file)
+                    logging.debug('Found astrometric solution for %s',
+                                  repr(dr_fname))
+                    return
+                except subprocess.CalledProcessError:
+                    pass
+    logging.error('Failed to find astrometric solution for %s',
+                  repr(dr_fname))
 
 
 def solve_astrometry(dr_collection, configuration):
