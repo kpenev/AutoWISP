@@ -5,15 +5,15 @@
 import functools
 import os.path
 import sys
-from types import SimpleNamespace
 
-from configargparse import ArgumentParser, DefaultsFormatter
+from matplotlib import pyplot
 import numpy
 from astropy.io import fits
 
 from superphot.utils import explore_prf
 
 from superphot_pipeline import PiecewiseBicubicPSFMap
+from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import\
     get_primary_header,\
     read_image_components
@@ -25,21 +25,19 @@ def parse_command_line():
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='',
-        add_component_versions=('srcproj', 'background', 'shapefit')
+        input_type='calibrated + dr',
+        add_component_versions=('srcproj', 'background', 'shapefit'),
+        convert_to_dict=False
     )
 
     parser.add_argument(
-        '--data-reduction-fname',
-        default=os.path.join('%(FITS_DIR)s',
-                             '..',
-                             'DR',
-                             '%(FITS_ROOT)s.trans'),
-        help="A pattern with substitutions involving any FITS header "
-        "keywords, `'%%(FITS_DIR)s'` (directory containing the frame), and/or "
-        "`'%%(FITS_ROOT)s'` (base filename of the frame without the `fits` or "
-        "`fits.fz` extension) that expands to the filename of the data "
-        "reduction file containing the PSF/PRF map to explore."
+        '--num-simultaneous',
+        type=int,
+        default=1,
+        help='The number of frames that were fit simultaneously, with a unified'
+        ' PSF/PRF model. Each simultaneous group consists of consecutive '
+        'entries in the input list of frames, so unless this argument is `1`, '
+        'the input must be exactly the as the one used for fitting the shape.'
     )
     parser.add_argument(
         '--subpixmap',
@@ -63,10 +61,13 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
 
-    return explore_prf.parse_command_line(parser, True, False)
+    return explore_prf.parse_command_line(parser,
+                                          assume_sources=True,
+                                          add_config_file=False,
+                                          add_frame_arg=False)
 
 
-def main(cmdline_args):
+def main(cmdline_args, last=True):
     """Avoid polluting global namespace."""
 
     if cmdline_args.skip_existing_plots:
@@ -168,7 +169,8 @@ def main(cmdline_args):
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
-                           cmdline_args)
+                           cmdline_args,
+                           append=(not last))
 
     if cmdline_args.plot_3d_spline:
         explore_prf.plot_3d_prf(cmdline_args, *eval_coords, eval_prf)
@@ -182,6 +184,15 @@ def main(cmdline_args):
 
 if __name__ == '__main__':
     numpy.set_printoptions(threshold=sys.maxsize)
-    config = SimpleNamespace(**parse_command_line())
-    config.frame_fname = config.frame_fname[0]
-    main(config)
+    config = parse_command_line()
+    frame_list = sorted(
+        find_fits_fnames(config.calibrated_images)
+    )
+    for frame_index, frame_fname in enumerate(frame_list):
+        print('Plotting ' + repr(frame_fname))
+        config.frame_fname = frame_fname
+        last_in_group = (frame_index + 1) % config.num_simultaneous == 0
+        main(config, last_in_group)
+        if last_in_group:
+            pyplot.clf()
+            pyplot.cla()
