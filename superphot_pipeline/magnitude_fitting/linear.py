@@ -79,6 +79,21 @@ class LinearMagnitudeFit(MagnitudeFit):
                 weights = numpy.delete(weights, phot_skip_indices)
                 mag_difference = numpy.delete(mag_difference, phot_skip_indices)
 
+
+            group_results = []
+            if weights.size == 0:
+                for group_id in fit_group_ids:
+                    group_results.append(
+                        dict(
+                            coefficients=None,
+                            residual=None,
+                            initial_src_count=0,
+                            final_src_count=0,
+                            group_id=group_id
+                        )
+                    )
+                return group_results
+
             self.logger.debug('Smallest weight for photometry %d: %g',
                               phot_ind,
                               weights.min())
@@ -87,7 +102,6 @@ class LinearMagnitudeFit(MagnitudeFit):
             assert numpy.isfinite(mag_difference).all()
             assert (weights > 0).all()
 
-            group_results = []
             for group_id in fit_group_ids:
                 if group_id is not None:
                     in_group = (fit_group == group_id)
