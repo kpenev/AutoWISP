@@ -58,7 +58,8 @@ class ManualStepArgumentParser(ArgumentParser):
                  description,
                  add_component_versions=(),
                  inputs_help_extra='',
-                 allow_parallel_processing=False):
+                 allow_parallel_processing=False,
+                 convert_to_dict=True):
         """
         Initialize the praser with options common to all manual steps.
 
@@ -84,6 +85,7 @@ class ManualStepArgumentParser(ArgumentParser):
             None
         """
 
+        self._convert_to_dict = convert_to_dict
         super().__init__(description=description,
                          default_config_files=[],
                          formatter_class=DefaultsFormatter,
@@ -93,6 +95,12 @@ class ManualStepArgumentParser(ArgumentParser):
             is_config_file=True,
             help='Specify a configuration file in liu of using command line '
             'options. Any option can still be overriden on the command line.'
+        )
+        self.add_argument(
+            '--extra-config-file',
+            is_config_file=True,
+            help='Hack around limitation of configargparse to allow for '
+            'setting a second config file.'
         )
 
         if input_type == 'raw':
@@ -148,11 +156,22 @@ class ManualStepArgumentParser(ArgumentParser):
     def parse_args(self, *args, **kwargs):
         """Set-up logging and return cleaned up dict instead of namespace."""
 
-        result = vars(super().parse_args(*args, **kwargs))
-        del result['config_file']
-        logging.basicConfig(
-            level=getattr(logging, result.pop('verbose').upper())
-        )
+        result = super().parse_args(*args, **kwargs)
+        if self._convert_to_dict:
+            result = vars(result)
+            del result['config_file']
+            del result['extra_config_file']
+            logging.basicConfig(
+                level=getattr(logging, result.pop('verbose').upper())
+            )
+        else:
+            logging.basicConfig(
+                level=getattr(logging, result.verbose.upper())
+            )
+            del result.config_file
+            del result.extra_config_file
+            del result.verbose
+
         return result
     #pylint: enable=signature-differs
 
