@@ -644,7 +644,7 @@ def fit_frame_set(frame_filenames_configuration):
 def fit_star_shapes(image_collection, configuration):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
-    image_collection = list(image_collection)
+    image_collection = sorted(image_collection)
     frame_list_splits = range(0,
                               len(image_collection),
                               configuration['num_simultaneous'])
