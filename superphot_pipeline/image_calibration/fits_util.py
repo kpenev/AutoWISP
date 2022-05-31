@@ -100,7 +100,8 @@ def create_result(image_list,
                 ]
             )
 
-        output_fname = result_fname.format(**header, **fname_substitutions)
+        fname_substitutions.update(header)
+        output_fname = result_fname.format_map(fname_substitutions)
         if not path.exists(path.dirname(output_fname)):
             makedirs(path.dirname(output_fname))
         hdu_list.writeto(output_fname, overwrite=allow_overwrite)
