@@ -84,9 +84,9 @@ def read_image_components(fits_fname,
         +
         ((error,) if read_error else ())
         +
-        ((mask,) if read_mask else())
+        ((mask,) if read_mask else ())
         +
-        ((header,) if read_header else())
+        ((header,) if read_header else ())
     )
 
 

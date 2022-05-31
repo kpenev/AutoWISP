@@ -18,6 +18,8 @@ class Base(ABC, Processor):
     def document_in_fits_header(self, header):
         """Document last overscan correction by updating given FITS header."""
 
+    #Intentional
+    #pylint: disable=arguments-differ
     @abstractmethod
     def __call__(self, raw_image, overscans, image_area, gain):
         """
@@ -48,6 +50,7 @@ class Base(ABC, Processor):
                 * variance:    An estimate of the variance in the
                     overscan_correction entries (in ADU).
         """
+    #pylint: enable=arguments-differ
 
 class Median(Base):
     """
@@ -244,8 +247,8 @@ class Median(Base):
 
         if overscan_values.size < self.min_pixels:
             raise ConvergenceError(
-                ('Median overscan: Too few pixels remain (%d) after %d rejection'
-                 'iterations.')
+                ('Median overscan: Too few pixels remain (%d) after %d '
+                 'rejection iterations.')
                 %
                 (overscan_values.size, self._last_num_reject_iter)
             )
