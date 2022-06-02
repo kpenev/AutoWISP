@@ -137,7 +137,8 @@ def parse_command_line():
         default=None,
         type=parse_area_str,
         help='The area of the image to process (the rest is discarded). The '
-        'format is <xmin>,<xmax>,<ymin>,<ymax>'
+        'format is <xmin>,<xmax>,<ymin>,<ymax>. Think of these as python array '
+        'slices in each direction.'
     )
     parser.add_argument(
         '--gain',
