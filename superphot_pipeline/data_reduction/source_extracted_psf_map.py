@@ -1,5 +1,6 @@
 """Define callable class representing PSF maps from source extraction."""
 
+import pandas
 import scipy
 
 from superphot_pipeline.fit_expression import Interface as FitTermsInterface
@@ -35,10 +36,10 @@ class SourceExtractedPSFMap:
         Evaluate the map for the given sources.
 
         Args:
-            source_data(numpy structured array):    The x, y and catalogue
-                information for the sources for which to evaluate the map. The
-                names of the fields should exactly match the names used when
-                creating the map.
+            source_data(numpy structured array or pandas DataFrame):    The
+                x, y and catalogue information for the sources for which to
+                evaluate the map. The names of the fields should exactly match
+                the names used when creating the map.
 
         Returns:
             numpy structured array:
@@ -46,8 +47,13 @@ class SourceExtractedPSFMap:
                 The fields will have the names of the PSF parameters.
         """
 
-        assert len(source_data.shape) == 1
-        result = scipy.empty(source_data.shape,
+        print('Source data: ' + repr(source_data))
+        assert (
+            isinstance(source_data, pandas.DataFrame)
+            or
+            len(source_data.shape) == 1
+        )
+        result = scipy.empty(len(source_data),
                              dtype=[(param_name, scipy.float64)
                                     for param_name in self._psf_parameters])
 

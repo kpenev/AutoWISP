@@ -58,7 +58,7 @@ class Interface:
 
         return self._var_names
 
-    def __call__(self, data):
+    def __call__(self, *data):
         """Return an array of the term values for the given data."""
 
-        return EvaluateTermsVisitor(data).visit(self._tree)
+        return EvaluateTermsVisitor(*data).visit(self._tree)

@@ -77,7 +77,7 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
 
         return self._end_expansion()
 
-    def __init__(self, data):
+    def __init__(self, *data):
         """
         Define the data used to evaluate the terms.
 
@@ -91,10 +91,10 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
             None
         """
 
-        if isinstance(data, asteval.Interpreter):
-            self.evaluate_term = data
+        if len(data) == 1 and isinstance(data[0], asteval.Interpreter):
+            self.evaluate_term = data[0]
         else:
-            self.evaluate_term = Evaluator(data)
+            self.evaluate_term = Evaluator(*data)
         self._current_expansion_terms = None
         self._expansion_term_index = None
 

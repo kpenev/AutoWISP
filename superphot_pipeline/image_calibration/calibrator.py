@@ -672,7 +672,7 @@ class Calibrator(Processor):
                 calibration_params['image_area']['xmin']
                 :
                 calibration_params['image_area']['xmax'],
-            ].astype('float64')
+            ].astype('float64') - calibration_params['bias_level_adu']
             calibrated_images = [
                 trimmed_image,
                 numpy.zeros(shape=trimmed_image.shape),
@@ -705,10 +705,17 @@ class Calibrator(Processor):
                         calibrated_images
                     )
                 if master_type == 'bias':
-                    calibrated_images[1] += numpy.abs(
-                        calibrated_images[0]
+                    calibrated_images[1] += (
+                        numpy.abs(calibrated_images[0])
                         /
                         calibration_params['gain']
+                        +
+                        (
+                            calibration_params['read_noise_electrons']
+                            /
+                            calibration_params['gain']
+                        )**2
+
                     )
 
             if calibration_params['flat'] is not None:

@@ -8,7 +8,8 @@ from configargparse import Action
 
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -86,13 +87,8 @@ class ParseOverscanAction(Action):
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'raw_images',
-        nargs='+',
-        help='A combination of individual images and image directories to '
-        'process. Directories are not searched recursively.'
-    )
+    parser = ManualStepArgumentParser(description=__doc__,
+                                      input_type='raw')
     parser.add_argument(
         '--calibrate-only-if',
         default='True',
@@ -151,6 +147,20 @@ def parse_command_line():
         'specified, it must be defined in the header as GAIN keyword.'
     )
     parser.add_argument(
+        '--bias-level-adu',
+        default=1000.0,
+        type=float,
+        help='Most detectors add an offset to the quantized pixel values, this '
+        'defines that offset (affects estimated variances).'
+    )
+
+    parser.add_argument(
+        '--read-noise-electrons',
+        default=3.0,
+        type=float,
+        help='The read noise in electrons (assumed the same for all pixels).'
+    )
+    parser.add_argument(
         '--compress-calibrated',
         default=None,
         type=int,
@@ -193,8 +203,7 @@ def calibrate(image_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     calibrate(
         find_fits_fnames(
             cmdline_config.pop('raw_images'),

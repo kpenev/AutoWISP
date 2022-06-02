@@ -6,40 +6,41 @@ import functools
 import os.path
 import sys
 
-from configargparse import ArgumentParser, DefaultsFormatter
+from matplotlib import pyplot
 import numpy
 from astropy.io import fits
 
 from superphot.utils import explore_prf
-from superphot.utils.file_utilities import get_fname_pattern_substitutions
 
 from superphot_pipeline import PiecewiseBicubicPSFMap
-from superphot_pipeline.image_utilities import read_image_components
-
+from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.fits_utilities import\
+    get_primary_header,\
+    read_image_components
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 
 def parse_command_line():
     """Parse command line to attributes of an object."""
 
-    parser = ArgumentParser(
+    parser = ManualStepArgumentParser(
         description=__doc__,
-        default_config_files=['explore_shapefit_map.cfg'],
-        formatter_class=DefaultsFormatter,
-        ignore_unknown_config_file_keys=False
+        input_type='calibrated + dr',
+        add_component_versions=('srcproj', 'background', 'shapefit'),
+        convert_to_dict=False
+    )
+
+    parser.add_argument(
+        '--num-simultaneous',
+        type=int,
+        default=1,
+        help='The number of frames that were fit simultaneously, with a unified'
+        ' PSF/PRF model. Each simultaneous group consists of consecutive '
+        'entries in the input list of frames, so unless this argument is `1`, '
+        'the input must be exactly the as the one used for fitting the shape.'
     )
     parser.add_argument(
-        '--dr-pattern',
-        default=os.path.join('%(FITS_DIR)s',
-                             '..',
-                             'DR',
-                             '%(FITS_ROOT)s.trans'),
-        help="A pattern with substitutions involving any FITS header "
-        "keywords, `'%%(FITS_DIR)s'` (directory containing the frame), and/or "
-        "`'%%(FITS_ROOT)s'` (base filename of the frame without the `fits` or "
-        "`fits.fz` extension) that expands to the filename of the data "
-        "reduction file containing the PSF/PRF map to explore."
-    )
-    parser.add_argument(
-        '--subpix-map',
+        '--subpixmap',
         default=None,
         help='If passed, should point to a FITS image to be used as the '
         'sub-pixel sensitivity map. Otherwise, uniform pixels are assumed.'
@@ -52,13 +53,21 @@ def parse_command_line():
         'possibly combined with the sub-pixel map, to predict the response of '
         'pixels assuming the map is a PSF (as opposed to PRF) map.'
     )
+    parser.add_argument(
+        '--gain',
+        default=None,
+        type=float,
+        help='The gain to assume for the input image (electrons/ADU). If not '
+        'specified, it must be defined in the header as GAIN keyword.'
+    )
 
-    return explore_prf.parse_command_line(parser)
+    return explore_prf.parse_command_line(parser,
+                                          assume_sources=True,
+                                          add_config_file=False,
+                                          add_frame_arg=False)
 
 
-#TODO figure out this piecewise thing
-
-def main(cmdline_args):
+def main(cmdline_args, last=True):
     """Avoid polluting global namespace."""
 
     if cmdline_args.skip_existing_plots:
@@ -78,11 +87,14 @@ def main(cmdline_args):
     #pylint: enable=unsubscriptable-object
     prf_map = PiecewiseBicubicPSFMap()
     sources = prf_map.load(
-        cmdline_args.dr_pattern
-        %
-        get_fname_pattern_substitutions(cmdline_args.frame_fname, header),
-        return_sources=True
-    )
+        cmdline_args.data_reduction_fname.format_map(
+            get_primary_header(cmdline_args.frame_fname, True)
+        ),
+        return_sources=True,
+        **{component + '_version': getattr(cmdline_args, component + '_version')
+           for component in ('srcproj', 'background', 'shapefit')}
+    ).to_records()
+    sources['flux'] *= cmdline_args.gain
 
     # image_center_x = image_resolution[1] / 2
     # image_center_y = image_resolution[0] / 2
@@ -157,7 +169,8 @@ def main(cmdline_args):
 
     explore_prf.show_plots(slice_prf_data,
                            slice_splines,
-                           cmdline_args)
+                           cmdline_args,
+                           append=(not last))
 
     if cmdline_args.plot_3d_spline:
         explore_prf.plot_3d_prf(cmdline_args, *eval_coords, eval_prf)
@@ -171,4 +184,15 @@ def main(cmdline_args):
 
 if __name__ == '__main__':
     numpy.set_printoptions(threshold=sys.maxsize)
-    main(parse_command_line())
+    config = parse_command_line()
+    frame_list = sorted(
+        find_fits_fnames(config.calibrated_images)
+    )
+    for frame_index, frame_fname in enumerate(frame_list):
+        print('Plotting ' + repr(frame_fname))
+        config.frame_fname = frame_fname
+        last_in_group = (frame_index + 1) % config.num_simultaneous == 0
+        main(config, last_in_group)
+        if last_in_group:
+            pyplot.clf()
+            pyplot.cla()

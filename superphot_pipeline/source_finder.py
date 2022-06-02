@@ -135,6 +135,9 @@ class SourceFinder:
                 dtype=None,
                 deletechars=''
             )
+            if configuration['tool'] == 'hatphot':
+                result['x'] -= 0.5
+                result['y'] -= 0.5
             if configuration['filter_sources'] != 'True':
                 result = result[
                     Evaluator(result)(configuration['filter_sources'])

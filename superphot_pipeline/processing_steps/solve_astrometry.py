@@ -6,29 +6,30 @@ import subprocess
 from tempfile import mkstemp
 import os
 import csv
+import logging
 
 import numpy
 import pandas
 
 from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser,\
+    read_catalogue
 from superphot_pipeline.image_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'dr_files',
-        nargs='+',
-        help='A combination of individual data reduction files and directories '
-        'to process (must already contain extracted sources). Directories are '
-        'not searched recursively.'
+    parser = ManualStepArgumentParser(
+        description=__doc__,
+        input_type='dr',
+        inputs_help_extra='The DR files must already contain extracted sources',
+        add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
-        required=True,
+        default='astrometry_catalogue.ucac4',
         help='A file containing (approximately) the same stars as those that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky, but it '
@@ -66,33 +67,16 @@ def parse_command_line():
         'frame coordinates is allowed to depend on.'
     )
     parser.add_argument(
-        '--anet-tweak',
+        '--anet-tweak-range',
         type=int,
-        default=3,
-        help='The tweak argument to anmatch anet.'
-    )
-    parser.add_argument(
-        '--srcextract-version',
-        default=0,
-        help='The version of the extracted sources to use.'
+        nargs=2,
+        default=(2, 5),
+        help='Range of tweak arguments to anmatch anet to try.'
     )
     parser.add_argument(
         '--anet-index-path',
         default='/data/CAT/ANET_INDEX/ucac4_2014',
         help='The path of the anet index to use.'
-    )
-    parser.add_argument(
-        '--catalogue-version',
-        type=int,
-        default=0,
-        help='The version to assign to the input catalogue of sources in the '
-        'DR file.'
-    )
-    parser.add_argument(
-        '--skytoframe-version',
-        type=int,
-        default=0,
-        help='The vesrion to assign to the astrometry solution in the DR file.'
     )
     return parser.parse_args()
 
@@ -146,7 +130,7 @@ def print_file_contents(fname, label):
     """Print the entire contenst of the given file."""
 
     print(80*'*')
-    print(label.title() + ':')
+    print(label.title() + ': ')
     print(80*'-')
     with open(fname, 'r') as open_file:
         print(open_file.read())
@@ -161,7 +145,6 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
         'srcextract_column_name',
         srcextract_version=srcextract_version
     )
-    print('Sources DataFrame:\n' + repr(sources))
     x_col = int(numpy.argwhere(sources.columns == 'x')) + 1
     y_col = int(numpy.argwhere(sources.columns == 'y')) + 1
     sources.to_csv(sources_fname,
@@ -171,7 +154,7 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
                    quoting=csv.QUOTE_NONE,
                    index=True,
                    header=False)
-    print_file_contents(sources_fname, 'Sources')
+    print_file_contents(sources_fname, 'Sources file')
 
     return x_col, y_col
 
@@ -194,20 +177,10 @@ def save_match_to_dr(catalogue_sources,
 
     catalogue_sources = catalogue_sources.index.ravel()
     extracted_sources = extracted_sources.index.ravel()
-    print('catalogue_sources ({0!r}):\n'.format(catalogue_sources.shape)
-          +
-          repr(catalogue_sources))
-    print('extracted_sources ({0!r}):\n'.format(extracted_sources.shape)
-          +
-          repr(extracted_sources))
-    print('matched_ids ({0!r}):\n'.format(matched_ids.shape)
-          +
-          repr(matched_ids))
 
     extracted_sorter = numpy.argsort(extracted_sources)
     catalogue_sorter = numpy.argsort(catalogue_sources)
     match = numpy.empty([matched_ids.index.size, 2], dtype=int)
-    print('Match destination shape: ' + repr(match.shape))
     match[:, 0] = catalogue_sorter[
         numpy.searchsorted(catalogue_sources,
                            matched_ids['catalogue_id'].ravel(),
@@ -218,7 +191,6 @@ def save_match_to_dr(catalogue_sources,
                            matched_ids['extracted_id'].ravel(),
                            sorter=extracted_sorter)
     ]
-    print('Match data: ' + repr(match))
     dr_file.add_dataset(
         dataset_key='skytoframe.matched',
         data=match,
@@ -292,21 +264,6 @@ def save_trans_to_dr(trans_fname,
         )
 
 
-def read_catalogue(catalogue_fname):
-    """Return the catalogue parsed to pandas.DataFrame."""
-
-    catalogue = pandas.read_csv(catalogue_fname,
-                                sep = r'\s+',
-                                header=0,
-                                index_col=0)
-    catalogue.columns = [colname.lstrip('#').split('[', 1)[0]
-                         for colname in catalogue.columns]
-    catalogue.index.name = (
-        catalogue.index.name.lstrip('#').split('[', 1)[0]
-    )
-    return catalogue
-
-
 #TODO: Add catalogue query configuration to DR
 def save_to_dr(match_fname,
                trans_fname,
@@ -366,7 +323,6 @@ def solve_image(dr_fname, **configuration):
     cat_ra_col, cat_dec_col = get_sky_coord_columns(
         configuration['astrometry_catalogue']
     )
-    print('RA, Dec columns: ' + repr((cat_ra_col, cat_dec_col)))
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         header = dr_file.get_frame_header()
         with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
@@ -375,41 +331,54 @@ def solve_image(dr_fname, **configuration):
                 sources_fname,
                 configuration['srcextract_version']
             )
-            command = [
-                'anmatch',
-                '--comment',
-                '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
-                '--input', sources_fname,
-                '--max-distance', repr(configuration['max_srcmatch_distance']),
-                '--output-transformation', trans_fname,
-                '--input-reference', configuration['astrometry_catalogue'],
-                '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
-                                                  cat_dec_col + 1),
-                '--output', match_fname,
-                '--order', repr(configuration['astrometry_order']),
-                '--ra', repr(configuration['frame_center_estimate'][0]),
-                '--dec', repr(configuration['frame_center_estimate'][1]),
-                '--anet',
-                ','.join([
-                    'indexpath={anet_index_path}',
-                    'xsize={NAXIS1}',
-                    'ysize={NAXIS2}',
-                    'xcol={x_col}',
-                    'ycol={y_col}',
-                    'width={frame_fov_estimate}',
-                    'tweak={anet_tweak}',
-                    'log=1',
-                    'verify=1'
-                ]).format(**configuration,
-                          **header,
-                          x_col=x_col+1,
-                          y_col=y_col+1)
-            ]
-            print('Executing:\n\t' + '\\\n\t'.join(command))
-            subprocess.run(command, check=True)
-            print_file_contents(match_fname, 'match')
-            print_file_contents(trans_fname, 'trans')
-            save_to_dr(match_fname, trans_fname, configuration, header, dr_file)
+            for tweak in range(*configuration['anet_tweak_range']):
+                try:
+                    configuration['anet_tweak'] = tweak
+                    command = [
+                        'anmatch',
+                        '--comment',
+                        '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
+                        '--input', sources_fname,
+                        '--max-distance',
+                        repr(configuration['max_srcmatch_distance']),
+                        '--output-transformation', trans_fname,
+                        '--input-reference', configuration['astrometry_catalogue'],
+                        '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
+                                                          cat_dec_col + 1),
+                        '--output', match_fname,
+                        '--order', repr(configuration['astrometry_order']),
+                        '--ra', repr(configuration['frame_center_estimate'][0]),
+                        '--dec', repr(configuration['frame_center_estimate'][1]),
+                        '--anet',
+                        ','.join([
+                            'indexpath={anet_index_path}',
+                            'xsize={NAXIS1}',
+                            'ysize={NAXIS2}',
+                            'xcol={x_col}',
+                            'ycol={y_col}',
+                            'width={frame_fov_estimate}',
+                            'tweak={anet_tweak}',
+                            'log=1',
+                            'verify=1'
+                        ]).format(**configuration,
+                                  **header,
+                                  x_col=x_col+1,
+                                  y_col=y_col+1)
+                    ]
+                    subprocess.run(command, check=True)
+                    print_file_contents(trans_fname, 'trans')
+                    save_to_dr(match_fname,
+                               trans_fname,
+                               configuration,
+                               header,
+                               dr_file)
+                    logging.debug('Found astrometric solution for %s',
+                                  repr(dr_fname))
+                    return
+                except subprocess.CalledProcessError:
+                    pass
+    logging.error('Failed to find astrometric solution for %s',
+                  repr(dr_fname))
 
 
 def solve_astrometry(dr_collection, configuration):
@@ -420,13 +389,12 @@ def solve_astrometry(dr_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
+    cmdline_config = parse_command_line()
     cmdline_config.update(
         binning=1,
         srcextract_filter='True',
         sky_preprojection='tan',
         weights_expression='1.0'
     )
-    del cmdline_config['config_file']
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files')),
                      cmdline_config)

@@ -2,7 +2,8 @@
 
 """Detect stars within calibrated image(s)."""
 
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 from superphot_pipeline.image_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
@@ -10,13 +11,9 @@ from superphot_pipeline import SourceFinder, DataReductionFile
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(__doc__)
-    parser.add_argument(
-        'calibrated_images',
-        nargs='+',
-        help='A combination of individual images and image directories to '
-        'process. Directories are not searched recursively.'
-    )
+    parser = ManualStepArgumentParser(description=__doc__,
+                                      input_type='calibrated',
+                                      add_component_versions=('srcextract',))
     parser.add_argument(
         '--srcextract-only-if',
         default='True',
@@ -50,13 +47,6 @@ def parse_command_line():
         'files where extracted sources are saved. Replacement fields can be '
         'anything from the header of the calibrated image.'
     )
-    parser.add_argument(
-        '--srcextract-version',
-        default=0,
-        help='If you wish to have multiple source extractions performed on the '
-        'same frame specify different version numbers here so they can reside '
-        'side-by-side in the data reduction file.'
-    )
     return parser.parse_args()
 
 def find_stars(image_collection, configuration):
@@ -70,9 +60,6 @@ def find_stars(image_collection, configuration):
         with DataReductionFile(header=fits_header, mode='a') as dr_file:
             dr_file.add_frame_header(fits_header)
             extracted_sources = find_stars_in_image(image_fname)
-            print('Saving the following sources to DR file:\n'
-                  +
-                  repr(extracted_sources))
             dr_file.add_sources(
                 extracted_sources,
                 'srcextract.sources',
@@ -82,8 +69,7 @@ def find_stars(image_collection, configuration):
 
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     cmdline_config['tool'] = cmdline_config.pop('srcfind_tool')
     find_stars(
         find_fits_fnames(

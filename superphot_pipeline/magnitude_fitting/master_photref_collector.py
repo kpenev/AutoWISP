@@ -2,8 +2,9 @@
 
 import os
 from subprocess import Popen, PIPE
+import logging
 
-import scipy
+import numpy
 from astropy.io import fits
 
 from superphot_pipeline.fit_expression import Interface as FitTermsInterface
@@ -32,6 +33,8 @@ class MasterPhotrefCollector:
             calculate for each input magnitude and error estimate.
     """
 
+    _logger = logging.getLogger(__name__)
+
     def _calculate_statistics(self):
         """Creating the statics file from all input collected so far."""
 
@@ -56,7 +59,7 @@ class MasterPhotrefCollector:
         else:
             count_col = self._stat_quantities.index('count')
         with open(self._statistics_fname, 'r') as stat_file:
-            med = scipy.median([float(l.split()[count_col]) for l in stat_file])
+            med = numpy.median([float(l.split()[count_col]) for l in stat_file])
         return med
 
     def _read_statistics(self, catalogue, parse_source_id):
@@ -71,7 +74,7 @@ class MasterPhotrefCollector:
                 generate_master().
 
         Returns:
-            scipy structured array:
+            numpy structured array:
                 The fields are as follows:
 
                     ID: The ID of the source.
@@ -108,7 +111,7 @@ class MasterPhotrefCollector:
                             for stat_quantity in self._stat_quantities
                         ]
                     )
-            return scipy.genfromtxt(self._statistics_fname,
+            return numpy.genfromtxt(self._statistics_fname,
                                     dtype=None,
                                     names=column_names)
 
@@ -118,23 +121,20 @@ class MasterPhotrefCollector:
             special_dtypes = dict(phqual='S3', magsrcflag='S9')
             dtype = (
                 [
-                    ('ID', scipy.intc, (len(next(iter(catalogue.keys()))),)),
-                    ('full_count', scipy.intc, (self._num_photometries,)),
-                    ('rejected_count', scipy.intc, (self._num_photometries,)),
-                    ('median', scipy.float64, (self._num_photometries,)),
-                    ('mediandev', scipy.float64, (self._num_photometries,)),
-                    ('medianmeddev', scipy.float64, (self._num_photometries,))
+                    ('ID', numpy.intc, (len(next(iter(catalogue.keys()))),)),
+                    ('full_count', numpy.intc, (self._num_photometries,)),
+                    ('rejected_count', numpy.intc, (self._num_photometries,)),
+                    ('median', numpy.float64, (self._num_photometries,)),
+                    ('mediandev', numpy.float64, (self._num_photometries,)),
+                    ('medianmeddev', numpy.float64, (self._num_photometries,))
                 ]
                 +
                 [
-                    (colname, special_dtypes.get(colname, scipy.float64))
+                    (colname, special_dtypes.get(colname, numpy.float64))
                     for colname in catalogue_columns
                 ]
             )
-            return scipy.empty(
-                num_sources,
-                dtype=dtype
-            )
+            return numpy.empty(num_sources, dtype=dtype)
 
         def add_stat_data(stat_data, result):
             """Add the information from get_stat_data() to result."""
@@ -209,20 +209,20 @@ class MasterPhotrefCollector:
                 which contains the estimated scatter to fit.
 
         Returns:
-            scipy array:
+            numpy array:
                 The residuals of the scatter from ``statistics`` from the
                 best-fit values found.
         """
 
         predictors = FitTermsInterface(fit_terms_expression)(statistics)
         num_photometries = statistics['full_count'][0].size
-        residuals = scipy.empty((statistics.size, num_photometries))
+        residuals = numpy.empty((statistics.size, num_photometries))
         for phot_ind in range(num_photometries):
             enough_counts = (
                 statistics['rejected_count'][:, phot_ind] >= min_counts
             )
             phot_predictors = predictors[:, enough_counts]
-            target_values = scipy.log10(
+            target_values = numpy.log10(
                 statistics[scatter_quantity][enough_counts, phot_ind]
             )
             coefficients = iterative_fit(
@@ -238,12 +238,12 @@ class MasterPhotrefCollector:
             )[0]
             residuals[:, phot_ind] = (statistics[scatter_quantity][:, phot_ind]
                                       -
-                                      scipy.dot(coefficients, predictors))
+                                      numpy.dot(coefficients, predictors))
         return residuals
     #pylint: enable=too-many-locals
 
-    @staticmethod
-    def _create_reference(statistics,
+    def _create_reference(self,
+                          statistics,
                           residual_scatter,
                           *,
                           min_counts,
@@ -276,29 +276,41 @@ class MasterPhotrefCollector:
 
         def get_phot_reference_data(phot_ind):
             """
-            Return the reference magnitude fit data as scipy structured array.
+            Return the reference magnitude fit data as numpy structured array.
             """
 
-            max_scatter = getattr(scipy, outlier_average)(
-                residual_scatter[:, phot_ind]
+            self._logger.info(
+                'Generating master photometric reference for phot #%d',
+                phot_ind
+            )
+            max_scatter = getattr(numpy, outlier_average)(
+                numpy.abs(residual_scatter[:, phot_ind])
             ) * outlier_threshold
-            include_source = scipy.logical_and(
+            self._logger.debug('Max sctter allowed: %s', repr(max_scatter))
+            self._logger.debug('Min # observations allowed: %d', min_counts)
+            include_source = numpy.logical_and(
                 statistics['rejected_count'][:, phot_ind] >= min_counts,
                 residual_scatter[:, phot_ind] <= max_scatter
             )
 
             num_phot_sources = include_source.sum()
-            reference_data = scipy.empty(
+            self._logger.debug(
+                'Suitable master photometric reference sources %d/%d',
+                num_phot_sources,
+                include_source.size
+            )
+
+            reference_data = numpy.empty(
                 num_phot_sources,
                 dtype=[('IDprefix', 'i1'),
-                       ('IDfield', scipy.intc),
-                       ('IDsource', scipy.intc),
-                       ('full_count', scipy.float64),
-                       ('rejected_count', scipy.float64),
-                       ('magnitude', scipy.float64),
-                       ('mediandev', scipy.float64),
-                       ('medianmeddev', scipy.float64),
-                       ('scatter_excess', scipy.float64)]
+                       ('IDfield', numpy.intc),
+                       ('IDsource', numpy.intc),
+                       ('full_count', numpy.float64),
+                       ('rejected_count', numpy.float64),
+                       ('magnitude', numpy.float64),
+                       ('mediandev', numpy.float64),
+                       ('medianmeddev', numpy.float64),
+                       ('scatter_excess', numpy.float64)]
             )
             for reference_column, stat_column, stat_index in [
                     ('IDprefix', 'ID', 0),
@@ -455,7 +467,7 @@ class MasterPhotrefCollector:
 
             all_finite = True
             for value in print_args:
-                if scipy.isnan(value):
+                if numpy.isnan(value):
                     all_finite = False
                     break
 

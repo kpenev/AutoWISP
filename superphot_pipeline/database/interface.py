@@ -10,7 +10,8 @@ Session = sessionmaker()
 #pylint: enable=invalid-name
 
 db_engine = create_engine(
-    #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/SuperPhotPipeline',
+    #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
+    #'SuperPhotPipeline',
     #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
     'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
     echo=True
@@ -18,6 +19,8 @@ db_engine = create_engine(
 
 Session.configure(bind=db_engine)
 
+#False positive
+#pylint: disable=no-member
 @contextmanager
 def db_session_scope():
     """Provide a transactional scope around a series of operations."""
@@ -30,3 +33,4 @@ def db_session_scope():
         raise
     finally:
         session.close()
+#pylint: enable=no-member

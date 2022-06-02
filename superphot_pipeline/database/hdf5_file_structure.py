@@ -58,6 +58,8 @@ class HDF5FileDatabaseStructure(HDF5File):
             )
 
         with db_session_scope() as db_session:
+            #False positive
+            #pylint: disable=no-member
             query = db_session.query(
                 HDF5Product
             ).join(
@@ -83,6 +85,7 @@ class HDF5FileDatabaseStructure(HDF5File):
             ).filter(
                 HDF5Product.pipeline_key == cls._product()
             )
+            #pylint: disable=no-member
 
             if version is None:
                 structure = query.order_by(

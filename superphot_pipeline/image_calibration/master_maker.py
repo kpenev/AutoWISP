@@ -5,7 +5,8 @@ import numpy
 from astropy.io import fits
 
 from superphot_pipeline.fits_utilities import read_image_components
-from superphot_pipeline.iterative_rejection_util import iterative_rejection_average
+from superphot_pipeline.iterative_rejection_util import\
+    iterative_rejection_average
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_calibration.fits_util import create_result
 

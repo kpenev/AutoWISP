@@ -22,6 +22,7 @@ class PiecewiseBicubicPSFMap:
             self.load(dr_fname)
 
 
+    #TODO: Info on PSF vs PRF should be saved to DR file
     #Breaking up seems to make things worse
     #pylint: disable=too-many-locals
     def fit(self,
@@ -32,6 +33,7 @@ class PiecewiseBicubicPSFMap:
             background_annulus=(6.0, 7.0),
             require_convergence=True,
             output_dr_fnames=None,
+            dr_path_substitutions,
             **fit_star_shape_config):
         """
         Find the best fit PSF/PRF map for the given images (simultaneous fit).
@@ -61,9 +63,14 @@ class PiecewiseBicubicPSFMap:
             require_convergence(bool):    See same name argument to
                 superphot.FitStarShape.fit()
 
-            output_fnames(str iterable):    If not None, should specify one data
-                reduction file for each input frame where the fit results are
-                saved.
+            output_dr_fnames(str iterable):    If not None, should specify one
+                data reduction file for each input frame where the fit results
+                are saved.
+
+            background_version(int), shapefit_version(int) srcproj_version(int):
+                The version numbers to use when saving projected
+                photometry sources, background extraciton, and PSF/PRF fitting
+                results.
 
             fit_star_shape_config:    Any required configuration by
                 superphot.FitStarShape.__init__()
@@ -131,6 +138,14 @@ class PiecewiseBicubicPSFMap:
         if output_dr_fnames:
             for image_index, dr_fname in enumerate(output_dr_fnames):
                 with DataReductionFile(dr_fname, 'a') as dr_file:
+                    dr_file.add_sources(
+                        sources[image_index],
+                        'srcproj.columns',
+                        'srcproj_column_name',
+                        parse_ids=True,
+                        ascii_columns=['ID', 'phqual', 'magsrcflag'],
+                        **dr_path_substitutions
+                    )
                     dr_file.add_star_shape_fit(
                         fit_terms_expression=self.configuration[
                             'shape_terms_expression'
@@ -138,11 +153,11 @@ class PiecewiseBicubicPSFMap:
                         shape_fit_result_tree=shape_fit_result_tree,
                         num_sources=sources[image_index].size,
                         image_index=image_index,
-                        fit_variables=self._eval_shape_terms.get_var_names()
+                        **dr_path_substitutions
                     )
     #pylint: enable=too-many-locals
 
-    def load(self, dr_fname, return_sources=False):
+    def load(self, dr_fname, return_sources=False, **dr_path_substitutions):
         """Read the PSF/PRF map from the given data reduction file."""
 
         dummy_tool = superphot.SubPixPhot()
@@ -154,10 +169,13 @@ class PiecewiseBicubicPSFMap:
                 apphot_data,
                 self.configuration['shape_terms_expression']
             ) = dr_file.get_aperture_photometry_inputs(
-                shapefit_version=0,
-                srcproj_version=0,
-                background_version=0
+                **dr_path_substitutions
             )
+            sources = apphot_data['source_data']
+            apphot_data['source_data'] = sources.rename(
+                columns=dict(shapefit_mag_mfit000='mag',
+                             shapefit_mag_err_mfit000='mag_err')
+            ).to_records()
             io_tree.set_aperture_photometry_inputs(**apphot_data)
 
         self._superphot_map = superphot.PiecewiseBicubicPSFMap(io_tree)
@@ -169,14 +187,6 @@ class PiecewiseBicubicPSFMap:
         )
 
         if return_sources:
-            sources = numpy.copy(apphot_data['source_data']).astype(
-                numpy.dtype(apphot_data['source_data'].dtype.fields)
-            )
-            print('Source data: ' + repr(apphot_data['source_data'][:3]))
-            sources.dtype.names = tuple('flux' if field == 'mag' else field
-                                        for field in sources.dtype.names)
-            print('Source data: ' + repr(apphot_data['source_data'][:3]))
-
             sources['flux'] = flux_from_magnitude(
                 apphot_data['source_data']['mag'],
                 self.configuration['magnitude_1adu']
