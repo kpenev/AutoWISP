@@ -143,7 +143,7 @@ class LCDataIO:
                 ),
                 persource=re.compile(
                     '|'.join([
-                        r'^srcextract\.psf_map.eval',
+                        r'^srcextract\.psf_map\.eval',
                         r'^srcproj\.([xy]|enabled)$',
                         r'^bg\.(value|error|npix)$',
                         r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
