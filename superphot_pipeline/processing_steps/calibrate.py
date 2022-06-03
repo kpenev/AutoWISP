@@ -6,7 +6,7 @@ import re
 
 from configargparse import Action
 
-from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser

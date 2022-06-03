@@ -7,7 +7,7 @@ from bisect import bisect
 from asteval import Interpreter
 
 from superphot_pipeline import DataReductionFile
-from superphot_pipeline.image_utilities import find_dr_fnames
+from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 from superphot_pipeline.light_curves.collect_light_curves import\

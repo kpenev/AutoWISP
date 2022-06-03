@@ -9,7 +9,7 @@ import pandas
 
 from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
 from superphot_pipeline.astrometry import Transformation
-from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\

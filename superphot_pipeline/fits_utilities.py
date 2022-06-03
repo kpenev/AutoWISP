@@ -5,6 +5,8 @@ from os import path
 from astropy.io import fits
 
 from superphot_pipeline.pipeline_exceptions import BadImageError
+from superphot_pipeline.data_reduction.data_reduction_file import\
+    DataReductionFile
 
 def read_image_components(fits_fname,
                           *,

@@ -15,7 +15,7 @@ from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     read_catalogue
-from superphot_pipeline.image_utilities import find_dr_fnames
+from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 
 def parse_command_line():

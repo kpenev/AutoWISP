@@ -19,7 +19,7 @@ from functools import reduce
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from superphot_pipeline.image_calibration.fits_util import create_result
-from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.database.interface import db_engine, db_session_scope
 from superphot_pipeline.database.data_model.base import DataModelBase
 

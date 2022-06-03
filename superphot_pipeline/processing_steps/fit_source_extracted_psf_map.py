@@ -4,7 +4,7 @@
 
 import numpy
 
-from superphot_pipeline.image_utilities import find_dr_fnames
+from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.fit_expression import\
     Interface as FitTermsInterface,\

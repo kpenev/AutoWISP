@@ -124,12 +124,67 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         self._configurations[component][substitution_set] = result
         return result
 
-    def __init__(self, *args, **kwargs):
-        """Passes all args directly to parent but sets self._configurations."""
+    def __init__(self, *args, source_ids=None, **kwargs):
+        """
+        Open a lightcurve file.
+
+        Args:
+            source_ids(None or dict):    The known identifiers of this source in
+                catalogues. Must be set if te lightcurve file is being created.
+                If it already exists, identifiers already defined in the
+                lightcurve are checked against supplied values, and new
+                identifiers are added if the file is being opened for writing.
+
+            args:    Passed directly to super().__init__()
+
+            kwargs:    Passed directly to super().__init__()
+
+        Returns:
+            None
+        """
 
         super().__init__(*args, **kwargs)
         self._configurations = dict()
         self._config_indices = dict()
+
+        if 'Identifiers' not in self:
+            if not source_ids:
+                raise ValueError(
+                    'Must specify at least one identifier when creating new '
+                    'lightcurve file!'
+                )
+            self.create_dataset('Identifiers',
+                                (0, 2),
+                                maxshape=(None, 2),
+                                chunks=10,
+                                dtype=h5py.string_dtype())
+
+        if source_ids is not None:
+            source_ids = dict(source_ids)
+            #False positive
+            #pylint: disable=no-member
+            stored_identifiers = dict(self['Identifiers'].asstr())
+            #pylint: enable=no-member
+            for catalogue, identifier in source_ids.items():
+                if catalogue in stored_identifiers:
+                    assert (identifier
+                            ==
+                            stored_identifiers[catalogue])
+                    del source_ids[catalogue]
+            #False positive
+            #pylint: disable=no-member
+            destination = self['Identifiers'].shape[0]
+            self['Identifiers'].resize(
+                (
+                    destination + len(source_ids),
+                    2
+                )
+            )
+            #pylint: enable=no-member
+            for new_id in source_ids.items():
+                self['Identifiers'][destination] = new_id
+                destination += 1
+
 
     def get_config_indices(self, dataset_key, **substitutions):
         """Return the config index dset for indexing the given config dset."""
@@ -383,8 +438,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             new_dataset_size = confirmed_length + len(data_copy)
             if new_dataset_size < len(dataset):
                 try:
-                    all_data = np.concatenate((dataset[:confirmed_length],
-                                               data_copy))
+                    all_data = numpy.concatenate((dataset[:confirmed_length],
+                                                  data_copy))
                 except:
                     raise IOError(
                         "Failed to read lightcurve dataset '%s/%s' "
@@ -447,7 +502,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                             confirmed_length
                         )
                     )
-                elif resolve_size == 'actual':
+                if resolve_size == 'actual':
                     confirmed_length = actual_length
                 elif resolve_size != 'confirmed':
                     raise IOError('Unexpected lightcurve length resolution: '

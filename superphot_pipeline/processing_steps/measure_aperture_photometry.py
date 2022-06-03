@@ -13,7 +13,7 @@ from superphot import SubPixPhot, SuperPhotIOTree
 from superphot_pipeline.fits_utilities import\
     get_primary_header,\
     read_image_components
-from superphot_pipeline.image_utilities import find_fits_fnames
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     read_subpixmap

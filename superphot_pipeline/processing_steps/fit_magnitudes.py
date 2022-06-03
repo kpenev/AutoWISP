@@ -5,7 +5,7 @@
 from types import SimpleNamespace
 
 from superphot_pipeline import magnitude_fitting
-from superphot_pipeline.image_utilities import find_dr_fnames
+from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
