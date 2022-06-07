@@ -23,28 +23,28 @@ def add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, result):
         result[lc_ind]['xi'] = cat_info['xi']
         result[lc_ind]['eta'] = cat_info['eta']
 
-def correct_target_lc(target_lc_fname, cmdline_args, correct):
+def correct_target_lc(target_lc_fname, configuration, correct):
     """Perform reconstructive detrending on the target LC."""
 
-    num_limbdark_coef = len(cmdline_args.limb_darkening)
+    num_limbdark_coef = len(configuration['limb_darkening'])
     assert num_limbdark_coef == 2
 
     transit_parameters = (
-        [cmdline_args.radius_ratio]
+        [configuration['radius_ratio']]
         +
-        list(cmdline_args.limb_darkening)
+        list(configuration['limb_darkening'])
         +
         [
-            cmdline_args.mid_transit,
-            cmdline_args.period,
-            cmdline_args.scaled_semimajor,
-            cmdline_args.inclination * numpy.pi / 180.0
+            configuration['mid_transit'],
+            configuration['period'],
+            configuration['scaled_semimajor'],
+            configuration['inclination'] * numpy.pi / 180.0
         ]
     )
-    if hasattr(cmdline_args, 'eccentricity'):
-        transit_parameters.append(cmdline_args.eccentricity)
-    if hasattr(cmdline_args, 'periastron'):
-        transit_parameters.append(cmdline_args.periastron)
+    if hasattr(configuration, 'eccentricity'):
+        transit_parameters.append(configuration['eccentricity'])
+    if hasattr(configuration, 'periastron'):
+        transit_parameters.append(configuration['periastron'])
 
     fit_parameter_flags = numpy.zeros(len(transit_parameters), dtype=bool)
 
@@ -58,7 +58,7 @@ def correct_target_lc(target_lc_fname, cmdline_args, correct):
                          inclination=num_limbdark_coef + 4,
                          eccentricity=num_limbdark_coef + 5,
                          periastron=num_limbdark_coef + 6)
-    for to_fit in cmdline_args.mutable_transit_params:
+    for to_fit in configuration['mutable_transit_params']:
         fit_parameter_flags[param_indices[to_fit]] = True
 
     return apply_reconstructive_correction_transit(
@@ -70,46 +70,52 @@ def correct_target_lc(target_lc_fname, cmdline_args, correct):
         num_limbdark_coef=num_limbdark_coef
     )
 
-def detrend_light_curves(cmdline_args, correct, output_statistics_fname):
+def detrend_light_curves(lc_collection,
+                         configuration,
+                         correct,
+                         output_statistics_fname):
     """Detrend all lightcurves and create statistics file."""
 
-    if cmdline_args.target_id is not None:
-        target_lc_fname, lc_fnames = extract_target_lc(cmdline_args.lc_fnames,
-                                                       cmdline_args.target_id)
+    if configuration['target_id'] is not None:
+        target_lc_fname, lc_fnames = extract_target_lc(
+            list(configuration['lc_fnames']),
+            configuration['target_id']
+        )
 
         _, target_result = correct_target_lc(
             target_lc_fname,
-            cmdline_args,
+            configuration,
             correct
         )
     else:
-        lc_fnames = cmdline_args.lc_fnames
+        lc_fnames = list(configuration['lc_fnames'])
 
     if lc_fnames:
         result = apply_parallel_correction(
             lc_fnames,
             correct,
-            cmdline_args.num_parallel_processes
+            configuration['num_parallel_processes']
         )
-        if cmdline_args.target_id is not None:
+        if configuration['target_id'] is not None:
             result = numpy.concatenate((result, target_result))
     else:
         result = target_result
 
-    if cmdline_args.target_id is not None:
+    if configuration['target_id'] is not None:
         lc_fnames.append(target_lc_fname)
 
-    add_catalogue_info(lc_fnames,
-                       cmdline_args.catalogue_fname,
-                       cmdline_args.magnitude_column,
-                       result)
+    if configuration['catalogue_fname'] is not None:
+        add_catalogue_info(lc_fnames,
+                           configuration['detrending_catalogue'],
+                           configuration['magnitude_column'],
+                           result)
 
-    if not exists(dirname(output_statistics_fname)):
-        makedirs(dirname(output_statistics_fname))
-    save_correction_statistics(result, output_statistics_fname)
+        if not exists(dirname(output_statistics_fname)):
+            makedirs(dirname(output_statistics_fname))
+        save_correction_statistics(result, output_statistics_fname)
 
-    logging.info('Generated statistics file: %s.',
-                 repr(output_statistics_fname))
+        logging.info('Generated statistics file: %s.',
+                     repr(output_statistics_fname))
 
 def recalculate_detrending_performance(lc_fnames,
                                        catalogue_fname,

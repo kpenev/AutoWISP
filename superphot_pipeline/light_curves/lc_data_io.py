@@ -20,6 +20,8 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
+from superphot_pipeline.miscellaneous import get_hat_source_id_str
+from superphot_pipeline.data_reduction.utils import get_source_extracted_psf_map
 
 from .light_curve_file import LightCurveFile, _config_dset_key_rex
 from .lc_data_slice import LCDataSlice
@@ -104,6 +106,8 @@ class LCDataIO:
     cfg_index_id = 'cfg_index'
     _organized_config = dict()
 
+    #TODO: perhaps worth simplifying later.
+    #pylint: disable=too-many-statements
     @classmethod
     def _classify_datasets(cls, lc_example, ignore_splits):
         """
@@ -243,6 +247,8 @@ class LCDataIO:
                 )
 
         organize_config(*organize_datasets())
+    #pylint: enable=too-many-statements
+
 
     @classmethod
     def create(cls,
@@ -1071,9 +1077,8 @@ class LCDataIO:
                                     data_slice_source_indices):
             """Fill all datasets containing the source exatrction PSF map."""
 
-            psf_map = data_reduction.get_source_extracted_psf_map(
-                **self._path_substitutions
-            )
+            psf_map = get_source_extracted_psf_map(data_reduction,
+                                                   **self._path_substitutions)
             psf_param_values = psf_map(source_data)
             print('Evaluated PSF params: ' + repr(psf_param_values.dtype.names))
             print('Expected PSF params: '
@@ -1370,7 +1375,11 @@ class LCDataIO:
                 self._logger.info('Created LC directory: %s', lc_directory)
                 os.makedirs(lc_directory)
 
-            with LightCurveFile(light_curve_fname, 'a') as light_curve:
+            with LightCurveFile(
+                    light_curve_fname,
+                    'a',
+                    source_ids=dict(HAT=get_hat_source_id_str(source_id))
+            ) as light_curve:
                 self._write_configurations(light_curve,
                                            source_index,
                                            defined_indices,

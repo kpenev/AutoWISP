@@ -503,7 +503,6 @@ class MagnitudeFit(ABC):
         self._reference = reference
         self._catalogue = master_catalogue
         self._source_name_format = source_name_format
-        self.logger = logging.getLogger(__name__)
 
     def __call__(self, dr_fname, **dr_path_substitutions):
         """
@@ -554,6 +553,8 @@ class MagnitudeFit(ABC):
                 ])
 
             return result
+
+        self.logger = logging.getLogger(__name__)
 
         try:
             self.logger.debug('Process %d fitting: %s.',

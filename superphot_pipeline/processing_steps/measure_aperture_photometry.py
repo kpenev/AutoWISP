@@ -20,6 +20,9 @@ from superphot_pipeline.processing_steps.manual_util import\
 from superphot_pipeline.processing_steps.fit_star_shape import add_image_options
 
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.data_reduction.utils import\
+    fill_aperture_photometry_input_tree,\
+    add_aperture_photometry
 
 def parse_command_line():
     """Return the parsed command line arguments."""
@@ -98,7 +101,8 @@ def photometer_frame(frame_fname, configuration):
             'a'
     ) as dr_file:
         io_tree = SuperPhotIOTree(photometer)
-        num_sources = dr_file.fill_aperture_photometry_input_tree(
+        num_sources = fill_aperture_photometry_input_tree(
+            dr_file,
             io_tree,
             background_version=0,
             srcproj_version=0,
@@ -122,7 +126,8 @@ def photometer_frame(frame_fname, configuration):
             ),
             io_tree
         )
-        dr_file.add_aperture_photometry(
+        add_aperture_photometry(
+            dr_file,
             io_tree,
             num_sources,
             len(configuration['apertures']),

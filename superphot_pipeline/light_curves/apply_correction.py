@@ -17,7 +17,6 @@ def save_correction_statistics(correction_statistics, filename):
     """Save the given statistics (result of apply_parallel_correction)."""
 
     print('Correction statistics:\n' + repr(correction_statistics))
-    mem_dr = DataReductionFile()
     dframe = pandas.DataFrame(
         {
             column: correction_statistics[column]
@@ -29,11 +28,10 @@ def save_correction_statistics(correction_statistics, filename):
         0,
         '2MASSID',
         [
-            mem_dr.get_hat_source_id_str(int_id)
+            get_hat_source_id_str(int_id)
             for int_id in correction_statistics['ID']
         ]
     )
-    mem_dr.close()
 
     num_photometries = correction_statistics['rms'][0].size
 

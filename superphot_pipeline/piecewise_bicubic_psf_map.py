@@ -7,6 +7,9 @@ from superphot.utils import flux_from_magnitude
 
 from superphot_pipeline import fit_expression
 from superphot_pipeline.data_reduction import DataReductionFile
+from superphot_pipeline.data_reduction.utils import\
+    get_aperture_photometry_inputs,\
+    add_star_shape_fit
 
 class PiecewiseBicubicPSFMap:
     """Fit and use piecewise bicubic PSF maps."""
@@ -146,7 +149,8 @@ class PiecewiseBicubicPSFMap:
                         ascii_columns=['ID', 'phqual', 'magsrcflag'],
                         **dr_path_substitutions
                     )
-                    dr_file.add_star_shape_fit(
+                    add_star_shape_fit(
+                        dr_file,
                         fit_terms_expression=self.configuration[
                             'shape_terms_expression'
                         ],
@@ -168,7 +172,8 @@ class PiecewiseBicubicPSFMap:
             (
                 apphot_data,
                 self.configuration['shape_terms_expression']
-            ) = dr_file.get_aperture_photometry_inputs(
+            ) = get_aperture_photometry_inputs(
+                dr_file,
                 **dr_path_substitutions
             )
             sources = apphot_data['source_data']
@@ -176,7 +181,11 @@ class PiecewiseBicubicPSFMap:
                 columns=dict(shapefit_mag_mfit000='mag',
                              shapefit_mag_err_mfit000='mag_err')
             ).to_records()
+            #False positive
+            #pylint: disable=missing-kwoa
             io_tree.set_aperture_photometry_inputs(**apphot_data)
+            #pylint: enable=missing-kwoa
+
 
         self._superphot_map = superphot.PiecewiseBicubicPSFMap(io_tree)
 

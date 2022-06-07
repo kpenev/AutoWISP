@@ -16,8 +16,6 @@ from superphot_pipeline.magnitude_fitting.util import\
     get_master_photref,\
     read_master_catalogue
 
-_logger = logging.getLogger(__name__)
-
 #Could not come up with a sensible way to simplify
 #pylint: disable=too-many-locals
 def iterative_refit(fit_dr_filenames,
@@ -148,7 +146,7 @@ def iterative_refit(fit_dr_filenames,
             num_finite += finite_entries
 
         average_square_change /= num_finite
-        _logger.debug(
+        logging.getLogger(__name__).debug(
             'Fit iteration resulted in average square change in magnitudes of: '
             '%s',
             repr(average_square_change)

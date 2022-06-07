@@ -1,14 +1,14 @@
 """Collection of functions used by many processing steps."""
 
 import logging
+import re
 
 import numpy
 import pandas
 from astropy.io import fits
+from asteval import Interpreter
 
 from configargparse import ArgumentParser, DefaultsFormatter
-
-from superphot_pipeline.file_utilities import find_lc_fnames
 
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
@@ -125,8 +125,8 @@ class ManualStepArgumentParser(ArgumentParser):
                 nargs='+',
                 help=(
                     (
-                        'A combination of individual {0}s and {0} directories to '
-                        'process. Directories are not searched recursively.'
+                        'A combination of individual {0}s and {0} directories '
+                        'to process. Directories are not searched recursively.'
                     ).format(input_name[:-1].replace('_', ' '))
                     +
                     inputs_help_extra
@@ -183,10 +183,138 @@ class ManualStepArgumentParser(ArgumentParser):
     #pylint: enable=signature-differs
 
 
+class DetrendDatasetIter:
+    """Iterate over the detrending datasets specified in a cmdline argument."""
+
+    def __init__(self, argument):
+        """Set up the iterator for the given argument."""
+
+        self._splits = argument.split(';')
+
+
+    def __iter__(self):
+        return self
+
+
+    def __next__(self):
+        """Return the next dataset specification."""
+
+        if len(self._splits) == 0:
+            raise StopIteration
+
+        result = self._splits.pop(0)
+        while len(self._splits) > 0 and self._splits[0] == '':
+            self._splits.pop(0)
+            result += ';'
+            if len(self._splits) > 0:
+                result += self._splits.pop(0)
+
+
 class LCDetrendingArgumentParser(ManualStepArgumentParser):
     """Boiler plate handling of LC detrending command line arguments."""
 
-    def _add_transit_parameters(self,
+    @staticmethod
+    def _split_delimited_string(argument, separator):
+        """Split the detrending dataset argument at `;`, handling `;;`."""
+
+        splits = argument.split(separator)
+        while splits:
+            result = splits.pop(0)
+            while splits and splits[0] == '':
+                splits.pop(0)
+                result += separator
+                if splits:
+                    result += splits.pop(0)
+            yield result.strip()
+
+    @staticmethod
+    def _parse_detrend_datasets(argument):
+        """Parse the detrend datasets argument (see help for details)."""
+
+        dset_specfication_rex = re.compile(
+            r'^(?P<from>[\w.]+)'
+            r'\s*->\s*'
+            r'(?P<to>[\w.]+)'
+            r'\s*'
+            r'(:\s*(?P<substitutions>.*))?'
+            r'$'
+        )
+        for specification in (
+                LCDetrendingArgumentParser._split_delimited_string(argument,
+                                                                   ';')
+        ):
+            match = dset_specfication_rex.match(specification)
+            print('Detrend dataset specification: ' + repr(specification))
+            for component in ['from', 'to', 'substitutions']:
+                print('\t{!s}: {!r}'.format(component, match[component]))
+                if component == 'substitutions':
+                    for substitution in (
+                            LCDetrendingArgumentParser._split_delimited_string(
+                                match['substitutions'],
+                                '&'
+                            )
+                    ):
+                        print('\t\t' + substitution)
+        return None
+
+        aeval = Interpreter()
+        if 'for' in argument:
+            tuples, loop = argument.split(' ', 1)
+            dataset, dict_substitution, key = tuples.split(':')
+            dataset = dataset.strip('(')
+            key = key.strip(')')
+            loop_pieces = loop.split()
+            assert loop_pieces[0] == 'for'
+            assert loop_pieces[2] == 'in'
+            if ';' in dict_substitution:
+                dict_substitution = dict_substitution.replace(';', ', ')
+                if loop_pieces[1] in dict_substitution:
+                    dict_substitution = [
+                        aeval(
+                            dict_substitution.replace(
+                                loop_pieces[1],
+                                str(x)
+                            )
+                        ) for x in aeval(loop_pieces[3])
+                    ]
+                else:
+                    print('Error:'
+                          +
+                          loop_pieces[1]
+                          +
+                          ' not found within dictionary of path substitutions')
+            else:
+                dict_substitution = aeval(dict_substitution)
+                if loop_pieces[1] in dict_substitution:
+                    dict_substitution = [
+                        aeval(
+                            dict_substitution.replace(
+                                loop_pieces[1],
+                                str(x)
+                            )
+                        ) for x in aeval(loop_pieces[3])
+                    ]
+                else:
+                    print('Error:'
+                          +
+                          loop_pieces[1]
+                          +
+                          ' not found within dictionary of path substitutions')
+            return [(dataset, i, key) for i in dict_substitution]
+
+        dataset, dict_substitution, key = argument.split(':')
+        dataset = dataset.strip('(')
+        key = key.strip(')')
+        if ';' in dict_substitution:
+            dict_substitution = aeval(dict_substitution.replace(';', ', '))
+        else:
+            dict_substitution = aeval(dict_substitution)
+        return [(dataset, dict_substitution, key)]
+
+
+
+    @staticmethod
+    def _add_transit_parameters(parser,
                                 *,
                                 timing=True,
                                 duration=True,
@@ -197,15 +325,15 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         Add command line parameters to the current parser to specify a transit.
 
         Args:
-            timing(bool):    Should arguments specifying the timing of the transit
-                be included, i.e. period, ephemerides, duration?
+            timing(bool):    Should arguments specifying the timing of the
+                transit be included, i.e. period, ephemerides, duration?
 
-            duration(bool):    Sholud a potentially redundant argument for transit
-                duration be added?
+            duration(bool):    Sholud a potentially redundant argument for
+                transit duration be added?
 
-            geometry(bool or str):     Should arguments specifying the geometry of
-                the transit be included. If the value converts to False, nothing is
-                included. Otherwise this argument should be either:
+            geometry(bool or str):     Should arguments specifying the geometry
+                of the transit be included. If the value converts to False,
+                nothing is included. Otherwise this argument should be either:
 
                     * 'circular': i.e. include radius ratio, inclination, and
                       semimajor axis.
@@ -223,46 +351,47 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         assert (not geometry) or (geometry in ['circular', 'eccentric'])
 
         if timing:
-            self.add_argument(
+            parser.add_argument(
                 '--mid-transit',
                 type=float,
                 default=2455867.402743,
-                help='The time of mit-transit in BJD. Default: %(default)s (from '
-                'https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).'
+                help='The time of mit-transit in BJD. Default: %(default)s '
+                '(from https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).'
             )
-            self.add_argument(
+            parser.add_argument(
                 '--period',
                 type=float,
                 default=2.15000820,
-                help='The orbital period (used to convert time to phase). Default: '
-                '%(default)s (from '
+                help='The orbital period (used to convert time to phase). '
+                'Default: %(default)s (from '
                 'https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).'
             )
         if duration:
-            self.add_argument(
+            parser.add_argument(
                 '--transit-duration',
                 type=float,
                 default=3.1205,
-                help='The transit duration in hours. Default: %(default)s (from '
-                'https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).'
+                help='The transit duration in hours. Default: %(default)s (from'
+                ' https://ui.adsabs.harvard.edu/abs/2019AJ....157...82W).'
             )
 
         if geometry:
-            self.add_argument(
+            parser.add_argument(
                 '--radius-ratio',
                 type=float,
                 default=0.14886,
                 help='The planet to star radius ratio. Default: %(default)s '
                 '(HAT-P-32).'
             )
-            self.add_argument(
+            parser.add_argument(
                 '--inclination',
                 type=float,
                 default=88.98,
-                help='The inclination angle between the orbital angular momentum '
-                'and the line of sight in degrees. Default: %(default)s (HAT-P-32).'
+                help='The inclination angle between the orbital angular '
+                'momentum and the line of sight in degrees. '
+                'Default: %(default)s (HAT-P-32).'
             )
-            self.add_argument(
+            parser.add_argument(
                 '--scaled-semimajor',
                 type=float,
                 default=5.344,
@@ -270,14 +399,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 'Default: %(default)s (HAT-P-32).'
             )
             if geometry == 'eccentric':
-                self.add_argument(
+                parser.add_argument(
                     '--eccentricity', '-e',
                     type=float,
                     default=0.0,
-                    help='The orbital eccentricity to assume for the transiting '
-                    'planet. Default: %(default)s.'
+                    help='The orbital eccentricity to assume for the transiting'
+                    ' planet. Default: %(default)s.'
                 )
-                self.add_argument(
+                parser.add_argument(
                     '--periastron',
                     type=float,
                     default=0.0,
@@ -285,7 +414,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 )
 
         if limb_darkening:
-            self.add_argument(
+            parser.add_argument(
                 '--limb-darkening',
                 nargs=2,
                 type=float,
@@ -304,14 +433,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                     choices.extend(['eccentricity', 'periastron'])
             if limb_darkening:
                 choices.extend(['limbdark'])
-            self.add_argument(
+            parser.add_argument(
                 '--mutable-transit-params',
                 nargs='+',
                 choices=choices,
                 default=[],
-                help='List the transit parameters for which best-fit values should '
-                'be found rather than assuming they are fixed at what is specified '
-                'on the command line. Default: %(default)s.'
+                help='List the transit parameters for which best-fit values '
+                'should be found rather than assuming they are fixed at what is'
+                ' specified on the command line. Default: %(default)s.'
             )
 
 
@@ -338,89 +467,95 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         self.add_argument(
             '--fit-points-filter-expression',
             default=None,
-            help='An expression using used_variables` which evaluates to either '
-                 'True or False indicating if a given point in the lightcurve '
-                 'should be fit and corrected.'
-                 'Default: %(default)s'
+            help='An expression using epd_variables` which evaluates to either'
+            ' True or False indicating if a given point in the lightcurve '
+            'should be fit and corrected. Default: %(default)s'
         )
         self.add_argument(
-            '--fit-datasets',
-            type=parse_fit_datasets,
-            action='append',
-            help='A list of 3-tuples of pipeline keys'
-            'corresponding to each variable identifying a dataset to fit and'
-            'correct, an associated dictionary of path substitutions, and a'
-            'pipeline key for the output dataset. Configurations of how the'
-            'fitting was done and the resulting residual and non-rejected'
-            'points are added to configuration datasets generated by removing'
-            'the tail of the destination and adding `".cfg." + <parameter'
-            'name>` for configurations and just ` + <parameter name>` for'
+            '--detrend-datasets',
+            type=self._parse_detrend_datasets,
+            help='A `;` separated list of the datasets to detrend. Each entry '
+            'should be formatted as: `<input-key> -> <output-key> '
+            '[: <substitution> (= <value>| in <expression>) '
+            '[& <substitution> (= <value> | in <expression>) ...]]. '
+            'For example: `"apphot.magfit.magnitude -> '
+            'apphot.epd.magnitude : magfit_iteration = 5 & aperture_index in '
+            'range(39)"`. White space is ignored. Literal `;` and `&` can be '
+            'used in the specification of a dataset as `;;` and `&&` '
+            'respectively. Configurations of how the fitting was done and the '
+            'resulting residual and non-rejected points are added to '
+            'configuration datasets generated by removing the tail of the '
+            'destination and adding `".cfg." + <parameter name>` for '
+            'configurations and just ` + <parameter name>` for '
             'fitting statistics. For example, if the output dataset key is'
             '`"shapefit.epd.magnitude"`, the configuration datasets will look'
             'like `"shapefit.epd.cfg.fit_terms"`, and'
             '`"shapefit.epd.residual"`.'
-            'Example: use tuple input '
-            '(shapefit.magfit.magnitude:dict(magfit_iteration=5)'
-            ':shapefit.epd.magnitude) using colon separators. If using a for loop '
-            'indicate the variable to be looped such as "for ap_ind in range(39)", '
-            'and include an empty space between the dictionary and the loop for '
-            'example.'
         )
         self.add_argument(
-            '--error-avg',
+            '--detrend-error-avg',
             default='nanmedian',
-            help='How to average fitting residuals for outlier rejection. Default: '
-            '%(default)s'
+            help='How to average fitting residuals for outlier rejection. '
+            'Default: %(default)s'
         )
         self.add_argument(
-            '--rej-level',
+            '--detrend-rej-level',
             type=float,
             default=5.0,
             help='How far away from the fit should a point be before '
-            'it is rejected in utins of error_avg. Default: %(default)s'
+            'it is rejected in utins of detrend_error_avg. Default: %(default)s'
         )
         self.add_argument(
-            '--max-rej-iter',
+            '--detrend-max-rej-iter',
             type=int,
             default=20,
-            help='The maximum number of rejection/re-fitting iterations to perform.'
-            ' If the fit has not converged by then, the latest iteration is '
-            'accepted. Default: %(default)s'
+            help='The maximum number of rejection/re-fitting iterations to '
+            'perform. If the fit has not converged by then, the latest '
+            'iteration is accepted. Default: %(default)s'
         )
-    if add_reconstructive:
-        target_args = self.add_argument_group(
-            title='Followup Target',
-            description='Arguments specific to processing followup observations '
-            'where the target star is known to have a transit that occupies a '
-            'significant fraction of the total collection of observations.'
-        )
-        target_args.add_argument(
-            '--target-id',
-            default=None,
-            help='The lightcurve whose base filename starts with the given value '
-            'will be fit using reconstructive detrending, starting the transit '
-            'parameter fit with the values supplied, and fitting for the values '
-            'allowed to vary. If not specified all LCs are fit in '
-            'non-reconstructive way. Default: %(default)s (HAT-P-32).'
-        )
-        self._add_transit_parameters(target_args,
-                                    timing=True,
-                                    geometry='circular',
-                                    limb_darkening=True,
-                                    fit_flags=True)
+        if add_reconstructive:
+            target_args = self.add_argument_group(
+                title='Followup Target',
+                description='Arguments specific to processing followup '
+                'observations where the target star is known to have a transit '
+                'that occupies a significant fraction of the total collection '
+                'of observations.'
+            )
+            target_args.add_argument(
+                '--target-id',
+                default=None,
+                help='The lightcurve of the given source (any one of the '
+                'catalogue identifiers stored in the LC file) will be fit using'
+                ' reconstructive detrending, starting the transit parameter fit'
+                ' with the values supplied, and fitting for the values allowed '
+                'to vary. If not specified all LCs are fit in '
+                'non-reconstructive way.'
+            )
+            self._add_transit_parameters(target_args,
+                                        timing=True,
+                                        geometry='circular',
+                                        limb_darkening=True,
+                                        fit_flags=True)
 
-    self.add_argument(
-        '--epd-statistics-fname',
-        default='epd_statistics.txt',
-        help='The statistics filename for the results of the EPD fit. '
-        'Default: %(default)s'
-    )
-    self.add_argument(
-        '--magnitude-column',
-        default='R',
-        help='The magnitude column to use for the performance statistics. '
-        'Default: %(default)s'
-    )
+        self.add_argument(
+            '--detrending-catalogue', '--detrending-catalog', '--cat',
+            default=None,
+            help='The name of a catalogue file containing the sources in the '
+            'frame. Used only to generate performance statistics reports. If '
+            'not specified, performance is not reported.'
+        )
+        self.add_argument(
+            '--epd-statistics-fname',
+            default='epd_statistics.txt',
+            help='The statistics filename for the results of the EPD fit. '
+            'Default: %(default)s'
+        )
+        self.add_argument(
+            '--magnitude-column',
+            default='R',
+            help='The magnitude column to use for the performance statistics. '
+            'Default: %(default)s'
+        )
 
 
 def add_image_options(parser):

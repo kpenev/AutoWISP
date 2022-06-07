@@ -147,7 +147,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         self._configurations = dict()
         self._config_indices = dict()
 
-        if 'Identifiers' not in self:
+        if 'Identifiers' not in self and self.driver != 'core':
             if not source_ids:
                 raise ValueError(
                     'Must specify at least one identifier when creating new '
@@ -156,11 +156,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             self.create_dataset('Identifiers',
                                 (0, 2),
                                 maxshape=(None, 2),
-                                chunks=10,
+                                chunks=(10, 2),
                                 dtype=h5py.string_dtype())
 
         if source_ids is not None:
-            source_ids = dict(source_ids)
+            add_source_ids = dict(source_ids)
             #False positive
             #pylint: disable=no-member
             stored_identifiers = dict(self['Identifiers'].asstr())
@@ -170,18 +170,18 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     assert (identifier
                             ==
                             stored_identifiers[catalogue])
-                    del source_ids[catalogue]
+                    del add_source_ids[catalogue]
             #False positive
             #pylint: disable=no-member
             destination = self['Identifiers'].shape[0]
             self['Identifiers'].resize(
                 (
-                    destination + len(source_ids),
+                    destination + len(add_source_ids),
                     2
                 )
             )
             #pylint: enable=no-member
-            for new_id in source_ids.items():
+            for new_id in add_source_ids.items():
                 self['Identifiers'][destination] = new_id
                 destination += 1
 
