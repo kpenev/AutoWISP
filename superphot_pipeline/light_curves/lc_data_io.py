@@ -53,10 +53,11 @@ class LCDataIO:
         dataset_dimensions (dict):    Identifiers for the dimensions of
             datasets. The keys are the pipeline keys of lightcurve datasets and
             the values are tuples containing some of: `'frame'`,
-            `'source'`, `'aperture_index'`, `'magfit_iteration'`,
-            `'srcextract_psf_param'` identifying what the entries in the dataset
-            depend on. It also contains a special dataset `'source_in_frame'`
-            which indicates which sources have observations in which frames.
+            `'source'`, `'srcproj_column_name'`, `'aperture_index'`,
+            `'magfit_iteration'`, `'srcextract_psf_param'` identifying what the
+            entries in the dataset depend on. It also contains a special dataset
+            `'source_in_frame'` which indicates which sources have observations
+            in which frames.
 
         header_datasets (dict):    The set of datasets which contain FITS header
             keywords. The index is the pipeline key identifying the dataset, and
@@ -148,7 +149,7 @@ class LCDataIO:
                 persource=re.compile(
                     '|'.join([
                         r'^srcextract\.psf_map\.eval',
-                        r'^srcproj\.([xy]|enabled)$',
+                        r'^srcproj\.columns$',
                         r'^bg\.(value|error|npix)$',
                         r'^shapefit\.(chi2|num_pixels|signal_to_noise)$',
                         r'\.(magnitude|magnitude_error|quality_flag)$',
@@ -280,6 +281,9 @@ class LCDataIO:
                     - srcextract_psf_params: List of the parameters describing
                       PSF shapes of the extracted sources.
 
+                    - srcproj_column_names: List of the projected source columns
+                      to transfer to the collected lightcurves.
+
                     - memblocksize: The maximum amount of memory (in bytes) to
                       allocate for temporaririly storing source information
                       before dumping to LC.
@@ -348,6 +352,7 @@ class LCDataIO:
             aperture_index=config['max_apertures'],
             magfit_iteration=config['max_magfit_iterations'],
             srcextract_psf_param=len(config['srcextract_psf_params']),
+            srcproj_column_name=len(config['srcproj_column_names']),
             sky_coord=2
         )
 
@@ -485,7 +490,7 @@ class LCDataIO:
     @classmethod
     def _get_substitutions(cls, dimensions, dimension_values):
         """
-        Return dict of path substitutions to fully resolt path to quantity.
+        Return dict of path substitutions to fully resolve path to quantity.
 
         Args:
             dimensions:    See _get_dimensions_iterator().
@@ -512,12 +517,14 @@ class LCDataIO:
             **cls._path_substitutions
         )
 
-        if 'srcextract_psf_param' in result:
-            result['srcextract_psf_param'] = cls._config[
-                'srcextract_psf_params'
-            ][
-                result['srcextract_psf_param']
-            ]
+        for multicolumn_quantity in ['srcextract_psf_param',
+                                     'srcproj_column_name']:
+            if multicolumn_quantity in result:
+                result[multicolumn_quantity] = cls._config[
+                    multicolumn_quantity + 's'
+                ][
+                    result[multicolumn_quantity]
+                ]
 
         return result
 

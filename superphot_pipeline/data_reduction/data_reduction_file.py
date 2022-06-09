@@ -75,44 +75,6 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             else:
                 del result['compression']
                 result['scaleoffset'] = 3
-        elif dataset_key in ['catalogue.columns', 'srcproj.columns']:
-            column = path_substitutions[dataset_key.split('.')[0]
-                                        +
-                                        '_column_name']
-            if column in ['hat_id_prefix',
-                          'hat_id_field',
-                          'hat_id_source',
-                          'objtype',
-                          'doublestar',
-                          'sigRA',
-                          'sigDec',
-                          'phqual',
-                          'magsrcflag',
-                          'enabled']:
-                result['compression'] = 'gzip'
-                result['compression_opts'] = 9
-                result['shuffle'] = True
-            elif column in ['RA', 'Dec']:
-                del result['compression']
-                result['scaleoffset'] = 7
-            elif column in ['xi', 'eta', 'x', 'y']:
-                del result['compression']
-                result['scaleoffset'] = 6
-            elif column in ['ucacmag',
-                            'J', 'H', 'K',
-                            'B', 'V', 'R', 'I',
-                            'u', 'g', 'r', 'i', 'z']:
-                del result['compression']
-                result['scaleoffset'] = 3
-            elif column in ['dist',
-                            'epochRA', 'epochDec',
-                            'sigucacmag',
-                            'errJ', 'errH', 'errK']:
-                del result['compression']
-                result['scaleoffset'] = 2
-            else:
-                del result['compression']
-                result['scaleoffset'] = 1
 
         return result
 

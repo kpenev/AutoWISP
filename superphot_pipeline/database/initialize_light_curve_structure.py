@@ -524,9 +524,7 @@ def _get_data_reduction_dataset_datasets(db_session):
     magfit_datasets = []
 
     dr_structure_version_id = _get_structure_version_id(db_session)
-    for pipeline_key in ['srcproj.x',
-                         'srcproj.y',
-                         'srcproj.enabled',
+    for pipeline_key in ['srcproj.columns',
                          'bg.value',
                          'bg.error',
                          'bg.npix',

@@ -52,6 +52,13 @@ def parse_command_line():
         ' referene and re-fitting allowed during magnitude fitting.'
     )
     parser.add_argument(
+        '--srcproj-column-names',
+        nargs='+',
+        default=['x', 'y', 'xi', 'eta', 'enabled'],
+        help='List of the source projected columns to include in the '
+        'lightcurves.'
+    )
+    parser.add_argument(
         '--max-memory',
         default='4096',
         type=int,
