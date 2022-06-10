@@ -9,6 +9,7 @@ import scipy
 from astropy.io import fits
 
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.data_reduction.utils import get_source_extracted_psf_map
 
 if __name__ == '__main__':
     data_dir = join_paths(dirname(__file__), 'test_data', '10-20170306')
@@ -76,9 +77,8 @@ if __name__ == '__main__':
                                                  rej_level=5.0,
                                                  max_rej_iter=20,
                                                  **path_substitutions)
-            psf_map = data_reduction.get_source_extracted_psf_map(
-                **path_substitutions
-            )
+            psf_map = get_source_extracted_psf_map(data_reduction,
+                                                   **path_substitutions)
         print(
             repr(
                 psf_map(

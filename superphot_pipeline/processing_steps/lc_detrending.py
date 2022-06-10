@@ -1,5 +1,8 @@
 """Functions for detrending light curves (EPD or TFA)."""
 
+from superphot_pipeline.light_curves.apply_correction import\
+    apply_parallel_correction
+
 def extract_target_lc(lc_fnames, target_id):
     """Return target LC fname, & LC fname list with the target LC removed."""
 
@@ -76,9 +79,10 @@ def detrend_light_curves(lc_collection,
                          output_statistics_fname):
     """Detrend all lightcurves and create statistics file."""
 
+    lc_collection = list(lc_collection)
     if configuration['target_id'] is not None:
         target_lc_fname, lc_fnames = extract_target_lc(
-            list(configuration['lc_fnames']),
+            lc_collection,
             configuration['target_id']
         )
 
@@ -88,7 +92,7 @@ def detrend_light_curves(lc_collection,
             correct
         )
     else:
-        lc_fnames = list(configuration['lc_fnames'])
+        lc_fnames = lc_collection
 
     if lc_fnames:
         result = apply_parallel_correction(

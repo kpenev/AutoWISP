@@ -6,7 +6,7 @@ from asteval import Interpreter
 
 from superphot_pipeline import EPDCorrection
 from superphot_pipeline.file_utilities import find_lc_fnames
-from superphot_pipeline.processing_steps.manual_util import\
+from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
 from superphot_pipeline.processing_steps.lc_detrending import\
     detrend_light_curves
@@ -21,64 +21,11 @@ def parse_epd_variable(argument):
     return variable, (dataset_id, aeval(substitution))
 
 
-def parse_command_line():
-    """Return the prased command line argumets."""
-
-    parser = LCDetrendingArgumentParser(description=__doc__)
-
-    parser.add_argument(
-        '--epd-variables',
-        type=parse_epd_variable,
-        action='append',
-        help='Keys are variables used in `fit_points_filter_expression` and '
-        '`epd_terms_expression` and the corresponding values are 2-tuples '
-        'of pipeline keys corresponding to each variable and an associated '
-        'dictionary of path substitutions. Each entry defines a unique '
-        'independent variable to use in the fit or based on which to select '
-        'points to fit. In the config file specified as a list, such as '
-        '[x=srcproj.x:dict(),y=srcproj.y:dict(),'
-        'S=srcextract.psf_map.eval:dict(srcextract_psf_param;"S")] '
-        'which gets parsed as: '
-        '[("x", ("srcproj.x", dict())), ("y", ("srcproj.y", dict())),'
-        '("S", ("srcextract.psf_map.eval",dict(srcextract_psf_param="S")))]. '
-        'By default, only the zenith distance is used: '
-        '[z=skypos.zenith_distance:dict()]'
-    )
-
-    parser.add_argument(
-        '--epd-terms-expression',
-        default='O3{1/cos(z)}',
-        type=str,
-        help='A fitting terms expression involving only variables from '
-             '`epd_variables` which expands to the various terms to use '
-             'in a linear least squares EPD correction.'
-             'Default: %(default)s'
-    )
-    parser.add_argument(
-        '--fit-weights',
-        default=None,
-        type=str,
-        help='An expression involving only variables from `epd_variables` '
-        'which should evaluate to the weights to use per LC point in a linear '
-        'least squares EPD correction. If left unspecified, no weighting is '
-        'performed.'
-    )
-    parser.add_argument(
-        '--skip-outlier-prerejection',
-        action='store_false',
-        dest='pre_reject_outliers',
-        help='If passed the initial rejection of outliers before the fit begins'
-        ' is not performed.'
-    )
-
-    result = parser.parse_args()
-    if result.get('epd_variables') is None:
-        result['epd_variables'] = [('z', ('skypos.zenith_distance', dict()))]
-    return result
-
-
 if __name__ == '__main__':
-    cmdline_config = parse_command_line()
+    cmdline_config = LCDetrendingArgumentParser(
+        mode='EPD',
+        description=__doc__
+    ).parse_args()
 
     detrend_light_curves(
         find_lc_fnames(cmdline_config.pop('lc_files')),
