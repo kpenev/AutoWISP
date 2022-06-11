@@ -3,13 +3,15 @@
 """Apply EPD correction to lightcurves."""
 
 from asteval import Interpreter
+import numpy
 
 from superphot_pipeline import EPDCorrection
 from superphot_pipeline.file_utilities import find_lc_fnames
 from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
 from superphot_pipeline.processing_steps.lc_detrending import\
-    detrend_light_curves
+    detrend_light_curves,\
+    recalculate_detrending_performance
 
 def parse_epd_variable(argument):
     """Parse epd-variables argument to the format required by EPDCorrection."""
@@ -27,22 +29,37 @@ if __name__ == '__main__':
         description=__doc__
     ).parse_args()
 
-    detrend_light_curves(
-        find_lc_fnames(cmdline_config.pop('lc_files')),
-        cmdline_config,
-        EPDCorrection(
-            fit_identifier='EPD',
-            used_variables=dict(cmdline_config['epd_variables']),
-            fit_points_filter_expression=(
-                cmdline_config['fit_points_filter_expression']
+    lc_fnames = find_lc_fnames(cmdline_config.pop('lc_files'))
+
+    if not cmdline_config.pop('recalc_performance'):
+        detrend_light_curves(
+            lc_fnames,
+            cmdline_config,
+            EPDCorrection(
+                fit_identifier='EPD',
+                used_variables=dict(cmdline_config['epd_variables']),
+                fit_points_filter_expression=(
+                    cmdline_config['fit_points_filter_expression']
+                ),
+                fit_terms_expression=cmdline_config['epd_terms_expression'],
+                fit_datasets=cmdline_config['detrend_datasets'],
+                fit_weights=cmdline_config['fit_weights'],
+                error_avg=cmdline_config['detrend_error_avg'],
+                rej_level=cmdline_config['detrend_rej_level'],
+                max_rej_iter=cmdline_config['detrend_max_rej_iter'],
+                pre_reject=cmdline_config['pre_reject_outliers']
             ),
-            fit_terms_expression=cmdline_config['epd_terms_expression'],
-            fit_datasets=cmdline_config['detrend_datasets'],
-            fit_weights=cmdline_config['fit_weights'],
-            error_avg=cmdline_config['detrend_error_avg'],
+            cmdline_config.pop('epd_statistics_fname')
+        )
+    else:
+        #TODO: finish implementing
+        recalculate_detrending_performance(
+            lc_fnames,
+            cmdline_config['detrending_catalogue'],
+            cmdline_config['magnitude_column'],
+            cmdline_config['epd_statistics_fname'],
+            calculate_average=getattr(numpy,
+                                      cmdline_config['detrend_error_avg']),
             rej_level=cmdline_config['detrend_rej_level'],
             max_rej_iter=cmdline_config['detrend_max_rej_iter'],
-            pre_reject=cmdline_config['pre_reject_outliers']
-        ),
-        cmdline_config.pop('epd_statistics_fname')
-    )
+        )

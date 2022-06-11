@@ -1,25 +1,51 @@
 """Functions for detrending light curves (EPD or TFA)."""
 
+from os import path, makedirs
+import logging
+
+import numpy
+from pytransit import QuadraticModel
+
+from superphot_pipeline import DataReductionFile
+from superphot_pipeline import LightCurveFile
+from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 from superphot_pipeline.light_curves.apply_correction import\
-    apply_parallel_correction
+    apply_parallel_correction,\
+    apply_reconstructive_correction_transit,\
+    save_correction_statistics,\
+    recalculate_correction_statistics
 
 def extract_target_lc(lc_fnames, target_id):
     """Return target LC fname, & LC fname list with the target LC removed."""
 
     for index, fname in enumerate(lc_fnames):
-        if basename(fname).startswith(target_id):
+        if path.basename(fname).startswith(target_id):
             return lc_fnames.pop(index), lc_fnames
     raise ValueError('None of the lightcurves seems to be for the target.')
+
+
+def get_hat_source_id(lc_fname):
+    """Return parsed to 3-int HAT source id for the given LC file."""
+
+    if not hasattr(get_hat_source_id, 'parse_hat_source_id'):
+        get_hat_source_id.parse_hat_source_id = (
+            DataReductionFile().parse_hat_source_id
+        )
+
+    return get_hat_source_id.parse_hat_source_id(
+        dict(LightCurveFile(lc_fname, 'r')['Identifiers'])[b'HAT']
+    )
+
+
 
 def add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, result):
     """Fill the catalogue information fields in result."""
 
-    mem_dr = DataReductionFile()
     catalogue = read_master_catalogue(catalogue_fname,
-                                      mem_dr.parse_hat_source_id)
+                                      DataReductionFile().parse_hat_source_id)
 
     for lc_ind, fname in enumerate(lc_fnames):
-        source_id = parse_lc_fname(fname)
+        source_id = get_hat_source_id(fname)
         result[lc_ind]['ID'] = source_id
         cat_info = catalogue[source_id]
         result[lc_ind]['mag'] = cat_info[magnitude_column]
@@ -108,14 +134,14 @@ def detrend_light_curves(lc_collection,
     if configuration['target_id'] is not None:
         lc_fnames.append(target_lc_fname)
 
-    if configuration['catalogue_fname'] is not None:
+    if configuration['detrending_catalogue'] is not None:
         add_catalogue_info(lc_fnames,
                            configuration['detrending_catalogue'],
                            configuration['magnitude_column'],
                            result)
 
-        if not exists(dirname(output_statistics_fname)):
-            makedirs(dirname(output_statistics_fname))
+        if not path.exists(path.dirname(output_statistics_fname)):
+            makedirs(path.dirname(output_statistics_fname))
         save_correction_statistics(result, output_statistics_fname)
 
         logging.info('Generated statistics file: %s.',
@@ -130,8 +156,8 @@ def recalculate_detrending_performance(lc_fnames,
     Re-create a statistics file after de-trending directly from LCs.
 
     Args:
-        lc_fnames:    The filenames of the de-trended lightcurves to rederive
-            the statistics for.
+        lc_fnames:    Iterable over the filenames of the de-trended lightcurves
+            to rederive the statistics for.
 
         catalogue_fname:     The filename of the catalogue to add information to
             the statistics.
@@ -149,6 +175,6 @@ def recalculate_detrending_performance(lc_fnames,
                                                    **recalc_arguments)
     add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, statistics)
 
-    if not exists(dirname(output_statistics_fname)):
-        makedirs(dirname(output_statistics_fname))
+    if not path.exists(path.dirname(output_statistics_fname)):
+        makedirs(path.dirname(output_statistics_fname))
     save_correction_statistics(statistics, output_statistics_fname)

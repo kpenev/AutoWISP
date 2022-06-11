@@ -9,6 +9,7 @@ import pandas
 
 from superphot_pipeline import DataReductionFile, LightCurveFile
 from superphot_pipeline.database.interface import db_engine
+from superphot_pipeline.miscellaneous import get_hat_source_id_str
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
@@ -147,7 +148,7 @@ def recalculate_correction_statistics(lc_fnames,
 
     for lc_index, fname in enumerate(lc_fnames):
         with LightCurveFile(fname, 'r') as lightcurve:
-            for fit_index, (from_dset, substitutions, to_dset) in enumerate(
+            for fit_index, (_, substitutions, to_dset) in enumerate(
                     fit_datasets
             ):
                 try:

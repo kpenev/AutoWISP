@@ -429,6 +429,13 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         getattr(self, '_add_' + mode.lower() + '_arguments')(mode_args)
 
+        self.add_argument(
+            '--recalc-performance',
+            action='store_true',
+            help='If passed, the correction is assumed to have already been '
+            'performed and performance statistics are re-derived.'
+        )
+
     def parse_args(self, *args, **kwargs):
         """Tweaks to the parsed arguments."""
 
