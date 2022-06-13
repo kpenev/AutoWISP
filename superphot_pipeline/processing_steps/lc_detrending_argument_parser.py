@@ -360,17 +360,23 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             '`"shapefit.epd.residual"`.'
         )
         self.add_argument(
+            '--detrend-reference-avg',
+            default='nanmedian',
+            help='How to average magnitudes to define reference point for '
+            'calculating residuals.'
+        )
+        self.add_argument(
             '--detrend-error-avg',
             default='nanmedian',
-            help='How to average fitting residuals for outlier rejection. '
-            'Default: %(default)s'
+            help='How to average fitting residuals for outlier rejection and '
+            'perforamnce reporting.'
         )
         self.add_argument(
             '--detrend-rej-level',
             type=float,
             default=5.0,
             help='How far away from the fit should a point be before '
-            'it is rejected in utins of detrend_error_avg. Default: %(default)s'
+            'it is rejected in units of detrend_error_avg. Default: %(default)s'
         )
         self.add_argument(
             '--detrend-max-rej-iter',

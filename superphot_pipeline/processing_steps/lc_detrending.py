@@ -99,6 +99,40 @@ def correct_target_lc(target_lc_fname, configuration, correct):
         num_limbdark_coef=num_limbdark_coef
     )
 
+
+def recalculate_detrending_performance(lc_fnames,
+                                       catalogue_fname,
+                                       magnitude_column,
+                                       output_statistics_fname,
+                                       **recalc_arguments):
+    """
+    Re-create a statistics file after de-trending directly from LCs.
+
+    Args:
+        lc_fnames:    Iterable over the filenames of the de-trended lightcurves
+            to rederive the statistics for.
+
+        catalogue_fname:     The filename of the catalogue to add information to
+            the statistics.
+
+        magnitude_column:     The column from the catalogue to use as brightness
+            indicator in the statistics file.
+
+        output_statistics_fname:    The filename to save the statistics under.
+
+        recalc_arguments:    Passed directly to
+            recalculate_correction_statistics()
+    """
+
+    statistics = recalculate_correction_statistics(lc_fnames,
+                                                   **recalc_arguments)
+    add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, statistics)
+
+    if not path.exists(path.dirname(output_statistics_fname)):
+        makedirs(path.dirname(output_statistics_fname))
+    save_correction_statistics(statistics, output_statistics_fname)
+
+
 def detrend_light_curves(lc_collection,
                          configuration,
                          correct,
@@ -135,46 +169,19 @@ def detrend_light_curves(lc_collection,
         lc_fnames.append(target_lc_fname)
 
     if configuration['detrending_catalogue'] is not None:
-        add_catalogue_info(lc_fnames,
-                           configuration['detrending_catalogue'],
-                           configuration['magnitude_column'],
-                           result)
-
-        if not path.exists(path.dirname(output_statistics_fname)):
-            makedirs(path.dirname(output_statistics_fname))
-        save_correction_statistics(result, output_statistics_fname)
+        recalculate_detrending_performance(
+            lc_fnames,
+            fit_datasets=configuration['detrend_datasets'],
+            catalogue_fname=configuration['detrending_catalogue'],
+            magnitude_column=configuration['magnitude_column'],
+            output_statistics_fname=output_statistics_fname,
+            calculate_average=getattr(numpy,
+                                      configuration['detrend_reference_avg']),
+            calculate_scatter=getattr(numpy,
+                                      configuration['detrend_error_avg']),
+            outlier_threshold=configuration['detrend_rej_level'],
+            max_outlier_rejections=configuration['detrend_max_rej_iter']
+        )
 
         logging.info('Generated statistics file: %s.',
                      repr(output_statistics_fname))
-
-def recalculate_detrending_performance(lc_fnames,
-                                       catalogue_fname,
-                                       magnitude_column,
-                                       output_statistics_fname,
-                                       **recalc_arguments):
-    """
-    Re-create a statistics file after de-trending directly from LCs.
-
-    Args:
-        lc_fnames:    Iterable over the filenames of the de-trended lightcurves
-            to rederive the statistics for.
-
-        catalogue_fname:     The filename of the catalogue to add information to
-            the statistics.
-
-        magnitude_column:     The column from the catalogue to use as brightness
-            indicator in the statistics file.
-
-        output_statistics_fname:    The filename to save the statistics under.
-
-        recalc_arguments:    Passed directly to
-            recalculate_correction_statistics()
-    """
-
-    statistics = recalculate_correction_statistics(lc_fnames,
-                                                   **recalc_arguments)
-    add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, statistics)
-
-    if not path.exists(path.dirname(output_statistics_fname)):
-        makedirs(path.dirname(output_statistics_fname))
-    save_correction_statistics(statistics, output_statistics_fname)

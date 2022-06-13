@@ -13,16 +13,6 @@ from superphot_pipeline.processing_steps.lc_detrending import\
     detrend_light_curves,\
     recalculate_detrending_performance
 
-def parse_epd_variable(argument):
-    """Parse epd-variables argument to the format required by EPDCorrection."""
-
-    aeval = Interpreter()
-    variable, var_tail = argument.split('=')
-    dataset_id, substitution = var_tail.split(':')
-    substitution = substitution.replace(';', '=')
-    return variable, (dataset_id, aeval(substitution))
-
-
 if __name__ == '__main__':
     cmdline_config = LCDetrendingArgumentParser(
         mode='EPD',
