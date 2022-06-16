@@ -65,7 +65,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
         """See HDF5File.get_dataset_creation_args(), but handle srcextract."""
 
-        result = super().get_dataset_creation_args(dataset_key)
+        result = super().get_dataset_creation_args(dataset_key,
+                                                   **path_substitutions)
 
         if dataset_key == 'srcextract.sources':
             column = path_substitutions['srcextract_column_name']

@@ -79,13 +79,19 @@ class Calibrator(Processor):
                 Only useful when estimating errors and could be used by the
                 overscan_method.
 
+            fnum:    Expression involving header keywords (with "-" replaced by
+                "_") or `RAWFNAME` which takes the raw frame name without
+                extension or path and returning an integer to use as a frame
+                number (should be unique for each image).
+
             calibrated_fname:    The filename under which to save the craeted
                 image. Treated as a format string that may involve replacement
                 fields from the resulting header, including {CLRCHNL}, which
                 gets replaced by the color channel if channel splitting is
                 performed, as well as {RAWFNAME}, which gets replaced by the
                 file name of the input FITS file with all directories and
-                `.fits` or `.fits.fz` extension stripped.
+                `.fits` or `.fits.fz` extension stripped and {FNUM} which gets
+                replaced by the frame number (see above).
 
         master_bias:    A dictionary containing:
 
@@ -722,8 +728,11 @@ class Calibrator(Processor):
                 apply_flat_correction(calibration_params['flat'],
                                       calibrated_images)
 
-            raw_header = get_primary_header(raw_image,
-                                            add_filename_keywords=True)
+            raw_header = get_primary_header(
+                raw_image,
+                add_filename_keywords=True,
+                fnum_expression=calibration_params['fnum']
+            )
 
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])

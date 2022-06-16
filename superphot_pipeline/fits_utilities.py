@@ -7,6 +7,7 @@ from astropy.io import fits
 from superphot_pipeline.pipeline_exceptions import BadImageError
 from superphot_pipeline.data_reduction.data_reduction_file import\
     DataReductionFile
+from asteval import Interpreter
 
 def read_image_components(fits_fname,
                           *,
@@ -92,7 +93,9 @@ def read_image_components(fits_fname,
     )
 
 
-def get_primary_header(fits_image, add_filename_keywords=False):
+def get_primary_header(fits_image,
+                       add_filename_keywords=False,
+                       fnum_expression=None):
     """
     Return the primary header of the given image (filename or opened).
 
@@ -126,6 +129,11 @@ def get_primary_header(fits_image, add_filename_keywords=False):
                         base_fname = base_fname[:-len(ext)]
 
                 result['RAWFNAME'] = base_fname
+            if fnum_expression is not None:
+                eval_fnum = Interpreter()
+                for hdr_key, hdr_val in hdu.header.items():
+                    eval_fnum.symtable[hdr_key.replace('-', '_')] = hdr_val
+                result['FNUM'] = eval_fnum(fnum_expression)
             return result
     assert False
     return None

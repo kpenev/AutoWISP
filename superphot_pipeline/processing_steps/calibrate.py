@@ -133,6 +133,14 @@ def parse_command_line():
         '[;<xmin2>,<xmax2>,<ymin2>,<ymax2>;...].'
     )
     parser.add_argument(
+        '--fnum',
+        default='int(1e6 * MJD_OBS)',
+        help='How to calculate a frame number from the header. Should be '
+        'expression involving header keywords (with "-" replaced by "_") or '
+        '`RAWFNAME` which takes the raw frame name without extension or path '
+        'and should return an integer.'
+    )
+    parser.add_argument(
         '--image-area',
         default=None,
         type=parse_area_str,
