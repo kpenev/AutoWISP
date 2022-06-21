@@ -173,6 +173,7 @@ class Calibrator(Processor):
     default_configuration = dict(
         overscans=dict(areas=None, method=None),
         image_area=None,
+        bias_level_adu=0.0,
         gain=1.0,
         leak_directions=[],
         split_channels=False,

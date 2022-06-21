@@ -157,7 +157,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--bias-level-adu',
-        default=1000.0,
+        default=0.0,
         type=float,
         help='Most detectors add an offset to the quantized pixel values, this '
         'defines that offset (affects estimated variances).'
