@@ -1,6 +1,7 @@
 """Implement shared argument parsing for LC detrending processing steps."""
 
 import re
+from os import path
 
 from asteval import Interpreter
 
@@ -72,8 +73,8 @@ def _parse_substitutions(substitutions_str_iter):
             yield dict(result)
 
 
-def _parse_detrend_datasets(argument):
-    """Parse the detrend datasets argument (see help for details)."""
+def _parse_fit_datasets(argument):
+    """Parse the fit datasets argument (see help for details)."""
 
     dset_specfication_rex = re.compile(
         r'^(?P<from>[\w.]+)'
@@ -264,7 +265,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 
     @staticmethod
     def _add_epd_arguments(parser):
-        """Add parameters require for EPD only."""
+        """Add parameters required for EPD only."""
 
         parser.add_argument(
             '--epd-variables',
@@ -273,7 +274,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'to be used in --epd-terms-expression, --fit-weights, etc. Should '
             'be formatted as a `;` separated list of '
             '<varname> = <dataset key> [: <substitutions>]. Similar to '
-            '--detrend-datasets. For example: '
+            '--epd-datasets. For example: '
             '"x = srcproj.columns : src_proj_column_name = x  & '
             'srcproj_version = 0; y = srcproj.columns : '
             'src_proj_column_name = y", defines `x` and `y` variables that '
@@ -309,6 +310,120 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
 
 
+    @staticmethod
+    def _add_tfa_arguments(parser):
+        """Add parameters required for TFA only."""
+
+        parser.add_argument(
+            '--saturation-magnitude',
+            type=float,
+            default=7.0,
+            help='The magnitude at which sources start to saturate. '
+            'Default: %(default)s'
+        )
+        parser.add_argument(
+            '--tfa-forbid-saturated-templates',
+            dest='allow_saturated_templates',
+            action='store_false',
+            default=True,
+            help='If passed, saturated stars are precluded from being selected '
+            'as templates.'
+        )
+        parser.add_argument(
+            '--tfa-mag-rms-dependence-order',
+            type=int,
+            default=2,
+            help='The maximum order of magnitude to include in the fit for '
+            'typical rms vs magnitude. Default: %(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-mag-rms-outlier-threshold',
+            type=float,
+            default=4,
+            help='Stars are not allowed to be in the template if their RMS is '
+            'more than this many sigma away from the mag-rms fit. This is also '
+            'the threshold used for rejecting outliers when doing the iterative'
+            ' fit for the rms as a function of magnutude. Default: %(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-mag-rms-max-rej-iter',
+            type=int,
+            default=10,
+            help='The maximum number of rejection fit iterations to do when '
+            'deriving the rms(mag) dependence. Default: %(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-max-rms',
+            type=float,
+            default=0.05,
+            help='Stars are allowed to be in the template only if their RMS is '
+            'no larger than this. Default: %(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-faint-mag-limit',
+            type=float,
+            default=10.0,
+            help='Stars fainter than this cannot be template stars. Default: '
+            '%(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-min-observations-quantile',
+            type=float,
+            default=0.5,
+            help='The minimum number of observations required of template stars'
+            ' is this quantile among the input collection of stars. Default: '
+            '%(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-sqrt-num-templates',
+            type=float,
+            default=8,
+            help='The number of template stars is the square of this number. '
+            'Default: %(default)s.'
+        )
+        parser.add_argument(
+            '--tfa-observation-id',
+            type=str,
+            nargs='+',
+            default=('fitsheader.fnum',),
+            help='The datasets to use for matching observations across light '
+            'curves. For example, the following works for HAT: '
+            'fitseader.cfg.stid fitsheader.cfg.cmpos fitsheader.fnum.'
+        )
+        parser.add_argument(
+            '--tfa-selected-plots',
+            type=str,
+            default='tfa_template_selection_%(plot_id)s_phot%(phot_index)s.eps',
+            help='Optional template for naming plots showing the template '
+            'selection in action. If not specified, no such plots are '
+            'generated. Should include %%(plot_id)s and %%(phot_index)d '
+            'substitutions.'
+        )
+        parser.add_argument(
+            '--tfa-statistics-fname',
+            default=path.join('MASTERS', 'tfa_statistics.txt'),
+            help='The statistics filename for the results of the TFA fit. '
+            'Default: %(default)s'
+        )
+        parser.add_argument(
+            '--tfa-radius-splits',
+            nargs='+',
+            type=float,
+            default=[],
+            help='The threshold radius values where to split sources into '
+            'groups. By default, no splitting by radius is done.'
+        )
+        parser.add_argument(
+            '--tfa-mag-split-source-count',
+            type=int,
+            default=None,
+            help='If passed, after spltting by radius (if any), sources are '
+            'further split into groups by magnitude such that each group '
+            'contains at least this many sources. By default, no splitting by '
+            'magnitude is done.'
+        )
+
+
     def __init__(self,
                  mode,
                  description,
@@ -324,11 +439,13 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             None
         """
 
+        self._mode = mode.lower()
         super().__init__(
             input_type='lc',
             description=description,
             allow_parallel_processing=True,
-            convert_to_dict=convert_to_dict
+            convert_to_dict=convert_to_dict,
+            add_lc_fname_arg=(self._mode == 'tfa')
         )
 
         self.add_argument(
@@ -339,8 +456,8 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'should be fit and corrected. Default: %(default)s'
         )
         self.add_argument(
-            '--detrend-datasets',
-            type=_parse_detrend_datasets,
+            '--{!s}-datasets'.format(self._mode),
+            type=_parse_fit_datasets,
             help='A `;` separated list of the datasets to detrend. Each entry '
             'should be formatted as: `<input-key> -> <output-key> '
             '[: <substitution> (= <value>| in <expression>) '
@@ -453,4 +570,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         ):
             result['epd_variables'] = [('z',
                                         ('skypos.zenith_distance', dict()))]
+
+        result['fit_datasets'] = result.pop(self._mode + '_datasets')
+
+        if self._mode == 'tfa':
+            for param in list(result.keys()):
+                if param.startswith('tfa_'):
+                    print('Renaming {!r} -> {!r}'.format(param, param[4:]))
+                    result[param[4:]] = result.pop(param)
+                else:
+                    print('Not renaming ' + repr(param))
         return result

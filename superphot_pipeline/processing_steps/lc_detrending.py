@@ -140,38 +140,39 @@ def detrend_light_curves(lc_collection,
     """Detrend all lightcurves and create statistics file."""
 
     lc_collection = list(lc_collection)
-    if configuration['target_id'] is not None:
-        target_lc_fname, lc_fnames = extract_target_lc(
-            lc_collection,
-            configuration['target_id']
-        )
-
-        _, target_result = correct_target_lc(
-            target_lc_fname,
-            configuration,
-            correct
-        )
-    else:
-        lc_fnames = lc_collection
-
-    if lc_fnames:
-        result = apply_parallel_correction(
-            lc_fnames,
-            correct,
-            configuration['num_parallel_processes']
-        )
+    if not configuration['recalc_performance']:
         if configuration['target_id'] is not None:
-            result = numpy.concatenate((result, target_result))
-    else:
-        result = target_result
+            target_lc_fname, lc_fnames = extract_target_lc(
+                lc_collection,
+                configuration['target_id']
+            )
 
-    if configuration['target_id'] is not None:
-        lc_fnames.append(target_lc_fname)
+            _, target_result = correct_target_lc(
+                target_lc_fname,
+                configuration,
+                correct
+            )
+        else:
+            lc_fnames = lc_collection
+
+        if lc_fnames:
+            result = apply_parallel_correction(
+                lc_fnames,
+                correct,
+                configuration['num_parallel_processes']
+            )
+            if configuration['target_id'] is not None:
+                result = numpy.concatenate((result, target_result))
+        else:
+            result = target_result
+
+        if configuration['target_id'] is not None:
+            lc_fnames.append(target_lc_fname)
 
     if configuration['detrending_catalogue'] is not None:
         recalculate_detrending_performance(
             lc_fnames,
-            fit_datasets=configuration['detrend_datasets'],
+            fit_datasets=configuration['fit_datasets'],
             catalogue_fname=configuration['detrending_catalogue'],
             magnitude_column=configuration['magnitude_column'],
             output_statistics_fname=output_statistics_fname,

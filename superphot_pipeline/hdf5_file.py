@@ -1035,7 +1035,7 @@ class HDF5File(ABC, h5py.File):
                     (data == b'NaN').all()
                 )
         ):
-            assert (data == b'NaN').all()
+            assert (data == b'NaN').all() or (data == b'None').all()
             return numpy.full(
                 fill_value=(replace_nonfinite or numpy.nan),
                 dtype=numpy.float64,

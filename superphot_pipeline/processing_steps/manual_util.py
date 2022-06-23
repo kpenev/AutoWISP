@@ -59,7 +59,8 @@ class ManualStepArgumentParser(ArgumentParser):
                  add_component_versions=(),
                  inputs_help_extra='',
                  allow_parallel_processing=False,
-                 convert_to_dict=True):
+                 convert_to_dict=True,
+                 add_lc_fname_arg=False):
         """
         Initialize the praser with options common to all manual steps.
 
@@ -149,6 +150,13 @@ class ManualStepArgumentParser(ArgumentParser):
             )
 
         self._add_version_args(add_component_versions)
+        if add_lc_fname_arg:
+            self.add_argument(
+                '--lc-fname',
+                default='LC/{0!d}-{1:03d}-{2:07d}.h5',
+                help='The light curve dumping filename pattern to use.'
+            )
+
         self.add_argument(
             '--verbose',
             default='info',
@@ -162,8 +170,10 @@ class ManualStepArgumentParser(ArgumentParser):
         """Set-up logging and return cleaned up dict instead of namespace."""
 
         result = super().parse_args(*args, **kwargs)
+        print('result: ' + repr(result))
         if self._convert_to_dict:
             result = vars(result)
+            print('As dict: ' + repr(result))
             del result['config_file']
             del result['extra_config_file']
             logging.basicConfig(

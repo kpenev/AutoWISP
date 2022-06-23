@@ -29,6 +29,7 @@ def parse_command_line():
                                 'srcextract',
                                 'skytoframe',
                                 'catalogue'),
+        add_lc_fname_arg=True,
         allow_parallel_processing=True
     )
     parser.add_argument(
@@ -70,11 +71,6 @@ def parse_command_line():
         default='Mb',
         help='The block size to use for memblocksize to use. Options are '
         '``Mb`` or ``Gb``.'
-    )
-    parser.add_argument(
-        '--lc-fname',
-        default='LC/{0!d}-{1:03d}-{2:07d}.h5',
-        help='The light curve dumping filename pattern to use.'
     )
     parser.add_argument(
         '--sort-frame-by',
