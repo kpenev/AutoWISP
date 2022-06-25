@@ -24,7 +24,13 @@ def parse_command_line():
                                 'magfit'),
         allow_parallel_processing=True
     )
-
+    parser.add_argument(
+        '--magfit-only-if',
+        default='True',
+        help='Expression involving the header of the input images that '
+        'evaluates to True/False if a particular image from the specified '
+        'image collection should/should not be processed.'
+    )
     parser.add_argument(
         '--single-photref-dr-fname',
         default='single_photref.hdf5.0',
@@ -202,5 +208,8 @@ if __name__ == '__main__':
             +
             ')'
         )
-    magnitude_fit(find_dr_fnames(cmdline_config.pop('dr_files')),
-                  cmdline_config)
+    magnitude_fit(
+        find_dr_fnames(cmdline_config.pop('dr_files'),
+                       cmdline_config.pop('magfit_only_if')),
+        cmdline_config
+    )

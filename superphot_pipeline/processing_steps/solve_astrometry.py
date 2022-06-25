@@ -28,6 +28,13 @@ def parse_command_line():
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
+        '--astrometry-only-if',
+        default='True',
+        help='Expression involving the header of the input images that '
+        'evaluates to True/False if a particular image from the specified '
+        'image collection should/should not be processed.'
+    )
+    parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
         default='astrometry_catalogue.ucac4',
         help='A file containing (approximately) the same stars as those that '
@@ -396,5 +403,6 @@ if __name__ == '__main__':
         sky_preprojection='tan',
         weights_expression='1.0'
     )
-    solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files')),
+    solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
+                                    cmdline_config.pop('astrometry_only_if')),
                      cmdline_config)
