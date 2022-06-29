@@ -137,6 +137,13 @@ def parse_command_line():
         help='An expression involving catalogue informatio to use as the x-axis'
         ' of the plot.'
     )
+    parser.add_argument(
+        '--highlight',
+        default=None,
+        type=lambda x: x.encode('ascii'),
+        help='Specify the ID of a star to highlight in the plot with a '
+        'different marker.'
+    )
 
     add_scatter_arguments(parser)
     add_plot_config_arguments(parser)
@@ -170,16 +177,24 @@ def get_minimum_scatter(lc_fname,
                         detrending_mode,
                         magfit_iteration,
                         min_lc_length,
+                        stat_only=False,
                         **scatter_config):
     """
     Find the photometry with the smallest scatter and return that scatter.
 
     Args:
-        lightcurve(LightCurveFile):    The lightcurve to find the smallest
+        lc_fname(str):    The filename of the lightcurve to find the smallest
             scatter for.
 
         detrending_mode(str):    Which version of detrending to extract the
             scatter for. Should be one of `'magfit'`, `'epd'`, or `'tfa'`.
+
+        min_lc_length(int):    Only allow photometries which contain at least
+            this many non-rejected points.
+
+        stat_only(bool):    If true, returns only the scatter and number of
+            non-rejected points. Otherwise also returns the magnritudes and BJD
+            of the best photometry (no rejections applied).
 
         scatter_config:    Arguments to pass to get_scatter() configuring
             how the scatter is to be calculated.
@@ -222,6 +237,8 @@ def get_minimum_scatter(lc_fname,
         except OSError:
             lightcurve.close()
 
+    if stat_only:
+        return min_scatter, selected_lc_length
     return min_scatter, selected_lc_length, bjd, best_mags
 
 def lcfname_to_hatid(lcfname):
@@ -255,6 +272,23 @@ def get_plot_x(catalogue_data, x_expression):
         x_evaluator.symtable[varname] = catalogue_data[varname]
     return x_evaluator(x_expression)
 
+
+def get_highlight_index(lc_fnames, highlight_id):
+    """Return the index within the given lightcurve names to highlight."""
+
+    if highlight_id is None:
+        return None
+    for index, fname in enumerate(lc_fnames):
+        with LightCurveFile(fname, 'r') as lightcurve:
+            if (lightcurve['Identifiers'][:, 1] == highlight_id).any():
+                return index
+    raise RuntimeError('None of the lightcurves matches the highlight ID '
+                       +
+                       repr(highlight_id.decode()))
+
+
+#TODO: consider simplifying
+#pylint: disable=too-many-locals
 def main(cmdline_args):
     """Avoid polluting global namespace."""
 
@@ -269,6 +303,8 @@ def main(cmdline_args):
 
     lc_fnames = list(find_lc_fnames(cmdline_args.lightcurves))
 
+    highlight_index = get_highlight_index(lc_fnames, cmdline_args.highlight)
+
     catalogue_data = get_catalogue_data(cmdline_args.catalogue_fname,
                                         lc_fnames)
     plot_x = get_plot_x(catalogue_data, cmdline_args.x_expression)
@@ -280,6 +316,7 @@ def main(cmdline_args):
         scatter_data = numpy.vectorize(
             partial(
                 get_minimum_scatter,
+                stat_only=True,
                 **get_scatter_config(detrending_mode, cmdline_args)
             )
         )(
@@ -298,12 +335,30 @@ def main(cmdline_args):
             if to_plot.any():
                 plot_color = color_scheme[color_index % len(color_scheme)]
                 color_index += 1
+
+                plot_config = dict(
+                    markeredgecolor=plot_color,
+                    markerfacecolor=plot_color,
+                    linestyle='none'
+                )
+
+                if highlight_index is not None and to_plot[highlight_index]:
+                    to_plot[highlight_index] = False
+                    unplotted_sources[highlight_index] = False
+
+                    pyplot.semilogy(
+                        plot_x[highlight_index],
+                        scatter_data[highlight_index],
+                        marker='*',
+                        markersize=(3 * cmdline_args.plot_marker_size),
+                        label=cmdline_args.highlight.decode(),
+                        **plot_config
+                    )
+
                 pyplot.semilogy(
                     plot_x[to_plot],
                     scatter_data[to_plot],
-                    '.',
-                    markeredgecolor=plot_color,
-                    markerfacecolor=plot_color,
+                    marker='.',
                     markersize=cmdline_args.plot_marker_size,
                     label=(
                         r'%s $%s<\sqrt{\xi^2+\eta^2}<%s$'
@@ -313,7 +368,8 @@ def main(cmdline_args):
                             min_distance,
                             max_distance
                         )
-                    )
+                    ),
+                    **plot_config
                 )
                 #False positive
                 #pylint: disable=assignment-from-no-return
@@ -332,6 +388,8 @@ def main(cmdline_args):
         pyplot.show()
     else:
         pyplot.savefig(cmdline_args.plot_fname)
+#pylint: enable=too-many-locals
+
 
 if __name__ == '__main__':
     main(parse_command_line())
