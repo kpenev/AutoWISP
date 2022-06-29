@@ -64,7 +64,7 @@ def parse_command_line():
         'median, divided by sqrt(N-1).'
     )
     parser.add_argument(
-        '--add-box-transit',
+        '--add-transit',
         type=float,
         nargs=4,
         action='append',
@@ -156,7 +156,7 @@ def plot_transit_model(transit_param,
     """
 
     in_transit = (
-        (eval_bjd - transit_param[0] - transit_param[2]/2.0) % transit_param[1]
+        (eval_bjd - transit_param[0] + transit_param[2]/2.0) % transit_param[1]
         <
         transit_param[2]
     )
@@ -169,6 +169,54 @@ def plot_transit_model(transit_param,
     )
 
 
+def mark_transit(transit_param, oot_mag=0.0, *, label='', **plot_config):
+    """Mark in and out of transit mags + start and for non-folded LCs only."""
+
+    color = pyplot.axhline(y=oot_mag).get_color()
+    pyplot.axhline(y=oot_mag-transit_param[3], color=color)
+
+    bjd_range = numpy.array(pyplot.xlim())
+    start_nperiod_range = numpy.ceil(
+        (bjd_range - transit_param[0] + transit_param[2] / 2.0)
+        /
+        transit_param[1]
+    ).astype(int)
+    end_nperiod_range = numpy.ceil(
+        (bjd_range - transit_param[0] - transit_param[2] / 2.0)
+        /
+        transit_param[1]
+    ).astype(int)
+
+    if label.strip():
+        label = label.strip() + ' '
+    else:
+        label = label.strip()
+
+    for nperiod in range(*start_nperiod_range):
+        pyplot.axvline(
+            x=(transit_param[0] - transit_param[2] / 2.0
+               +
+               nperiod * transit_param[1]),
+            color=color,
+            linestyle='--',
+            label=(label + 'start' if nperiod == start_nperiod_range[0]
+                   else None),
+            **plot_config
+        )
+
+    for nperiod in range(*end_nperiod_range):
+        pyplot.axvline(
+            x=(transit_param[0] + transit_param[2] / 2.0
+               +
+               nperiod * transit_param[1]),
+            color=color,
+            linestyle=':',
+            label=(label + 'end' if nperiod == end_nperiod_range[0]
+                   else None),
+            **plot_config
+        )
+
+
 def main(configuration):
     """Avoid polluting global namespace."""
 
@@ -177,10 +225,13 @@ def main(configuration):
     for zorder, detrending_mode in enumerate(
             reversed(configuration.detrending_mode)
     ):
+        #False positive
+        #pylint: disable=unbalanced-tuple-unpacking
         scatter, _, bjd, magnitudes = get_minimum_scatter(
             configuration.lightcurve,
             **get_scatter_config(detrending_mode, configuration)
         )
+        #pylint: enable=unbalanced-tuple-unpacking
         bjd_offset = int(bjd.min())
 
         plot_x = bjd - bjd_offset
@@ -214,17 +265,28 @@ def main(configuration):
     eval_transit_bjd = numpy.linspace(bjd.min() - bjd_offset,
                                       bjd.max() - bjd_offset,
                                       1000)
-    for transit_ind, transit_param in enumerate(configuration.add_box_transit):
+    for transit_ind, transit_param in enumerate(configuration.add_transit):
         transit_param[0] -= bjd_offset
-        plot_transit_model(
-            transit_param,
-            eval_transit_bjd,
-            numpy.median(magnitudes),
-            configuration.fold_period,
-            linestyle='-',
-            zorder=(2 * len(configuration.detrending_mode) + 1 + transit_ind),
+        plot_config = dict(
+            zorder = (2 * len(configuration.detrending_mode) + 1 + transit_ind),
             label='T{:d}'.format(transit_ind)
         )
+
+        if configuration.fold_period:
+            plot_transit_model(
+                transit_param,
+                eval_transit_bjd,
+                numpy.median(magnitudes),
+                configuration.fold_period,
+                linestyle='-',
+                **plot_config
+            )
+        else:
+            mark_transit(
+                transit_param,
+                numpy.median(magnitudes),
+                **plot_config
+            )
 
     if configuration.fold_period:
         pyplot.xlabel(
