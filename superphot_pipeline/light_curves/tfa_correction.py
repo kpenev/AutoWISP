@@ -579,25 +579,25 @@ class TFACorrection(Correction):
                 observations_to_append
             )
 
-            if template_observation_ids.size < combined_observation_ids.size:
-                print('Resizing template data from shape %s to shape %s'
-                      %
+            assert template_observation_ids.size < combined_observation_ids.size
+            print('Resizing template data from shape %s to shape %s'
+                  %
+                  (
+                      template_measurements.shape,
                       (
-                          template_measurements.shape,
-                          (
-                              (combined_observation_ids.size,)
-                              +
-                              template_measurements.shape[1:]
-                          )
-                      ))
-                template_measurements = numpy.resize(
-                    template_measurements,
-                    (
-                        (combined_observation_ids.size,)
-                        +
-                        template_measurements.shape[1:]
-                    )
-                )
+                          (combined_observation_ids.size,)
+                          +
+                          template_measurements.shape[1:]
+                      )
+                  ))
+            new_template_measurements = numpy.zeros(
+                shape=(
+                    (combined_observation_ids.size,)
+                    +
+                    template_measurements.shape[1:]
+                ),
+                dtype=template_measurements.dtype
+            )
 
             print('Template observation IDs size: '
                   +
@@ -622,31 +622,22 @@ class TFACorrection(Correction):
                                        template_observation_ids)
                 )
             )
-            print('Values at destination: '
-                  +
-                  repr(
-                      template_measurements[
-                          numpy.searchsorted(combined_observation_ids,
-                                             template_observation_ids),
-                          :
-                      ]
-                  ))
             print(
                 'Values to set: '
                 +
                 repr(template_measurements[:template_observation_ids.size, :])
             )
-            template_measurements[
+            new_template_measurements[
                 numpy.searchsorted(combined_observation_ids,
                                    template_observation_ids),
                 :
             ] = template_measurements[:template_observation_ids.size, :]
             new_indices = numpy.searchsorted(combined_observation_ids,
                                              observations_to_append)
-            template_measurements[new_indices, :] = 0.0
-            template_measurements[new_indices, source_index] = phot_to_append
+            new_template_measurements[new_indices,
+                                      source_index] = phot_to_append
 
-            return template_measurements, combined_observation_ids
+            return new_template_measurements, combined_observation_ids
 
         template_stars = [
             epd_statistics['ID'][phot_source_indices]
@@ -739,22 +730,34 @@ class TFACorrection(Correction):
                         *fit_dataset[:2]
                     )
                     print('Observation IDs: ' + repr(lc_observation_ids))
-                    #lc_data = lc_data[numpy.argsort(lc_observation_ids)]
-                    print('Sorted LC data: ' + repr(lc_data))
                     lc_selection = (lc_data != 0.0)
-                    max_length = max(len(template_data[template_selection]),
-                                     len(lc_data[lc_selection]))
-                    print('{:5s}: {:32s} {:32s}'.format('Index',
-                                                        'Template',
-                                                        'LC'))
-                    for i in range(max_length):
-                        print('{:5d}: ({:5d}){:25.16e} ({:5d}{:25.16e}'.format(
-                            i,
-                            numpy.arange(len(template_selection))[template_selection][i],
-                            template_data[template_selection][i],
-                            numpy.arange(len(lc_selection))[lc_selection][i],
-                            lc_data[lc_selection][i]
-                        ))
+#                    max_length = max(len(template_data[template_selection]),
+#                                     len(lc_data[lc_selection]))
+#                    print('{:5s}: {:32s} {:32s}'.format('Index',
+#                                                        'Template',
+#                                                        'LC'))
+#                    for i in range(max_length):
+#                        print(
+#                            (
+#                                '{:1.1s} {:5d}: ({:5d}){:25.16e} '
+#                                '({:5d}){:25.16e}'
+#                            ).format(
+#                                ' ' if (
+#                                    template_data[template_selection][i]
+#                                    ==
+#                                    lc_data[lc_selection][i]
+#                                ) else '*',
+#                                i,
+#                                numpy.arange(
+#                                    len(template_selection)
+#                                )[template_selection][i],
+#                                template_data[template_selection][i],
+#                                numpy.arange(
+#                                    len(lc_selection)
+#                                )[lc_selection][i],
+#                                lc_data[lc_selection][i]
+#                            )
+#                        )
                     print('Template data: '
                           +
                           repr(template_data[template_selection]))
