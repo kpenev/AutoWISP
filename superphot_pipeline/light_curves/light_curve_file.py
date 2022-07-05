@@ -295,11 +295,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             resolve_size(str):    How to deal with confirm LC length differing
                 from actual? See extend_dataset() for details.
 
-            config_index_selection:    Either None, or a slice for the
-                configuration index dataset to set the new indices. If None, the
-                new indices are appended at the end of the configuration index
-                dataset, otherwise, it must selected exactly the same number of
-                elements as are found in config_indices.
+            config_index_selection:    Either None, slice or boolean array for
+                the configuration index dataset to set the new indices. If None,
+                the new indices are appended at the end of the configuration
+                index dataset, otherwise, it must selected exactly the same
+                number of elements as are found in config_indices.
 
             substitutions:    Any substitutions required to fully resolve the
                 paths to the configuration and configuration index datasets.
@@ -363,6 +363,20 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             config_data_to_add[component + '.cfg_index'] = index_dset
             return config_data_to_add
 
+        if config_index_selection is not None:
+            print(
+                (
+                    'Adding configurations for {0!r} in {1!r} for indices '
+                    '(shape={2.shape!r}): {2!r}, index selection '
+                    '(shape={3.shape!r}): {3!r}'
+                ).format(
+                    component,
+                    self.filename,
+                    config_indices,
+                    config_index_selection
+                )
+            )
+
         for pipeline_key, new_data in get_new_data().items():
             if (
                     config_index_selection is not None
@@ -376,6 +390,38 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                                  shape=new_data.shape,
                                  dtype=new_data.dtype,
                                  **substitutions)
+                print(
+                    (
+                        'Adding entries to {!s} in {!r}: dset shape {!r}, '
+                        'index shape {!r}.'
+                    ).format(
+                        self._file_structure[pipeline_key].abspath
+                        %
+                        substitutions,
+                        self.filename,
+                        self[
+                            self._file_structure[pipeline_key].abspath
+                            %
+                            substitutions
+                        ].shape,
+                        config_index_selection.shape
+                    )
+                )
+                print(
+                    (
+                        '{!s} in {!r}: selected_shape {!r}, new_data shape {!r}'
+                    ).format(
+                        self._file_structure[pipeline_key].abspath
+                        %
+                        substitutions,
+                        self.filename,
+                        self[self._file_structure[pipeline_key].abspath
+                             %
+                             substitutions][config_index_selection].shape,
+                        new_data.shape
+                    )
+                )
+
                 self[self._file_structure[pipeline_key].abspath
                      %
                      substitutions][config_index_selection] = new_data

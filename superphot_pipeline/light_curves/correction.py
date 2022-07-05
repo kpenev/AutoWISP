@@ -120,9 +120,8 @@ class Correction:
         light_curve.add_configurations(
             component=config_key_prefix,
             configurations=(configuration,),
-            config_indices=scipy.zeros(shape=(corrected_values.size,),
+            config_indices=scipy.zeros(shape=(fit_points.size,),
                                        dtype=scipy.uint),
-            config_index_selection=fit_points,
             **substitutions
         )
 
