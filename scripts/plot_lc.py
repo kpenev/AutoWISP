@@ -24,8 +24,13 @@ def parse_command_line():
     )
 
     parser.add_argument(
-        'lightcurve',
-        help='The filenames of the lightcurve to plot.'
+        'lightcurves',
+        nargs='+',
+        help='The filenames of the lightcurves to plot. If exactly 4 LCs are '
+        'specified and only one binning mode, the assumption is that they are '
+        'red, green, green, and blue LC of the same source, and hence plotted '
+        'with corresponding colors (light and dark greed for the two green '
+        'chanels).'
     )
 
     parser.add_argument(
@@ -72,6 +77,20 @@ def parse_command_line():
         default=[],
         help='Add a curve showing a box transit. Time units are BJD. Can be '
         'specified multilpe times to plot multiple curves.'
+    )
+    parser.add_argument(
+        '--zero-stat',
+        default=None,
+        choices=('mean', 'median'),
+        help='If specified, the plotted LCs are shufted by the negative of the '
+        'given statistic in order to center the flux around zero.'
+    )
+    parser.add_argument(
+        '--combined-binned-lc',
+        action='store_true',
+        help='If passed, instead of plotting all input LCs separately, they '
+        'are assumed bo te be of the same object and binned together per '
+        '`--binning`.'
     )
 
     return parser.parse_args()
@@ -217,54 +236,52 @@ def mark_transit(transit_param, oot_mag=0.0, *, label='', **plot_config):
         )
 
 
-def main(configuration):
-    """Avoid polluting global namespace."""
+def plot_lc(plot_x,
+            magnitudes,
+            *,
+            detrending_mode,
+            lc_color,
+            zorder,
+            configuration):
+    """Plot a single LC with the given color and configuration."""
 
-    if configuration.fold_period and configuration.binning:
-        configuration.binnning /= configuration.fold_period
-    for zorder, detrending_mode in enumerate(
-            reversed(configuration.detrending_mode)
-    ):
-        #False positive
-        #pylint: disable=unbalanced-tuple-unpacking
-        scatter, _, bjd, magnitudes = get_minimum_scatter(
-            configuration.lightcurve,
-            **get_scatter_config(detrending_mode, configuration)
-        )
-        #pylint: enable=unbalanced-tuple-unpacking
-        bjd_offset = int(bjd.min())
+    if configuration.fold_period:
+        plot_x %= configuration.fold_period
 
-        plot_x = bjd - bjd_offset
-        if configuration.fold_period:
-            plot_x %= configuration.fold_period
+    pyplot.plot(
+        plot_x,
+        magnitudes,
+        '.',
+        markersize=(
+            configuration.plot_marker_size
+            /
+            (5 if configuration.binning else 1)
+        ),
+        zorder=(zorder + 1),
+        label=detrending_mode,
+        markeredgecolor=lc_color if lc_color != 'black' else 'grey',
+        markerfacecolor=lc_color if lc_color != 'black' else 'grey'
+    )
 
-        pyplot.plot(
+    if configuration.binning:
+        plot_binned(
             plot_x,
             magnitudes,
-            '.',
-            markersize=(
-                configuration.plot_marker_size
-                /
-                (3 if configuration.binning else 1)
-            ),
-            zorder=(zorder + 1),
-            label=detrending_mode
+            configuration.binning,
+            configuration.binning_errorbars,
+            markersize=configuration.plot_marker_size,
+            label='binned ' + detrending_mode,
+            zorder=(zorder + 1 + len(configuration.detrending_mode)),
+            ecolor=lc_color,
+            markeredgecolor='black',
+            markerfacecolor=lc_color
         )
 
-        if configuration.binning:
-            plot_binned(
-                plot_x,
-                magnitudes,
-                configuration.binning,
-                configuration.binning_errorbars,
-                markersize=configuration.plot_marker_size,
-                label='binned ' + detrending_mode,
-                zorder=(zorder + 1 + len(configuration.detrending_mode))
-            )
 
-    eval_transit_bjd = numpy.linspace(bjd.min() - bjd_offset,
-                                      bjd.max() - bjd_offset,
-                                      1000)
+def add_transit_to_plot(bjd, bjd_offset, oot_mag, configuration):
+    """Plot the box transit of transit marks per configuration."""
+
+    eval_transit_bjd = numpy.linspace(bjd.min(), bjd.max(), 1000)
     for transit_ind, transit_param in enumerate(configuration.add_transit):
         transit_param[0] -= bjd_offset
         plot_config = dict(
@@ -276,7 +293,7 @@ def main(configuration):
             plot_transit_model(
                 transit_param,
                 eval_transit_bjd,
-                numpy.median(magnitudes),
+                oot_mag,
                 configuration.fold_period,
                 linestyle='-',
                 **plot_config
@@ -284,10 +301,99 @@ def main(configuration):
         else:
             mark_transit(
                 transit_param,
-                numpy.median(magnitudes),
+                oot_mag,
                 **plot_config
             )
 
+
+def main(configuration):
+    """Avoid polluting global namespace."""
+
+    if configuration.fold_period and configuration.binning:
+        configuration.binnning /= configuration.fold_period
+    if (
+            len(configuration.lightcurves) == 4
+            and
+            len(configuration.detrending_mode) == 1
+    ):
+        colors = ['red', 'green', 'lime', 'blue']
+    else:
+        colors = pyplot.rcParams['axes.prop_cycle'].by_key()['color']
+
+    if configuration.combined_binned_lc:
+        combined_magnitudes = numpy.array([], dtype=float)
+        combined_bjd = numpy.array([], dtype=float)
+        if len(configuration.detrending_mode) == 1:
+            colors = ['black']
+
+        assert (
+            len(colors)
+            >=
+            len(configuration.detrending_mode)
+        )
+
+    else:
+        assert (
+            len(colors)
+            >=
+            len(configuration.lightcurves) * len(configuration.detrending_mode)
+        )
+    colors = iter(colors)
+
+
+    for zorder, detrending_mode in enumerate(
+            reversed(configuration.detrending_mode)
+    ):
+        for lc_fname in configuration.lightcurves:
+            #False positive
+            #pylint: disable=unbalanced-tuple-unpacking
+            scatter, _, bjd, magnitudes = get_minimum_scatter(
+                lc_fname,
+                **get_scatter_config(detrending_mode, configuration)
+            )
+            #pylint: enable=unbalanced-tuple-unpacking
+
+            if configuration.zero_stat is not None:
+                magnitudes -= getattr(numpy, 'nan' + configuration.zero_stat)(
+                    magnitudes
+                )
+
+            if configuration.combined_binned_lc:
+                combined_magnitudes = numpy.concatenate((
+                    combined_magnitudes,
+                    magnitudes
+                ))
+                combined_bjd = numpy.concatenate((
+                    combined_bjd,
+                    bjd
+                ))
+            bjd_offset = int(bjd.min())
+            bjd -= bjd_offset
+
+            if not configuration.combined_binned_lc:
+                plot_lc(bjd,
+                        magnitudes,
+                        detrending_mode=detrending_mode,
+                        lc_color=next(colors),
+                        zorder=zorder,
+                        configuration=configuration)
+
+        if configuration.combined_binned_lc:
+            bjd_offset = int(combined_bjd.min())
+            bjd = combined_bjd - bjd_offset
+            magnitudes = combined_magnitudes
+
+            plot_lc(bjd,
+                    magnitudes,
+                    detrending_mode=detrending_mode,
+                    lc_color=next(colors),
+                    zorder=zorder,
+                    configuration=configuration)
+
+    add_transit_to_plot(bjd,
+                        bjd_offset,
+                        numpy.median(magnitudes),
+                        configuration)
     if configuration.fold_period:
         pyplot.xlabel(
             'Phase (P={:.6f} d)'.format(configuration.fold_period)
