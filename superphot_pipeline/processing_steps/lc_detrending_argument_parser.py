@@ -376,7 +376,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         parser.add_argument(
             '--tfa-sqrt-num-templates',
-            type=float,
+            type=int,
             default=8,
             help='The number of template stars is the square of this number. '
             'Default: %(default)s.'

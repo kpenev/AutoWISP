@@ -11,6 +11,7 @@ from scipy.spatial import cKDTree
 #pylint: enable=no-name-in-module
 
 from superphot_pipeline.evaluator import Evaluator
+from superphot_pipeline.data_reduction import DataReductionFile
 from superphot_pipeline.fit_expression import iterative_fit, iterative_fit_qr
 from .light_curve_file import LightCurveFile
 from .correction import Correction
@@ -475,6 +476,7 @@ class TFACorrection(Correction):
 
         assert selected_points.shape == phot_data.shape
         phot_data = phot_data[selected_points]
+        phot_data -= numpy.nanmedian(phot_data)
         phot_observation_ids = phot_observation_ids[selected_points]
 
         return phot_data, phot_observation_ids
@@ -937,6 +939,8 @@ class TFACorrection(Correction):
         Apply TFA to the given LC, optionally protecting an expected signal.
         """
 
+        parse_hat_id = DataReductionFile().parse_hat_source_id
+
         def correct_one_dataset(light_curve,
                                 fit_target,
                                 fit_index,
@@ -994,11 +998,54 @@ class TFACorrection(Correction):
             matched_fit_data[matched_indices] = fit_data[fit_points]
             matched_fit_data -= numpy.nanmedian(matched_fit_data)
 
+            print(
+                'Searching for source id: '
+                +
+                repr(parse_hat_id(dict(light_curve['Identifiers'])[b'HAT']))
+                +
+                ' within\n'
+                +
+                repr(self._template_source_ids[fit_index])
+            )
+            exclude_template = numpy.nonzero(
+                (
+                    self._template_source_ids[fit_index]
+                    ==
+                    parse_hat_id(dict(light_curve['Identifiers'])[b'HAT'])
+                ).all(1)
+            )[0]
+            print('Exclude template: ' + repr(exclude_template))
+            if exclude_template.size:
+                exclude_template_index = int(
+                    numpy.nonzero(
+                        self._template_qrp[fit_index][2]
+                        ==
+                        int(exclude_template)
+                    )[0]
+                )
+                apply_qrp = (
+                    *scipy.linalg.qr_delete(
+                        *self._template_qrp[fit_index][:2],
+                        exclude_template_index,
+                        which='col'
+                    ),
+                    numpy.delete(self._template_qrp[fit_index][2],
+                                 exclude_template_index)
+                )
+                fit_templates = numpy.delete(
+                    self.template_measurements[fit_index],
+                    exclude_template_index,
+                    axis=1
+                )
+            else:
+                apply_qrp = self._template_qrp[fit_index]
+                fit_templates = self.template_measurements[fit_index]
+
             #Error average specified through iterative_fit_config
             #pylint: disable=missing-kwoa
             fit_results = iterative_fit_qr(
-                self.template_measurements[fit_index].T,
-                self._template_qrp[fit_index],
+                fit_templates.T,
+                apply_qrp,
                 matched_fit_data,
                 **self.iterative_fit_config
             )
@@ -1006,9 +1053,7 @@ class TFACorrection(Correction):
             fit_results = self._process_fit(
                 fit_results=fit_results,
                 raw_values=raw_values[fit_points],
-                predictors=self.template_measurements[
-                    fit_index
-                ][
+                predictors=fit_templates[
                     matched_indices,
                     :
                 ].T,
