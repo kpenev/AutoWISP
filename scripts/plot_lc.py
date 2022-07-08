@@ -69,6 +69,12 @@ def parse_command_line():
         'median, divided by sqrt(N-1).'
     )
     parser.add_argument(
+        '--binned-continuous',
+        action='store_true',
+        help='If specified, instead of the binned LC showing independent '
+        'binned points with error bars, it is used to smooth the LC.'
+    )
+    parser.add_argument(
         '--add-transit',
         type=float,
         nargs=4,
@@ -96,12 +102,23 @@ def parse_command_line():
     return parser.parse_args()
 
 
-def plot_binned(plot_x, magnitudes, bin_size, errorbar_mode, **plot_config):
+def plot_binned(plot_x,
+                magnitudes,
+                bin_size,
+                errorbar_mode,
+                *,
+                lc_color,
+                continuous=False,
+                **plot_config):
     """Plot binned light curve."""
 
-    bin_boundaries = numpy.arange(plot_x.min(), plot_x.max(), bin_size)
-    bin_destinations = numpy.searchsorted(bin_boundaries, plot_x) - 1
-    num_bins = bin_destinations.max() + 1
+    if continuous:
+        num_bins=continuous
+        bin_step = (plot_x.max() - plot_x.min()) / num_bins
+    else:
+        bin_boundaries = numpy.arange(plot_x.min(), plot_x.max(), bin_size)
+        bin_destinations = numpy.searchsorted(bin_boundaries, plot_x) - 1
+        num_bins = bin_destinations.max() + 1
     binned_x = numpy.empty(num_bins, dtype=float)
     binned_magnitudes = numpy.empty(num_bins, dtype=float)
     binned_errorbars = numpy.empty(
@@ -109,7 +126,18 @@ def plot_binned(plot_x, magnitudes, bin_size, errorbar_mode, **plot_config):
         dtype=float
     )
     for bin_number in range(0, num_bins):
-        in_bin = bin_destinations == bin_number
+        if continuous:
+            in_bin = numpy.abs(
+                plot_x
+                -
+                plot_x.min()
+                -
+                bin_size/2
+                -
+                bin_number * bin_step
+            ) < bin_size / 2
+        else:
+            in_bin = bin_destinations == bin_number
         binned_x[bin_number] = numpy.median(plot_x[in_bin])
         if errorbar_mode == 'quantiles':
             (
@@ -133,18 +161,45 @@ def plot_binned(plot_x, magnitudes, bin_size, errorbar_mode, **plot_config):
                     (in_bin.sum() - 1)
                 )
             )
-    if errorbar_mode == 'quantiles':
-        binned_errorbars[0] = binned_magnitudes - binned_errorbars[0]
-        binned_errorbars[1] -= binned_magnitudes
 
+    if continuous:
+        if errorbar_mode == 'stddev':
+            binned_errorbars = [
+                binned_magnitudes - binned_errorbars,
+                binned_magnitudes + binned_errorbars
+            ]
+        plot_config['markersize'] = 0
+        pyplot.plot(
+            binned_x,
+            binned_magnitudes,
+            '-',
+            color=lc_color,
+            **plot_config
+        )
+        plot_config['label'] = None
+        for i in range(2):
+            pyplot.plot(
+                binned_x,
+                binned_errorbars[i],
+                '--',
+                color=lc_color,
+                **plot_config
+            )
+    else:
+        if errorbar_mode == 'quantiles':
+            binned_errorbars[0] = binned_magnitudes - binned_errorbars[0]
+            binned_errorbars[1] -= binned_magnitudes
 
-    pyplot.errorbar(
-        binned_x,
-        binned_magnitudes,
-        binned_errorbars,
-        fmt='.',
-        **plot_config
-    )
+        pyplot.errorbar(
+            binned_x,
+            binned_magnitudes,
+            binned_errorbars,
+            fmt='.',
+            ecolor=lc_color,
+            markeredgecolor='black',
+            markerfacecolor=lc_color
+            **plot_config
+        )
 
 
 def plot_transit_model(transit_param,
@@ -269,12 +324,11 @@ def plot_lc(plot_x,
             magnitudes,
             configuration.binning,
             configuration.binning_errorbars,
+            continuous=(100 if configuration.binned_continuous else 1000),
             markersize=configuration.plot_marker_size,
             label='binned ' + detrending_mode,
             zorder=(zorder + 1 + len(configuration.detrending_mode)),
-            ecolor=lc_color,
-            markeredgecolor='black',
-            markerfacecolor=lc_color
+            lc_color=lc_color
         )
 
 
