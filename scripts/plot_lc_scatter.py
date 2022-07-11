@@ -4,6 +4,7 @@
 
 from functools import partial
 from itertools import count
+from os import path
 
 from matplotlib import pyplot
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -322,6 +323,14 @@ def main(cmdline_args):
         )(
             lc_fnames
         )[0]
+        print('{:25s} {:25s}'.format('Source', 'Scatter'))
+        for fname, scatter in zip(lc_fnames, scatter_data):
+            print(
+                '{:25s} {:25.16g}'.format(
+                    path.basename(fname),
+                    scatter
+                )
+            )
         unplotted_sources = numpy.ones(len(lc_fnames), dtype=bool)
         min_distance = 0
         for max_distance in sorted(distance_splits):

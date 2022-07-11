@@ -7,17 +7,20 @@ import numpy
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
-from superphot_pipeline.image_utilities import find_dr_fnames
-from superphot_pipeline.processing_steps.manual_util import get_cmdline_parser
+from superphot_pipeline.file_utilities import find_dr_fnames
+from superphot_pipeline.processing_steps.manual_util import \
+    ManualStepArgumentParser
 
 def parse_command_line():
     """Return the parsed command line arguments."""
 
-    parser = get_cmdline_parser(
-        __doc__,
-        'dr',
-        'The DR files must contain extracted sources and astrometry',
-        ('srcextract', 'catalogue', 'skytoframe')
+    parser = ManualStepArgumentParser(
+        description=__doc__,
+        input_type='dr',
+        inputs_help_extra=(
+            'The DR files must contain extracted sources and astrometry'
+        ),
+        add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
         '--catalogue-brightness-expression', '--mag',
@@ -31,6 +34,12 @@ def parse_command_line():
         help='If specified the plot is saved under the given filename. If not, '
         'it is just displayed, but not saved.'
     )
+    parser.add_argument(
+        '--markersize',
+        default=2.0,
+        help='The size of the markers to use in the plot.'
+    )
+
     return parser.parse_args()
 
 
@@ -46,7 +55,7 @@ def main(dr_collection, configuration):
     offsets = pandas.Series()
     for dr_fname in dr_collection:
         with DataReductionFile(dr_fname, 'r') as dr_file:
-            matched = dr_file.get_matched(**path_substitutions)
+            matched = dr_file.get_matched_sources(**path_substitutions)
         magnitude = Evaluator(
             matched
         )(
@@ -60,7 +69,8 @@ def main(dr_collection, configuration):
         )
         pyplot.semilogy(magnitude,
                         matched['flux'],
-                        'o')
+                        'o',
+                        markersize=configuration['markersize'])
     zero_point = numpy.median(offsets)
     print('Zero point: ' + repr(zero_point))
     line_mag = numpy.linspace(*pyplot.xlim(), 1000)
@@ -73,7 +83,6 @@ def main(dr_collection, configuration):
         pyplot.savefig(configuration['plot_fname'])
 
 if __name__ == '__main__':
-    cmdline_config = vars(parse_command_line())
-    del cmdline_config['config_file']
+    cmdline_config = parse_command_line()
     main(find_dr_fnames(cmdline_config.pop('dr_files')),
          cmdline_config)
