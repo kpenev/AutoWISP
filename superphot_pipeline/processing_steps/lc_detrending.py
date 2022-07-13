@@ -19,8 +19,9 @@ def extract_target_lc(lc_fnames, target_id):
     """Return target LC fname, & LC fname list with the target LC removed."""
 
     for index, fname in enumerate(lc_fnames):
-        if path.basename(fname).startswith(target_id):
-            return lc_fnames.pop(index), lc_fnames
+        with LightCurveFile(fname, 'r') as lightcurve:
+            if target_id.encode('ascii') in lightcurve['Identifiers'][:, 1]:
+                return lc_fnames.pop(index), lc_fnames
     raise ValueError('None of the lightcurves seems to be for the target.')
 
 
@@ -140,6 +141,7 @@ def detrend_light_curves(lc_collection,
     """Detrend all lightcurves and create statistics file."""
 
     lc_collection = list(lc_collection)
+    print('Detrending %d light_curves' % len(lc_collection))
     if not configuration['recalc_performance']:
         if configuration['target_id'] is not None:
             target_lc_fname, lc_fnames = extract_target_lc(
