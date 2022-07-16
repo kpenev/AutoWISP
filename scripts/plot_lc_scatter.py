@@ -10,11 +10,18 @@ from matplotlib import pyplot
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 from asteval import Interpreter
+from pytransit import QuadraticModel
 
 from superphot_pipeline import LightCurveFile
 from superphot_pipeline.file_utilities import find_lc_fnames
 from superphot_pipeline.light_curves.apply_correction import\
     calculate_iterative_rejection_scatter
+from superphot_pipeline.light_curves.reconstructive_correction_transit import\
+    ReconstructiveCorrectionTransit
+from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
+    LCDetrendingArgumentParser
+from superphot_pipeline.processing_steps.lc_detrending import\
+    get_transit_parameters
 
 def add_scatter_arguments(parser, multi_mode=True):
     """Add arguments to cmdline parser determining how scatter is calculated."""
@@ -138,13 +145,6 @@ def parse_command_line():
         help='An expression involving catalogue informatio to use as the x-axis'
         ' of the plot.'
     )
-    parser.add_argument(
-        '--highlight',
-        default=None,
-        type=lambda x: x.encode('ascii'),
-        help='Specify the ID of a star to highlight in the plot with a '
-        'different marker.'
-    )
 
     add_scatter_arguments(parser)
     add_plot_config_arguments(parser)
@@ -159,13 +159,37 @@ def parse_command_line():
         'plotted before colors start to repeat.'
     )
 
+    target_args = parser.add_argument_group(
+        title='Followup Target',
+        description='Arguments specific to processing followup '
+        'observations where the target star is known to have a transit '
+        'that occupies a significant fraction of the total collection '
+        'of observations.'
+    )
+    target_args.add_argument(
+        '--target-id',
+        default=None,
+        help='The lightcurve of the given source (any one of the '
+        'catalogue identifiers stored in the LC file) will be fit using'
+        ' reconstructive detrending, starting the transit parameter fit'
+        ' with the values supplied, and fitting for the values allowed '
+        'to vary. If not specified all LCs are fit in '
+        'non-reconstructive way.'
+    )
+    LCDetrendingArgumentParser.add_transit_parameters(
+        parser,
+        timing=True,
+        geometry='circular',
+        limb_darkening=True,
+        fit_flags=False
+    )
+
     return parser.parse_args()
 
-def get_scatter_config(detrending_mode, cmdline_args):
+def get_scatter_config(cmdline_args):
     """Return the configuration to use for extracting scatter from LC."""
 
     return dict(
-        detrending_mode=detrending_mode,
         magfit_iteration=cmdline_args.magfit_iteration,
         min_lc_length=cmdline_args.min_lc_length,
         calculate_average=cmdline_args.average,
@@ -174,11 +198,22 @@ def get_scatter_config(detrending_mode, cmdline_args):
         max_outlier_rejections=cmdline_args.max_outlier_rejections
     )
 
+
+def default_get_magnitudes(lightcurve, dset_key, **substitutions):
+    """Return the given dataset as both entries of a 2-tuple."""
+
+    magnitudes = lightcurve.get_dataset(dset_key, **substitutions)
+    return magnitudes, magnitudes
+
+
+#pylint: disable=too-many-locals
 def get_minimum_scatter(lc_fname,
                         detrending_mode,
                         magfit_iteration,
                         min_lc_length,
+                        *,
                         stat_only=False,
+                        get_magnitudes=default_get_magnitudes,
                         **scatter_config):
     """
     Find the photometry with the smallest scatter and return that scatter.
@@ -197,6 +232,12 @@ def get_minimum_scatter(lc_fname,
             non-rejected points. Otherwise also returns the magnritudes and BJD
             of the best photometry (no rejections applied).
 
+        get_magnitudes:    Callable that returns the magnitudes from the LC
+            given LightCurveFile, dataset key, and substitutions. Should either
+            return a single 1-D array or two arrays, the second of which is used
+            to determine the scatter, but the first is returned as the selected
+            dataset. Allows using scatter around a variability model.
+
         scatter_config:    Arguments to pass to get_scatter() configuring
             how the scatter is to be calculated.
     """
@@ -204,13 +245,14 @@ def get_minimum_scatter(lc_fname,
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         bjd = lightcurve.get_dataset('skypos.BJD')
         try:
-            best_mags = lightcurve.get_dataset(
+            best_mags, scatter_mags = get_magnitudes(
+                lightcurve,
                 'shapefit.' + detrending_mode + '.magnitude',
                 magfit_iteration=magfit_iteration
             )
             min_scatter, selected_lc_length = (
                 calculate_iterative_rejection_scatter(
-                    best_mags,
+                    scatter_mags,
                     **scatter_config
                 )
             )
@@ -222,13 +264,15 @@ def get_minimum_scatter(lc_fname,
 
         try:
             for aperture_index in count():
-                magnitudes = lightcurve.get_dataset(
+                magnitudes, scatter_mags = get_magnitudes(
+                    lightcurve,
                     'apphot.' + detrending_mode + '.magnitude',
                     aperture_index=aperture_index,
                     magfit_iteration=magfit_iteration
                 )
+
                 scatter, lc_length = calculate_iterative_rejection_scatter(
-                    magnitudes,
+                    scatter_mags,
                     **scatter_config
                 )
                 if lc_length > min_lc_length and scatter < min_scatter:
@@ -241,6 +285,8 @@ def get_minimum_scatter(lc_fname,
     if stat_only:
         return min_scatter, selected_lc_length
     return min_scatter, selected_lc_length, bjd, best_mags
+#pylint: enable=too-many-locals
+
 
 def lcfname_to_hatid(lcfname):
     """Return the HAT ID corresponding to the given LC filename."""
@@ -274,18 +320,47 @@ def get_plot_x(catalogue_data, x_expression):
     return x_evaluator(x_expression)
 
 
-def get_highlight_index(lc_fnames, highlight_id):
-    """Return the index within the given lightcurve names to highlight."""
+def get_target_index(lc_fnames, target_id):
+    """Return the index within the given lightcurve names of the target."""
 
-    if highlight_id is None:
+    if target_id is None:
         return None
     for index, fname in enumerate(lc_fnames):
         with LightCurveFile(fname, 'r') as lightcurve:
-            if (lightcurve['Identifiers'][:, 1] == highlight_id).any():
+            if (
+                    target_id.encode('ascii')
+                    in
+                    lightcurve['Identifiers'][:, 1]
+            ):
                 return index
-    raise RuntimeError('None of the lightcurves matches the highlight ID '
+    raise RuntimeError('None of the lightcurves matches the target ID '
                        +
-                       repr(highlight_id.decode()))
+                       repr(target_id.decode()))
+
+
+def get_scatter_data(lc_fnames, detrending_mode, target_index, cmdline_args):
+    """Return the scatter of the given lightcurves, including the target."""
+
+    get_scatter = partial(
+        get_minimum_scatter,
+        stat_only=True,
+        detrending_mode=detrending_mode,
+        **get_scatter_config(cmdline_args)
+    )
+    result = numpy.vectorize(get_scatter)(lc_fnames)[0]
+    if target_index is not None:
+        transit_parameters = (get_transit_parameters(vars(cmdline_args), False),
+                              dict())
+        result[target_index] = get_scatter(
+            lc_fnames[target_index],
+            get_magnitudes=ReconstructiveCorrectionTransit(
+                transit_model=QuadraticModel(),
+                correction=None,
+                fit_amplitude=False,
+                transit_parameters=transit_parameters
+            ).get_fit_data
+        )[0]
+    return result
 
 
 #TODO: consider simplifying
@@ -304,7 +379,7 @@ def main(cmdline_args):
 
     lc_fnames = list(find_lc_fnames(cmdline_args.lightcurves))
 
-    highlight_index = get_highlight_index(lc_fnames, cmdline_args.highlight)
+    target_index = get_target_index(lc_fnames, cmdline_args.target_id)
 
     catalogue_data = get_catalogue_data(cmdline_args.catalogue_fname,
                                         lc_fnames)
@@ -314,15 +389,10 @@ def main(cmdline_args):
     color_index = 0
 
     for detrending_mode in cmdline_args.detrending_mode:
-        scatter_data = numpy.vectorize(
-            partial(
-                get_minimum_scatter,
-                stat_only=True,
-                **get_scatter_config(detrending_mode, cmdline_args)
-            )
-        )(
-            lc_fnames
-        )[0]
+        scatter_data = get_scatter_data(lc_fnames,
+                                        detrending_mode,
+                                        target_index,
+                                        cmdline_args)
         print('{:25s} {:25s}'.format('Source', 'Scatter'))
         for fname, scatter in zip(lc_fnames, scatter_data):
             print(
@@ -351,16 +421,16 @@ def main(cmdline_args):
                     linestyle='none'
                 )
 
-                if highlight_index is not None and to_plot[highlight_index]:
-                    to_plot[highlight_index] = False
-                    unplotted_sources[highlight_index] = False
+                if target_index is not None and to_plot[target_index]:
+                    to_plot[target_index] = False
+                    unplotted_sources[target_index] = False
 
                     pyplot.semilogy(
-                        plot_x[highlight_index],
-                        scatter_data[highlight_index],
+                        plot_x[target_index],
+                        scatter_data[target_index],
                         marker='*',
                         markersize=(3 * cmdline_args.plot_marker_size),
-                        label=cmdline_args.highlight.decode(),
+                        label=cmdline_args.target_id,
                         **plot_config
                     )
 

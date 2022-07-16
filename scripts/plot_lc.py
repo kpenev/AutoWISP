@@ -2,10 +2,20 @@
 
 """Plot brightness measurements vs time for a star."""
 
+from functools import partial
+
 from matplotlib import pyplot
 import numpy
 from scipy import stats
 from configargparse import ArgumentParser, DefaultsFormatter
+from pytransit import QuadraticModel
+
+from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
+    LCDetrendingArgumentParser
+from superphot_pipeline.light_curves.reconstructive_correction_transit import\
+    ReconstructiveCorrectionTransit
+from superphot_pipeline.processing_steps.lc_detrending import\
+    get_transit_parameters
 
 from plot_lc_scatter import\
     get_minimum_scatter,\
@@ -75,16 +85,6 @@ def parse_command_line():
         'binned points with error bars, it is used to smooth the LC.'
     )
     parser.add_argument(
-        '--add-transit',
-        type=float,
-        nargs=4,
-        action='append',
-        metavar=('EPOCH', 'PERIOD', 'DURATION', 'DEPTH'),
-        default=[],
-        help='Add a curve showing a box transit. Time units are BJD. Can be '
-        'specified multilpe times to plot multiple curves.'
-    )
-    parser.add_argument(
         '--zero-stat',
         default=None,
         choices=('mean', 'median'),
@@ -98,10 +98,26 @@ def parse_command_line():
         'are assumed bo te be of the same object and binned together per '
         '`--binning`.'
     )
+    parser.add_argument(
+        '--variability',
+        default=None,
+        choices=['transit'],
+        help='If specified, the star is assumed to have the given type of '
+        'variability (for now only transits are supported).'
+    )
+    LCDetrendingArgumentParser.add_transit_parameters(
+        parser,
+        timing=True,
+        geometry='circular',
+        limb_darkening=True,
+        fit_flags=False
+    )
 
     return parser.parse_args()
 
 
+#TODO: simplify
+#pylint: disable=too-many-locals
 def plot_binned(plot_x,
                 magnitudes,
                 bin_size,
@@ -197,12 +213,13 @@ def plot_binned(plot_x,
             fmt='.',
             ecolor=lc_color,
             markeredgecolor='black',
-            markerfacecolor=lc_color
+            markerfacecolor=lc_color,
             **plot_config
         )
+#pylint: enable=too-many-locals
 
 
-def plot_transit_model(transit_param,
+def plot_transit_model(transit_flux,
                        eval_bjd,
                        oot_mag=0.0,
                        folding=None,
@@ -211,8 +228,8 @@ def plot_transit_model(transit_param,
     Add a box transit to the plot.
 
     Args:
-        transit_param(4 floats):    The epoch (BJD), period (days), duration
-            (days), and depth (mag) of the transit.
+        transit_flux(array):    The flux of the transit model to plot normalized
+            to `1` out of transit.
 
         eval_bjd(array):    The BJD values at which to evaluate the transit.
             Typically something like
@@ -229,13 +246,8 @@ def plot_transit_model(transit_param,
         None
     """
 
-    in_transit = (
-        (eval_bjd - transit_param[0] + transit_param[2]/2.0) % transit_param[1]
-        <
-        transit_param[2]
-    )
-    model_mag = numpy.full(eval_bjd.shape, oot_mag)
-    model_mag[in_transit] -= transit_param[3]
+    assert transit_flux.shape == eval_bjd.shape
+    model_mag = oot_mag - 2.5 * numpy.log10(transit_flux)
     pyplot.plot(
         (eval_bjd % folding) if folding else eval_bjd,
         model_mag,
@@ -243,52 +255,52 @@ def plot_transit_model(transit_param,
     )
 
 
-def mark_transit(transit_param, oot_mag=0.0, *, label='', **plot_config):
+def mark_transit(transit_flux,
+                 eval_bjd,
+                 oot_mag=0.0,
+                 *,
+                 label='',
+                 **plot_config):
     """Mark in and out of transit mags + start and for non-folded LCs only."""
 
-    color = pyplot.axhline(y=oot_mag).get_color()
-    pyplot.axhline(y=oot_mag-transit_param[3], color=color)
+    def get_ages_to_mark():
+        """Return a list of the ages to mark in the plot."""
 
-    bjd_range = numpy.array(pyplot.xlim())
-    start_nperiod_range = numpy.ceil(
-        (bjd_range - transit_param[0] + transit_param[2] / 2.0)
-        /
-        transit_param[1]
-    ).astype(int)
-    end_nperiod_range = numpy.ceil(
-        (bjd_range - transit_param[0] - transit_param[2] / 2.0)
-        /
-        transit_param[1]
-    ).astype(int)
+        oot_flag = (transit_flux == 1.0)
+        result = []
+        for first, second in [(1, 0), (0, 1)]:
+            select = numpy.logical_and(oot_flag[1:] == first,
+                                       oot_flag[:-1] == second)
+            result.append(0.5 * (eval_bjd[:-1][select]
+                          +
+                          eval_bjd[1:][select]))
+        return result, oot_mag - 2.5 * numpy.log10(transit_flux.min())
+
+
+    ages_to_mark, max_mag = get_ages_to_mark()
+
+    color = pyplot.axhline(y=oot_mag).get_color()
+    pyplot.axhline(y=max_mag, color=color)
 
     if label.strip():
         label = label.strip() + ' '
     else:
-        label = label.strip()
+        label = ''
 
-    for nperiod in range(*start_nperiod_range):
-        pyplot.axvline(
-            x=(transit_param[0] - transit_param[2] / 2.0
-               +
-               nperiod * transit_param[1]),
-            color=color,
-            linestyle='--',
-            label=(label + 'start' if nperiod == start_nperiod_range[0]
-                   else None),
-            **plot_config
-        )
-
-    for nperiod in range(*end_nperiod_range):
-        pyplot.axvline(
-            x=(transit_param[0] + transit_param[2] / 2.0
-               +
-               nperiod * transit_param[1]),
-            color=color,
-            linestyle=':',
-            label=(label + 'end' if nperiod == end_nperiod_range[0]
-                   else None),
-            **plot_config
-        )
+    style = '--'
+    full_label = label + 'start'
+    for mark_ages in ages_to_mark:
+        for x in mark_ages:
+            pyplot.axvline(
+                x=x,
+                color=color,
+                linestyle=style,
+                label=full_label,
+                **plot_config
+            )
+            full_label = None
+        full_label = label  + 'end'
+        style=':'
 
 
 def plot_lc(plot_x,
@@ -324,7 +336,7 @@ def plot_lc(plot_x,
             magnitudes,
             configuration.binning,
             configuration.binning_errorbars,
-            continuous=(100 if configuration.binned_continuous else 1000),
+            continuous=(1000 if configuration.binned_continuous else False),
             markersize=configuration.plot_marker_size,
             label='binned ' + detrending_mode,
             zorder=(zorder + 1 + len(configuration.detrending_mode)),
@@ -332,39 +344,69 @@ def plot_lc(plot_x,
         )
 
 
-def add_transit_to_plot(bjd, bjd_offset, oot_mag, configuration):
+#pylint: disable=too-many-arguments
+def add_transit_to_plot(transit_param,
+                        transit_model,
+                        bjd,
+                        bjd_offset,
+                        oot_mag,
+                        configuration):
     """Plot the box transit of transit marks per configuration."""
 
-    eval_transit_bjd = numpy.linspace(bjd.min(), bjd.max(), 1000)
-    for transit_ind, transit_param in enumerate(configuration.add_transit):
-        transit_param[0] -= bjd_offset
-        plot_config = dict(
-            zorder = (2 * len(configuration.detrending_mode) + 1 + transit_ind),
-            label='T{:d}'.format(transit_ind)
+    eval_transit_bjd = numpy.linspace(bjd.min(),
+                                      bjd.max(),
+                                      1000)
+    transit_model.set_data(eval_transit_bjd + bjd_offset)
+    transit_flux = transit_model.evaluate(*transit_param[0], **transit_param[1])
+
+    plot_config = dict(
+        zorder = (2 * len(configuration.detrending_mode) + 1),
+        label='T'
+    )
+
+    if configuration.fold_period:
+        plot_transit_model(
+            transit_flux,
+            eval_transit_bjd,
+            oot_mag,
+            configuration.fold_period,
+            linestyle='-',
+            **plot_config
         )
-
-        if configuration.fold_period:
-            plot_transit_model(
-                transit_param,
-                eval_transit_bjd,
-                oot_mag,
-                configuration.fold_period,
-                linestyle='-',
-                **plot_config
-            )
-        else:
-            mark_transit(
-                transit_param,
-                oot_mag,
-                **plot_config
-            )
+    else:
+        mark_transit(transit_flux,
+                     eval_transit_bjd,
+                     oot_mag,
+                     **plot_config)
+#pylint: enable=too-many-arguments
 
 
-def main(configuration):
-    """Avoid polluting global namespace."""
+def add_lc_to_plot(select_photometry, configuration):
+    """
+    Add the lightcurve data to the plot.
 
-    if configuration.fold_period and configuration.binning:
-        configuration.binnning /= configuration.fold_period
+    Args:
+        select_photometry(callable):    Given a lightcurve filename and
+            detrending mode keyword argument, return the dataset to plot. Should
+            have the same return value as plot_lc_scatter.get_minimum_scatter().
+
+        configuration:    The parsed command line configuration.
+
+    Returns:
+        array:    The times at which lightcurve entries are available, measured
+            from the last integer BJD before the first observation. These are
+            the x coordinates of the points added to the plot.
+
+        int:    The last integer BJD before the first observation (i.e. the
+            offset applied to the lightcurve BJDs for plotting.
+
+        array:    The magnitudes from the last detrending method being plotted
+            (presumably the best).
+
+        float:    The iterative rejection scatter in the last plotted
+            magnitudes.
+    """
+
     if (
             len(configuration.lightcurves) == 4
             and
@@ -401,9 +443,9 @@ def main(configuration):
         for lc_fname in configuration.lightcurves:
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
-            scatter, _, bjd, magnitudes = get_minimum_scatter(
+            scatter, _, bjd, magnitudes = select_photometry(
                 lc_fname,
-                **get_scatter_config(detrending_mode, configuration)
+                detrending_mode=detrending_mode,
             )
             #pylint: enable=unbalanced-tuple-unpacking
 
@@ -444,10 +486,59 @@ def main(configuration):
                     zorder=zorder,
                     configuration=configuration)
 
-    add_transit_to_plot(bjd,
-                        bjd_offset,
-                        numpy.median(magnitudes),
-                        configuration)
+    return bjd, bjd_offset, magnitudes, scatter
+
+
+def main(configuration):
+    """Avoid polluting global namespace."""
+
+    if configuration.fold_period and configuration.binning:
+        configuration.binning /= configuration.fold_period
+
+    scatter_config = get_scatter_config(configuration)
+    if configuration.variability == 'transit':
+        transit_parameters = (
+            get_transit_parameters(vars(configuration), False),
+            dict()
+        )
+        transit_model=QuadraticModel()
+        select_photometry = partial(
+            get_minimum_scatter,
+            get_magnitudes=ReconstructiveCorrectionTransit(
+                transit_model=transit_model,
+                correction=None,
+                fit_amplitude=False,
+                transit_parameters=transit_parameters
+            ).get_fit_data,
+            **scatter_config
+        )
+    else:
+        select_photometry = partial(get_minimum_scatter, **scatter_config)
+
+    bjd, bjd_offset, last_magnitudes, scatter = add_lc_to_plot(
+        select_photometry,
+        configuration
+    )
+
+    if configuration.variability == 'transit':
+        transit_model.set_data(bjd + bjd_offset)
+        oot_flag = (
+            transit_model.evaluate(*transit_parameters[0],
+                                   **transit_parameters[1])
+            ==
+            1.0
+        )
+        oot_magnitude = numpy.median(last_magnitudes[oot_flag])
+        add_transit_to_plot(transit_parameters,
+                            transit_model,
+                            bjd,
+                            bjd_offset,
+                            oot_magnitude,
+                            configuration)
+    else:
+        assert configuration.variability is None
+        oot_magnitude = numpy.median(last_magnitudes)
+
     if configuration.fold_period:
         pyplot.xlabel(
             'Phase (P={:.6f} d)'.format(configuration.fold_period)
@@ -455,9 +546,8 @@ def main(configuration):
     else:
         pyplot.xlabel('BJD - {:d}'.format(int(bjd[0])))
 
-    med_mag = numpy.median(magnitudes)
-    pyplot.axhspan(ymin=med_mag - scatter,
-                   ymax=med_mag + scatter,
+    pyplot.axhspan(ymin=oot_magnitude - scatter,
+                   ymax=oot_magnitude + scatter,
                    color='lightgrey',
                    zorder=0)
 

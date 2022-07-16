@@ -5,7 +5,8 @@ from os import path
 
 from asteval import Interpreter
 
-from manual_util import ManualStepArgumentParser
+from superphot_pipeline.processing_steps.manual_util import \
+    ManualStepArgumentParser
 
 class DetrendDatasetIter:
     """Iterate over the detrending datasets specified in a cmdline argument."""
@@ -133,13 +134,13 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
     """Boiler plate handling of LC detrending command line arguments."""
 
     @staticmethod
-    def _add_transit_parameters(parser,
-                                *,
-                                timing=True,
-                                duration=True,
-                                geometry='',
-                                limb_darkening=False,
-                                fit_flags=False):
+    def add_transit_parameters(parser,
+                               *,
+                               timing=True,
+                               duration=True,
+                               geometry='',
+                               limb_darkening=False,
+                               fit_flags=False):
         """
         Add command line parameters to the current parser to specify a transit.
 
@@ -521,11 +522,11 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 'to vary. If not specified all LCs are fit in '
                 'non-reconstructive way.'
             )
-            self._add_transit_parameters(target_args,
-                                         timing=True,
-                                         geometry='circular',
-                                         limb_darkening=True,
-                                         fit_flags=True)
+            self.add_transit_parameters(target_args,
+                                        timing=True,
+                                        geometry='circular',
+                                        limb_darkening=True,
+                                        fit_flags=True)
 
         self.add_argument(
             '--detrending-catalogue', '--detrending-catalog', '--cat',

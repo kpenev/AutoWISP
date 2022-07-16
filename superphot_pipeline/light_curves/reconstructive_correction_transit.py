@@ -19,7 +19,8 @@ class ReconstructiveCorrectionTransit:
     def __init__(self,
                  transit_model,
                  correction,
-                 fit_amplitude=True):
+                 fit_amplitude=True,
+                 transit_parameters=None):
         """
         Configure the fitting.
 
@@ -34,6 +35,10 @@ class ReconstructiveCorrectionTransit:
                 fit along with the EPD correction coefficients? If not, the
                 amplitude of the signal is assumed known.
 
+            transit_parameters(2-tiple):    Positional and keyword arguments to
+                pass to the transit model. Overwritten by `__call__`. The first
+                entry should be iterable and specifies positional arguments, the
+                second entry is dict and specifies keyword arguments.
 
         Returns:
             None
@@ -41,7 +46,7 @@ class ReconstructiveCorrectionTransit:
 
         self.correction = correction
         self.transit_model = transit_model
-        self.transit_parameters = None
+        self.transit_parameters = transit_parameters
         self.fit_amplitude = fit_amplitude
 
     def get_fit_data(self, light_curve, dset_key, **substitutions):
@@ -52,13 +57,16 @@ class ReconstructiveCorrectionTransit:
         if self.transit_model is None or self.fit_amplitude:
             return raw_magnitudes
 
-        return (
-            raw_magnitudes,
-            raw_magnitudes - magnitude_change(light_curve,
-                                              self.transit_model,
-                                              *self.transit_parameters[0],
-                                              **self.transit_parameters[1])
+        fit_magnitudes = (
+            raw_magnitudes
+            -
+            magnitude_change(light_curve,
+                             self.transit_model,
+                             *self.transit_parameters[0],
+                             **self.transit_parameters[1])
         )
+        return raw_magnitudes, fit_magnitudes
+
 
     #The call signature is deliberately different than the underlying class.
     #pylint: disable=arguments-differ
@@ -100,5 +108,6 @@ class ReconstructiveCorrectionTransit:
 
         return self.correction(lc_fname,
                                self.get_fit_data,
-                               extra_predictors, save)
+                               extra_predictors,
+                               save)
     #pylint: enable=arguments-differ

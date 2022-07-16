@@ -53,16 +53,18 @@ def add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, result):
         result[lc_ind]['xi'] = cat_info['xi']
         result[lc_ind]['eta'] = cat_info['eta']
 
-def correct_target_lc(target_lc_fname, configuration, correct):
-    """Perform reconstructive detrending on the target LC."""
 
-    num_limbdark_coef = len(configuration['limb_darkening'])
-    assert num_limbdark_coef == 2
+def get_transit_parameters(configuration, unwind_limb_darkening=True):
+    """Return the parameters to pass to pytransit model."""
 
     transit_parameters = (
         [configuration['radius_ratio']]
         +
-        list(configuration['limb_darkening'])
+        (
+            list(configuration['limb_darkening']) if unwind_limb_darkening
+            else
+            [configuration['limb_darkening']]
+        )
         +
         [
             configuration['mid_transit'],
@@ -75,7 +77,16 @@ def correct_target_lc(target_lc_fname, configuration, correct):
         transit_parameters.append(configuration['eccentricity'])
     if hasattr(configuration, 'periastron'):
         transit_parameters.append(configuration['periastron'])
+    return transit_parameters
 
+
+def correct_target_lc(target_lc_fname, configuration, correct):
+    """Perform reconstructive detrending on the target LC."""
+
+    num_limbdark_coef = len(configuration['limb_darkening'])
+    assert num_limbdark_coef == 2
+
+    transit_parameters = get_transit_parameters(configuration)
     fit_parameter_flags = numpy.zeros(len(transit_parameters), dtype=bool)
 
     param_indices = dict(depth=0,
