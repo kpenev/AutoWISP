@@ -22,9 +22,8 @@ import numpy
 
 from command_line_util import get_default_frame_processing_cmdline
 
-from superphot_pipeline.image_utilities import\
-    find_fits_fnames,\
-    zscale_image
+from superphot_pipeline.image_utilities import zscale_image
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import read_image_components
 from superphot_pipeline import SourceFinder, Evaluator
 from superphot.utils.file_utilities import\
@@ -129,8 +128,7 @@ class SourceExtractionTuner(tkinter.Frame):
         annotated_image = self._image['zscaled'].copy()
         mark_extracted_sources(annotated_image,
                                sources,
-                               filter_expression=filter_expression,
-                               width=1)
+                               filter_expression=filter_expression)
         self._image['photo'] = PIL.ImageTk.PhotoImage(
             annotated_image,
             master=self._widgets['canvas']

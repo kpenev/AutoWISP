@@ -25,11 +25,13 @@ def get_data_filenames(data_collection,
 
     for entry in data_collection:
         for fname in iglob(entry, recursive=recursive):
+            print('fname before pass: '+repr(fname))
             if (
                     include_condition == 'True'
                     or
                     Evaluator(fname)(include_condition)
             ):
+                print('fname passed: '+repr(fname))
                 yield fname
 
 
@@ -80,5 +82,5 @@ def find_data_fnames(image_collection,
 
 
 find_fits_fnames = find_data_fnames
-find_dr_fnames = partial(find_data_fnames, search_wildcards=('*.h5',))
+find_dr_fnames = partial(find_data_fnames, search_wildcards=('*.h5','*.hdf5'))
 find_lc_fnames = find_dr_fnames
