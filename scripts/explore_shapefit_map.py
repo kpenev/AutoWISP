@@ -146,18 +146,18 @@ def main(cmdline_args, last=True):
     # eval_prf = numpy.array([slice(*eval_coords) for slice in slice_splines])
 
     if cmdline_args.assume_psf:
-        if cmdline_args.subpix_map is None:
+        if cmdline_args.subpixmap is None:
             slice_splines = [
                 psf.predict_pixel for psf in slice_splines
             ]
         else:
-            with fits.open(cmdline_args.subpix_map, 'readonly') as subpix_file:
+            with fits.open(cmdline_args.subpixmap, 'readonly') as subpix_file:
                 slice_splines = [
                     functools.partial(
                         psf.predict_pixel,
                         #False positive
                         #pylint: disable=no-member
-                        subpix_map=(subpix_file[0].data
+                        subpixmap=(subpix_file[0].data
                                     if subpix_file[0].header['NAXIS'] > 0 else
                                     subpix_file[1].data)
                         #pylint: enable=no-member
