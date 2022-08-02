@@ -368,7 +368,7 @@ def solve_image(dr_fname, **configuration):
                             'log=1',
                             'verify=1'
                         ]).format(**configuration,
-                                  **header,
+                                  **dict(header),
                                   x_col=x_col+1,
                                   y_col=y_col+1)
                     ]

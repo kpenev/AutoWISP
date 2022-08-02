@@ -131,7 +131,9 @@ def get_primary_header(fits_image,
                 result['RAWFNAME'] = base_fname
             if fnum_expression is not None:
                 eval_fnum = Interpreter()
-                for hdr_key, hdr_val in hdu.header.items():
+                print('result items'+ repr(result.items()))
+                print('hdu header items'+ repr(hdu.header.items()))
+                for hdr_key, hdr_val in result.items():
                     eval_fnum.symtable[hdr_key.replace('-', '_')] = hdr_val
                 result['FNUM'] = eval_fnum(fnum_expression)
             return result
