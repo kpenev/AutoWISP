@@ -157,7 +157,7 @@ def main(cmdline_args, last=True):
                         psf.predict_pixel,
                         #False positive
                         #pylint: disable=no-member
-                        subpixmap=(subpix_file[0].data
+                        subpix_map=(subpix_file[0].data
                                     if subpix_file[0].header['NAXIS'] > 0 else
                                     subpix_file[1].data)
                         #pylint: enable=no-member
