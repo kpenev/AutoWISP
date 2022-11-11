@@ -27,18 +27,23 @@ from numpy.lib.recfunctions import structured_to_unstructured
 #from superphot_pipeline import DataReductionFile
 
 #from superphot_pipeline.astrometry.map_projections import gnomonic_projection
-#from superphot_pipeline.astrometry.map_projections import gnomonic_projection_inv
+#from superphot_pipeline.astrometry.map_projections import \
+#gnomonic_projection_inv
 
 
 def read_inputs():
     """
-    Read all except DR file
+    Read all inputs except those exists in the DR file
     
     Args:
-        z:
-         
+        None    
     Returns:
-        ...
+        inputs(dict): includes numpy arrays of:
+                      xy_correlation from astrometry.net 
+                      radec_correlation from astrometry.net
+                      xy_extracted from fistar file
+                      radec_catalog from ucac4
+                      order: order of astrometry
     """
         
     corr_file = "corr.csv"
@@ -50,10 +55,6 @@ def read_inputs():
     np.genfromtxt(corr_file, delimiter=",", usecols=(0,1), names=['x','y'])
     radec_corr = \
     np.genfromtxt(corr_file, delimiter=",", usecols=(6,7), names=['RA','Dec'])
-    #radec_corr.reshape(len(radec_corr), 2)
-    #radec_corrr = np.genfromtxt(corr_file, delimiter=",", usecols=(6, 7))
-    #print('radec_corr',radec_corr.shape,radec_corr)
-    #print('radec_corrr',radec_corrr.shape,radec_corr)
     
     xy_extracted = \
     np.genfromtxt(fistar_file, usecols=(1, 2), names = ['x', 'y'])   
@@ -66,26 +67,17 @@ def read_inputs():
     
     return inputs
     
-
 def read_dr_file():
     """
-    Read some variable (existing in the header of the fits file)
-    from the dr file
+    Read some variable from the DR file
     
     Args:
-        z:
+        None
          
     Returns:
-        ...
+        dr_inputs(dict): includes RA, Dec, x, y of the center of the frame
     """
-    #dr_fname = input("Enter the name of the DR file: ")
-    
-    #with DataReductionFile(dr_fname, 'r') as dr_file:
-    #    header = dr_file.get_frame_header()
-    #    ra_cent = header.get("RA")*(np.pi/12)          # hr to radian
-    #    dec_cent = header.get("dec")*(np.pi/180.0)     # degree to radian
-    #    x_cent = header.get(ZNAXIS1)/2 # Length/2
-    #    y_cent = header.get(ZNAXIS1)/2 # Width/2
+    # Better to read center RA and Dec from astrometry.net and not from frame
     ra_cent = 10.2994169770979
     dec_cent = 45.6471
     x_cent = 3983/2.0
@@ -96,7 +88,6 @@ def read_dr_file():
     
     return dr_inputs
 
-
 def projection(sources, projected, **center):  
     """
     Project the given sky position to a tangent plane (gnomonic projection).
@@ -105,11 +96,11 @@ def projection(sources, projected, **center):
         sources(structured array-like): The the sky position to project
             (should have "RA" and "Dec" keys coordinates in degrees.
         
-        projected:    A numpy array with "xi" and "eta" fields to fill
+        projected: A numpy array with "xi" and "eta" fields to fill
             with the projected coordinates (in degrees).
         
-        center(dict):    Should define the central `'RA'` and `'Dec'` around
-            which to project.
+        center(dict): Should define the central `'RA'` and `'Dec'` around
+            which to project. (It is supposed that RA is in hr and Dec is in degree)
     Returns:
         None
     """
@@ -124,7 +115,7 @@ def projection(sources, projected, **center):
     sin_center_dec = np.sin(center['Dec'])
     denominator = (sin_center_dec * sin_source_dec + \
               cos_center_dec * cos_source_dec * cos_ra_diff) * degree_to_rad
-    #projected = np.zeros(radec.shape, dtype=None)
+    
     projected['xi'] = (cos_source_dec * np.sin(ra_diff)) / denominator
     projected['eta'] = (
                 cos_center_dec * sin_source_dec
@@ -132,10 +123,6 @@ def projection(sources, projected, **center):
                 sin_center_dec * cos_source_dec * cos_ra_diff
                 ) / denominator
     return None
-
-
-
-
 
 def inv_projection (sources, projected, **center):
     """
@@ -147,7 +134,7 @@ def inv_projection (sources, projected, **center):
                  with the inverse projected of tangent plane coordinates.
                  (in degrees)
         
-        projected: numpy array with "xi" and "eta" fields
+        projected: numpy array with "xi" and "eta" fields (in degrees)
         
         center(dict): Should define the central "RA" and "Dec"
                       in hour and degree respectively, which will be converted
@@ -163,62 +150,33 @@ def inv_projection (sources, projected, **center):
     c = np.arctan(rho)
     denominator = rho*np.cos(center['Dec'])*np.cos(c) - \
                   projected['eta']*np.sin(center['Dec'])*np.sin(c)
-
     
     sources['RA'] = center['RA'] + \
                     np.arctan((projected['xi']*np.sin(c))/denominator)
+                    
     sources['Dec'] = np.arcsin(np.cos(c)*np.sin(center['Dec']) + \
           (projected['eta']*np.sin(c)*np.cos(center['Dec']))/rho)
     
+    sources['RA'] *= 12.0/np.pi    # convert from radian to degree
+    sources['Dec'] *= 180.0/np.pi  # convert from radian to degree
+    
     return None
-
-def inv_projection_old (zeta_eta, ra_cent, dec_cent): 
-    """
-    Inverse projection from tangent plane (zeta, eta)
-        to the sky position (RA, DEC)
-    
-    Args:
-        zeta_eta:
-        
-        ra_cent: In radian
-        
-        dec_cent: In radian
-        
-    Returns:
-        ...
-    """
-    #unprojected = np.zeros(zeta_eta.shape, dtype=None)
-        
-    rho = np.sqrt(zeta_eta[:,0]**2 + zeta_eta[:,1]**2)
-    c = np.arctan(rho)
-    denominator = rho*np.cos(dec_cent)*np.cos(c) - \
-                  zeta_eta[:,1]*np.sin(dec_cent)*np.sin(c)
-
-    
-    ra = ra_cent + np.arctan((zeta_eta[:,0]*np.sin(c))/denominator)
-    dec = np.arcsin(np.cos(c)*np.sin(dec_cent) + \
-          (zeta_eta[:,1]*np.sin(c)*np.cos(dec_cent))/rho)
-    
-    unprojected[:,0] = ra
-    unprojected[:,1] = dec
-    
-    return unprojected
-    
 
 def transformation_matrix(order, zeta, eta):
     """
-    Inverse projection from tangent plane (zeta, eta)
-        to the sky position (RA, DEC)
+    Setting up the transformation matrix which includes the related orders
+    of (xi, eta)
+    ex for order 2: 1, xi, eta, xi^2, xi*eta, eta^2
     
     Args:
-        order:
+        order: order of astrometry
         
-        zeta:
+        zeta: from projected coordinates
         
-        eta:
+        eta: from projected coordinates
         
     Returns:
-        ...
+        m: transformation matrix
     """
     # ones = col vector with len = # of our extracted sources from catalog
     m = np.ones((eta.shape[0],1))
@@ -227,7 +185,6 @@ def transformation_matrix(order, zeta, eta):
             m = np.block([m,zeta**(i-j)*eta**j])
     return m
     
-    
 def func(z, trans_x, trans_y, x_cent, y_cent, order):
     """
     Constructing the two non linear function to be solved for
@@ -235,9 +192,17 @@ def func(z, trans_x, trans_y, x_cent, y_cent, order):
     
     Args:
         z:
+        
+        trans_x:
+         
+        trans_y:
+        
+        x_cent:
+        
+        y_cent:
          
     Returns:
-        ...
+        f: the related function
 
     """
     
@@ -260,13 +225,14 @@ def func(z, trans_x, trans_y, x_cent, y_cent, order):
 
 def astrometry():
     """
-    Main function: After we get the initial transformation,
-    the rest is just iterating the steps to get new transformations 
+    Main function: To get the initial transformation,
+    the rest is calling iteration function to iterate the steps to get new transformations 
     
     Args:
+        None
          
     Returns:
-        ...
+        None
     """
     inputs = read_inputs()
     xy_corr = inputs["xy_corr"]
@@ -277,21 +243,13 @@ def astrometry():
     ra_cent = dr_inputs["ra_cent"]
     dec_cent = dr_inputs["dec_cent"]
     
-    
     projected = \
     np.empty(radec_corr.shape[0], dtype=[('xi', float), ('eta', float)])
     
     radec_cent = {"RA":ra_cent, "Dec":dec_cent}
-    #print("--------------------")
-    #print("radec_corr",radec_corr.shape)
     
     projection(radec_corr, projected, **radec_cent)
-    #print("projected",projected.shape)
-    #print("--------------------")
-    
-    
-    
-    #print('projected before', projected.shape,projected)    
+
     zeta = projected['xi']
     zeta = zeta[np.newaxis].T  # convert shape from (n,) to (n, 1)
     
@@ -300,8 +258,8 @@ def astrometry():
      
     # Matrix (m) containing zeta, eta. Used to find Transformation(t)
     mt = transformation_matrix(order, zeta, eta)
-    #print("mt.shape",mt.shape)
-    #print("xy_corr['x']",xy_corr['x'].shape)
+
+
     trans_x, resid_x, rank_x, sigma_x = linalg.lstsq(mt, xy_corr['x'])
     trans_y, resid_x, rank_y, sigma_y = linalg.lstsq(mt, xy_corr['y'])
     # We do not use resid, rank, sigma! Should be removed? 
@@ -323,22 +281,20 @@ def iteration(order, trans_x, trans_y):
     its difference from the previous one is less than a threshold
     
     Args:
-        order:
+        order: order of astrometry
+        
+        trans_x: transformation matrix for x
+        
+        trans_y: transformation matrix for y
          
     Returns:
-        ...
+        None
     """
+    
     inputs = read_inputs()
     xy_extracted = inputs["xy_extracted"]
     xy_extracted = structured_to_unstructured(xy_extracted)
-    
-    
-    #print(xy_extracted.shape)
-    #print(xy_extracted)
-    #print(xy_extracted['x'].reshape)
-    #xy_extracted = np.block([xy_extracted['x'],xy_extracted['y']])
-    #print(xy_extracted.shape)
-    #print(xy_extracted)    
+     
     radec_catalog = inputs["radec_catalog"]
     order = inputs["order"]
     
@@ -349,7 +305,6 @@ def iteration(order, trans_x, trans_y):
     y_cent = dr_inputs["y_cent"]
     
     counter = 0
-    
     while True:
         counter = counter + 1
         if counter > 1:
@@ -357,7 +312,6 @@ def iteration(order, trans_x, trans_y):
             trans_y = trans_y_new
             ra_cent = cent_new['RA']
             dec_cent = cent_new['Dec']
-        print("shape2", radec_catalog.shape)
         
         radec_cent = {"RA":ra_cent,"Dec":dec_cent}
         projected = np.empty(
@@ -374,17 +328,15 @@ def iteration(order, trans_x, trans_y):
         
         x_transformed = mxy @ trans_x 
         y_transformed = mxy @ trans_y 
-        #print("x_transformed",x_transformed)
+
         xy_transformed = np.block([x_transformed, y_transformed])
 
         kdtree = spatial.KDTree(xy_extracted)
-        
-        print("xy_extracted", xy_extracted.shape)
-        print("xy_transformed", xy_transformed.shape)
         d, ix = kdtree.query(xy_transformed, distance_upper_bound = 1.5)
+        # Should we let the user choose upper bound distance?
         n = 0
 
-        # Find the number of matched sources. (If it is needed.)
+        # Find the number of matched sources.
         for i in d:
             if not np.isinf(i):
                 n = n + 1
@@ -410,7 +362,6 @@ def iteration(order, trans_x, trans_y):
         z = fsolve(
         func, zGuess, args = (trans_x, trans_y, x_cent, y_cent, order)
         )
-        #zetaeta_cent = np.reshape(z,(1,2))    # Reshape from (2,) to (1,2)
         
         # since when we derived T, zeta and eta were in degrees.
         zetaeta_cent = np.empty(1, dtype=[('xi', float), ('eta', float)])
@@ -419,40 +370,30 @@ def iteration(order, trans_x, trans_y):
 
         # With those (zeta, eta) we use the inverse projection to
         # find new (RAC, DECC)
-        #radec_cent = {"RA":ra_cent, "Dec":dec_cent} < we already have this
+        # radec_cent = {"RA":ra_cent, "Dec":dec_cent} < we already have this
         source = np.empty(1, dtype=[('RA', float), ('Dec', float)])
         inv_projection(source, zetaeta_cent, **radec_cent)
         
         # Replace ra_cent, dec_cent with new values in unprojected
-        #ra_cent_new = radec_cent['RA']
-        #dec_cent_new = radec_cent['Dec']
-        #print('source',source.shape,source)
-        #print(source['RA'])
-        cent_new = {'RA':source['RA'][0]*(12.0/np.pi), 'Dec':source['Dec'][0]*(180.0/np.pi)}
-        # This is to convert them to degree, as in projection func we convert them back!
-        projected_new = np.empty(matched_sources.shape[0], dtype=[('xi', float), ('eta', float)])
-        #print('matched_sources',matched_sources.shape)
-        #print('cent_new',cent_new)
-        #print("--------------------")    
-        
-        structured_to_unstructured
-        #print("matched_sources",matched_sources.shape)
-        
+        cent_new = {
+        'RA':source['RA'][0], 'Dec':source['Dec'][0]
+        }
+
+        projected_new = np.empty(
+        matched_sources.shape[0], dtype=[('xi', float), ('eta', float)]
+        )
+
         projection(matched_sources, projected_new, **cent_new)
         
-        #print("projected_new",projected_new.shape)
-        #print("--------------------")    
         matched_sources = structured_to_unstructured(matched_sources)
         projected_new = structured_to_unstructured(projected_new)
-        #print('matched_sources',matched_sources)
-        #print('projected_new',projected_new)
         x_matched_sources = matched_sources[:,2:3]
         y_matched_sources = matched_sources[:,3:4]
         zeta = projected_new[:,0:1]
         eta = projected_new[:,1:2]
-        #print('zeta',zeta)
+
         mt = transformation_matrix(order, zeta, eta)
-        #print('mt', mt)
+
         trans_x_new, resid, rank, sigma = linalg.lstsq(mt, x_matched_sources)
         trans_y_new, resid, rank, sigma = linalg.lstsq(mt, y_matched_sources)
 
@@ -483,17 +424,4 @@ def iteration(order, trans_x, trans_y):
 
 if __name__ == '__main__':
     astrometry()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
