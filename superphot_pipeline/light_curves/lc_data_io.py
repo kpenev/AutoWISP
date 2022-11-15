@@ -1131,7 +1131,8 @@ class LCDataIO:
 
         print('Skipping sources: ' + repr(skipped_sources))
 
-        source_data.drop(skipped_sources, inplace=True)
+        if skipped_sources:
+            source_data.drop(skipped_sources, inplace=True)
 
         print('Remaining sources: ' + repr(skipped_sources))
 
