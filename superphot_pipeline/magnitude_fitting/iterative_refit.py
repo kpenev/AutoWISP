@@ -105,7 +105,7 @@ def iterative_refit(fit_dr_filenames,
         """
 
         master_reference_fname = master_photref_fname_format.format(
-            **single_photref_header,
+            **dict(single_photref_header),
             **path_substitutions
         )
         magfit_stat_collector.generate_master(
@@ -177,7 +177,7 @@ def iterative_refit(fit_dr_filenames,
 
             magfit_stat_collector = MasterPhotrefCollector(
                 magfit_stat_fname_format.format(
-                    **single_photref_header,
+                    **dict(single_photref_header),
                     **path_substitutions
                 ),
                 num_photometries,

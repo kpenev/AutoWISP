@@ -246,10 +246,6 @@ class MagnitudeFit(ABC):
             for col_index, col_name in enumerate(new_column_names):
                 new_column_data[col_index][source_ind] = cat_source[col_name]
 
-        if getattr(self.config, 'grouping', None) is not None:
-            new_column_names += ('fit_group',)
-            new_column_data.append([])
-
         result = scipy.delete(
             recfunctions.append_fields(phot,
                                        new_column_names,
@@ -263,17 +259,17 @@ class MagnitudeFit(ABC):
     def _set_group(self, evaluator, result):
         """Set the fit_group column in result per grouping configuration."""
 
-        conditions = scipy.array(
-            evaluator(self.config.grouping)
-        ).transpose()
-        groups = scipy.unique(conditions, axis=0)
+        self.logger.debug('Grouping expression: %s', repr(self.config.grouping))
+        conditions = evaluator(self.config.grouping)
+        self.logger.debug('Grouping conditions: %s', repr(conditions))
+        groups = scipy.unique(conditions)
+        self.logger.debug('Groups: %s', repr(groups))
         for group_id, group_condition in enumerate(groups):
-            result['fit_group'][
-                #false positive
-                #pylint: disable=no-member
-                scipy.logical_and.reduce(conditions == group_condition, 1)
-                #pylint: enable=no-member
-            ] = group_id
+            in_group = (conditions == group_condition)
+            self.logger.debug('Group %d contains %d entries',
+                              group_id,
+                              in_group.sum())
+            result['fit_group'][in_group] = group_id
 
     def _get_fit_indices(self, phot, evaluator, no_catalogue):
         """
@@ -503,6 +499,7 @@ class MagnitudeFit(ABC):
         self._reference = reference
         self._catalogue = master_catalogue
         self._source_name_format = source_name_format
+        self.logger = None
 
     def __call__(self, dr_fname, **dr_path_substitutions):
         """
@@ -570,14 +567,20 @@ class MagnitudeFit(ABC):
                     self.logger.warning('Downgrading calib status.')
                     self._downgrade_calib_status()
                     return
-                self.logger.debug('Adding catalogue information.')
                 #TODO: revive filtering by catalogue
                 no_catalogue, deleted_phot_indices = [], []
+                if getattr(self.config, 'grouping', None) is not None:
+                    phot = recfunctions.append_fields(phot,
+                                                      ['fit_group'],
+                                                      [[]],
+                                                      usemask=False)
 #                (
 #                    self._add_catalogue_info(phot)
 #                )
+                self.logger.debug('Photometry columns: %s',
+                                  repr(phot.dtype.names))
                 evaluator = Evaluator(phot)
-                if getattr(self.config, 'grouping', None) is not None:
+                if self.config.grouping is not None:
                     self._set_group(evaluator, phot)
 
                 self.logger.debug('Checking for existing solution.')

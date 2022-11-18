@@ -17,6 +17,7 @@ from superphot_pipeline.processing_steps.manual_util import\
     read_catalogue
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline import Evaluator
 
 def parse_command_line():
     """Return the parsed command line arguments."""
@@ -47,15 +48,16 @@ def parse_command_line():
         '--frame-center-estimate',
         required=True,
         nargs=2,
-        type=float,
+        type=str,
         help='The approximate right ascention and declination of the center of '
-        'the frame in degrees.'
+        'the frame in degrees. Can be an expression involving header keywords.'
     )
     parser.add_argument(
         '--frame-fov-estimate',
         required=True,
-        type=float,
-        help='Approximate field of view of the frame in degrees.'
+        type=str,
+        help='Approximate field of view of the frame in degrees. Can be an '
+        'expression involving header keywords.'
     )
     parser.add_argument(
         '--max-srcmatch-distance',
@@ -332,6 +334,13 @@ def solve_image(dr_fname, **configuration):
     )
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         header = dr_file.get_frame_header()
+        center_ra_dec = tuple(
+            float(Evaluator(header)(expression))
+            for expression in configuration['frame_center_estimate']
+        )
+        fov_estimate = float(
+            Evaluator(header)(configuration['frame_fov_estimate'])
+        )
         with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
             x_col, y_col = create_sources_file(
                 dr_file,
@@ -349,13 +358,14 @@ def solve_image(dr_fname, **configuration):
                         '--max-distance',
                         repr(configuration['max_srcmatch_distance']),
                         '--output-transformation', trans_fname,
-                        '--input-reference', configuration['astrometry_catalogue'],
+                        '--input-reference',
+                        configuration['astrometry_catalogue'],
                         '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
                                                           cat_dec_col + 1),
                         '--output', match_fname,
                         '--order', repr(configuration['astrometry_order']),
-                        '--ra', repr(configuration['frame_center_estimate'][0]),
-                        '--dec', repr(configuration['frame_center_estimate'][1]),
+                        '--ra', repr(center_ra_dec[0]),
+                        '--dec', repr(center_ra_dec[1]),
                         '--anet',
                         ','.join([
                             'indexpath={anet_index_path}',
@@ -363,12 +373,13 @@ def solve_image(dr_fname, **configuration):
                             'ysize={NAXIS2}',
                             'xcol={x_col}',
                             'ycol={y_col}',
-                            'width={frame_fov_estimate}',
+                            'width={fov_estimate}',
                             'tweak={anet_tweak}',
                             'log=1',
                             'verify=1'
                         ]).format(**configuration,
                                   **dict(header),
+                                  fov_estimate=fov_estimate,
                                   x_col=x_col+1,
                                   y_col=y_col+1)
                     ]

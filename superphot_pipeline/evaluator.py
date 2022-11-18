@@ -28,7 +28,6 @@ class Evaluator(asteval.Interpreter):
 
         super().__init__()
         for data_entry in data:
-            logging.debug('Setting evaluator for ' + repr(data_entry))
             if hasattr(data_entry, 'dtype'):
                 for varname in data_entry.dtype.names:
                     self.symtable[varname] = data_entry[varname]
@@ -41,5 +40,7 @@ class Evaluator(asteval.Interpreter):
                     self.symtable.update(get_primary_header(data_entry))
             elif isinstance(data_entry, fits.HDUList):
                 self.symtable.update(get_primary_header(data_entry))
+            elif isinstance(data_entry, fits.Header):
+                self.symtable.update(data_entry)
             else:
                 self.symtable.update(data_entry)
