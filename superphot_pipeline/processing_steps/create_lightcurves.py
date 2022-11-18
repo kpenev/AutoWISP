@@ -33,6 +33,13 @@ def parse_command_line():
         allow_parallel_processing=True
     )
     parser.add_argument(
+        '--lc-only-if',
+        default='True',
+        help='Expression involving the header of the input images that '
+             'evaluates to True/False if a particular image from the specified '
+             'image collection should/should not be processed.'
+    )
+    parser.add_argument(
         '--lcdump-catalogue-fname', '--lcdump-catalogue', '--lcdump-cat',
         default='lcdump_catalogue.ucac4',
         help='The name of the catalogue file containing all sources to Create '
@@ -193,5 +200,6 @@ def create_lightcurves(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files')),
+    create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files'),
+                                      cmdline_config.pop('lc_only_if')),
                        cmdline_config)

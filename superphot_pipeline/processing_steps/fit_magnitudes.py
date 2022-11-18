@@ -132,7 +132,7 @@ def parse_command_line():
         type=float,
         default=5.0,
         help='How far away from the fit should a point be before '
-             'it is rejected in utins of error_avg. Default: %(default)s'
+             'it is rejected in units of error_avg. Default: %(default)s'
     )
     parser.add_argument(
         '--max-rej-iter',
