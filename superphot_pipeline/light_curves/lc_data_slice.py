@@ -6,7 +6,7 @@ from ctypes import\
     c_int8, c_int16, c_int32, c_int64,\
     c_uint64, c_uint32, c_uint16, c_uint8,\
     c_float, c_double, c_longdouble,\
-    Structure, sizeof
+    Structure, sizeof, c_char_p
 
 import numpy
 
@@ -59,6 +59,9 @@ class LCDataSlice(Structure):
             if dtype.itemsize == sizeof(c_float):
                 return c_float
 
+        elif dtype.kind == 'S':
+            return c_char_p
+
         raise TypeError('Unrecognized dtype: ' + repr(dtype))
     #pylint: enable=too-many-return-statements
     #pylint: enable=too-many-branches
@@ -105,9 +108,11 @@ class LCDataSlice(Structure):
                 for dimension in dset_dimensions:
                     if dimension != 'frame':
                         dset_size[dset_name] *= max_dimension_size[dimension]
-                perframe_bytes += (sizeof(atomic_ctypes[dset_name])
-                                   *
-                                   dset_size[dset_name])
+                atomic_size = sizeof(atomic_ctypes[dset_name])
+                if atomic_size == 0:
+                    assert dset_name.startswith('fitsheader.')
+                    atomic_size = 70
+                perframe_bytes += (atomic_size * dset_size[dset_name])
 
                 #Too complicated to make lazy
                 #pylint: disable=logging-not-lazy

@@ -9,7 +9,7 @@ import os
 from os.path import dirname, exists
 import itertools
 import logging
-from ctypes import memset, sizeof
+from ctypes import memset, sizeof, c_char_p
 
 import h5py
 import numpy
@@ -663,12 +663,20 @@ class LCDataIO:
         ) * num_entries
 
         slice_data = cls._get_slice_field(quantity)
-        source_data = numpy.frombuffer(
-            slice_data,
-            numpy.dtype(slice_data._type_).base
-        )[first_index : first_index + num_frames * num_entries]
-        source_data.shape = ((num_frames, num_entries) if num_entries > 1
-                             else (num_frames,))
+        if slice_data._type_ == c_char_p:
+            source_data = numpy.array(
+                slice_data[first_index
+                           :
+                           first_index + num_frames * num_entries],
+                dtype='S70'
+            )
+        else:
+            source_data = numpy.frombuffer(
+                slice_data,
+                numpy.dtype(slice_data._type_).base
+            )[first_index : first_index + num_frames * num_entries]
+            source_data.shape = ((num_frames, num_entries) if num_entries > 1
+                                 else (num_frames,))
 
         if defined_indices is None:
             return source_data
@@ -865,6 +873,9 @@ class LCDataIO:
                         elif lc_dtype.kind in ['b']:
                             value = False
 
+                    if isinstance(value, str):
+                        value = value.encode('ascii')
+
                     self._get_slice_field(lc_quantity)[frame_index] = (
                         value
                     )
@@ -1032,13 +1043,21 @@ class LCDataIO:
                                      lon=frame_header['SITELONG'] * units.deg,
                                      height=frame_header['SITEALT'] * units.m)
 
-            obs_time = Time(
-                Evaluator()(
-                    self._config['jd_expression'].format_map(frame_header)
-                ),
-                format='jd',
-                location=location
-            )
+            try:
+                obs_time = Time(
+                    Evaluator()(
+                        self._config['jd_expression'].format_map(frame_header)
+                    ),
+                    format='jd',
+                    location=location
+                )
+            except KeyError:
+                obs_time = Time(
+                    Evaluator()(
+                        self._config['utc_expression'].format_map(frame_header)
+                    ),
+                    location=location
+                )
 
             source_coords = SkyCoord(
                 ra=self._ra_dec[0] * units.deg,

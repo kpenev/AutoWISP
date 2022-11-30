@@ -55,7 +55,7 @@ def parse_command_line():
     parser.add_argument(
         '--max-magfit-iterations',
         type=int,
-        default=5,
+        default=6,
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting allowed during magnitude fitting.'
     )
@@ -110,6 +110,15 @@ def parse_command_line():
         'of the middle of the exposure in a frame. First string `format` method'
         'is called on the header and then the expression is evaluated.'
     )
+    parser.add_argument(
+        '--utc-expression',
+        default='"{DATE-OBS}"',
+        help='An expression involving header keywords that evaluates to a valid'
+        ' input for constructing astropy Time objects in UTC scale.the JD '
+        'of the middle of the exposure in a frame. First string `format` method'
+        'is called on the header and then the expression is evaluated.'
+    )
+
 
     result = parser.parse_args()
 
@@ -192,7 +201,7 @@ def create_lightcurves(dr_collection, configuration):
             dr_fname_parser=dummy_fname_parser,
             optional_header='all',
             observatory=dict(SITELAT=lat,
-                             SITELONG=-lon,
+                             SITELONG=lon,
                              SITEALT=alt),
             **path_substitutions
         )
