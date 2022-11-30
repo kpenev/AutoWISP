@@ -239,6 +239,10 @@ def iterative_fit(predictors,
         predictors = scipy.multiply(predictors, weights)
         target_values = scipy.multiply(target_values, weights)
 
+    logging.getLogger(__name__).debug(
+        'Performing QR decomposition for predictors of shape: %s',
+        repr(predictors.shape)
+    )
     #False positive
     #pylint: disable=unexpected-keyword-arg
     qrp = scipy.linalg.qr(predictors.T, mode='economic', pivoting=True)

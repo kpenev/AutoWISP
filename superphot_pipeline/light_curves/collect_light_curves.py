@@ -3,6 +3,7 @@
 from string import Formatter
 import os.path
 import os
+import logging
 
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 from superphot_pipeline import DataReductionFile
@@ -66,6 +67,8 @@ def collect_light_curves(dr_filenames,
                                   observatory=observatory,
                                   **path_substitutions)
     frame_chunk = data_io.max_dimension_size['frame']
+    logging.getLogger(__name__).debug('Generating LC filenames per: %s',
+                                      repr(configuration['lc_fname']))
     sources_lc_fnames = [
         (
             source_id,

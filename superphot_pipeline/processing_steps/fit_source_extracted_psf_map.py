@@ -105,7 +105,9 @@ def get_psf_param(matched_sources, psf_parameters):
 def detect_psf_parameters(matched_sources):
     """Return the default PSF parameters to fit for he given DR file."""
 
-    for try_psf_params in [('S', 'D', 'K'), ('fwhm', 'round', 'pa')]:
+    for try_psf_params in [('S', 'D', 'K'),
+                           ('s', 'd', 'k'),
+                           ('fwhm', 'round', 'pa')]:
         found_all = True
         for param in try_psf_params:
             if param not in matched_sources.columns:
@@ -159,7 +161,10 @@ def smooth_srcextract_psf(dr_file,
     print('Predictors ({0:d}x{1:d}: '.format(*predictors.shape)
           +
           repr(predictors))
-    print('Weights {0!r}: '.format(weights.shape) + repr(weights))
+    if weights is not None:
+        print('Weights {0!r}: '.format(weights.shape) + repr(weights))
+    else:
+        print('Not using weights')
 
     fit_results = dict(coefficients=dict(),
                        fit_res2=dict(),
