@@ -393,7 +393,7 @@ class MagnitudeFit(ABC):
                 *not_in_ref[1],
                 self.config.fit_source_condition
             )
-        return result[:result_ind]
+        return result[:result_ind], fit_indices
 
     #TODO: revive once database design is complete
     def _update_calib_status(self):
@@ -590,9 +590,11 @@ class MagnitudeFit(ABC):
                     fit_results = [fit_results]
                 else:
                     self.logger.debug('Matching to reference.')
-                    fit_base = self._match_to_reference(phot,
-                                                        no_catalogue,
-                                                        evaluator)
+                    fit_base, fit_indices = self._match_to_reference(
+                        phot,
+                        no_catalogue,
+                        evaluator
+                    )
                     if fit_base.size > 0:
                         self.logger.debug('Performing linear fit.')
                         fit_results = self._fit(fit_base)
@@ -615,7 +617,8 @@ class MagnitudeFit(ABC):
                     if self._magfit_collector is not None:
                         self.logger.debug('Outputting %d sources.',
                                           len(phot['ID']))
-                        self._magfit_collector.add_input(phot, fitted)
+                        self._magfit_collector.add_input(phot[fit_indices],
+                                                         fitted[fit_indices])
         except Exception as ex:
             #Does not make sense to avoid building message.
             #pylint: disable=logging-not-lazy
