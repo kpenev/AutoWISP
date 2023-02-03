@@ -33,6 +33,13 @@ def parse_command_line():
         allow_parallel_processing=True
     )
     parser.add_argument(
+        '--lc-only-if',
+        default='True',
+        help='Expression involving the header of the input images that '
+             'evaluates to True/False if a particular image from the specified '
+             'image collection should/should not be processed.'
+    )
+    parser.add_argument(
         '--lcdump-catalogue-fname', '--lcdump-catalogue', '--lcdump-cat',
         default='lcdump_catalogue.ucac4',
         help='The name of the catalogue file containing all sources to Create '
@@ -48,7 +55,7 @@ def parse_command_line():
     parser.add_argument(
         '--max-magfit-iterations',
         type=int,
-        default=5,
+        default=6,
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting allowed during magnitude fitting.'
     )
@@ -103,6 +110,15 @@ def parse_command_line():
         'of the middle of the exposure in a frame. First string `format` method'
         'is called on the header and then the expression is evaluated.'
     )
+    parser.add_argument(
+        '--utc-expression',
+        default='"{DATE-OBS}"',
+        help='An expression involving header keywords that evaluates to a valid'
+        ' input for constructing astropy Time objects in UTC scale.the JD '
+        'of the middle of the exposure in a frame. First string `format` method'
+        'is called on the header and then the expression is evaluated.'
+    )
+
 
     result = parser.parse_args()
 
@@ -185,7 +201,7 @@ def create_lightcurves(dr_collection, configuration):
             dr_fname_parser=dummy_fname_parser,
             optional_header='all',
             observatory=dict(SITELAT=lat,
-                             SITELONG=-lon,
+                             SITELONG=lon,
                              SITEALT=alt),
             **path_substitutions
         )
@@ -193,5 +209,6 @@ def create_lightcurves(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files')),
+    create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files'),
+                                      cmdline_config.pop('lc_only_if')),
                        cmdline_config)

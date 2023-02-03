@@ -23,6 +23,13 @@ def parse_command_line():
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
     parser.add_argument(
+        '--srcextract-only-if',
+        default='True',
+        help='Expression involving the header of the input images that '
+             'evaluates to True/False if a particular image from the specified '
+             'image collection should/should not be processed.'
+    )
+    parser.add_argument(
         '--srcextract-psf-params',
         nargs='+',
         default=None,
@@ -71,12 +78,13 @@ def get_predictors_and_weights(matched_sources,
                                fit_terms_expression,
                                weights_expression):
     """Return the matrix of predictors to use for fitting."""
-
+    print('Matched columns: ' + repr(matched_sources.columns))
     if weights_expression is None:
         return (FitTermsInterface(fit_terms_expression)(matched_sources),
                 None)
+    #TODO fix matched_sources to records in Evaluator not here
     return (FitTermsInterface(fit_terms_expression)(matched_sources),
-            Evaluator(matched_sources)(weights_expression).values)
+            Evaluator(matched_sources.to_records(index=False))(weights_expression))
 
 
 def get_psf_param(matched_sources, psf_parameters):
@@ -97,7 +105,9 @@ def get_psf_param(matched_sources, psf_parameters):
 def detect_psf_parameters(matched_sources):
     """Return the default PSF parameters to fit for he given DR file."""
 
-    for try_psf_params in [('S', 'D', 'K'), ('fwhm', 'round', 'pa')]:
+    for try_psf_params in [('S', 'D', 'K'),
+                           ('s', 'd', 'k'),
+                           ('fwhm', 'round', 'pa')]:
         found_all = True
         for param in try_psf_params:
             if param not in matched_sources.columns:
@@ -151,7 +161,10 @@ def smooth_srcextract_psf(dr_file,
     print('Predictors ({0:d}x{1:d}: '.format(*predictors.shape)
           +
           repr(predictors))
-    print('Weights {0!r}: '.format(weights.shape) + repr(weights))
+    if weights is not None:
+        print('Weights {0!r}: '.format(weights.shape) + repr(weights))
+    else:
+        print('Not using weights')
 
     fit_results = dict(coefficients=dict(),
                        fit_res2=dict(),
@@ -213,5 +226,6 @@ def fit_srcextract_psf_map(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    fit_srcextract_psf_map(find_dr_fnames(cmdline_config.pop('dr_files')),
+    fit_srcextract_psf_map(find_dr_fnames(cmdline_config.pop('dr_files'),
+                                          cmdline_config.pop('srcextract_only_if')),
                            cmdline_config)

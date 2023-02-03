@@ -488,10 +488,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                   'hat_id_prefnum',
                                   len(self._hat_id_prefixes))
                     for new_id, old_id in enumerate(self._hat_id_prefixes):
-                        result[
+                        result.loc[
+                            result['hat_id_prefix'] == old_id,
                             'hat_id_prefnum'
-                        ][
-                            result['hat_id_prefix'] == old_id
                         ] = new_id
                     assert (result['hat_id_prefnum'].max()
                             <

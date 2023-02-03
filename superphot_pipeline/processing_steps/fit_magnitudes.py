@@ -113,10 +113,10 @@ def parse_command_line():
     )
     parser.add_argument(
         '--grouping',
-        action='append',
+        default=None,
         help=(
-            'An expressions using catalogue, and/or photometry variables which '
-            'evaluates to a tuple of boolean values. Each distinct tuple '
+            'An expression using catalogue, and/or photometry variables which '
+            'evaluates to several distinct values. Each value '
             'defines a separate fitting group (i.e. a group of sources which '
             'participate in magnitude fitting together, excluding sources '
             'belonging to other groups). Default: %(default)s'
@@ -132,7 +132,7 @@ def parse_command_line():
         type=float,
         default=5.0,
         help='How far away from the fit should a point be before '
-             'it is rejected in utins of error_avg. Default: %(default)s'
+             'it is rejected in units of error_avg. Default: %(default)s'
     )
     parser.add_argument(
         '--max-rej-iter',
@@ -200,14 +200,6 @@ def magnitude_fit(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    if cmdline_config['grouping'] is not None:
-        cmdline_config['grouping'] = (
-            '('
-            +
-            ', '.join(cmdline_config['grouping'])
-            +
-            ')'
-        )
     magnitude_fit(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('magfit_only_if')),
