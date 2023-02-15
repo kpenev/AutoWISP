@@ -32,7 +32,7 @@ from superphot_pipeline.processing_steps.manual_util import read_catalogue
 from superphot_pipeline import source_finder_util
 from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 
-################## see line 116 ###############################
+################## see line 124 ###############################
 #from superphot_pipeline.astrometry.map_projections import \
 #gnomonic_projection_inv
 
