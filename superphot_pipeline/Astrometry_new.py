@@ -403,9 +403,7 @@ def iteration(params):
         d, ix = kdtree.query(
             xy_transformed, distance_upper_bound = matching_max_distance
         )
-        #####################################################################
-        ### Should we let the user choose upper bound distance? #############
-        #####################################################################
+        
         result, count = np.unique(ix, return_counts = True)
         
         # Here we find those catalog sources that are matched with a common
@@ -494,8 +492,7 @@ def iteration(params):
         logging.debug(trans_y_new)
 
         ##########################################################
-        ### 1. What is the better way to finish the iteration? ###
-        ### 2. Should we let the user to choose this? ############
+        ### What is a better way to finish the iteration? ######
         ##########################################################
 
         diff = np.block([trans_x_new - trans_x, trans_y_new - trans_y])
@@ -541,4 +538,3 @@ if __name__ == '__main__':
         round(n_matched/n_extracted,3))
     )
     logging.debug("Residual: {}".format(round(math.sqrt(res_sum/n_matched),4)))
-
