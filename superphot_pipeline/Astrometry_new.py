@@ -4,7 +4,7 @@ Created on Sun Nov  7 12:23:59 2021
 @author: Ashkan
 
 Goal: Calculating the transformation matrix as:
-    (Ra,Dec) > projection(gnemonic) > (zeta,eta) > transformation (T) > (x, y)
+(Ra,Dec) > projection(gnemonic) > (zeta,eta) > transformation (T) > (x, y)
 (Ra, Dec): on the sky which will be transformed to zeta(or xi) and eta
 Trans_mat: Transformation Matrix which we are looking for
 (x, y): coordinates on the frame
@@ -15,7 +15,7 @@ This will be done in 4 major steps:
     3. Finding new T with much more matched sources
     4. Repeat the steps to get a better trnsformation
 """
-
+import time
 import glob
 import numpy as np
 import logging
@@ -30,88 +30,60 @@ from matplotlib import pyplot as plt
 from numpy.lib.recfunctions import structured_to_unstructured
 from superphot_pipeline.processing_steps.manual_util import read_catalogue
 from superphot_pipeline import source_finder_util
+from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 
-
-#from superphot_pipeline import DataReductionFile
-np.set_printoptions(threshold=sys.maxsize)
-#from superphot_pipeline.astrometry.map_projections import gnomonic_projection
+################## see line 116 ###############################
 #from superphot_pipeline.astrometry.map_projections import \
 #gnomonic_projection_inv
 
 logging.basicConfig(filename='ast_result.log',level = logging.DEBUG)
 
-#order = 4
+def parse_command_line():
+    """
+    Return the parsed command line arguments.
+    """
 
+    parser = argparse.ArgumentParser(
+        description='Inputs (name of the files, order')
 
-parser = argparse.ArgumentParser(description='Inputs (name of the files, order')
+    parser.add_argument(
+        'order', type=int, help = 'order of astrometry')
 
-parser.add_argument('order', type=int, help = 'order of astrometry')
-parser.add_argument('corr_file', type=str, help = 'correlation file name')
-parser.add_argument('fistar_file', type=str, help = 'fistar file name')
-parser.add_argument('catalog_file', type=str, help = 'catalog file name')
+    parser.add_argument(
+        'matching_max_distance',type=float,help='kd3 upper bound distance')    
 
-args = parser.parse_args()
+    parser.add_argument(
+        'trans_threshold',type=float,help ='threshold for the difference of\
+                                            two consecutive transformation')
+    parser.add_argument(
+        'ra_cent', type=float, help = 'RA of the center of the frame')
 
+    parser.add_argument(
+        'dec_cent', type=float, help = 'Dec of the center of the frame')
 
+    parser.add_argument(
+        'x_frame', type=float, help = 'Length (x) of the frame')
 
-#def read_inputs():
-#    """
-#    Read all inputs except those exists in the DR file
+    parser.add_argument(
+        'y_frame', type=float, help = 'Width (y) of the frame')
+
+    parser.add_argument(
+        'corr_file',type=str,help='Initial correlation file name from \
+                                                     Astrometry.net')
     
-#    Args:
-#        None    
-#    Returns:
-#        inputs(dict): includes numpy arrays of:
-#                      xy_correlation from astrometry.net 
-#                      radec_correlation from astrometry.net
-#                      xy_extracted from fistar file
-#                      radec_catalog from ucac4
-#                      order: order of astrometry
-#    """
-        
-#    corr_file = "corr.csv"
-#    fistar_file = "10-465000_2_G1_250.fistar"
-#    catalog_file = "cat_sources.ucac4"
-#    order = 3
+    parser.add_argument(
+        'fistar_file', type=str, help = 'fistar file name')
     
-#    xy_corr = \
-#    np.genfromtxt(corr_file, delimiter=",", usecols=(0,1), names=['x','y'])
-#    radec_corr = \
-#    np.genfromtxt(corr_file, delimiter=",", usecols=(6,7), names=['RA','Dec'])
-    
-#    xy_extracted = \
-#    np.genfromtxt(fistar_file, usecols=(1, 2), names = ['x', 'y'])   
-#    radec_catalog = np.genfromtxt(
-#             catalog_file, skip_header=1,usecols=(1,2), names=['RA','Dec'])
+    parser.add_argument(
+        'catalog_file', type=str, help = 'catalog file name')
 
-#    inputs = {"xy_corr":xy_corr, "radec_corr":radec_corr, \
-#              "xy_extracted":xy_extracted, "radec_catalog":radec_catalog, \
-#              "order":args.order }
+    return parser.parse_args()
 
-#    return inputs
-    
-#def read_dr_file():
-#    """
-#    Read some variable from the DR file
-#    
-#    Args:
-#        None
-         
-#    Returns:
-#        dr_inputs(dict): includes RA, Dec, x, y of the center of the frame
-#    """
-    # Better to read center RA and Dec from astrometry.net and not from frame
-#    ra_cent = 10.2994169770979
-#    dec_cent = 45.6471
-#    x_cent = 3983/2.0
-#    y_cent = 2659/2.0
-    
-#    dr_inputs = \
-#    {"ra_cent":ra_cent, "dec_cent":dec_cent, "x_cent":x_cent, "y_cent":y_cent}
-    
-#    return dr_inputs
-
-def projection(sources, projected, **center):  
+#############################################################################
+### 1st edit map_projection (2nd line), then replace this func with: ########
+### PhotometryPipeline/superphot_pipeline/astrometry/map_projections.py #####
+#############################################################################
+def projection(sources, projected, **center):
     """
     Project the given sky position to a tangent plane (gnomonic projection).
     
@@ -123,7 +95,8 @@ def projection(sources, projected, **center):
             with the projected coordinates (in degrees).
         
         center(dict): Should define the central `'RA'` and `'Dec'` around
-            which to project. (It is supposed that RA is in hr and Dec is in degree)
+            which to project. (It is supposed that RA is in hr and Dec is
+            in degree)
     Returns:
         None
     """
@@ -147,6 +120,10 @@ def projection(sources, projected, **center):
                 ) / denominator
     return None
 
+##########################################################
+##### Add this beside map_projection in: #################
+#### PhotometryPipeline/superphot_pipeline/astrometry/ ###
+##########################################################
 def inv_projection (sources, projected, **center):
     """
     Inverse projection from tangent plane (xi, eta)
@@ -160,8 +137,8 @@ def inv_projection (sources, projected, **center):
         projected: numpy array with "xi" and "eta" fields (in degrees)
         
         center(dict): Should define the central "RA" and "Dec"
-                      in hour and degree respectively, which will be converted
-                      to radian
+                      in hour and degree respectively, which will be
+                      converted to radian
         
     Returns:
         None
@@ -184,6 +161,7 @@ def inv_projection (sources, projected, **center):
     sources['Dec'] *= 180.0/np.pi  # convert from radian to degree
     
     return None
+
 
 def transformation_matrix(order, zeta, eta):
     """
@@ -208,6 +186,7 @@ def transformation_matrix(order, zeta, eta):
             m = np.block([m,zeta**(i-j)*eta**j])
     return m
     
+    
 def new_center_func(z, trans_x, trans_y, x_cent, y_cent, order):
     """
     Constructing the two non linear function to be solved for
@@ -216,13 +195,13 @@ def new_center_func(z, trans_x, trans_y, x_cent, y_cent, order):
     Args:
         z:
         
-        trans_x:
+        trans_x: transformation matrix for x
          
-        trans_y:
+        trans_y: transformation matrix for y
         
-        x_cent:
+        x_cent: x of the center of the frame
         
-        y_cent:
+        y_cent: y of the center of the frame
          
     Returns:
         f: the related function
@@ -246,47 +225,54 @@ def new_center_func(z, trans_x, trans_y, x_cent, y_cent, order):
     return f
 
 
-def astrometry(ra_cent, dec_cent, x_cent, y_cent):
+def astrometry():
     """
     Main function: To get the initial transformation,
-    the rest is calling iteration function to iterate the steps to get new transformations 
+    the rest is calling iteration function to iterate the steps to get
+    new transformations 
     
     Args:
         None
          
     Returns:
-        diagnostics including: # of matched sources, # of extracted sources, 
-                               # of catalog sources, sum of residuals
+        See the returns of func. iteration
+                               
     """
-    #inputs = read_inputs()
     
+    cmdline_config = parse_command_line()
     
-    corr_file = args.corr_file
-    fistar_file = args.fistar_file
-    catalog_file = args.catalog_file
-    order = args.order
+    order = cmdline_config.order
+    matching_max_distance = cmdline_config.matching_max_distance
+    trans_threshold = cmdline_config.trans_threshold
+    ra_cent = cmdline_config.ra_cent
+    dec_cent = cmdline_config.dec_cent
+    x_frame = cmdline_config.x_frame
+    y_frame = cmdline_config.y_frame
+    corr_file = cmdline_config.corr_file 
+    fistar_file = cmdline_config.fistar_file
+    catalog_file = cmdline_config.catalog_file
+
+    
     
     xy_corr = \
     np.genfromtxt(corr_file, delimiter=",", usecols=(0,1), names=['x','y'])
+    
     radec_corr = \
     np.genfromtxt(corr_file, delimiter=",", usecols=(6,7), names=['RA','Dec'])
     
-    xy_extracted = \
-    np.genfromtxt(fistar_file, usecols=(1, 2), names = ['x', 'y'])
+
+    xy_extracted = np.genfromtxt(
+         fistar_file,names=source_finder_util.get_srcextract_columns('fistar'),
+         dtype=None, deletechars=''
+    )
+
+#############################################################################
+##### use:
+#from superphot_pipeline.processing_steps.manual_util import read_catalogue #
+#############################################################################
+
     radec_catalog = np.genfromtxt(
              catalog_file, skip_header=1,usecols=(1,2), names=['RA','Dec'])
-
-    inputs = {"xy_corr":xy_corr, "radec_corr":radec_corr, \
-              "xy_extracted":xy_extracted, "radec_catalog":radec_catalog, \
-              "order":args.order }
-    
-    xy_corr = inputs["xy_corr"]
-    radec_corr = inputs["radec_corr"]
-    order = inputs["order"]
-    
-    #dr_inputs = read_dr_file()
-    #ra_cent = dr_inputs["ra_cent"]
-    #dec_cent = dr_inputs["dec_cent"]
     
     projected = \
     np.empty(radec_corr.shape[0], dtype=[('xi', float), ('eta', float)])
@@ -307,7 +293,7 @@ def astrometry(ra_cent, dec_cent, x_cent, y_cent):
 
     trans_x, resid_x, rank_x, sigma_x = linalg.lstsq(mt, xy_corr['x'])
     trans_y, resid_x, rank_y, sigma_y = linalg.lstsq(mt, xy_corr['y'])
-    # We do not use resid, rank, sigma! Should be removed? 
+    #### We do not use resid, rank, sigma! Should be removed? ### 
     trans_x = trans_x[np.newaxis].T
     trans_y = trans_y[np.newaxis].T
     
@@ -316,69 +302,72 @@ def astrometry(ra_cent, dec_cent, x_cent, y_cent):
     logging.debug('\n Initial Transformation matrix for Y components:')
     logging.debug(trans_y)
     
-    diagnostics = iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent)
-    # iteration gives us: n_matched, n_extracted, n_catalog, res_sum
-    # as return values
+
+    parameters = {'order':order,'matching_max_distance':matching_max_distance,
+                  'trans_threshold':trans_threshold,'trans_x':trans_x,
+                  'trans_y':trans_y, 'ra_cent':ra_cent, 'dec_cent':dec_cent,
+                  'x_frame':x_frame, 'y_frame':y_frame, 'xy_corr':xy_corr,
+                  'radec_corr':radec_corr, 'xy_extracted':xy_extracted,
+                  'radec_catalog':radec_catalog}
     
-    return(diagnostics)
+    return(iteration(parameters))
 
 
-def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
+def iteration(params):
     """
     Iterate the process until we get a transformation that
     its difference from the previous one is less than a threshold
     
     Args:
-        order: order of astrometry
-        
-        trans_x: transformation matrix for x
-        
-        trans_y: transformation matrix for y
-         
+        params: A dictionary containing:
+
+            order: order of astrometry
+            matching_max_distance: upper bound distance in kd3
+            trans_threshold: threshold for the difference of two consecutive
+                             transformation
+            trans_x: transformation matrix for x
+            trans_y: transformation matrix for y
+            ra_cent: RA of the center of the frame
+            dec_cent: Dec of the center of the frame
+            x_frame: length of the frame in pixel
+            y_frame: width of the frame in pixel
+            xy_corr: x and y values of the initial correlation
+            radec_corr: RA and Dec values of the initial correlation
+            xy_extracted: x and y of the extracted sources of the frame
+            radec_catalog: RA and Dec of the catalog sources
+            
     Returns:
-        None
+        n_matched: # of matched sources
+   
+        n_extracted: # of matched sources
+     
+        n_catalog: # of matched sources
+    
+        res_sum: sum of residuals
     """
-    
-    #inputs = read_inputs()
-    
-    
-    corr_file = args.corr_file
-    fistar_file = args.fistar_file
-    catalog_file = args.catalog_file
-    order = args.order
-    
-    xy_corr = \
-        np.genfromtxt(corr_file, delimiter=",", usecols=(0,1), names=['x','y'])
-    radec_corr = \
-        np.genfromtxt(corr_file, delimiter=",", usecols=(6,7), names=['RA','Dec'])
-    
-    xy_extracted = \
-        np.genfromtxt(fistar_file, usecols=(1, 2), names = ['x', 'y'])   
-    radec_catalog = np.genfromtxt(
-        catalog_file, skip_header=1,usecols=(1,2), names=['RA','Dec'])
-        
-    inputs = {"xy_corr":xy_corr, "radec_corr":radec_corr, \
-              "xy_extracted":xy_extracted, "radec_catalog":radec_catalog, \
-              "order":args.order }
-    
-    
-    
-    
-    xy_extracted = inputs["xy_extracted"]
+    order = params['order']
+    matching_max_distance = params['matching_max_distance']
+    trans_threshold = params['trans_threshold']
+    trans_x = params['trans_x']
+    trans_y = params['trans_y']
+    ra_cent = params['ra_cent']
+    dec_cent = params['dec_cent']
+    x_frame = params['x_frame']
+    y_frame = params['y_frame']
+    xy_corr = params['xy_corr']
+    radec_corr=params['radec_corr']
+    xy_extracted = params['xy_extracted']
+    radec_catalog = params['radec_catalog']
+
+    x_cent = x_frame/2.0
+    y_cent = y_frame/2.0    
+
     xy_extracted = structured_to_unstructured(xy_extracted)
+    xy_extracted = xy_extracted[:,1:3] 
+
     n_extracted = len(xy_extracted)
-    
-    radec_catalog = inputs["radec_catalog"]
     n_catalog = len(radec_catalog)
-        
-    #order = inputs["order"]
-    
-    #dr_inputs = read_dr_file()
-    #ra_cent = dr_inputs["ra_cent"]
-    #dec_cent = dr_inputs["dec_cent"]
-    #x_cent = dr_inputs["x_cent"]
-    #y_cent = dr_inputs["y_cent"]
-    
+
     counter = 0
     while True:
         
@@ -392,7 +381,6 @@ def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
         
         radec_cent = {"RA":ra_cent,"Dec":dec_cent}
         
-        #print("radec_cent: ",radec_cent)
         projected = np.empty(
         radec_catalog.shape[0], dtype=[('xi', float), ('eta', float)]
         )
@@ -411,38 +399,44 @@ def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
 
         xy_transformed = np.block([x_transformed, y_transformed])
 
-        print("xy_transformed: ",xy_transformed.shape)
-        print("xy_extracted: ",xy_extracted.shape)
-        
         kdtree = spatial.KDTree(xy_extracted)
-        d, ix = kdtree.query(xy_transformed, distance_upper_bound = 2.5)
+        d, ix = kdtree.query(
+            xy_transformed, distance_upper_bound = matching_max_distance
+        )
+        #####################################################################
+        ### Should we let the user choose upper bound distance? #############
+        #####################################################################
+        result, count = np.unique(ix, return_counts = True)
         
-        result, count = np.unique(ix, return_counts=True)
-        
+        # Here we find those catalog sources that are matched with a common
+        # frame source. We keep only the nearest source:
         for multi_match_i in result[count > 1][:-1]:
             bad_match = (ix == multi_match_i)
+            # This is the desired index that should be kept:
             found_index = np.argwhere(bad_match)[np.argmin(d[bad_match])][0]
-            # this is the desired index that should be kept
             bad_match[found_index] = False
             good_match = np.invert(bad_match)
             d[bad_match] = np.inf
             ix[bad_match] = result[-1]
-        # Should we let the user choose upper bound distance?
+        ######################################################################
+        ### IMP: We should try to see if there is a better way to do this ####
+        ### removing of multiple matched sources. Or not, as this part of ####
+        ### the astromy process is the least time consuming part #############
+        ######################################################################
+
+
         n_matched = 0
         res_sum = 0
-        # Find the number of matched sources / RMS of residuals 
-        #print(d)
-        #np.isfinite(d).sum()
+
         for i in d:
             if not np.isinf(i):
                 n_matched = n_matched + 1
                 res_sum = res_sum + i**2
-        print('n_matched: ', n_matched)
-        print('res_sum: ', res_sum)
+
         logging.debug("# of matched: {}".format(n_matched))
         matched_sources = \
         np.empty(
-        n_matched, dtype=[('RA', float), ('Dec', float), ('x', float), ('y', float)]
+        n_matched,dtype=[('RA',float), ('Dec',float), ('x',float), ('y',float)]
         )
         # Put all matched sources together
         j = 0
@@ -458,7 +452,7 @@ def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
                 j = j + 1
         zGuess = np.array([np.mean(zeta), np.mean(eta)])
         z = fsolve(
-        new_center_func, zGuess, args = (trans_x, trans_y, x_cent, y_cent, order)
+        new_center_func, zGuess, args=(trans_x, trans_y, x_cent, y_cent, order)
         )
         
         # since when we derived T, zeta and eta were in degrees.
@@ -499,23 +493,26 @@ def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
         logging.debug('\n new Transformation matrix for Y components:')
         logging.debug(trans_y_new)
 
-        # What is the better way to finish the iteration?
-        threshold = 0.5
+        ##########################################################
+        ### 1. What is the better way to finish the iteration? ###
+        ### 2. Should we let the user to choose this? ############
+        ##########################################################
 
         diff = np.block([trans_x_new - trans_x, trans_y_new - trans_y])
-        #print(diff)
-        if np.count_nonzero(diff > threshold) == 0:
+
+        if np.count_nonzero(diff > trans_threshold) == 0:
             # Exclude the sources that are not within the frame:
-            in_frame = np.logical_and(np.logical_and(xy_transformed[:,0]>-3, \
-                                                     xy_transformed[:,0]<3986), \
-                                      np.logical_and(xy_transformed[:,1]>-3, \
-                                                     xy_transformed[:,1]<2662))
+            in_frame = np.logical_and(
+                   np.logical_and(xy_transformed[:,0]>-3, \
+                                  xy_transformed[:,0]< (x_frame+3)), \
+                   np.logical_and(xy_transformed[:,1]>-3, \
+                                  xy_transformed[:,1]<(y_frame+3)))
+            
             in_frame = in_frame[np.newaxis].T
             in_frame = np.append(in_frame, in_frame, axis = 1)            
             xy_transformed = xy_transformed[in_frame].reshape(-1,2)
             radec_catalog = structured_to_unstructured(radec_catalog)
             radec_catalog = radec_catalog[in_frame].reshape(-1,2)
-            # We should save these in the DR file
 
             with open('reg.reg', 'w') as f_out:
                 for x, y in xy_transformed:
@@ -534,28 +531,14 @@ def iteration(order, trans_x, trans_y, ra_cent, dec_cent, x_cent, y_cent):
 
 
 if __name__ == '__main__':
-    ra_cent = 10.2994169770979
-    dec_cent = 45.6471
-    x_cent = 3983/2.0
-    y_cent = 2659/2.0
-    # Here we should have something that reads source extracted file to get that numpy array,
-    # Then we pass it to our function of astrometry
 
+    n_matched, n_extracted, n_catalog, res_sum = astrometry()
     
-    #result = numpy.genfromtxt(
-    #            sources_file,
-    #            names=source_finder_util.get_srcextract_columns(
-    #                configuration['tool']
-    #            ),
-    #            dtype=None,
-    #            deletechars=''
-    #        )
-    
-    n_matched, n_extracted, n_catalog, res_sum = astrometry(ra_cent, dec_cent, x_cent, y_cent)
     logging.debug("# of catalog sources: {}".format(n_catalog))
     logging.debug("# of extracted: {}".format(n_extracted))
     logging.debug("# of matched sources: {}".format(n_matched))
-    logging.debug("fraction of matched/extracted: {}".format(round(n_matched/n_extracted,3)))
+    logging.debug("fraction of matched/extracted: {}".format(
+        round(n_matched/n_extracted,3))
+    )
     logging.debug("Residual: {}".format(round(math.sqrt(res_sum/n_matched),4)))
-
 
