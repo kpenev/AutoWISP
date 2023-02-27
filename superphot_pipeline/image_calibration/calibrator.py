@@ -1,7 +1,5 @@
 """Define a class (Calibrator) for low-level image calibration."""
 
-from os import path
-
 from hashlib import sha1
 from astropy.io import fits
 
@@ -474,6 +472,9 @@ class Calibrator(Processor):
         """Set all calibration parameters following overwrite rules."""
 
         calibration_params = super().__call__(**overwrite_params)
+        calibration_params['combine_headers'] = (
+            calibration_params['raw_hdu'] is not None
+        )
         if calibration_params['raw_hdu'] is None:
             calibration_params['raw_hdu'] = (
                 1 if raw_image[0].header['NAXIS'] == 0 else 0
@@ -518,6 +519,20 @@ class Calibrator(Processor):
         else:
             calibration_params['masks'] = self.masks
         return calibration_params
+
+
+    @staticmethod
+    def _get_raw_header(raw_image, calibration_params):
+        """Return the raw header to base the calibrated frame header on."""
+
+        result = get_primary_header(
+            raw_image,
+            add_filename_keywords=True,
+            fnum_expression=calibration_params['fnum']
+        )
+        if calibration_params['combine_headers']:
+            result.update(raw_image[calibration_params['raw_hdu']].header)
+        return result
 
 
     def __init__(self,
@@ -729,11 +744,7 @@ class Calibrator(Processor):
                 apply_flat_correction(calibration_params['flat'],
                                       calibrated_images)
 
-            raw_header = get_primary_header(
-                raw_image,
-                add_filename_keywords=True,
-                fnum_expression=calibration_params['fnum']
-            )
+            raw_header = self._get_raw_header(raw_image, calibration_params)
 
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
