@@ -184,7 +184,7 @@ def detrend_light_curves(lc_collection,
 
     if configuration['detrending_catalogue'] is not None:
         recalculate_detrending_performance(
-            lc_fnames,
+            lc_collection,
             fit_datasets=configuration['fit_datasets'],
             catalogue_fname=configuration['detrending_catalogue'],
             magnitude_column=configuration['magnitude_column'],
