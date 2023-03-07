@@ -105,6 +105,20 @@ def parse_command_line():
         help='If specified, the star is assumed to have the given type of '
         'variability (for now only transits are supported).'
     )
+    parser.add_argument(
+        '--skip-gaps',
+        default=None,
+        type=float,
+        help='If specified, the x axis (time) is broken to skip periods of '
+        'time longer than the specified value (in days) when there are no '
+        'observations. Ignored if multiple LCs are being plotted.'
+    )
+    parser.add_argument(
+        '--drop-outliers',
+        default=numpy.inf,
+        type=float,
+        help='Outliers larger than this times the scatter are not plotted.'
+    )
     LCDetrendingArgumentParser.add_transit_parameters(
         parser,
         timing=True,
@@ -123,6 +137,7 @@ def plot_binned(plot_x,
                 bin_size,
                 errorbar_mode,
                 *,
+                plot_axes=pyplot.gca(),
                 lc_color,
                 continuous=False,
                 **plot_config):
@@ -185,7 +200,7 @@ def plot_binned(plot_x,
                 binned_magnitudes + binned_errorbars
             ]
         plot_config['markersize'] = 0
-        pyplot.plot(
+        plot_axes.plot(
             binned_x,
             binned_magnitudes,
             '-',
@@ -194,7 +209,7 @@ def plot_binned(plot_x,
         )
         plot_config['label'] = None
         for i in range(2):
-            pyplot.plot(
+            plot_axes.plot(
                 binned_x,
                 binned_errorbars[i],
                 '--',
@@ -206,7 +221,7 @@ def plot_binned(plot_x,
             binned_errorbars[0] = binned_magnitudes - binned_errorbars[0]
             binned_errorbars[1] -= binned_magnitudes
 
-        pyplot.errorbar(
+        plot_axes.errorbar(
             binned_x,
             binned_magnitudes,
             binned_errorbars,
@@ -223,6 +238,8 @@ def plot_transit_model(transit_flux,
                        eval_bjd,
                        oot_mag=0.0,
                        folding=None,
+                       *,
+                       plot_axes=pyplot.gca(),
                        **plot_config):
     """
     Add a box transit to the plot.
@@ -248,7 +265,7 @@ def plot_transit_model(transit_flux,
 
     assert transit_flux.shape == eval_bjd.shape
     model_mag = oot_mag - 2.5 * numpy.log10(transit_flux)
-    pyplot.plot(
+    plot_axes.plot(
         (eval_bjd % folding) if folding else eval_bjd,
         model_mag,
         **plot_config
@@ -259,6 +276,7 @@ def mark_transit(transit_flux,
                  eval_bjd,
                  oot_mag=0.0,
                  *,
+                 plot_axes=pyplot.gca(),
                  label='',
                  **plot_config):
     """Mark in and out of transit mags + start and for non-folded LCs only."""
@@ -279,8 +297,8 @@ def mark_transit(transit_flux,
 
     ages_to_mark, max_mag = get_ages_to_mark()
 
-    color = pyplot.axhline(y=oot_mag).get_color()
-    pyplot.axhline(y=max_mag, color=color)
+    color = plot_axes.axhline(y=oot_mag).get_color()
+    plot_axes.axhline(y=max_mag, color=color)
 
     if label.strip():
         label = label.strip() + ' '
@@ -291,7 +309,7 @@ def mark_transit(transit_flux,
     full_label = label + 'start'
     for mark_ages in ages_to_mark:
         for x in mark_ages:
-            pyplot.axvline(
+            plot_axes.axvline(
                 x=x,
                 color=color,
                 linestyle=style,
@@ -303,9 +321,108 @@ def mark_transit(transit_flux,
         style=':'
 
 
+def get_skip_gap_axes(plot_x, min_gap, pad_frac=0.01):
+    """Return list of axes skipping gaps in plot_x that exceed min_gap."""
+
+    gap_indices = numpy.nonzero(plot_x[1:] - plot_x[:-1] > min_gap)[0]
+    ax_limits = []
+    min_x = plot_x[0]
+    for gap_i in gap_indices:
+        pad = (plot_x[gap_i] - min_x) * pad_frac * gap_indices.size
+        ax_limits.append((min_x - pad, plot_x[gap_i] + pad))
+        min_x = plot_x[gap_i+1]
+    pad = (plot_x[-1] - min_x) * pad_frac * gap_indices.size
+    ax_limits.append((min_x - pad_frac, plot_x[-1] + pad_frac))
+
+    fig, axes = pyplot.subplots(
+        1,
+        gap_indices.size + 1,
+        sharey=True,
+        gridspec_kw=dict(width_ratios=[l[1] - l[0] for l in ax_limits])
+    )
+
+    min_x = plot_x[0]
+    for gap_i, ax_part in zip(gap_indices, axes):
+        ax_part.spines['right'].set_visible(False)
+        ax_part.spines['left'].set_visible(False)
+        ax_part.tick_params(labelleft=False)
+        ax_part.tick_params(left=False)
+        ax_part.tick_params(right=False)
+
+        pad = (plot_x[gap_i] - min_x) * pad_frac * gap_indices.size
+        ax_part.set_xlim(min_x - pad, plot_x[gap_i] + pad)
+        min_x = plot_x[gap_i+1]
+
+    axes[0].spines['left'].set_visible(True)
+    axes[0].tick_params(labelleft=True)
+    axes[0].tick_params(left=True)
+    axes[0].set_yticks([-0.02, -0.01, 0.0, 0.01, 0.02])
+    axes[-1].spines['left'].set_visible(False)
+    axes[-1].tick_params(left=False)
+
+    pad = (plot_x[-1] - min_x) * pad_frac * gap_indices.size
+    axes[-1].set_xlim(min_x - pad_frac, plot_x[-1] + pad_frac)
+
+    first = True
+
+    cutout_size=0.015
+    for ax_part in axes:
+        ax_limits = ax_part.get_xlim()
+        tick_start = 0.1 * numpy.ceil(10.0 * ax_limits[0])
+        tick_end = 0.1 * numpy.floor(10.0 * ax_limits[1])
+        print('Tick range: ' + repr((tick_start, tick_end)))
+        if gap_indices.size > 3:
+            ax_part.set_xticks([tick_start, tick_end])
+#            ax_part.tick_params(axis='x', which='both', labelrotation=45)
+        else:
+            ax_part.set_xticks(
+                numpy.arange(tick_start, tick_end + 0.1, 0.1)
+            )
+
+        cutout_x_coords = numpy.array([
+            1 + cutout_size / (ax_limits[1] - ax_limits[0]),
+            1 - cutout_size / (ax_limits[1] - ax_limits[0])
+        ])
+        ax_part.plot(
+            cutout_x_coords,
+            (-cutout_size, +cutout_size),
+            transform=ax_part.transAxes,
+            color='k',
+            clip_on=False
+        )
+        ax_part.plot(
+            cutout_x_coords,
+            (1 - cutout_size, 1 + cutout_size),
+            transform=ax_part.transAxes,
+            color='k',
+            clip_on=False
+        )
+
+        if not first:
+            ax_part.plot(
+                cutout_x_coords - 1,
+                (-cutout_size, +cutout_size),
+                transform=ax_part.transAxes,
+                color='k',
+                clip_on=False
+            )
+            ax_part.plot(
+                cutout_x_coords - 1,
+                (1 - cutout_size, 1 + cutout_size),
+                transform=ax_part.transAxes,
+                color='k',
+                clip_on=False
+            )
+
+
+        first = False
+
+    return fig, axes
+
 def plot_lc(plot_x,
             magnitudes,
             *,
+            plot_axes=pyplot.gca(),
             detrending_mode,
             lc_color,
             zorder,
@@ -315,7 +432,7 @@ def plot_lc(plot_x,
     if configuration.fold_period:
         plot_x %= configuration.fold_period
 
-    pyplot.plot(
+    plot_axes.plot(
         plot_x,
         magnitudes,
         '.',
@@ -350,7 +467,8 @@ def add_transit_to_plot(transit_param,
                         bjd,
                         bjd_offset,
                         oot_mag,
-                        configuration):
+                        configuration,
+                        plot_axes=pyplot.gca()):
     """Plot the box transit of transit marks per configuration."""
 
     eval_transit_bjd = numpy.linspace(bjd.min(),
@@ -371,12 +489,14 @@ def add_transit_to_plot(transit_param,
             oot_mag,
             configuration.fold_period,
             linestyle='-',
+            plot_axes=plot_axes,
             **plot_config
         )
     else:
         mark_transit(transit_flux,
                      eval_transit_bjd,
                      oot_mag,
+                     plot_axes=plot_axes,
                      **plot_config)
 #pylint: enable=too-many-arguments
 
@@ -436,7 +556,7 @@ def add_lc_to_plot(select_photometry, configuration):
         )
     colors = iter(colors)
 
-
+    skip_gap_axes, figure = [pyplot.gca()], pyplot.gcf()
     for zorder, detrending_mode in enumerate(
             reversed(configuration.detrending_mode)
     ):
@@ -449,10 +569,17 @@ def add_lc_to_plot(select_photometry, configuration):
             )
             #pylint: enable=unbalanced-tuple-unpacking
 
+            ref_mag = getattr(numpy, 'nan' + configuration.zero_stat)(
+                magnitudes
+            )
+            keep_points = (numpy.abs(magnitudes - ref_mag)
+                           <
+                           configuration.drop_outliers * scatter)
+            bjd = bjd[keep_points]
+            magnitudes = magnitudes[keep_points]
+
             if configuration.zero_stat is not None:
-                magnitudes -= getattr(numpy, 'nan' + configuration.zero_stat)(
-                    magnitudes
-                )
+                magnitudes -= ref_mag
 
             if configuration.combined_binned_lc:
                 combined_magnitudes = numpy.concatenate((
@@ -465,14 +592,28 @@ def add_lc_to_plot(select_photometry, configuration):
                 ))
             bjd_offset = int(bjd.min())
             bjd -= bjd_offset
+            if len(configuration.lightcurves) == 1 and configuration.skip_gaps:
+                figure, skip_gap_axes = get_skip_gap_axes(
+                    bjd,
+                    configuration.skip_gaps
+                )
+                print('Skip gap axes generated!')
+            else:
+                print('Skip gap axes not generated for %d LCs'
+                      %
+                      len(configuration.lightcurves))
+
 
             if not configuration.combined_binned_lc:
-                plot_lc(bjd,
-                        magnitudes,
-                        detrending_mode=detrending_mode,
-                        lc_color=next(colors),
-                        zorder=zorder,
-                        configuration=configuration)
+                lc_color = next(colors)
+                for plot_axes in skip_gap_axes:
+                    plot_lc(bjd,
+                            magnitudes,
+                            detrending_mode=detrending_mode,
+                            lc_color=lc_color,
+                            zorder=zorder,
+                            plot_axes=plot_axes,
+                            configuration=configuration)
 
         if configuration.combined_binned_lc:
             bjd_offset = int(combined_bjd.min())
@@ -486,7 +627,7 @@ def add_lc_to_plot(select_photometry, configuration):
                     zorder=zorder,
                     configuration=configuration)
 
-    return bjd, bjd_offset, magnitudes, scatter
+    return (bjd, bjd_offset, magnitudes, scatter, skip_gap_axes, figure)
 
 
 def main(configuration):
@@ -515,7 +656,14 @@ def main(configuration):
     else:
         select_photometry = partial(get_minimum_scatter, **scatter_config)
 
-    bjd, bjd_offset, last_magnitudes, scatter = add_lc_to_plot(
+    (
+        bjd,
+        bjd_offset,
+        last_magnitudes,
+        scatter,
+        skip_gap_axes,
+        figure
+    ) = add_lc_to_plot(
         select_photometry,
         configuration
     )
@@ -529,31 +677,42 @@ def main(configuration):
             1.0
         )
         oot_magnitude = numpy.median(last_magnitudes[oot_flag])
-        add_transit_to_plot(transit_parameters,
-                            transit_model,
-                            bjd,
-                            bjd_offset,
-                            oot_magnitude,
-                            configuration)
+        for plot_axes in skip_gap_axes:
+            add_transit_to_plot(transit_parameters,
+                                transit_model,
+                                bjd,
+                                bjd_offset,
+                                oot_magnitude,
+                                configuration,
+                                plot_axes=plot_axes)
     else:
         assert configuration.variability is None
         oot_magnitude = numpy.median(last_magnitudes)
+
+    figure.add_subplot(111, frameon=False)
+    pyplot.tick_params(labelcolor='none', which='both', top=False, bottom=False,
+                    left=False, right=False)
+    pyplot.ylim(configuration.plot_y_range)
+    for plot_ax in skip_gap_axes:
+        plot_ax.set_ylim(configuration.plot_y_range)
 
     if configuration.fold_period:
         pyplot.xlabel(
             'Phase (P={:.6f} d)'.format(configuration.fold_period)
         )
     else:
-        pyplot.xlabel('BJD - {:d}'.format(int(bjd[0])))
+        pyplot.xlabel('Days')
+#        pyplot.xlabel('BJD - {:d}'.format(int(bjd[0])))
 
-    pyplot.axhspan(ymin=oot_magnitude - scatter,
-                   ymax=oot_magnitude + scatter,
-                   color='lightgrey',
-                   zorder=0)
+#    pyplot.axhspan(ymin=oot_magnitude - scatter,
+#                   ymax=oot_magnitude + scatter,
+#                   color='lightgrey',
+#                   zorder=0)
 
-    pyplot.ylabel('Magnitude')
-    pyplot.xlim(configuration.plot_x_range)
-    pyplot.ylim(configuration.plot_y_range)
+    skip_gap_axes[0].set_ylabel('Magnitude')
+    if not configuration.skip_gaps:
+        pyplot.xlim(configuration.plot_x_range)
+#    pyplot.ylim()
     pyplot.legend()
 
     if configuration.plot_fname is None:
