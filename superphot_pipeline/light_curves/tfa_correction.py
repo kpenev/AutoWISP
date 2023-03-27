@@ -658,6 +658,7 @@ class TFACorrection(Correction):
             phot_template_measurements = None
             num_templates = phot_template_stars.shape[0]
             for source_index, source_id in enumerate(phot_template_stars):
+                print('LC fname: ' + repr(self._configuration['lc_fname']))
                 with LightCurveFile(
                         self._configuration['lc_fname'].format(*source_id),
                         'r'

@@ -545,10 +545,13 @@ class HDF5File(ABC, h5py.File):
             elif column in ['xi', 'eta', 'x', 'y']:
                 del result['compression']
                 result['scaleoffset'] = 6
-            elif column in ['ucacmag',
-                            'J', 'H', 'K',
-                            'B', 'V', 'R', 'I',
-                            'u', 'g', 'r', 'i', 'z']:
+            elif (
+                column in ['J', 'H', 'K',
+                           'B', 'V', 'R', 'I',
+                           'u', 'g', 'r', 'i', 'z']
+                or
+                column.endswith('mag')
+            ):
                 del result['compression']
                 result['scaleoffset'] = 3
             elif column in ['dist',
