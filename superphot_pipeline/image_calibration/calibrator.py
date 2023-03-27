@@ -553,7 +553,7 @@ class Calibrator(Processor):
         """
 
         self.set_masters(
-            **{master_type: configuration.pop(master_type, None)
+            **{master_type: configuration.pop('master_' + master_type, None)
                for master_type in ['bias', 'dark', 'flat']}
         )
         configuration['saturation_threshold'] = saturation_threshold
