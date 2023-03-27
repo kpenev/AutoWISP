@@ -177,11 +177,15 @@ class ManualStepArgumentParser(ArgumentParser):
             del result['config_file']
             del result['extra_config_file']
             logging.basicConfig(
-                level=getattr(logging, result.pop('verbose').upper())
+                level=getattr(logging, result.pop('verbose').upper()),
+                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                       '%(pathname)s.%(funcName)s:%(lineno)d'
             )
         else:
             logging.basicConfig(
-                level=getattr(logging, result.verbose.upper())
+                level=getattr(logging, result.verbose.upper()),
+                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                       '%(pathname)s.%(funcName)s:%(lineno)d'
             )
             del result.config_file
             del result.extra_config_file
