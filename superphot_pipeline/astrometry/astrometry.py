@@ -27,12 +27,12 @@ def transformation_matrix(astrometry_order, xi, eta):
     Args:
         astrometry_order(int): The order of the transformation to fit
 
-        xi(numpy.array): from projected coordinates
+        xi(numpy array): from projected coordinates
 
-        eta(numpy.array): from projected coordinates
+        eta(numpy array): from projected coordinates
 
     Returns:
-        trans_matrix(numpy.array): transformation matrix
+        trans_matrix(numpy array): transformation matrix
 
     Notes:
         Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2
@@ -57,24 +57,26 @@ def new_xieta_cent_function(xieta_cent,
     new center (xi, eta)
 
     Args:
-        xieta_cent(numpy.array): the center of xi and eta
+        xieta_cent(numpy array): the center of xi and eta
 
-        trans_x(numpy.array): transformation matrix for x
+        trans_x(numpy array): transformation matrix for x
 
-        trans_y(numpy.array): transformation matrix for y
+        trans_y(numpy array): transformation matrix for y
 
         x_cent(float): x of the center of the frame
 
         y_cent(float): y of the center of the frame
 
+        astrometry_order(int): The order of the transformation to fit
+
     Returns:
-        new_xieta_cent(numpy.array): the new center function for (xi, eta)
+        new_xieta_cent(numpy array): the new center function for (xi, eta)
 
     """
     xi = xieta_cent[0]
     eta = xieta_cent[1]
 
-    new_xieta_cent = numpy.empty((2))
+    new_xieta_cent = numpy.empty(2)
 
     new_xieta_cent[0] = trans_x[0, 0] - x_cent
     new_xieta_cent[1] = trans_y[0, 0] - y_cent
@@ -83,9 +85,9 @@ def new_xieta_cent_function(xieta_cent,
     for i in range(1, astrometry_order + 1):
         for j in range(i + 1):
             new_xieta_cent[0] = new_xieta_cent[0] + \
-                                trans_x[k, 0] * xi ** (i - j) * eta ** (j)
+                                trans_x[k, 0] * xi ** (i - j) * eta ** j
             new_xieta_cent[1] = new_xieta_cent[1] + \
-                                trans_y[k, 0] * xi ** (i - j) * eta ** (j)
+                                trans_y[k, 0] * xi ** (i - j) * eta ** j
             k = k + 1
     return new_xieta_cent
 
@@ -101,25 +103,26 @@ def astrometry(initial_corr,
     the steps to get new transformations
 
     Args:
-        initial_corr(strucutured numpy.array): The correspondence file containing field_x,
-        field_y, index_ra, and index_dec
+        initial_corr(strucutured numpy array): The correspondence file containing
+            field_x, field_y, index_ra, and index_dec
 
-        xy_extracted(strucutured numpy.array): x and y of the extracted sources of the frame
+        xy_extracted(strucutured numpy array): x and y of the extracted sources of
+            the frame
 
-        catalogue(strucutured numpy.array): RA and Dec of the catalog sources
+        ra_cent(float): RA of the center of the frame
+
+        dec_cent(float): Dec of the center of the frame
+
+        catalogue(strucutured numpy. array): RA and Dec of the catalog sources
 
         configuration: configuration including:
 
-            astrometry_order(int): order of astrometry
+            astrometry_order(int): The order of the transformation to fit
 
             max_srcmatch_distance(float): upper bound distance in KD tree
 
             trans_threshold(float): threshold for the difference of two
                 consecutive transformations
-
-            ra_cent(float): RA of the center of the frame
-
-            dec_cent(float): Dec of the center of the frame
 
             x_frame(float): length of the frame in pixels
 
@@ -133,7 +136,7 @@ def astrometry(initial_corr,
     projected = numpy.empty(initial_corr.shape[0],
                             dtype=[('xi', float), ('eta', float)])
 
-    radec_center = dict(RA=ra_cent,Dec=dec_cent)
+    radec_center = dict(RA=ra_cent, Dec=dec_cent)
 
     gnomonic_projection(initial_corr,
                         projected,
@@ -153,7 +156,6 @@ def astrometry(initial_corr,
 
     trans_x = trans_x[numpy.newaxis].T
     trans_y = trans_y[numpy.newaxis].T
-
 
     return iteration(trans_x=trans_x,
                      trans_y=trans_y,
@@ -188,9 +190,9 @@ def iteration(*,
         trans_threshold(float): The threshold for the difference of two
             consecutive transformations
 
-        trans_x(numpy.array): The transformation matrix for x
+        trans_x(numpy array): The transformation matrix for x
 
-        trans_y(numpy.array): The transformation matrix for x
+        trans_y(numpy array): The transformation matrix for x
 
         ra_cent(float): RA of the center of the frame
 
@@ -200,17 +202,17 @@ def iteration(*,
 
         y_frame(float): width of the frame in pixels
 
-        xy_extracted(structured numpy.array): x and y of the extracted
+        xy_extracted(structured numpy array): x and y of the extracted
             sources of the frame
 
         catalogue: The catalogue of sources to match to
 
     Returns:
-        trans_x(numpy.array): the new transformed x array
+        trans_x(numpy array): the new transformed x array
 
-        trans_y(numpy.array): the new transformed y array
+        trans_y(numpy array): the new transformed y array
 
-        cat_extracted_corr(structured numpy.array): the catalogues extracted
+        cat_extracted_corr(structured numpy array): the catalogues extracted
             correspondence indexes
 
         res_rms(float): the residual
@@ -272,9 +274,9 @@ def iteration(*,
         print('diff:'+repr(diff.max()))
         if not (diff > trans_threshold).any():
             # pylint:disable=used-before-assignment
-            cat_extracted_corr = numpy.empty((n_matched,2),
+            cat_extracted_corr = numpy.empty((n_matched, 2),
                                              dtype=int)
-            cat_extracted_corr[:,0] = numpy.arange(catalogue.shape[0])[matched]
+            cat_extracted_corr[:, 0] = numpy.arange(catalogue.shape[0])[matched]
             cat_extracted_corr[:, 1] = ix[matched]
             # Exclude the sources that are not within the frame:
             #TODO: does this inframe stuff need to be included
@@ -379,16 +381,15 @@ def iteration(*,
 
         trans_matrix = transformation_matrix(
             astrometry_order,
-            projected_new['xi'].reshape(projected_new['xi'].size,1),
-            projected_new['eta'].reshape(projected_new['eta'].size,1)
+            projected_new['xi'].reshape(projected_new['xi'].size, 1),
+            projected_new['eta'].reshape(projected_new['eta'].size, 1)
         )
-
 
         trans_x = linalg.lstsq(
             trans_matrix,
-            matched_sources['x'].reshape(matched_sources['x'].size,1)
+            matched_sources['x'].reshape(matched_sources['x'].size, 1)
         )[0]
-        trans_y= linalg.lstsq(
+        trans_y = linalg.lstsq(
             trans_matrix,
-            matched_sources['y'].reshape(matched_sources['x'].size,1)
+            matched_sources['y'].reshape(matched_sources['x'].size, 1)
         )[0]
