@@ -91,12 +91,12 @@ def new_xieta_cent_function(xieta_cent,
             k = k + 1
     return new_xieta_cent
 
-def astrometry(initial_corr,
-               xy_extracted,
-               ra_cent,
-               dec_cent,
-               catalogue,
-               **configuration):
+def solve(initial_corr,
+          xy_extracted,
+          ra_cent,
+          dec_cent,
+          catalogue,
+          **configuration):
     """
     Main function: To get the initial transformation,
     the rest is calling iteration function to iterate
