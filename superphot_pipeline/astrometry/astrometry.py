@@ -103,17 +103,17 @@ def solve(initial_corr,
     the steps to get new transformations
 
     Args:
-        initial_corr(strucutured numpy array): The correspondence file containing
+        initial_corr(structured numpy array): The correspondence file containing
             field_x, field_y, index_ra, and index_dec
 
-        xy_extracted(strucutured numpy array): x and y of the extracted sources of
+        xy_extracted(structured numpy array): x and y of the extracted sources of
             the frame
 
         ra_cent(float): RA of the center of the frame
 
         dec_cent(float): Dec of the center of the frame
 
-        catalogue(strucutured numpy. array): RA and Dec of the catalog sources
+        catalogue(structured numpy. array): RA and Dec of the catalog sources
 
         configuration: configuration including:
 
