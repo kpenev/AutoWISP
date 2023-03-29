@@ -12,7 +12,7 @@ from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     read_catalogue
 from superphot_pipeline.file_utilities import find_dr_fnames
-from superphot_pipeline.astrometry import solve
+from superphot_pipeline import astrometry
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
 
@@ -346,7 +346,7 @@ def solve_image(dr_fname, **configuration):
                 res_rms, \
                 ratio, \
                 ra_cent, \
-                dec_cent = solve(
+                dec_cent = astrometry.solve(
                 initial_corr=initial_corr,
                 xy_extracted=xy_extracted,
                 catalogue=catalogue,
@@ -359,9 +359,9 @@ def solve_image(dr_fname, **configuration):
                 y_frame=header['NAXIS2'],
             )
 
-            print('trans_x:'+repr(trans_x))
-            print('trans_y:'+repr(trans_y))
-            print('matched_sources:'+repr(cat_extracted_corr))
+            # print('trans_x:'+repr(trans_x))
+            # print('trans_y:'+repr(trans_y))
+            # print('matched_sources:'+repr(cat_extracted_corr))
             print('res_rms:'+repr(res_rms))
             print('ratio:'+repr(ratio))
 
