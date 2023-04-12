@@ -283,7 +283,7 @@ def iteration(*,
         ).flatten()[in_frame]
 
         print('diff:'+repr(diff.max()))
-        if not (diff > trans_threshold).any() or counter>max_iterations:
+        if not (diff > trans_threshold).any() or counter > max_iterations:
             # pylint:disable=used-before-assignment
             cat_extracted_corr = numpy.empty((n_matched, 2),
                                              dtype=int)
@@ -300,7 +300,6 @@ def iteration(*,
                 dec_cent
             # pylint:enable=used-before-assignment
         xy_transformed = numpy.block([x_transformed, y_transformed])
-        print('xy_transformed.shape'+repr(xy_transformed.shape))
         d, ix = kdtree.query(
             xy_transformed,
             distance_upper_bound=max_srcmatch_distance
@@ -382,8 +381,6 @@ def iteration(*,
             projected_new['eta'].reshape(projected_new['eta'].size, 1)
         )
         print(trans_matrix.shape)
-        # print(repr(5*trans_matrix.shape[1]))
-        # print(trans_matrix.shape[0])
         try:
             if trans_matrix.shape[0] <= 5*trans_matrix.shape[1] :
                 raise ValueError('The number of equations is '
@@ -402,6 +399,7 @@ def iteration(*,
             trans_matrix,
             matched_sources['y'].reshape(matched_sources['x'].size, 1)
         )[0]
+
         # x_extracted = xy_extracted[:, 0]
         # y_extracted = xy_extracted[:, 1]
         #
@@ -411,7 +409,6 @@ def iteration(*,
         # x_matched = matched_sources['x']
         # y_matched = matched_sources['y']
         # if counter == 22:
-        #     #TODO make regions files and stack onto the frame to plot, make sure the filename has the counter in it so not to overwrite it
         #
         #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_extracted(r)_projected(g)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
         #         for x, y in zip(x_extracted, y_extracted):
@@ -458,13 +455,5 @@ def iteration(*,
         #                     h=8
         #                 )
         #             )
-        # try:
-        #     if trans_matrix.shape[0] <= 5*trans_matrix.shape[1] :
-        #         raise ValueError('The number of equations is '
-        #                          'insufficient to solve transformation '
-        #                          'coefficients')
-        # except ValueError as err:
-        #     print(err)
-        #     raise err
-        if counter > 23:
-            break
+        # if counter > 23:
+        #     break
