@@ -2,6 +2,7 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
+import os
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -37,7 +38,8 @@ def transformation_matrix(astrometry_order, xi, eta):
     Notes:
         Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2
     """
-
+    #TODO: alocate matrix first with right size and then fill, instead of doing it the slow
+    #way below
     trans_matrix = numpy.ones((eta.shape[0], 1))
 
     for i in range(1, astrometry_order + 1):
@@ -168,6 +170,7 @@ def solve(initial_corr,
 def iteration(*,
               astrometry_order,
               max_srcmatch_distance,
+              max_iterations,
               trans_threshold,
               trans_x,
               trans_y,
@@ -192,7 +195,7 @@ def iteration(*,
 
         trans_x(numpy array): The transformation matrix for x
 
-        trans_y(numpy array): The transformation matrix for x
+        trans_y(numpy array): The transformation matrix for y
 
         ra_cent(float): RA of the center of the frame
 
@@ -267,31 +270,26 @@ def iteration(*,
         x_transformed = trans_matrix_xy @ trans_x
         y_transformed = trans_matrix_xy @ trans_y
 
+        in_frame = numpy.logical_and(
+            numpy.logical_and(x_transformed > -3,
+                              x_transformed < (x_frame + 3)),
+            numpy.logical_and(y_transformed > -3,
+                              y_transformed < (y_frame + 3))
+        ).flatten()
+
         diff = numpy.sqrt(
             (old_x_transformed - x_transformed)**2 +
             (old_y_transformed - y_transformed)**2
-                          )
+        ).flatten()[in_frame]
+
         print('diff:'+repr(diff.max()))
-        if not (diff > trans_threshold).any():
+        if not (diff > trans_threshold).any() or counter>max_iterations:
             # pylint:disable=used-before-assignment
             cat_extracted_corr = numpy.empty((n_matched, 2),
                                              dtype=int)
             cat_extracted_corr[:, 0] = numpy.arange(catalogue.shape[0])[matched]
             cat_extracted_corr[:, 1] = ix[matched]
             # Exclude the sources that are not within the frame:
-            #TODO: does this inframe stuff need to be included
-
-            # in_frame = numpy.logical_and(
-            #        numpy.logical_and(xy_transformed[:,0]>-3, \
-            #                       xy_transformed[:,0]< (x_frame+3)), \
-            #        numpy.logical_and(xy_transformed[:,1]>-3, \
-            #                       xy_transformed[:,1]<(y_frame+3)))
-            #
-            # in_frame = in_frame[numpy.newaxis].T
-            # in_frame = numpy.append(in_frame, in_frame, axis = 1)
-            # xy_transformed = xy_transformed[in_frame].reshape(-1,2)
-            # catalogue = structured_to_unstructured(catalogue)
-            # catalogue = catalogue[in_frame].reshape(-1,2)
 
             return trans_x, \
                 trans_y,\
@@ -302,7 +300,7 @@ def iteration(*,
                 dec_cent
             # pylint:enable=used-before-assignment
         xy_transformed = numpy.block([x_transformed, y_transformed])
-
+        print('xy_transformed.shape'+repr(xy_transformed.shape))
         d, ix = kdtree.query(
             xy_transformed,
             distance_upper_bound=max_srcmatch_distance
@@ -318,7 +316,6 @@ def iteration(*,
         matched = numpy.isfinite(d)
         n_matched = matched.sum()
         n_extracted = len(xy_extracted)
-
         #TODO: add weights to residual and to the fit eventually
         res_rms = numpy.sqrt(numpy.square(d[matched]).mean())
         ratio = round(n_matched / n_extracted, 3)
@@ -384,6 +381,18 @@ def iteration(*,
             projected_new['xi'].reshape(projected_new['xi'].size, 1),
             projected_new['eta'].reshape(projected_new['eta'].size, 1)
         )
+        print(trans_matrix.shape)
+        # print(repr(5*trans_matrix.shape[1]))
+        # print(trans_matrix.shape[0])
+        try:
+            if trans_matrix.shape[0] <= 5*trans_matrix.shape[1] :
+                raise ValueError('The number of equations is '
+                                 'insufficient to solve transformation '
+                                 'coefficients')
+        except ValueError as err:
+            print(err)
+            raise err
+
 
         trans_x = linalg.lstsq(
             trans_matrix,
@@ -393,3 +402,69 @@ def iteration(*,
             trans_matrix,
             matched_sources['y'].reshape(matched_sources['x'].size, 1)
         )[0]
+        # x_extracted = xy_extracted[:, 0]
+        # y_extracted = xy_extracted[:, 1]
+        #
+        # x_projected = x_transformed
+        # y_projected = y_transformed
+        #
+        # x_matched = matched_sources['x']
+        # y_matched = matched_sources['y']
+        # if counter == 22:
+        #     #TODO make regions files and stack onto the frame to plot, make sure the filename has the counter in it so not to overwrite it
+        #
+        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_extracted(r)_projected(g)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
+        #         for x, y in zip(x_extracted, y_extracted):
+        #             reg_file.write(
+        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=red width=4 \n'.format(
+        #                     xc=x + 0.5,
+        #                     yc=y + 0.5,
+        #                     w=5,
+        #                     h=5
+        #                 )
+        #             )
+        #         for x, y in zip(x_projected, y_projected):
+        #             x = numpy.float64(x)
+        #             y = numpy.float64(y)
+        #             reg_file.write(
+        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=green width=4 \n'.format(
+        #                     xc=x + 0.5,
+        #                     yc=y + 0.5,
+        #                     w=8,
+        #                     h=8
+        #                 )
+        #             )
+        #         for x, y in zip(x_matched, y_matched):
+        #             reg_file.write(
+        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=4 \n'.format(
+        #                     xc=x + 0.5,
+        #                     yc=y + 0.5,
+        #                     w=3,
+        #                     h=3
+        #                 )
+        #             )
+        # if counter == 23:
+        #
+        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_projected(b)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
+        #
+        #         for x, y in zip(x_projected, y_projected):
+        #             x = numpy.float64(x)
+        #             y = numpy.float64(y)
+        #             reg_file.write(
+        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=1 \n'.format(
+        #                     xc=x + 0.5,
+        #                     yc=y + 0.5,
+        #                     w=8,
+        #                     h=8
+        #                 )
+        #             )
+        # try:
+        #     if trans_matrix.shape[0] <= 5*trans_matrix.shape[1] :
+        #         raise ValueError('The number of equations is '
+        #                          'insufficient to solve transformation '
+        #                          'coefficients')
+        # except ValueError as err:
+        #     print(err)
+        #     raise err
+        if counter > 23:
+            break

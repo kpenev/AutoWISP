@@ -85,6 +85,12 @@ def parse_command_line():
              'transformations'
     )
     parser.add_argument(
+        '--max-astrom-iter',
+        type=int,
+        default=20,
+        help='The maximum number of iterations the astrometry solution can pass.'
+    )
+    parser.add_argument(
         '--image-scale-factor',
         type=float,
         default=1.3,
@@ -352,6 +358,7 @@ def solve_image(dr_fname, **configuration):
                 catalogue=catalogue,
                 astrometry_order=configuration['astrometry_order'],
                 max_srcmatch_distance=configuration['max_srcmatch_distance'],
+                max_iterations=configuration['max_astrom_iter'],
                 trans_threshold=configuration['trans_threshold'],
                 ra_cent=center_ra_dec[0],
                 dec_cent=center_ra_dec[1],
@@ -380,7 +387,10 @@ def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
     for dr_fname in dr_collection:
-        solve_image(dr_fname, **configuration)
+        try:
+            solve_image(dr_fname, **configuration)
+        except ValueError:
+            continue
 
 
 if __name__ == '__main__':
