@@ -328,7 +328,11 @@ def solve_image(dr_fname, **configuration):
             #pylint:enable=line-too-long
             subprocess.run(solve_field_command, check=True)
 
-            assert os.path.isfile(corr_fname)
+            try:
+                assert os.path.isfile(corr_fname) , "Correspondence file does not exist"
+            except FileNotFoundError as err:
+                print(err)
+                raise err
 
             with fits.open(corr_fname, mode='readonly') as corr:
                 field_corr=corr[1].data[:]
@@ -389,6 +393,8 @@ def solve_astrometry(dr_collection, configuration):
     for dr_fname in dr_collection:
         try:
             solve_image(dr_fname, **configuration)
+        except FileNotFoundError:
+            continue
         except ValueError:
             continue
 
