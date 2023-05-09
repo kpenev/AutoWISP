@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """Fit for a transformation between sky and image coordinates."""
+import logging
 import subprocess
 from tempfile import mkstemp
 import os
@@ -76,6 +77,13 @@ def parse_command_line():
         help='The order of the transformation to fit (i.e. the maximum combined'
         ' power of the cartographically projected coordinates each of the '
         'frame coordinates is allowed to depend on.'
+    )
+    parser.add_argument(
+        '--tweak-order',
+        type=int,
+        nargs=2,
+        default=(2, 5),
+        help='Range of tweak arguments to solve-field to try.'
     )
     parser.add_argument(
         '--trans-threshold',
@@ -308,84 +316,92 @@ def solve_image(dr_fname, **configuration):
                 configuration['srcextract_version']
             )
             #pylint:disable=line-too-long
-            solve_field_command = [
-                'solve-field',
-                sources_fname,
-                '--corr', corr_fname,
-                '--width', str(header['NAXIS1']),
-                '--height', str(header['NAXIS2']),
-                '--match', 'none',
-                '--wcs', 'none',
-                '--index-xyls', 'none',
-                '--rdls', 'none',
-                '--solved', 'none',
-                '--axy', axy_fname,
-                '--no-plots',
-                '--scale-low',repr(fov_estimate/configuration['image_scale_factor']),
-                '--scale-high',repr(fov_estimate*configuration['image_scale_factor']),
-                '--overwrite'
-            ]
-            #pylint:enable=line-too-long
-            subprocess.run(solve_field_command, check=True)
+            for tweak in range(*configuration['tweak_order']):
+                solve_field_command = [
+                    'solve-field',
+                    sources_fname,
+                    '--corr', corr_fname,
+                    '--width', str(header['NAXIS1']),
+                    '--height', str(header['NAXIS2']),
+                    '--tweak-order', str(tweak),
+                    '--match', 'none',
+                    '--wcs', 'none',
+                    '--index-xyls', 'none',
+                    '--rdls', 'none',
+                    '--solved', 'none',
+                    '--axy', axy_fname,
+                    '--no-plots',
+                    '--scale-low',repr(fov_estimate/configuration['image_scale_factor']),
+                    '--scale-high',repr(fov_estimate*configuration['image_scale_factor']),
+                    '--overwrite'
+                ]
+                #pylint:enable=line-too-long
+                subprocess.run(solve_field_command, check=True)
 
-            try:
-                assert os.path.isfile(corr_fname) , "Correspondence file does not exist"
-            except FileNotFoundError as err:
-                print(err)
-                raise err
+                try:
+                    assert os.path.isfile(corr_fname) , "Correspondence file does not exist"
+                except FileNotFoundError as err:
+                    print(err)
+                    raise err
 
-            with fits.open(corr_fname, mode='readonly') as corr:
-                field_corr=corr[1].data[:]
+                with fits.open(corr_fname, mode='readonly') as corr:
+                    field_corr=corr[1].data[:]
 
-            initial_corr=numpy.zeros(
-                (field_corr['field_x'].shape),
-                dtype=[('x','>f8'),
-                       ('y','>f8'),
-                       ('RA','>f8'),
-                       ('Dec','>f8')]
-            )
+                if field_corr.size > ((tweak+1)*(tweak+2))//2:
 
-            initial_corr['x']=field_corr['field_x']
-            initial_corr['y'] = field_corr['field_y']
-            initial_corr['RA'] = field_corr['index_ra']
-            initial_corr['Dec'] = field_corr['index_dec']
+                    initial_corr = numpy.zeros(
+                        (field_corr['field_x'].shape),
+                        dtype=[('x', '>f8'),
+                               ('y', '>f8'),
+                               ('RA', '>f8'),
+                               ('Dec', '>f8')]
+                    )
 
-            trans_x, \
-                trans_y, \
-                cat_extracted_corr, \
-                res_rms, \
-                ratio, \
-                ra_cent, \
-                dec_cent = astrometry.solve(
-                initial_corr=initial_corr,
-                xy_extracted=xy_extracted,
-                catalogue=catalogue,
-                astrometry_order=configuration['astrometry_order'],
-                max_srcmatch_distance=configuration['max_srcmatch_distance'],
-                max_iterations=configuration['max_astrom_iter'],
-                trans_threshold=configuration['trans_threshold'],
-                ra_cent=center_ra_dec[0],
-                dec_cent=center_ra_dec[1],
-                x_frame=header['NAXIS1'],
-                y_frame=header['NAXIS2'],
-            )
+                    initial_corr['x'] = field_corr['field_x']
+                    initial_corr['y'] = field_corr['field_y']
+                    initial_corr['RA'] = field_corr['index_ra']
+                    initial_corr['Dec'] = field_corr['index_dec']
 
-            # print('trans_x:'+repr(trans_x))
-            # print('trans_y:'+repr(trans_y))
-            # print('matched_sources:'+repr(cat_extracted_corr))
-            print('res_rms:'+repr(res_rms))
-            print('ratio:'+repr(ratio))
+                    (
+                        trans_x,
+                        trans_y,
+                        cat_extracted_corr,
+                        res_rms,
+                        ratio,
+                        ra_cent,
+                        dec_cent
+                    ) = astrometry.solve(
+                        initial_corr=initial_corr,
+                        xy_extracted=xy_extracted,
+                        catalogue=catalogue,
+                        tweak_order = tweak,
+                        astrometry_order=configuration['astrometry_order'],
+                        max_srcmatch_distance=configuration['max_srcmatch_distance'],
+                        max_iterations=configuration['max_astrom_iter'],
+                        trans_threshold=configuration['trans_threshold'],
+                        ra_cent=center_ra_dec[0],
+                        dec_cent=center_ra_dec[1],
+                        x_frame=header['NAXIS1'],
+                        y_frame=header['NAXIS2'],
+                    )
 
-            save_to_dr(cat_extracted_corr=cat_extracted_corr,
-                       trans_x=trans_x,
-                       trans_y=trans_y,
-                       ra_cent=ra_cent,
-                       dec_cent=dec_cent,
-                       res_rms=res_rms,
-                       configuration=configuration,
-                       header=header,
-                       dr_file=dr_file)
+                    # print('trans_x:'+repr(trans_x))
+                    # print('trans_y:'+repr(trans_y))
+                    # print('matched_sources:'+repr(cat_extracted_corr))
+                    print('res_rms:' + repr(res_rms))
+                    print('ratio:' + repr(ratio))
 
+                    save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                               trans_x=trans_x,
+                               trans_y=trans_y,
+                               ra_cent=ra_cent,
+                               dec_cent=dec_cent,
+                               res_rms=res_rms,
+                               configuration=configuration,
+                               header=header,
+                               dr_file=dr_file)
+                    return
+            raise RuntimeError('Failed to find Astrometry.net solution in given tweak range')
 
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
@@ -393,9 +409,11 @@ def solve_astrometry(dr_collection, configuration):
     for dr_fname in dr_collection:
         try:
             solve_image(dr_fname, **configuration)
-        except FileNotFoundError:
-            continue
-        except ValueError:
+
+        except (FileNotFoundError,ValueError, RuntimeError) as err:
+            logging.getLogger(__name__).critical(
+                'Failed to find astrometry for %s: %s', repr(dr_fname), err
+            )
             continue
 
 

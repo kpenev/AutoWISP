@@ -98,6 +98,7 @@ def solve(initial_corr,
           ra_cent,
           dec_cent,
           catalogue,
+          tweak_order,
           **configuration):
     """
     Main function: To get the initial transformation,
@@ -149,12 +150,14 @@ def solve(initial_corr,
 
     eta = projected['eta'][numpy.newaxis].T
 
-    trans_matrix = transformation_matrix(configuration['astrometry_order'],
+    trans_matrix = transformation_matrix(tweak_order,
                                          xi,
                                          eta)
+    trans_x = numpy.zeros(((configuration['astrometry_order'] + 1) * (configuration['astrometry_order'] + 2)) // 2)
+    trans_x[:(((tweak_order + 1) * (tweak_order + 2)) // 2)] = linalg.lstsq(trans_matrix, initial_corr['x'])[0]
 
-    trans_x = linalg.lstsq(trans_matrix, initial_corr['x'])[0]
-    trans_y = linalg.lstsq(trans_matrix, initial_corr['y'])[0]
+    trans_y = numpy.zeros(((configuration['astrometry_order'] + 1) * (configuration['astrometry_order'] + 2)) // 2)
+    trans_y[:(((tweak_order + 1) * (tweak_order + 2)) // 2)] = linalg.lstsq(trans_matrix, initial_corr['y'])[0]
 
     trans_x = trans_x[numpy.newaxis].T
     trans_y = trans_y[numpy.newaxis].T
@@ -381,15 +384,11 @@ def iteration(*,
             projected_new['eta'].reshape(projected_new['eta'].size, 1)
         )
         print(trans_matrix.shape)
-        try:
-            if trans_matrix.shape[0] <= 5*trans_matrix.shape[1] :
-                raise ValueError('The number of equations is '
-                                 'insufficient to solve transformation '
-                                 'coefficients')
-        except ValueError as err:
-            print(err)
-            raise err
 
+        if trans_matrix.shape[0] <= 5 * trans_matrix.shape[1]:
+            raise ValueError('The number of equations is '
+                             'insufficient to solve transformation '
+                             'coefficients')
 
         trans_x = linalg.lstsq(
             trans_matrix,
