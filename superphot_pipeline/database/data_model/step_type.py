@@ -14,7 +14,11 @@ from sqlalchemy import\
 
 from sqlalchemy.orm import relationship
 
-from superphot_pipeline.database.data_model.base import DataModelBase
+# Comment for database testing
+# from superphot_pipeline.database.data_model.base import DataModelBase
+
+# For database testing
+from base import DataModelBase
 
 #How do I import these things properly and replace them where they need to be
 
@@ -38,10 +42,10 @@ class StepType(DataModelBase):
         primary_key=True,
         doc='A unique identifier for each step type'
     )
-    description = Column(
+    notes = Column(
         String(1000),
         nullable=False,
-        doc='The description for each step type'
+        doc='The notes for each step type'
     )
     timestamp = Column(
         TIMESTAMP,
@@ -49,4 +53,15 @@ class StepType(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    step_configuration = relationship("StepConfiguration", back_populates="step_type")
+    def __init__(self, id, notes, timestamp):
+        self.id = id
+        self.notes = notes
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f"({self.id}) {self.notes} {self.timestamp}"
+
+    image_proc = relationship("ImageProcProgress", back_populates="step_type")
+
+    ## Do we still need this? 06/09/2023 - Mica
+    #step_configuration = relationship("StepConfiguration", back_populates="step_type")
