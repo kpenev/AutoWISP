@@ -14,8 +14,11 @@ from sqlalchemy import\
 
 from sqlalchemy.orm import relationship
 
-#from superphot_pipeline.database.data_model.base import DataModelBase
-from base import DataModelBase
+# Comment for database testing
+from superphot_pipeline.database.data_model.base import DataModelBase
+
+# For database testing
+# from base import DataModelBase
 
 __all__ = ['Configuration']
 

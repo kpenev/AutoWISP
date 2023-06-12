@@ -16,22 +16,22 @@ from sqlalchemy import\
 from sqlalchemy.orm import relationship
 
 #Comment for database testing
-#from superphot_pipeline.database.data_model.base import DataModelBase
+from superphot_pipeline.database.data_model.base import DataModelBase
 
 # For database testing
-from base import DataModelBase
-# from superphot_pipeline.database.data_model.provenance import\
-#     camera,\
-#     camera_access,\
-#     camera_type,\
-#     mount,\
-#     mount_type,\
-#     mount_access,\
-#     telescope,\
-#     telescope_type,\
-#     telescope_access,\
-#     observatory,\
-#     observer
+# from base import DataModelBase
+from superphot_pipeline.database.data_model.provenance import\
+    camera,\
+    camera_access,\
+    camera_type,\
+    mount,\
+    mount_type,\
+    mount_access,\
+    telescope,\
+    telescope_type,\
+    telescope_access,\
+    observatory,\
+    observer
 #How do I import these provenance properly and replace them where they need to be
 
 #pylint false positive: this is actually a class name
@@ -141,10 +141,10 @@ class ObservingSession(DataModelBase):
         return f"({self.id}) {self.notes} {self.timestamp}"
 
     #relationships
-    # observer = relationship("Observer", back_populates="observing_session")
-    # camera = relationship("Camera", back_populates="observing_session")
-    # telescope = relationship("Telescope", back_populates="observing_session")
-    # mount = relationship("Mount", back_populates="observing_session")
-    # observatory = relationship("Observatory", back_populates="observing_session")
-    # target = relationship("Target", back_populates="observing_session")
+    observer = relationship("Observer", back_populates="observing_session")
+    camera = relationship("Camera", back_populates="observing_session")
+    telescope = relationship("Telescope", back_populates="observing_session")
+    mount = relationship("Mount", back_populates="observing_session")
+    observatory = relationship("Observatory", back_populates="observing_session")
+    target = relationship("Target", back_populates="observing_session")
     images = relationship("Image", back_populates="observing_session")
