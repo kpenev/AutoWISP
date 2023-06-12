@@ -56,49 +56,49 @@ class ObservingSession(DataModelBase):
     )
     observer_id = Column(
         Integer,
-        # ForeignKey('observer.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('observer.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the observer'
     )
     camera_id = Column(
         Integer,
-        # ForeignKey('camera.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('camera.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the camera'
     )
     telescope_id = Column(
         Integer,
-        # ForeignKey('telescope.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('telescope.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the telescope'
     )
     mount_id = Column(
         Integer,
-        # ForeignKey('mount.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('mount.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the mount'
     )
     observatory_id = Column(
         Integer,
-        # ForeignKey('observatory.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('observatory.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the observatory'
     )
     target_id = Column(
         Integer,
-        # ForeignKey('target.id',
-        #            onupdate='CASCADE',
-        #            ondelete='RESTRICT'),
+        ForeignKey('target.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the target'
     )
