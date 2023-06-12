@@ -15,19 +15,23 @@ from sqlalchemy import\
 
 from sqlalchemy.orm import relationship
 
-from superphot_pipeline.database.data_model.base import DataModelBase
-from superphot_pipeline.database.data_model.provenance import\
-    camera,\
-    camera_access,\
-    camera_type,\
-    mount,\
-    mount_type,\
-    mount_access,\
-    telescope,\
-    telescope_type,\
-    telescope_access,\
-    observatory,\
-    observer
+#Comment for database testing
+#from superphot_pipeline.database.data_model.base import DataModelBase
+
+# For database testing
+from base import DataModelBase
+# from superphot_pipeline.database.data_model.provenance import\
+#     camera,\
+#     camera_access,\
+#     camera_type,\
+#     mount,\
+#     mount_type,\
+#     mount_access,\
+#     telescope,\
+#     telescope_type,\
+#     telescope_access,\
+#     observatory,\
+#     observer
 #How do I import these provenance properly and replace them where they need to be
 
 #pylint false positive: this is actually a class name
@@ -52,49 +56,49 @@ class ObservingSession(DataModelBase):
     )
     observer_id = Column(
         Integer,
-        ForeignKey('observer.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('observer.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the observer'
     )
     camera_id = Column(
         Integer,
-        ForeignKey('camera.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('camera.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the camera'
     )
     telescope_id = Column(
         Integer,
-        ForeignKey('telescope.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('telescope.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the telescope'
     )
     mount_id = Column(
         Integer,
-        ForeignKey('mount.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('mount.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the mount'
     )
     observatory_id = Column(
         Integer,
-        ForeignKey('observatory.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('observatory.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the observatory'
     )
     target_id = Column(
         Integer,
-        ForeignKey('target.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        # ForeignKey('target.id',
+        #            onupdate='CASCADE',
+        #            ondelete='RESTRICT'),
         nullable=False,
         doc='The id of the target'
     )
@@ -119,10 +123,28 @@ class ObservingSession(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    observer = relationship("Observer", back_populates="observing_session")
-    camera = relationship("Camera", back_populates="observing_session")
-    telescope = relationship("Telescope", back_populates="observing_session")
-    mount = relationship("Mount", back_populates="observing_session")
-    observatory = relationship("Observatory", back_populates="observing_session")
-    target = relationship("Target", back_populates="observing_session")
+    ## ADDED 06/08/23 - Mica
+    def __init__(self, id, observer_id, camera_id, telescope_id, mount_id, obseratory_id, target_id, start_time, end_time, notes, timestamp):
+        self.id = id
+        self.observer_id = observer_id
+        self.camera_id = camera_id
+        self.telescope_id = telescope_id
+        self.mount_id = mount_id
+        self.observatory_id = obseratory_id
+        self.target_id = target_id
+        self.start_time = start_time
+        self.end_time = end_time
+        self.notes = notes
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f"({self.id}) {self.notes} {self.timestamp}"
+
+    #relationships
+    # observer = relationship("Observer", back_populates="observing_session")
+    # camera = relationship("Camera", back_populates="observing_session")
+    # telescope = relationship("Telescope", back_populates="observing_session")
+    # mount = relationship("Mount", back_populates="observing_session")
+    # observatory = relationship("Observatory", back_populates="observing_session")
+    # target = relationship("Target", back_populates="observing_session")
     images = relationship("Image", back_populates="observing_session")

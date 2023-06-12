@@ -14,7 +14,11 @@ from sqlalchemy import\
 
 from sqlalchemy.orm import relationship
 
-from superphot_pipeline.database.data_model.base import DataModelBase
+#Comment for database testing
+#from superphot_pipeline.database.data_model.base import DataModelBase
+
+# For database testing
+from base import DataModelBase
 
 #How do I import these things properly and replace them where they need to be
 
@@ -46,7 +50,7 @@ class Image(DataModelBase):
         nullable=False,
         doc='The id of the image type'
     )
-    observng_session_id = Column(
+    observing_session_id = Column(
         Integer,
         ForeignKey('observing_session.id',
                    onupdate='CASCADE',
@@ -65,5 +69,18 @@ class Image(DataModelBase):
         doc='When was this record last changed.'
     )
 
+    ## ADDED 06/08/23 - Mica
+    def __init__(self, id, image_type_id, observing_session_id, notes, timestamp):
+        self.id = id
+        self.image_type_id = image_type_id
+        self.observing_session_id = observing_session_id
+        self.notes = notes
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return f"({self.id})  {self.image_type_id} {self.observing_session_id} {self.notes} {self.timestamp}"
+
     image_type = relationship("ImageType", back_populates="image")
     observing_session = relationship("ObservingSession", back_populates="images")
+    img_conditions = relationship("ImageConditions", back_populates="image")
+    image_proc = relationship("ImageProcProgress", back_populates="image")
