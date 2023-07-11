@@ -566,7 +566,7 @@ class MagnitudeFit(ABC):
                 if not phot.size:
                     self.logger.warning('Downgrading calib status.')
                     self._downgrade_calib_status()
-                    return
+                    return None, None
                 #TODO: revive filtering by catalogue
                 no_catalogue, deleted_phot_indices = [], []
                 if getattr(self.config, 'grouping', None) is not None:
@@ -614,11 +614,7 @@ class MagnitudeFit(ABC):
                         **dr_path_substitutions
                     )
                     self.logger.debug('Updating calibration status.')
-                    if self._magfit_collector is not None:
-                        self.logger.debug('Outputting %d sources.',
-                                          len(phot['ID']))
-                        self._magfit_collector.add_input(phot[fit_indices],
-                                                         fitted[fit_indices])
+                    return phot[fit_indices], fitted[fit_indices]
         except Exception as ex:
             #Does not make sense to avoid building message.
             #pylint: disable=logging-not-lazy

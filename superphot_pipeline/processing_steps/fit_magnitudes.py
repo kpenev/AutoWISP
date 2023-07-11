@@ -46,7 +46,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--master-photref-fname-format',
-        default='MASTERS/mphotref_iter%(magfit_iteration)03d.fits',
+        default='MASTERS/mphotref_iter{magfit_iteration:03d}.fits',
         help='A format string involving a {magfit_iteration} substitution along'
         ' with any variables from the header of the single photometric '
         'reference or passed through the path_substitutions arguments, that '
@@ -55,7 +55,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--magfit-stat-fname-format',
-        default='MASTERS/mfit_stat_iter%(magfit_iteration)03d.txt',
+        default='MASTERS/mfit_stat_iter{magfit_iteration:03d}.txt',
         help='Similar to ``master_photref_fname_format``, but defines the name'
         ' to use for saving the statistics of a magnitude fitting iteration.'
     )
