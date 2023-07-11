@@ -60,7 +60,8 @@ class ManualStepArgumentParser(ArgumentParser):
                  inputs_help_extra='',
                  allow_parallel_processing=False,
                  convert_to_dict=True,
-                 add_lc_fname_arg=False):
+                 add_lc_fname_arg=False,
+                 config_file):
         """
         Initialize the praser with options common to all manual steps.
 
