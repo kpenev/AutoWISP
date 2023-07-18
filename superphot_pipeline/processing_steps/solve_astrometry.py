@@ -3,6 +3,7 @@
 """Fit for a transformation between sky and image coordinates."""
 import logging
 import subprocess
+from multiprocessing import Queue, Process
 from tempfile import mkstemp
 import os
 
@@ -13,7 +14,9 @@ from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     read_catalogue
 from superphot_pipeline.file_utilities import find_dr_fnames
-from superphot_pipeline import astrometry
+from superphot_pipeline.astrometry import \
+    estimate_transformation,\
+    refine_transformation
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
 
@@ -96,7 +99,8 @@ def parse_command_line():
         '--max-astrom-iter',
         type=int,
         default=20,
-        help='The maximum number of iterations the astrometry solution can pass.'
+        help='The maximum number of iterations the astrometry solution can '
+        'pass.'
     )
     parser.add_argument(
         '--image-scale-factor',
@@ -161,9 +165,9 @@ def create_sources_file(dr_file, sources_fname, srcextract_version):
 
     xy_extracted = numpy.zeros(
         (len(sources['x'].values)),
-        dtype=[('x','>f8'),('y','>f8')]
+        dtype=[('x', '>f8'), ('y', '>f8')]
     )
-    xy_extracted['x']=sources['x'].values
+    xy_extracted['x'] = sources['x'].values
     xy_extracted['y'] = sources['y'].values
 
     return xy_extracted
@@ -278,24 +282,56 @@ def save_to_dr(cat_extracted_corr,
                      dr_file,
                      **path_substitutions)
 
-def solve_image(dr_fname, **configuration):
+
+def transformation_to_raw(trans_x, trans_y, header, in_place=False):
+    """Convert the transformation coefficients to pre-channel split coords."""
+
+    if not in_place:
+        trans_x = numpy.copy(trans_x)
+        trans_y = numpy.copy(trans_y)
+    trans_x[0] += header['CHNLXOFF']
+    trans_x *= header['CHNLXSTP']
+    trans_y[0] += header['CHNLYOFF']
+    trans_y *= header['CHNLYSTP']
+    return trans_x, trans_y
+
+
+def solve_image(dr_fname,
+                transformation_estimate=None,
+                **configuration):
     """
-    Find the astrometric transformation for a single image.
+    Find the astrometric transformation for a single image and save to DR file.
 
     Args:
         dr_fname(str):    The name of the data reduction file containing the
             extracted sources from the frame and that will be updated with the
             newly solved astrometry.
 
+        transformation_estimate(None or (matrix, matrix)):    Estimate of the
+            transformations x(xi, eta) and y(xi, eta) that will be refined. If
+            ``None``, ``solve_field`` from astrometry.net is used to find
+            iniitial estimates.
+
         configuration:    Parameters defining how astrometry is to be fit.
 
     Returns:
-        None, but updates the input data reduction file with the newly solved
-        astrometry.
+        trans_x(2D numpy array):
+            the coefficients of the x(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        trans_y(2D numpy array):
+            the coefficients of the y(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        ra_cent(float): the RA center around which the above transformation
+            applies
+
+        dec_cent(float): the Dec center around which the above transformation
+            applies
     """
 
     print('Solving: ' + repr(dr_fname))
-    catalogue=read_catalogue(
+    catalogue = read_catalogue(
         configuration['astrometry_catalogue']
     )
     with DataReductionFile(dr_fname, 'r+') as dr_file:
@@ -331,21 +367,26 @@ def solve_image(dr_fname, **configuration):
                     '--solved', 'none',
                     '--axy', axy_fname,
                     '--no-plots',
-                    '--scale-low',repr(fov_estimate/configuration['image_scale_factor']),
-                    '--scale-high',repr(fov_estimate*configuration['image_scale_factor']),
+                    '--scale-low', repr(fov_estimate
+                                        /
+                                        configuration['image_scale_factor']),
+                    '--scale-high', repr(fov_estimate
+                                         *
+                                         configuration['image_scale_factor']),
                     '--overwrite'
                 ]
                 #pylint:enable=line-too-long
                 subprocess.run(solve_field_command, check=True)
 
                 try:
-                    assert os.path.isfile(corr_fname) , "Correspondence file does not exist"
+                    assert os.path.isfile(corr_fname), \
+                           "Correspondence file does not exist"
                 except FileNotFoundError as err:
                     print(err)
                     raise err
 
                 with fits.open(corr_fname, mode='readonly') as corr:
-                    field_corr=corr[1].data[:]
+                    field_corr = corr[1].data[:]
 
                 if field_corr.size > ((tweak+1)*(tweak+2))//2:
 
@@ -362,6 +403,16 @@ def solve_image(dr_fname, **configuration):
                     initial_corr['RA'] = field_corr['index_ra']
                     initial_corr['Dec'] = field_corr['index_dec']
 
+                    if transformation_estimate is None:
+                        transformation_estimate = estimate_transformation(
+                            initial_corr=initial_corr,
+                            tweak_order=tweak,
+                            astrometry_order=configuration['astrometry_order'],
+                            ra_cent=center_ra_dec[0],
+                            dec_cent=center_ra_dec[1],
+                        )
+
+
                     (
                         trans_x,
                         trans_y,
@@ -370,19 +421,21 @@ def solve_image(dr_fname, **configuration):
                         ratio,
                         ra_cent,
                         dec_cent
-                    ) = astrometry.solve(
-                        initial_corr=initial_corr,
+                    ) = refine_transformation(
+                        trans_x=transformation_estimate[0],
+                        trans_y=transformation_estimate[1],
                         xy_extracted=xy_extracted,
                         catalogue=catalogue,
-                        tweak_order = tweak,
-                        astrometry_order=configuration['astrometry_order'],
-                        max_srcmatch_distance=configuration['max_srcmatch_distance'],
-                        max_iterations=configuration['max_astrom_iter'],
-                        trans_threshold=configuration['trans_threshold'],
                         ra_cent=center_ra_dec[0],
                         dec_cent=center_ra_dec[1],
                         x_frame=header['NAXIS1'],
                         y_frame=header['NAXIS2'],
+                        astrometry_order=configuration['astrometry_order'],
+                        max_srcmatch_distance=configuration[
+                            'max_srcmatch_distance'
+                        ],
+                        max_iterations=configuration['max_astrom_iter'],
+                        trans_threshold=configuration['trans_threshold'],
                     )
 
                     # print('trans_x:'+repr(trans_x))
@@ -400,17 +453,38 @@ def solve_image(dr_fname, **configuration):
                                configuration=configuration,
                                header=header,
                                dr_file=dr_file)
-                    return
-            raise RuntimeError('Failed to find Astrometry.net solution in given tweak range')
+                    transformation_to_raw(trans_x, trans_y, header, True)
+                    return (dr_fname,
+                            header['FNUM'],
+                            trans_x,
+                            trans_y,
+                            ra_cent,
+                            dec_cent)
+            raise RuntimeError(
+                'Failed to find Astrometry.net solution in given tweak range'
+            )
+
 
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
+
+    progress = dict()
+    for dr_fname in dr_collection:
+        with DataReductionFile(dr_fname, 'r+') as dr_file:
+            header = dr_file.get_frame_header()
+            progress[header['FNUM']] = {
+                dr_fname
+            }
+
+
+    task_queue = Queue()
+    result_queue = Queue()
 
     for dr_fname in dr_collection:
         try:
             solve_image(dr_fname, **configuration)
 
-        except (FileNotFoundError,ValueError, RuntimeError) as err:
+        except (FileNotFoundError, ValueError, RuntimeError) as err:
             logging.getLogger(__name__).critical(
                 'Failed to find astrometry for %s: %s', repr(dr_fname), err
             )

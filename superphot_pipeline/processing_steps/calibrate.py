@@ -53,7 +53,7 @@ class ParseChannelsAction(Action):
                     None,
                     int(parsed[direction + '_step'])
                 )
-                for direction in 'xy'
+                for direction in 'yx'
             )
         setattr(namespace, self.dest, result)
 

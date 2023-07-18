@@ -8,6 +8,8 @@ from astropy.io import fits
 
 from configargparse import ArgumentParser, DefaultsFormatter
 
+from superphot_pipeline import Evaluator
+
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
 
@@ -218,11 +220,29 @@ def add_image_options(parser):
     )
 
 
-def read_catalogue(catalogue_fname):
-    """Return the catalogue parsed to pandas.DataFrame."""
+def read_catalogue(catalogue_fname,
+                   filter_expr=None,
+                   sort_expr='V'):
+    """
+    Return the catalogue parsed to pandas.DataFrame.
+
+    Args:
+        catalogue_fname(str):    The filename of the catalogue to read.
+
+        filter_expr(str):    The expression to evaluate for each source in the
+            catalogue, keeping only those for which conversion to boolean is
+            True.
+
+        sort_expr(str):    The expression to evaluate for each source in the
+            catalogue sorting by the result.
+
+    Returns:
+        pandas.DataFrame:
+            The columns in the catalogue fistered and sourted as specified
+    """
 
     catalogue = pandas.read_csv(catalogue_fname,
-                                sep = r'\s+',
+                                sep=r'\s+',
                                 header=0,
                                 index_col=0)
     catalogue.columns = [colname.lstrip('#').split('[', 1)[0]
@@ -230,7 +250,19 @@ def read_catalogue(catalogue_fname):
     catalogue.index.name = (
         catalogue.index.name.lstrip('#').split('[', 1)[0]
     )
-    return catalogue
+    cat_eval = Evaluator(catalogue)
+    sort_val = cat_eval(sort_expr)
+    print('Sort val: ' + repr(sort_val))
+
+    if filter_expr is not None:
+        print('Filter expression: ' + repr(filter_expr))
+        filter_val = cat_eval(filter_expr)
+        print('Filter val: ' + repr(filter_val))
+        filter_val = filter_val.astype(bool)
+        catalogue = catalogue.loc[filter_val]
+        sort_val = sort_val[filter_val]
+
+    return catalogue.iloc[numpy.argsort(sort_val)]
 
 
 def read_subpixmap(fits_fname):
@@ -243,3 +275,13 @@ def read_subpixmap(fits_fname):
         #pylint: disable=no-member
         return numpy.copy(subpixmap_file[0].data).astype('float64')
         #pylint: enable=no-member
+
+
+if __name__ == '__main__':
+    catalogue = read_catalogue(
+        '/Users/kpenev/tmp/PANOPTES/R_astrometry_catalogue.ucac4',
+        filter_expr='R<8.0',
+        sort_expr='R-V'
+    )
+    print(repr(catalogue[['R', 'V']]))
+    print(repr(catalogue['R'] - catalogue['V']))

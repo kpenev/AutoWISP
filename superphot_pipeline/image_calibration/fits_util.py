@@ -71,6 +71,17 @@ def create_result(image_list,
         print('Slice for %s channel: ' % channel_name + repr(channel_slice))
         if channel_name is not None:
             header['CLRCHNL'] = channel_name
+            header['CHNLXOFF'] = channel_slice[1].start
+            header['CHNLXSTP'] = channel_slice[1].step
+            header['CHNLYOFF'] = channel_slice[0].start
+            header['CHNLYSTP'] = channel_slice[0].step
+        else:
+            header['CHNLXOFF'] = 0
+            header['CHNLXSTP'] = 1
+            header['CHNLYOFF'] = 0
+            header['CHNLYSTP'] = 1
+
+
         hdu_list = fits.HDUList([
             fits.PrimaryHDU(
                 numpy.array(image_list[0][channel_slice]),

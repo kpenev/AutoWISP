@@ -2,7 +2,6 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
-import os
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -38,8 +37,10 @@ def transformation_matrix(astrometry_order, xi, eta):
     Notes:
         Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2
     """
-    #TODO: alocate matrix first with right size and then fill, instead of doing it the slow
-    #way below
+
+    #TODO: alocate matrix first with right size and then fill, instead of doing
+    #it the slow way below
+
     trans_matrix = numpy.ones((eta.shape[0], 1))
 
     for i in range(1, astrometry_order + 1):
@@ -93,46 +94,35 @@ def new_xieta_cent_function(xieta_cent,
             k = k + 1
     return new_xieta_cent
 
-def solve(initial_corr,
-          xy_extracted,
-          ra_cent,
-          dec_cent,
-          catalogue,
-          tweak_order,
-          **configuration):
+def estimate_transformation(initial_corr,
+                            ra_cent,
+                            dec_cent,
+                            tweak_order,
+                            astrometry_order):
     """
-    Main function: To get the initial transformation,
-    the rest is calling iteration function to iterate
-    the steps to get new transformations
+    Estimate the transformation from astrometry.net correspondence file.
 
     Args:
-        initial_corr(structured numpy array): The correspondence file containing
-            field_x, field_y, index_ra, and index_dec
+        initial_corr(structured numpy array):    The correspondence file
+            containing field_x, field_y, index_ra, and index_dec
 
-        xy_extracted(structured numpy array): x and y of the extracted sources of
-            the frame
+        ra_cent(float):    Estimate of the RA of the center of the frame
 
-        ra_cent(float): RA of the center of the frame
+        dec_cent(float):    Estimate of the Dec of the center of the frame
 
-        dec_cent(float): Dec of the center of the frame
+        tweak_order(int):    The order of the astrometry.net transformation
 
-        catalogue(structured numpy. array): RA and Dec of the catalog sources
-
-        configuration: configuration including:
-
-            astrometry_order(int): The order of the transformation to fit
-
-            max_srcmatch_distance(float): upper bound distance in KD tree
-
-            trans_threshold(float): threshold for the difference of two
-                consecutive transformations
-
-            x_frame(float): length of the frame in pixels
-
-            y_frame(float): width of the frame in pixels
+        astrometry_order(int):    The order of the transformation that will be
+            fit. Fills terms of higher order than `tweak_order` with zeros.
 
     Returns:
-        See the returns of func. iteration
+        matrix:
+            Estimate of the transformation x(xi, eta)
+
+        matrix:
+            Estimate of the transformation y(xi, eta)
+
+
 
     """
 
@@ -153,36 +143,31 @@ def solve(initial_corr,
     trans_matrix = transformation_matrix(tweak_order,
                                          xi,
                                          eta)
-    trans_x = numpy.zeros(((configuration['astrometry_order'] + 1) * (configuration['astrometry_order'] + 2)) // 2)
-    trans_x[:(((tweak_order + 1) * (tweak_order + 2)) // 2)] = linalg.lstsq(trans_matrix, initial_corr['x'])[0]
+    num_trans_terms = ((astrometry_order + 1) * (astrometry_order + 2)) // 2
+    num_tweak_terms = ((tweak_order + 1) * (tweak_order + 2)) // 2
 
-    trans_y = numpy.zeros(((configuration['astrometry_order'] + 1) * (configuration['astrometry_order'] + 2)) // 2)
-    trans_y[:(((tweak_order + 1) * (tweak_order + 2)) // 2)] = linalg.lstsq(trans_matrix, initial_corr['y'])[0]
+    trans_x = numpy.zeros(num_trans_terms)
+    trans_y = numpy.zeros(num_trans_terms)
 
-    trans_x = trans_x[numpy.newaxis].T
-    trans_y = trans_y[numpy.newaxis].T
+    trans_x[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr['x'])[0]
+    trans_y[:num_tweak_terms] = linalg.lstsq(trans_matrix, initial_corr['y'])[0]
 
-    return iteration(trans_x=trans_x,
-                     trans_y=trans_y,
-                     xy_extracted=xy_extracted,
-                     catalogue=catalogue,
-                     ra_cent=ra_cent,
-                     dec_cent=dec_cent,
-                     **configuration)
+    return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
 
-def iteration(*,
-              astrometry_order,
-              max_srcmatch_distance,
-              max_iterations,
-              trans_threshold,
-              trans_x,
-              trans_y,
-              ra_cent,
-              dec_cent,
-              x_frame,
-              y_frame,
-              xy_extracted,
-              catalogue):
+
+def refine_transformation(*,
+                          astrometry_order,
+                          max_srcmatch_distance,
+                          max_iterations,
+                          trans_threshold,
+                          trans_x,
+                          trans_y,
+                          ra_cent,
+                          dec_cent,
+                          x_frame,
+                          y_frame,
+                          xy_extracted,
+                          catalogue):
     """
     Iterate the process until we get a transformation that
     its difference from the previous one is less than a threshold
@@ -196,13 +181,13 @@ def iteration(*,
         trans_threshold(float): The threshold for the difference of two
             consecutive transformations
 
-        trans_x(numpy array): The transformation matrix for x
+        trans_x(numpy array): Initial estimate for the x transformation matrix
 
-        trans_y(numpy array): The transformation matrix for y
+        trans_y(numpy array): Initial estimate for the x transformation matrix
 
-        ra_cent(float): RA of the center of the frame
+        ra_cent(float): Initial estimate for the RA of the center of the frame
 
-        dec_cent(float): Dec of the center of the frame
+        dec_cent(float): Initial estimate for the Dec of the center of the frame
 
         x_frame(float): length of the frame in pixels
 
@@ -214,12 +199,14 @@ def iteration(*,
         catalogue: The catalogue of sources to match to
 
     Returns:
-        trans_x(numpy array): the new transformed x array
+        trans_x(2D numpy array):
+            the coefficients of the x(xi, eta) transformation
 
-        trans_y(numpy array): the new transformed y array
+        trans_y(2D numpy array):
+            the coefficients of the y(xi, eta) transformation
 
-        cat_extracted_corr(structured numpy array): the catalogues extracted
-            correspondence indexes
+        cat_extracted_corr(structured numpy array):
+            the catalogues extracted correspondence indexes
 
         res_rms(float): the residual
 
@@ -228,7 +215,6 @@ def iteration(*,
         ra_cent(float): the new RA center array
 
         dec_cent(float): the new Dec center array
-
     """
 
     x_cent = x_frame / 2.0
