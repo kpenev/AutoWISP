@@ -19,12 +19,17 @@ from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
@@ -87,7 +92,7 @@ def parse_command_line():
         default='/data/CAT/ANET_INDEX/ucac4_2014',
         help='The path of the anet index to use.'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def get_sky_coord_columns(catalogue_fname):

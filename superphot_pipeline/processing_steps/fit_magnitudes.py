@@ -9,12 +9,17 @@ from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements.'),
         add_component_versions=('srcproj',
@@ -170,7 +175,7 @@ def parse_command_line():
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting to allow.'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def magnitude_fit(dr_collection, configuration):

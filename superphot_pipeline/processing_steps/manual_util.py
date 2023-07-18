@@ -60,8 +60,7 @@ class ManualStepArgumentParser(ArgumentParser):
                  inputs_help_extra='',
                  allow_parallel_processing=False,
                  convert_to_dict=True,
-                 add_lc_fname_arg=False,
-                 config_file):
+                 add_lc_fname_arg=False):
         """
         Initialize the praser with options common to all manual steps.
 
@@ -98,6 +97,7 @@ class ManualStepArgumentParser(ArgumentParser):
         self.add_argument(
             '--config-file', '-c',
             is_config_file=True,
+            # default=config_file,
             help='Specify a configuration file in liu of using command line '
             'options. Any option can still be overriden on the command line.'
         )

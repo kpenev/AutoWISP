@@ -6,11 +6,10 @@ import re
 
 from configargparse import Action
 
-# from superphot_pipeline.file_utilities import find_fits_fnames
-# from superphot_pipeline.image_calibration import Calibrator, overscan_methods
-# from superphot_pipeline.processing_steps.manual_util import\
-#     ManualStepArgumentParser
-from .manual_util import ManualStepArgumentParser
+from superphot_pipeline.file_utilities import find_fits_fnames
+from superphot_pipeline.image_calibration import Calibrator, overscan_methods
+from superphot_pipeline.processing_steps.manual_util import\
+    ManualStepArgumentParser
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -85,15 +84,15 @@ class ParseOverscanAction(Action):
 #pylint: enable=too-few-public-methods
 
 
-def parse_command_line(filepath=""):
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
-    if not filepath:
-        parser = ManualStepArgumentParser(description=__doc__,
-                                          input_type='raw', config_file='')
+    if args:
+        inputtype = ''
     else:
-        #   dummy call to parse_command_line, no input type, specify config_file
-        parser = ManualStepArgumentParser(description=__doc__,
-                                          input_type='', config_file=filepath)
+        inputtype = 'raw'
+
+    parser = ManualStepArgumentParser(description=__doc__,
+                                      input_type=inputtype)
 
     parser.add_argument(
         '--calibrate-only-if',
@@ -206,7 +205,7 @@ def parse_command_line(filepath=""):
         'corresponding input FITS file without directories or `.fits` and '
         '`.fits.fz` extension).'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def calibrate(image_collection, configuration):
@@ -219,10 +218,10 @@ def calibrate(image_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    # calibrate(
-    #     find_fits_fnames(
-    #         cmdline_config.pop('raw_images'),
-    #         cmdline_config.pop('calibrate_only_if')
-    #     ),
-    #     cmdline_config
-    # )
+    calibrate(
+        find_fits_fnames(
+            cmdline_config.pop('raw_images'),
+            cmdline_config.pop('calibrate_only_if')
+        ),
+        cmdline_config
+    )

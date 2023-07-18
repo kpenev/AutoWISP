@@ -24,12 +24,17 @@ from superphot_pipeline.data_reduction.utils import\
     fill_aperture_photometry_input_tree,\
     add_aperture_photometry
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'calibrated + dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='calibrated + dr',
+        input_type=inputtype,
         inputs_help_extra=('The corresponding DR files must alread contain a '
                            'PSF fit.'),
         add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
@@ -63,7 +68,7 @@ def parse_command_line():
         help='A constant error to add to the formal error estimate from the '
         'measurement.'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def get_photometer(configuration):

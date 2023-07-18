@@ -8,11 +8,16 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'calibrated'
+
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type='calibrated',
+                                      input_type=inputtype,
                                       add_component_versions=('srcextract',))
     parser.add_argument(
         '--srcextract-only-if',
@@ -47,7 +52,7 @@ def parse_command_line():
         'files where extracted sources are saved. Replacement fields can be '
         'anything from the header of the calibrated image.'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 def find_stars(image_collection, configuration):
     """Extract sources from all input images and save them to DR files."""
