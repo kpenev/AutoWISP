@@ -13,12 +13,16 @@ from superphot_pipeline.processing_steps.manual_util import\
 from superphot_pipeline.light_curves.collect_light_curves import\
     collect_light_curves
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements and be magnitude fitted.'),
         add_component_versions=('srcproj',
@@ -119,8 +123,7 @@ def parse_command_line():
         'is called on the header and then the expression is evaluated.'
     )
 
-
-    result = parser.parse_args()
+    result = parser.parse_args(*args)
 
     mem_block_size = result.pop('mem_block_size')
     if mem_block_size == 'Mb':

@@ -261,12 +261,17 @@ def add_grouping_options(parser):
     )
 
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'calibrated + dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='calibrated + dr',
+        input_type=inputtype,
         inputs_help_extra=('The corresponding DR files must alread contain an '
                            'astrometric transformation.'),
         add_component_versions=('srcproj', 'background', 'shapefit'),
@@ -312,7 +317,7 @@ def parse_command_line():
         parser.add_argument_group('options controlling splitting of sources in '
                                   'fitting groups')
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 #Goal is to provide callable

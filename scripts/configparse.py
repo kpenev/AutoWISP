@@ -10,22 +10,14 @@ def parse_cmd(filename):
     config_dict = {}
     for x in all_steps:
         if (hasattr(x, 'parse_command_line')):
-            print(x.__name__)
-            try:
-                list = x.parse_command_line(['-c', filename])
-            except SystemExit:
+            # print(x.__name__)
+            name = x.__name__.split('.')
+            print(name[2])
+            if name[2] == "fit_star_shape":
                 list = x.parse_command_line(['-c', filename, '--photometry-catalogue', 'dummy'])
+            else:
+                list = x.parse_command_line(['-c', filename])
             config_dict = config_dict | list
-            # try:
-            #     list = x.parse_command_line(['-c', filename])
-            #     config_dict = config_dict | list
-            # except BaseException:  # ok to use BaseException? too broad, Configargparse.ArgumentException was not it
-            #     list = x.parse_command_line(['-c', filename, '--photometry-catalogue', 'dummy'])
-            #     config_dict = config_dict | list
-    print("COMBINED ***************************")
-    # print(config_dict)
-    # for x in config_dict:
-    #     print(x, config_dict[x])
     return config_dict
 
 def add_to_db(dbpath):
@@ -47,7 +39,7 @@ def add_to_db(dbpath):
             sqlcmd = "INSERT INTO configuration VALUES (?,?,?,?,?,?,?)"
             param = str(x)
             val = str(config_dict[x])
-            cursor.execute(sqlcmd, (id, 0, 0, param, val, 0, 0))
+            cursor.execute(sqlcmd, (id, 0, 0, param, val, 0, 0))    #empty string for notes
             id +=1
         sqliteConnection.commit()
 
