@@ -2,6 +2,7 @@
 
 from hashlib import sha1
 from astropy.io import fits
+from astropy.time import Time
 
 import numpy
 
@@ -17,7 +18,7 @@ from superphot_pipeline.fits_utilities import\
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
     ImageMismatchError
-from superphot_pipeline import Processor
+from superphot_pipeline import Processor, Evaluator
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     git_id as mask_utilities_git_id
@@ -307,7 +308,16 @@ class Calibrator(Processor):
                             )
                         )
 
-        check_area(calib_params['image_area'], 'image_area')
+
+        if calib_params['image_area'] is None:
+            calib_params['image_area'] = dict(
+                xmin=0,
+                ymin=0,
+                xmax=raw_image.shape[1],
+                ymax=raw_image.shape[0]
+            )
+        else:
+            check_area(calib_params['image_area'], 'image_area')
         if calib_params['overscans']['areas'] is not None:
             for overscan_area in calib_params['overscans']['areas']:
                 check_area(overscan_area, 'overscan')
@@ -527,11 +537,22 @@ class Calibrator(Processor):
 
         result = get_primary_header(
             raw_image,
-            add_filename_keywords=True,
-            fnum_expression=calibration_params['fnum']
+            add_filename_keywords=True
         )
         if calibration_params['combine_headers']:
             result.update(raw_image[calibration_params['raw_hdu']].header)
+        if calibration_params.get('utc_expression'):
+            result['JD-OBS'] = Time(
+                Evaluator(result)(calibration_params['utc_expression'])
+            ).jd
+        else:
+            assert calibration_params.get('jd_expression')
+            result['JD-OBS'] = Time(
+                Evaluator(result)(calibration_params['jd_expression'])
+            ).jd
+
+        result['FNUM'] = Evaluator(result)(calibration_params['fnum'])
+
         return result
 
 

@@ -19,7 +19,6 @@ from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
 from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 from superphot_pipeline import DataReductionFile
-from superphot_pipeline import Evaluator
 from superphot_pipeline.miscellaneous import get_hat_source_id_str
 from superphot_pipeline.data_reduction.utils import get_source_extracted_psf_map
 
@@ -1043,21 +1042,11 @@ class LCDataIO:
                                      lon=frame_header['SITELONG'] * units.deg,
                                      height=frame_header['SITEALT'] * units.m)
 
-            try:
-                obs_time = Time(
-                    Evaluator()(
-                        self._config['jd_expression'].format_map(frame_header)
-                    ),
-                    format='jd',
-                    location=location
-                )
-            except KeyError:
-                obs_time = Time(
-                    Evaluator()(
-                        self._config['utc_expression'].format_map(frame_header)
-                    ),
-                    location=location
-                )
+            obs_time = Time(
+                frame_header['JD-OBS'],
+                format='jd',
+                location=location
+            )
 
             source_coords = SkyCoord(
                 ra=self._ra_dec[0] * units.deg,

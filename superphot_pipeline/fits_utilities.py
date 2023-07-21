@@ -93,9 +93,7 @@ def read_image_components(fits_fname,
     )
 
 
-def get_primary_header(fits_image,
-                       add_filename_keywords=False,
-                       fnum_expression=None):
+def get_primary_header(fits_image, add_filename_keywords=False):
     """
     Return the primary header of the given image (filename or opened).
 
@@ -129,13 +127,6 @@ def get_primary_header(fits_image,
                         base_fname = base_fname[:-len(ext)]
 
                 result['RAWFNAME'] = base_fname
-            if fnum_expression is not None:
-                eval_fnum = Interpreter()
-                print('result items'+ repr(result.items()))
-                print('hdu header items'+ repr(hdu.header.items()))
-                for hdr_key, hdr_val in result.items():
-                    eval_fnum.symtable[hdr_key.replace('-', '_')] = hdr_val
-                result['FNUM'] = eval_fnum(fnum_expression)
             return result
     assert False
     return None

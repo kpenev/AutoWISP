@@ -43,9 +43,10 @@ class Evaluator(asteval.Interpreter):
                     assert path.splitext(data_entry)[-1] in ['.fits', '.fz']
                     self.symtable.update(get_primary_header(data_entry))
             elif isinstance(data_entry, fits.HDUList):
-                self.symtable.update(get_primary_header(data_entry))
+                self.__init__(get_primary_header(data_entry))
             elif isinstance(data_entry, fits.Header):
-                self.symtable.update(data_entry)
+                for hdr_key, hdr_val in data_entry.items():
+                    self.symtable[hdr_key.replace('-', '_')] = hdr_val
             else:
                 print('Setting symtable: ' + repr(data_entry))
                 self.symtable.update(data_entry)

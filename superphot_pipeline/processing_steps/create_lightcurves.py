@@ -103,22 +103,6 @@ def parse_command_line():
         default='{ALTITUDE}',
         help='Same as `--latitude-deg` but for the altitude in meters.'
     )
-    parser.add_argument(
-        '--jd-expression',
-        default='{JD} + 2.4e6',
-        help='An expression involving header keywords that evaluates to the JD '
-        'of the middle of the exposure in a frame. First string `format` method'
-        'is called on the header and then the expression is evaluated.'
-    )
-    parser.add_argument(
-        '--utc-expression',
-        default='"{DATE-OBS}"',
-        help='An expression involving header keywords that evaluates to a valid'
-        ' input for constructing astropy Time objects in UTC scale.the JD '
-        'of the middle of the exposure in a frame. First string `format` method'
-        'is called on the header and then the expression is evaluated.'
-    )
-
 
     result = parser.parse_args()
 
