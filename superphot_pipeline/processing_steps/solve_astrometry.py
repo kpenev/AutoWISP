@@ -23,6 +23,7 @@ from superphot_pipeline import Evaluator
 
 _logger = logging.getLogger(__name__)
 
+
 def parse_command_line():
     """Return the parsed command line arguments."""
 
@@ -51,14 +52,14 @@ def parse_command_line():
     )
     parser.add_argument(
         '--catalogue-filter', '--catalog-filter', '--cat-filter',
-        nargs=2,
-        metavar=('CHANNEL', 'EXPRESSION'),
+        metavar=('CHANNEL:EXPRESSION'),
+        type=lambda e: e.split(':'),
         action='append',
         default=[],
         help='An expression to evaluate for each catalog source to determine '
-        'if the source should be used for astrometry of a given channel. The '
-        'syntax is <channel> <expression>. If filter for a given channel is not'
-        ' specified, the full catalog is used for that channel.'
+        'if the source should be used for astrometry of a given channel. If '
+        'filter for a given channel is not specified, the full catalog is used '
+        'for that channel.'
     )
     parser.add_argument(
         '--frame-center-estimate',
