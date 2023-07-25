@@ -306,9 +306,9 @@ def refine_transformation(*,
         n_extracted = len(xy_extracted)
         #TODO: add weights to residual and to the fit eventually
         res_rms = numpy.sqrt(numpy.square(d[matched]).mean())
-        ratio = round(n_matched / n_extracted, 3)
+        ratio = n_matched / n_extracted
 
-        logging.debug("# of matched: %s", n_matched)
+        logging.debug("# of matched: %d out of %d", n_matched, n_extracted)
         matched_sources = \
             numpy.empty(
                 n_matched,

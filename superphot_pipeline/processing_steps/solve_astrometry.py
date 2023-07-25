@@ -135,7 +135,7 @@ def parse_command_line():
     )
 
     result = parser.parse_args()
-    result.catalogue_filter = dict(result.catalogue_filter)
+    result['catalogue_filter'] = dict(result['catalogue_filter'])
 
     return result
 
@@ -379,7 +379,9 @@ def solve_image(dr_fname,
             applies
     """
 
-    print('Solving: ' + repr(dr_fname))
+    _logger.debug('Solving: %s %s transformation estimate.',
+                  repr(dr_fname),
+                  ('with' if transformation_estimate else 'without'))
     with DataReductionFile(dr_fname, 'r+') as dr_file:
 
         header = dr_file.get_frame_header()
@@ -430,7 +432,7 @@ def solve_image(dr_fname,
                     assert os.path.isfile(corr_fname), \
                            "Correspondence file does not exist"
                 except FileNotFoundError as err:
-                    print(err)
+                    _logger.critical(err)
                     raise err
 
                 with fits.open(corr_fname, mode='readonly') as corr:
@@ -460,7 +462,10 @@ def solve_image(dr_fname,
                             )
                         }
 
-                        transformation_estimate = estimate_transformation(
+                        (
+                            transformation_estimate['trans_x'],
+                            transformation_estimate['trans_y']
+                        ) = estimate_transformation(
                             initial_corr=initial_corr,
                             tweak_order=tweak,
                             astrometry_order=configuration['astrometry_order'],
@@ -479,6 +484,8 @@ def solve_image(dr_fname,
                         )
 
 
+                    _logger.debug('Using transformation estimate: %s',
+                                  repr(transformation_estimate))
                     (
                         trans_x,
                         trans_y,
@@ -488,7 +495,6 @@ def solve_image(dr_fname,
                         ra_cent,
                         dec_cent
                     ) = refine_transformation(
-                        **transformation_estimate,
                         xy_extracted=xy_extracted,
                         catalogue=catalogue,
                         x_frame=header['NAXIS1'],
@@ -499,13 +505,14 @@ def solve_image(dr_fname,
                         ],
                         max_iterations=configuration['max_astrom_iter'],
                         trans_threshold=configuration['trans_threshold'],
+                        **transformation_estimate,
                     )
 
                     # print('trans_x:'+repr(trans_x))
                     # print('trans_y:'+repr(trans_y))
                     # print('matched_sources:'+repr(cat_extracted_corr))
-                    print('res_rms:' + repr(res_rms))
-                    print('ratio:' + repr(ratio))
+                    _logger.debug('RMS residual: %s', repr(res_rms))
+                    _logger.debug('Ratio: %s', repr(ratio))
 
                     save_to_dr(cat_extracted_corr=cat_extracted_corr,
                                trans_x=trans_x,
@@ -535,7 +542,7 @@ def solve_image(dr_fname,
 def astrometry_process(task_queue, result_queue, configuration):
     """Run pending astrometry tasks from the queue in process."""
 
-    setup_process(task='astrometry', **configuration)
+    setup_process(task='astrometry_solve', **configuration)
     _logger.info('Starting astrometry solving process.')
     for dr_fname, transformation_estimate in iter(task_queue.get,
                                                   'STOP'):
@@ -546,6 +553,7 @@ def astrometry_process(task_queue, result_queue, configuration):
                 **configuration
             )
         )
+    _logger.debug('Astrometry solving process finished.')
 
 
 #Could not think of good way to split
@@ -557,9 +565,9 @@ def solve_astrometry(dr_collection, configuration):
         """Return True iff the given `solve_image` result is a good solution."""
 
         return (
-            result['ratio'] > configuration.min_match_fraction
+            result['ratio'] > configuration['min_match_fraction']
             and
-            result['res_rms'] < configuration.max_rms_distance
+            result['res_rms'] < configuration['max_rms_distance']
         )
 
 
@@ -576,8 +584,10 @@ def solve_astrometry(dr_collection, configuration):
     task_queue = Queue()
     result_queue = Queue()
 
+    num_queued = 0
     for fnum in pending:
         task_queue.put((pending[fnum].pop(), None))
+        num_queued += 1
 
     workers = [
         Process(target=astrometry_process,
@@ -588,8 +598,11 @@ def solve_astrometry(dr_collection, configuration):
     for process in workers:
         process.start()
 
-    while pending:
+    while pending or num_queued:
+        _logger.debug('Pending: %s', repr(pending))
+        _logger.debug('Number scheduled: %d', num_queued)
         result = result_queue.get()
+        num_queued -= 1
 
         if check_result(result):
             if result['fnum'] in failed:
@@ -598,18 +611,24 @@ def solve_astrometry(dr_collection, configuration):
                 pending[result['fnum']].extend(failed[result['fnum']])
                 del failed[result['fnum']]
 
-            for dr_fname in pending[result['fnum']]:
+            for dr_fname in pending.get(result['fnum'], []):
                 task_queue.put((dr_fname, result['raw_transformation']))
+                num_queued += 1
 
-            del pending[result['fnum']]
+            if result['fnum'] in pending:
+                del pending[result['fnum']]
         else:
             if result['fnum'] not in failed:
                 failed[result['fnum']] = []
             failed[result['fnum']].append(result['dr_fname'])
+            if result['fnum'] in pending:
+                task_queue.put((pending[result['fnum']].pop(), None))
+                num_queued += 1
 
-            if not pending[result['fnum']]:
+            if not pending.get(result['fnum'], True):
                 del pending[result['fnum']]
 
+    _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
         task_queue.put('STOP')
 
@@ -626,6 +645,7 @@ if __name__ == '__main__':
         sky_preprojection='tan',
         weights_expression='1.0'
     )
+    setup_process(task='astrometry_manage', **cmdline_config)
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
                      cmdline_config)
