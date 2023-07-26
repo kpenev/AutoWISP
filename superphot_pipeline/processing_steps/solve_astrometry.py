@@ -23,13 +23,17 @@ from superphot_pipeline import Evaluator
 
 _logger = logging.getLogger(__name__)
 
-
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True
@@ -134,9 +138,8 @@ def parse_command_line():
         'positions for the astrometry solution to be considered valid.'
     )
 
-    result = parser.parse_args()
+    result = parser.parse_args(*args)
     result['catalogue_filter'] = dict(result['catalogue_filter'])
-
     return result
 
 class TempAstrometryFiles:

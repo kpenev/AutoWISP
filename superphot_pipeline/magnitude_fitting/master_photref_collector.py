@@ -21,9 +21,6 @@ class MasterPhotrefCollector:
         _grcollect:    The running ``grcollect`` process responsible for
             generating the statistics.
 
-        _output_lock:    A lock to ensure only only process a multiprocessing
-            pool is adding output to ``grcollect`` at any one time.
-
         _num_photometries:    How many photometry measurements being fit.
 
         _source_name_format:    A %-substitution string for turning a source ID
@@ -35,21 +32,31 @@ class MasterPhotrefCollector:
 
     _logger = logging.getLogger(__name__)
 
+    def _report_grcollect_crash(self, grcollect_outerr=None):
+        """Raise an error providing information on why grcollect crashed."""
+
+        if grcollect_outerr is None:
+            grcollect_outerr = self._grcollect.communicate()
+        raise ChildProcessError(
+            'grcollect command failed! '
+            +
+            'Return code: %d.' % self._grcollect.returncode
+            +
+            '\nOutput:\n' + grcollect_outerr[0].decode()
+            +
+            '\nError:\n' + grcollect_outerr[1].decode()
+        )
+
+
     def _calculate_statistics(self):
         """Creating the statics file from all input collected so far."""
 
-        assert self._grcollect.poll() is None
-        grcollect_output, grcollect_error = self._grcollect.communicate()
+        if self._grcollect.poll() is not None:
+            self._report_grcollect_crash()
+        grcollect_outerr = self._grcollect.communicate()
         if self._grcollect.returncode:
-            raise ChildProcessError(
-                'grcollect command failed! '
-                +
-                'Return code: %d.' % self._grcollect.returncode
-                +
-                '\nOutput:\n' + grcollect_output.decode()
-                +
-                '\nError:\n' + grcollect_error.decode()
-            )
+            self._report_grcollect_crash(grcollect_outerr)
+
 
     def _get_med_count(self):
         """Return median number of observations per source in the stat. file."""
@@ -139,10 +146,10 @@ class MasterPhotrefCollector:
         def add_stat_data(stat_data, result):
             """Add the information from get_stat_data() to result."""
 
+            print('Stat data columns: ' + repr(stat_data.dtype.names))
             for source_index, source_id in enumerate(stat_data['ID']):
                 result['ID'][source_index] = parse_source_id(source_id)
 
-            print('Stat data columns: ' + repr(stat_data.dtype.names))
             for phot_index in range(self._num_photometries):
                 result['full_count'][:, phot_index] = stat_data[
                     'count_mag_%d' % phot_index
@@ -344,7 +351,6 @@ class MasterPhotrefCollector:
                  num_photometries,
                  temp_directory,
                  *,
-                 output_lock=None,
                  outlier_threshold=5.0,
                  max_rejection_iterations=10,
                  rejection_center='median',
@@ -433,50 +439,57 @@ class MasterPhotrefCollector:
                                 stdin=PIPE,
                                 stdout=PIPE,
                                 stderr=PIPE)
-        self._output_lock = output_lock
         self._num_photometries = num_photometries
         self._source_name_format = source_name_format
+
     #pylint: enable=too-many-locals
 
-    def add_input(self, phot, fitted):
+    def add_input(self, fit_results):
         """Ingest a fitted frame's photometry into the statistics."""
 
-        assert self._grcollect.poll() is None
+        for phot, fitted in fit_results:
+            if phot is None:
+                continue
 
-        formal_errors = phot['mag_err'][:, -1]
-        phot_flags = phot['phot_flag'][:, -1]
-
-        src_count = formal_errors.shape[0]
-        assert self._num_photometries == formal_errors.shape[1]
-        assert formal_errors.shape == phot_flags.shape
-        assert fitted.shape == formal_errors.shape
-
-        line_format = (self._source_name_format
-                       +
-                       (' %9.5f') * (2 * self._num_photometries))
-        if self._output_lock is not None:
-            self._output_lock.acquire()
-        for source_ind in range(src_count):
-            print_args = (
-                tuple(phot['ID'][source_ind][1:])
-                +
-                tuple(fitted[source_ind])
-                +
-                tuple(formal_errors[source_ind])
+            logging.getLogger(__name__).debug(
+                'Collecting %d magfit sources for master.',
+                len(phot['ID'])
             )
 
-            all_finite = True
-            for value in print_args:
-                if numpy.isnan(value):
-                    all_finite = False
-                    break
+            print('Return code of grcollect: ' + repr(self._grcollect.poll()))
+            assert self._grcollect.poll() is None
 
-            if all_finite:
-                self._grcollect.stdin.write(
-                    (line_format % print_args + '\n').encode('ascii')
+            formal_errors = phot['mag_err'][:, -1]
+            phot_flags = phot['phot_flag'][:, -1]
+
+            src_count = formal_errors.shape[0]
+            assert self._num_photometries == formal_errors.shape[1]
+            assert formal_errors.shape == phot_flags.shape
+            assert fitted.shape == formal_errors.shape
+
+            line_format = (self._source_name_format
+                           +
+                           (' %9.5f') * (2 * self._num_photometries))
+            for source_ind in range(src_count):
+                print_args = (
+                    tuple(phot['ID'][source_ind][1:])
+                    +
+                    tuple(fitted[source_ind])
+                    +
+                    tuple(formal_errors[source_ind])
                 )
-        if self._output_lock is not None:
-            self._output_lock.release()
+
+                all_finite = True
+                for value in print_args:
+                    if numpy.isnan(value):
+                        all_finite = False
+                        break
+
+                if all_finite:
+                    self._grcollect.stdin.write(
+                        (line_format % print_args + '\n').encode('ascii')
+                    )
+
 
     #TODO: Add support for scatter cut based on quantile of fit residuals.
     def generate_master(self,

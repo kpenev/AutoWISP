@@ -84,11 +84,16 @@ class ParseOverscanAction(Action):
 #pylint: enable=too-few-public-methods
 
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'raw'
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type='raw')
+                                      input_type=inputtype)
+
     parser.add_argument(
         '--calibrate-only-if',
         default='True',
@@ -217,7 +222,8 @@ def parse_command_line():
         '--jd-expression. Set to empty string  to use --jd-expression instead.'
     )
 
-    return parser.parse_args()
+    return parser.parse_args(*args)
+
 
 
 def calibrate(image_collection, configuration):

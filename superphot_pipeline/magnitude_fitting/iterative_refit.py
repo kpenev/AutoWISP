@@ -2,7 +2,7 @@
 
 from tempfile import TemporaryDirectory
 import functools
-from multiprocessing import Pool, Lock
+from multiprocessing import Pool
 import logging
 
 import numpy
@@ -181,23 +181,25 @@ def iterative_refit(fit_dr_filenames,
                     **path_substitutions
                 ),
                 num_photometries,
-                grcollect_tmp_dir,
-                output_lock=(
-                    Lock() if configuration.num_parallel_processes > 1
-                    else None
-                )
+                grcollect_tmp_dir
             )
             magfit = LinearMagnitudeFit(config=configuration,
                                         reference=photref,
-                                        master_catalogue=catalogue,
-                                        magfit_collector=magfit_stat_collector)
+                                        master_catalogue=catalogue)
+
+            pool_magfit = functools.partial(magfit, **path_substitutions)
             if configuration.num_parallel_processes > 1:
-                pool_magfit = functools.partial(magfit, **path_substitutions)
                 with Pool(configuration.num_parallel_processes) as magfit_pool:
-                    magfit_pool.map(pool_magfit, fit_dr_filenames)
+                    magfit_stat_collector.add_input(
+                        magfit_pool.imap_unordered(
+                            pool_magfit,
+                            fit_dr_filenames
+                        )
+                    )
             else:
-                for dr_fname in fit_dr_filenames:
-                    magfit(dr_fname, **path_substitutions)
+                magfit_stat_collector.add_input(
+                    map(pool_magfit, fit_dr_filenames)
+                )
 
             photref = update_photref(magfit_stat_collector,
                                      photref,

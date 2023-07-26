@@ -9,12 +9,17 @@ from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements.'),
         add_component_versions=('srcproj',
@@ -46,7 +51,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--master-photref-fname-format',
-        default='MASTERS/mphotref_iter%(magfit_iteration)03d.fits',
+        default='MASTERS/mphotref_iter{magfit_iteration:03d}.fits',
         help='A format string involving a {magfit_iteration} substitution along'
         ' with any variables from the header of the single photometric '
         'reference or passed through the path_substitutions arguments, that '
@@ -55,7 +60,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--magfit-stat-fname-format',
-        default='MASTERS/mfit_stat_iter%(magfit_iteration)03d.txt',
+        default='MASTERS/mfit_stat_iter{magfit_iteration:03d}.txt',
         help='Similar to ``master_photref_fname_format``, but defines the name'
         ' to use for saving the statistics of a magnitude fitting iteration.'
     )
@@ -170,7 +175,7 @@ def parse_command_line():
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting to allow.'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def magnitude_fit(dr_collection, configuration):

@@ -13,12 +13,17 @@ from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
-def parse_command_line():
+def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
+    if args:
+        inputtype = ''
+    else:
+        inputtype = 'dr'
 
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type='dr',
+        input_type=inputtype,
         inputs_help_extra='The DR files must already contain astrometry.',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
@@ -71,7 +76,7 @@ def parse_command_line():
         'If the fit has not converged by then, the latest iteration is '
         'accepted. Default: %(default)s'
     )
-    return parser.parse_args()
+    return parser.parse_args(*args)
 
 
 def get_predictors_and_weights(matched_sources,

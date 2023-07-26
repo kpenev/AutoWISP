@@ -99,6 +99,7 @@ class ManualStepArgumentParser(ArgumentParser):
         self.add_argument(
             '--config-file', '-c',
             is_config_file=True,
+            # default=config_file,
             help='Specify a configuration file in liu of using command line '
             'options. Any option can still be overriden on the command line.'
         )
