@@ -3,12 +3,12 @@
 from asteval import asteval
 
 from antlr4 import InputStream, CommonTokenStream
-from .FitTermsLexer import FitTermsLexer
-from .FitTermsParser import FitTermsParser
-from .list_terms_visitor import ListTermsVisitor
-from .count_terms_visitor import CountTermsVisitor
-from .evaluate_terms_visitor import EvaluateTermsVisitor
-from .used_var_finder import UsedVarFinder
+from superphot_pipeline.fit_expression.FitTermsLexer import FitTermsLexer
+from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
+from superphot_pipeline.fit_expression.list_terms_visitor import ListTermsVisitor
+from superphot_pipeline.fit_expression.count_terms_visitor import CountTermsVisitor
+from superphot_pipeline.fit_expression.evaluate_terms_visitor import EvaluateTermsVisitor
+from superphot_pipeline.fit_expression.used_var_finder import UsedVarFinder
 
 #TODO: add detailed description of the expansion terms language
 class Interface:
@@ -62,3 +62,11 @@ class Interface:
         """Return an array of the term values for the given data."""
 
         return EvaluateTermsVisitor(*data).visit(self._tree)
+
+
+if __name__ == '__main__':
+    istream = InputStream('{x**2}')
+    from multiprocessing import Pool
+
+    with Pool(3) as p:
+        p.map(istream, [dict(x=1), dict(x=2), dict(x=3)])

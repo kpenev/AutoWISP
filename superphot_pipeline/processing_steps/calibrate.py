@@ -53,7 +53,7 @@ class ParseChannelsAction(Action):
                     None,
                     int(parsed[direction + '_step'])
                 )
-                for direction in 'xy'
+                for direction in 'yx'
             )
         setattr(namespace, self.dest, result)
 
@@ -139,7 +139,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--fnum',
-        default='int(1e6 * MJD_OBS)',
+        default='int(1e6 * (JD_OBS - 2.4e6))',
         help='How to calculate a frame number from the header. Should be '
         'expression involving header keywords (with "-" replaced by "_") or '
         '`RAWFNAME` which takes the raw frame name without extension or path '
@@ -205,7 +205,25 @@ def parse_command_line(*args):
         'corresponding input FITS file without directories or `.fits` and '
         '`.fits.fz` extension).'
     )
+    parser.add_argument(
+        '--jd-expression',
+        default='JD + 2.4e6',
+        help='An expression involving header keywords that evaluates to the JD '
+        'of the middle of the exposure in a frame. For keywords that invlove '
+        '``-`` replace it with ``_``.'
+    )
+    parser.add_argument(
+        '--utc-expression',
+        default='DATE_OBS',
+        help='An expression involving header keywords that evaluates to a valid'
+        ' input for constructing astropy Time objects in UTC scale.the JD '
+        'of the middle of the exposure in a frame. For keywords that invlove '
+        '``-`` replace it with ``_``. This argument takes precedence over '
+        '--jd-expression. Set to empty string  to use --jd-expression instead.'
+    )
+
     return parser.parse_args(*args)
+
 
 
 def calibrate(image_collection, configuration):

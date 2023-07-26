@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 
-"""Fit for a tronsfarmation between sky and image coordinates."""
-
+"""Fit for a transformation between sky and image coordinates."""
+import logging
 import subprocess
+from multiprocessing import Queue, Process
 from tempfile import mkstemp
 import os
-import csv
-import logging
 
 import numpy
-import pandas
+from astropy.io import fits
+from general_purpose_python_modules.multiprocessing_util import setup_process
 
-from superphot_pipeline.hat.file_parsers import parse_anmatch_transformation
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     read_catalogue
 from superphot_pipeline.file_utilities import find_dr_fnames
+from superphot_pipeline.astrometry import \
+    estimate_transformation,\
+    refine_transformation
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
+
+_logger = logging.getLogger(__name__)
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -31,7 +35,8 @@ def parse_command_line(*args):
         description=__doc__,
         input_type=inputtype,
         inputs_help_extra='The DR files must already contain extracted sources',
-        add_component_versions=('srcextract', 'catalogue', 'skytoframe')
+        add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
+        allow_parallel_processing=True
     )
     parser.add_argument(
         '--astrometry-only-if',
@@ -43,11 +48,22 @@ def parse_command_line(*args):
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
         default='astrometry_catalogue.ucac4',
-        help='A file containing (approximately) the same stars as those that '
+        help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
-        'image. It is perferctly fine to include a larger area of sky, but it '
-        'helps to have a brightness limit of the catalogue that matches the '
-        'brightness limit of the extracted sources as closely as possible.'
+        'image. It is perferctly fine to include a larger area of sky and '
+        'fainter brightness limit. Different brightness limits are then imposed'
+        'for each color channel using the ``--catalogue-filter`` argument.'
+    )
+    parser.add_argument(
+        '--catalogue-filter', '--catalog-filter', '--cat-filter',
+        metavar=('CHANNEL:EXPRESSION'),
+        type=lambda e: e.split(':'),
+        action='append',
+        default=[],
+        help='An expression to evaluate for each catalog source to determine '
+        'if the source should be used for astrometry of a given channel. If '
+        'filter for a given channel is not specified, the full catalog is used '
+        'for that channel.'
     )
     parser.add_argument(
         '--frame-center-estimate',
@@ -81,38 +97,50 @@ def parse_command_line(*args):
         'frame coordinates is allowed to depend on.'
     )
     parser.add_argument(
-        '--anet-tweak-range',
+        '--tweak-order',
         type=int,
         nargs=2,
         default=(2, 5),
-        help='Range of tweak arguments to anmatch anet to try.'
+        help='Range of tweak arguments to solve-field to try.'
     )
     parser.add_argument(
-        '--anet-index-path',
-        default='/data/CAT/ANET_INDEX/ucac4_2014',
-        help='The path of the anet index to use.'
+        '--trans-threshold',
+        type=float,
+        default=1e-3,
+        help='The threshold for the difference of two consecutive '
+             'transformations'
     )
-    return parser.parse_args(*args)
+    parser.add_argument(
+        '--max-astrom-iter',
+        type=int,
+        default=20,
+        help='The maximum number of iterations the astrometry solution can '
+        'pass.'
+    )
+    parser.add_argument(
+        '--image-scale-factor',
+        type=float,
+        default=1.3,
+        help='The image scale factor to add to the given frames'
+    )
+    parser.add_argument(
+        '--min-match-fraction',
+        type=float,
+        default=0.8,
+        help='The minimum fraction of extracted sources that must be matched to'
+        ' a catalogue soure for the solution to be considered valid.'
+    )
+    parser.add_argument(
+        '--max-rms-distance',
+        type=float,
+        default=0.5,
+        help='The maximum RMS distance between projected and extracted '
+        'positions for the astrometry solution to be considered valid.'
+    )
 
-
-def get_sky_coord_columns(catalogue_fname):
-    """Return the column numbers of RA and Dec within the catalogue file."""
-
-    with open(catalogue_fname, 'r') as catfile:
-        first_line = ''
-        while not first_line:
-            first_line = catfile.readline()
-    assert first_line[0] == '#'
-
-    result = dict(ra=None, dec=None)
-    for column_number, column_name in enumerate(first_line[1:].split()):
-        for coord in 'ra', 'dec':
-            if column_name.lower().startswith(coord):
-                assert result[coord] is None
-                result[coord] = column_number
-
-    return result['ra'], result['dec']
-
+    result = parser.parse_args(*args)
+    result['catalogue_filter'] = dict(result['catalogue_filter'])
+    return result
 
 class TempAstrometryFiles:
     """Context manager for the temporary files needed for astrometry."""
@@ -120,7 +148,7 @@ class TempAstrometryFiles:
     def __init__(self):
         """Create all required temporary files."""
 
-        self._file_types = ['sources', 'match', 'trans']
+        self._file_types = ['sources', 'corr', 'axy']
         for file_type in self._file_types:
             handle, fname = mkstemp()
             setattr(self, '_' + file_type, handle)
@@ -139,8 +167,8 @@ class TempAstrometryFiles:
             os.close(getattr(self, '_' + file_type))
             os.remove(getattr(self, file_type + '_fname'))
 
-
-def print_file_contents(fname, label):
+def print_file_contents(fname,
+                        label):
     """Print the entire contenst of the given file."""
 
     print(80*'*')
@@ -150,91 +178,55 @@ def print_file_contents(fname, label):
         print(open_file.read())
     print(80*'-')
 
-
 def create_sources_file(dr_file, sources_fname, srcextract_version):
-    """Create a file with the given name contaning the extracted sources."""
+    """Create a FITS BinTable file with the given name containing
+    the extracted sources.
+
+    Returns: an array containing x-y extracted sources
+    """
 
     sources = dr_file.get_sources(
         'srcextract.sources',
         'srcextract_column_name',
         srcextract_version=srcextract_version
     )
-    x_col = int(numpy.argwhere(sources.columns == 'x')) + 1
-    y_col = int(numpy.argwhere(sources.columns == 'y')) + 1
-    sources.to_csv(sources_fname,
-                   sep=' ',
-                   na_rep='-',
-                   float_format='%.16e',
-                   quoting=csv.QUOTE_NONE,
-                   index=True,
-                   header=False)
-    print_file_contents(sources_fname, 'Sources file')
+    x_extracted = fits.Column(name='x', format='D', array=sources['x'].values)
+    y_extracted = fits.Column(name='y', format='D', array=sources['y'].values)
+    xyls = fits.BinTableHDU.from_columns([x_extracted, y_extracted])
+    xyls.writeto(sources_fname)
 
-    return x_col, y_col
-
-
-def save_match_to_dr(catalogue_sources,
-                     extracted_sources,
-                     match_fname,
-                     dr_file,
-                     **path_substitutions):
-    """Save the match to the DR file."""
-
-    matched_ids = pandas.read_csv(
-        match_fname,
-        sep=r'\s+',
-        header=None,
-        usecols=[0, len(catalogue_sources.columns) + 1],
-        names=['catalogue_id', 'extracted_id'],
-        comment='#'
+    xy_extracted = numpy.zeros(
+        (len(sources['x'].values)),
+        dtype=[('x', '>f8'), ('y', '>f8')]
     )
+    xy_extracted['x'] = sources['x'].values
+    xy_extracted['y'] = sources['y'].values
 
-    catalogue_sources = catalogue_sources.index.ravel()
-    extracted_sources = extracted_sources.index.ravel()
+    return xy_extracted
 
-    extracted_sorter = numpy.argsort(extracted_sources)
-    catalogue_sorter = numpy.argsort(catalogue_sources)
-    match = numpy.empty([matched_ids.index.size, 2], dtype=int)
-    match[:, 0] = catalogue_sorter[
-        numpy.searchsorted(catalogue_sources,
-                           matched_ids['catalogue_id'].ravel(),
-                           sorter=catalogue_sorter)
-    ]
-    match[:, 1] = extracted_sorter[
-        numpy.searchsorted(extracted_sources,
-                           matched_ids['extracted_id'].ravel(),
-                           sorter=extracted_sorter)
-    ]
-    dr_file.add_dataset(
-        dataset_key='skytoframe.matched',
-        data=match,
-        **path_substitutions
-    )
-
-
-def save_trans_to_dr(trans_fname,
+def save_trans_to_dr(*,
+                     trans_x,
+                     trans_y,
+                     ra_cent,
+                     dec_cent,
+                     res_rms,
                      configuration,
                      header,
                      dr_file,
                      **path_substitutions):
     """Save the transformation to the DR file."""
 
-    transformation, info = parse_anmatch_transformation(trans_fname)
-    terms_expression = (r'O{order:d}{{'
-                        r'(xi-{offset[0]!r})/{scale!r}'
-                        r','
-                        r'(eta-{offset[1]!r})/{scale!r}'
-                        r'}}').format(**transformation)
+    terms_expression = 'O{order:d}{{xi, eta}}'\
+        .format(order=configuration['astrometry_order'])
 
     dr_file.add_dataset(
         dataset_key='skytoframe.coefficients',
-        data=numpy.stack((transformation['dxfit'],
-                          transformation['dyfit'])),
+        data=numpy.stack((trans_x.flatten(), trans_y.flatten())),
         **path_substitutions
     )
     dr_file.add_attribute(
         attribute_key='skytoframe.type',
-        attribute_value=transformation['type'],
+        attribute_value='polynomial',
         **path_substitutions
     )
     dr_file.add_attribute(
@@ -244,16 +236,21 @@ def save_trans_to_dr(trans_fname,
     )
     dr_file.add_attribute(
         attribute_key='skytoframe.sky_center',
-        attribute_value=numpy.array([info['2mass']['RA'],
-                                     info['2mass']['DEC']]),
+        attribute_value=numpy.array([ra_cent, dec_cent]),
         **path_substitutions
     )
-    for entry in ['residual', 'unitarity']:
-        dr_file.add_attribute(
-            attribute_key='skytoframe.' + entry,
-            attribute_value=info[entry],
-            **path_substitutions
-        )
+    #TODO: need to add and figure out unitarity
+    # for entry in ['residual', 'unitarity']:
+    #     dr_file.add_attribute(
+    #         attribute_key='skytoframe.' + entry,
+    #         attribute_value=res_rms,
+    #         **path_substitutions
+    #     )
+    dr_file.add_attribute(
+        attribute_key='skytoframe.residual',
+        attribute_value=res_rms,
+        **path_substitutions
+    )
     for component, config_attribute in [
             ('srcextract', 'binning'),
             ('skytoframe', 'srcextract_filter'),
@@ -277,10 +274,14 @@ def save_trans_to_dr(trans_fname,
             **path_substitutions
         )
 
-
 #TODO: Add catalogue query configuration to DR
-def save_to_dr(match_fname,
-               trans_fname,
+def save_to_dr(*,
+               cat_extracted_corr,
+               trans_x,
+               trans_y,
+               ra_cent,
+               dec_cent,
+               res_rms,
                configuration,
                header,
                dr_file):
@@ -293,122 +294,342 @@ def save_to_dr(match_fname,
                              'skytoframe_version']
     }
     catalogue_sources = read_catalogue(configuration['astrometry_catalogue'])
-    extracted_sources = dr_file.get_sources(
-        'srcextract.sources',
-        'srcextract_column_name',
-        srcextract_version=configuration['srcextract_version']
-    )
+
     dr_file.add_sources(catalogue_sources,
                         'catalogue.columns',
                         'catalogue_column_name',
                         parse_ids=True,
                         ascii_columns=['ID', 'phqual', 'magsrcflag'],
                         **path_substitutions)
-
-    save_match_to_dr(catalogue_sources,
-                     extracted_sources,
-                     match_fname,
-                     dr_file,
+    dr_file.add_dataset(
+        dataset_key='skytoframe.matched',
+        data=cat_extracted_corr,
+        **path_substitutions
+    )
+    save_trans_to_dr(trans_x=trans_x,
+                     trans_y=trans_y,
+                     ra_cent=ra_cent,
+                     dec_cent=dec_cent,
+                     res_rms=res_rms,
+                     configuration=configuration,
+                     header=header,
+                     dr_file=dr_file,
                      **path_substitutions)
-    save_trans_to_dr(trans_fname,
-                     configuration,
-                     header,
-                     dr_file,
-                     **path_substitutions)
 
 
-def solve_image(dr_fname, **configuration):
+def transformation_to_raw(trans_x, trans_y, header, in_place=False):
+    """Convert the transformation coefficients to pre-channel split coords."""
+
+    if not in_place:
+        trans_x = numpy.copy(trans_x)
+        trans_y = numpy.copy(trans_y)
+    trans_x[0] += header['CHNLXOFF']
+    trans_x *= header['CHNLXSTP']
+    trans_y[0] += header['CHNLYOFF']
+    trans_y *= header['CHNLYSTP']
+    return trans_x, trans_y
+
+def transformation_from_raw(trans_x, trans_y, header, in_place=False):
+    """Convert the transformation coefficients to pre-channel split coords."""
+
+    if not in_place:
+        trans_x = numpy.copy(trans_x)
+        trans_y = numpy.copy(trans_y)
+
+    trans_x /= header['CHNLXSTP']
+    trans_x[0] -= header['CHNLXOFF']
+
+    trans_y /= header['CHNLYSTP']
+    trans_y[0] -= header['CHNLYOFF']
+
+    return trans_x, trans_y
+
+
+
+#pylint: disable=too-many-locals
+def solve_image(dr_fname,
+                transformation_estimate=None,
+                **configuration):
     """
-    Find the astrometric transformation for a single image.
+    Find the astrometric transformation for a single image and save to DR file.
 
     Args:
         dr_fname(str):    The name of the data reduction file containing the
             extracted sources from the frame and that will be updated with the
             newly solved astrometry.
 
+        transformation_estimate(None or (matrix, matrix)):    Estimate of the
+            transformations x(xi, eta) and y(xi, eta) for the raw frame (i.e.
+            before channel splitting) that will be refined. If ``None``,
+            ``solve_field`` from astrometry.net is used to find iniitial
+            estimates.
+
         configuration:    Parameters defining how astrometry is to be fit.
 
     Returns:
-        None, but updates the input data reduction file with the newly solved
-        astrometry.
+        trans_x(2D numpy array):
+            the coefficients of the x(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        trans_y(2D numpy array):
+            the coefficients of the y(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        ra_cent(float): the RA center around which the above transformation
+            applies
+
+        dec_cent(float): the Dec center around which the above transformation
+            applies
     """
 
-    print('Solving: ' + repr(dr_fname))
-    cat_ra_col, cat_dec_col = get_sky_coord_columns(
-        configuration['astrometry_catalogue']
-    )
+    _logger.debug('Solving: %s %s transformation estimate.',
+                  repr(dr_fname),
+                  ('with' if transformation_estimate else 'without'))
     with DataReductionFile(dr_fname, 'r+') as dr_file:
+
         header = dr_file.get_frame_header()
-        center_ra_dec = tuple(
-            float(Evaluator(header)(expression))
-            for expression in configuration['frame_center_estimate']
+        catalogue = read_catalogue(
+            configuration['astrometry_catalogue'],
+            filter_expr=configuration['catalogue_filter'].get(header['CLRCHNL'])
         )
+
         fov_estimate = float(
             Evaluator(header)(configuration['frame_fov_estimate'])
         )
-        with TempAstrometryFiles() as (sources_fname, match_fname, trans_fname):
-            x_col, y_col = create_sources_file(
+        with TempAstrometryFiles() as (sources_fname,
+                                       corr_fname,
+                                       axy_fname):
+            xy_extracted = create_sources_file(
                 dr_file,
                 sources_fname,
                 configuration['srcextract_version']
             )
-            for tweak in range(*configuration['anet_tweak_range']):
+            #pylint:disable=line-too-long
+            for tweak in range(*configuration['tweak_order']):
+                solve_field_command = [
+                    'solve-field',
+                    sources_fname,
+                    '--corr', corr_fname,
+                    '--width', str(header['NAXIS1']),
+                    '--height', str(header['NAXIS2']),
+                    '--tweak-order', str(tweak),
+                    '--match', 'none',
+                    '--wcs', 'none',
+                    '--index-xyls', 'none',
+                    '--rdls', 'none',
+                    '--solved', 'none',
+                    '--axy', axy_fname,
+                    '--no-plots',
+                    '--scale-low', repr(fov_estimate
+                                        /
+                                        configuration['image_scale_factor']),
+                    '--scale-high', repr(fov_estimate
+                                         *
+                                         configuration['image_scale_factor']),
+                    '--overwrite'
+                ]
+                #pylint:enable=line-too-long
+                subprocess.run(solve_field_command, check=True)
+
                 try:
-                    configuration['anet_tweak'] = tweak
-                    command = [
-                        'anmatch',
-                        '--comment',
-                        '--col-inp', '{0:d},{1:d}'.format(x_col + 1, y_col + 1),
-                        '--input', sources_fname,
-                        '--max-distance',
-                        repr(configuration['max_srcmatch_distance']),
-                        '--output-transformation', trans_fname,
-                        '--input-reference',
-                        configuration['astrometry_catalogue'],
-                        '--col-ref', '{0:d},{1:d}'.format(cat_ra_col + 1,
-                                                          cat_dec_col + 1),
-                        '--output', match_fname,
-                        '--order', repr(configuration['astrometry_order']),
-                        '--ra', repr(center_ra_dec[0]),
-                        '--dec', repr(center_ra_dec[1]),
-                        '--anet',
-                        ','.join([
-                            'indexpath={anet_index_path}',
-                            'xsize={NAXIS1}',
-                            'ysize={NAXIS2}',
-                            'xcol={x_col}',
-                            'ycol={y_col}',
-                            'width={fov_estimate}',
-                            'tweak={anet_tweak}',
-                            'log=1',
-                            'verify=1'
-                        ]).format(**configuration,
-                                  **dict(header),
-                                  fov_estimate=fov_estimate,
-                                  x_col=x_col+1,
-                                  y_col=y_col+1)
-                    ]
-                    subprocess.run(command, check=True)
-                    print_file_contents(trans_fname, 'trans')
-                    save_to_dr(match_fname,
-                               trans_fname,
-                               configuration,
-                               header,
-                               dr_file)
-                    logging.debug('Found astrometric solution for %s',
-                                  repr(dr_fname))
-                    return
-                except subprocess.CalledProcessError:
-                    pass
-    logging.error('Failed to find astrometric solution for %s',
-                  repr(dr_fname))
+                    assert os.path.isfile(corr_fname), \
+                           "Correspondence file does not exist"
+                except FileNotFoundError as err:
+                    _logger.critical(err)
+                    raise err
+
+                with fits.open(corr_fname, mode='readonly') as corr:
+                    field_corr = corr[1].data[:]
+
+                if field_corr.size > ((tweak+1)*(tweak+2))//2:
+
+                    initial_corr = numpy.zeros(
+                        (field_corr['field_x'].shape),
+                        dtype=[('x', '>f8'),
+                               ('y', '>f8'),
+                               ('RA', '>f8'),
+                               ('Dec', '>f8')]
+                    )
+
+                    initial_corr['x'] = field_corr['field_x']
+                    initial_corr['y'] = field_corr['field_y']
+                    initial_corr['RA'] = field_corr['index_ra']
+                    initial_corr['Dec'] = field_corr['index_dec']
+
+                    if transformation_estimate is None:
+                        transformation_estimate = {
+                            key: float(Evaluator(header)(expression))
+                            for key, expression in zip(
+                                ['ra_cent', 'dec_cent'],
+                                configuration['frame_center_estimate']
+                            )
+                        }
+
+                        (
+                            transformation_estimate['trans_x'],
+                            transformation_estimate['trans_y']
+                        ) = estimate_transformation(
+                            initial_corr=initial_corr,
+                            tweak_order=tweak,
+                            astrometry_order=configuration['astrometry_order'],
+                            ra_cent=transformation_estimate['ra_cent'],
+                            dec_cent=transformation_estimate['dec_cent'],
+                        )
+                    else:
+                        (
+                            transformation_estimate['trans_x'],
+                            transformation_estimate['trans_y']
+                        ) = transformation_from_raw(
+                            transformation_estimate['trans_x'],
+                            transformation_estimate['trans_y'],
+                            header,
+                            True
+                        )
 
 
+                    _logger.debug('Using transformation estimate: %s',
+                                  repr(transformation_estimate))
+                    (
+                        trans_x,
+                        trans_y,
+                        cat_extracted_corr,
+                        res_rms,
+                        ratio,
+                        ra_cent,
+                        dec_cent
+                    ) = refine_transformation(
+                        xy_extracted=xy_extracted,
+                        catalogue=catalogue,
+                        x_frame=header['NAXIS1'],
+                        y_frame=header['NAXIS2'],
+                        astrometry_order=configuration['astrometry_order'],
+                        max_srcmatch_distance=configuration[
+                            'max_srcmatch_distance'
+                        ],
+                        max_iterations=configuration['max_astrom_iter'],
+                        trans_threshold=configuration['trans_threshold'],
+                        **transformation_estimate,
+                    )
+
+                    # print('trans_x:'+repr(trans_x))
+                    # print('trans_y:'+repr(trans_y))
+                    # print('matched_sources:'+repr(cat_extracted_corr))
+                    _logger.debug('RMS residual: %s', repr(res_rms))
+                    _logger.debug('Ratio: %s', repr(ratio))
+
+                    result = dict(dr_fname=dr_fname, fnum=header['FNUM'])
+                    if (
+                            ratio > configuration['min_match_fraction']
+                            and
+                            res_rms < configuration['max_rms_distance']
+                    ):
+                        save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                                   trans_x=trans_x,
+                                   trans_y=trans_y,
+                                   ra_cent=ra_cent,
+                                   dec_cent=dec_cent,
+                                   res_rms=res_rms,
+                                   configuration=configuration,
+                                   header=header,
+                                   dr_file=dr_file)
+                        transformation_to_raw(trans_x, trans_y, header, True)
+                        result['raw_transformation'] = dict(ra_cent=ra_cent,
+                                                            dec_cent=dec_cent,
+                                                            trans_x=trans_x,
+                                                            trans_y=trans_y)
+                    return result
+            raise RuntimeError(
+                'Failed to find Astrometry.net solution in given tweak range'
+            )
+#pylint: enable=too-many-locals
+
+
+def astrometry_process(task_queue, result_queue, configuration):
+    """Run pending astrometry tasks from the queue in process."""
+
+    setup_process(task='astrometry_solve', **configuration)
+    _logger.info('Starting astrometry solving process.')
+    for dr_fname, transformation_estimate in iter(task_queue.get,
+                                                  'STOP'):
+        result_queue.put(
+            solve_image(
+                dr_fname,
+                transformation_estimate,
+                **configuration
+            )
+        )
+    _logger.debug('Astrometry solving process finished.')
+
+
+#Could not think of good way to split
+#pylint: disable=too-many-branches
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
+    pending = dict()
+    failed = dict()
     for dr_fname in dr_collection:
-        solve_image(dr_fname, **configuration)
+        with DataReductionFile(dr_fname, 'r+') as dr_file:
+            header = dr_file.get_frame_header()
+            if header['FNUM'] not in pending:
+                pending[header['FNUM']] = [dr_fname]
+            else:
+                pending[header['FNUM']].append(dr_fname)
+
+    task_queue = Queue()
+    result_queue = Queue()
+
+    num_queued = 0
+    for fnum in pending:
+        task_queue.put((pending[fnum].pop(), None))
+        num_queued += 1
+
+    workers = [
+        Process(target=astrometry_process,
+                args=(task_queue, result_queue, configuration))
+        for _ in range(configuration['num_parallel_processes'])
+    ]
+
+    for process in workers:
+        process.start()
+
+    while pending or num_queued:
+        _logger.debug('Pending: %s', repr(pending))
+        _logger.debug('Number scheduled: %d', num_queued)
+        result = result_queue.get()
+        num_queued -= 1
+
+        if 'raw_transformation' in result:
+            if result['fnum'] in failed:
+                if result['fnum'] not in pending:
+                    pending[result['fnum']] = []
+                pending[result['fnum']].extend(failed[result['fnum']])
+                del failed[result['fnum']]
+
+            for dr_fname in pending.get(result['fnum'], []):
+                task_queue.put((dr_fname, result['raw_transformation']))
+                num_queued += 1
+
+            if result['fnum'] in pending:
+                del pending[result['fnum']]
+        else:
+            if result['fnum'] not in failed:
+                failed[result['fnum']] = []
+            failed[result['fnum']].append(result['dr_fname'])
+            if result['fnum'] in pending:
+                task_queue.put((pending[result['fnum']].pop(), None))
+                num_queued += 1
+
+            if not pending.get(result['fnum'], True):
+                del pending[result['fnum']]
+
+    _logger.debug('Stopping astrometry solving processes.')
+    for process in workers:
+        task_queue.put('STOP')
+
+    for process in workers:
+        process.join()
+#pylint: enable=too-many-branches
 
 
 if __name__ == '__main__':
@@ -419,6 +640,7 @@ if __name__ == '__main__':
         sky_preprojection='tan',
         weights_expression='1.0'
     )
+    setup_process(task='astrometry_manage', **cmdline_config)
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
                      cmdline_config)

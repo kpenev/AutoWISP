@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 
 #pylint false positive - Session is actually a class name.
 #pylint: disable=invalid-name
@@ -14,7 +15,8 @@ db_engine = create_engine(
     #'SuperPhotPipeline',
     #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
     'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
-    echo=True
+    echo=True,
+    poolclass=NullPool
 )
 
 Session.configure(bind=db_engine)

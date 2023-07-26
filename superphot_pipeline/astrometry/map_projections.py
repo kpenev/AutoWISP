@@ -7,8 +7,8 @@ def gnomonic_projection(sources, projected, **center):
     Project the given sky position to a tangent plane (gnomonic projection).
 
     Args:
-        sources(structured array-like):    The the sky position to project
-            (should have `'RA'` and `'Dec'` keys coordinates in degrees.
+        sources(structured array-like):    The sky position to project
+            (should have `'RA'` and `'Dec'` keys coordinates in degrees).
 
         projected:    A numpy array with `'xi'` and `'eta'` fields to fill
             with the projected coordinates (in degrees).
@@ -43,4 +43,48 @@ def gnomonic_projection(sources, projected, **center):
         sin_center_dec * cos_source_dec * cos_ra_diff
     ) / denominator
 
+
+def inv_projection(sources, projected, **center):
+    """
+    Inverse projection from tangent plane (xi, eta) to the sky position (RA, Dec)
+
+    Args:
+        sources: An empty numpy array with "RA" and "Dec" fields to fill
+                 with the inverse projected of tangent plane coordinates.
+                 (in degrees)
+
+        projected: numpy array with "xi" and "eta" fields (in degrees)
+
+        center(dict): Should define the central "RA" and "Dec" in degree
+
+    Returns:
+        None
+    """
+
+    degree_to_rad = numpy.pi / 180.0
+    rad_to_degree = 180.0 / numpy.pi
+
+    center['RA'] *= degree_to_rad
+    center['Dec'] *= degree_to_rad
+
+    projected['xi'] *= degree_to_rad
+    projected['eta'] *= degree_to_rad
+
+    rho = numpy.sqrt(projected['xi'] ** 2 + projected['eta'] ** 2)
+    c = numpy.arctan(rho)
+    denominator = rho * numpy.cos(center['Dec']) * numpy.cos(c) - \
+                  projected['eta'] * numpy.sin(center['Dec']) * numpy.sin(c)
+
+    sources['RA'] = center['RA'] + \
+                    numpy.arctan((projected['xi'] * numpy.sin(c)) / denominator)
+
+    sources['Dec'] = numpy.arcsin(numpy.cos(c) * numpy.sin(center['Dec']) + \
+                                  (projected['eta'] * numpy.sin(c) * numpy.cos(center['Dec'])) / rho)
+
+    sources['RA'] *= rad_to_degree
+    sources['Dec'] *= rad_to_degree
+
+    return None
+
 tan_projection = gnomonic_projection
+sky_projection = inv_projection
