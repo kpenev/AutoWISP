@@ -514,25 +514,27 @@ def solve_image(dr_fname,
                     _logger.debug('RMS residual: %s', repr(res_rms))
                     _logger.debug('Ratio: %s', repr(ratio))
 
-                    save_to_dr(cat_extracted_corr=cat_extracted_corr,
-                               trans_x=trans_x,
-                               trans_y=trans_y,
-                               ra_cent=ra_cent,
-                               dec_cent=dec_cent,
-                               res_rms=res_rms,
-                               configuration=configuration,
-                               header=header,
-                               dr_file=dr_file)
-                    transformation_to_raw(trans_x, trans_y, header, True)
-                    return dict(
-                        dr_fname=dr_fname,
-                        fnum=header['FNUM'],
-                        raw_transformation=dict(trans_x=trans_x,
-                                                trans_y=trans_y,
-                                                ra_cent=ra_cent,
-                                                dec_cent=dec_cent),
-                        res_rms=res_rms,
-                        ratio=ratio)
+                    result = dict(dr_fname=dr_fname, fnum=header['FNUM'])
+                    if (
+                            ratio > configuration['min_match_fraction']
+                            and
+                            res_rms < configuration['max_rms_distance']
+                    ):
+                        save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                                   trans_x=trans_x,
+                                   trans_y=trans_y,
+                                   ra_cent=ra_cent,
+                                   dec_cent=dec_cent,
+                                   res_rms=res_rms,
+                                   configuration=configuration,
+                                   header=header,
+                                   dr_file=dr_file)
+                        transformation_to_raw(trans_x, trans_y, header, True)
+                        result['raw_transformation'] = dict(ra_cent=ra_cent,
+                                                            dec_cent=dec_cent,
+                                                            trans_x=trans_x,
+                                                            trans_y=trans_y)
+                    return result
             raise RuntimeError(
                 'Failed to find Astrometry.net solution in given tweak range'
             )
@@ -560,16 +562,6 @@ def astrometry_process(task_queue, result_queue, configuration):
 #pylint: disable=too-many-branches
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
-
-    def check_result(result):
-        """Return True iff the given `solve_image` result is a good solution."""
-
-        return (
-            result['ratio'] > configuration['min_match_fraction']
-            and
-            result['res_rms'] < configuration['max_rms_distance']
-        )
-
 
     pending = dict()
     failed = dict()
@@ -604,7 +596,7 @@ def solve_astrometry(dr_collection, configuration):
         result = result_queue.get()
         num_queued -= 1
 
-        if check_result(result):
+        if 'raw_transformation' in result:
             if result['fnum'] in failed:
                 if result['fnum'] not in pending:
                     pending[result['fnum']] = []
