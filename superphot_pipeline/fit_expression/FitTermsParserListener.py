@@ -1,7 +1,7 @@
 # pylint: skip-file
-# Generated from /home/kpenev/projects/git/PhotometryPipeline/scripts/FitTermsParser.g4 by ANTLR 4.7.1
+# Generated from /home/kpenev/projects/git/PhotometryPipeline/scripts/FitTermsParser.g4 by ANTLR 4.13.0
 from antlr4 import *
-if __name__ is not None and "." in __name__:
+if "." in __name__:
     from .FitTermsParser import FitTermsParser
 else:
     from FitTermsParser import FitTermsParser
@@ -63,3 +63,5 @@ class FitTermsParserListener(ParseTreeListener):
         pass
 
 
+
+del FitTermsParser

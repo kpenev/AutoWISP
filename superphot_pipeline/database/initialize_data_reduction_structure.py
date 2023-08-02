@@ -832,7 +832,7 @@ def _get_shapefit_attributes():
                 pipeline_key='shapefit.cfg.psf.max_iterations',
                 parent=parent_path,
                 name='MaxIterations',
-                dtype='numpy.int',
+                dtype='numpy.uint',
                 description='The maximum number of shape/amplitude '
                 'fitting iterations allowed during PSF/PRF fitting.'
             ),
