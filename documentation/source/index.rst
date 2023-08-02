@@ -14,6 +14,49 @@ Welcome to SuperPhotPipeline's documentation!
     PythonModules/contents
     implementation/modules
 
+Required python packages:
+=========================
+
+  * scipy
+
+  * cairocffi
+
+  * matplotlib
+
+  * astropy
+
+  * pandas
+
+  * tensorflow
+
+  * h5py
+
+  * sqlalchemy
+
+  * pygit
+
+  * pymysql
+
+  * asteval
+
+  * antlr4
+
+  * antl4
+
+  * antlr4-python3-runtime
+
+  * configargparse
+
+  * GitPython
+
+  * pytransit
+
+  * tqdm
+
+  * arviz
+
+  * celerite corner emcee
+
 Indices and tables
 ==================
 
