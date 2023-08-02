@@ -311,7 +311,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         def get_new_data():
             """Return a dict of pipeline_key, data of the updates needed."""
 
-            index_dset = numpy.empty(config_indices.shape, dtype=numpy.int)
+            index_dset = numpy.empty(config_indices.shape, dtype=numpy.uint)
 
             config_keys = None
             for config_index, new_config in enumerate(configurations):

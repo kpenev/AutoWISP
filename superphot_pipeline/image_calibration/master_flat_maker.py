@@ -210,7 +210,7 @@ class MasterFlatMaker(MasterMaker):
             len(frame_list),
             dtype=[('mean', numpy.float),
                    ('variance', numpy.float),
-                   ('num_averaged', numpy.int)]
+                   ('num_averaged', numpy.uint)]
         )
         for frame_index, fname in enumerate(frame_list):
             image, mask = read_image_components(fname,

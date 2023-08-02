@@ -263,7 +263,7 @@ class TFACorrection(Correction):
             epd_statistics:    See __init__().
 
         Returns:
-            [numpy.array(shape=(num_template_stars,), dtype=numpy.int)]:
+            [numpy.array(shape=(num_template_stars,), dtype=numpy.uint)]:
                 A list of sorted 1-D arrays of indices within epd_statistics
                 identifying stars selected to serve as templates for each
                 photometry method.
@@ -791,7 +791,7 @@ class TFACorrection(Correction):
                 information about the input sources and summary statistics for
                 their EPD fit. The array must contain the following fields:
 
-                ID ((numpy.int, #)):
+                ID ((numpy.uint, #)):
                     Array if integers uniquely identifying the source (see
                     DataReductionFile.get_source_data for more info.
 
