@@ -60,6 +60,7 @@ _dtype_dr_to_io_tree = {
     numpy.string_: str,
     numpy.uint: c_uint,
     numpy.uint8: c_ubyte,
+    numpy.int32: c_int,
     numpy.float64: c_double
 }
 
