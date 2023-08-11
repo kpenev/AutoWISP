@@ -57,9 +57,12 @@ def parse_command_line(*args):
 def find_stars(image_collection, configuration):
     """Extract sources from all input images and save them to DR files."""
 
-    srcextract_version = configuration.pop('srcextract_version')
-    DataReductionFile.fname_template = configuration.pop('data_reduction_fname')
-    find_stars_in_image = SourceFinder(**configuration)
+    DataReductionFile.fname_template = configuration['data_reduction_fname']
+    find_stars_in_image = SourceFinder(
+        tool=configuration['srcfind_tool'],
+        brightness_threshold=configuration['brightness_threshold'],
+        filter_sources=configuration['filter_sources']
+    )
     for image_fname in image_collection:
         fits_header=get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode='a') as dr_file:
@@ -69,17 +72,16 @@ def find_stars(image_collection, configuration):
                 extracted_sources,
                 'srcextract.sources',
                 'srcextract_column_name',
-                srcextract_version=srcextract_version
+                srcextract_version=configuration['srcextract_version']
             )
 
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    cmdline_config['tool'] = cmdline_config.pop('srcfind_tool')
     find_stars(
         find_fits_fnames(
-            cmdline_config.pop('calibrated_images'),
-            cmdline_config.pop('srcextract_only_if')
+            cmdline_config['calibrated_images'],
+            cmdline_config['srcextract_only_if']
         ),
         cmdline_config
     )
