@@ -526,15 +526,25 @@ def solve_image(dr_fname,
                             and
                             res_rms < configuration['max_rms_distance']
                     ):
-                        save_to_dr(cat_extracted_corr=cat_extracted_corr,
-                                   trans_x=trans_x,
-                                   trans_y=trans_y,
-                                   ra_cent=ra_cent,
-                                   dec_cent=dec_cent,
-                                   res_rms=res_rms,
-                                   configuration=configuration,
-                                   header=header,
-                                   dr_file=dr_file)
+                        try:
+                            save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                                       trans_x=trans_x,
+                                       trans_y=trans_y,
+                                       ra_cent=ra_cent,
+                                       dec_cent=dec_cent,
+                                       res_rms=res_rms,
+                                       configuration=configuration,
+                                       header=header,
+                                       dr_file=dr_file)
+                            result['saved'] = True
+                        except:
+                            _logger.critical(
+                                'Failed to save found astrometry solution to '
+                                'DR file %s',
+                                dr_fname
+                            )
+                            result['saved'] = False
+
                         transformation_to_raw(trans_x, trans_y, header, True)
                         result['raw_transformation'] = dict(ra_cent=ra_cent,
                                                             dec_cent=dec_cent,
@@ -605,6 +615,12 @@ def solve_astrometry(dr_collection, configuration):
         num_queued -= 1
 
         if 'raw_transformation' in result:
+            if not result['saved']:
+                _logger.critical(
+                    'Failed to save astrometry solution to DR file %s.',
+                    result['dr_fname']
+                )
+                break
             if result['fnum'] in failed:
                 if result['fnum'] not in pending:
                     pending[result['fnum']] = []
