@@ -388,6 +388,9 @@ def solve_image(dr_fname,
     with DataReductionFile(dr_fname, 'r+') as dr_file:
 
         header = dr_file.get_frame_header()
+
+        result = dict(dr_fname=dr_fname, fnum=header['FNUM'])
+
         catalogue = read_catalogue(
             configuration['astrometry_catalogue'],
             filter_expr=configuration['catalogue_filter'].get(header['CLRCHNL'])
@@ -404,7 +407,6 @@ def solve_image(dr_fname,
                 sources_fname,
                 configuration['srcextract_version']
             )
-            #pylint:disable=line-too-long
             for tweak in range(*configuration['tweak_order']):
                 solve_field_command = [
                     'solve-field',
@@ -428,15 +430,17 @@ def solve_image(dr_fname,
                                          configuration['image_scale_factor']),
                     '--overwrite'
                 ]
-                #pylint:enable=line-too-long
-                subprocess.run(solve_field_command, check=True)
-
                 try:
-                    assert os.path.isfile(corr_fname), \
-                           "Correspondence file does not exist"
-                except FileNotFoundError as err:
-                    _logger.critical(err)
-                    raise err
+                    subprocess.run(solve_field_command, check=True)
+                except subprocess.CalledProcessError as err:
+                    _logger.critical("solve-field failed with error: %s",
+                                     repr(err))
+                    return result
+
+                if not os.path.isfile(corr_fname):
+                    _logger.critical("Correspondence file %s not created.",
+                                     repr(corr_fname))
+                    return result
 
                 with fits.open(corr_fname, mode='readonly') as corr:
                     field_corr = corr[1].data[:]
@@ -517,7 +521,6 @@ def solve_image(dr_fname,
                     _logger.debug('RMS residual: %s', repr(res_rms))
                     _logger.debug('Ratio: %s', repr(ratio))
 
-                    result = dict(dr_fname=dr_fname, fnum=header['FNUM'])
                     if (
                             ratio > configuration['min_match_fraction']
                             and
@@ -538,9 +541,11 @@ def solve_image(dr_fname,
                                                             trans_x=trans_x,
                                                             trans_y=trans_y)
                     return result
-            raise RuntimeError(
-                'Failed to find Astrometry.net solution in given tweak range'
+            _logger.error(
+                'No Astrometry.net solution found in tweak range [%d, %d]',
+                *configuration['tweak_order']
             )
+            return result
 #pylint: enable=too-many-locals
 
 
@@ -616,7 +621,7 @@ def solve_astrometry(dr_collection, configuration):
             if result['fnum'] not in failed:
                 failed[result['fnum']] = []
             failed[result['fnum']].append(result['dr_fname'])
-            if result['fnum'] in pending:
+            if pending.get(result['fnum'], False):
                 task_queue.put((pending[result['fnum']].pop(), None))
                 num_queued += 1
 
