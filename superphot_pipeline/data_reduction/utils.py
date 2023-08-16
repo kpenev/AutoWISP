@@ -202,12 +202,12 @@ def _auto_add_tree_quantities(dr_file,
 def _get_shapefit_map_grid(dr_file, **path_substitutions):
     """Return the grid used to represent star shape from this DR file."""
 
-    return numpy.array([
+    return [
         dr_file.get_attribute('shapefit.cfg.psf.bicubic.grid.x',
                            **path_substitutions),
         dr_file.get_attribute('shapefit.cfg.psf.bicubic.grid.y',
                            **path_substitutions)
-    ])
+    ]
 
 
 def _get_shapefit_map(dr_file, **path_substitutions):
