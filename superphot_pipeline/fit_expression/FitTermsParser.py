@@ -1,32 +1,32 @@
 # pylint: skip-file
-# Generated from /home/kpenev/projects/git/PhotometryPipeline/scripts/FitTermsParser.g4 by ANTLR 4.7.1
+# Generated from /home/kpenev/projects/git/PhotometryPipeline/scripts/FitTermsParser.g4 by ANTLR 4.13.0
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
-from typing.io import TextIO
 import sys
+if sys.version_info[1] > 5:
+	from typing import TextIO
+else:
+	from typing.io import TextIO
 
 def serializedATN():
-    with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\13")
-        buf.write("\64\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\3")
-        buf.write("\2\3\2\3\3\3\3\3\3\3\3\7\3\25\n\3\f\3\16\3\30\13\3\3\3")
-        buf.write("\3\3\3\4\3\4\3\4\3\4\3\5\3\5\5\5\"\n\5\3\6\3\6\3\6\7\6")
-        buf.write("\'\n\6\f\6\16\6*\13\6\3\7\3\7\3\7\7\7/\n\7\f\7\16\7\62")
-        buf.write("\13\7\3\7\2\2\b\2\4\6\b\n\f\2\2\2\61\2\16\3\2\2\2\4\20")
-        buf.write("\3\2\2\2\6\33\3\2\2\2\b!\3\2\2\2\n#\3\2\2\2\f+\3\2\2\2")
-        buf.write("\16\17\7\13\2\2\17\3\3\2\2\2\20\21\7\3\2\2\21\26\5\2\2")
-        buf.write("\2\22\23\7\n\2\2\23\25\5\2\2\2\24\22\3\2\2\2\25\30\3\2")
-        buf.write("\2\2\26\24\3\2\2\2\26\27\3\2\2\2\27\31\3\2\2\2\30\26\3")
-        buf.write("\2\2\2\31\32\7\t\2\2\32\5\3\2\2\2\33\34\7\5\2\2\34\35")
-        buf.write("\7\4\2\2\35\36\5\4\3\2\36\7\3\2\2\2\37\"\5\4\3\2 \"\5")
-        buf.write("\6\4\2!\37\3\2\2\2! \3\2\2\2\"\t\3\2\2\2#(\5\b\5\2$%\7")
-        buf.write("\6\2\2%\'\5\b\5\2&$\3\2\2\2\'*\3\2\2\2(&\3\2\2\2()\3\2")
-        buf.write("\2\2)\13\3\2\2\2*(\3\2\2\2+\60\5\n\6\2,-\7\7\2\2-/\5\n")
-        buf.write("\6\2.,\3\2\2\2/\62\3\2\2\2\60.\3\2\2\2\60\61\3\2\2\2\61")
-        buf.write("\r\3\2\2\2\62\60\3\2\2\2\6\26!(\60")
-        return buf.getvalue()
-
+    return [
+        4,1,9,50,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,1,0,1,0,
+        1,1,1,1,1,1,1,1,5,1,19,8,1,10,1,12,1,22,9,1,1,1,1,1,1,2,1,2,1,2,
+        1,2,1,3,1,3,3,3,32,8,3,1,4,1,4,1,4,5,4,37,8,4,10,4,12,4,40,9,4,1,
+        5,1,5,1,5,5,5,45,8,5,10,5,12,5,48,9,5,1,5,0,0,6,0,2,4,6,8,10,0,0,
+        47,0,12,1,0,0,0,2,14,1,0,0,0,4,25,1,0,0,0,6,31,1,0,0,0,8,33,1,0,
+        0,0,10,41,1,0,0,0,12,13,5,9,0,0,13,1,1,0,0,0,14,15,5,1,0,0,15,20,
+        3,0,0,0,16,17,5,8,0,0,17,19,3,0,0,0,18,16,1,0,0,0,19,22,1,0,0,0,
+        20,18,1,0,0,0,20,21,1,0,0,0,21,23,1,0,0,0,22,20,1,0,0,0,23,24,5,
+        7,0,0,24,3,1,0,0,0,25,26,5,3,0,0,26,27,5,2,0,0,27,28,3,2,1,0,28,
+        5,1,0,0,0,29,32,3,2,1,0,30,32,3,4,2,0,31,29,1,0,0,0,31,30,1,0,0,
+        0,32,7,1,0,0,0,33,38,3,6,3,0,34,35,5,4,0,0,35,37,3,6,3,0,36,34,1,
+        0,0,0,37,40,1,0,0,0,38,36,1,0,0,0,38,39,1,0,0,0,39,9,1,0,0,0,40,
+        38,1,0,0,0,41,46,3,8,4,0,42,43,5,5,0,0,43,45,3,8,4,0,44,42,1,0,0,
+        0,45,48,1,0,0,0,46,44,1,0,0,0,46,47,1,0,0,0,47,11,1,0,0,0,48,46,
+        1,0,0,0,4,20,31,38,46
+    ]
 
 class FitTermsParser ( Parser ):
 
@@ -68,13 +68,15 @@ class FitTermsParser ( Parser ):
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)
-        self.checkVersion("4.7.1")
+        self.checkVersion("4.13.0")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
 
 
+
     class Fit_termContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -119,7 +121,9 @@ class FitTermsParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class Fit_terms_listContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -178,7 +182,7 @@ class FitTermsParser ( Parser ):
             self.state = 20
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==FitTermsParser.TERM_SEP:
+            while _la==8:
                 self.state = 16
                 self.match(FitTermsParser.TERM_SEP)
                 self.state = 17
@@ -197,7 +201,9 @@ class FitTermsParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class Fit_polynomialContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -254,7 +260,9 @@ class FitTermsParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class Fit_terms_setContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -296,12 +304,12 @@ class FitTermsParser ( Parser ):
             self.state = 31
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [FitTermsParser.TERM_LIST_START]:
+            if token in [1]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 29
                 self.fit_terms_list()
                 pass
-            elif token in [FitTermsParser.POLY_START]:
+            elif token in [3]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 30
                 self.fit_polynomial()
@@ -317,7 +325,9 @@ class FitTermsParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class Fit_terms_set_cross_productContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -329,6 +339,12 @@ class FitTermsParser ( Parser ):
             else:
                 return self.getTypedRuleContext(FitTermsParser.Fit_terms_setContext,i)
 
+
+        def CROSSPRODUCT(self, i:int=None):
+            if i is None:
+                return self.getTokens(FitTermsParser.CROSSPRODUCT)
+            else:
+                return self.getToken(FitTermsParser.CROSSPRODUCT, i)
 
         def getRuleIndex(self):
             return FitTermsParser.RULE_fit_terms_set_cross_product
@@ -362,7 +378,7 @@ class FitTermsParser ( Parser ):
             self.state = 38
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==FitTermsParser.CROSSPRODUCT:
+            while _la==4:
                 self.state = 34
                 self.match(FitTermsParser.CROSSPRODUCT)
                 self.state = 35
@@ -379,7 +395,9 @@ class FitTermsParser ( Parser ):
             self.exitRule()
         return localctx
 
+
     class Fit_terms_expressionContext(ParserRuleContext):
+        __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -391,6 +409,12 @@ class FitTermsParser ( Parser ):
             else:
                 return self.getTypedRuleContext(FitTermsParser.Fit_terms_set_cross_productContext,i)
 
+
+        def UNION(self, i:int=None):
+            if i is None:
+                return self.getTokens(FitTermsParser.UNION)
+            else:
+                return self.getToken(FitTermsParser.UNION, i)
 
         def getRuleIndex(self):
             return FitTermsParser.RULE_fit_terms_expression
@@ -424,7 +448,7 @@ class FitTermsParser ( Parser ):
             self.state = 46
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==FitTermsParser.UNION:
+            while _la==5:
                 self.state = 42
                 self.match(FitTermsParser.UNION)
                 self.state = 43

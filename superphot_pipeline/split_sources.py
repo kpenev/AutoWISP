@@ -110,12 +110,12 @@ class SplitSources:
             image_resolution:    The resolution of the image in pixels (y, x).
 
         Returns:
-            grouping:    A numpy integer array indicating for each source the
-                PRF fitting group it is in. The grouping of sources is
-                controlled by the splitting arguments specified at construction
-                time with each group of sources getting a unique positive
-                integer. Sources which should not be used for PRF fitting are
-                assigned a group ID of `-1`.
+            grouping:    A numpy integer array indicating for each
+                source the PRF fitting group it is in. The grouping of sources
+                is controlled by the splitting arguments specified at
+                construction time with each group of sources getting a unique
+                positive integer. Sources which should not be used for PRF
+                fitting are assigned a group ID of `-1`.
 
             in_frame:    A numpy boolean array indicating for each source
                 whether it's center lies inside the frame or not.
@@ -149,7 +149,7 @@ class SplitSources:
             numpy.square(sources['y'] - image_resolution[0] / 2.0)
         )
 
-        grouping = numpy.empty(len(sources), dtype=numpy.int)
+        grouping = numpy.empty(len(sources), dtype=numpy.int32)
         grouping[numpy.logical_not(good_sources)] = -1
 
         group_id = 0

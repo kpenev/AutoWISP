@@ -1,13 +1,25 @@
+""" Program to upload camera configuration files to database.
+
+Usage in terminal:
+    > python configparse.py --dbpath <path to db> --filename <path to configuration file>
+"""
 import sqlite3
+from configargparse import ArgumentParser
 import sys
 sys.path.append("..") #from parent directory import...
 from superphot_pipeline.processing_steps import __all__ as all_steps
 
-#function to call parse_command_line function from processing steps and get desired parameters
+
+""" Retrieves desired parameters from configuration files.
+    Args:
+        filename: name of camera configuration file to extract parameters from
+    Returns:
+        A dictionary mapping parameters and values from configuration file
+"""
 def parse_cmd(filename):
     config_dict = {}
     for x in all_steps:
-        if (hasattr(x, 'parse_command_line')):  # check processing steps for parse_cmd function
+        if (hasattr(x, 'parse_command_line')):  # check processing steps for parse_cmd function present
             name = x.__name__.split('.')
             if name[2] == "fit_star_shape":     # extra parameters for fit_star_shape
                 list = x.parse_command_line(['-c', filename, '--photometry-catalogue', 'dummy'])
@@ -16,11 +28,21 @@ def parse_cmd(filename):
             config_dict = config_dict | list
     return config_dict
 
-# function to remove files and conditions from database
+
+""" Filters and organizes dictionary of parameters and values.
+    
+    Splits given dictionary into configuration and condition dictionaries
+    Removes files from configuration dictionary
+    
+    Args:
+        config_dict: dictionary of retrieved parameters from camera configuration
+    Returns:
+        Two filtered dictionaries one of configurations another of conditions and condition expressions
+"""
 def filter_dict(config_dict):
     res = {}
     conditions = {}
-    #values to be removed
+    #values to be removed/filtered
     keys_remove = ["only_if", "master_"]
     values_remove = [".fits.fz", ".h5", ".ucac4", "hdf5.0", ".fits", ".txt"]
 
@@ -41,16 +63,23 @@ def filter_dict(config_dict):
 
     return res,conditions
 
-# function to add dictionaries to database
-def add_to_db(dbpath):
+
+""" Adds configuration and condition dictionaries to database
+    Args:
+        dbpath: path to database to add information
+        filename: path to camera configuration file
+    Returns:
+        None
+"""
+def add_to_db(dbpath, filename):
     try:
         # need to allow any configuration file and database!!!
-        sqliteConnection = sqlite3.connect('scripts/automateDb.db')
+        sqliteConnection = sqlite3.connect(dbpath)
         cursor = sqliteConnection.cursor()
         print("Database created and Successfully Connected to SQLite")
 
         #get all parameters needed from config file and put into dictionary
-        config_dict, condition_dict = filter_dict(parse_cmd('scripts/PANOPTES_R.cfg'))
+        config_dict, condition_dict = filter_dict(parse_cmd(filename))
 
         #get how many elements in table to keep track of id
         id = (cursor.execute("SELECT COUNT(id) FROM configuration")).fetchall()[0][0]
@@ -73,7 +102,7 @@ def add_to_db(dbpath):
             expressions_sql = "INSERT INTO condition_expressions VALUES (?,?,?,?)"
             condition = str(x)
             expression = str(condition_dict[x])
-            cursor.execute(conditions_sql, (condition_id, condition, '', 0))
+            cursor.execute(conditions_sql, (condition_id, 0, condition, 0))
 
             #check that expression does not already exist
             cursor.execute("SELECT expression FROM condition_expressions WHERE expression = ?", (expression,))
@@ -92,10 +121,13 @@ def add_to_db(dbpath):
             print("The SQLite connection is closed")
 
 
+""" Retrieves database path and configuration file path from terminal
+"""
 if __name__ == '__main__':
-    add_to_db('path dummy')
-
-    # add way to specify database and config file!!!
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--filename', help='name of the configuration file to add to database')
-# filename = parser.parse_args()
+    parser = ArgumentParser()
+    parser.add_argument('--filename', help='name of the configuration file to add to database')
+    parser.add_argument('--dbpath', help='path to db to add configurations to')
+    args = parser.parse_args()
+    # example dbpath = scripts/automateDb.db
+    # example filename = scripts/PANOPTES_R.cfg
+    add_to_db(args.dbpath, args.filename)

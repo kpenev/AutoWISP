@@ -29,7 +29,7 @@ def _parse_phot_column(colname):
 def _init_magfit_sources(source_data):
     """Return empty array properly formatted to hold the given sources."""
 
-    dtype=[('ID', numpy.int, 3)]
+    dtype=[('ID', numpy.uint, 3)]
     num_phot = 0
     found_magfit_iterations = set()
     for colname in source_data.columns:

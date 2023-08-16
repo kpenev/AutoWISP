@@ -59,7 +59,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         #TODO: implement filename template from DB ofter DB has been designed.
         #pylint: disable=no-member
-        return cls.fname_template.format(**header)
+        return cls.fname_template.format(**dict(header))
         #pylint: enable=no-member
 
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
