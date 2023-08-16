@@ -6,6 +6,10 @@ import logging
 import numpy
 from pytransit import QuadraticModel
 
+from general_purpose_python_modules.multiprocessing_util import\
+        setup_process,\
+        setup_process_map
+
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import LightCurveFile
 from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
@@ -151,6 +155,11 @@ def detrend_light_curves(lc_collection,
                          output_statistics_fname):
     """Detrend all lightcurves and create statistics file."""
 
+    setup_process(
+        task=(correct.iterative_fit_config['fit_identifier'] + '_manage'),
+        **configuration
+    )
+
     lc_collection = list(lc_collection)
     print('Detrending %d light_curves' % len(lc_collection))
     if not configuration['recalc_performance']:
@@ -169,10 +178,11 @@ def detrend_light_curves(lc_collection,
             lc_fnames = lc_collection
 
         if lc_fnames:
+            configuration['task'] = correct.iterative_fit_config['fit_identifier'] + '_calc'
             result = apply_parallel_correction(
                 lc_fnames,
                 correct,
-                configuration['num_parallel_processes']
+                **configuration
             )
             if configuration['target_id'] is not None:
                 result = numpy.concatenate((result, target_result))

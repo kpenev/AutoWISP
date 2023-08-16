@@ -1,6 +1,7 @@
 """Unified interface to the detrending algorithms."""
 
 from multiprocessing import Pool
+from general_purpose_python_modules.multiprocessing_util import setup_process
 import logging
 
 import numpy
@@ -164,10 +165,16 @@ def recalculate_correction_statistics(lc_fnames,
                     result['num_finite'][lc_index][fit_index] = 0
     return result
 
+def pool_init(config):
+    """Setup pool process."""
+
+    db_engine.dispose()
+    setup_process(**config)
 
 def apply_parallel_correction(lc_fnames,
                               correct,
-                              num_parallel_processes):
+                              num_parallel_processes,
+                              **config):
     """
     Correct LCs running one of the detrending algorithms in parallel.
 
@@ -196,7 +203,8 @@ def apply_parallel_correction(lc_fnames,
     else:
         with Pool(
                 num_parallel_processes,
-                db_engine.dispose()
+                initializer=pool_init,
+                initargs=(config,)
         ) as correction_pool:
             result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 

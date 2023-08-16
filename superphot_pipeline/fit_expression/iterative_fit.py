@@ -128,13 +128,16 @@ def iterative_fit_qr(weighted_predictors,
                      len(weighted_target),
                      num_free_coef)
         if bad_ind.size > max_downdates:
+            logger.debug('Rederiving QR-Decomposition')
             #False positive
             #pylint: disable=unexpected-keyword-arg
             weighted_qrp = scipy.linalg.qr(weighted_predictors.T,
                                            mode='economic',
                                            pivoting=True)
+            permutation = scipy.argsort(weighted_qrp[2])
             #pylint: enable=unexpected-keyword-arg
         else:
+            logger.debug('Downdating QR-Decomposition')
             for i in scipy.flip(bad_ind):
                 weighted_qrp = (
                     #False positive
@@ -143,6 +146,7 @@ def iterative_fit_qr(weighted_predictors,
                     #pylint: enable=no-member
                     weighted_qrp[2]
                 )
+
 
         if rej_iter < 0:
             best_fit_coef = scipy.zeros(num_free_coef)
@@ -157,7 +161,6 @@ def iterative_fit_qr(weighted_predictors,
                 #pylint: enable=no-member
             except scipy.linalg.LinAlgError:
                 return None, None, 0
-
         bad_ind, fit_res2 = rejected_indices(
             scipy.dot(best_fit_coef, weighted_predictors) - weighted_target,
             weights
