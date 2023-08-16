@@ -1,8 +1,10 @@
 """Define class for performing EPD correction on lightcurves."""
 
 from itertools import repeat
+import logging
 
 import scipy
+import numpy
 from numpy.lib import recfunctions
 
 from superphot_pipeline.evaluator import Evaluator
@@ -239,6 +241,7 @@ class EPDCorrection(Correction):
         def correct_one_dataset(light_curve,
                                 *,
                                 predictors,
+                                fit_points,
                                 fit_target,
                                 weights,
                                 fit_index,
@@ -273,6 +276,11 @@ class EPDCorrection(Correction):
                 None
             """
 
+            logger = logging.getLogger(__name__)
+            logger.debug('Fitting %s (%s) for %s ',
+                         fit_target[0],
+                         repr(fit_target[1]),
+                         lc_fname)
             raw_values = get_fit_data(light_curve,
                                       fit_target[0],
                                       **fit_target[1])
@@ -280,6 +288,13 @@ class EPDCorrection(Correction):
                 raw_values, fit_data = raw_values
             else:
                 fit_data = raw_values
+
+            logger.debug(
+                'Fit data contains %d NaNs, %d non finites, and %d negatives',
+                numpy.isnan(fit_data).sum(),
+                numpy.logical_not(numpy.isfinite(fit_data)).sum(),
+                (fit_data < 0).sum()
+            )
 
             raw_values = raw_values[fit_points]
             fit_data = fit_data[fit_points]
@@ -339,6 +354,7 @@ class EPDCorrection(Correction):
                 correct_one_dataset(
                     light_curve=light_curve,
                     predictors=predictors,
+                    fit_points=fit_points,
                     fit_target=to_fit[0],
                     weights=to_fit[1],
                     fit_index=fit_index,
