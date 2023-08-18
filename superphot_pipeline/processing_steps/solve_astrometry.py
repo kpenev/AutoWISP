@@ -493,40 +493,41 @@ def solve_image(dr_fname,
 
                     _logger.debug('Using transformation estimate: %s',
                                   repr(transformation_estimate))
-                    (
-                        trans_x,
-                        trans_y,
-                        cat_extracted_corr,
-                        res_rms,
-                        ratio,
-                        ra_cent,
-                        dec_cent
-                    ) = refine_transformation(
-                        xy_extracted=xy_extracted,
-                        catalogue=catalogue,
-                        x_frame=header['NAXIS1'],
-                        y_frame=header['NAXIS2'],
-                        astrometry_order=configuration['astrometry_order'],
-                        max_srcmatch_distance=configuration[
-                            'max_srcmatch_distance'
-                        ],
-                        max_iterations=configuration['max_astrom_iter'],
-                        trans_threshold=configuration['trans_threshold'],
-                        **transformation_estimate,
-                    )
 
-                    # print('trans_x:'+repr(trans_x))
-                    # print('trans_y:'+repr(trans_y))
-                    # print('matched_sources:'+repr(cat_extracted_corr))
-                    _logger.debug('RMS residual: %s', repr(res_rms))
-                    _logger.debug('Ratio: %s', repr(ratio))
+                    try:
+                        (
+                            trans_x,
+                            trans_y,
+                            cat_extracted_corr,
+                            res_rms,
+                            ratio,
+                            ra_cent,
+                            dec_cent
+                        ) = refine_transformation(
+                            xy_extracted=xy_extracted,
+                            catalogue=catalogue,
+                            x_frame=header['NAXIS1'],
+                            y_frame=header['NAXIS2'],
+                            astrometry_order=configuration['astrometry_order'],
+                            max_srcmatch_distance=configuration[
+                                'max_srcmatch_distance'
+                            ],
+                            max_iterations=configuration['max_astrom_iter'],
+                            trans_threshold=configuration['trans_threshold'],
+                            **transformation_estimate,
+                        )
 
-                    if (
-                            ratio > configuration['min_match_fraction']
-                            and
-                            res_rms < configuration['max_rms_distance']
-                    ):
-                        try:
+                        # print('trans_x:'+repr(trans_x))
+                        # print('trans_y:'+repr(trans_y))
+                        # print('matched_sources:'+repr(cat_extracted_corr))
+                        _logger.debug('RMS residual: %s', repr(res_rms))
+                        _logger.debug('Ratio: %s', repr(ratio))
+
+                        if (
+                                ratio > configuration['min_match_fraction']
+                                and
+                                res_rms < configuration['max_rms_distance']
+                        ):
                             save_to_dr(cat_extracted_corr=cat_extracted_corr,
                                        trans_x=trans_x,
                                        trans_y=trans_y,
@@ -537,20 +538,22 @@ def solve_image(dr_fname,
                                        header=header,
                                        dr_file=dr_file)
                             result['saved'] = True
-                        except:
-                            _logger.critical(
-                                'Failed to save found astrometry solution to '
-                                'DR file %s',
-                                dr_fname
-                            )
-                            result['saved'] = False
 
                         transformation_to_raw(trans_x, trans_y, header, True)
                         result['raw_transformation'] = dict(ra_cent=ra_cent,
                                                             dec_cent=dec_cent,
                                                             trans_x=trans_x,
                                                             trans_y=trans_y)
-                    return result
+                        return result
+
+                    except:
+                        _logger.critical(
+                            'Failed to save found astrometry solution to '
+                            'DR file %s',
+                            dr_fname
+                        )
+                        result['saved'] = False
+
             _logger.error(
                 'No Astrometry.net solution found in tweak range [%d, %d]',
                 *configuration['tweak_order']
