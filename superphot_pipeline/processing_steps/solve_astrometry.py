@@ -437,7 +437,7 @@ def solve_image(dr_fname,
                 except subprocess.CalledProcessError:
                     _logger.critical("solve-field failed with error:\n%s",
                                      format_exc())
-                    return result
+                    continue
 
                 if not os.path.isfile(corr_fname):
                     _logger.critical("Correspondence file %s not created.",
