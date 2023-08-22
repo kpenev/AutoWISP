@@ -151,21 +151,6 @@ class ManualStepArgumentParser(ArgumentParser):
                 help='The number of simultaneous fitpsf/fitprf processes to '
                 'run.'
             )
-            self.add_argument(
-                '--std-out-err-fname',
-                default='{task:s}_{now:s}_pid{pid:d}.outerr',
-                help='The filename pattern to redirect stdout and stderr during'
-                'multiprocessing. Should include substitutions to distinguish '
-                'output from different multiprocessing processes. May include '
-                'substitutions for any configuration arguments for a given '
-                'processing step.'
-            )
-            self.add_argument(
-                '--fname-datetime-format',
-                default='%Y%m%d%H%M%S',
-                help='How to format date and time as part of filenames (e.g. when '
-                'creating output files for multiprocessing.'
-            )
 
         self._add_version_args(add_component_versions)
         if add_lc_fname_arg:
@@ -175,6 +160,21 @@ class ManualStepArgumentParser(ArgumentParser):
                 help='The light curve dumping filename pattern to use.'
             )
 
+        self.add_argument(
+            '--std-out-err-fname',
+            default='{task:s}_{now:s}_pid{pid:d}.outerr',
+            help='The filename pattern to redirect stdout and stderr during'
+            'multiprocessing. Should include substitutions to distinguish '
+            'output from different multiprocessing processes. May include '
+            'substitutions for any configuration arguments for a given '
+            'processing step.'
+        )
+        self.add_argument(
+            '--fname-datetime-format',
+            default='%Y%m%d%H%M%S',
+            help='How to format date and time as part of filenames (e.g. when '
+            'creating output files for multiprocessing.'
+        )
         self.add_argument(
             '--logging-fname',
             default='{task:s}_{now:s}_pid{pid:d}.log',

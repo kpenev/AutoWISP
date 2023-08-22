@@ -3,7 +3,11 @@
 from functools import partial
 import os.path
 from glob import iglob
+from logging import getLogger
+
 from superphot_pipeline import Evaluator
+
+_logger = getLogger(__name__)
 
 def get_data_filenames(data_collection,
                        include_condition='True',
@@ -25,13 +29,13 @@ def get_data_filenames(data_collection,
 
     for entry in data_collection:
         for fname in iglob(entry, recursive=recursive):
-            print('fname before pass: '+repr(fname))
+            _logger.debug('fname before pass: %s', repr(fname))
             if (
                     include_condition == 'True'
                     or
                     Evaluator(fname)(include_condition)
             ):
-                print('fname passed: '+repr(fname))
+                _logger.debug('fname passed: %s', repr(fname))
                 yield fname
 
 

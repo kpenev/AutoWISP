@@ -7,6 +7,8 @@ Attributes:
         corresponding bitmasks.
 """
 
+from logging import getLogger
+
 import numpy
 
 from superphot.hat_masks import parse_hat_mask, mask_flags
@@ -15,6 +17,8 @@ from superphot_pipeline.fits_utilities import read_image_components
 from superphot_pipeline.pipeline_exceptions import ImageMismatchError
 
 git_id = '$Id$'
+
+_logger = getLogger(__name__)
 
 def combine_masks(mask_filenames):
     r"""
@@ -41,18 +45,13 @@ def combine_masks(mask_filenames):
                     raise ImageMismatchError(
                         (
                             'Attempting to combine masks with different'
-                            ' resolutions, %s (%dx%d) with %s, all with'
-                            ' resolution of (%dx%d).'
+                            f' resolutions, {mask_fname:s} '
+                            f'({mask_image.shape[0]:d}x{mask_image.shape[1]:d})'
+                            ' with %s, all with resolution of '
+                            f'({mask.shape[0]:d}x{mask.shape[1]:d}).'
                         )
                         %
-                        (
-                            mask_fname,
-                            mask_image.shape[0],
-                            mask_image.shape[1],
-                            ', '.join(mask_filenames[:mask_index]),
-                            mask.shape[0],
-                            mask.shape[1]
-                        )
+                        ', '.join(mask_filenames[:mask_index])
                     )
                 mask = numpy.bitwise_or(mask, mask_image)
             break
@@ -83,11 +82,11 @@ def get_saturation_mask(raw_image,
             pixel in a direction in which a charge could leak.
     """
 
-    print('Raw image shape: ' + repr(raw_image.shape))
+    _logger.debug('Raw image shape: %s', repr(raw_image.shape))
     mask = numpy.full(raw_image.shape, mask_flags['CLEAR'], dtype='int8')
 
     mask[raw_image > saturation_threshold] = mask_flags['OVERSATURATED']
-    print('Mask shape: ' + repr(mask.shape))
+    _logger.debug('Mask shape: %s', repr(mask.shape))
 
     y_resolution, x_resolution = raw_image.shape
     for x_offset, y_offset in leak_directions:
@@ -95,7 +94,7 @@ def get_saturation_mask(raw_image,
             max(y_offset, 0): y_resolution + min(0, y_offset),
             max(x_offset, 0): x_resolution + min(0, x_offset)
         ]
-        print('Shifted mask shape:' + repr(shifted_mask.shape))
+        _logger.debug('Shifted mask shape: %s', repr(shifted_mask.shape))
         leaked_pixels = (
             mask[
                 max(-y_offset, 0) : y_resolution + min(0, -y_offset),
@@ -127,11 +126,11 @@ if __name__ == '__main__':
                                     mask_flags[flag_name]).astype(bool)
 
         #Print number of pixels for which the OVERSATURATED flag is raised
-        print(flag_name + ': ' + repr(matched.sum()))
+        _logger.debug('%s: %s', flag_name, repr(matched.sum()))
 
         #Output x, y, flux for the pixels flagged as OVERSATURATED
         for y, x in zip(*numpy.nonzero(matched)):
             #pylint: disable=no-member
             #pylint false positive.
-            print('%4d %4d %15d' % (x, y, f[1].data[y, x]))
+            _logger.debug('%4d %4d %15d', x, y, f[1].data[y, x])
             #pylint: enable=no-member

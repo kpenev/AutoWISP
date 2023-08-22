@@ -434,7 +434,7 @@ def solve_image(dr_fname,
                 ]
                 try:
                     subprocess.run(solve_field_command, check=True)
-                except subprocess.CalledProcessError:
+                except subprocess.SubprocessError:
                     _logger.critical("solve-field failed with error:\n%s",
                                      format_exc())
                     continue

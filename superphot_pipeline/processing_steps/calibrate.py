@@ -5,11 +5,13 @@
 import re
 
 from configargparse import Action
+from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
+
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -30,7 +32,7 @@ class ParseChannelsAction(Action):
     def __call__(self, parser, namespace, values, option_string=None):
         """Parse all channels into a dictionary as required by Calibrator."""
 
-        result = dict()
+        result = {}
         rex = re.compile(r'(?P<name>\w+)\('
                          r'(?P<x_start>\d+)(,(?P<x_step>\d+))?;'
                          r'(?P<y_start>\d+)(,(?P<y_step>\d+))?\)')
@@ -69,11 +71,11 @@ class ParseOverscanAction(Action):
             setattr(
                 namespace,
                 self.dest,
-                dict(
-                    method=getattr(overscan_methods, method.title()),
-                    areas=[parse_area_str(area)
-                           for area in areas_str.split(';')]
-                )
+                {
+                    'method': getattr(overscan_methods, method.title()),
+                    'areas': [parse_area_str(area)
+                              for area in areas_str.split(';')]
+                }
             )
         except Exception as orig_exception:
             raise ValueError(
@@ -132,7 +134,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--overscans',
         action=ParseOverscanAction,
-        default=dict(areas=None, method=None),
+        default={'areas': None, 'method': None},
         help='Overscan correction to apply. The format is: '
         '<method>:<xmin1>,<xmax1>,<ymin1>,<ymax1>'
         '[;<xmin2>,<xmax2>,<ymin2>,<ymax2>;...].'
@@ -236,6 +238,7 @@ def calibrate(image_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='calibrate', **cmdline_config)
     calibrate(
         find_fits_fnames(
             cmdline_config.pop('raw_images'),

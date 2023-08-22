@@ -1,6 +1,7 @@
 """Define a generic function to make 3-hdu FITS images (image, error, mask)."""
 
 from os import path, makedirs
+from logging import getLogger
 
 from astropy.io import fits
 import numpy
@@ -52,6 +53,8 @@ def create_result(image_list,
         None
     """
 
+    logger = getLogger(__name__)
+
     header_list = [header, fits.Header(), fits.Header()]
     header_list[1]['IMAGETYP'] = 'error'
     header_list[2]['IMAGETYP'] = 'mask'
@@ -68,13 +71,18 @@ def create_result(image_list,
         split_channels = {None: slice(None)}
 
     for channel_name, channel_slice in split_channels.items():
-        print('Slice for %s channel: ' % channel_name + repr(channel_slice))
+        logger.debug('Slice for %s channel: %s',
+                     channel_name,
+                     repr(channel_slice))
         if channel_name is not None:
             header['CLRCHNL'] = channel_name
+            #False positive
+            #pylint: disable=unsubscriptable-object
             header['CHNLXOFF'] = channel_slice[1].start
             header['CHNLXSTP'] = channel_slice[1].step
             header['CHNLYOFF'] = channel_slice[0].start
             header['CHNLYSTP'] = channel_slice[0].step
+            #pylint: enable=unsubscriptable-object
         else:
             header['CHNLXOFF'] = 0
             header['CHNLXSTP'] = 1
