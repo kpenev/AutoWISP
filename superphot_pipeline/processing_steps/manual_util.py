@@ -58,6 +58,7 @@ class ManualStepArgumentParser(ArgumentParser):
                  *,
                  input_type,
                  description,
+                 processing_step,
                  add_component_versions=(),
                  inputs_help_extra='',
                  allow_parallel_processing=False,
@@ -162,7 +163,7 @@ class ManualStepArgumentParser(ArgumentParser):
 
         self.add_argument(
             '--std-out-err-fname',
-            default='{task:s}_{now:s}_pid{pid:d}.outerr',
+            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.outerr'),
             help='The filename pattern to redirect stdout and stderr during'
             'multiprocessing. Should include substitutions to distinguish '
             'output from different multiprocessing processes. May include '
@@ -177,7 +178,7 @@ class ManualStepArgumentParser(ArgumentParser):
         )
         self.add_argument(
             '--logging-fname',
-            default='{task:s}_{now:s}_pid{pid:d}.log',
+            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.log'),
             help='The filename pattern to use for log files. Should include'
             ' substitutions to distinguish logs from different '
             'multiprocessing processes. May include substitutions for any '

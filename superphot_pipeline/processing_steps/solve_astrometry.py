@@ -35,6 +35,7 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
+        processing_step='astrometry',
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True
@@ -582,7 +583,7 @@ def solve_image(dr_fname,
 def astrometry_process(task_queue, result_queue, configuration):
     """Run pending astrometry tasks from the queue in process."""
 
-    setup_process(task='astrometry_solve', **configuration)
+    setup_process(task='solve', **configuration)
     _logger.info('Starting astrometry solving process.')
     for dr_fname, transformation_estimate in iter(task_queue.get,
                                                   'STOP'):
@@ -681,7 +682,7 @@ if __name__ == '__main__':
         sky_preprojection='tan',
         weights_expression='1.0'
     )
-    setup_process(task='astrometry_manage', **cmdline_config)
+    setup_process(task='manage', **cmdline_config)
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
                      cmdline_config)

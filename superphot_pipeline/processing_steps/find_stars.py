@@ -2,11 +2,19 @@
 
 """Detect stars within calibrated image(s)."""
 
+from functools import partial
+from multiprocessing import Pool
+
+from general_purpose_python_modules.multiprocessing_util import \
+    setup_process,\
+    setup_process_map
+
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
+
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -18,6 +26,8 @@ def parse_command_line(*args):
 
     parser = ManualStepArgumentParser(description=__doc__,
                                       input_type=inputtype,
+                                      processing_step='find_stars',
+                                      allow_parallel_processing=True,
                                       add_component_versions=('srcextract',))
     parser.add_argument(
         '--srcextract-only-if',
@@ -54,6 +64,23 @@ def parse_command_line(*args):
     )
     return parser.parse_args(*args)
 
+
+def find_stars_single(image_fname, find_stars_in_image, srcextract_version):
+    """Find the stars in a single image."""
+
+    fits_header = get_primary_header(image_fname)
+    with DataReductionFile(header=fits_header, mode='a') as dr_file:
+        dr_file.add_frame_header(fits_header)
+        extracted_sources = find_stars_in_image(image_fname)
+        dr_file.add_sources(
+            extracted_sources,
+            'srcextract.sources',
+            'srcextract_column_name',
+            srcextract_version=srcextract_version
+        )
+
+
+
 def find_stars(image_collection, configuration):
     """Extract sources from all input images and save them to DR files."""
 
@@ -63,21 +90,28 @@ def find_stars(image_collection, configuration):
         brightness_threshold=configuration['brightness_threshold'],
         filter_sources=configuration['filter_sources']
     )
-    for image_fname in image_collection:
-        fits_header=get_primary_header(image_fname)
-        with DataReductionFile(header=fits_header, mode='a') as dr_file:
-            dr_file.add_frame_header(fits_header)
-            extracted_sources = find_stars_in_image(image_fname)
-            dr_file.add_sources(
-                extracted_sources,
-                'srcextract.sources',
-                'srcextract_column_name',
-                srcextract_version=configuration['srcextract_version']
+    if configuration['num_parallel_processes'] == 1:
+        for image_fname in image_collection:
+            find_stars_single(image_fname,
+                              find_stars_in_image,
+                              configuration['srcextract_version'])
+    else:
+        with Pool(
+                configuration['num_parallel_processes'],
+                initializer=setup_process_map,
+                initargs=(configuration,)
+        ) as pool:
+            pool.map(
+                partial(find_stars_single,
+                        find_stars_in_image=find_stars_in_image,
+                        srcextract_version=configuration['srcextract_version']),
+                image_collection
             )
 
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
     find_stars(
         find_fits_fnames(
             cmdline_config['calibrated_images'],
