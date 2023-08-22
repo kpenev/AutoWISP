@@ -6,6 +6,7 @@ import subprocess
 from multiprocessing import Queue, Process
 from tempfile import mkstemp
 import os
+from traceback import format_exc
 
 import numpy
 from astropy.io import fits
@@ -165,7 +166,9 @@ class TempAstrometryFiles:
 
         for file_type in self._file_types:
             os.close(getattr(self, '_' + file_type))
-            os.remove(getattr(self, file_type + '_fname'))
+            fname = getattr(self, file_type + '_fname')
+            if os.path.exists(fname):
+                os.remove(fname)
 
 def print_file_contents(fname,
                         label):
@@ -174,7 +177,7 @@ def print_file_contents(fname,
     print(80*'*')
     print(label.title() + ': ')
     print(80*'-')
-    with open(fname, 'r') as open_file:
+    with open(fname, 'r', encoding="utf-8") as open_file:
         print(open_file.read())
     print(80*'-')
 
@@ -216,8 +219,7 @@ def save_trans_to_dr(*,
                      **path_substitutions):
     """Save the transformation to the DR file."""
 
-    terms_expression = 'O{order:d}{{xi, eta}}'\
-        .format(order=configuration['astrometry_order'])
+    terms_expression = f'O{configuration["astrometry_order"]:d}{{xi, eta}}'
 
     dr_file.add_dataset(
         dataset_key='skytoframe.coefficients',
@@ -389,7 +391,7 @@ def solve_image(dr_fname,
 
         header = dr_file.get_frame_header()
 
-        result = dict(dr_fname=dr_fname, fnum=header['FNUM'])
+        result = {'dr_fname': dr_fname, 'fnum': header['FNUM']}
 
         catalogue = read_catalogue(
             configuration['astrometry_catalogue'],
@@ -432,10 +434,10 @@ def solve_image(dr_fname,
                 ]
                 try:
                     subprocess.run(solve_field_command, check=True)
-                except subprocess.CalledProcessError as err:
-                    _logger.critical("solve-field failed with error: %s",
-                                     repr(err))
-                    return result
+                except subprocess.CalledProcessError:
+                    _logger.critical("solve-field failed with error:\n%s",
+                                     format_exc())
+                    continue
 
                 if not os.path.isfile(corr_fname):
                     _logger.critical("Correspondence file %s not created.",
@@ -493,40 +495,52 @@ def solve_image(dr_fname,
 
                     _logger.debug('Using transformation estimate: %s',
                                   repr(transformation_estimate))
-                    (
-                        trans_x,
-                        trans_y,
-                        cat_extracted_corr,
-                        res_rms,
-                        ratio,
-                        ra_cent,
-                        dec_cent
-                    ) = refine_transformation(
-                        xy_extracted=xy_extracted,
-                        catalogue=catalogue,
-                        x_frame=header['NAXIS1'],
-                        y_frame=header['NAXIS2'],
-                        astrometry_order=configuration['astrometry_order'],
-                        max_srcmatch_distance=configuration[
-                            'max_srcmatch_distance'
-                        ],
-                        max_iterations=configuration['max_astrom_iter'],
-                        trans_threshold=configuration['trans_threshold'],
-                        **transformation_estimate,
-                    )
 
-                    # print('trans_x:'+repr(trans_x))
-                    # print('trans_y:'+repr(trans_y))
-                    # print('matched_sources:'+repr(cat_extracted_corr))
-                    _logger.debug('RMS residual: %s', repr(res_rms))
-                    _logger.debug('Ratio: %s', repr(ratio))
+                    try:
+                        (
+                            trans_x,
+                            trans_y,
+                            cat_extracted_corr,
+                            res_rms,
+                            ratio,
+                            ra_cent,
+                            dec_cent
+                        ) = refine_transformation(
+                            xy_extracted=xy_extracted,
+                            catalogue=catalogue,
+                            x_frame=header['NAXIS1'],
+                            y_frame=header['NAXIS2'],
+                            astrometry_order=configuration['astrometry_order'],
+                            max_srcmatch_distance=configuration[
+                                'max_srcmatch_distance'
+                            ],
+                            max_iterations=configuration['max_astrom_iter'],
+                            trans_threshold=configuration['trans_threshold'],
+                            **transformation_estimate,
+                        )
+                    #pylint: disable=bare-except
+                    except:
+                        _logger.critical(
+                            'Failed to find solution to DR file %s:\n%s',
+                            dr_fname,
+                            format_exc()
+                        )
+                        result['saved'] = False
+                        return result
+                    #pylint: enable=bare-except
 
-                    if (
-                            ratio > configuration['min_match_fraction']
-                            and
-                            res_rms < configuration['max_rms_distance']
-                    ):
-                        try:
+                    try:
+                        # print('trans_x:'+repr(trans_x))
+                        # print('trans_y:'+repr(trans_y))
+                        # print('matched_sources:'+repr(cat_extracted_corr))
+                        _logger.debug('RMS residual: %s', repr(res_rms))
+                        _logger.debug('Ratio: %s', repr(ratio))
+
+                        if (
+                                ratio > configuration['min_match_fraction']
+                                and
+                                res_rms < configuration['max_rms_distance']
+                        ):
                             save_to_dr(cat_extracted_corr=cat_extracted_corr,
                                        trans_x=trans_x,
                                        trans_y=trans_y,
@@ -537,20 +551,26 @@ def solve_image(dr_fname,
                                        header=header,
                                        dr_file=dr_file)
                             result['saved'] = True
-                        except:
-                            _logger.critical(
-                                'Failed to save found astrometry solution to '
-                                'DR file %s',
-                                dr_fname
-                            )
-                            result['saved'] = False
 
                         transformation_to_raw(trans_x, trans_y, header, True)
-                        result['raw_transformation'] = dict(ra_cent=ra_cent,
-                                                            dec_cent=dec_cent,
-                                                            trans_x=trans_x,
-                                                            trans_y=trans_y)
-                    return result
+                        result['raw_transformation'] = {'ra_cent':  ra_cent,
+                                                        'dec_cent': dec_cent,
+                                                        'trans_x':  trans_x,
+                                                        'trans_y': trans_y}
+                        return result
+
+                    #pylint: disable=bare-except
+                    except:
+                        _logger.critical(
+                            'Failed to save found astrometry solution to '
+                            'DR file %s:\n%s',
+                            dr_fname,
+                            format_exc()
+                        )
+                        result['saved'] = False
+                        return result
+                    #pylint: enable=bare-except
+
             _logger.error(
                 'No Astrometry.net solution found in tweak range [%d, %d]',
                 *configuration['tweak_order']
@@ -581,8 +601,8 @@ def astrometry_process(task_queue, result_queue, configuration):
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
-    pending = dict()
-    failed = dict()
+    pending = {}
+    failed = {}
     for dr_fname in dr_collection:
         with DataReductionFile(dr_fname, 'r+') as dr_file:
             header = dr_file.get_frame_header()
@@ -595,8 +615,8 @@ def solve_astrometry(dr_collection, configuration):
     result_queue = Queue()
 
     num_queued = 0
-    for fnum in pending:
-        task_queue.put((pending[fnum].pop(), None))
+    for fnum_pending in pending.values():
+        task_queue.put((fnum_pending.pop(), None))
         num_queued += 1
 
     workers = [
