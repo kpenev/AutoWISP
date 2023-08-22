@@ -444,6 +444,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         super().__init__(
             input_type='lc',
             description=description,
+            processing_step=mode,
             allow_parallel_processing=True,
             convert_to_dict=convert_to_dict,
             add_lc_fname_arg=(self._mode == 'tfa')

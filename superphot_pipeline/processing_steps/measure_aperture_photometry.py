@@ -35,6 +35,7 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
+        processing_step='aperture_photometry',
         inputs_help_extra=('The corresponding DR files must alread contain a '
                            'PSF fit.'),
         add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
