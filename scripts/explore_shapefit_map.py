@@ -26,6 +26,7 @@ def parse_command_line():
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type='calibrated + dr',
+        processing_step='explore_shapefit_map',
         add_component_versions=('srcproj', 'background', 'shapefit'),
         convert_to_dict=False
     )
