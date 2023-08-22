@@ -11,6 +11,8 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
+from general_purpose_python_modules.multiprocessing_util import setup_process
+
 
 
 def parse_area_str(area_str):
