@@ -6,8 +6,11 @@ from multiprocessing import Pool
 import logging
 
 import numpy
-from superphot_pipeline import DataReductionFile
 
+from general_purpose_python_modules.multiprocessing_util import\
+    setup_process_map
+
+from superphot_pipeline import DataReductionFile
 from superphot_pipeline.magnitude_fitting import\
     LinearMagnitudeFit,\
     MasterPhotrefCollector
@@ -104,6 +107,7 @@ def iterative_refit(fit_dr_filenames,
                 measurements are being fit.
         """
 
+        logger = logging.getLogger(__name__)
         master_reference_fname = master_photref_fname_format.format(
             **dict(single_photref_header),
             **path_substitutions
@@ -129,24 +133,22 @@ def iterative_refit(fit_dr_filenames,
             #pylint: disable=assignment-from-no-return
             finite_entries = numpy.isfinite(square_diff)
             #pylint: enable=assignment-from-no-return
-            print('Num photometries: ' + repr(num_photometries))
-            print('square_diff (shape=%s): ' % repr(square_diff.shape)
-                  +
-                  repr(square_diff))
-            print('finite_entries (shape=%s): ' % repr(finite_entries.shape)
-                  +
-                  repr(finite_entries))
-            print('average_square_change (shape=%s): '
-                  %
-                  repr(average_square_change.shape)
-                  +
-                  repr(average_square_change))
+            logger.debug('Num photometries: %s', repr(num_photometries))
+            logger.debug('square_diff (shape=%s): %s',
+                         repr(square_diff.shape),
+                         repr(square_diff))
+            logger.debug('finite_entries (shape=%s): %s',
+                         repr(finite_entries.shape),
+                         repr(finite_entries))
+            logger.debug('average_square_change (shape=%s): %s',
+                         repr(average_square_change.shape),
+                         repr(average_square_change))
 
             average_square_change[finite_entries] += square_diff[finite_entries]
             num_finite += finite_entries
 
         average_square_change /= num_finite
-        logging.getLogger(__name__).debug(
+        logger.debug(
             'Fit iteration resulted in average square change in magnitudes of: '
             '%s',
             repr(average_square_change)
@@ -189,7 +191,11 @@ def iterative_refit(fit_dr_filenames,
 
             pool_magfit = functools.partial(magfit, **path_substitutions)
             if configuration.num_parallel_processes > 1:
-                with Pool(configuration.num_parallel_processes) as magfit_pool:
+                with Pool(
+                        configuration.num_parallel_processes,
+                        initializer=setup_process_map,
+                        initargs=(vars(configuration),)
+                ) as magfit_pool:
                     magfit_stat_collector.add_input(
                         magfit_pool.imap_unordered(
                             pool_magfit,

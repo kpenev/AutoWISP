@@ -4,6 +4,8 @@
 
 from types import SimpleNamespace
 
+from general_purpose_python_modules.multiprocessing_util import setup_process
+
 from superphot_pipeline import magnitude_fitting
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
@@ -82,7 +84,10 @@ def parse_command_line(*args):
                                 'cos(%(freq).1f * pi * (%(coord)c %% 1))'
                             )
                             %
-                            dict(freq=(2 * freq), coord=coord)
+                            {
+                                'freq': (2 * freq),
+                                'coord': coord
+                            }
                             for freq in range(1, 4)
                         ])
                         +
@@ -206,6 +211,7 @@ def magnitude_fit(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
     magnitude_fit(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('magfit_only_if')),

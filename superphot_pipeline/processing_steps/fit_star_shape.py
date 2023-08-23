@@ -3,9 +3,14 @@
 """Fit a model for the shape of stars (PSF or PRF) in images."""
 
 from multiprocessing import Pool
+import logging
 
 import numpy
 import pandas
+
+from general_purpose_python_modules.multiprocessing_util import \
+    setup_process,\
+    setup_process_map
 
 from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
 from superphot_pipeline.astrometry import Transformation
@@ -323,6 +328,7 @@ def parse_command_line(*args):
 
 #Goal is to provide callable
 #pylint: disable=too-few-public-methods
+#pylint: disable=too-many-instance-attributes
 class SourceListCreator:
     """Class for creating PRF fitting source lists for a single frame."""
 
@@ -365,11 +371,11 @@ class SourceListCreator:
                 True iff the source center is inside the frame boundaries
         """
 
-        print('Projecting sources')
+        self._logger.debug('Projecting sources')
         self._project_sources(header)
-        print('Projected sources:\n' + repr(self._sources))
+        self._logger.debug('Projected sources:\n%s', repr(self._sources))
 
-        print('Grouping')
+        self._logger.debug('Grouping')
         if callable(self._grouping):
             return self._grouping(
                 self._sources,
@@ -441,6 +447,7 @@ class SourceListCreator:
             None
         """
 
+        self._logger = logging.getLogger(__name__)
         self._sources = read_catalogue(catalogue_fname)
         if discard_faint is not None:
             discard_filter, faint_limit = discard_faint.split('>')
@@ -454,7 +461,7 @@ class SourceListCreator:
         self._dr_fname_format = dr_fname_format
         self._dr_path_substitutions = dr_path_substitutions
 
-        print('Sources: ' + repr(self._sources))
+        self._logger.debug('Sources: %s', repr(self._sources))
 
         self._id_length = max(
             len(id_value) for id_value in self._sources.index
@@ -488,18 +495,18 @@ class SourceListCreator:
                 FitStarShape.fit(), with only one fitting group enabled.
         """
 
-        print('Getting sources from ' + repr(frame_fname))
+        self._logger.debug('Getting sources from %s',repr(frame_fname))
         header = get_primary_header(frame_fname, True)
 
         grouping, in_frame = self._group_and_flag_in_frame(header)
-        print(
-            'Found {0:d}/{1:d} sources inside the frame.'.format(
-                in_frame.sum(),
-                len(in_frame)
-            )
+        self._logger.debug(
+            'Found %d/%d sources inside the frame.',
+            in_frame.sum(),
+            len(in_frame)
         )
         fit_sources = self._sources[in_frame]
-        print('Fit source columns: ' + repr(self._sources.columns))
+        self._logger.debug('Fit source columns: %s',
+                           repr(self._sources.columns))
         grouping = grouping[in_frame]
 
         number_fit_groups = grouping.max() + 1
@@ -507,24 +514,37 @@ class SourceListCreator:
         if self.remove_group_id is not None:
             number_fit_groups = sorted(range(number_fit_groups))
             for remove_group_id in self.remove_group_id:
-                print('Removing group_id: ' + repr(remove_group_id))
+                self._logger.debug('Removing group_id: %s',
+                                   repr(remove_group_id))
                 del number_fit_groups[remove_group_id]
             result = [pandas.DataFrame(fit_sources, copy=True)
                       for group_id in number_fit_groups]
             for group_id in number_fit_groups:
-                print('Group ' + str(group_id) + ':\n' + repr(result[group_id]))
+                self._logger.debug('Group %s:\n%s',
+                                   group_id,
+                                   repr(result[group_id]))
+                #This is more readable
+                #pylint:disable=superfluous-parens
                 result[group_id]['enabled'] = (grouping == group_id)
-            print(result)
+                #pylint:enable=superfluous-parens
+
         else:
             result = [pandas.DataFrame(fit_sources, copy=True)
                       for group_id in range(number_fit_groups)]
             for group_id in range(number_fit_groups):
-                print('Group ' + str(group_id) + ':\n' + repr(result[group_id]))
-                result[group_id]['enabled'] = (grouping == group_id)
+                self._logger.debug('Group %s:\n%s',
+                                   group_id,
+                                   repr(result[group_id]))
 
-            print(result)
+                #This is more readable
+                #pylint:disable=superfluous-parens
+                result[group_id]['enabled'] = (grouping == group_id)
+                #pylint:enable=superfluous-parens
+
+        self._logger.debug('Result: %s', repr(result))
         return result
 #pylint: enable=too-few-public-methods
+#pylint: enable=too-many-instance-attributes
 
 
 def create_source_list_creator(configuration):
@@ -549,18 +569,18 @@ def create_source_list_creator(configuration):
 def get_shape_fitter_config(configuration):
     """Return a fully configured instance of FitStarShape."""
 
-    result = dict(
-        require_convergence=False,
-        mode=configuration['shape_mode'],
-        grid=configuration['shape_grid'],
-        bg_min_pix=configuration['shapefit_src_min_bg_pix'],
-        cover_grid=configuration['shapefit_src_cover_grid'],
-        src_max_count=configuration['shapefit_max_sources'],
-        dr_path_substitutions={
+    result = {
+        'require_convergence': False,
+        'mode': configuration['shape_mode'],
+        'grid': configuration['shape_grid'],
+        'bg_min_pix': configuration['shapefit_src_min_bg_pix'],
+        'cover_grid': configuration['shapefit_src_cover_grid'],
+        'src_max_count': configuration['shapefit_max_sources'],
+        'dr_path_substitutions': {
             version_name + '_version': configuration[version_name + '_version']
             for version_name in ['background', 'shapefit', 'srcproj']
         }
-    )
+    }
 
     if configuration['subpixmap'] is not None:
         result['subpixmap']=read_subpixmap(configuration['subpixmap'])
@@ -610,33 +630,34 @@ def fit_frame_set(frame_filenames_configuration):
         header = get_primary_header(frame_fname, True)
         return configuration['data_reduction_fname'].format_map(header)
 
+    logger = logging.getLogger(__name__)
 
     frame_filenames, configuration = frame_filenames_configuration
-    print('Fitting frame set')
+    logger.debug('Fitting frame set')
 
     get_sources = create_source_list_creator(configuration)
-    print('Created source getter')
+    logger.debug('Created source getter')
 
     shape_fitter_config = get_shape_fitter_config(configuration)
     star_shape_fitter = PiecewiseBicubicPSFMap()
-    print('Created star shape fitter.')
+    logger.debug('Created star shape fitter.')
 
     fit_sources = [get_sources(frame) for frame in frame_filenames]
-    print('Fit sources: ' + repr(fit_sources))
+    logger.debug('Fit sources: %s', repr(fit_sources))
 
     num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
 
     for fit_group in range(num_fit_groups):
         shape_fitter_config['dr_path_substitutions']['fit_group'] = fit_group
-        print('Fitting: '
-              +
-              '\tframe_filenames: ' + repr(frame_filenames)
-              +
-              '\tsources: ' + repr([sources[fit_group] for sources in
-                                    fit_sources])
-              +
-              '\tdr_fnames: ' + repr([get_dr_fname(f) for f in
-                                      frame_filenames]))
+        logger.debug(
+            'Fitting:\n'
+            '\tframe_filenames: %s\n'
+            '\tsources: %s\n'
+            '\tdr_fnames: %s\n',
+            repr(frame_filenames),
+            repr([sources[fit_group] for sources in fit_sources]),
+            repr([get_dr_fname(f) for f in frame_filenames])
+        )
         star_shape_fitter.fit(
             fits_fnames=frame_filenames,
             sources=[sources[fit_group].to_records()
@@ -644,7 +665,7 @@ def fit_frame_set(frame_filenames_configuration):
             output_dr_fnames=[get_dr_fname(f) for f in frame_filenames],
             **shape_fitter_config
         )
-        print('Done fitting')
+        logger.debug('Done fitting')
 
 
 def fit_star_shapes(image_collection, configuration):
@@ -666,24 +687,28 @@ def fit_star_shapes(image_collection, configuration):
         ) for split in frame_list_splits
     ]
 
-    print('Using %d parallel processes'
-          %
-          configuration['num_parallel_processes'])
+    logging.getLogger(__name__).debug(
+        'Using %d parallel processes',
+        configuration['num_parallel_processes']
+    )
     if configuration['num_parallel_processes'] == 1:
         for args in fit_arguments:
             fit_frame_set(args)
     else:
-        pool = Pool(processes=configuration['num_parallel_processes'])
-        pool.imap_unordered(
-            fit_frame_set,
-            fit_arguments
-        )
-        pool.close()
-        pool.join()
+        with Pool(
+                processes=configuration['num_parallel_processes'],
+                initializer=setup_process_map,
+                initargs=(configuration,)
+        ) as pool:
+            pool.map(
+                fit_frame_set,
+                fit_arguments
+            )
 
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
     fit_star_shapes(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('shapefit_only_if')),

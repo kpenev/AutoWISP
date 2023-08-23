@@ -8,6 +8,10 @@ from multiprocessing import Pool
 
 import numpy
 
+from general_purpose_python_modules.multiprocessing_util import \
+    setup_process,\
+    setup_process_map
+
 from superphot import SubPixPhot, SuperPhotIOTree
 
 from superphot_pipeline.fits_utilities import\
@@ -149,16 +153,19 @@ def photometer_image_collection(image_collection, configuration):
         for frame_fname in image_collection:
             photometer_one(frame_fname)
     else:
-        pool = Pool(processes=configuration['num_parallel_processes'])
-        pool.imap_unordered(
-            photometer_one,
-            image_collection
-        )
-        pool.close()
-        pool.join()
+        with Pool(
+                processes=configuration['num_parallel_processes'],
+                initializer=setup_process_map,
+                initargs=(configuration,)
+        ) as pool:
+            pool.map(
+                photometer_one,
+                image_collection
+            )
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
     photometer_image_collection(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('apphot_only_if')),
