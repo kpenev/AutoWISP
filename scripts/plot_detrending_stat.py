@@ -21,15 +21,16 @@
 
 """Plot scatter vs magnitude after singe/master magnitude fit."""
 
-from configargparse import ArgumentParser, DefaultsFormatter
 import subprocess
 import os
 from os.path import splitext
 from tempfile import NamedTemporaryFile
+
+
+from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 
 from matplotlib import pyplot
-from matplotlib.ticker import LogFormatter
 
 def parse_command_line():
     """Return the parsed command line arguments."""
@@ -126,7 +127,10 @@ class TemporaryFileName:
         """Create and close without deleteing a NamedTemporaryFile."""
 
         assert 'delete' not in kwargs
+        #Defining a context manager!
+        #pylint: disable=consider-using-with
         self.filename = NamedTemporaryFile(*args, delete=False, **kwargs).name
+        #pylint: enable=consider-using-with
 
     def __enter__(self):
         """Return the name of the temporary file."""
@@ -151,7 +155,7 @@ def detect_catalogue_columns(catalogue_fname):
         Returns:
             catalogue_columns:      List of the catalogue columns used
         """
-    with open(catalogue_fname, 'r') as cat_file:
+    with open(catalogue_fname, 'r', encoding='utf-8') as cat_file:
         columns = (cat_file.readline()).split()
         catalogue_columns = []
         for f in columns:
@@ -223,7 +227,7 @@ def detect_stat_columns(stat_fname):
     """
 
 
-    with open(stat_fname, 'r') as stat_file:
+    with open(stat_fname, 'r', encoding='utf-8') as stat_file:
         for first_line in stat_file:
             first_line = first_line.strip()
             if first_line[0] != '#':
@@ -262,6 +266,8 @@ def detect_stat_columns(stat_fname):
         ' comment!'
     )
 
+#Meant to define callable with pre-computed pieces
+#pylint: disable=too-few-public-methods
 class LogPlotLine:
     """Define a line in semilogy plot from a pair of points."""
 
@@ -279,8 +285,11 @@ class LogPlotLine:
             numpy.logical_and(x > 8.5, result < 6e-3)
         ] = 6e-3
         return result
+#pylint: enable=too-few-public-methods
 
 
+#No good way to simplify
+#pylint: disable=too-many-locals
 def plot_best_scatter(match_fname,
                       *,
                       magnitude_column,
@@ -384,6 +393,7 @@ def plot_best_scatter(match_fname,
                         markeredgecolor='none')
 
     return magnitude, best_ind
+#pylint: enable=too-many-locals
 
 
 def create_plot(cmdline_args):
