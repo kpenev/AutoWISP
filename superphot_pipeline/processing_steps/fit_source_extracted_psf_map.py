@@ -2,7 +2,11 @@
 
 """Fit a smooth dependence of source extracted PSF parameters."""
 
+import logging
+
 import numpy
+
+from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline import DataReductionFile
@@ -12,6 +16,8 @@ from superphot_pipeline.fit_expression import\
 from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
+
+_logger = logging.getLogger(__name__)
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -84,13 +90,15 @@ def get_predictors_and_weights(matched_sources,
                                fit_terms_expression,
                                weights_expression):
     """Return the matrix of predictors to use for fitting."""
-    print('Matched columns: ' + repr(matched_sources.columns))
+    _logger.debug('Matched columns: %s', repr(matched_sources.columns))
     if weights_expression is None:
         return (FitTermsInterface(fit_terms_expression)(matched_sources),
                 None)
     #TODO fix matched_sources to records in Evaluator not here
-    return (FitTermsInterface(fit_terms_expression)(matched_sources),
-            Evaluator(matched_sources.to_records(index=False))(weights_expression))
+    return (
+        FitTermsInterface(fit_terms_expression)(matched_sources),
+        Evaluator(matched_sources.to_records(index=False))(weights_expression)
+    )
 
 
 def get_psf_param(matched_sources, psf_parameters):
@@ -101,8 +109,8 @@ def get_psf_param(matched_sources, psf_parameters):
         dtype=[(param, numpy.float64) for param in psf_parameters]
     )
     for param in psf_parameters:
-        print('Setting PSF param {0!r}'.format(param))
-        print('Matched columns: ' + repr(matched_sources.columns))
+        _logger.debug('Setting PSF param %s', repr(param))
+        _logger.debug('Matched columns: %s', repr(matched_sources.columns))
         result[param] = matched_sources[param]
 
     return result
@@ -164,24 +172,29 @@ def smooth_srcextract_psf(dr_file,
     predictors, weights = get_predictors_and_weights(matched_sources,
                                                      fit_terms_expression,
                                                      weights_expression)
-    print('Predictors ({0:d}x{1:d}: '.format(*predictors.shape)
+    _logger.debug('Predictors (%sx%d)}: %s',
+                  *predictors.shape,
           +
-          repr(predictors))
+                  repr(predictors))
     if weights is not None:
-        print('Weights {0!r}: '.format(weights.shape) + repr(weights))
+        _logger.debug('Weights %s: %s',
+                      format(weights.shape),
+                      repr(weights))
     else:
-        print('Not using weights')
+        _logger.debug('Not using weights')
 
-    fit_results = dict(coefficients=dict(),
-                       fit_res2=dict(),
-                       num_fit_src=dict())
+    fit_results = {
+        'coefficients': {},
+        'fit_res2': {},
+        'num_fit_src': {}
+    }
 
     if psf_parameters is None:
         psf_parameters = detect_psf_parameters(matched_sources)
     if psf_parameters is None:
         raise IOError(
-            'Matched sources in {0} do not contain a full set of '
-            'either fistar or hatphot PSF parameters.'.format(dr_file.filename)
+            f'Matched sources in {dr_file.filename} do not contain a full set '
+            'of either fistar or hatphot PSF parameters.'
         )
 
     psf_param = get_psf_param(matched_sources, psf_parameters)
@@ -197,7 +210,7 @@ def smooth_srcextract_psf(dr_file,
             error_avg=error_avg,
             rej_level=rej_level,
             max_rej_iter=max_rej_iter,
-            fit_identifier='Extracted sources PSF %s map' % param_name
+            fit_identifier=f'Extracted sources PSF {param_name:s} map'
         )
 
     dr_file.save_source_extracted_psf_map(
@@ -232,6 +245,9 @@ def fit_srcextract_psf_map(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    fit_srcextract_psf_map(find_dr_fnames(cmdline_config.pop('dr_files'),
-                                          cmdline_config.pop('srcextract_only_if')),
-                           cmdline_config)
+    setup_process(task='main', **cmdline_config)
+    fit_srcextract_psf_map(
+        find_dr_fnames(cmdline_config.pop('dr_files'),
+                       cmdline_config.pop('srcextract_only_if')),
+        cmdline_config
+    )

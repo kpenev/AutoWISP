@@ -6,6 +6,8 @@ from bisect import bisect
 
 from asteval import Interpreter
 
+from general_purpose_python_modules.multiprocessing_util import setup_process
+
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
@@ -198,6 +200,7 @@ def create_lightcurves(dr_collection, configuration):
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
     create_lightcurves(find_dr_fnames(cmdline_config.pop('dr_files'),
                                       cmdline_config.pop('lc_only_if')),
                        cmdline_config)
