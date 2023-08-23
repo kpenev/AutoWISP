@@ -174,7 +174,6 @@ def smooth_srcextract_psf(dr_file,
                                                      weights_expression)
     _logger.debug('Predictors (%sx%d)}: %s',
                   *predictors.shape,
-          +
                   repr(predictors))
     if weights is not None:
         _logger.debug('Weights %s: %s',
