@@ -55,6 +55,13 @@ def parse_command_line():
         help='The catalogue file used for magnitude fitting. Default: '
         '\'%(default)s.\''
     )
+    parser.add_argument(
+        '--min-unrejected-fraction',
+        type=float,
+        default=0.5,
+        help='The minimum fraction of points not declared as outliers for a '
+        'star to be included in the plot.'
+    )
 
     parser.add_argument(
         '--output', '-o',
@@ -456,6 +463,9 @@ def create_plot(cmdline_args):
 
         pyplot.plot(magnitude, best_ind, '.k')
         pyplot.xlim(cmdline_args.plot_x_range)
+
+        pyplot.xlabel(cmdline_args.filter + ' [mag]')
+        pyplot.ylabel('Photometry index with smallest scatter')
 
         pyplot.savefig(splitext(cmdline_args.output)[0]
                        +
