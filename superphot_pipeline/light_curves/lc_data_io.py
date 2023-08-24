@@ -339,7 +339,7 @@ class LCDataIO:
             source_list = list(cls._catalogue.keys())
 
         cls._logger.debug('Creating LC Data IO with source list: %s',
-                           repr(source_list))
+                          repr(source_list))
 
         no_light_curve = LightCurveFile()
 
@@ -378,7 +378,8 @@ class LCDataIO:
                                          cls._catalogue[src]['Dec'])
             #pylint: enable=invalid-sequence-index
 
-        cls._logger('Max dimension size: %s', repr(cls.max_dimension_size))
+        cls._logger.debug('Max dimension size: %s',
+                          repr(cls.max_dimension_size))
 
         return cls()
 
@@ -389,9 +390,9 @@ class LCDataIO:
         """Return value as it would be read from the LC."""
 
         if lc_dtype is None:
-            cls._logger('Not changing dtype of %s = %s',
-                        repr(lc_quantity),
-                        repr(value))
+            cls._logger.debug('Not changing dtype of %s = %s',
+                              repr(lc_quantity),
+                              repr(value))
             lc_dtype = value.dtype
         try:
             try:
@@ -441,13 +442,13 @@ class LCDataIO:
                     )
             return result
         except Exception as ex:
-            #pylint: disable = broad-exception-raised
+            #pylint: disable=broad-exception-raised
             raise Exception(
                 "".join(format_exception(*sys.exc_info()))
                 +
                 f'\nWhile converting to LC type: {lc_quantity!s}={value!r}'
             ) from ex
-            #pylint: enable = broad-exception-raised
+            #pylint: enable=broad-exception-raised
 
     #pylint: enable=too-many-branches
 
@@ -756,7 +757,10 @@ class LCDataIO:
                             **substitutions,
                         )
                     found_config = True
-                except (OSError, KeyError) if self._optional_header else OSError:
+                except (
+                        (OSError, KeyError) if self._optional_header
+                        else OSError
+                ):
                     if (
                             dset_key in self.header_datasets
                             and
