@@ -575,7 +575,7 @@ def _get_sky_position_datasets():
         HDF5DataSet(
             pipeline_key='skypos.per_source',
             abspath=path_start + 'PerSource',
-            dtype='numpy.bool',
+            dtype='numpy.bool_',
             description='Were sky position quantities calcualated individually '
             'for each source, as opposed to assuming the values for the frame '
             'center apply to all sources in the frame.'

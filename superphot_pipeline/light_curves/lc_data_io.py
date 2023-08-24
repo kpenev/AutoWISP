@@ -1077,7 +1077,7 @@ class LCDataIO:
                 self._ra_dec[0] / 15.0
             )
             #pylint: enable=no-member
-            data['per_source'] = numpy.ones((num_sources,), dtype=numpy.bool)
+            data['per_source'] = numpy.ones((num_sources,), dtype=numpy._bool)
 
 
             for quantity, values in data.items():
