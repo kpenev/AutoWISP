@@ -95,16 +95,16 @@ class LCDataIO:
     """
 
     _logger = logging.getLogger(__name__)
-    dataset_dimensions = dict()
-    header_datasets = dict()
-    config_components = dict()
-    max_dimension_size = dict()
-    _catalogue = dict()
+    dataset_dimensions = {}
+    header_datasets = {}
+    config_components = {}
+    max_dimension_size = {}
+    _catalogue = {}
     _ra_dec = []
-    _path_substitutions = dict()
+    _path_substitutions = {}
     _multivalued_entry_datasets = ['sky_coord']
     cfg_index_id = 'cfg_index'
-    _organized_config = dict()
+    _organized_config = {}
 
     #TODO: perhaps worth simplifying later.
     #pylint: disable=too-many-statements
@@ -127,14 +127,14 @@ class LCDataIO:
         def organize_datasets():
             """Set dataset_dimensions and header_datasets attributes."""
 
-            config_datasets = dict()
-            config_components = dict()
+            config_datasets = {}
+            config_components = {}
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
             ignore_rex = re.compile(r'\.epd\.')
-            key_rex = dict(
-                config=_config_dset_key_rex,
-                perframe=re.compile(
+            key_rex = {
+                'config': _config_dset_key_rex,
+                'perframe': re.compile(
                     '|'.join([
                         r'skytoframe\.(sky_center|residual|unitarity)$',
                         r'^shapefit\.global_chi2$',
@@ -145,7 +145,7 @@ class LCDataIO:
                         r'^srcextract.psf_map.(residual|num_fit_src)$',
                     ])
                 ),
-                persource=re.compile(
+                'persource': re.compile(
                     '|'.join([
                         r'^srcextract\.psf_map\.eval',
                         r'^srcproj\.columns$',
@@ -155,7 +155,7 @@ class LCDataIO:
                         r'skypos\..*'
                     ])
                 )
-            )
+            }
 
             for lc_quantity in lc_example.elements['dataset']:
                 split_quantity = lc_quantity.split('.')
@@ -338,7 +338,8 @@ class LCDataIO:
         if source_list is None:
             source_list = list(cls._catalogue.keys())
 
-        print('Creating LC Data IO with source list: ' + repr(source_list))
+        cls._logger.debug('Creating LC Data IO with source list: %s',
+                           repr(source_list))
 
         no_light_curve = LightCurveFile()
 
@@ -346,14 +347,14 @@ class LCDataIO:
 
         cls.source_destinations = {source: index
                                    for index, source in enumerate(source_list)}
-        cls.max_dimension_size = dict(
-            source=num_sources,
-            aperture_index=config['max_apertures'],
-            magfit_iteration=config['max_magfit_iterations'],
-            srcextract_psf_param=len(config['srcextract_psf_params']),
-            srcproj_column_name=len(config['srcproj_column_names']),
-            sky_coord=2
-        )
+        cls.max_dimension_size = {
+            'source': num_sources,
+            'aperture_index': config['max_apertures'],
+            'magfit_iteration': config['max_magfit_iterations'],
+            'srcextract_psf_param': len(config['srcextract_psf_params']),
+            'srcproj_column_name': len(config['srcproj_column_names']),
+            'sky_coord': 2
+        }
 
         cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
@@ -377,19 +378,20 @@ class LCDataIO:
                                          cls._catalogue[src]['Dec'])
             #pylint: enable=invalid-sequence-index
 
-        print('Max dimension size: ' + repr(cls.max_dimension_size))
+        cls._logger('Max dimension size: %s', repr(cls.max_dimension_size))
 
         return cls()
 
     #Handling the many branches is exactly the point.
     #pylint: disable=too-many-branches
-    @staticmethod
-    def _config_to_lc_format(lc_quantity, lc_dtype, value):
+    @classmethod
+    def _config_to_lc_format(cls, lc_quantity, lc_dtype, value):
         """Return value as it would be read from the LC."""
 
         if lc_dtype is None:
-            print('Not changing dtype of {0!r} = {1!r}'.format(lc_quantity,
-                                                               value))
+            cls._logger('Not changing dtype of %s = %s',
+                        repr(lc_quantity),
+                        repr(value))
             lc_dtype = value.dtype
         try:
             try:
@@ -439,13 +441,14 @@ class LCDataIO:
                     )
             return result
         except Exception as ex:
+            #pylint: disable = broad-exception-raised
             raise Exception(
                 "".join(format_exception(*sys.exc_info()))
                 +
-                '\nWhile converting to LC type: %s=%s'
-                %
-                (lc_quantity, repr(value))
+                f'\nWhile converting to LC type: {lc_quantity!s}={value!r}'
             ) from ex
+            #pylint: enable = broad-exception-raised
+
     #pylint: enable=too-many-branches
 
     @classmethod
@@ -646,9 +649,9 @@ class LCDataIO:
         dimensions = cls.dataset_dimensions[quantity]
 
         if 'frame' not in dimensions:
-            raise IOError('Adding %s dataset, which does not depend on frame'
-                          %
-                          quantity)
+            raise IOError(
+                f'Adding {quantity!s} dataset, which does not depend on frame'
+            )
 
         num_entries = cls._get_num_entries(dimensions)
 
@@ -662,6 +665,7 @@ class LCDataIO:
         ) * num_entries
 
         slice_data = cls._get_slice_field(quantity)
+        #pylint: disable=protected-access
         if slice_data._type_ == c_char_p:
             source_data = numpy.array(
                 slice_data[first_index
@@ -676,6 +680,7 @@ class LCDataIO:
             )[first_index : first_index + num_frames * num_entries]
             source_data.shape = ((num_frames, num_entries) if num_entries > 1
                                  else (num_frames,))
+        #pylint: enable=protected-access
 
         if defined_indices is None:
             return source_data
@@ -781,7 +786,7 @@ class LCDataIO:
 
             return frozenset(config_list) if found_config else None
 
-        result = dict()
+        result = {}
         for component, (dimensions,
                         component_dsets) in self.config_components.items():
             result[component] = []
@@ -1054,7 +1059,7 @@ class LCDataIO:
                 frame='icrs'
             )
 
-            data = dict()
+            data = {}
 
             alt_az = source_coords.transform_to(
                 AltAz(obstime=obs_time, location=location)
@@ -1077,7 +1082,7 @@ class LCDataIO:
                 self._ra_dec[0] / 15.0
             )
             #pylint: enable=no-member
-            data['per_source'] = numpy.ones((num_sources,), dtype=numpy._bool)
+            data['per_source'] = numpy.ones((num_sources,), dtype=numpy.bool_)
 
 
             for quantity, values in data.items():
@@ -1179,13 +1184,13 @@ class LCDataIO:
             None
         """
 
-        cls._organized_config = {component: dict()
+        cls._organized_config = {component: {}
                                  for component in cls.config_components}
         for frame_index, configurations in enumerate(configurations_collection):
             for component, component_config in configurations.items():
                 for dim_values, config in component_config:
                     if dim_values not in cls._organized_config[component]:
-                        cls._organized_config[component][dim_values] = dict()
+                        cls._organized_config[component][dim_values] = {}
                     if config in cls._organized_config[component][dim_values]:
                         config_id = cls._organized_config[
                             component
@@ -1394,7 +1399,7 @@ class LCDataIO:
             with LightCurveFile(
                     light_curve_fname,
                     'a',
-                    source_ids=dict(HAT=get_hat_source_id_str(source_id))
+                    source_ids={'HAT': get_hat_source_id_str(source_id)}
             ) as light_curve:
                 self._write_configurations(light_curve,
                                            source_index,
