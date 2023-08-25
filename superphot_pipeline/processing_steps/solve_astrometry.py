@@ -392,7 +392,7 @@ def solve_image(dr_fname,
 
         header = dr_file.get_frame_header()
 
-        result = {'dr_fname': dr_fname, 'fnum': header['FNUM']}
+        result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
 
         catalogue = read_catalogue(
             configuration['astrometry_catalogue'],
@@ -526,7 +526,6 @@ def solve_image(dr_fname,
                             dr_fname,
                             format_exc()
                         )
-                        result['saved'] = False
                         return result
                     #pylint: enable=bare-except
 
@@ -568,7 +567,6 @@ def solve_image(dr_fname,
                             dr_fname,
                             format_exc()
                         )
-                        result['saved'] = False
                         return result
                     #pylint: enable=bare-except
 
