@@ -541,6 +541,10 @@ def solve_image(dr_fname,
                                 and
                                 res_rms < configuration['max_rms_distance']
                         ):
+                            _logger.info(
+                                'Succesful astrometry solution found for %s:',
+                                dr_fname
+                            )
                             save_to_dr(cat_extracted_corr=cat_extracted_corr,
                                        trans_x=trans_x,
                                        trans_y=trans_y,
@@ -552,11 +556,16 @@ def solve_image(dr_fname,
                                        dr_file=dr_file)
                             result['saved'] = True
 
-                        transformation_to_raw(trans_x, trans_y, header, True)
-                        result['raw_transformation'] = {'ra_cent':  ra_cent,
-                                                        'dec_cent': dec_cent,
-                                                        'trans_x':  trans_x,
-                                                        'trans_y': trans_y}
+                            transformation_to_raw(trans_x,
+                                                  trans_y,
+                                                  header,
+                                                  True)
+                            result['raw_transformation'] = {
+                                'ra_cent':  ra_cent,
+                                'dec_cent': dec_cent,
+                                'trans_x':  trans_x,
+                                'trans_y': trans_y
+                            }
                         return result
 
                     #pylint: disable=bare-except
