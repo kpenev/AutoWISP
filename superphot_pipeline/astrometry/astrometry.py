@@ -345,8 +345,8 @@ def refine_transformation(*,
         )
 
         xieta_cent = numpy.empty(1, dtype=[('xi', float), ('eta', float)])
-        xieta_cent['xi'] = new_xieta_cent[0] * numpy.pi / 180
-        xieta_cent['eta'] = new_xieta_cent[1] * numpy.pi / 180
+        xieta_cent['xi'] = new_xieta_cent[0]
+        xieta_cent['eta'] = new_xieta_cent[1]
 
         source = numpy.empty(
             1,

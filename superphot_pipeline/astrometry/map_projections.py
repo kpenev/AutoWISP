@@ -84,7 +84,5 @@ def inv_projection(sources, projected, **center):
     sources['RA'] *= rad_to_degree
     sources['Dec'] *= rad_to_degree
 
-    return None
-
 tan_projection = gnomonic_projection
 sky_projection = inv_projection
