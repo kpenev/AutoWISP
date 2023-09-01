@@ -14,7 +14,7 @@ from general_purpose_python_modules.multiprocessing_util import \
 
 from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
 from superphot_pipeline.astrometry import Transformation
-from superphot_pipeline.file_utilities import find_fits_fnames
+from superphot_pipeline.file_utilities import find_fits_with_dr_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
@@ -623,17 +623,19 @@ def fit_frame_set(frame_filenames_configuration):
         None
     """
 
-
     def get_dr_fname(frame_fname):
         """Return the filename to saving a shape fit."""
 
         header = get_primary_header(frame_fname, True)
         return configuration['data_reduction_fname'].format_map(header)
 
+
     logger = logging.getLogger(__name__)
 
     frame_filenames, configuration = frame_filenames_configuration
-    logger.debug('Fitting frame set')
+    logger.debug('Fitting frame set: %s', repr(frame_filenames))
+    logger.debug('Fitting configuration: %s', repr(configuration))
+
 
     get_sources = create_source_list_creator(configuration)
     logger.debug('Created source getter')
@@ -646,6 +648,7 @@ def fit_frame_set(frame_filenames_configuration):
     logger.debug('Fit sources: %s', repr(fit_sources))
 
     num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
+    logger.debug('Fitting %s group', repr(num_fit_groups))
 
     for fit_group in range(num_fit_groups):
         shape_fitter_config['dr_path_substitutions']['fit_group'] = fit_group
@@ -688,9 +691,17 @@ def fit_star_shapes(image_collection, configuration):
     ]
 
     logging.getLogger(__name__).debug(
-        'Using %d parallel processes',
-        configuration['num_parallel_processes']
+        'Using %d parallel processes to fit %d (=? %d) frames',
+        configuration['num_parallel_processes'],
+        len(image_collection),
+        len(fit_arguments)
     )
+
+    logging.getLogger(__name__).debug(
+        'Fit arguments:\n\t%s',
+        '\n\t'.join(repr(args) for args in fit_arguments)
+    )
+
     if configuration['num_parallel_processes'] == 1:
         for args in fit_arguments:
             fit_frame_set(args)
@@ -710,7 +721,10 @@ if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
     fit_star_shapes(
-        find_fits_fnames(cmdline_config.pop('calibrated_images'),
-                         cmdline_config.pop('shapefit_only_if')),
+        find_fits_with_dr_fnames(
+            cmdline_config.pop('calibrated_images'),
+            cmdline_config.pop('shapefit_only_if'),
+            dr_fname_format=cmdline_config['data_reduction_fname']
+        ),
         cmdline_config
     )

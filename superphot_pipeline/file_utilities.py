@@ -6,6 +6,7 @@ from glob import iglob
 from logging import getLogger
 
 from superphot_pipeline import Evaluator
+from superphot_pipeline.fits_utilities import get_primary_header
 
 _logger = getLogger(__name__)
 
@@ -83,6 +84,26 @@ def find_data_fnames(image_collection,
         else:
             for result in get_data_filenames([entry], include_condition):
                 yield result
+
+
+def find_fits_with_dr_fnames(image_collection,
+                             include_condition='True',
+                             *,
+                             dr_fname_format,
+                             **kwargs):
+    """Same as find_data_fnames() but eliminates those without DR files."""
+
+    def has_dr(fits_fname):
+        """Check if a FITS file has a corresponding DR file."""
+
+        header = get_primary_header(fits_fname, True)
+        return os.path.exists(dr_fname_format.format_map(header))
+
+
+    return filter(
+        has_dr,
+        find_data_fnames(image_collection, include_condition, **kwargs)
+    )
 
 
 find_fits_fnames = find_data_fnames
