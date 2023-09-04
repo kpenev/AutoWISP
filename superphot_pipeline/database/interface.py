@@ -16,7 +16,8 @@ db_engine = create_engine(
     #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
     'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
     echo=True,
-    poolclass=NullPool
+    poolclass=NullPool,
+    pool_pre_ping=True
 )
 
 Session.configure(bind=db_engine)
