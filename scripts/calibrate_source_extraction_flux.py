@@ -23,6 +23,7 @@ def parse_command_line():
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type='dr',
+        processing_step='calibrate_source_extraction_flux',
         inputs_help_extra=(
             'The DR files must contain extracted sources and astrometry'
         ),
