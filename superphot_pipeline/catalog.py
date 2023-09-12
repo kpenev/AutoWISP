@@ -1,8 +1,12 @@
 """Utilities for querying catalogs for astrometry."""
 
 import numpy
+import pandas
 from astropy import units
+from astropy.io import fits
 from astroquery.gaia import GaiaClass, conf
+
+from superphot_pipeline import Evaluator
 
 class SuperPhotGaia(GaiaClass):
     """Extend queries with condition and sorting."""
@@ -52,6 +56,9 @@ class SuperPhotGaia(GaiaClass):
 
             job = self.launch_job_async(query, verbose=verbose)
             result = job.get_results()
+            result.rename_column('ra', 'ra_orig')
+            result.rename_column('dec', 'dec_orig')
+
             if epoch is not None and add_propagated:
                 propagated = {coord: numpy.empty(len(result))
                               for coord in ['ra', 'dec']}
@@ -66,14 +73,13 @@ class SuperPhotGaia(GaiaClass):
 
                 result.remove_column('propagated')
                 for coord in add_propagated:
-                    result.add_column(propagated[coord], name='prop_' + coord)
+                    result.add_column(propagated[coord], name=coord)
 
             return result
 
 
         if columns is None:
             columns = "*"
-            add_propagated = ['ra', 'dec']
         else:
             add_propagated = []
             for coord in ['ra', 'dec']:
@@ -84,6 +90,9 @@ class SuperPhotGaia(GaiaClass):
                     pass
 
             columns = ', '.join(map(str, columns))
+
+        if '*' in columns:
+            add_propagated = ['ra', 'dec']
 
         if epoch is not None:
             epoch = epoch.to_value(units.yr)
@@ -123,7 +132,7 @@ class SuperPhotGaia(GaiaClass):
              ORDER BY
                  {order_by}
                  {order_dir}
-             """,
+            """,
             add_propagated
         )
 
@@ -179,10 +188,89 @@ class SuperPhotGaia(GaiaClass):
 
         return self.query_object_filtered(**query_kwargs)
 
+
 gaia = SuperPhotGaia()
+#This comes from astroquery (not in our control)
+#pylint: disable=invalid-name
+gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
+#pylint: enable=invalid-name
+
+
+def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
+    """
+    Create a catalog FITS file from a Gaia query.
+
+    Args:
+        catalog_fname(str):    Name of the catalog file to create.
+
+        **query_kwargs:    Arguments passed directly to
+            `gaia.query_brightness_limited()`.
+    """
+
+    query = gaia.query_brightness_limited(**query_kwargs)
+    for colname in ['DESIGNATION',
+                    'phot_variable_flag',
+                    'datalink_url',
+                    'epoch_photometry_url',
+                    'libname_gspphot']:
+        try:
+            query[colname] = query[colname].astype(str)
+        except KeyError:
+            pass
+    print('Column names: ' + '\n\t'.join(query.colnames))
+    print(80*'*')
+    print('Dtype: '
+          +
+          '\n\t'.join([repr(e) for e in query.dtype.fields.items()]))
+
+    query.write(
+        catalog_fname,
+        format='fits',
+        overwrite=overwrite
+    )
+
+
+def read_catalog_file(catalog_fname,
+                      filter_expr=None,
+                      sort_expr=None):
+    """
+    Read a catalog FITS file.
+
+    Args:
+        catalog_fname(str):    Name of the catalog file to read.
+
+    Returns:
+        pandas.DataFrame:
+            The catalog information as columns.
+    """
+
+    with fits.open(catalog_fname) as cat_fits:
+        result = pandas.DataFrame(cat_fits[1].data)
+    result.set_index('source_id', inplace=True)
+
+    cat_eval = Evaluator(result)
+    if sort_expr is not None:
+        sort_val = cat_eval(sort_expr)
+
+    if filter_expr is not None:
+        print('Filter expression: ' + repr(filter_expr))
+        filter_val = cat_eval(filter_expr)
+        print('Filter val: ' + repr(filter_val))
+        filter_val = filter_val.astype(bool)
+        result = result.loc[filter_val]
+
+        if sort_expr is not None:
+            sort_val = sort_val[filter_val]
+
+    if sort_expr is None:
+        return result
+
+    return result.iloc[numpy.argsort(sort_val)]
+
 
 if __name__ == '__main__':
-    gaia.query_brightness_limited(
+    create_catalog_file(
+        'test_gaia.fits',
         ra=118.0 * units.deg,
         dec=2.6 * units.deg,
         width=1.8 * units.deg,
@@ -190,9 +278,14 @@ if __name__ == '__main__':
         epoch=2023.5 * units.yr,
         magnitude_expression='phot_g_mean_mag - 5',
         magnitude_limit=6,
-        verbose=True
-    ).write(
-        'test_gaia.txt',
-        format='ascii.fixed_width',
+        verbose=True,
         overwrite=True
+    )
+    print(
+        repr(
+            read_catalog_file(
+                'test_gaia.fits',
+                filter_expr='libname_gspphot == "PHOENIX"'
+            )
+        )
     )

@@ -258,9 +258,9 @@ def add_image_options(parser):
     )
 
 
-def read_catalogue(catalogue_fname,
-                   filter_expr=None,
-                   sort_expr='V'):
+def read_catalog(catalogue_fname,
+                 filter_expr=None,
+                 sort_expr='V'):
     """
     Return the catalogue parsed to pandas.DataFrame.
 
@@ -316,7 +316,7 @@ def read_subpixmap(fits_fname):
 
 
 if __name__ == '__main__':
-    catalogue = read_catalogue(
+    catalogue = read_catalog(
         '/Users/kpenev/tmp/PANOPTES/R_astrometry_catalogue.ucac4',
         filter_expr='R<8.0',
         sort_expr='R-V'

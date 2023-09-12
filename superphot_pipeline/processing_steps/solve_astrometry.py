@@ -14,7 +14,7 @@ from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
-    read_catalogue
+    read_catalog
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
@@ -296,7 +296,7 @@ def save_to_dr(*,
                              'catalogue_version',
                              'skytoframe_version']
     }
-    catalogue_sources = read_catalogue(configuration['astrometry_catalogue'])
+    catalogue_sources = read_catalog(configuration['astrometry_catalogue'])
 
     dr_file.add_sources(catalogue_sources,
                         'catalogue.columns',
@@ -394,7 +394,7 @@ def solve_image(dr_fname,
 
         result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
 
-        catalogue = read_catalogue(
+        catalogue = read_catalog(
             configuration['astrometry_catalogue'],
             filter_expr=configuration['catalogue_filter'].get(header['CLRCHNL'])
         )
