@@ -535,7 +535,21 @@ class HDF5File(ABC, h5py.File):
                           'sigDec',
                           'phqual',
                           'magsrcflag',
-                          'enabled']:
+                          'enabled',
+                          'DESIGNATION',
+                          'phot_variable_flag',
+                          'datalink_url',
+                          'epoch_photometry_url',
+                          'libname_gspphot',
+                          'pmra',
+                          'pmdec',
+                          'phot_bp_mean_mag',
+                          'phot_rp_mean_mag',
+                          'phot_bp_mean_flux',
+                          'phot_rp_mean_flux',
+                          'phot_bp_mean_flux_error',
+                          'phot_rp_mean_flux_error',
+                          'phot_bp_rp_excess_factor']:
                 result['compression'] = 'gzip'
                 result['compression_opts'] = 9
                 result['shuffle'] = True

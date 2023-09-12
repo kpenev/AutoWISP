@@ -196,7 +196,7 @@ def refine_transformation(*,
         xy_extracted(structured numpy array): x and y of the extracted
             sources of the frame
 
-        catalogue: The catalogue of sources to match to
+        catalogue(pandas.DataFrame): The catalogue of sources to match to
 
     Returns:
         trans_x(2D numpy array):
@@ -324,8 +324,8 @@ def refine_transformation(*,
         for i in range(ix.size):
             k += 1
             if not numpy.isinf(d[i]):
-                matched_sources['RA'][j] = catalogue['RA'][k]
-                matched_sources['Dec'][j] = catalogue['Dec'][k]
+                matched_sources['RA'][j] = catalogue['RA'].iloc[k]
+                matched_sources['Dec'][j] = catalogue['Dec'].iloc[k]
                 matched_sources['x'][j] = xy_extracted[ix[i], 0]
                 matched_sources['y'][j] = xy_extracted[ix[i], 1]
                 j = j + 1

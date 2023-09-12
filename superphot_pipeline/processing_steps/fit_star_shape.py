@@ -19,8 +19,8 @@ from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     add_image_options,\
-    read_catalog,\
     read_subpixmap
+from superphot_pipeline.catalog import read_catalog_file
 from superphot_pipeline.split_sources import SplitSources
 
 def parse_grid_arg(grid_str):
@@ -448,7 +448,7 @@ class SourceListCreator:
         """
 
         self._logger = logging.getLogger(__name__)
-        self._sources = read_catalog(catalogue_fname)
+        self._sources = read_catalog_file(catalogue_fname)
         if discard_faint is not None:
             discard_filter, faint_limit = discard_faint.split('>')
             faint_limit = float(faint_limit)

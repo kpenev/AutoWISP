@@ -3,12 +3,9 @@
 import logging
 
 import numpy
-import pandas
 from astropy.io import fits
 
 from configargparse import ArgumentParser, DefaultsFormatter
-
-from superphot_pipeline import Evaluator
 
 class ManualStepArgumentParser(ArgumentParser):
     """Incorporate boiler plate handling of command line arguments."""
@@ -16,35 +13,33 @@ class ManualStepArgumentParser(ArgumentParser):
     def _add_version_args(self, components):
         """Add arguments to select versions of the given components."""
 
-        version_arg_help = dict(
-            srcextract=(
-                'The version of the extracted sources to use/create.'
-            ),
-            catalogue=(
+        version_arg_help = {
+            'srcextract': 'The version of the extracted sources to use/create.',
+            'catalogue': (
                 'The version of the input catalogue of sources in the DR file '
                 'to use/create.'
             ),
-            skytoframe=(
+            'skytoframe': (
                 'The vesrion of the astrometry solution in the DR file.'
             ),
-            srcproj=(
+            'srcproj': (
                 'The version of the datasets containing projected photometry '
                 'sources to use/create.'
             ),
-            background=(
+            'background': (
                 'The version identifier of background measurements to '
                 'use/create.'
             ),
-            shapefit=(
+            'shapefit': (
                 'The version identifier of PSF/PRF map fit to use/create.'
             ),
-            apphot=(
+            'apphot': (
                 'The version identifier of aperture photometry to use/create.'
             ),
-            magfit=(
+            'magfit': (
                 'The version of magnitude fitting to use/create.'
             )
-        )
+        }
         for comp in components:
             self.add_argument(
                 '--' + comp + '-version',
@@ -127,10 +122,13 @@ class ManualStepArgumentParser(ArgumentParser):
                 input_name,
                 nargs='+',
                 help=(
+                    #Would not work with calculated arngument
+                    #pylint: disable=consider-using-f-string
                     (
                         'A combination of individual {0}s and {0} directories '
                         'to process. Directories are not searched recursively.'
                     ).format(input_name[:-1].replace('_', ' '))
+                    #pylint: enable=consider-using-f-string
                     +
                     inputs_help_extra
                 )
@@ -258,51 +256,6 @@ def add_image_options(parser):
     )
 
 
-def read_catalog(catalogue_fname,
-                 filter_expr=None,
-                 sort_expr='V'):
-    """
-    Return the catalogue parsed to pandas.DataFrame.
-
-    Args:
-        catalogue_fname(str):    The filename of the catalogue to read.
-
-        filter_expr(str):    The expression to evaluate for each source in the
-            catalogue, keeping only those for which conversion to boolean is
-            True.
-
-        sort_expr(str):    The expression to evaluate for each source in the
-            catalogue sorting by the result.
-
-    Returns:
-        pandas.DataFrame:
-            The columns in the catalogue fistered and sourted as specified
-    """
-
-    catalogue = pandas.read_csv(catalogue_fname,
-                                sep=r'\s+',
-                                header=0,
-                                index_col=0)
-    catalogue.columns = [colname.lstrip('#').split('[', 1)[0]
-                         for colname in catalogue.columns]
-    catalogue.index.name = (
-        catalogue.index.name.lstrip('#').split('[', 1)[0]
-    )
-    cat_eval = Evaluator(catalogue)
-    sort_val = cat_eval(sort_expr)
-    print('Sort val: ' + repr(sort_val))
-
-    if filter_expr is not None:
-        print('Filter expression: ' + repr(filter_expr))
-        filter_val = cat_eval(filter_expr)
-        print('Filter val: ' + repr(filter_val))
-        filter_val = filter_val.astype(bool)
-        catalogue = catalogue.loc[filter_val]
-        sort_val = sort_val[filter_val]
-
-    return catalogue.iloc[numpy.argsort(sort_val)]
-
-
 def read_subpixmap(fits_fname):
     """Read the sub-pixel sensitivity map from a FITS file."""
 
@@ -313,13 +266,3 @@ def read_subpixmap(fits_fname):
         #pylint: disable=no-member
         return numpy.copy(subpixmap_file[0].data).astype('float64')
         #pylint: enable=no-member
-
-
-if __name__ == '__main__':
-    catalogue = read_catalog(
-        '/Users/kpenev/tmp/PANOPTES/R_astrometry_catalogue.ucac4',
-        filter_expr='R<8.0',
-        sort_expr='R-V'
-    )
-    print(repr(catalogue[['R', 'V']]))
-    print(repr(catalogue['R'] - catalogue['V']))

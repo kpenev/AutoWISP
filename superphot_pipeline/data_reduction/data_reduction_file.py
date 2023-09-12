@@ -4,6 +4,7 @@
 
 import string
 from functools import partial
+import logging
 
 import numpy
 import h5py
@@ -122,7 +123,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     yield column_name, series.array
 
         for column_name, column_data in iter_data():
-            if column_name in ascii_columns:
+            if column_name in ascii_columns or column_data.dtype.kind in 'SUO':
                 column_data = column_data.astype('string_')
             if parse_ids and column_name == 'ID':
                 id_data = self.parse_hat_source_id(column_data)
@@ -134,6 +135,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         **path_substitutions
                     )
             else:
+                logging.getLogger(__name__).debug(
+                    'Saving %s dataset of type: %s',
+                    repr(column_name),
+                    repr(column_data.dtype)
+                )
                 self.add_dataset(
                     dataset_key=dataset_key,
                     data=column_data,

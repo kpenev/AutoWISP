@@ -1,5 +1,6 @@
 """Utilities for querying catalogs for astrometry."""
 
+from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 import pandas
 from astropy import units
@@ -56,15 +57,15 @@ class SuperPhotGaia(GaiaClass):
 
             job = self.launch_job_async(query, verbose=verbose)
             result = job.get_results()
-            result.rename_column('ra', 'ra_orig')
-            result.rename_column('dec', 'dec_orig')
+            result.rename_column('ra', 'RA_orig')
+            result.rename_column('dec', 'Dec_orig')
 
             if epoch is not None and add_propagated:
                 propagated = {coord: numpy.empty(len(result))
-                              for coord in ['ra', 'dec']}
+                              for coord in ['RA', 'Dec']}
                 for i, pos in enumerate(result['propagated']):
                     for coord, value_str in zip(
-                            ['ra', 'dec'],
+                            ['RA', 'Dec'],
                             pos.strip().strip('()').split(',')
                     ):
                         propagated[coord][i] = (float(value_str)
@@ -82,9 +83,8 @@ class SuperPhotGaia(GaiaClass):
             columns = "*"
         else:
             add_propagated = []
-            for coord in ['ra', 'dec']:
+            for coord in ['RA', 'Dec']:
                 try:
-                    columns.remove('prop_' + coord)
                     add_propagated.append(coord)
                 except ValueError:
                     pass
@@ -92,7 +92,7 @@ class SuperPhotGaia(GaiaClass):
             columns = ', '.join(map(str, columns))
 
         if '*' in columns:
-            add_propagated = ['ra', 'dec']
+            add_propagated = ['RA', 'Dec']
 
         if epoch is not None:
             epoch = epoch.to_value(units.yr)
@@ -278,24 +278,117 @@ def read_catalog_file(catalog_fname,
     return result.iloc[numpy.argsort(sort_val)]
 
 
-if __name__ == '__main__':
+def parse_command_line():
+    """Return configuration of catalog to create."""
+
+    parser = ArgumentParser(
+        description='Create a catalog file from a Gaia query.',
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False
+    )
+    parser.add_argument(
+        '--ra',
+        type=float,
+        default=118.0,
+        help='The right ascention (deg) of the center of the field to query.'
+    )
+    parser.add_argument(
+        '--dec',
+        type=float,
+        default=2.6,
+        help='The declination (deg) of the center of the field to query.'
+    )
+    parser.add_argument(
+        '--width',
+        type=float,
+        default=17.0,
+        help='The width (deg) of the field to query (along RA direction).'
+    )
+    parser.add_argument(
+        '--height',
+        type=float,
+        default=17.0,
+        help='The height (deg) of the field to query (along dec direction).'
+    )
+    parser.add_argument(
+        '--epoch', '-t',
+        type=float,
+        default=2023.5,
+        help='The epoch for proper motion corrections in years.'
+    )
+    parser.add_argument(
+        '--magnitude-expression',
+        default='phot_g_mean_mag',
+        help='The expression to use as the relevant magnitude estimate.'
+    )
+    parser.add_argument(
+        '--magnitude-limit',
+        nargs='+',
+        type=float,
+        default=12.0,
+        help='Either maximum magnitude or minimum and maximum magnitude limits '
+        'to impose.'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Print out information about the query being executed.'
+    )
+    parser.add_argument(
+        '--overwrite',
+        action='store_true',
+        help='Overwrite existing catalog file.'
+    )
+    parser.add_argument(
+        '--catalog-fname',
+        default='gaia.fits',
+        help='The name of the catalog file to create.'
+    )
+    parser.add_argument(
+        '--columns',
+        default=['source_id',
+                 'ra',
+                 'dec',
+                 'pmra',
+                 'pmdec',
+                 'phot_g_n_obs',
+                 'phot_g_mean_mag',
+                 'phot_g_mean_flux',
+                 'phot_g_mean_flux_error',
+                 'phot_bp_n_obs',
+                 'phot_bp_mean_mag',
+                 'phot_bp_mean_flux',
+                 'phot_bp_mean_flux_error',
+                 'phot_rp_n_obs',
+                 'phot_rp_mean_mag',
+                 'phot_rp_mean_flux',
+                 'phot_rp_mean_flux_error',
+                 'phot_proc_mode',
+                 'phot_bp_rp_excess_factor'],
+        help='The columns to include in the catalog file. Use \'*\' to include '
+        'everything.'
+    )
+    return parser.parse_args()
+
+
+def main(config):
+    """Avoid polluting global namespace."""
+
     create_catalog_file(
-        'test_gaia.fits',
-        ra=118.0 * units.deg,
-        dec=2.6 * units.deg,
-        width=1.8 * units.deg,
-        height=1.3 * units.deg,
-        epoch=2023.5 * units.yr,
-        magnitude_expression='phot_g_mean_mag - 5',
-        magnitude_limit=6,
-        verbose=True,
-        overwrite=True
+        config.catalog_fname,
+        ra=config.ra * units.deg,
+        dec=config.dec * units.deg,
+        width=config.width * units.deg,
+        height=config.height * units.deg,
+        epoch=config.epoch * units.yr,
+        magnitude_expression=config.magnitude_expression,
+        magnitude_limit=config.magnitude_limit,
+        columns=config.columns,
+        verbose=config.verbose,
+        overwrite=config.overwrite
     )
-    print(
-        repr(
-            read_catalog_file(
-                'test_gaia.fits',
-                filter_expr='libname_gspphot == "PHOENIX"'
-            )
-        )
-    )
+
+
+if __name__ == '__main__':
+    main(parse_command_line())
