@@ -217,11 +217,21 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
             query[colname] = query[colname].astype(str)
         except KeyError:
             pass
-    print('Column names: ' + '\n\t'.join(query.colnames))
-    print(80*'*')
-    print('Dtype: '
-          +
-          '\n\t'.join([repr(e) for e in query.dtype.fields.items()]))
+
+    query.meta['CATALOG'] = 'Gaia'
+    query.meta['CATVER'] = gaia.MAIN_GAIA_TABLE
+    for k in ['ra', 'dec', 'width', 'height']:
+        query.meta[k.upper()] = query_kwargs[k].to_value(units.deg)
+
+    query.meta['EPOCH'] = query_kwargs['epoch'].to_value(units.yr)
+    query.meta['MAGEXPR'] = query_kwargs['magnitude_expression']
+    try:
+        (
+            query.meta['MAGMIN'],
+            query.meta['MAGMAX']
+        ) = query_kwargs['magnitude_limit']
+    except TypeError:
+        query.meta['MAGMAX'] = query_kwargs['magnitude_limit']
 
     query.write(
         catalog_fname,
