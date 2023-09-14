@@ -9,6 +9,7 @@ import os.path
 from sys import exc_info
 #from ast import literal_eval
 from traceback import format_exception
+import logging
 
 from lxml import etree
 import h5py
@@ -553,7 +554,7 @@ class HDF5File(ABC, h5py.File):
                 result['compression'] = 'gzip'
                 result['compression_opts'] = 9
                 result['shuffle'] = True
-            elif column in ['RA', 'Dec']:
+            elif column in ['RA', 'Dec', 'RA_orig', 'Dec_orig']:
                 del result['compression']
                 result['scaleoffset'] = 7
             elif column in ['xi', 'eta', 'x', 'y']:
@@ -574,6 +575,10 @@ class HDF5File(ABC, h5py.File):
                             'errJ', 'errH', 'errK']:
                 del result['compression']
                 result['scaleoffset'] = 2
+            elif column in 'source_id' or column.endswith('_n_obs'):
+                del result['compression']
+                result['dtype'] = numpy.dtype('uint64')
+                result['scaleoffset'] = 0
             else:
                 del result['compression']
                 result['scaleoffset'] = 1
@@ -1169,6 +1174,14 @@ class HDF5File(ABC, h5py.File):
         if 'scaleoffset' in creation_args:
             assert data is None or numpy.isfinite(data_copy).all()
 
+        logging.getLogger(__name__).debug(
+            'Creating dataset %s with shape %s, input dtype %s, '
+            'creation_args %s',
+            dataset_path,
+            shape,
+            repr(data_copy.dtype),
+            repr(creation_args)
+        )
         self.create_dataset(
             dataset_path,
             data=data_copy,
@@ -1220,7 +1233,7 @@ class HDF5File(ABC, h5py.File):
                 super().__init__(fname, mode, **kwargs)
             except IOError as details:
                 raise HDF5LayoutError(
-                    'Problem opening %s in mode=%s'%(fname, mode)
+                    f'Problem opening {fname:s} in mode={mode:s}'
                     +
                     ''.join(format_exception(*exc_info()))
                 ) from details
