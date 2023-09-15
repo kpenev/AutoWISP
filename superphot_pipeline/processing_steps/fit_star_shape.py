@@ -225,7 +225,7 @@ def add_grouping_options(parser):
 
     parser.add_argument(
         '--split-magnitude-column',
-        default='B',
+        default='phot_g_mean_mag',
         help='The catalogue column to use as the brightness indicator of '
         'the sources when splitting into groups.'
     )
@@ -449,6 +449,13 @@ class SourceListCreator:
 
         self._logger = logging.getLogger(__name__)
         self._sources = read_catalog_file(catalogue_fname)
+        print('Source columns: ' + repr(self._sources.columns))
+        if 'ID' not in self._sources:
+            self._sources.insert(
+                0,
+                'ID',
+                [str(i) for i in self._sources.index]
+            )
         if discard_faint is not None:
             discard_filter, faint_limit = discard_faint.split('>')
             faint_limit = float(faint_limit)
@@ -463,9 +470,9 @@ class SourceListCreator:
 
         self._logger.debug('Sources: %s', repr(self._sources))
 
-        self._id_length = max(
-            len(id_value) for id_value in self._sources.index
-        )
+#        self._id_length = max(
+#            len(id_value) for id_value in self._sources.index
+#        )
         self.remove_group_id = remove_group_id
 
         if grouping_frame:

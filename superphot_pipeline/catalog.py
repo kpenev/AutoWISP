@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Utilities for querying catalogs for astrometry."""
 
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -176,8 +177,8 @@ class SuperPhotGaia(GaiaClass):
             min_mag, max_mag = magnitude_limit
             condition = (f'({magnitude_expression}) > {min_mag} AND '
                          f'({magnitude_expression}) < {max_mag}')
-        except TypeError:
-            condition = f'{magnitude_expression} < {magnitude_limit}'
+        except ValueError:
+            condition = f'{magnitude_expression} < {magnitude_limit[0]}'
 
         if 'condition' in query_kwargs:
             query_kwargs['condition'] = (
@@ -230,8 +231,8 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
             query.meta['MAGMIN'],
             query.meta['MAGMAX']
         ) = query_kwargs['magnitude_limit']
-    except TypeError:
-        query.meta['MAGMAX'] = query_kwargs['magnitude_limit']
+    except ValueError:
+        query.meta['MAGMAX'] = query_kwargs['magnitude_limit'][0]
 
     query.write(
         catalog_fname,

@@ -121,7 +121,7 @@ class SplitSources:
                 whether it's center lies inside the frame or not.
         """
 
-        print('Splitting %d sources' % len(sources))
+        print(f'Splitting {len(sources):d} sources')
 
         in_frame = numpy.logical_and(
             numpy.logical_and(
@@ -134,14 +134,17 @@ class SplitSources:
             )
         )
 
-        good_sources = numpy.logical_and(
-            numpy.logical_and(
-                numpy.logical_and(sources['phqual'] == 'AAA',
-                                  sources['objtype'] == 0),
-                sources['doublestar'] == 0
-            ),
-            in_frame
-        )
+        good_sources = in_frame
+        for column_name, value in [('phqual', 'AAA'),
+                                   ('objtype', 0),
+                                   ('doublestar', 0)]:
+            try:
+                good_sources = numpy.logical_and(
+                    good_sources,
+                    sources[column_name] == value
+                )
+            except KeyError:
+                pass
 
         square_radius = (
             numpy.square(sources['x'] - image_resolution[1] / 2.0)

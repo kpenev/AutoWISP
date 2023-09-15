@@ -82,10 +82,10 @@ class PiecewiseBicubicPSFMap:
             None
         """
 
-        self.configuration = dict(shape_terms_expression=shape_terms_expression,
-                                  background_annulus=background_annulus,
-                                  require_convergence=require_convergence,
-                                  **fit_star_shape_config)
+        self.configuration = {'shape_terms_expression': shape_terms_expression,
+                              'background_annulus': background_annulus,
+                              'require_convergence': require_convergence,
+                              **fit_star_shape_config}
 
         self._eval_shape_terms = fit_expression.Interface(
             shape_terms_expression
@@ -140,9 +140,15 @@ class PiecewiseBicubicPSFMap:
 
         if output_dr_fnames:
             for image_index, dr_fname in enumerate(output_dr_fnames):
+                dtype_names = list(sources[image_index].dtype.names)
+                if 'source_id' in dtype_names:
+                    dtype_names.remove('ID')
+                    image_sources = sources[image_index][dtype_names]
+                else:
+                    image_sources = sources[image_index]
                 with DataReductionFile(dr_fname, 'a') as dr_file:
                     dr_file.add_sources(
-                        sources[image_index],
+                        image_sources,
                         'srcproj.columns',
                         'srcproj_column_name',
                         parse_ids=True,
@@ -166,7 +172,7 @@ class PiecewiseBicubicPSFMap:
 
         dummy_tool = superphot.SubPixPhot()
         io_tree = superphot.SuperPhotIOTree(dummy_tool)
-        self.configuration = dict()
+        self.configuration = {}
 
         with DataReductionFile(dr_fname, 'r') as dr_file:
             (
@@ -178,8 +184,8 @@ class PiecewiseBicubicPSFMap:
             )
             sources = apphot_data['source_data']
             apphot_data['source_data'] = sources.rename(
-                columns=dict(shapefit_mag_mfit000='mag',
-                             shapefit_mag_err_mfit000='mag_err')
+                columns={'shapefit_mag_mfit000': 'mag',
+                         'shapefit_mag_err_mfit000': 'mag_err'}
             ).to_records()
             #False positive
             #pylint: disable=missing-kwoa
