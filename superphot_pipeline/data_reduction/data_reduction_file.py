@@ -204,11 +204,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
         )
-        try:
-            id_ind = [colname.lower() for colname in result.columns].index('id')
-            result.set_index(result.columns[id_ind], inplace=True)
-        except ValueError:
-            pass
+        column_names = [colname.lower() for colname in result.columns]
+        for id_colname in ['id', 'source_id']:
+            if id_colname in column_names:
+                result.set_index(id_colname, inplace=True)
         return result
 
 
@@ -464,11 +463,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         def assemble_hat_id(prefix, field, source):
 
-            return (
-                '{0}-{1:03d}-{2:07d}'.format(prefix.decode(),
-                                             field,
-                                             source)
-            ).encode('ascii')
+            return f'{prefix.decode()}-{field:03d}-{source:07d}'.encode('ascii')
 
         def initialize_result():
             """Create the part of the result always included."""
@@ -480,13 +475,18 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                  'hat_id_field',
                                  'hat_id_source']
             if string_source_ids:
-                result['ID'] = numpy.vectorize(
-                    assemble_hat_id
-                )(
-                    *[result[comp] for comp in hat_id_components]
-                )
-                for id_component in hat_id_components:
-                    del result[id_component]
+                if result.index.name == 'source_id':
+                    result['ID'] = numpy.vectorize(
+                        lambda i: str(i).encode('ascii')
+                    )(result.index)
+                else:
+                    result['ID'] = numpy.vectorize(
+                        assemble_hat_id
+                    )(
+                        *[result[comp] for comp in hat_id_components]
+                    )
+                    for id_component in hat_id_components:
+                        del result[id_component]
                 result.set_index('ID', inplace=True)
             elif set(hat_id_components) < set(result.columns):
                 if all_numeric_source_ids:

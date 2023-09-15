@@ -325,7 +325,7 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
             The expression defining which terms the PSF/PRF depends on.
     """
 
-    result = dict()
+    result = {}
     result['source_data'] = dr_file.get_source_data(
         magfit_iterations=[0],
         shape_fit=True,
