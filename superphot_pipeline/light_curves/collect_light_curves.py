@@ -5,6 +5,8 @@ import os.path
 import os
 import logging
 
+import numpy
+
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 from superphot_pipeline import DataReductionFile
 from .lc_data_io import LCDataIO
@@ -74,7 +76,7 @@ def collect_light_curves(dr_filenames,
             source_id,
             srcid_formatter.format(
                 configuration['lc_fname'],
-                *source_id
+                *numpy.atleast_1d(source_id)
             )
         )
         for source_id in data_io.source_destinations.keys()

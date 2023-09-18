@@ -1388,7 +1388,7 @@ class LCDataIO:
 
         try:
             source_id, light_curve_fname = source_and_light_curve
-            source_index = self.source_destinations.get(tuple(source_id))
+            source_index = self.source_destinations.get(source_id)
             defined_indices = self._get_lc_data(quantity='source_in_frame',
                                                 dimension_values=(),
                                                 source_index=source_index)
@@ -1400,10 +1400,16 @@ class LCDataIO:
                 self._logger.info('Created LC directory: %s', lc_directory)
                 os.makedirs(lc_directory)
 
+
+            try:
+                source_ids = {'HAT': get_hat_source_id_str(source_id)}
+            except IndexError:
+                source_ids = {'Gaia DR3': repr(source_id)}
+
             with LightCurveFile(
                     light_curve_fname,
                     'a',
-                    source_ids={'HAT': get_hat_source_id_str(source_id)}
+                    source_ids=source_ids
             ) as light_curve:
                 self._write_configurations(light_curve,
                                            source_index,
