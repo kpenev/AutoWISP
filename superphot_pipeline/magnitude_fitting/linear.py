@@ -240,7 +240,9 @@ class LinearMagnitudeFit(MagnitudeFit):
     def __call__(self, *args, **kwargs):
         """Delay creating of fit terms to avoid pickling."""
 
-        self.fit_terms = FitTermsInterface(self.config.correction_parametrization)
+        self.fit_terms = FitTermsInterface(
+            self.config.correction_parametrization
+        )
         return super().__call__(*args, **kwargs)
 
 #pylint: enable=too-few-public-methods

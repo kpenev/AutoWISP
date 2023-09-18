@@ -134,7 +134,7 @@ class MagnitudeFit(ABC):
 
         Args:
             phot:    The current photometry being fit, including catalogue
-                information, i.e. the object returned by add_catalogue_info().
+                information.
 
             fit_results:    The best fit parameters derived using _fit().
 
@@ -188,74 +188,6 @@ class MagnitudeFit(ABC):
         else : return coefficients
         """
 
-    def _add_catalogue_info(self, phot):
-        """
-        Add source information from the input master catalogue and grouping.
-
-        If no information is found for the given source, if the catalogue has
-        a default defined that is used instead, otherwise the source is deleted
-        from phot.
-
-        Args:
-            phot:    See return of DataReductionFile.get_photometry()
-
-        Returns:
-            scipy record array:
-                Same structure as phot, but augmented with the catalogue columns
-                for the included sources. May drop sources from phot if not
-                catalogue default is provided.
-
-            set:
-                The indices for which no catalogue information was found, and
-                the catalogue default was used.
-
-            sorted list:
-                The indices within the original phot which were deleted bacause
-                of missing catalogue information, and no default.
-        """
-
-        new_column_names = next(iter(self._catalogue.values())).dtype.names
-        special_dtypes = dict(phqual='S3',
-                              magsrcflag='S9')
-
-        new_column_data = [
-            scipy.empty(phot.size,
-                        dtype=special_dtypes.get(colname, scipy.float64))
-            for colname in new_column_names
-        ]
-        default_cat = (self._catalogue['default']
-                       if 'default' in self._catalogue else None)
-        default_cat_indices = []
-        remove_source_indices = []
-        for source_ind in range(phot.size):
-            src = tuple(phot['ID'][source_ind])
-            if src in self._catalogue:
-                cat_source = self._catalogue[src]
-            elif default_cat:
-                cat_source = default_cat
-                default_cat_indices.append(source_ind
-                                           -
-                                           len(remove_source_indices))
-                self.logger.warning(
-                    '%s has no catalogue informaiton, using default.',
-                    self._source_name_format % src
-                )
-            else:
-                remove_source_indices.append(source_ind)
-                continue
-            for col_index, col_name in enumerate(new_column_names):
-                new_column_data[col_index][source_ind] = cat_source[col_name]
-
-        result = scipy.delete(
-            recfunctions.append_fields(phot,
-                                       new_column_names,
-                                       data=new_column_data,
-                                       usemask=False),
-            remove_source_indices
-        )
-
-        return result, default_cat_indices, remove_source_indices
-
     def _set_group(self, evaluator, result):
         """Set the fit_group column in result per grouping configuration."""
 
@@ -304,10 +236,10 @@ class MagnitudeFit(ABC):
 
         result = include_flag.nonzero()[0]
 
-        num_skipped = len(phot['ID']) - result.size
+        num_skipped = len(phot['source_id']) - result.size
         if num_skipped:
             first_skipped = scipy.logical_not(include_flag).nonzero()[0][0]
-            skipped_example = phot['ID'][first_skipped]
+            skipped_example = phot['source_id'][first_skipped]
         else:
             skipped_example = None
 
@@ -351,7 +283,7 @@ class MagnitudeFit(ABC):
             return scipy.empty(phot.shape, dtype=dtype)
 
         result = initialize_result()
-        not_in_ref = [0, (0, 0)]
+        not_in_ref = [0, None]
         fit_indices, num_skipped, skipped_example = self._get_fit_indices(
             phot,
             evaluator,
@@ -359,10 +291,13 @@ class MagnitudeFit(ABC):
         )
         result_ind = 0
         for phot_ind in fit_indices:
-            ref_info = self._reference.get(tuple(phot['ID'][phot_ind]))
+            source_id = phot['source_id'][phot_ind]
+            if source_id.shape != ():
+                source_id = tuple(source_id)
+            ref_info = self._reference.get(source_id)
             if ref_info is None:
                 if not_in_ref[0] == 0:
-                    not_in_ref[1] = result['ID'][result_ind]
+                    not_in_ref[1] = result['source_id'][result_ind]
                 not_in_ref[0] += 1
                 continue
 
@@ -382,15 +317,23 @@ class MagnitudeFit(ABC):
                 (
                     'All %d sources discarded from %s: %d skipped '
                     '(example %s), %d not in the %d sources of the reference '
-                    '(example %d-%d.), fit source condition: %s'
+                    '(example %s.), fit source condition: %s'
                 ),
-                len(phot['ID']),
+                len(phot['source_id']),
                 self._dr_fname,
                 num_skipped,
-                self._source_name_format % tuple(skipped_example[1:]),
+                (
+                    self._source_name_format.format(skipped_example)
+                    if skipped_example is not None else
+                    '-'
+                ),
                 not_in_ref[0],
                 len(self._reference.keys()),
-                *not_in_ref[1],
+                (
+                    self._source_name_format.format(not_in_ref[1])
+                    if not_in_ref[1] is not None else
+                    '-'
+                ),
                 self.config.fit_source_condition
             )
         return result[:result_ind], fit_indices
@@ -449,10 +392,10 @@ class MagnitudeFit(ABC):
     def __init__(self,
                  *,
                  reference,
-                 master_catalogue,
+#                 master_catalogue,
                  config,
                  magfit_collector=None,
-                 source_name_format='HAT-%03d-%07d'):
+                 source_name_format):
         """
         Initializes a magnditude fitting object.
 
@@ -463,9 +406,8 @@ class MagnitudeFit(ABC):
                 'x' and 'y' if the sub-pixel position of the source in the
                 reference is to be used in magnitude fitting.
 
-            master_catalogue(dict):    should be indexed by sources (field,
-                source number) containing dictonaries with relevant 2mass
-                information.
+            #master_catalogue(pandas.DataFrame):    should be indexed by source
+            #    id and contain relevant catalog information.
 
 
             config:    An object with attributes configuring how to
@@ -497,7 +439,7 @@ class MagnitudeFit(ABC):
         self._dr_fname = None
         self._magfit_collector = magfit_collector
         self._reference = reference
-        self._catalogue = master_catalogue
+#        self._catalogue = master_catalogue
         self._source_name_format = source_name_format
         self.logger = None
 
@@ -534,11 +476,11 @@ class MagnitudeFit(ABC):
             """
 
             num_photometries = len(fit_results)
-            result = dict(
-                residual=scipy.empty(num_photometries, scipy.float64),
-                initial_src_count=scipy.zeros(num_photometries, scipy.int_),
-                final_src_count=scipy.zeros(num_photometries, scipy.int_),
-            )
+            result = {
+                'residual': scipy.empty(num_photometries, scipy.float64),
+                'initial_src_count': scipy.zeros(num_photometries, scipy.int_),
+                'final_src_count': scipy.zeros(num_photometries, scipy.int_),
+            }
 
             for phot_ind, phot_result in enumerate(fit_results):
                 for group_result in phot_result:
@@ -562,6 +504,10 @@ class MagnitudeFit(ABC):
                 phot = get_magfit_sources(data_reduction,
                                           magfit_iterations=[-1],
                                           **dr_path_substitutions)
+                self.logger.debug('Starting photometry: %s', repr(phot))
+
+                self.logger.debug('Starting photometry columns: %s',
+                                  repr(phot.dtype.names))
 
                 if not phot.size:
                     self.logger.warning('Downgrading calib status.')
@@ -574,9 +520,7 @@ class MagnitudeFit(ABC):
                                                       ['fit_group'],
                                                       [[]],
                                                       usemask=False)
-#                (
-#                    self._add_catalogue_info(phot)
-#                )
+
                 self.logger.debug('Photometry columns: %s',
                                   repr(phot.dtype.names))
                 evaluator = Evaluator(phot)

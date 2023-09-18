@@ -471,6 +471,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             result = self.get_sources('srcproj.columns',
                                       'srcproj_column_name',
                                       **path_substitutions)
+            logging.getLogger(__name__).debug(
+                'Initial source data columns: %s',
+                repr(result)
+            )
             hat_id_components = ['hat_id_prefix',
                                  'hat_id_field',
                                  'hat_id_source']
@@ -503,6 +507,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             len(self._hat_id_prefixes))
                     hat_id_components[0] = 'hat_id_prefnum'
                 result.set_index(hat_id_components, inplace=True)
+
+            logging.getLogger(__name__).debug(
+                'Source data after formatting ID: %s',
+                repr(result)
+            )
 
             return result
 

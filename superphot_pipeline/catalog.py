@@ -243,7 +243,8 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
 
 def read_catalog_file(catalog_fname,
                       filter_expr=None,
-                      sort_expr=None):
+                      sort_expr=None,
+                      return_metadata=False):
     """
     Read a catalog FITS file.
 
@@ -257,6 +258,8 @@ def read_catalog_file(catalog_fname,
 
     with fits.open(catalog_fname) as cat_fits:
         result = pandas.DataFrame(cat_fits[1].data)
+        if return_metadata:
+            metadata = cat_fits[1].header
     result.set_index('source_id', inplace=True)
 
     cat_eval = Evaluator(result)
@@ -273,10 +276,13 @@ def read_catalog_file(catalog_fname,
         if sort_expr is not None:
             sort_val = sort_val[filter_val]
 
-    if sort_expr is None:
-        return result
+    if sort_expr is not None:
+        result = result.iloc[numpy.argsort(sort_val)]
 
-    return result.iloc[numpy.argsort(sort_val)]
+    if return_metadata:
+        return result, metadata
+    else:
+        return result
 
 
 def parse_command_line():

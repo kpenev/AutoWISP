@@ -4,6 +4,8 @@ import numpy
 from numpy.lib import recfunctions
 from astropy.io import fits
 
+from superphot_pipeline.catalog import read_catalog_file
+from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 
 _PHOT_QUANTITIES = ('mag', 'mag_err', 'phot_flag')
 
@@ -29,7 +31,10 @@ def _parse_phot_column(colname):
 def _init_magfit_sources(source_data):
     """Return empty array properly formatted to hold the given sources."""
 
-    dtype=[('ID', numpy.uint, 3)]
+    dtype=[]
+    if 'source_id' not in source_data:
+        dtype.append(('source_id', numpy.uint, 3))
+
     num_phot = 0
     found_magfit_iterations = set()
     for colname in source_data.columns:
@@ -90,16 +95,16 @@ def get_magfit_sources(data_reduction_file,
             ] = colvalues
             phot_index[phot_quantity][magfit_iter] += 1
         elif colname == 'hat_id_prefix':
-            result['ID'][:, 0][colvalues == b'HAT'] = 0
-            result['ID'][:, 0][colvalues == b'UCAC4'] = 1
+            result['source_id'][:, 0][colvalues == b'HAT'] = 0
+            result['source_id'][:, 0][colvalues == b'UCAC4'] = 1
             assert numpy.logical_and(
                 colvalues != b'UCAC4',
                 colvalues != b'HAT'
             ).sum() == 0
         elif colname == 'hat_id_field':
-            result['ID'][:, 1] = colvalues
+            result['source_id'][:, 1] = colvalues
         elif colname == 'hat_id_source':
-            result['ID'][:, 2] = colvalues
+            result['source_id'][:, 2] = colvalues
         else:
             result[colname] = colvalues
 
@@ -116,34 +121,43 @@ def get_single_photref(data_reduction_file, **path_substitutions):
     source_data = get_magfit_sources(data_reduction_file,
                                      magfit_iterations=[0],
                                      **path_substitutions)
-    return {tuple(source['ID']): dict(x=source['x'],
-                                      y=source['y'],
-                                      mag=source['mag'],
-                                      mag_err=source['mag_err'])
-            for source in source_data}
+    return {
+        (
+            source['source_id'] if source['source_id'].shape == ()
+            else tuple(source['source_id'])
+        ): {
+            'x': source['x'],
+            'y': source['y'],
+            'mag': source['mag'],
+            'mag_err': source['mag_err']
+        }
+        for source in source_data
+    }
 
 
 def get_master_photref(photref_fname):
     """Read a FITS photometric reference created by MasterPhotrefCollector."""
 
-    result = dict()
+    result = {}
     with fits.open(photref_fname, 'readonly') as photref_fits:
         num_photometries = len(photref_fits) - 1
         for phot_ind, phot_reference in enumerate(photref_fits[1:]):
-            for source_index, source_id in enumerate(
-                    zip(phot_reference.data['IDprefix'].astype('int'),
-                        phot_reference.data['IDfield'],
-                        phot_reference.data['IDsource'])
-            ):
+            if 'source_id' in phot_reference.data.dtype.names:
+                source_ids = phot_reference.data['source_id']
+            else:
+                source_ids = zip(phot_reference.data['IDprefix'].astype('int'),
+                                 phot_reference.data['IDfield'],
+                                 phot_reference.data['IDsource'])
+            for source_index, source_id in enumerate(source_ids):
                 if source_id not in result:
-                    result[source_id] = dict(
-                        mag=numpy.full((1, num_photometries),
-                                       numpy.nan,
-                                       numpy.float64),
-                        mag_err=numpy.full((1, num_photometries),
-                                           numpy.nan,
-                                           numpy.float64)
-                    )
+                    result[source_id] = {
+                        'mag': numpy.full((1, num_photometries),
+                                          numpy.nan,
+                                          numpy.float64),
+                        'mag_err': numpy.full((1, num_photometries),
+                                              numpy.nan,
+                                              numpy.float64)
+                    }
                 result[source_id]['mag'][0, phot_ind] = phot_reference.data[
                     'magnitude'
                 ][
@@ -156,13 +170,29 @@ def get_master_photref(photref_fname):
                 ]
     return result
 
-def read_master_catalogue(fname, source_id_parser):
+def read_master_catalogue(fname, source_id_parser=None):
     """Return the catalogue info in the given file formatted for magfitting."""
 
-    data = numpy.genfromtxt(fname, dtype=None, names=True, deletechars='')
-    data.dtype.names = [colname.split('[', 1)[0]
-                        for colname in data.dtype.names]
-    catalogue_sources = data['ID']
-    data = recfunctions.drop_fields(data, 'ID', usemask=False)
-    return {source_id_parser(source_id): source_data
-            for source_id, source_data in zip(catalogue_sources, data)}
+    cat_sources, metadata = read_catalog_file(fname, return_metadata=True)
+    if 'xi' not in cat_sources.columns:
+        assert 'eta' not in cat_sources.columns
+        for colname in ['xi', 'eta']:
+            cat_sources.insert(len(cat_sources.columns), colname, numpy.nan)
+        gnomonic_projection(cat_sources,
+                            cat_sources,
+                            RA=metadata['RA'],
+                            Dec=metadata['Dec'])
+
+    cat_sources = cat_sources.to_records()
+
+    try:
+        cat_ids = cat_sources['source_id']
+        cat_sources = recfunctions.drop_fields(cat_sources,
+                                               'source_id',
+                                               usemask=False)
+        return dict(zip(cat_ids, cat_sources))
+    except KeyError:
+        cat_ids = cat_sources['ID']
+        cat_sources = recfunctions.drop_fields(cat_sources, 'ID', usemask=False)
+        return {source_id_parser(source_id): source_data
+                for source_id, source_data in zip(cat_ids, cat_sources)}

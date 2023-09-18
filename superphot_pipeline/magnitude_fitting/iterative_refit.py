@@ -169,6 +169,12 @@ def iterative_refit(fit_dr_filenames,
 
     num_photometries = next(iter(photref.values()))['mag'].size
 
+    source_name_format=(
+        'HAT-{0[1]:03d}-{0[2]:07d}'
+        if isinstance(next(iter(catalogue)), tuple) else
+        '{0:d}'
+    )
+
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
                 photref
@@ -183,11 +189,15 @@ def iterative_refit(fit_dr_filenames,
                     **path_substitutions
                 ),
                 num_photometries,
-                grcollect_tmp_dir
+                grcollect_tmp_dir,
+                source_name_format=source_name_format
             )
-            magfit = LinearMagnitudeFit(config=configuration,
-                                        reference=photref,
-                                        master_catalogue=catalogue)
+            magfit = LinearMagnitudeFit(
+                config=configuration,
+                reference=photref,
+#                master_catalogue=catalogue,
+                source_name_format=source_name_format
+            )
 
             pool_magfit = functools.partial(magfit, **path_substitutions)
             if configuration.num_parallel_processes > 1:

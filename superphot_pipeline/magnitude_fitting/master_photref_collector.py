@@ -84,7 +84,7 @@ class MasterPhotrefCollector:
             numpy structured array:
                 The fields are as follows:
 
-                    ID: The ID of the source.
+                    source_id: The ID of the source.
 
                     xi, eta: The projected angular coordinates of the source
                         from the catalogue.
@@ -107,7 +107,7 @@ class MasterPhotrefCollector:
         def get_stat_data():
             """Read the statistics file."""
 
-            column_names = ['ID']
+            column_names = ['source_id']
             for phot_quantity in ['mag', 'mag_err']:
                 for phot_ind in range(self._num_photometries):
                     column_names.extend(
@@ -126,9 +126,14 @@ class MasterPhotrefCollector:
             """Create an empty result to fill with data."""
 
             special_dtypes = dict(phqual='S3', magsrcflag='S9')
+            example_source_id = next(iter(catalogue.keys()))
+            if isinstance(example_source_id, tuple):
+                source_id_size = (len(example_source_id),)
+            else:
+                source_id_size = 1
             dtype = (
                 [
-                    ('ID', numpy.intc, (len(next(iter(catalogue.keys()))),)),
+                    ('source_id', numpy.uint64, source_id_size),
                     ('full_count', numpy.intc, (self._num_photometries,)),
                     ('rejected_count', numpy.intc, (self._num_photometries,)),
                     ('median', numpy.float64, (self._num_photometries,)),
@@ -147,8 +152,15 @@ class MasterPhotrefCollector:
             """Add the information from get_stat_data() to result."""
 
             print('Stat data columns: ' + repr(stat_data.dtype.names))
-            for source_index, source_id in enumerate(stat_data['ID']):
-                result['ID'][source_index] = parse_source_id(source_id)
+            if stat_data['source_id'][0].dtype.kind in 'OSU':
+                for source_index, source_id in enumerate(
+                        stat_data['source_id']
+                ):
+                    result['source_id'][source_index] = parse_source_id(
+                        source_id
+                    )
+            else:
+                result['source_id'] = stat_data['source_id']
 
             for phot_index in range(self._num_photometries):
                 result['full_count'][:, phot_index] = stat_data[
@@ -165,8 +177,10 @@ class MasterPhotrefCollector:
         def add_catalogue_info(catalogue_columns, result):
             """Add the catalogue data for each source to the result."""
 
-            for source_index, source_id in enumerate(result['ID']):
-                catalogue_source = catalogue[tuple(source_id)]
+            for source_index, source_id in enumerate(result['source_id']):
+                catalogue_source = catalogue[
+                     source_id if source_id.shape == () else tuple(source_id)
+                ]
                 for colname in catalogue_columns:
                     result[colname][source_index] = catalogue_source[colname]
 
@@ -307,28 +321,40 @@ class MasterPhotrefCollector:
                 include_source.size
             )
 
-            reference_data = numpy.empty(
-                num_phot_sources,
-                dtype=[('IDprefix', 'i1'),
-                       ('IDfield', numpy.intc),
-                       ('IDsource', numpy.intc),
-                       ('full_count', numpy.float64),
-                       ('rejected_count', numpy.float64),
-                       ('magnitude', numpy.float64),
-                       ('mediandev', numpy.float64),
-                       ('medianmeddev', numpy.float64),
-                       ('scatter_excess', numpy.float64)]
-            )
-            for reference_column, stat_column, stat_index in [
-                    ('IDprefix', 'ID', 0),
-                    ('IDfield', 'ID', 1),
-                    ('IDsource', 'ID', 2),
-                    ('full_count', 'full_count', phot_ind),
-                    ('rejected_count', 'rejected_count', phot_ind),
-                    ('magnitude', 'median', phot_ind),
-                    ('mediandev', 'mediandev', phot_ind),
-                    ('medianmeddev', 'medianmeddev', phot_ind)
-            ]:
+            column_map = [
+                ('full_count', 'full_count', phot_ind),
+                ('rejected_count', 'rejected_count', phot_ind),
+                ('magnitude', 'median', phot_ind),
+                ('mediandev', 'mediandev', phot_ind),
+                ('medianmeddev', 'medianmeddev', phot_ind)
+            ]
+            if statistics['source_id'][0].shape == ():
+                result_dtype = [('source_id', 'u8')]
+            else:
+                result_dtype = [('IDprefix', 'i1'),
+                                ('IDfield', numpy.intc),
+                                ('IDsource', numpy.intc)]
+                column_map.extend([('IDprefix', 'source_id', 0),
+                                   ('IDfield', 'source_id', 1),
+                                   ('IDsource', 'source_id', 2)])
+
+            result_dtype.extend([('full_count', numpy.float64),
+                                 ('rejected_count', numpy.float64),
+                                 ('magnitude', numpy.float64),
+                                 ('mediandev', numpy.float64),
+                                 ('medianmeddev', numpy.float64),
+                                 ('scatter_excess', numpy.float64)])
+
+            reference_data = numpy.empty(num_phot_sources, dtype=result_dtype)
+
+            if statistics['source_id'][0].shape == ():
+                reference_data['source_id'] = statistics[
+                    'source_id'
+                ][
+                    include_source,
+                ]
+
+            for reference_column, stat_column, stat_index in column_map:
                 reference_data[reference_column] = statistics[
                     stat_column
                 ][
@@ -441,19 +467,24 @@ class MasterPhotrefCollector:
                                 stderr=PIPE)
         self._num_photometries = num_photometries
         self._source_name_format = source_name_format
+        self._line_format = ('%s' + (' %9.5f') * (2 * self._num_photometries))
+
 
     #pylint: enable=too-many-locals
 
     def add_input(self, fit_results):
         """Ingest a fitted frame's photometry into the statistics."""
 
+
         for phot, fitted in fit_results:
             if phot is None:
                 continue
 
+            simple_source_ids = phot['source_id'][0].shape == ()
+
             logging.getLogger(__name__).debug(
                 'Collecting %d magfit sources for master.',
-                len(phot['ID'])
+                len(phot['source_id'])
             )
 
             print('Return code of grcollect: ' + repr(self._grcollect.poll()))
@@ -467,12 +498,13 @@ class MasterPhotrefCollector:
             assert formal_errors.shape == phot_flags.shape
             assert fitted.shape == formal_errors.shape
 
-            line_format = (self._source_name_format
-                           +
-                           (' %9.5f') * (2 * self._num_photometries))
             for source_ind in range(src_count):
                 print_args = (
-                    tuple(phot['ID'][source_ind][1:])
+                    (
+                        self._source_name_format.format(
+                            phot['source_id'][source_ind]
+                        ),
+                    )
                     +
                     tuple(fitted[source_ind])
                     +
@@ -480,14 +512,14 @@ class MasterPhotrefCollector:
                 )
 
                 all_finite = True
-                for value in print_args:
+                for value in print_args[1:]:
                     if numpy.isnan(value):
                         all_finite = False
                         break
 
                 if all_finite:
                     self._grcollect.stdin.write(
-                        (line_format % print_args + '\n').encode('ascii')
+                        (self._line_format % print_args + '\n').encode('ascii')
                     )
 
 
