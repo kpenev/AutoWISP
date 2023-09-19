@@ -23,7 +23,8 @@ def parse_command_line():
     parser.add_argument(
         '--drop-all-tables',
         action='store_true',
-        help='If passed all pipeline tables are deleted before new ones are created'
+        help='If passed all pipeline tables are deleted before new ones are '
+        'created'
     )
     parser.add_argument(
         '--drop-hdf5-structure-tables', '--drop-structure',

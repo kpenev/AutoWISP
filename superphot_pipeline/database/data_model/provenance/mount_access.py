@@ -3,14 +3,8 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    String,\
-    Float,\
-    Date,\
     TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    ForeignKey
 
 from sqlalchemy.orm import relationship
 

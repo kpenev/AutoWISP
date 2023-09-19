@@ -20,39 +20,27 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 # For database testing
 # from base import DataModelBase
 
-__all__ = ['ImageProcProgress']
+__all__ = ['ImageProcessingProgress']
 
-class ImageProcProgress(DataModelBase):
+class ImageProcessingProgress(DataModelBase):
     """The table describing the Image Processing Progress"""
 
-    __tablename__ = 'image_proc_progress'
+    __tablename__ = 'image_processing_progress'
 
-    # id
     id = Column(
         Integer,
         primary_key=True,
         doc='A unique identifier for each image_proc_processing'
     )
-    # image_id
-    image_id = Column(
+    step = Column(
         Integer,
-        ForeignKey("image.id",
+        ForeignKey('steps.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        nullable= False,
-        doc = 'id of the image'
+        nullable=False,
+        doc = 'Id of the steps that was applied'
     )
-    # step_type_id
-    step_type_id = Column(
-        Integer,
-        ForeignKey('step_type.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
-        nullable= False,
-        doc = 'id of step type'
-    )
-    # configuration version
-    config_version = Column(
+    configuration_version = Column(
         Integer,
         ForeignKey('configuration.version',
                    onupdate='CASCADE',

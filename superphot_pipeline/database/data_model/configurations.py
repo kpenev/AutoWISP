@@ -10,15 +10,18 @@ from sqlalchemy.orm import relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__ = ['ProcessingConfiguration']
+__all__ = ['Configurations']
 
-class ProcessingConfiguration(DataModelBase):
+class Configurations(DataModelBase):
     """Table recording the values of the pipeline configuration parameters."""
 
-    __tablename__ = 'processing_configuration'
+    __tablename__ = 'configurations'
 
-    parameter_name = Column(
-        String,
+    parameter_id = Column(
+        Integer,
+        ForeignKey('parameters.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         primary_key=True,
         doc='The name of the configuration parameter.'
     )
