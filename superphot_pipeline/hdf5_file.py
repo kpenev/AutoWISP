@@ -1142,6 +1142,7 @@ class HDF5File(ABC, h5py.File):
 
         if data is None:
             data_copy = None
+            shape = None
         else:
             data_copy = self._replace_nonfinite(
                 data,
@@ -1179,7 +1180,7 @@ class HDF5File(ABC, h5py.File):
             'creation_args %s',
             dataset_path,
             shape,
-            repr(data_copy.dtype),
+            repr(None if data_copy is None else data_copy.dtype),
             repr(creation_args)
         )
         self.create_dataset(
