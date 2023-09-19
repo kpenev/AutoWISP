@@ -1,16 +1,11 @@
 """Define the Conditions table for the pipeline"""
 
 from sqlalchemy import \
-    Column, \
-    Integer, \
-    String, \
-    Float, \
-    Date, \
-    TIMESTAMP, \
-    DateTime, \
-    ForeignKey, \
-    Index, \
-    ForeignKeyConstraint
+    Column,\
+    Integer,\
+    String,\
+    TIMESTAMP,\
+    ForeignKey
 
 from sqlalchemy.orm import relationship
 
@@ -47,25 +42,18 @@ class Conditions(DataModelBase):
     notes = Column(
         String(1000),
         nullable=False,
-        doc='The notes provided for the condition expression'
+        doc='Any user supplied notes describing the condition.'
     )
     # timestamp
     timestamp = Column(
         TIMESTAMP,
-        nullable=False,
+        nullable=True,
         doc='When record was last changed'
     )
 
-    def __init__(self, id, expression_id, notes, timestamp):
-        self.id = id
-        self.expression_id = expression_id
-        self.notes = notes
-        self.timestamp = timestamp
-
-    def __repr__(self):
+    def __str__(self):
         return f"({self.id}) {self.expression_id} {self.notes} {self.timestamp}"
 
     # relationship
-    cond_expr = relationship("ConditionExpressions", back_populates="condition")
-    img_conditions = relationship("ImageConditions", back_populates="conditions")
-    config = relationship("Configuration", back_populates="condition")
+    expressions = relationship("ConditionExpressions",
+                               back_populates="condition")

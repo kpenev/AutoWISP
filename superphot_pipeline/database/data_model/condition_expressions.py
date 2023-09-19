@@ -4,13 +4,7 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    Date,\
-    TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    TIMESTAMP\
 
 from sqlalchemy.orm import relationship
 
@@ -31,19 +25,19 @@ class ConditionExpressions(DataModelBase):
     id = Column(
         Integer,
         primary_key=True,
-        doc='A unique identifier for each condition_expression'
+        doc='A unique identifier for each condition_expression.'
     )
-    #expression
     expression = Column(
         String(1000),
         nullable=False,
-        doc='The description of the condition expression'
+        doc='The expression to evaluate to determine if an image meets the '
+        'condition.'
     )
     #notes
     notes = Column(
         String(1000),
-        nullable=False,
-        doc='The notes provided for the condition expression'
+        nullable=True,
+        doc='Any user supplied notes describing the condition expression.'
     )
     #timestamp
     timestamp = Column(
@@ -52,14 +46,8 @@ class ConditionExpressions(DataModelBase):
         doc = 'When record was last changed'
     )
 
-    def __init__(self, id, expression, notes, timestamp):
-        self.id = id
-        self.expression = expression
-        self.notes = notes
-        self.timestamp = timestamp
-
-    def __repr__(self):
+    def __str__(self):
         return f"({self.id}) {self.expression} {self.notes} {self.timestamp}"
 
     #relationship
-    condition = relationship("Conditions", back_populates="cond_expr")
+    conditions = relationship("Conditions", back_populates="expressions")
