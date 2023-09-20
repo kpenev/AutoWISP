@@ -66,6 +66,6 @@ class ImageProcessingProgress(DataModelBase):
         return f"({self.id}) {self.image_id} {self.step_type_id} {self.config_version} {self.timestamp}"
 
     #relationship
-    image = relationship("Image", back_populates="image_proc")
-    step_type = relationship("StepType", back_populates="image_proc")
-    config = relationship("Configuration", back_populates="imgprocprog")
+    #image = relationship("Image", back_populates="image_proc")
+    #step_type = relationship("StepType", back_populates="image_proc")
+    #config = relationship("Configuration", back_populates="imgprocprog")

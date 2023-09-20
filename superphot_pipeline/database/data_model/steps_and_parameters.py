@@ -22,12 +22,12 @@ _step_param_association = Table(
     Column("param_id", ForeignKey("parameters.id"), primary_key=True),
 )
 
-_step_dependencies = Table(
-    "step_dependencies",
-    DataModelBase.metadata,
-    Column("blocked_step_id", ForeignKey("steps.id"), primary_key=True),
-    Column("blocking_step_id", ForeignKey("steps.id"), primary_key=True),
-)
+#_step_dependencies = Table(
+#    "step_dependencies",
+#    DataModelBase.metadata,
+#    Column("blocked_step_id", ForeignKey("steps.id"), primary_key=True),
+#    Column("blocking_step_id", ForeignKey("steps.id"), primary_key=True),
+#)
 
 class Steps(DataModelBase):
     """The table describing the processing steps constituting the pipeline"""
@@ -59,16 +59,16 @@ class Steps(DataModelBase):
         secondary=_step_param_association,
         back_populates='steps'
     )
-    requires: Mapped[List[Steps]] = relationship(
-        secondary=_step_dependencies,
-        primaryjoin=id==_step_dependencies.c.blocked_step_id,
-        back_populates='required_by'
-    )
-    required_by: Mapped[List[Steps]] = relationship(
-        secondary=_step_dependencies,
-        primaryjoin=id==_step_dependencies.c.blocked_step_id,
-        back_populates='requires'
-    )
+#    requires: Mapped[List[Steps]] = relationship(
+#        secondary=_step_dependencies,
+#        primaryjoin=id==_step_dependencies.c.blocked_step_id,
+#        back_populates='required_by'
+#    )
+#    required_by: Mapped[List[Steps]] = relationship(
+#        secondary=_step_dependencies,
+#        primaryjoin=id==_step_dependencies.c.blocked_step_id,
+#        back_populates='requires'
+#    )
 
 class Parameters(DataModelBase):
     """Table describing the configuration parameters needed by the pipeline."""
