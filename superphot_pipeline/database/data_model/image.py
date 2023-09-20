@@ -82,5 +82,5 @@ class Image(DataModelBase):
 
     image_type = relationship("ImageType", back_populates="image")
     observing_session = relationship("ObservingSession", back_populates="images")
-    img_conditions = relationship("ImageConditions", back_populates="image")
-    image_proc = relationship("ImageProcProgress", back_populates="image")
+    #img_conditions = relationship("ImageConditions", back_populates="image")
+    #image_proc = relationship("ImageProcProgress", back_populates="image")

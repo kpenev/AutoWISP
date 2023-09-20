@@ -56,4 +56,4 @@ class Conditions(DataModelBase):
 
     # relationship
     expressions = relationship("ConditionExpressions",
-                               back_populates="condition")
+                               back_populates="conditions")

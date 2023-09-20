@@ -96,7 +96,8 @@ class Parameters(DataModelBase):
     def __str__(self):
         return f"({self.id}) {self.name}: {self.description} {self.timestamp}"
 
-    used_by: Mapped[List[Steps]] = relationship(
+    #used_by: Mapped[List[Steps]] = relationship(
+    steps: Mapped[List[Steps]] = relationship(
         secondary=_step_param_association,
         back_populates='parameters'
     )
