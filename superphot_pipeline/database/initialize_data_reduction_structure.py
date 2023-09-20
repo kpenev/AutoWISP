@@ -35,7 +35,7 @@ _default_paths = dict(
     subpixmap='/SubPixelMap/Version%(subpixmap_version)03d',
 )
 
-
+_default_nonfinite=repr(numpy.finfo('f4').min/2)
 
 def _get_source_extraction_attributes():
     """Create default data reduction attributes describing source extraction."""
@@ -539,7 +539,7 @@ def _get_background_datasets():
             abspath=_default_paths['background'] + '/Value',
             dtype='numpy.float64',
             scaleoffset=3,
-            replace_nonfinite=repr(numpy.finfo('f4').min),
+            replace_nonfinite=_default_nonfinite,
             description='The best estimate of the background under each '
             'projected source.'
         ),
@@ -548,7 +548,7 @@ def _get_background_datasets():
             abspath=_default_paths['background'] + '/Error',
             dtype='numpy.float64',
             scaleoffset=3,
-            replace_nonfinite=repr(numpy.finfo('f4').min),
+            replace_nonfinite=_default_nonfinite,
             description='An error estimate of the background under each '
             'projected source.'
         ),
@@ -753,7 +753,7 @@ def _get_magfit_datasets(photometry_mode):
             abspath=dset_path + iter_split,
             dtype='numpy.float64',
             scaleoffset=5,
-            replace_nonfinite=repr(numpy.finfo('f4').min),
+            replace_nonfinite=_default_nonfinite,
             description=(
                 'The fitted %s photometry magnitudes.'
                 %
@@ -1034,7 +1034,7 @@ def _get_shapefit_datasets():
                 abspath=root_path + '/SignalToNoise',
                 dtype='numpy.float64',
                 scaleoffset=3,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='The total signal to noise of all the pixels '
                 'assigned to the source for PSF fitting.'
             ),
@@ -1043,7 +1043,7 @@ def _get_shapefit_datasets():
                 abspath=root_path + '/Magnitude',
                 dtype='numpy.float64',
                 scaleoffset=5,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='The PSF/PRF fitting raw magnitudes of the '
                 'projected sources.'
             ),
@@ -1052,7 +1052,7 @@ def _get_shapefit_datasets():
                 abspath=root_path + '/MagnitudeError',
                 dtype='numpy.float64',
                 scaleoffset=5,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='Error estimates for the PSF/PRF fitting '
                 'magnitudes.'
             ),
@@ -1073,7 +1073,7 @@ def _get_shapefit_datasets():
                 abspath=root_path + '/ChiSquared',
                 dtype='numpy.float64',
                 scaleoffset=2,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='The reduced chi-squared values for PSF fitting '
                 'for the corresponding source.'
             )
@@ -1171,7 +1171,7 @@ def _get_apphot_datasets():
                 abspath=abspath_start + '/Magnitude',
                 dtype='numpy.float64',
                 scaleoffset=5,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='The aperture photometry raw magnitudes of the '
                 'projected sources.'
             ),
@@ -1180,7 +1180,7 @@ def _get_apphot_datasets():
                 abspath=abspath_start + '/MagnitudeError',
                 dtype='numpy.float64',
                 scaleoffset=5,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='Error estimates for the aperture photometry '
                 'magnitudes.'
             ),

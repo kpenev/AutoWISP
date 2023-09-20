@@ -28,6 +28,8 @@ _default_paths = dict(
     sky_position='/SkyPosition',
 )
 
+_default_nonfinite=repr(numpy.finfo('f4').min/2)
+
 def _get_structure_version_id(db_session, product='data_reduction'):
     return db_session.query(
         HDF5StructureVersion.hdf5_structure_version_id
@@ -70,7 +72,7 @@ def _get_source_extraction_datasets():
                          '/%(srcextract_psf_param)s/Value'),
                 dtype='numpy.float64',
                 scaleoffset=4,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description='The values of the psf parameters for source '
                 'extraction based PSF for each source.'
             )
@@ -130,84 +132,84 @@ def _get_frame_datasets():
                     'FOCUS',
                     'FocusSetting',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'The focus setting of the telescope for this observation.'
                 ),
                 (
                     'WIND',
                     'WindSpeed',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'The wind speed in m/s'
                 ),
                 (
                     'WINDDIR',
                     'WindDirection',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Wind direction [degrees] reported for this observation.'
                 ),
                 (
                     'AIRPRESS',
                     'AirPressure',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Air pressure [Pa] for this observation.'
                 ),
                 (
                     'AIRTEMP',
                     'AirTemperature',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Air temperature [C]'
                 ),
                 (
                     'HUMIDITY',
                     'Humidity',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Relative humidity [%]'
                 ),
                 (
                     'DEWPT',
                     'DewPoint',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Dew point [C]'
                 ),
                 (
                     'SUNDIST',
                     'SunDistance',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Distance from Sun [deg] (frame center)'
                 ),
                 (
                     'SUNELEV',
                     'SunElevation',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Elevation of Sun [deg]'
                 ),
                 (
                     'MOONDIST',
                     'MoonDistance',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Distance from Moon [deg] (frame center)'
                 ),
                 (
                     'MOONPH',
                     'MoonPhase',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Phase of Moon'
                 ),
                 (
                     'MOONELEV',
                     'MoonElevation',
                     'numpy.float64',
-                    repr(numpy.finfo('f4').min),
+                    _default_nonfinite,
                     'Elevation of Moon [deg]'
                 )
         ]:
@@ -366,7 +368,7 @@ def _get_frame_datasets():
                 args['scaleoffset'] = scaleoffset
 
             if dtype == 'numpy.float64':
-                args['replace_nonfinite'] = repr(numpy.finfo('f4').min)
+                args['replace_nonfinite'] = _default_nonfinite
 
             result.append(HDF5DataSet(**args))
 
@@ -511,7 +513,7 @@ def _get_data_reduction_attribute_datasets(db_session):
         else:
             args['scaleoffset'] = scaleoffset
             if dr_attribute.dtype == 'numpy.float64':
-                args['replace_nonfinite'] = repr(numpy.finfo('f4').min)
+                args['replace_nonfinite'] = _default_nonfinite
 
         result.append(HDF5DataSet(**args))
 
@@ -653,7 +655,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 abspath=(cfg_path + 'FitResidual'),
                 dtype=magfit_dset.dtype,
                 scaleoffset=3,
-                replace_nonfinite=repr(numpy.finfo('f4').min),
+                replace_nonfinite=_default_nonfinite,
                 description=(
                     'The residual of the last iteration of the iterative '
                     'rejction %s fit.'

@@ -69,14 +69,6 @@ class Image(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    ## ADDED 06/08/23 - Mica
-    def __init__(self, id, image_type_id, observing_session_id, notes, timestamp):
-        self.id = id
-        self.image_type_id = image_type_id
-        self.observing_session_id = observing_session_id
-        self.notes = notes
-        self.timestamp = timestamp
-
     def __repr__(self):
         return f"({self.id})  {self.image_type_id} {self.observing_session_id} {self.notes} {self.timestamp}"
 

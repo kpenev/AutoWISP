@@ -4,6 +4,7 @@
 
 from argparse import ArgumentParser
 import re
+from sqlalchemy.exc import OperationalError
 
 from superphot_pipeline.database.interface import db_engine, db_session_scope
 from superphot_pipeline.database.data_model.base import DataModelBase
@@ -58,16 +59,17 @@ def drop_tables_matching(pattern):
 
     for table in reversed(DataModelBase.metadata.sorted_tables):
         if pattern.fullmatch(table.name):
-            table.drop()
+            try:
+                table.drop(db_engine)
+            except OperationalError:
+                pass
 
 if __name__ == '__main__':
     cmdline_args = parse_command_line()
-
-    DataModelBase.metadata.bind = db_engine
 
     if cmdline_args.drop_hdf5_structure_tables:
         drop_tables_matching(re.compile('hdf5_.*'))
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile('.*'))
-    DataModelBase.metadata.create_all()
+    DataModelBase.metadata.create_all(db_engine)
     add_default_hdf5_structures()
