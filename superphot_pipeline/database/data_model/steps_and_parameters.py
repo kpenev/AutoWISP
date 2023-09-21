@@ -13,27 +13,35 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__= ['Steps', 'Parameters']
+__all__= ['Step', 'Parameter']
 
 _step_param_association = Table(
-    "step_parameters",
+    'step_parameters',
     DataModelBase.metadata,
-    Column("step_id", ForeignKey("steps.id"), primary_key=True),
-    Column("param_id", ForeignKey("parameters.id"), primary_key=True),
+    Column('step_id', ForeignKey('step.id'), primary_key=True),
+    Column('param_id', ForeignKey('parameter.id'), primary_key=True),
+    Column('timestamp',
+           TIMESTAMP,
+           nullable=False,
+           doc='When was this record last changed.')
 )
 
 _step_dependencies = Table(
-    "step_dependencies",
+    'step_dependencies',
     DataModelBase.metadata,
-    Column("blocked_step_id", ForeignKey("steps.id"), primary_key=True),
-    Column("blocking_step_id", ForeignKey("steps.id"), primary_key=True),
+    Column('blocked_step_id', ForeignKey('step.id'), primary_key=True),
+    Column('blocking_step_id', ForeignKey('step.id'), primary_key=True),
+    Column('timestamp',
+           TIMESTAMP,
+           nullable=False,
+           doc='When was this record last changed.')
 )
 
 
-class Steps(DataModelBase):
+class Step(DataModelBase):
     """The table describing the processing steps constituting the pipeline"""
 
-    __tablename__ = 'steps'
+    __tablename__ = 'step'
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -56,11 +64,11 @@ class Steps(DataModelBase):
     def __str__(self):
         return f"({self.id}) {self.name}: {self.description} ({self.timestamp})"
 
-    parameters: Mapped[List[Parameters]] = relationship(
+    parameters: Mapped[List[Parameter]] = relationship(
         secondary=_step_param_association,
         back_populates='steps'
     )
-    requires: Mapped[List[Steps]] = relationship(
+    requires: Mapped[List[Step]] = relationship(
         secondary=_step_dependencies,
         primaryjoin=(id == _step_dependencies.c.blocked_step_id),
         secondaryjoin=(id == _step_dependencies.c.blocking_step_id),
@@ -68,10 +76,10 @@ class Steps(DataModelBase):
     )
 
 
-class Parameters(DataModelBase):
+class Parameter(DataModelBase):
     """Table describing the configuration parameters needed by the pipeline."""
 
-    __tablename__ = 'parameters'
+    __tablename__ = 'parameter'
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -94,8 +102,7 @@ class Parameters(DataModelBase):
     def __str__(self):
         return f"({self.id}) {self.name}: {self.description} {self.timestamp}"
 
-    #used_by: Mapped[List[Steps]] = relationship(
-    steps: Mapped[List[Steps]] = relationship(
+    steps: Mapped[List[Step]] = relationship(
         secondary=_step_param_association,
         back_populates='parameters'
     )

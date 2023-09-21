@@ -1,4 +1,4 @@
-"""Define the ConditionExpressions table for the pipeline"""
+"""Define the ConditionExpression table for the pipeline"""
 
 from sqlalchemy import\
     Column,\
@@ -14,12 +14,12 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 # For database testing
 # from base import DataModelBase
 
-__all__ = ['ConditionExpressions']
+__all__ = ['ConditionExpression']
 
-class ConditionExpressions(DataModelBase):
+class ConditionExpression(DataModelBase):
     """The table describing the Condition Expressions"""
 
-    __tablename__ = 'condition_expressions'
+    __tablename__ = 'condition_expression'
 
     #id
     id = Column(
@@ -50,4 +50,4 @@ class ConditionExpressions(DataModelBase):
         return f"({self.id}) {self.expression} {self.notes} {self.timestamp}"
 
     #relationship
-    conditions = relationship("Conditions", back_populates="expressions")
+    conditions = relationship("Condition", back_populates="expressions")

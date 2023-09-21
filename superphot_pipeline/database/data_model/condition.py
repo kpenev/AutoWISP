@@ -15,13 +15,13 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 # For database testing
 # from base import DataModelBase
 
-__all__ = ['Conditions']
+__all__ = ['Condition']
 
 
-class Conditions(DataModelBase):
+class Condition(DataModelBase):
     """The table describing the Conditions"""
 
-    __tablename__ = 'conditions'
+    __tablename__ = 'condition'
 
     # id
     id = Column(
@@ -32,7 +32,7 @@ class Conditions(DataModelBase):
     # expression
     expression_id = Column(
         Integer,
-        ForeignKey('condition_expressions.id',
+        ForeignKey('condition_expression.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         nullable=False,
@@ -55,5 +55,5 @@ class Conditions(DataModelBase):
         return f"({self.id}) {self.expression_id} {self.notes} {self.timestamp}"
 
     # relationship
-    expressions = relationship("ConditionExpressions",
+    expressions = relationship("ConditionExpression",
                                back_populates="conditions")

@@ -10,16 +10,16 @@ from sqlalchemy.orm import relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__ = ['Configurations']
+__all__ = ['Configuration']
 
-class Configurations(DataModelBase):
+class Configuration(DataModelBase):
     """Table recording the values of the pipeline configuration parameters."""
 
-    __tablename__ = 'configurations'
+    __tablename__ = 'configuration'
 
     parameter_id = Column(
         Integer,
-        ForeignKey('parameters.id',
+        ForeignKey('parameter.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         primary_key=True,
@@ -33,7 +33,7 @@ class Configurations(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey('conditions.id',
+        ForeignKey('condition.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         primary_key=True,
@@ -57,4 +57,5 @@ class Configurations(DataModelBase):
         doc='When record was last changed'
     )
 
-    condition = relationship("Conditions")
+    condition = relationship("Condition")
+    parameter = relationship("Parameter")
