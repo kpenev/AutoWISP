@@ -13,6 +13,9 @@ from superphot_pipeline.database.initialize_data_reduction_structure import\
     get_default_data_reduction_structure
 from superphot_pipeline.database.initialize_light_curve_structure import\
     get_default_light_curve_structure
+from superphot_pipeline import processing_steps
+from superphot_pipeline.database.data_model import\
+    Step
 
 def parse_command_line():
     """Parse the commandline optinos to attributes of an object."""
@@ -36,6 +39,7 @@ def parse_command_line():
     )
     return parser.parse_args()
 
+
 def add_default_hdf5_structures(data_reduction=True, light_curve=True):
     """
     Add a default HDF5 structure to the database.
@@ -53,6 +57,39 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             db_session.add(get_default_data_reduction_structure())
         if light_curve:
             db_session.add(get_default_light_curve_structure(db_session))
+
+
+def init_processing():
+    """Initialize the tables controlling how processing is to be done."""
+
+    step_dependencies = [
+        ('calibrate', []),
+        ('find_stars', ['calibrate']),
+        ('solve_astrometry', ['find_stars']),
+        ('fit_star_shape', ['solve_astrometry', 'calibrate']),
+        ('measure_aperture_photometry', ['fit_star_shape', 'calibrate']),
+        ('fit_magnitudes', ['fit_star_shape', 'measure_aperture_photometry']),
+        ('fit_source_extracted_psf_map', ['find_stars', 'solve_astrometry']),
+        ('create_lightcurves', ['solve_astrometry',
+                                'fit_star_shape',
+                                'measure_aperture_photometry',
+                                'fit_magnitudes',
+                                'fit_source_extracted_psf_map']),
+        ('epd', ['create_lightcurves']),
+        ('tfa', ['create_lightcurves', 'epd'])
+    ]
+    with db_session_scope() as db_session:
+        db_steps = {}
+        for step_id, (step_name, dependencies) in enumerate(step_dependencies):
+            db_steps[step_name] = Step(
+                id=step_id + 1,
+                name=step_name,
+                description=getattr(processing_steps, step_name).__doc__
+            )
+            for required_name in dependencies:
+                db_steps[step_name].requires.append(db_steps[required_name])
+            db_session.add(db_steps[step_name])
+
 
 def drop_tables_matching(pattern):
     """Drop tables with names matching a pre-compiled regular expression."""
@@ -72,4 +109,5 @@ if __name__ == '__main__':
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile('.*'))
     DataModelBase.metadata.create_all(db_engine)
+    init_processing()
     add_default_hdf5_structures()
