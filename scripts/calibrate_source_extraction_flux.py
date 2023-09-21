@@ -161,10 +161,14 @@ def main(dr_collection, configuration):
                     matched['flux'],
                     'o',
                     markersize=configuration['markersize'])
+    points_xlim = pyplot.xlim()
+    points_ylim = pyplot.ylim()
     line_mag = numpy.linspace(*pyplot.xlim(), 1000)
     pyplot.plot(line_mag,
                 numpy.power(10.0, -line_mag / 2.5),
                 '-k')
+    pyplot.xlim(points_xlim)
+    pyplot.ylim(points_ylim)
     if configuration['plot_fname'] is None:
         pyplot.show()
     else:
