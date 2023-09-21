@@ -2,6 +2,8 @@
 
 import numpy
 from astropy.io import fits
+from scipy import spatial
+from numpy.lib import recfunctions
 
 from superphot.utils.file_utilities import\
     prepare_file_output,\
@@ -67,6 +69,31 @@ class SourceFinder:
         return result
 
 
+    def _add_saturation_flags(self, fits_fname, source_list):
+        """Add array of how many pixels near source are saturated."""
+
+        with fits.open(fits_fname, 'readonly') as fits_file:
+            saturated_kdtree = spatial.KDTree(
+                numpy.column_stack(numpy.nonzero(fits_file[2].data)) + 0.5
+            )
+
+        source_coords = numpy.column_stack((source_list['y'], source_list['x']))
+        print('Match radii: '
+              +
+              repr(numpy.sqrt(source_list['npix'] / numpy.pi)))
+        saturated_in_range = saturated_kdtree.query_ball_point(
+            source_coords,
+            numpy.sqrt(source_list['npix'] / numpy.pi)
+        )
+        print(f'Saturated in range shape: {saturated_in_range.shape}')
+        print(f'Saturated in range: {saturated_in_range!r}')
+
+        return recfunctions.append_fields(
+            source_list,
+            'nsatpix',
+            [len(saturated) for saturated in saturated_in_range],
+            usemask=False
+        )
 
 
     def __init__(self,
@@ -79,14 +106,14 @@ class SourceFinder:
                  always_return_sources=False):
         """Prepare to use the specified tool and define faint limit."""
 
-        self.configuration = dict(
-            tool=tool,
-            brightness_threshold=brightness_threshold,
-            allow_overwrite=allow_overwrite,
-            allow_dir_creation=allow_dir_creation,
-            always_return_sources=always_return_sources,
-            filter_sources=filter_sources
-        )
+        self.configuration = {
+            'tool': tool,
+            'brightness_threshold': brightness_threshold,
+            'allow_overwrite': allow_overwrite,
+            'allow_dir_creation': allow_dir_creation,
+            'always_return_sources': always_return_sources,
+            'filter_sources': filter_sources
+        }
 
     def __call__(self, fits_fname, source_fname=None, **configuration):
         """
@@ -145,5 +172,5 @@ class SourceFinder:
 
             if not source_fname:
                 extraction_process.communicate()
-            return result
+            return self._add_saturation_flags(unpacked_fname, result)
 #pylint: enable=too-few-public-methods

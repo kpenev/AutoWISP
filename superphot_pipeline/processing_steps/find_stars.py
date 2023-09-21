@@ -72,6 +72,7 @@ def find_stars_single(image_fname, find_stars_in_image, srcextract_version):
     with DataReductionFile(header=fits_header, mode='a') as dr_file:
         dr_file.add_frame_header(fits_header)
         extracted_sources = find_stars_in_image(image_fname)
+        print(f'Extracted sources: {extracted_sources!r}')
         dr_file.add_sources(
             extracted_sources,
             'srcextract.sources',

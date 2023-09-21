@@ -71,7 +71,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         if dataset_key == 'srcextract.sources':
             column = path_substitutions['srcextract_column_name']
-            if column.lower() in ['id', 'numberpixels']:
+            if column.lower() in ['id', 'numberpixels', 'npix', 'nsatpix']:
                 result['compression'] = 'gzip'
                 result['compression_opts'] = 9
             else:
