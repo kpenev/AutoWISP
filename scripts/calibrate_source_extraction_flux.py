@@ -31,7 +31,7 @@ def parse_command_line():
     )
     parser.add_argument(
         '--catalogue-brightness-expression', '--mag',
-        default='V',
+        default='phot_g_mean_mag',
         help='An expression involving catalogue variables to be used as the '
         'catalogue magnitude we are calibrating against. If empty, the '
         'brightness expression is fit for (see ``--brightness-terms`` '
@@ -57,7 +57,13 @@ def parse_command_line():
     )
     parser.add_argument(
         '--magshift-terms',
-        default='O1{V-B, V-R, V-I, 2.5 * log10(exp(1.0)) * AIRMASS}',
+        default=(
+            'O1{'
+                'phot_g_mean_mag-phot_rp_mean_mag, '
+                'phot_g_mean_mag-phot_bp_mean_mag, '
+                '2.5 * log10(exp(1.0)) * AIRMASS'
+            '}'
+        ),
         help='The terms to include in the fit for mag + 2.5log10(flux), where '
         'mag is the magnitude specified by --catalogue-brightness-expression.'
     )
@@ -82,6 +88,23 @@ def parse_command_line():
         'brightness to perform. If the fit has not converged by then, the '
         'latest iteration is accepted.'
     )
+    parser.add_argument(
+        '--plot-mag-range',
+        nargs=2,
+        type=float,
+        default=None,
+        help='The range to use for the x axis of the plot. If not specified, '
+        'the range is determined from the data.'
+    )
+    parser.add_argument(
+        '--plot-flux-range',
+        nargs=2,
+        type=float,
+        default=None,
+        help='The range to use for the y axis of the plot. If not specified, '
+        'the range is determined from the data.'
+    )
+
 
     return parser.parse_args()
 
@@ -146,6 +169,7 @@ def main(dr_collection, configuration):
         with DataReductionFile(dr_fname, 'r') as dr_file:
             header = dr_file.get_frame_header()
             dr_matched = dr_file.get_matched_sources(**path_substitutions)
+            dr_matched = dr_matched[dr_matched['nsatpix'] == 0]
             if len(dr_collection) > 1:
                 dr_matched.insert(len(dr_matched.columns),
                                   'AIRMASS',
@@ -155,20 +179,23 @@ def main(dr_collection, configuration):
             else:
                 matched = pandas.concat((matched, dr_matched))
 
-
     magnitude = fit_brightness(matched, get_fit_terms, configuration)
     pyplot.semilogy(magnitude,
                     matched['flux'],
                     'o',
                     markersize=configuration['markersize'])
-    points_xlim = pyplot.xlim()
-    points_ylim = pyplot.ylim()
+    if configuration['plot_flux_range'] is None:
+        configuration['plot_flux_range'] = pyplot.ylim()
+    if configuration['plot_mag_range'] is None:
+        configuration['plot_mag_range'] = pyplot.xlim()
+
     line_mag = numpy.linspace(*pyplot.xlim(), 1000)
     pyplot.plot(line_mag,
                 numpy.power(10.0, -line_mag / 2.5),
                 '-k')
-    pyplot.xlim(points_xlim)
-    pyplot.ylim(points_ylim)
+    pyplot.xlim(configuration['plot_mag_range'])
+    pyplot.ylim(configuration['plot_flux_range'])
+
     if configuration['plot_fname'] is None:
         pyplot.show()
     else:
