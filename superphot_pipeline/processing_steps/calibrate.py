@@ -89,6 +89,7 @@ class ParseOverscanAction(Action):
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
+
     if args:
         inputtype = ''
     else:
@@ -227,7 +228,6 @@ def parse_command_line(*args):
     )
 
     return parser.parse_args(*args)
-
 
 
 def calibrate(image_collection, configuration):

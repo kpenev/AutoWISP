@@ -55,13 +55,6 @@ def add_source_selction_options(parser):
     """Add options configuring the selection of sources for fitting."""
 
     parser.add_argument(
-        '--shapefit-disable-cover-grid',
-        dest='shapefit_src_cover_grid',
-        action='store_false',
-        default=True,
-        help='Should pixels be selected to cover the full PSF/PRF grid.'
-    )
-    parser.add_argument(
         '--shapefit-src-min-bg-pix',
         type=int,
         default=50,
@@ -128,11 +121,14 @@ def add_fitting_options(parser):
         '--shapefit-smoothing',
         type=float,
         default=None,
+        help='Parameter controlling the smoothing penalty of the PSF fit.'
     )
     parser.add_argument(
         '--shapefit-max-chi2',
         type=float,
         default=100,
+        help='If the chi squared value of a source during flux fitting exceeds '
+        'this value, the source is excluded from shape fitting.'
     )
     parser.add_argument(
         '--shapefit-pixel-rejection-threshold',
@@ -300,29 +296,16 @@ def parse_command_line(*args):
 
     parser.add_argument(
         '--photometry-catalogue', '--photometry-catalog', '--cat',
-        required=True,
+        default='photometry_catalogue.ucac4',
         help='A file containing the list of stars to perform photometry on.'
     )
 
-    add_image_options(
-        parser.add_argument_group('options describing the image')
-    )
-    add_background_options(
-        parser.add_argument_group('background extraction options')
-    )
-    add_source_selction_options(
-        parser.add_argument_group('source selection options')
-    )
-    add_fitting_options(
-        parser.add_argument_group('shape fitting options')
-    )
-    add_shape_options(
-        parser.add_argument_group('shape model options')
-    )
-    add_grouping_options(
-        parser.add_argument_group('options controlling splitting of sources in '
-                                  'fitting groups')
-    )
+    add_image_options(parser)
+    add_background_options(parser)
+    add_source_selction_options(parser)
+    add_fitting_options(parser)
+    add_shape_options(parser)
+    add_grouping_options(parser)
     return parser.parse_args(*args)
 
 

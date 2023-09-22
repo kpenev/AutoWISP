@@ -87,6 +87,8 @@ class ManualStepArgumentParser(ArgumentParser):
             None
         """
 
+        self.argument_descriptions = {}
+
         self._convert_to_dict = convert_to_dict
         super().__init__(description=description,
                          default_config_files=[],
@@ -203,15 +205,22 @@ class ManualStepArgumentParser(ArgumentParser):
         )
 
 
+    def add_argument(self, *args, **kwargs):
+        """Store each argument's description in self.argument_descriptions."""
+
+        self.argument_descriptions[
+            args[0].lstrip('-').replace('-', '_')
+        ] = kwargs['help']
+        return super().add_argument(*args, **kwargs)
+
+
     #pylint: disable=signature-differs
     def parse_args(self, *args, **kwargs):
         """Set-up logging and return cleaned up dict instead of namespace."""
 
         result = super().parse_args(*args, **kwargs)
-        print('result: ' + repr(result))
         if self._convert_to_dict:
             result = vars(result)
-            print('As dict: ' + repr(result))
             del result['config_file']
             del result['extra_config_file']
             logging.basicConfig(
@@ -228,6 +237,9 @@ class ManualStepArgumentParser(ArgumentParser):
             del result.config_file
             del result.extra_config_file
             del result.verbose
+
+        if args or kwargs:
+            result['argument_descriptions'] = self.argument_descriptions
 
         return result
     #pylint: enable=signature-differs

@@ -69,18 +69,19 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--frame-center-estimate',
-        required=True,
         nargs=2,
         type=str,
+        default=None,
         help='The approximate right ascention and declination of the center of '
-        'the frame in degrees. Can be an expression involving header keywords.'
+        'the frame in degrees. Can be an expression involving header keywords. '
+        'If not specified, the center of the catalog is used.'
     )
     parser.add_argument(
         '--frame-fov-estimate',
-        required=True,
         type=str,
         help='Approximate field of view of the frame in degrees. Can be an '
-        'expression involving header keywords.'
+        'expression involving header keywords. If not specified, the field of '
+        'view of the catalog divided by 1.3 is used.'
     )
     parser.add_argument(
         '--max-srcmatch-distance',
@@ -603,11 +604,25 @@ def astrometry_process(task_queue, result_queue, configuration):
     _logger.debug('Astrometry solving process finished.')
 
 
+def prepare_configuration(configuration):
+    """Apply fallbacks to the configuration."""
+
+    with fits.open(configuration['astrometry_catalog']) as cat_fits:
+        catalog_header = cat_fits[1].header
+
+    if configuration['frame-center-estimate'] is None:
+        configuration['frame_center_estimate'] = (catalog_header['RA'],
+                                                  catalog_header['DEC'])
+    if configuration['frame-fov-estimate'] is None:
+        configuration['frame_fov_estimate'] = catalog_header['WIDTH']
+
+
 #Could not think of good way to split
 #pylint: disable=too-many-branches
 def solve_astrometry(dr_collection, configuration):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
+    prepare_configuration(configuration)
     pending = {}
     failed = {}
     for dr_fname in dr_collection:

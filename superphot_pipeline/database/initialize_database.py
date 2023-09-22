@@ -15,7 +15,8 @@ from superphot_pipeline.database.initialize_light_curve_structure import\
     get_default_light_curve_structure
 from superphot_pipeline import processing_steps
 from superphot_pipeline.database.data_model import\
-    Step
+    Step,\
+    Parameter
 
 def parse_command_line():
     """Parse the commandline optinos to attributes of an object."""
@@ -81,13 +82,31 @@ def init_processing():
     with db_session_scope() as db_session:
         db_steps = {}
         for step_id, (step_name, dependencies) in enumerate(step_dependencies):
+            step_module = getattr(processing_steps, step_name)
             db_steps[step_name] = Step(
                 id=step_id + 1,
                 name=step_name,
-                description=getattr(processing_steps, step_name).__doc__
+                description=step_module.__doc__
             )
             for required_name in dependencies:
                 db_steps[step_name].requires.append(db_steps[required_name])
+
+            print(f'Initializing {step_name} parameters')
+            default_step_config = step_module.parse_command_line([])
+            print(f'Default step config: {default_step_config!r}')
+            for param in default_step_config.keys():
+                if param != 'argument_descriptions':
+                    db_steps[step_name].parameters.append(
+                        Parameter(
+                            name=param,
+                            description=default_step_config[
+                                'argument_descriptions'
+                            ][
+                                param
+                            ]
+                        )
+                    )
+
             db_session.add(db_steps[step_name])
 
 

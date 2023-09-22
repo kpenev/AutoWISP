@@ -61,7 +61,7 @@ def _parse_substitutions(substitutions_str_iter):
             next(substitutions_str_iter)
         )
     except StopIteration:
-        yield dict()
+        yield {}
         return
     assert parsed_substitution
     if parsed_substitution['type'] == 'in':
@@ -428,8 +428,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
     def __init__(self,
                  mode,
                  description,
+                 *,
                  add_reconstructive=True,
-                 convert_to_dict=True):
+                 convert_to_dict=True,
+                 input_type='lc'):
         """
         Initialize the parser with options common to all LC detrending steps.
 
@@ -442,7 +444,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 
         self._mode = mode.lower()
         super().__init__(
-            input_type='lc',
+            input_type=input_type,
             description=description,
             processing_step=mode,
             allow_parallel_processing=True,
@@ -458,7 +460,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'should be fit and corrected. Default: %(default)s'
         )
         self.add_argument(
-            '--{!s}-datasets'.format(self._mode),
+            f'--{self._mode!s}-datasets',
             type=_parse_fit_datasets,
             help='A `;` separated list of the datasets to detrend. Each entry '
             'should be formatted as: `<input-key> -> <output-key> '
@@ -570,15 +572,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             and
             result.get('epd_variables') is None
         ):
-            result['epd_variables'] = [('z',
-                                        ('skypos.zenith_distance', dict()))]
+            result['epd_variables'] = [('z', ('skypos.zenith_distance', {}))]
 
         result['fit_datasets'] = result.pop(self._mode + '_datasets')
 
         if self._mode == 'tfa':
             for param in list(result.keys()):
                 if param.startswith('tfa_'):
-                    print('Renaming {!r} -> {!r}'.format(param, param[4:]))
+                    print(f'Renaming {param!r} -> {param[4:]!r}')
                     result[param[4:]] = result.pop(param)
                 else:
                     print('Not renaming ' + repr(param))

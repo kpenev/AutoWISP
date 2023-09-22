@@ -126,8 +126,14 @@ def term_to_tex(expression):
     match = var_parser.search(expression)
     if match is None:
         return expression.replace('**', '^')
-    first, last = match.span()
+
     var_name = match.group('var')
+    first, last = match.span()
+    if expression[first] != '(' or expression[last - 1] != ')':
+        if expression[first] != var_name[0]:
+            first += 1
+        if expression[last-1] != var_name[-1]:
+            last -= 1
     return (
         expression[:first].replace('**', '^').replace('*', ' ')
         +

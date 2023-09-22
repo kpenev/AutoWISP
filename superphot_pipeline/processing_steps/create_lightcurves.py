@@ -119,7 +119,8 @@ def parse_command_line(*args):
     elif mem_block_size == 'Gb':
         result['max_memory'] = int(result['max_memory'] * 1024**3)
 
-    result['max_apertures'] = len(result.pop('apertures'))
+    if not args:
+        result['max_apertures'] = len(result.pop('apertures'))
 
     return result
 

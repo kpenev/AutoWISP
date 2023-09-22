@@ -9,11 +9,17 @@ from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
 from superphot_pipeline.processing_steps.lc_detrending import\
     detrend_light_curves
 
-if __name__ == '__main__':
-    cmdline_config = LCDetrendingArgumentParser(
+def parse_command_line(*args):
+    """Parse the commandline optinos to a dictionary."""
+
+    return LCDetrendingArgumentParser(
         mode='EPD',
-        description=__doc__
+        description=__doc__,
+        input_type=('' if args else 'lc')
     ).parse_args()
+
+if __name__ == '__main__':
+    cmdline_config = parse_command_line()
 
     detrend_light_curves(
         find_lc_fnames(cmdline_config.pop('lc_files')),
