@@ -2,6 +2,8 @@
 """Calibrate the flux measurement of source extraction against catalogue."""
 
 import logging
+import re
+
 
 from matplotlib import pyplot
 import pandas
@@ -61,8 +63,10 @@ def parse_command_line():
             'O1{'
                 'phot_g_mean_mag-phot_rp_mean_mag, '
                 'phot_g_mean_mag-phot_bp_mean_mag, '
-                '2.5 * log10(exp(1.0)) * AIRMASS'
-            '}'
+                'AIRMASS'
+            '} '
+            '+'
+            ' O2{x, y}'
         ),
         help='The terms to include in the fit for mag + 2.5log10(flux), where '
         'mag is the magnitude specified by --catalogue-brightness-expression.'
@@ -109,6 +113,66 @@ def parse_command_line():
     return parser.parse_args()
 
 
+def term_to_tex(expression):
+    """Convert a fit terms expression to tex for plot label."""
+
+    variable_map = {
+        'phot_g_mean_mag': 'G',
+        'phot_rp_mean_mag': 'R_p',
+        'phot_bp_mean_mag': 'B_p',
+        'AIRMASS': 'X'
+    }
+    var_parser = re.compile(r'(?:\W|^)(?P<var>[a-zA-Z]\w*)(?:\W|$)')
+    match = var_parser.search(expression)
+    if match is None:
+        return expression.replace('**', '^')
+    first, last = match.span()
+    var_name = match.group('var')
+    return (
+        expression[:first].replace('**', '^').replace('*', ' ')
+        +
+        variable_map.get(var_name, var_name)
+        +
+        term_to_tex(expression[last:])
+    )
+
+
+def coef_to_tex(coef):
+    """Convert a numerical coefficient to tex for plot label."""
+
+    coef_str = f'{coef:+.3g}'
+    if 'e' not in coef_str:
+        return coef_str
+    mantissa, exponent = coef_str.split('e')
+    return rf'{mantissa} \times 10^{{{int(exponent)}}}'
+
+
+def get_best_fit_expression(best_fit_coef,
+                            fit_terms,
+                            catalogue_brightness_expression):
+    """Return latex formatted expression of the best fit."""
+
+    num_terms = len(fit_terms)
+    return (
+        f'${term_to_tex(catalogue_brightness_expression)}'
+        +
+        '$\n$'.join([
+            ''.join([
+                rf'{coef_to_tex(coef)} {term_to_tex(term)}'
+                for coef, term in
+                zip(
+                    best_fit_coef[first_term:min(first_term + 6, num_terms)],
+                    fit_terms[first_term:min(first_term + 6, num_terms)]
+                )
+            ])
+            for first_term in range(0, num_terms, 6)
+        ])
+        +
+        '$'
+    )
+
+
+
 def fit_brightness(matched, get_fit_terms, configuration):
     """Return the best fit brightness for each source and the coefficients."""
 
@@ -121,27 +185,28 @@ def fit_brightness(matched, get_fit_terms, configuration):
 
     best_fit_coef, residual, num_fit_points = iterative_fit(
         predictors,
+        #false positive
+        #pylint: disable=invalid-unary-operand-type
         -magnitude - 2.5 * numpy.log10(matched['flux'].to_numpy(dtype=float)),
+        #pylint: enable=invalid-unary-operand-type
         error_avg=configuration['brightness_error_avg'],
         rej_level=configuration['brightness_rej_threshold'],
         max_rej_iter=configuration['brightness_max_rej_iter'],
         fit_identifier='Source extracted vs catalogue brigtness'
     )
-    _logger.info(
-        'Best fit brightness expression: %s',
-        ' + '.join([
-            f'{coef!r} * {term!s}'
-            for coef, term in zip(best_fit_coef,
-                                  get_fit_terms.get_term_str_list())
-        ]) + f' + {configuration["catalogue_brightness_expression"]}'
+    best_fit_expression = get_best_fit_expression(
+        best_fit_coef,
+        get_fit_terms.get_term_str_list(),
+        configuration['catalogue_brightness_expression']
     )
+    _logger.info('Best fit brightness expression: %s', best_fit_expression)
     _logger.info(
         'Brightness fit residual %s based on %d/%d non-rejected sources',
         repr(residual),
         num_fit_points,
         matched['flux'].size
     )
-    return magnitude + numpy.dot(best_fit_coef, predictors)
+    return magnitude + numpy.dot(best_fit_coef, predictors), best_fit_expression
 
 
 def main(dr_collection, configuration):
@@ -179,11 +244,15 @@ def main(dr_collection, configuration):
             else:
                 matched = pandas.concat((matched, dr_matched))
 
-    magnitude = fit_brightness(matched, get_fit_terms, configuration)
+    magnitude, best_fit_expression = fit_brightness(matched,
+                                                    get_fit_terms,
+                                                    configuration)
     pyplot.semilogy(magnitude,
                     matched['flux'],
-                    'o',
-                    markersize=configuration['markersize'])
+                    ',',
+                    markersize=configuration['markersize'],
+                    markerfacecolor='black',
+                    markeredgecolor='none')
     if configuration['plot_flux_range'] is None:
         configuration['plot_flux_range'] = pyplot.ylim()
     if configuration['plot_mag_range'] is None:
@@ -195,6 +264,8 @@ def main(dr_collection, configuration):
                 '-k')
     pyplot.xlim(configuration['plot_mag_range'])
     pyplot.ylim(configuration['plot_flux_range'])
+    pyplot.xlabel(best_fit_expression)
+    pyplot.ylabel(r'$2.5 \log_{10} (flux)$')
 
     if configuration['plot_fname'] is None:
         pyplot.show()
