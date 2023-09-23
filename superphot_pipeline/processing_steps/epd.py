@@ -16,7 +16,7 @@ def parse_command_line(*args):
         mode='EPD',
         description=__doc__,
         input_type=('' if args else 'lc')
-    ).parse_args()
+    ).parse_args(*args)
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()

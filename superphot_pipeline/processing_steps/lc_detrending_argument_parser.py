@@ -508,14 +508,15 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'iteration is accepted. Default: %(default)s'
         )
         if add_reconstructive:
-            target_args = self.add_argument_group(
-                title='Followup Target',
-                description='Arguments specific to processing followup '
-                'observations where the target star is known to have a transit '
-                'that occupies a significant fraction of the total collection '
-                'of observations.'
-            )
-            target_args.add_argument(
+            #TODO: see if groups can be revived without breaking auto DB init
+#            target_args = self.add_argument_group(
+#                title='Followup Target',
+#                description='Arguments specific to processing followup '
+#                'observations where the target star is known to have a transit '
+#                'that occupies a significant fraction of the total collection '
+#                'of observations.'
+#            )
+            self.add_argument(
                 '--target-id',
                 default=None,
                 help='The lightcurve of the given source (any one of the '
@@ -525,7 +526,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 'to vary. If not specified all LCs are fit in '
                 'non-reconstructive way.'
             )
-            self.add_transit_parameters(target_args,
+            self.add_transit_parameters(self,
                                         timing=True,
                                         geometry='circular',
                                         limb_darkening=True,
@@ -551,10 +552,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'Default: %(default)s'
         )
 
-        mode_args = self.add_argument_group(
-            title=mode + ' specific arguments'
-        )
-        getattr(self, '_add_' + mode.lower() + '_arguments')(mode_args)
+#        mode_args = self.add_argument_group(
+#            title=mode + ' specific arguments'
+#        )
+        getattr(self, '_add_' + mode.lower() + '_arguments')(self)
 
         self.add_argument(
             '--recalc-performance',
@@ -574,13 +575,14 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         ):
             result['epd_variables'] = [('z', ('skypos.zenith_distance', {}))]
 
-        result['fit_datasets'] = result.pop(self._mode + '_datasets')
+        if not args and not kwargs:
+            result['fit_datasets'] = result.pop(self._mode + '_datasets')
 
-        if self._mode == 'tfa':
-            for param in list(result.keys()):
-                if param.startswith('tfa_'):
-                    print(f'Renaming {param!r} -> {param[4:]!r}')
-                    result[param[4:]] = result.pop(param)
-                else:
-                    print('Not renaming ' + repr(param))
+            if self._mode == 'tfa':
+                for param in list(result.keys()):
+                    if param.startswith('tfa_'):
+                        print(f'Renaming {param!r} -> {param[4:]!r}')
+                        result[param[4:]] = result.pop(param)
+                    else:
+                        print('Not renaming ' + repr(param))
         return result

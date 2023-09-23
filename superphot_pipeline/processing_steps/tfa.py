@@ -12,11 +12,18 @@ from superphot_pipeline.light_curves.apply_correction import\
     load_correction_statistics
 
 
-if __name__ == '__main__':
-    cmdline_config = LCDetrendingArgumentParser(
+def parse_command_line(*args):
+    """Parse the commandline optinos to a dictionary."""
+
+    return LCDetrendingArgumentParser(
         mode='TFA',
-        description=__doc__
-    ).parse_args()
+        description=__doc__,
+        input_type=('' if args else 'lc')
+    ).parse_args(*args)
+
+
+if __name__ == '__main__':
+    cmdline_config = parse_command_line()
 
     detrend_light_curves(
         find_lc_fnames(cmdline_config.pop('lc_files')),

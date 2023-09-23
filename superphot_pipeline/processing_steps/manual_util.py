@@ -208,9 +208,17 @@ class ManualStepArgumentParser(ArgumentParser):
     def add_argument(self, *args, **kwargs):
         """Store each argument's description in self.argument_descriptions."""
 
-        self.argument_descriptions[
-            args[0].lstrip('-').replace('-', '_')
-        ] = kwargs['help']
+        if kwargs.get('action', None) == 'store_false':
+            self.argument_descriptions[
+                kwargs['dest']
+            ] = {
+                'rename': args[0].lstrip('-').replace('-', '_'),
+                'help': kwargs['help']
+            }
+        else:
+            self.argument_descriptions[
+                args[0].lstrip('-').replace('-', '_')
+            ] = kwargs['help']
         return super().add_argument(*args, **kwargs)
 
 

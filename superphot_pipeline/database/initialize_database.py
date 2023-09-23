@@ -81,6 +81,7 @@ def init_processing():
     ]
     with db_session_scope() as db_session:
         db_steps = {}
+        db_parameters = {}
         for step_id, (step_name, dependencies) in enumerate(step_dependencies):
             step_module = getattr(processing_steps, step_name)
             db_steps[step_name] = Step(
@@ -93,19 +94,21 @@ def init_processing():
 
             print(f'Initializing {step_name} parameters')
             default_step_config = step_module.parse_command_line([])
-            print(f'Default step config: {default_step_config!r}')
+            print(f'Default step params: {default_step_config.keys()!r}')
             for param in default_step_config.keys():
                 if param != 'argument_descriptions':
-                    db_steps[step_name].parameters.append(
-                        Parameter(
-                            name=param,
-                            description=default_step_config[
-                                'argument_descriptions'
-                            ][
-                                param
-                            ]
-                        )
+                    description = (
+                        default_step_config['argument_descriptions'][param]
                     )
+                    if isinstance(description, dict):
+                        param = description['rename']
+                        description = description['help']
+                    if param not in db_parameters:
+                        db_parameters[param] = Parameter(
+                            name=param,
+                            description=description
+                        )
+                    db_steps[step_name].parameters.append(db_parameters[param])
 
             db_session.add(db_steps[step_name])
 
