@@ -257,10 +257,13 @@ def read_catalog_file(catalog_fname,
     """
 
     with fits.open(catalog_fname) as cat_fits:
-        result = pandas.DataFrame(cat_fits[1].data)
+        fixed_dtype = cat_fits[1].data.dtype.newbyteorder('=')
+        result = pandas.DataFrame.from_records(
+            cat_fits[1].data.astype(fixed_dtype),
+            index='source_id'
+        )
         if return_metadata:
             metadata = cat_fits[1].header
-    result.set_index('source_id', inplace=True)
 
     cat_eval = Evaluator(result)
     if sort_expr is not None:
@@ -281,8 +284,7 @@ def read_catalog_file(catalog_fname,
 
     if return_metadata:
         return result, metadata
-    else:
-        return result
+    return result
 
 
 def parse_command_line():
