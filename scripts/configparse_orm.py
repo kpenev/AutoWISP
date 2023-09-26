@@ -82,8 +82,9 @@ def add_to_db(dbpath, filename):
         #reflect the tables
         Base.prepare(autoload_with=engine)
         Configuration = Base.classes.configuration
-        Conditions = Base.classes.conditions
-        Condition_Expressions = Base.classes.condition_expressions
+        Condition = Base.classes.condition
+        Condition_Expression = Base.classes.condition_expression
+        Parameter = Base.classes.parameter
 
         local_session = Session(bind=engine)
         print("Database created and Successfully Connected to SQLite")
@@ -92,29 +93,30 @@ def add_to_db(dbpath, filename):
         config_dict, condition_dict = filter_dict(parse_cmd(filename))
 
         #get how many elements in table to keep track of id
-        id = local_session.query(Configuration).count()
+        param_id = local_session.query(Configuration).count()
 
         # populate configuration table
         for x in config_dict:
             param = str(x)
             val = str(config_dict[x])
-            local_session.add(Configuration(id=id, version=0, condition_id=0, parameter=param, value=val, notes='', timestamp=datetime.utcnow()))
-            id +=1
+            local_session.add(Parameter(id=param_id, name=param, description="", timestamp=datetime.utcnow()))
+            local_session.add(Configuration(parameter_id=param_id, version=0, condition_id=0, value=val, notes='', timestamp=datetime.utcnow()))
+            param_id += 1
         local_session.commit()
 
-        condition_id = local_session.query(Conditions).count()
-        expression_id = local_session.query(Condition_Expressions).count()
+        condition_id = local_session.query(Condition).count()
+        expression_id = local_session.query(Condition_Expression).count()
 
         # populate condition and condition_expressions tables
         for x in condition_dict:
             condition = str(x)
             expression = str(condition_dict[x])
-            local_session.add(Conditions(id=condition_id,expression_id=0,notes=condition,timestamp=datetime.utcnow()))
+            local_session.add(Condition(id=condition_id,expression_id=0,notes=condition,timestamp=datetime.utcnow()))
 
             #check that expression does not already exist
-            exists = local_session.query(Condition_Expressions).filter(Condition_Expressions.expression==expression).first() is not None
+            exists = local_session.query(Condition_Expression).filter(Condition_Expression.expression==expression).first() is not None
             if(not exists):
-                local_session.add(Condition_Expressions(id=expression_id,expression=expression,notes='',timestamp=datetime.utcnow()))
+                local_session.add(Condition_Expression(id=expression_id,expression=expression,notes='',timestamp=datetime.utcnow()))
                 expression_id +=1
             condition_id +=1
         local_session.commit()
