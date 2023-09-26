@@ -206,6 +206,7 @@ def add_shape_options(parser):
         metavar='<varname>, <expression>',
         nargs='+',
         default=[],
+        type=lambda arg: tuple(e.strip() for e in arg.split(',')),
         help='Extra variables to allow the PRF to depend on in addition to '
         '(x and y). The <expression> can involve any catologue column , '
         'header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables '

@@ -35,7 +35,7 @@ class Condition(DataModelBase):
         ForeignKey('condition_expression.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        nullable=False,
+        nullable=True,
         doc='The id of the condition expression'
     )
     # notes

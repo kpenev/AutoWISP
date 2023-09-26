@@ -65,11 +65,13 @@ def parse_command_line(*args):
         '--apertures',
         nargs='+',
         type=float,
+        default=[],
         help='The apretures to use for photometry.'
     )
     parser.add_argument(
         '--error-offset',
         type=float,
+        default='0.0',
         help='A constant error to add to the formal error estimate from the '
         'measurement.'
     )

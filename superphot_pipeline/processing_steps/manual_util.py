@@ -88,6 +88,7 @@ class ManualStepArgumentParser(ArgumentParser):
         """
 
         self.argument_descriptions = {}
+        self.argument_defaults = {}
 
         self._convert_to_dict = convert_to_dict
         super().__init__(description=description,
@@ -208,17 +209,49 @@ class ManualStepArgumentParser(ArgumentParser):
     def add_argument(self, *args, **kwargs):
         """Store each argument's description in self.argument_descriptions."""
 
+        argument_name = args[0].lstrip('-').replace('-', '_')
         if kwargs.get('action', None) == 'store_false':
-            self.argument_descriptions[
-                kwargs['dest']
-            ] = {
-                'rename': args[0].lstrip('-').replace('-', '_'),
+            self.argument_descriptions[kwargs['dest']] = {
+                'rename': argument_name,
                 'help': kwargs['help']
             }
         else:
-            self.argument_descriptions[
-                args[0].lstrip('-').replace('-', '_')
-            ] = kwargs['help']
+            self.argument_descriptions[argument_name] = kwargs['help']
+
+        if 'default' in kwargs:
+            nargs = kwargs.get('nargs', 1)
+            if isinstance(kwargs['default'], str) or kwargs['default'] is None:
+                self.argument_defaults[argument_name] = kwargs['default']
+            else:
+                self.argument_defaults[argument_name] = repr(kwargs['default'])
+                if (
+                        'type' not in kwargs
+                        and
+                        kwargs.get('action', None) not in ['store_true',
+                                                           'store_false']
+                        and
+                        nargs == 1
+                ):
+                    raise ValueError(
+                        f'Non-string default value ({kwargs["default"]}) and '
+                        f'no type specified for {argument_name}.'
+                    )
+                if kwargs.get('action', None) not in ['store_true',
+                                                      'store_false']:
+                    if nargs == '+' or nargs > 1:
+                        self.argument_defaults[argument_name] = repr(
+                            list(kwargs['default'])
+                        )
+                    elif (
+                        kwargs['type'](self.argument_defaults[argument_name])
+                        !=
+                        kwargs['default']
+                    ):
+                        raise ValueError(
+                            'Could not convert default value of '
+                            f'{argument_name} for DB: {kwargs["default"]}'
+                        )
+
         return super().add_argument(*args, **kwargs)
 
 
@@ -248,6 +281,7 @@ class ManualStepArgumentParser(ArgumentParser):
 
         if args or kwargs:
             result['argument_descriptions'] = self.argument_descriptions
+            result['argument_defaults'] = self.argument_defaults
 
         return result
     #pylint: enable=signature-differs
