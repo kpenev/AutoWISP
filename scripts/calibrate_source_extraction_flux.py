@@ -242,9 +242,10 @@ def main(dr_collection, configuration):
             dr_matched = dr_file.get_matched_sources(**path_substitutions)
             dr_matched = dr_matched[dr_matched['nsatpix'] == 0]
             if len(dr_collection) > 1:
-                dr_matched.insert(len(dr_matched.columns),
-                                  'AIRMASS',
-                                  header['AIRMASS'])
+                for keyword in configuration['use_header_vars']:
+                    dr_matched.insert(len(dr_matched.columns),
+                                      keyword,
+                                      header[keyword])
             if matched is None:
                 matched = dr_matched
             else:
