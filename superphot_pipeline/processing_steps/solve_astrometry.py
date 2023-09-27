@@ -609,14 +609,14 @@ def astrometry_process(task_queue, result_queue, configuration):
 def prepare_configuration(configuration):
     """Apply fallbacks to the configuration."""
 
-    with fits.open(configuration['astrometry_catalog']) as cat_fits:
-        catalog_header = cat_fits[1].header
+    with fits.open(configuration['astrometry_catalogue']) as cat_fits:
+        catalogue_header = cat_fits[1].header
 
-    if configuration['frame-center-estimate'] is None:
-        configuration['frame_center_estimate'] = (catalog_header['RA'],
-                                                  catalog_header['DEC'])
-    if configuration['frame-fov-estimate'] is None:
-        configuration['frame_fov_estimate'] = catalog_header['WIDTH']
+    if configuration['frame_center_estimate'] is None:
+        configuration['frame_center_estimate'] = (catalogue_header['RA'],
+                                                  catalogue_header['DEC'])
+    if configuration['frame_fov_estimate'] is None:
+        configuration['frame_fov_estimate'] = catalogue_header['WIDTH']
 
 
 #Could not think of good way to split
