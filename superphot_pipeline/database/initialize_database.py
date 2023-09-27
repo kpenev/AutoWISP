@@ -14,9 +14,14 @@ from superphot_pipeline.database.initialize_data_reduction_structure import\
 from superphot_pipeline.database.initialize_light_curve_structure import\
     get_default_light_curve_structure
 from superphot_pipeline import processing_steps
+#false positive due to unusual importing
+#pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
     Step,\
-    Parameter
+    Parameter,\
+    Configuration,\
+    Condition
+#pylint: enable=no-name-in-module
 
 def parse_command_line():
     """Parse the commandline optinos to attributes of an object."""
@@ -82,6 +87,10 @@ def init_processing():
     with db_session_scope() as db_session:
         db_steps = {}
         db_parameters = {}
+        db_configurations = []
+        default_condition = Condition(expression_id=None,
+                                      notes='Default configuration')
+        db_session.add(default_condition)
         for step_id, (step_name, dependencies) in enumerate(step_dependencies):
             step_module = getattr(processing_steps, step_name)
             db_steps[step_name] = Step(
@@ -94,23 +103,54 @@ def init_processing():
 
             print(f'Initializing {step_name} parameters')
             default_step_config = step_module.parse_command_line([])
-            print(f'Default step params: {default_step_config.keys()!r}')
+            print(
+                f'Default step config:\n\t'
+                +
+                '\n\t'.join(
+                    f'{param}: {value}'
+                    for param, value in default_step_config.items()
+                )
+            )
             for param in default_step_config.keys():
-                if param != 'argument_descriptions':
+                if (
+                        param not in ['argument_descriptions',
+                                      'argument_defaults',
+                                      'num_parallel_processes',
+                                      'epd_datasets',
+                                      'tfa_datasets']
+                        and
+                        not param.endswith('_only_if')
+                        and
+                        not param.endswith('_version')
+                        and
+                        not param.endswith('_catalog')
+                ):
                     description = (
                         default_step_config['argument_descriptions'][param]
                     )
                     if isinstance(description, dict):
                         param = description['rename']
                         description = description['help']
+                        configuration = None
                     if param not in db_parameters:
                         db_parameters[param] = Parameter(
                             name=param,
                             description=description
                         )
+                        configuration = Configuration(
+                            version=0,
+                            value=(
+                                default_step_config['argument_defaults'][param]
+                            )
+                        )
+                        configuration.condition = default_condition
+                        configuration.parameter = db_parameters[param]
+                        db_configurations.append(configuration)
                     db_steps[step_name].parameters.append(db_parameters[param])
 
             db_session.add(db_steps[step_name])
+
+        db_session.add_all(db_configurations)
 
 
 def drop_tables_matching(pattern):

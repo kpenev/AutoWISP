@@ -61,7 +61,7 @@ def parse_command_line(*args):
         metavar=('CHANNEL:EXPRESSION'),
         type=lambda e: e.split(':'),
         action='append',
-        default=[],
+        default=None,
         help='An expression to evaluate for each catalog source to determine '
         'if the source should be used for astrometry of a given channel. If '
         'filter for a given channel is not specified, the full catalog is used '
@@ -79,6 +79,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--frame-fov-estimate',
         type=str,
+        default=None,
         help='Approximate field of view of the frame in degrees. Can be an '
         'expression involving header keywords. If not specified, the field of '
         'view of the catalog divided by 1.3 is used.'
@@ -142,7 +143,8 @@ def parse_command_line(*args):
     )
 
     result = parser.parse_args(*args)
-    result['catalogue_filter'] = dict(result['catalogue_filter'])
+    if result['catalogue_filter'] is not None:
+        result['catalogue_filter'] = dict(result['catalogue_filter'])
     return result
 
 class TempAstrometryFiles:

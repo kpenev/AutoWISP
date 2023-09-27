@@ -271,6 +271,15 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         parser.add_argument(
             '--epd-variables',
             type=_parse_epd_variables,
+            default=(
+                "x = srcproj.columns : "
+                "srcproj_column_name = 'x' & srcproj_version = 0; "
+                "y = srcproj.columns : "
+                "srcproj_column_name = 'y' & srcproj_version = 0; "
+                "bg = bg.value; "
+                "z = skypos.zenith_distance; "
+                "S = srcextract.psf_map.eval: srcextract_psf_param = 's'"
+            ),
             help='Specify datasets to detrend against, assigning them variables'
             'to be used in --epd-terms-expression, --fit-weights, etc. Should '
             'be formatted as a `;` separated list of '
@@ -306,6 +315,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             '--skip-outlier-prerejection',
             action='store_false',
             dest='pre_reject_outliers',
+            default=True,
             help='If passed the initial rejection of outliers before the fit '
             'begins is not performed.'
         )
@@ -560,6 +570,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         self.add_argument(
             '--recalc-performance',
             action='store_true',
+            default=False,
             help='If passed, the correction is assumed to have already been '
             'performed and performance statistics are re-derived.'
         )

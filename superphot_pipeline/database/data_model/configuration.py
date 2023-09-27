@@ -42,7 +42,7 @@ class Configuration(DataModelBase):
     )
     value = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The value of the configuration parameter for the given version '
         'for images satisfying the given conditions.'
     )

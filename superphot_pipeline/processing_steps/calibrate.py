@@ -61,29 +61,26 @@ class ParseChannelsAction(Action):
         setattr(namespace, self.dest, result)
 
 
-class ParseOverscanAction(Action):
-    """Parse overscan command line argument per the help."""
+def parse_overscan(overscan_str):
+    """Parse the --overscans argument to dict as required by Calibrator."""
 
-    def __call__(self, parser, namespace, values, option_string=None):
-        """Parse the --overscans argument to dict as required by Calibrator."""
-
-        try:
-            method, areas_str = values[0].split(':')
-            setattr(
-                namespace,
-                self.dest,
-                {
-                    'method': getattr(overscan_methods, method.title()),
-                    'areas': [parse_area_str(area)
-                              for area in areas_str.split(';')]
-                }
+    try:
+        method, areas_str = overscan_str.split(':')
+        return {
+            'method': (
+                None if not method
+                else getattr(overscan_methods, method.title())
+            ),
+            'areas': (
+                None if not areas_str
+                else [parse_area_str(area)
+                      for area in areas_str.split(';')]
             )
-        except Exception as orig_exception:
-            raise ValueError(
-                'Malformatted overscan specification: '
-                +
-                repr(values)
-            ) from orig_exception
+        }
+    except Exception as orig_exception:
+        raise ValueError(
+            f'Malformatted overscan specification: {overscan_str!r}'
+        ) from orig_exception
 #pylint: enable=too-few-public-methods
 
 
@@ -115,7 +112,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--split-channels',
-        default=False,
+        default=None,
         nargs='+',
         action=ParseChannelsAction,
         help='Allows processing images from color detectors which have pixels '
@@ -136,8 +133,8 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--overscans',
-        action=ParseOverscanAction,
-        default={'areas': None, 'method': None},
+        type=parse_overscan,
+        default=':',
         help='Overscan correction to apply. The format is: '
         '<method>:<xmin1>,<xmax1>,<ymin1>,<ymax1>'
         '[;<xmin2>,<xmax2>,<ymin2>,<ymax2>;...].'
