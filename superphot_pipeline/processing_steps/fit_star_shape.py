@@ -55,6 +55,13 @@ def add_source_selction_options(parser):
     """Add options configuring the selection of sources for fitting."""
 
     parser.add_argument(
+        '--shapefit-disable-cover-grid',
+        dest='shapefit_src_cover_grid',
+        action='store_false',
+        default=True,
+        help='Should pixels be selected to cover the full PSF/PRF grid.'
+    )
+    parser.add_argument(
         '--shapefit-src-min-bg-pix',
         type=int,
         default=50,

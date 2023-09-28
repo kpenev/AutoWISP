@@ -223,7 +223,18 @@ class ManualStepArgumentParser(ArgumentParser):
             if isinstance(kwargs['default'], str) or kwargs['default'] is None:
                 self.argument_defaults[argument_name] = kwargs['default']
             else:
-                self.argument_defaults[argument_name] = repr(kwargs['default'])
+                if kwargs.get('action', None) == 'store_true':
+                    assert kwargs.get('default', False) is False
+                    self.argument_defaults[argument_name] = 'False'
+                elif kwargs.get('action', None) == 'store_false':
+                    assert kwargs.get('default', True) is True
+                    self.argument_defaults[argument_name] = repr(
+                        kwargs['dest'] == argument_name
+                    )
+                else:
+                    self.argument_defaults[argument_name] = repr(
+                        kwargs['default']
+                    )
                 if (
                         'type' not in kwargs
                         and
