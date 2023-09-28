@@ -48,6 +48,7 @@ def parse_command_line():
     parser.add_argument(
         '--markersize',
         default=2.0,
+        type=float,
         help='The size of the markers to use in the plot.'
     )
     parser.add_argument(
@@ -80,6 +81,7 @@ def parse_command_line():
     parser.add_argument(
         '--brightness-rej-threshold',
         default=5.0,
+        type=float,
         help='Sources deviating from the best fit brightness model by more than'
         'this factor of the error average are discarded as outliers and fit is '
         'repeated.'
