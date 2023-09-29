@@ -7,8 +7,7 @@ import numpy
 from pytransit import QuadraticModel
 
 from general_purpose_python_modules.multiprocessing_util import\
-        setup_process,\
-        setup_process_map
+        setup_process
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import LightCurveFile
@@ -29,20 +28,6 @@ def extract_target_lc(lc_fnames, target_id):
     raise ValueError('None of the lightcurves seems to be for the target.')
 
 
-def get_hat_source_id(lc_fname):
-    """Return parsed to 3-int HAT source id for the given LC file."""
-
-    if not hasattr(get_hat_source_id, 'parse_hat_source_id'):
-        get_hat_source_id.parse_hat_source_id = (
-            DataReductionFile().parse_hat_source_id
-        )
-
-    return get_hat_source_id.parse_hat_source_id(
-        dict(LightCurveFile(lc_fname, 'r')['Identifiers'])[b'HAT']
-    )
-
-
-
 def add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, result):
     """Fill the catalogue information fields in result."""
 
@@ -50,12 +35,26 @@ def add_catalogue_info(lc_fnames, catalogue_fname, magnitude_column, result):
                                       DataReductionFile().parse_hat_source_id)
 
     for lc_ind, fname in enumerate(lc_fnames):
-        source_id = get_hat_source_id(fname)
-        result[lc_ind]['ID'] = source_id
-        cat_info = catalogue[source_id]
-        result[lc_ind]['mag'] = cat_info[magnitude_column]
-        result[lc_ind]['xi'] = cat_info['xi']
-        result[lc_ind]['eta'] = cat_info['eta']
+        with LightCurveFile(fname, 'r') as lightcurve:
+            cat_source_id = None
+            for source_id in lightcurve['Identifiers'][:, 1]:
+                if source_id in catalogue:
+                    cat_source_id = source_id
+                elif source_id.decode('ascii') in catalogue:
+                    cat_source_id = source_id.decode('ascii')
+                else:
+                    try:
+                        if int(source_id) in catalogue:
+                            cat_source_id = int(source_id)
+                    except ValueError:
+                        pass
+            assert cat_source_id is not None
+
+            cat_info = catalogue[cat_source_id]
+            result[lc_ind]['ID'] = cat_source_id
+            result[lc_ind]['mag'] = cat_info[magnitude_column]
+            result[lc_ind]['xi'] = cat_info['xi']
+            result[lc_ind]['eta'] = cat_info['eta']
 
 
 def get_transit_parameters(configuration, unwind_limb_darkening=True):
@@ -93,16 +92,16 @@ def correct_target_lc(target_lc_fname, configuration, correct):
     transit_parameters = get_transit_parameters(configuration)
     fit_parameter_flags = numpy.zeros(len(transit_parameters), dtype=bool)
 
-    param_indices = dict(depth=0,
-                         limbdark=list(
-                             range(1, num_limbdark_coef + 1)
-                         ),
-                         mid_transit=num_limbdark_coef + 1,
-                         period=num_limbdark_coef + 2,
-                         semimajor=num_limbdark_coef + 3,
-                         inclination=num_limbdark_coef + 4,
-                         eccentricity=num_limbdark_coef + 5,
-                         periastron=num_limbdark_coef + 6)
+    param_indices = {
+        'depth': 0,
+        'limbdark': list(range(1, num_limbdark_coef + 1)),
+        'mid_transit': num_limbdark_coef + 1,
+        'period': num_limbdark_coef + 2,
+        'semimajor': num_limbdark_coef + 3,
+        'inclination': num_limbdark_coef + 4,
+        'eccentricity': num_limbdark_coef + 5,
+        'periastron': num_limbdark_coef + 6
+    }
     for to_fit in configuration['mutable_transit_params']:
         fit_parameter_flags[param_indices[to_fit]] = True
 
@@ -161,7 +160,7 @@ def detrend_light_curves(lc_collection,
     )
 
     lc_collection = list(lc_collection)
-    print('Detrending %d light_curves' % len(lc_collection))
+    print(f'Detrending {len(lc_collection):d} light_curves')
     if not configuration['recalc_performance']:
         if configuration['target_id'] is not None:
             target_lc_fname, lc_fnames = extract_target_lc(
@@ -178,7 +177,9 @@ def detrend_light_curves(lc_collection,
             lc_fnames = lc_collection
 
         if lc_fnames:
-            configuration['task'] = correct.iterative_fit_config['fit_identifier'] + '_calc'
+            configuration['task'] = (
+                correct.iterative_fit_config['fit_identifier'] + '_calc'
+            )
             result = apply_parallel_correction(
                 lc_fnames,
                 correct,

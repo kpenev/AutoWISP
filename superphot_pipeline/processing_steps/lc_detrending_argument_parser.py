@@ -557,7 +557,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         self.add_argument(
             '--magnitude-column',
-            default='R',
+            default='phot_g_mean_mag',
             help='The magnitude column to use for the performance statistics. '
             'Default: %(default)s'
         )
