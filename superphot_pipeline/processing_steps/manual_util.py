@@ -248,7 +248,8 @@ class ManualStepArgumentParser(ArgumentParser):
                         f'no type specified for {argument_name}.'
                     )
                 if kwargs.get('action', None) not in ['store_true',
-                                                      'store_false']:
+                                                      'store_false',
+                                                      'append']:
                     if nargs == '+' or nargs > 1:
                         self.argument_defaults[argument_name] = repr(
                             list(kwargs['default'])
