@@ -157,7 +157,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--gain',
-        default=None,
+        default=1.0,
         type=float,
         help='The gain to assume for the input image (electrons/ADU). If not '
         'specified, it must be defined in the header as GAIN keyword.'

@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import re
 from sqlalchemy.exc import OperationalError
 
-from superphot_pipeline.database.interface import db_engine, db_session_scope
+from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
 
 from superphot_pipeline.database.initialize_data_reduction_structure import\
@@ -58,7 +58,7 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             initialized?
     """
 
-    with db_session_scope() as db_session:
+    with Session.begin() as db_session:
         if data_reduction:
             db_session.add(get_default_data_reduction_structure())
         if light_curve:
@@ -84,7 +84,7 @@ def init_processing():
         ('epd', ['create_lightcurves']),
         ('tfa', ['create_lightcurves', 'epd'])
     ]
-    with db_session_scope() as db_session:
+    with Session.begin() as db_session:
         db_steps = {}
         db_parameters = {}
         db_configurations = []

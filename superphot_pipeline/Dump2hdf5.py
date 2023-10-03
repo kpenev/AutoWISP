@@ -3,7 +3,7 @@ from superphot_pipeline.hdf5_file import HDF5File
 import os
 import numpy as np
 import scipy as sp
-from superphot_pipeline.database.interface import db_session_scope
+from superphot_pipeline.database.interface import Session
 from superphot_pipeline.database.hdf5_file_structure import HDF5FileDatabaseStructure
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module

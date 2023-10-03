@@ -3,7 +3,7 @@
 from sqlalchemy.orm import contains_eager
 
 from superphot_pipeline.hdf5_file import HDF5File
-from superphot_pipeline.database.interface import db_session_scope
+from superphot_pipeline.database.interface import Session
 
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module
@@ -57,7 +57,7 @@ class HDF5FileDatabaseStructure(HDF5File):
                 str(structure.structure_versions[0].version)
             )
 
-        with db_session_scope() as db_session:
+        with Session.begin() as db_session:
             #False positive
             #pylint: disable=no-member
             query = db_session.query(

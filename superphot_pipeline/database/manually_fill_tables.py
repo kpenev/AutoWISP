@@ -5,7 +5,7 @@
 from argparse import ArgumentParser
 import re
 from sqlalchemy import exc
-from superphot_pipeline.database.interface import db_engine, db_session_scope
+from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
 from datetime import datetime
 from data_model.provenance import Camera, CameraType, Mount, MountType, Telescope, TelescopeType, Observatory, Observer
@@ -13,7 +13,7 @@ from data_model import ObservingSession, Target
 
 DataModelBase.metadata.bind = db_engine
 
-with db_session_scope() as db_session:
+with Session.begin() as db_session:
 
     camera_type = CameraType(
                              make='Canon',

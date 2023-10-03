@@ -47,7 +47,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--master-catalogue-fname',
-        default='magfit_catalogue.ucac4',
+        default='MASTERS/magfit_catalogue.ucac4',
         help='The name of the catalogue file to use as extra information in '
              'magnitude fitting terms and for excluding sources from the fit.'
              'Default: %(default)s'

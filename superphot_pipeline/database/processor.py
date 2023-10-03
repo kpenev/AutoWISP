@@ -18,7 +18,7 @@ import traceback
 from functools import reduce
 from configargparse import ArgumentParser, DefaultsFormatter
 
-from superphot_pipeline.database.interface import db_engine, db_session_scope
+from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
 
 from datetime import datetime
@@ -36,7 +36,7 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 DataModelBase.metadata.bind = db_engine
 
 def processor(step_type, parameters, values):
-    with db_session_scope() as db_session:
+    with Session.begin() as db_session:
 
         #Find the step_type_id from given step_type can be either a description or the id itself
         if db_session.query.filter(Steptype.id.match(step_type)):

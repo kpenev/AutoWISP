@@ -522,9 +522,9 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 #            target_args = self.add_argument_group(
 #                title='Followup Target',
 #                description='Arguments specific to processing followup '
-#                'observations where the target star is known to have a transit '
-#                'that occupies a significant fraction of the total collection '
-#                'of observations.'
+#                'observations where the target star is known to have a transit'
+#                ' that occupies a significant fraction of the total collection'
+#                ' of observations.'
 #            )
             self.add_argument(
                 '--target-id',

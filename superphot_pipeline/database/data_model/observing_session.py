@@ -123,20 +123,6 @@ class ObservingSession(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    ## ADDED 06/08/23 - Mica
-    def __init__(self, id, observer_id, camera_id, telescope_id, mount_id, obseratory_id, target_id, start_time, end_time, notes, timestamp):
-        self.id = id
-        self.observer_id = observer_id
-        self.camera_id = camera_id
-        self.telescope_id = telescope_id
-        self.mount_id = mount_id
-        self.observatory_id = obseratory_id
-        self.target_id = target_id
-        self.start_time = start_time
-        self.end_time = end_time
-        self.notes = notes
-        self.timestamp = timestamp
-
     def __repr__(self):
         return f"({self.id}) {self.notes} {self.timestamp}"
 

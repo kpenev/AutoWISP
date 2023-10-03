@@ -53,7 +53,7 @@ class Configuration(DataModelBase):
     )
     timestamp = Column(
         TIMESTAMP,
-        nullable=True,
+        nullable=False,
         doc='When record was last changed'
     )
 

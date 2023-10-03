@@ -4,7 +4,7 @@
 
 from sqlalchemy.orm import contains_eager
 
-from superphot_pipeline.database.interface import db_session_scope
+from superphot_pipeline.database.interface import Session
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
@@ -145,7 +145,7 @@ def report_changes_in_hdf5_structure(default_structure, db_session):
 def report_changes():
     """Create the report without polluting global scope."""
 
-    with db_session_scope() as db_session:
+    with Session.begin() as db_session:
         report_changes_in_hdf5_structure(
             get_default_light_curve_structure(db_session),
             db_session

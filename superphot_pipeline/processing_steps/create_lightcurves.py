@@ -48,7 +48,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--lcdump-catalogue-fname', '--lcdump-catalogue', '--lcdump-cat',
-        default='lcdump_catalogue.ucac4',
+        default='MASTERS/lcdump_catalogue.ucac4',
         help='The name of the catalogue file containing all sources to Create '
         'lightcurves for.'
     )

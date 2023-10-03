@@ -304,7 +304,7 @@ def parse_command_line(*args):
 
     parser.add_argument(
         '--photometry-catalogue', '--photometry-catalog', '--cat',
-        default='photometry_catalogue.ucac4',
+        default='MASTERS/photometry_catalogue.ucac4',
         help='A file containing the list of stars to perform photometry on.'
     )
 

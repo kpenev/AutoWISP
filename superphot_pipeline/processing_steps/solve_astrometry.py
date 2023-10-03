@@ -49,7 +49,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
-        default='astrometry_catalogue.ucac4',
+        default='MASTERS/astrometry_catalogue.ucac4',
         help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
