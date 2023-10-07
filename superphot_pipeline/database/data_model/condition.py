@@ -19,7 +19,12 @@ __all__ = ['Condition']
 
 
 class Condition(DataModelBase):
-    """The table describing the Conditions"""
+    """
+    The table describing the Conditions for given configuration to apply.
+
+    Each condition is a combination of condition expressions that must all be
+    satisfied simultaneously for the condition to be considered satisfied.
+    """
 
     __tablename__ = 'condition'
 
@@ -27,7 +32,7 @@ class Condition(DataModelBase):
     id = Column(
         Integer,
         primary_key=True,
-        doc='A unique identifier for each condition_expression'
+        doc='A unique identifier for each condition.'
     )
     # expression
     expression_id = Column(
@@ -35,8 +40,8 @@ class Condition(DataModelBase):
         ForeignKey('condition_expression.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        nullable=True,
-        doc='The id of the condition expression'
+        primary_key=True,
+        doc='The id of the condition expression that is part of this condition.'
     )
     # notes
     notes = Column(
