@@ -1,11 +1,20 @@
 """Handle data processing DB interactions."""
 
+from os import path
+import logging
+
 from sqlalchemy import sql
 
+from superphot_pipeline import Evaluator
 from superphot_pipeline.database.interface import Session
+#False positive due to unusual importing
+#pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
     Image,\
-    ImageProcessingProgress
+    ImageProcessingProgress,\
+    Configuration,\
+    Step
+#pylint: enable=no-name-in-module
 
 class ProcessingManager:
     """
@@ -17,8 +26,8 @@ class ProcessingManager:
 
                 ``version``: the actual version used including fallback
 
-                ``value``: dict tuple of expression IDs that an image must
-                satisfy for the parameter to have a given value.
+                ``value``: dict indexed by frozenset of expression IDs that an
+                image must satisfy for the parameter to have a given value.
 
         condition_expressions({int: str}):    Dictionary of condition
             expressions that must be evaluated against the header of each input
@@ -55,7 +64,7 @@ class ProcessingManager:
             Configuration
         ).join(
             param_version_stmt,
-            sql.expression._and(
+            sql.expression.and_(
                 (
                     Configuration.parameter_id
                     ==
@@ -70,10 +79,10 @@ class ProcessingManager:
         ).all()
 
 
-    def _get_condition_expressions(self, db_configurations):
-        """Return the condition expressions required by the given configs."""
-
-        with Session.begin() as db_session:
+#    def _get_condition_expressions(self, db_configurations):
+#        """Return the condition expressions required by the given configs."""
+#
+#        with Session.begin() as db_session:
 
 
     def __init__(self, version):
@@ -90,9 +99,13 @@ class ProcessingManager:
         """
 
 
+        self.current_step = None
         self.configuration = {}
         self.condition_expressions = {}
+        #False positivie
+        #pylint: disable=no-member
         with Session.begin() as db_session:
+        #pylint: enable=no-member
             db_configuration = self._get_db_configuration(version, db_session)
             for config_entry in db_configuration:
                 if config_entry.parameter.name not in self.configuration:
@@ -100,24 +113,27 @@ class ProcessingManager:
                         'version': config_entry.version,
                         'value': {}
                     }
-            self.configuration[config_entry.parameter.name]['value'][
-                tuple(
-                    sorted([
-                        expr.id
-                        for expr in config_entry.condition.expressions
-                    ])
-                )
-            ] = config_entry.value
+                print(repr(config_entry.conditions))
+                self.configuration[config_entry.parameter.name]['value'][
+                    frozenset(
+                        cond.expression_id
+                        for cond in config_entry.conditions
+                    )
+                ] = config_entry.value
 
-            for expr in config_entry.condition.expressions:
-                if expr.id not in self.condition_expressions:
-                    self.condition_expressions[expr.id] = expr.expression
+                for cond in config_entry.conditions:
+                    if cond.expression_id not in self.condition_expressions:
+                        self.condition_expressions[cond.expression_id] = (
+                            cond.expression.expression
+                        )
 
-            for step in db_session.query(Step).all():
-                self.step_version[step.name] = max([
+            self.step_version = {
+                step.name: max([
                     self.configuration[param.name]['version']
                     for param in step.parameters
                 ])
+                for step in db_session.query(Step).all()
+            }
 
 
     def start_step(self, step_name):
@@ -131,7 +147,10 @@ class ProcessingManager:
             None
         """
 
+        #False positivie
+        #pylint: disable=no-member
         with Session.begin() as db_session:
+        #pylint: enable=no-member
             self.current_step = db_session.query(
                 Step
             ).filter_by(
@@ -155,8 +174,10 @@ class ProcessingManager:
             None
         """
 
-
+        #False positivie
+        #pylint: disable=no-member
         with Session.begin() as db_session:
+        #pylint: enable=no-member
             if isinstance(image, int):
                 image = db_session.query(
                     Image
@@ -165,3 +186,100 @@ class ProcessingManager:
                 ).one()
 
             self._current_processing.images.append(image)
+
+
+    def create_config_file(self, example_header, outf, steps=None):
+        """
+        Save configuration for processing given header to given output file.
+
+        Args:
+            example_header(str or dict-like):    The header to use
+                to determine the values of the configuration parameters. Can be
+                passed directly as a header instance or FITS or DR filename.
+
+            outf(file or str):    The file to write the configuration to. Can be
+                passed as something providing a write method or filename.
+                Overwritten if exists.
+
+            steps(list):    If specified, only configuration parameters required
+                by these steps will be included.
+
+            steps=None
+
+        Returns:
+            None
+        """
+
+        evaluate = Evaluator(example_header)
+
+        satisfied_expressions = set(
+            expr_id
+            for expr_id, expression in self.condition_expressions.items()
+            if evaluate(expression)
+        )
+
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+
+            if steps is None:
+                steps = db_session.query(Step).order_by(Step.id).all()
+            else:
+                steps = [
+                    db_session.query(Step).filter_by(name=step_name).one()
+                    for step_name in steps
+                ]
+
+            if isinstance(outf, str):
+                outf = open(outf, 'w')
+                close = True
+            else:
+                close = False
+
+            try:
+                added_params = set()
+                for this_step in steps:
+                    outf.write(f'[{this_step.name}]\n')
+                    for param in this_step.parameters:
+                        for required_expressios, value in self.configuration[
+                                param.name
+                        ][
+                            "value"
+                        ].items():
+                            if required_expressios <= satisfied_expressions:
+                                if param.name not in added_params:
+                                    if value is not None:
+                                        outf.write(
+                                            f'    {param.name} = {value}\n'
+                                        )
+                                    added_params.add(param.name)
+                                break
+                    outf.write('\n')
+                if close:
+                    outf.close()
+            except:
+                if close:
+                    outf.close()
+                raise
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    test_fits = path.join(
+        path.dirname(
+            path.dirname(
+                path.dirname(
+                    path.abspath(__file__)
+                )
+            )
+        ),
+        'usage_examples',
+        'test_data',
+        '10-20170306',
+        '10-464933_2_R1.fits.fz'
+    )
+    ProcessingManager(1).create_config_file(
+        test_fits,
+        'test.cfg'
+    )

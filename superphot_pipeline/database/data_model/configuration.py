@@ -1,12 +1,15 @@
 """Define the ProcessingConfiguration table for the pipeline"""
 
+from __future__ import annotations
+from typing import List
+
 from sqlalchemy import\
     Column,\
     Integer,\
     String,\
     ForeignKey,\
     TIMESTAMP
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
@@ -33,9 +36,6 @@ class Configuration(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey('condition.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
         primary_key=True,
         doc='The id of the condition that must be met for this configuration to'
         ' apply'
@@ -57,5 +57,10 @@ class Configuration(DataModelBase):
         doc='When record was last changed'
     )
 
-    condition = relationship("Condition")
+    conditions: Mapped[List[Condition]] = relationship(
+        "Condition",
+        primaryjoin='Configuration.condition_id==foreign(Condition.id)',
+        order_by='Condition.id',
+        uselist=True
+    )
     parameter = relationship("Parameter")

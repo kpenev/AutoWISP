@@ -4,7 +4,6 @@
 
 from argparse import ArgumentParser
 import re
-from sqlalchemy.exc import OperationalError
 
 from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
@@ -20,7 +19,8 @@ from superphot_pipeline.database.data_model import\
     Step,\
     Parameter,\
     Configuration,\
-    Condition
+    Condition,\
+    ConditionExpression
 #pylint: enable=no-name-in-module
 
 def parse_command_line():
@@ -58,13 +58,18 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             initialized?
     """
 
+    #False positivie
+    #pylint: disable=no-member
     with Session.begin() as db_session:
+    #pylint: enable=no-member
         if data_reduction:
             db_session.add(get_default_data_reduction_structure())
         if light_curve:
             db_session.add(get_default_light_curve_structure(db_session))
 
 
+#No good way to simplify
+#pylint: disable=too-many-locals
 def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
@@ -84,13 +89,24 @@ def init_processing():
         ('epd', ['create_lightcurves']),
         ('tfa', ['create_lightcurves', 'epd'])
     ]
+
+    #False positivie
+    #pylint: disable=no-member
     with Session.begin() as db_session:
+    #pylint: enable=no-member
         db_steps = {}
         db_parameters = {}
         db_configurations = []
-        default_condition = Condition(expression_id=None,
+        default_expression = ConditionExpression(id=1,
+                                                 expression='True',
+                                                 notes='Default expression')
+        db_session.add(default_expression)
+
+        default_condition = Condition(id=1,
+                                      expression_id=default_expression.id,
                                       notes='Default configuration')
         db_session.add(default_condition)
+
         for step_id, (step_name, dependencies) in enumerate(step_dependencies):
             step_module = getattr(processing_steps, step_name)
             db_steps[step_name] = Step(
@@ -104,32 +120,32 @@ def init_processing():
             print(f'Initializing {step_name} parameters')
             default_step_config = step_module.parse_command_line([])
             print(
-                f'Default step config:\n\t'
+                'Default step config:\n\t'
                 +
                 '\n\t'.join(
                     f'{param}: {value}'
                     for param, value in default_step_config.items()
                 )
             )
-            for param in default_step_config.keys():
+            for param in default_step_config['argument_descriptions'].keys():
                 if (
-                        param not in ['argument_descriptions',
-                                      'argument_defaults',
-                                      'num_parallel_processes',
-                                      'epd_datasets',
-                                      'tfa_datasets']
+                        param not in ['h',
+                                      'config-file',
+                                      'extra-config-file',
+                                      'num-parallel-processes',
+                                      'epd-datasets',
+                                      'tfa-datasets']
                         and
-                        not param.endswith('_only_if')
+                        not param.endswith('-only-if')
                         and
-                        not param.endswith('_version')
+                        not param.endswith('-version')
                         and
-                        not param.endswith('_catalog')
+                        not param.endswith('-catalog')
                 ):
                     description = (
                         default_step_config['argument_descriptions'][param]
                     )
                     if isinstance(description, dict):
-                        param = description['rename']
                         description = description['help']
                         configuration = None
                     if param not in db_parameters:
@@ -139,11 +155,13 @@ def init_processing():
                         )
                         configuration = Configuration(
                             version=0,
-                            value=(
-                                default_step_config['argument_defaults'][param]
-                            )
+                            condition_id=default_condition.id,
+                            value=default_step_config[
+                                'argument_defaults'
+                            ][
+                                param
+                            ]
                         )
-                        configuration.condition = default_condition
                         configuration.parameter = db_parameters[param]
                         db_configurations.append(configuration)
                     db_steps[step_name].parameters.append(db_parameters[param])
@@ -151,17 +169,23 @@ def init_processing():
             db_session.add(db_steps[step_name])
 
         db_session.add_all(db_configurations)
-
+#pylint: enable=too-many-locals
 
 def drop_tables_matching(pattern):
     """Drop tables with names matching a pre-compiled regular expression."""
 
-    for table in reversed(DataModelBase.metadata.sorted_tables):
-        if pattern.fullmatch(table.name):
-            try:
-                table.drop(db_engine)
-            except OperationalError:
-                pass
+
+    if pattern is None:
+        DataModelBase.metadata.drop_all(db_engine)
+    else:
+        DataModelBase.metadata.drop_all(
+            db_engine,
+            filter(
+                lambda table: pattern.fullmatch(table.name),
+                reversed(DataModelBase.metadata.sorted_tables)
+            )
+        )
+
 
 if __name__ == '__main__':
     cmdline_args = parse_command_line()

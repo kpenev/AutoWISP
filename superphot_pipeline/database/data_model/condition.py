@@ -6,7 +6,6 @@ from sqlalchemy import \
     String,\
     TIMESTAMP,\
     ForeignKey
-
 from sqlalchemy.orm import relationship
 
 # Comment for database testing
@@ -28,13 +27,11 @@ class Condition(DataModelBase):
 
     __tablename__ = 'condition'
 
-    # id
     id = Column(
         Integer,
         primary_key=True,
         doc='A unique identifier for each condition.'
     )
-    # expression
     expression_id = Column(
         Integer,
         ForeignKey('condition_expression.id',
@@ -43,22 +40,18 @@ class Condition(DataModelBase):
         primary_key=True,
         doc='The id of the condition expression that is part of this condition.'
     )
-    # notes
     notes = Column(
         String(1000),
         nullable=False,
         doc='Any user supplied notes describing the condition.'
     )
-    # timestamp
     timestamp = Column(
         TIMESTAMP,
         nullable=False,
         doc='When record was last changed'
     )
 
+    expression = relationship("ConditionExpression")
+
     def __str__(self):
         return f"({self.id}) {self.expression_id} {self.notes} {self.timestamp}"
-
-    # relationship
-    expressions = relationship("ConditionExpression",
-                               back_populates="conditions")
