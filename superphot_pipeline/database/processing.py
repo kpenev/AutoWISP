@@ -53,7 +53,10 @@ class ProcessingManager:
 
         param_version_stmt = db_session.query(
             Configuration.parameter_id,
+            #False positivie
+            #pylint: disable=not-callable
             sql.func.max(Configuration.version).label('version'),
+            #pylint: enable=not-callable
         ).filter(
             Configuration.version <= version
         ).group_by(
@@ -79,10 +82,41 @@ class ProcessingManager:
         ).all()
 
 
-#    def _get_condition_expressions(self, db_configurations):
-#        """Return the condition expressions required by the given configs."""
-#
-#        with Session.begin() as db_session:
+    def _write_config_file(self, satisfied_expressions, outf, steps=None):
+        """Write to given file configuration pergiven satisfied expressions."""
+
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+
+            if steps is None:
+                steps = db_session.query(Step).order_by(Step.id).all()
+            else:
+                steps = [
+                    db_session.query(Step).filter_by(name=step_name).one()
+                    for step_name in steps
+                ]
+
+            added_params = set()
+            for this_step in steps:
+                outf.write(f'[{this_step.name}]\n')
+                for param in this_step.parameters:
+                    if param.name in added_params:
+                        continue
+                    for required_expressios, value in self.configuration[
+                            param.name
+                    ][
+                        "value"
+                    ].items():
+                        if required_expressios <= satisfied_expressions:
+                            added_params.add(param.name)
+                            if value is not None:
+                                outf.write(
+                                    f'    {param.name} = {value}\n'
+                                )
+                            break
+                outf.write('\n')
 
 
     def __init__(self, version):
@@ -100,6 +134,7 @@ class ProcessingManager:
 
 
         self.current_step = None
+        self._current_processing = None
         self.configuration = {}
         self.condition_expressions = {}
         #False positivie
@@ -128,10 +163,10 @@ class ProcessingManager:
                         )
 
             self.step_version = {
-                step.name: max([
+                step.name: max(
                     self.configuration[param.name]['version']
                     for param in step.parameters
-                ])
+                )
                 for step in db_session.query(Step).all()
             }
 
@@ -174,6 +209,8 @@ class ProcessingManager:
             None
         """
 
+        assert self.current_step is not None
+        assert self._current_processing is not None
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -218,50 +255,14 @@ class ProcessingManager:
             if evaluate(expression)
         )
 
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
+        if isinstance(outf, str):
+            with open(outf, 'w', encoding='utf-8') as opened_outf:
+                self._write_config_file(satisfied_expressions,
+                                        opened_outf,
+                                        steps)
+        else:
+            self._write_config_file(satisfied_expressions, outf, steps)
 
-            if steps is None:
-                steps = db_session.query(Step).order_by(Step.id).all()
-            else:
-                steps = [
-                    db_session.query(Step).filter_by(name=step_name).one()
-                    for step_name in steps
-                ]
-
-            if isinstance(outf, str):
-                outf = open(outf, 'w')
-                close = True
-            else:
-                close = False
-
-            try:
-                added_params = set()
-                for this_step in steps:
-                    outf.write(f'[{this_step.name}]\n')
-                    for param in this_step.parameters:
-                        for required_expressios, value in self.configuration[
-                                param.name
-                        ][
-                            "value"
-                        ].items():
-                            if required_expressios <= satisfied_expressions:
-                                if param.name not in added_params:
-                                    if value is not None:
-                                        outf.write(
-                                            f'    {param.name} = {value}\n'
-                                        )
-                                    added_params.add(param.name)
-                                break
-                    outf.write('\n')
-                if close:
-                    outf.close()
-            except:
-                if close:
-                    outf.close()
-                raise
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
