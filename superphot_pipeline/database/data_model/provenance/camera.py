@@ -4,23 +4,12 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    Date,\
     TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    ForeignKey
 
 from sqlalchemy.orm import relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
-#pylint false positive: this is actually a class name
-#pylint: disable=invalid-name
-
-#pylint: enable=invalid-name
-
-#TODO  image and camera should have all the resolutions for all the channels separated
 
 __all__ = ['Camera']
 
@@ -47,6 +36,8 @@ class Camera(DataModelBase):
     serial_number = Column(
         String(100),
         nullable=False,
+        unique=True,
+        index=True,
         doc='The serial number of the camera'
     )
     notes = Column(
@@ -60,6 +51,10 @@ class Camera(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    observing_session = relationship("ObservingSession", back_populates="camera")
-    cameratype = relationship("CameraType", back_populates="cameras")
-    camera_access = relationship("CameraAccess", back_populates="camera")
+    observing_session = relationship("ObservingSession",
+                                     back_populates="camera")
+    cameratype = relationship("CameraType",
+                              back_populates="cameras")
+    camera_access = relationship("CameraAccess",
+                                 back_populates="camera")
+#pylint: enable=too-few-public-methods

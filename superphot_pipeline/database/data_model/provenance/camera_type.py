@@ -65,7 +65,7 @@ class CameraType(DataModelBase):
     pixel_size = Column(
         Float,
         nullable=False,
-        doc='The pixel size of the camera'
+        doc='The pixel size of the camera in microns'
     )
     notes = Column(
         String(1000),

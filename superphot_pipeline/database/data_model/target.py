@@ -53,7 +53,7 @@ class Target(DataModelBase):
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes about the target'
     )
     timestamp = Column(
@@ -61,5 +61,5 @@ class Target(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-    
+
     observing_session = relationship("ObservingSession", back_populates="target")

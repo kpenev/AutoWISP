@@ -8,12 +8,6 @@ from inspect import isclass
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-#TODO: separate impoprt table definitions as a new file and make two inits for
-#      provenance and datamodel and then separate __all__ from the
-#      import_module lists generated and combine them run an end step keep them
-#      separate (keep frames_provenance and frames separate, keep in that
-#      modules namespace only)
-
 __all__ = []
 
 def import_table_definitions():

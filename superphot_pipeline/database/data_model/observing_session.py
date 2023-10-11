@@ -102,15 +102,15 @@ class ObservingSession(DataModelBase):
         nullable=False,
         doc='The id of the target'
     )
-    start_time = Column(
+    start_time_utc = Column(
         DateTime,
         nullable=False,
-        doc='The start time of the observing session'
+        doc='The start time of the observing session in UTC'
     )
-    end_time = Column(
+    end_time_utc = Column(
         DateTime,
         nullable=False,
-        doc='The end time of the observing session'
+        doc='The end time of the observing session in UTC'
     )
     notes = Column(
         String(1000),
