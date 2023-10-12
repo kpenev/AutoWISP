@@ -93,7 +93,6 @@ def parse_command_line(*args):
         inputtype = 'raw'
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      processing_step='calibrate',
                                       input_type=inputtype)
 
     parser.add_argument(

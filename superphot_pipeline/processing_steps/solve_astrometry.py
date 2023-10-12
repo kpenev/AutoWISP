@@ -35,7 +35,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='astrometry',
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True

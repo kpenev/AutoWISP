@@ -16,6 +16,7 @@ from superphot_pipeline import processing_steps
 #false positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
+    ImageType,\
     Step,\
     Parameter,\
     Configuration,\
@@ -42,6 +43,12 @@ def parse_command_line():
         help='If passed, tables defining the structure of HDF5 files are '
         'dropped first and then re-created and filled. Otherwise, if tables '
         'exist, their contents is not modified.'
+    )
+    parser.add_argument(
+        '--verbose',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        default='INFO',
+        help='Set the verbosity of the DB logger.'
     )
     return parser.parse_args()
 
@@ -74,6 +81,7 @@ def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
     step_dependencies = [
+        ('add_images_to_db', []),
         ('calibrate', []),
         ('find_stars', ['calibrate']),
         ('solve_astrometry', ['find_stars']),
@@ -94,6 +102,8 @@ def init_processing():
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
+        for image_type in ['bias', 'dark', 'flat', 'object']:
+            db_session.add(ImageType(type_name=image_type))
         db_steps = {}
         db_parameters = {}
         db_configurations = []
@@ -171,6 +181,7 @@ def init_processing():
         db_session.add_all(db_configurations)
 #pylint: enable=too-many-locals
 
+
 def drop_tables_matching(pattern):
     """Drop tables with names matching a pre-compiled regular expression."""
 
@@ -187,8 +198,8 @@ def drop_tables_matching(pattern):
         )
 
 
-if __name__ == '__main__':
-    cmdline_args = parse_command_line()
+def initialize_database(cmdline_args):
+    """Initialize the database as specified on the command line."""
 
     if cmdline_args.drop_hdf5_structure_tables:
         drop_tables_matching(re.compile('hdf5_.*'))
@@ -197,3 +208,7 @@ if __name__ == '__main__':
     DataModelBase.metadata.create_all(db_engine)
     init_processing()
     add_default_hdf5_structures()
+
+
+if __name__ == '__main__':
+    initialize_database(parse_command_line())

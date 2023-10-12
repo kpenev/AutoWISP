@@ -42,12 +42,12 @@ class Observer(DataModelBase):
     )
     email = Column(
         String(100),
-        nullable=False,
+        nullable=True,
         doc='The email of the observer'
     )
     phone = Column(
         String(100),
-        nullable=False,
+        nullable=True,
         doc='The phone number of the observer'
     )
     notes = Column(
@@ -61,11 +61,14 @@ class Observer(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    camera_access = relationship("CameraAccess",
-                                 back_populates="observer")
-    mount_access = relationship("MountAccess",
-                                back_populates="observer")
-    telescope_access = relationship("TelescopeAccess",
-                                    back_populates="observer")
+    cameras = relationship("Camera",
+                           secondary="camera_access",
+                           back_populates="observers")
+    mounts = relationship("Mount",
+                          secondary="mount_access",
+                          back_populates="observers")
+    telescopes = relationship("Telescope",
+                              secondary="telescope_access",
+                              back_populates="observers")
     observing_sessions = relationship("ObservingSession",
                                       back_populates="observer")

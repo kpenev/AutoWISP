@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 """Register new images with the database."""
 
 from datetime import timedelta
+import logging
 
 from astropy import units
 from astropy.time import Time
@@ -22,10 +25,12 @@ from superphot_pipeline.database.data_model.provenance import\
     Observatory
 from superphot_pipeline.database.data_model import\
     Image,\
+    ImageType,\
     ObservingSession,\
     Target
 #pylint: enable=no-name-in-module
 
+_logger = logging.getLogger(__name__)
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -36,7 +41,6 @@ def parse_command_line(*args):
         inputtype = 'raw'
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      processing_step='add_images_to_db',
                                       input_type=inputtype)
     parser.add_argument(
         '--observer',
@@ -79,7 +83,8 @@ def parse_command_line(*args):
     parser.add_argument(
         '--observatory-location',
         metavar=('LATITUDE', 'LONGITUDE'),
-        default=['LAT-OBS', 'LONG-OBS'],
+        default=['LAT_OBS', 'LONG_OBS'],
+        nargs=2,
         help='The latitude and longitude of the observatory from where the '
         'images were collected. Can be arbitrary expression involving header '
         'keywords. Must already have an entry in the ``observatory`` table '
@@ -88,17 +93,17 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--target-ra', '--ra',
-        default='RA-MNT',
+        default='RA_MNT',
         help='The RA targetted by the observations in degrees. Can be arbitrary'
         ' expression involving header keywords. If target table already '
-        'contains an entry for this target, the RA must match within 1% of the '
-        'field of view or an error is raised. It can be left unspecified if the'
-        ' target is already in the target table, in which case it will be '
+        'contains an entry for this target, the RA must match within 1%% of the'
+        ' field of view or an error is raised. It can be left unspecified if '
+        'the target is already in the target table, in which case it will be '
         'identified by name.'
     )
     parser.add_argument(
         '--target-dec', '--dec',
-        default='RA-MNT',
+        default='DEC_MNT',
         help='The Dec targetted by the observations. See --target-ra for '
         'details.'
     )
@@ -112,7 +117,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--exposure-start-utc',
         '--start-time-utc',
-        default='DATE-OBS',
+        default='DATE_OBS',
         help='The UTC time at which the exposure started. Can be arbitrary '
         'expression involving header keywords.'
     )
@@ -136,6 +141,28 @@ def parse_command_line(*args):
         'expression involving header keywords. If not already in the '
         'observing_session table it is automatically added.'
     )
+    parser.add_argument(
+        '--image-type',
+        default=None,
+        help='Header expression that evaluates to the image type. If it is not '
+        'one of the image types listed in the database, the image is ignored. '
+        'If not specified, the individual checks below are used instead.'
+    )
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        for image_type in [
+                record[0]
+                for record in db_session.query(ImageType.type_name).all()
+        ]:
+            parser.add_argument(
+                f'--{image_type}-check',
+                default=str(image_type == 'object'),
+                help='Header expression that evaluates to True if the image is '
+                f'a {image_type} frame.'
+            )
+
     return parser.parse_args(*args)
 
 
@@ -145,22 +172,28 @@ def get_or_create_target(header_eval,
                          field_of_view):
     """Return the target corresponding to the image (create if necessary)."""
 
-    target_name = header_eval(configuration.target_name)
+    target_name = header_eval(configuration['target_name'])
     db_target = db_session.query(Target).filter_by(
         name = target_name
     ).one_or_none()
-    image_target = {'ra': header_eval(configuration.target_ra),
-                    'dec': header_eval(configuration.target_dec)}
+    image_target = {'ra': header_eval(configuration['target_ra']),
+                    'dec': header_eval(configuration['target_dec'])}
 
     if db_target is None:
         db_target = Target(**image_target,
-                           name=header_eval(configuration.target_name))
+                           name=header_eval(configuration['target_name']))
         db_session.add(db_target)
     else:
-        image_target = SkyCoord(**image_target)
-        db_target = SkyCoord(ra=db_target.ra * units.deg,
-                             dec=db_target.dec * units.deg)
-        assert image_target.separation(db_target) < 0.01 * field_of_view
+        image_target = SkyCoord(image_target['ra'] * units.deg,
+                                image_target['dec'] * units.deg)
+        assert (
+            image_target.separation(
+                SkyCoord(ra=db_target.ra * units.deg,
+                         dec=db_target.dec * units.deg)
+            )
+            <
+            0.01 * field_of_view
+        )
 
     return db_target
 
@@ -184,16 +217,19 @@ def _match_observatory(db_observatory, image_location):
 def get_observatory(header_eval, configuration, db_session):
     """Return the observatory corresponding to the image (must exist)."""
 
+
+    _logger.debug('Observatory location: %s',
+                  repr(configuration['observatory_location']))
     latitude, longitude = (
         header_eval(expression)
-        for expression in configuration.observatory_location
+        for expression in configuration['observatory_location']
     )
     image_location = EarthLocation(
         lat=latitude * units.deg,
         lon=longitude * units.deg
     )
 
-    if configuration.observatory is None:
+    if configuration['observatory'] is None:
         observatory = None
         for db_observatory in db_session.query(Observatory).all():
             if _match_observatory(db_observatory, image_location):
@@ -201,7 +237,7 @@ def get_observatory(header_eval, configuration, db_session):
                 observatory = db_observatory
     else:
         observatory = db_session.query(Observatory).filter_by(
-            name = header_eval(configuration.observatory)
+            name = header_eval(configuration['observatory'])
         ).one()
         assert _match_observatory(observatory, image_location)
 
@@ -212,18 +248,18 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
     """Return the observing session the image is part of (create if needed)."""
 
     observer = db_session.query(Observer).filter_by(
-        name = header_eval(configuration.observer)
+        name = header_eval(configuration['observer'])
     ).one()
     camera = db_session.query(Camera).filter_by(
-        serial_number = header_eval(configuration.camera_serial_number)
+        serial_number = header_eval(configuration['camera_serial_number'])
     ).one()
     telescope = db_session.query(Telescope).filter_by(
         serial_number = header_eval(
-            configuration.telescope_serial_number
+            configuration['telescope_serial_number']
         )
     ).one()
     mount = db_session.query(Mount).filter_by(
-        serial_number = header_eval(configuration.mount_serial_number)
+        serial_number = header_eval(configuration['mount_serial_number'])
     ).one()
     observatory = get_observatory(header_eval,
                                   configuration,
@@ -234,7 +270,7 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
         *
         camera.camera_type.pixel_size * units.um
         /
-        telescope.telescope_type.focal_length * units.mm
+        (telescope.telescope_type.focal_length * units.mm)
     ) * units.rad
     target = get_or_create_target(header_eval,
                                   configuration,
@@ -242,16 +278,16 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
                                   field_of_view)
     exposure_start = None
     for time_format in ('utc', 'jd'):
-        if getattr(configuration, f'exposure_start_{time_format}'):
+        if configuration[f'exposure_start_{time_format}']:
             exposure_start = Time(
-                header_eval(configuration.exposure_start_utc),
-                format=time_format,
+                header_eval(configuration[f'exposure_start_{time_format}']),
+                format=None if time_format == 'utc' else time_format,
             ).utc.to_value('datetime')
     assert exposure_start is not None
     exposure_end = exposure_start + timedelta(
-        second=header_eval(configuration.exposure_time)
+        seconds=header_eval(configuration['exposure_seconds'])
     )
-    session_label = header_eval(configuration.observing_session_label)
+    session_label = header_eval(configuration['observing_session_label'])
 
     result = db_session.query(ObservingSession).filter_by(
         label = session_label
@@ -264,7 +300,7 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
             mount_id=mount.id,
             observatory_id=observatory.id,
             target_id=target.id,
-            label=header_eval(configuration.observing_session_label),
+            label=header_eval(configuration['observing_session_label']),
             start_time_utc=exposure_start,
             end_time_utc=exposure_end
         )
@@ -280,24 +316,59 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
             result.start_time_utc = exposure_start
         if exposure_end > result.end_time_utc:
             result.end_time_utc = exposure_end
+
     return result
+
+
+def create_image(image_fname, header_eval, configuration, db_session):
+    """Create the database Image entry corresponding to the given file."""
+
+    recognized_image_types = [
+        record[0] for record in db_session.query(ImageType.type_name).all()
+    ]
+    if configuration['image_type']:
+        image_type = header_eval(configuration['image_type']).lower()
+        if image_type not in recognized_image_types:
+            raise ValueError(
+                f'Unrecognized image type {image_type!r} '
+                f'(expected one of {recognized_image_types})'
+            )
+    else:
+        image_type = None
+        for test_image_type in recognized_image_types:
+            if header_eval(configuration[f'{test_image_type}_check']):
+                assert image_type is None
+                image_type = test_image_type
+    image_type_id = db_session.query(
+        ImageType.id
+    ).filter_by(
+        type_name = image_type
+    ).one()[0]
+    return Image(raw_fname=image_fname, image_type_id=image_type_id)
 
 
 def add_images_to_db(image_collection, configuration):
     """Add all the images in the collection to the database."""
 
     for image_fname in image_collection:
+        logging.debug('Adding image %s to database', image_fname)
         header_eval = Evaluator(image_fname)
+        _logger.debug('Defining evaluator with keys: %s',
+                      repr(header_eval.symtable.keys()))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            observing_session = get_or_create_observing_session(header_eval,
-                                                                configuration,
-                                                                db_session)
-            observing_session.images.append(create_image(header_eval,
-                                                         configuration,
-                                                         db_session))
+            image = create_image(image_fname,
+                                 header_eval,
+                                 configuration,
+                                 db_session)
+            image.observing_session = get_or_create_observing_session(
+                header_eval,
+                configuration,
+                db_session
+            )
+            db_session.add(image)
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()

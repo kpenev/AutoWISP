@@ -112,9 +112,16 @@ class ObservingSession(DataModelBase):
         nullable=False,
         doc='The end time of the observing session in UTC'
     )
+    label = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+        doc='Unique label assigned to the observing session'
+    )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes provided for the observing session'
     )
     timestamp = Column(
@@ -127,10 +134,17 @@ class ObservingSession(DataModelBase):
         return f"({self.id}) {self.notes} {self.timestamp}"
 
     #relationships
-    observer = relationship("Observer", back_populates="observing_session")
-    camera = relationship("Camera", back_populates="observing_session")
-    telescope = relationship("Telescope", back_populates="observing_session")
-    mount = relationship("Mount", back_populates="observing_session")
-    observatory = relationship("Observatory", back_populates="observing_session")
-    target = relationship("Target", back_populates="observing_session")
-    images = relationship("Image", back_populates="observing_session")
+    observer = relationship("Observer",
+                            back_populates="observing_sessions")
+    camera = relationship("Camera",
+                          back_populates="observing_sessions")
+    telescope = relationship("Telescope",
+                             back_populates="observing_sessions")
+    mount = relationship("Mount",
+                         back_populates="observing_sessions")
+    observatory = relationship("Observatory",
+                               back_populates="observing_sessions")
+    target = relationship("Target",
+                          back_populates="observing_sessions")
+    images = relationship("Image",
+                          back_populates="observing_session")

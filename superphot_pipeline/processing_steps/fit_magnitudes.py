@@ -22,7 +22,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='fit_magnitudes',
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements.'),
         add_component_versions=('srcproj',

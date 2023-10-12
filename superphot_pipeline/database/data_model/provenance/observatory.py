@@ -59,5 +59,6 @@ class Observatory(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    observing_session = relationship("ObservingSession", back_populates="observatory")
+    observing_sessions = relationship("ObservingSession",
+                                      back_populates="observatory")
 

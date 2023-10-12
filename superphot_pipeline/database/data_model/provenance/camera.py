@@ -51,10 +51,11 @@ class Camera(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    observing_session = relationship("ObservingSession",
-                                     back_populates="camera")
-    cameratype = relationship("CameraType",
+    observing_sessions = relationship("ObservingSession",
+                                      back_populates="camera")
+    camera_type = relationship("CameraType",
                               back_populates="cameras")
-    camera_access = relationship("CameraAccess",
-                                 back_populates="camera")
+    observers = relationship("Observer",
+                             secondary="camera_access",
+                             back_populates="cameras")
 #pylint: enable=too-few-public-methods

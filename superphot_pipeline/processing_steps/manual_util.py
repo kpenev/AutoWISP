@@ -1,6 +1,8 @@
 """Collection of functions used by many processing steps."""
 
 import logging
+from sys import argv
+from os import path
 
 import numpy
 from astropy.io import fits
@@ -53,7 +55,6 @@ class ManualStepArgumentParser(ArgumentParser):
                  *,
                  input_type,
                  description,
-                 processing_step,
                  add_component_versions=(),
                  inputs_help_extra='',
                  allow_parallel_processing=False,
@@ -164,7 +165,7 @@ class ManualStepArgumentParser(ArgumentParser):
 
         self.add_argument(
             '--std-out-err-fname',
-            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.outerr'),
+            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.outerr',
             help='The filename pattern to redirect stdout and stderr during'
             'multiprocessing. Should include substitutions to distinguish '
             'output from different multiprocessing processes. May include '
@@ -179,7 +180,7 @@ class ManualStepArgumentParser(ArgumentParser):
         )
         self.add_argument(
             '--logging-fname',
-            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.log'),
+            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log',
             help='The filename pattern to use for log files. Should include'
             ' substitutions to distinguish logs from different '
             'multiprocessing processes. May include substitutions for any '
@@ -272,21 +273,23 @@ class ManualStepArgumentParser(ArgumentParser):
         """Set-up logging and return cleaned up dict instead of namespace."""
 
         result = super().parse_args(*args, **kwargs)
+        result.processing_step = path.basename(argv[0])
+        assert result.processing_step.endswith('.py')
+        result.processing_step = result.processing_step[:-3]
+
+        logging_level = getattr(logging, result.verbose.upper())
+        logging.basicConfig(
+            level=logging_level,
+            format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                   '%(pathname)s.%(funcName)s:%(lineno)d'
+        )
+        logging.getLogger("sqlalchemy.engine").setLevel(logging_level)
+
         if self._convert_to_dict:
             result = vars(result)
             del result['config_file']
             del result['extra_config_file']
-            logging.basicConfig(
-                level=getattr(logging, result['verbose'].upper()),
-                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                       '%(pathname)s.%(funcName)s:%(lineno)d'
-            )
         else:
-            logging.basicConfig(
-                level=getattr(logging, result.verbose.upper()),
-                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                       '%(pathname)s.%(funcName)s:%(lineno)d'
-            )
             del result.config_file
             del result.extra_config_file
             del result.verbose

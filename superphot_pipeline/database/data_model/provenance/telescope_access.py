@@ -49,6 +49,3 @@ class TelescopeAccess(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-
-    telescope = relationship("Telescope", back_populates="telescope_access")
-    observer = relationship("Observer", back_populates="telescope_access")

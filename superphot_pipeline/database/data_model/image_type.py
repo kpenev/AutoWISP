@@ -4,13 +4,7 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    Date,\
-    TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    TIMESTAMP
 
 from sqlalchemy.orm import relationship
 
@@ -30,8 +24,6 @@ __all__= ['ImageType']
 #The standard use of SQLAlchemy ORM requires classes with no public methods.
 #pylint: disable=too-few-public-methods
 
-#TODO replace proper image terms imports
-
 class ImageType(DataModelBase):
     """The table describing the different image types."""
 
@@ -49,7 +41,7 @@ class ImageType(DataModelBase):
     )
     description = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The description of the image type'
     )
     timestamp = Column(
@@ -59,6 +51,8 @@ class ImageType(DataModelBase):
     )
 
     def __repr__(self):
-        return f"({self.id}) {self.type_name} {self.description} {self.timestamp}"
+        return (
+            f"({self.id}) {self.type_name} {self.description} {self.timestamp}"
+        )
 
     image = relationship("Image", back_populates="image_type")

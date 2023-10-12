@@ -3,15 +3,15 @@
 from os import path
 import logging
 
-from sqlalchemy import sql
+from sqlalchemy import sql, select, tuple_, and_
 
 from superphot_pipeline import Evaluator
 from superphot_pipeline.database.interface import Session
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
-    Image,\
     ImageProcessingProgress,\
+    ProcessedImages,\
     Configuration,\
     Step
 #pylint: enable=no-name-in-module
@@ -51,7 +51,7 @@ class ProcessingManager:
     def _get_db_configuration(self, version, db_session):
         """Return list of Configuration instances given version."""
 
-        param_version_stmt = db_session.query(
+        param_version_subq = select(
             Configuration.parameter_id,
             #False positivie
             #pylint: disable=not-callable
@@ -63,20 +63,22 @@ class ProcessingManager:
             Configuration.parameter_id
         ).subquery()
 
-        return db_session.query(
-            Configuration
-        ).join(
-            param_version_stmt,
-            sql.expression.and_(
-                (
-                    Configuration.parameter_id
-                    ==
-                    param_version_stmt.c.parameter_id
-                ),
-                (
-                    Configuration.version
-                    ==
-                    param_version_stmt.c.version
+        return db_session.scalars(
+            select(
+                Configuration
+            ).join(
+                param_version_subq,
+                sql.expression.and_(
+                    (
+                        Configuration.parameter_id
+                        ==
+                        param_version_subq.c.parameter_id
+                    ),
+                    (
+                        Configuration.version
+                        ==
+                        param_version_subq.c.version
+                    )
                 )
             )
         ).all()
@@ -91,10 +93,12 @@ class ProcessingManager:
         #pylint: enable=no-member
 
             if steps is None:
-                steps = db_session.query(Step).order_by(Step.id).all()
+                steps = db_session.scalars(select(Step).order_by(Step.id)).all()
             else:
                 steps = [
-                    db_session.query(Step).filter_by(name=step_name).one()
+                    db_session.execute(
+                        select(Step).filter_by(name=step_name)
+                    ).scalar_one()
                     for step_name in steps
                 ]
 
@@ -117,6 +121,78 @@ class ProcessingManager:
                                 )
                             break
                 outf.write('\n')
+
+
+    def _get_pending_images(self, db_session):
+        """
+        Return the images and channels to process by the current step.
+
+        Args:
+            db_session(Session):    The database session to use.
+
+        Returns:
+            (Image, [str]):
+                The images and channels for which all required inputs exist
+                with correct versions but to which ``step`` has not been applied
+                with the current configuration.
+        """
+
+        required_progress_ids = db_session.scalars(
+            select(
+                ImageProcessingProgress.id
+            ).where(
+                tuple_(
+                    ImageProcessingProgress.step_id,
+                    ImageProcessingProgress.configuration_version
+                ).in_([
+                    (step.id, self.step_version[step.name])
+                    for step in self.current_step.requires
+                ])
+            )
+        ).all()
+        match_inputs_subq = select(
+            ProcessedImages.image_id,
+            ProcessedImages.channel,
+            #False positive
+            #pylint: disable=not-callable
+            sql.func.count().label('num_satisfied')
+            #pylint: enable=not-callable
+        ).where(
+            ProcessedImages.progress_id.in_(required_progress_ids)
+        ).group_by(
+            ProcessedImages.image_id,
+            ProcessedImages.channel
+        )
+
+        done_subq = select(
+            ProcessedImages.image_id,
+            ProcessedImages.channel,
+        ).where(
+            ProcessedImages.progress_id == self._current_processing.id
+        ).subquery()
+
+        return db_session.execute(
+            select(
+                match_inputs_subq
+            ).outerjoin(
+                done_subq,
+                and_(
+                    match_inputs_subq.c.image_id
+                    ==
+                    done_subq.c.image_id,
+                    match_inputs_subq.c.channel
+                    ==
+                    done_subq.c.channel
+                )
+            ).where(
+                match_inputs_subq.c.num_satisfied == len(required_progress_ids)
+            ).where(
+                #That's how NULL comparison works in sqlalchemy
+                #pylint: disable=singleton-comparison
+                done_subq.c.image_id == None
+                #pylint: enable=singleton-comparison
+            )
+        ).all()
 
 
     def __init__(self, version):
@@ -167,7 +243,7 @@ class ProcessingManager:
                     self.configuration[param.name]['version']
                     for param in step.parameters
                 )
-                for step in db_session.query(Step).all()
+                for step in db_session.scalars(select(Step)).all()
             }
 
 
@@ -186,11 +262,13 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            self.current_step = db_session.query(
-                Step
-            ).filter_by(
-                name=step_name
-            ).one()
+            self.current_step = db_session.execute(
+                select(
+                    Step
+                ).filter_by(
+                    name=step_name
+                )
+            ).scalar_one()
             self._current_processing = ImageProcessingProgress(
                 step_id=self.current_step.id,
                 configuration_version=self.step_version[step_name]
@@ -198,12 +276,12 @@ class ProcessingManager:
             db_session.add(self._current_processing)
 
 
-    def record_processed_image(self, image):
+    def record_processed_image(self, image, channel):
         """
         Record that the given image was processed by the currently active step.
 
         Args:
-            image_id:    The image (ID or `Image` instance) that was processed.
+            image:    The image (ID or `Image` instance) that was processed.
 
         Returns:
             None
@@ -215,14 +293,13 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            if isinstance(image, int):
-                image = db_session.query(
-                    Image
-                ).filter_by(
-                    id=image
-                ).one()
-
-            self._current_processing.images.append(image)
+            db_session.add(
+                ProcessedImages(
+                    image_id=image if isinstance(image, int) else image.id,
+                    channel=channel,
+                    processing_id=self._current_processing.id
+                )
+            )
 
 
     def create_config_file(self, example_header, outf, steps=None):

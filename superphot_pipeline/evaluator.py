@@ -38,15 +38,12 @@ class Evaluator(asteval.Interpreter):
             elif (isinstance(data_entry, str) and path.exists(data_entry)):
                 if path.splitext(data_entry)[-1] in ['.h5', '.hdf5']:
                     with DataReductionFile(data_entry, 'r') as dr_file:
-                        self.symtable.update(dr_file.get_frame_header())
+                        self.__init__(dr_file.get_frame_header())
                 else:
                     assert path.splitext(data_entry)[-1] in ['.fits', '.fz']
-                    self.symtable.update(get_primary_header(data_entry))
+                    self.__init__(get_primary_header(data_entry))
             elif isinstance(data_entry, fits.HDUList):
                 self.__init__(get_primary_header(data_entry))
-            elif isinstance(data_entry, fits.Header):
+            else:
                 for hdr_key, hdr_val in data_entry.items():
                     self.symtable[hdr_key.replace('-', '_')] = hdr_val
-            else:
-                print('Setting symtable: ' + repr(data_entry))
-                self.symtable.update(data_entry)
