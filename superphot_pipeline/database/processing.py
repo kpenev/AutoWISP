@@ -13,7 +13,8 @@ from superphot_pipeline.database.data_model import\
     ImageProcessingProgress,\
     ProcessedImages,\
     Configuration,\
-    Step
+    Step,\
+    Image
 #pylint: enable=no-name-in-module
 
 class ProcessingManager:
@@ -137,6 +138,22 @@ class ProcessingManager:
                 with the current configuration.
         """
 
+        if not self.current_step.requires:
+            return db_session.scalars(
+                db_session.scalars(
+                    select(
+                        Image
+                    ).outerjoin(
+                        ProcessedImages
+                    ).where(
+                        #That's how NULL comparison works in sqlalchemy
+                        #pylint: disable=singleton-comparison
+                        ProcessedImages.image_id == None
+                        #pylint: enable=singleton-comparison
+                    )
+                ).all()
+            )
+
         required_progress_ids = db_session.scalars(
             select(
                 ImageProcessingProgress.id
@@ -171,26 +188,34 @@ class ProcessingManager:
             ProcessedImages.progress_id == self._current_processing.id
         ).subquery()
 
+        pending_image_id_subq = select(
+            match_inputs_subq
+        ).outerjoin(
+            done_subq,
+            and_(
+                match_inputs_subq.c.image_id
+                ==
+                done_subq.c.image_id,
+                match_inputs_subq.c.channel
+                ==
+                done_subq.c.channel
+            )
+        ).where(
+            match_inputs_subq.c.num_satisfied == len(required_progress_ids)
+        ).where(
+            #That's how NULL comparison works in sqlalchemy
+            #pylint: disable=singleton-comparison
+            done_subq.c.image_id == None
+            #pylint: enable=singleton-comparison
+        ).subquery()
+
         return db_session.execute(
             select(
-                match_inputs_subq
-            ).outerjoin(
-                done_subq,
-                and_(
-                    match_inputs_subq.c.image_id
-                    ==
-                    done_subq.c.image_id,
-                    match_inputs_subq.c.channel
-                    ==
-                    done_subq.c.channel
-                )
-            ).where(
-                match_inputs_subq.c.num_satisfied == len(required_progress_ids)
-            ).where(
-                #That's how NULL comparison works in sqlalchemy
-                #pylint: disable=singleton-comparison
-                done_subq.c.image_id == None
-                #pylint: enable=singleton-comparison
+                Image,
+                pending_image_id_subq.c.channel
+            ).join(
+                pending_image_id_subq,
+                Image.id == pending_image_id_subq.c.image_id
             )
         ).all()
 
@@ -344,6 +369,7 @@ class ProcessingManager:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
     test_fits = path.join(
         path.dirname(
             path.dirname(

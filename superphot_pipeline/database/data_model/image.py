@@ -15,7 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__= ['Image', 'ImageProcessingProgress']
+__all__= ['Image', 'ImageProcessingProgress', 'ProcessedImages']
 
 _processing_input = Table(
     'processing_input',
@@ -121,8 +121,8 @@ class Image(DataModelBase):
 
     def __repr__(self):
         return (
-            f'({self.id})  {self.image_type_id} {self.observing_session_id} '
-            f'{self.notes} {self.timestamp}'
+            f'({self.id}) {self.raw_fname}: {self.image_type_id} '
+            f'{self.observing_session_id} {self.notes} {self.timestamp}'
         )
 
     image_type = relationship("ImageType",
@@ -174,7 +174,7 @@ class ImageProcessingProgress(DataModelBase):
             f'{self.timestamp}: {self.notes}'
         )
 
-    step = relationship('step')
+    step = relationship('Step')
 
     inputs: Mapped[List[ImageProcessingProgress]] = relationship(
         secondary=_processing_input,
