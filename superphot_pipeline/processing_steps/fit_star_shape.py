@@ -706,7 +706,8 @@ def fit_star_shapes(image_collection, configuration):
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,
-                initargs=(configuration,)
+                initargs=(configuration,),
+                maxtasksperchild=1
         ) as pool:
             pool.map(
                 fit_frame_set,
