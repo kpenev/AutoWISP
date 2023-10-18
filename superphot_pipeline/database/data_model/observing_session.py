@@ -102,19 +102,26 @@ class ObservingSession(DataModelBase):
         nullable=False,
         doc='The id of the target'
     )
-    start_time = Column(
+    start_time_utc = Column(
         DateTime,
         nullable=False,
-        doc='The start time of the observing session'
+        doc='The start time of the observing session in UTC'
     )
-    end_time = Column(
+    end_time_utc = Column(
         DateTime,
         nullable=False,
-        doc='The end time of the observing session'
+        doc='The end time of the observing session in UTC'
+    )
+    label = Column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+        doc='Unique label assigned to the observing session'
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes provided for the observing session'
     )
     timestamp = Column(
@@ -123,28 +130,21 @@ class ObservingSession(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    ## ADDED 06/08/23 - Mica
-    def __init__(self, id, observer_id, camera_id, telescope_id, mount_id, obseratory_id, target_id, start_time, end_time, notes, timestamp):
-        self.id = id
-        self.observer_id = observer_id
-        self.camera_id = camera_id
-        self.telescope_id = telescope_id
-        self.mount_id = mount_id
-        self.observatory_id = obseratory_id
-        self.target_id = target_id
-        self.start_time = start_time
-        self.end_time = end_time
-        self.notes = notes
-        self.timestamp = timestamp
-
     def __repr__(self):
         return f"({self.id}) {self.notes} {self.timestamp}"
 
     #relationships
-    observer = relationship("Observer", back_populates="observing_session")
-    camera = relationship("Camera", back_populates="observing_session")
-    telescope = relationship("Telescope", back_populates="observing_session")
-    mount = relationship("Mount", back_populates="observing_session")
-    observatory = relationship("Observatory", back_populates="observing_session")
-    target = relationship("Target", back_populates="observing_session")
-    images = relationship("Image", back_populates="observing_session")
+    observer = relationship("Observer",
+                            back_populates="observing_sessions")
+    camera = relationship("Camera",
+                          back_populates="observing_sessions")
+    telescope = relationship("Telescope",
+                             back_populates="observing_sessions")
+    mount = relationship("Mount",
+                         back_populates="observing_sessions")
+    observatory = relationship("Observatory",
+                               back_populates="observing_sessions")
+    target = relationship("Target",
+                          back_populates="observing_sessions")
+    images = relationship("Image",
+                          back_populates="observing_session")

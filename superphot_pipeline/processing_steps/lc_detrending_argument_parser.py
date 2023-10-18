@@ -271,6 +271,15 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         parser.add_argument(
             '--epd-variables',
             type=_parse_epd_variables,
+            default=(
+                "x = srcproj.columns : "
+                "srcproj_column_name = 'x' & srcproj_version = 0; "
+                "y = srcproj.columns : "
+                "srcproj_column_name = 'y' & srcproj_version = 0; "
+                "bg = bg.value; "
+                "z = skypos.zenith_distance; "
+                "S = srcextract.psf_map.eval: srcextract_psf_param = 's'"
+            ),
             help='Specify datasets to detrend against, assigning them variables'
             'to be used in --epd-terms-expression, --fit-weights, etc. Should '
             'be formatted as a `;` separated list of '
@@ -306,6 +315,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             '--skip-outlier-prerejection',
             action='store_false',
             dest='pre_reject_outliers',
+            default=True,
             help='If passed the initial rejection of outliers before the fit '
             'begins is not performed.'
         )
@@ -446,7 +456,6 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         super().__init__(
             input_type=input_type,
             description=description,
-            processing_step=mode,
             allow_parallel_processing=True,
             convert_to_dict=convert_to_dict,
             add_lc_fname_arg=(self._mode == 'tfa')
@@ -512,9 +521,9 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
 #            target_args = self.add_argument_group(
 #                title='Followup Target',
 #                description='Arguments specific to processing followup '
-#                'observations where the target star is known to have a transit '
-#                'that occupies a significant fraction of the total collection '
-#                'of observations.'
+#                'observations where the target star is known to have a transit'
+#                ' that occupies a significant fraction of the total collection'
+#                ' of observations.'
 #            )
             self.add_argument(
                 '--target-id',
@@ -547,7 +556,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         self.add_argument(
             '--magnitude-column',
-            default='R',
+            default='phot_g_mean_mag',
             help='The magnitude column to use for the performance statistics. '
             'Default: %(default)s'
         )
@@ -560,6 +569,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         self.add_argument(
             '--recalc-performance',
             action='store_true',
+            default=False,
             help='If passed, the correction is assumed to have already been '
             'performed and performance statistics are re-derived.'
         )

@@ -13,7 +13,7 @@ import re
 from sqlalchemy import exc
 
 from superphot_pipeline.image_utilities import read_image_components
-from superphot_pipeline.database.interface import db_engine, db_session_scope
+from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
 from datetime import datetime
 from data_model import Image, ImageType, ObservingSession
@@ -114,7 +114,7 @@ def add_image_database(image_fname, image_ftype, observing_session_notes=None, n
     header = get_header(image_fname)
     if panoptes:
 
-        with db_session_scope() as db_session:
+        with Session.begin() as db_session:
 
             if db_session.query.filter(ImageType.type_name.match(image_ftype)):
                 image_type = db_session.query.filter(ImageType.type_name.match(image_ftype))
@@ -140,7 +140,7 @@ def add_image_database(image_fname, image_ftype, observing_session_notes=None, n
                                 image])
     else:
 
-        with db_session_scope() as db_session:
+        with Session.begin() as db_session:
 
             if db_session.query.filter(ImageType.type_name.match(image_ftype)):
                 image_type = db_session.query.filter(ImageType.type_name.match(image_ftype))

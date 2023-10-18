@@ -5,7 +5,7 @@
 import readline
 from argparse import ArgumentParser, FileType
 
-from superphot_pipeline.database.interface import db_engine, db_session_scope
+from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
 
 from superphot_pipeline.database.data_model.provenance import\
@@ -357,17 +357,17 @@ class InputProvenanceEntry:
 #         student_list(iterable or None):    If specified should contain a list of
 #             student UTD IDs or Net IDs for which to add grades.
 #         **kwargs:    Passed directly to InputGradeEntry.__call__, as in:
-#         >>> with db_session_scope() as db_session:
+#         >>> with Session.begin() as db_session:
 #         >>>     InputGradeEntry()(db_session, **kwargs)
 #     Returns:
 #         None
 #     """
 #
-#     with db_session_scope() as db_session:
+#     with Session.begin() as db_session:
 #         input_grade = InputGradeEntry(db_session)
 #
 #     while True:
-#         with db_session_scope() as db_session:
+#         with Session.begin() as db_session:
 #             for student_id in student_list or [None]:
 #                 select_student = dict()
 #                 if student_id is not None:

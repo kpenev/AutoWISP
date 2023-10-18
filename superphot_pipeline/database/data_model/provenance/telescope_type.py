@@ -60,7 +60,7 @@ class TelescopeType(DataModelBase):
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes provided for the telescope type'
     )
     timestamp = Column(

@@ -30,7 +30,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='fit_extracted_psf_map',
         inputs_help_extra='The DR files must already contain astrometry.',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )

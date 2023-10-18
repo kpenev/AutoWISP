@@ -49,7 +49,7 @@ class CameraType(DataModelBase):
     )
     sensor_type = Column(
         String(100),
-        nullable=False,
+        nullable=True,
         doc='The sensor type of the camera'
     )
     x_resolution = Column(
@@ -65,11 +65,11 @@ class CameraType(DataModelBase):
     pixel_size = Column(
         Float,
         nullable=False,
-        doc='The pixel size of the camera'
+        doc='The pixel size of the camera in microns'
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes provided for the camera type'
     )
     timestamp = Column(
@@ -77,4 +77,4 @@ class CameraType(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-    cameras = relationship("Camera", back_populates="cameratype")
+    cameras = relationship("Camera", back_populates="camera_type")

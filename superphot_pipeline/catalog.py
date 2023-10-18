@@ -9,6 +9,7 @@ from astropy.io import fits
 from astroquery.gaia import GaiaClass, conf
 
 from superphot_pipeline import Evaluator
+from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 
 class SuperPhotGaia(GaiaClass):
     """Extend queries with condition and sorting."""
@@ -244,7 +245,8 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
 def read_catalog_file(catalog_fname,
                       filter_expr=None,
                       sort_expr=None,
-                      return_metadata=False):
+                      return_metadata=False,
+                      add_gnomonic_projection=False):
     """
     Read a catalog FITS file.
 
@@ -262,7 +264,7 @@ def read_catalog_file(catalog_fname,
             cat_fits[1].data.astype(fixed_dtype),
             index='source_id'
         )
-        if return_metadata:
+        if return_metadata or add_gnomonic_projection:
             metadata = cat_fits[1].header
 
     cat_eval = Evaluator(result)
@@ -281,6 +283,16 @@ def read_catalog_file(catalog_fname,
 
     if sort_expr is not None:
         result = result.iloc[numpy.argsort(sort_val)]
+
+    if add_gnomonic_projection:
+        if 'xi' not in result.columns:
+            assert 'eta' not in result.columns
+            for colname in ['xi', 'eta']:
+                result.insert(len(result.columns), colname, numpy.nan)
+            gnomonic_projection(result,
+                                result,
+                                RA=metadata['RA'],
+                                Dec=metadata['Dec'])
 
     if return_metadata:
         return result, metadata

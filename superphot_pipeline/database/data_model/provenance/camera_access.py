@@ -50,5 +50,3 @@ class CameraAccess(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-    camera = relationship("Camera", back_populates="camera_access")
-    observer = relationship("Observer", back_populates="camera_access")

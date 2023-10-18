@@ -15,7 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__= ['Image', 'ImageProcessingProgress']
+__all__= ['Image', 'ImageProcessingProgress', 'ProcessedImages']
 
 _processing_input = Table(
     'processing_input',
@@ -32,20 +32,49 @@ _processing_input = Table(
            doc='When was this record last changed.')
 )
 
-_processed_images = Table(
-    'processed_images',
-    DataModelBase.metadata,
-    Column('image_id',
-           ForeignKey('image.id'),
-           primary_key=True),
-    Column('progress_id',
-           ForeignKey('image_processing_progress.id'),
-           primary_key=True),
-    Column('timestamp',
-           TIMESTAMP,
-           nullable=False,
-           doc='When was this record last changed.')
-)
+class ProcessedImages(DataModelBase):
+    """The table describing the processed images/channels by each step."""
+
+    __tablename__ = 'processed_images'
+
+    image_id = Column(
+        Integer,
+        ForeignKey('image.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
+        primary_key=True,
+        doc='The image that was processed.'
+    )
+    channel = Column(
+        String(3),
+        primary_key=True,
+        doc='The channel of the image that was processed.'
+    )
+    progress_id = Column(
+        Integer,
+        ForeignKey('image_processing_progress.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
+        primary_key=True,
+        doc='The id of the processing progress'
+    )
+    timestamp = Column(
+        TIMESTAMP,
+        nullable=False,
+        doc='When was this record last changed.'
+    )
+
+    def __repr__(self):
+        return (
+            f'({self.image_id}) {self.channel} {self.progress_id} '
+            f'{self.timestamp}'
+        )
+
+    image = relationship("Image",
+                         back_populates="processing")
+    processing = relationship("ImageProcessingProgress",
+                              back_populates="applied_to")
+
 
 class Image(DataModelBase):
     """The table describing the image specified"""
@@ -56,6 +85,12 @@ class Image(DataModelBase):
         Integer,
         primary_key=True,
         doc='A unique identifier for each image'
+    )
+    raw_fname = Column(
+        String(1000),
+        nullable=False,
+        unique=True,
+        doc='The filename of the raw image'
     )
     image_type_id = Column(
         Integer,
@@ -75,7 +110,7 @@ class Image(DataModelBase):
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='The notes provided for the image'
     )
     timestamp = Column(
@@ -86,17 +121,16 @@ class Image(DataModelBase):
 
     def __repr__(self):
         return (
-            f'({self.id})  {self.image_type_id} {self.observing_session_id} '
-            f'{self.notes} {self.timestamp}'
+            f'({self.id}) {self.raw_fname}: {self.image_type_id} '
+            f'{self.observing_session_id} {self.notes} {self.timestamp}'
         )
 
     image_type = relationship("ImageType",
                               back_populates="image")
     observing_session = relationship("ObservingSession",
                                      back_populates="images")
-    processing: Mapped[List[ImageProcessingProgress]] = relationship(
-        secondary=_processed_images,
-        back_populates='images'
+    processing: Mapped[List[ProcessedImages]] = relationship(
+        back_populates='image'
     )
 
 class ImageProcessingProgress(DataModelBase):
@@ -110,7 +144,7 @@ class ImageProcessingProgress(DataModelBase):
         doc='A unique identifier for each image_proc_processing'
     )
 
-    step = Column(
+    step_id = Column(
         Integer,
         ForeignKey('step.id',
                    onupdate='CASCADE',
@@ -140,6 +174,8 @@ class ImageProcessingProgress(DataModelBase):
             f'{self.timestamp}: {self.notes}'
         )
 
+    step = relationship('Step')
+
     inputs: Mapped[List[ImageProcessingProgress]] = relationship(
         secondary=_processing_input,
         primaryjoin=(id == _processing_input.c.completed_progress_id),
@@ -147,7 +183,6 @@ class ImageProcessingProgress(DataModelBase):
         backref='consumers'
     )
 
-    images: Mapped[List[Image]] = relationship(
-        secondary=_processed_images,
+    applied_to: Mapped[List[ProcessedImages]] = relationship(
         back_populates='processing'
     )

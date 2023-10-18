@@ -212,12 +212,17 @@ class Correction:
         return fit_results
 
     @staticmethod
-    def get_result_dtype(num_photometries, extra_predictors=None):
+    def get_result_dtype(num_photometries,
+                         extra_predictors=None,
+                         id_size=1):
         """Return the data type for the result of __call__."""
 
         return (
             [
-                ('ID', (scipy.int_, 3)),
+                (
+                    'ID',
+                    scipy.uint64 if id_size==1 else (scipy.uint64, id_size),
+                ),
                 ('mag', scipy.float64),
                 ('xi', scipy.float64),
                 ('eta', scipy.float64),

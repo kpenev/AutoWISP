@@ -43,5 +43,3 @@ class MountAccess(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
-    mount = relationship("Mount", back_populates="mount_access")
-    observer = relationship("Observer", back_populates="mount_access")

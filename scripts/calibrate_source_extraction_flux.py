@@ -48,6 +48,7 @@ def parse_command_line():
     parser.add_argument(
         '--markersize',
         default=2.0,
+        type=float,
         help='The size of the markers to use in the plot.'
     )
     parser.add_argument(
@@ -80,6 +81,7 @@ def parse_command_line():
     parser.add_argument(
         '--brightness-rej-threshold',
         default=5.0,
+        type=float,
         help='Sources deviating from the best fit brightness model by more than'
         'this factor of the error average are discarded as outliers and fit is '
         'repeated.'
@@ -242,9 +244,10 @@ def main(dr_collection, configuration):
             dr_matched = dr_file.get_matched_sources(**path_substitutions)
             dr_matched = dr_matched[dr_matched['nsatpix'] == 0]
             if len(dr_collection) > 1:
-                dr_matched.insert(len(dr_matched.columns),
-                                  'AIRMASS',
-                                  header['AIRMASS'])
+                for keyword in configuration['use_header_vars']:
+                    dr_matched.insert(len(dr_matched.columns),
+                                      keyword,
+                                      header[keyword])
             if matched is None:
                 matched = dr_matched
             else:

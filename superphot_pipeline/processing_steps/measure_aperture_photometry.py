@@ -39,7 +39,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='aperture_photometry',
         inputs_help_extra=('The corresponding DR files must alread contain a '
                            'PSF fit.'),
         add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
@@ -65,11 +64,13 @@ def parse_command_line(*args):
         '--apertures',
         nargs='+',
         type=float,
+        default=[],
         help='The apretures to use for photometry.'
     )
     parser.add_argument(
         '--error-offset',
         type=float,
+        default='0.0',
         help='A constant error to add to the formal error estimate from the '
         'measurement.'
     )

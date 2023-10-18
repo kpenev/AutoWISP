@@ -26,7 +26,6 @@ def parse_command_line(*args):
 
     parser = ManualStepArgumentParser(description=__doc__,
                                       input_type=inputtype,
-                                      processing_step='find_stars',
                                       allow_parallel_processing=True,
                                       add_component_versions=('srcextract',))
     parser.add_argument(

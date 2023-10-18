@@ -29,8 +29,12 @@ from tempfile import NamedTemporaryFile
 
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
+import pandas
 
 from matplotlib import pyplot
+
+from superphot_pipeline.catalog import read_catalog_file
+from superphot_pipeline import Evaluator
 
 def parse_command_line():
     """Return the parsed command line arguments."""
@@ -45,15 +49,16 @@ def parse_command_line():
         help='The magnitude fit statistics file to plot.'
     )
     parser.add_argument(
-        'filter',
-        help='The name of the filter whose magnitude to use as the x-axis of '
-        'the plot.'
-    )
-    parser.add_argument(
         '--catalogue-fname', '--cat',
         default='astrometry_catalogue.ucac4',
         help='The catalogue file used for magnitude fitting. Default: '
         '\'%(default)s.\''
+    )
+    parser.add_argument(
+        '--magnitude-expression', '--mag',
+        default='phot_g_mean_mag',
+        help='Expression to evaluate using catalog columns indicating the '
+        'brightness of stars.'
     )
     parser.add_argument(
         '--min-unrejected-fraction',
@@ -209,13 +214,12 @@ def match_stat_to_catalogue(stat_fname,
     )
 
 
-def detect_stat_columns(stat_fname):
+def detect_stat_columns(stat, num_stat_columns):
     """
     Automatically detect the relevant columns in the statistics file.
 
     Args:
-        stat_fname:     The name of the magnitude fitting generated statitics
-            file to process.
+        stat(pandas.DataFrame):     The statistics .
 
     Returns:
         tuple(list, list):
@@ -234,44 +238,29 @@ def detect_stat_columns(stat_fname):
     """
 
 
-    with open(stat_fname, 'r', encoding='utf-8') as stat_file:
-        for first_line in stat_file:
-            first_line = first_line.strip()
-            if first_line[0] != '#':
-                split_line = first_line.strip().split()
-                num_columns = len(split_line)
-                if first_line.startswith('HAT-'):
-                    columns_per_set = 5
-                    assert (num_columns - 1) % columns_per_set == 0
-                    num_stat = (num_columns - 1) // columns_per_set
-                    assert num_stat % 2 == 0
-                    num_stat //= 2
-                    column_mask = numpy.arange(0,
-                                               num_stat * columns_per_set,
-                                               columns_per_set,
-                                               dtype=int)
-                    return (2 + column_mask,
-                            5 + column_mask,
-                            columns_per_set * num_stat + 3 + column_mask)
+    columns_per_set = 5
+    assert num_stat_columns % columns_per_set == 0
+    num_stat = num_stat_columns // columns_per_set
+    assert num_stat % 2 == 0
+    num_stat //= 2
 
-                assert split_line[0] == '2MASSID'
-                assert num_columns % 2 == 0
-                result = numpy.empty((2, (num_columns - 4) // 2), dtype=int)
-                scatter_ind = unrejected_ind = 0
-                for column_index, column_name in enumerate(split_line):
-                    if column_name.startswith('rms_'):
-                        result[1, scatter_ind] = column_index
-                        scatter_ind += 1
-                    elif column_name.startswith('num_finite_'):
-                        result[0, unrejected_ind] = column_index
-                        unrejected_ind += 1
-                assert scatter_ind == result.shape[1]
-                assert unrejected_ind == result.shape[1]
-                return result[0], result[1], None
-    raise IOError(
-        'Magnitude fitting statistics file contains no lines not marked as'
-        ' comment!'
-    )
+    column_mask = numpy.arange(0,
+                               num_stat * columns_per_set,
+                               columns_per_set,
+                               dtype=int)
+    num_unrejected = column_mask + 2
+    scatter = column_mask + 5
+    formal_error = columns_per_set * num_stat + 3 + column_mask
+
+    for column_selection, expected_kind in [(num_unrejected, 'iu'),
+                                            (scatter, 'f'),
+                                            (formal_error, 'f')]:
+        check_dtype = stat[column_selection].dtypes.unique()
+        assert check_dtype.size == 1
+        assert check_dtype[0].kind in expected_kind
+
+    return num_unrejected, scatter, formal_error
+
 
 #Meant to define callable with pre-computed pieces
 #pylint: disable=too-few-public-methods
@@ -297,15 +286,13 @@ class LogPlotLine:
 
 #No good way to simplify
 #pylint: disable=too-many-locals
-def plot_best_scatter(match_fname,
+def plot_best_scatter(data,
                       *,
-                      magnitude_column,
+                      magnitude_expression,
                       num_unrejected_columns,
                       min_unrejected_fraction,
                       scatter_columns,
                       expected_scatter_columns,
-                      xi_column,
-                      eta_column,
                       distance_splits,
                       bottom_envelope,
                       empirical_marker_size,
@@ -333,10 +320,8 @@ def plot_best_scatter(match_fname,
         None
     """
 
-    data = numpy.genfromtxt(match_fname)
-    print('data: ' + repr(data))
-    print(repr(data[:, num_unrejected_columns]))
-    min_unrejected = numpy.min(data[:, num_unrejected_columns], 1)
+    print(repr(data[num_unrejected_columns]))
+    min_unrejected = numpy.min(data[num_unrejected_columns], 1)
     print('min_unrejected: ' + repr(min_unrejected))
     print('max(min_unrejected): ' + repr(numpy.max(min_unrejected)))
     many_unrejected = (min_unrejected
@@ -344,27 +329,25 @@ def plot_best_scatter(match_fname,
                        min_unrejected_fraction * numpy.max(min_unrejected))
     print('many_unrejected: ' + repr(many_unrejected))
 
-    magnitude = data[:, magnitude_column][many_unrejected]
+    data = data[many_unrejected]
+    magnitude = Evaluator(data)(magnitude_expression)
 
-    scatter = data[:, scatter_columns][many_unrejected]
+    scatter = data[scatter_columns]
     scatter[scatter == 0.0] = numpy.nan
     best_ind = numpy.nanargmin(scatter, 1)
     scatter = 10.0**(numpy.nanmin(scatter, 1) / 2.5) - 1.0
-    print(repr(scatter_columns))
 
-    print('Magnitudes: ' + repr(magnitude))
-    print('scatter: ' + repr(scatter))
+    print(f'Magnitudes:\n{magnitude!r}\nshape: {magnitude.shape}')
+    print(f'Scatter:\n{scatter!r}\nshape: {scatter.shape}')
+    print(f'Best index:\n{best_ind!r}\nshape: {best_ind.shape}')
 
     if expected_scatter_columns is not None:
-        expected_scatter = data[:, expected_scatter_columns][many_unrejected]
+        expected_scatter = data[expected_scatter_columns]
         expected_scatter[expected_scatter == 0.0] = numpy.nan
         expected_scatter = 10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0
         print('expected error: ' + repr(expected_scatter))
 
-    distance2 = (
-        data[:, xi_column][many_unrejected]**2 +
-        data[:, eta_column][many_unrejected]**2
-    )
+    distance2 = data['xi']**2 + data['eta']**2
 
 
     if distance_splits is None:
@@ -406,72 +389,60 @@ def plot_best_scatter(match_fname,
 def create_plot(cmdline_args):
     """Create the plot per the command line arguments."""
 
-    catalogue_columns = detect_catalogue_columns(
-        catalogue_fname=cmdline_args.catalogue_fname
+    data = read_catalog_file(cmdline_args.catalogue_fname,
+                             add_gnomonic_projection=True)
+    num_cat_columns = len(data.columns)
+    data = data.join(
+        pandas.read_csv(cmdline_args.magfit_stat_fname,
+                        sep=r'\s+',
+                        header=None,
+                        index_col=0),
+        how='inner'
     )
+    print(f'Data:\n{data!r}')
     (
         num_unrejected_columns,
         scatter_columns,
         expected_scatter_columns
-    ) = detect_stat_columns(
-        cmdline_args.magfit_stat_fname
-    )
-
-    num_catalogue_columns = len(catalogue_columns)
-
-    scatter_columns += num_catalogue_columns
-    if expected_scatter_columns is not None:
-        expected_scatter_columns += num_catalogue_columns
+    ) = detect_stat_columns(data, len(data.columns) - num_cat_columns)
 
     bottom_envelope = LogPlotLine(*cmdline_args.bottom_envelope)
 
-    with TemporaryFileName() as match_fname:
-        match_stat_to_catalogue(
-            stat_fname=cmdline_args.magfit_stat_fname,
-            catalogue_fname=cmdline_args.catalogue_fname,
-            catalogue_id_column=catalogue_columns.index('#ID'),
-            match_fname=match_fname
-        )
+    magnitude, best_ind = plot_best_scatter(
+        data,
+        magnitude_expression=cmdline_args.magnitude_expression,
+        num_unrejected_columns=num_unrejected_columns,
+        min_unrejected_fraction=cmdline_args.min_unrejected_fraction,
+        scatter_columns=scatter_columns,
+        expected_scatter_columns=expected_scatter_columns,
+        distance_splits=cmdline_args.distance_splits,
+        bottom_envelope=bottom_envelope,
+        theoretical_marker_size=cmdline_args.theoretical_marker_size,
+        empirical_marker_size=cmdline_args.empirical_marker_size
+    )
 
-        magnitude, best_ind = plot_best_scatter(
-            match_fname,
-            magnitude_column=catalogue_columns.index(cmdline_args.filter),
-            num_unrejected_columns=(num_unrejected_columns
-                                    +
-                                    num_catalogue_columns),
-            min_unrejected_fraction=cmdline_args.min_unrejected_fraction,
-            scatter_columns=scatter_columns,
-            expected_scatter_columns=expected_scatter_columns,
-            xi_column=catalogue_columns.index('xi'),
-            eta_column=catalogue_columns.index('eta'),
-            distance_splits=cmdline_args.distance_splits,
-            bottom_envelope=bottom_envelope,
-            theoretical_marker_size=cmdline_args.theoretical_marker_size,
-            empirical_marker_size=cmdline_args.empirical_marker_size
-        )
+    pyplot.xlim(cmdline_args.plot_x_range)
+    pyplot.ylim(cmdline_args.plot_y_range)
+    pyplot.ylabel('MAD')
 
-        pyplot.xlim(cmdline_args.plot_x_range)
-        pyplot.ylim(cmdline_args.plot_y_range)
-        pyplot.ylabel('MAD')
+    pyplot.xlabel(cmdline_args.magnitude_expression)
+    pyplot.grid(True, which='both')
+    pyplot.savefig(cmdline_args.output)
 
-        pyplot.xlabel(cmdline_args.filter + ' [mag]')
-        pyplot.grid(True, which='both')
-        pyplot.savefig(cmdline_args.output)
+    pyplot.cla()
+    pyplot.clf()
 
-        pyplot.cla()
-        pyplot.clf()
+    pyplot.plot(magnitude, best_ind, '.k')
+    pyplot.xlim(cmdline_args.plot_x_range)
 
-        pyplot.plot(magnitude, best_ind, '.k')
-        pyplot.xlim(cmdline_args.plot_x_range)
+    pyplot.xlabel(cmdline_args.magnitude_expression)
+    pyplot.ylabel('Photometry index with smallest scatter')
 
-        pyplot.xlabel(cmdline_args.filter + ' [mag]')
-        pyplot.ylabel('Photometry index with smallest scatter')
-
-        pyplot.savefig(splitext(cmdline_args.output)[0]
-                       +
-                       '_best_ind'
-                       +
-                       splitext(cmdline_args.output)[1])
+    pyplot.savefig(splitext(cmdline_args.output)[0]
+                   +
+                   '_best_ind'
+                   +
+                   splitext(cmdline_args.output)[1])
 
 
 if __name__ == '__main__':

@@ -5,11 +5,11 @@
 from functools import partial
 from itertools import count
 from os import path
+import logging
 
 from matplotlib import pyplot
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
-from asteval import Interpreter
 from pytransit import QuadraticModel
 
 from superphot_pipeline import LightCurveFile
@@ -22,13 +22,14 @@ from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
 from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
+from superphot_pipeline.processing_steps.lc_detrending import add_catalog_info
 
 def add_scatter_arguments(parser, multi_mode=True):
     """Add arguments to cmdline parser determining how scatter is calculated."""
 
     parser.add_argument(
         '--detrending-mode',
-        **(dict(nargs='+') if multi_mode else dict()),
+        **({'nargs': '+'} if multi_mode else {}),
         default=('tfa',),
         choices=['magfit', 'epd', 'tfa'],
         help='Which version of the detrending to plot. If multiple modes are '
@@ -134,15 +135,15 @@ def parse_command_line():
         'options. Any option can still be overriden on the command line.'
     )
     parser.add_argument(
-        '--catalogue-fname', '--catalogue', '--cat',
-        default='catalogue.ucac4',
-        help='The name of the catalogue file containing all sources to '
+        '--catalog-fname', '--catalog', '--cat',
+        default='catalog.ucac4',
+        help='The name of the catalog file containing all sources to '
         'include in the plot (may contain extra sources too).'
     )
     parser.add_argument(
         '--x-expression',
-        default='R',
-        help='An expression involving catalogue informatio to use as the x-axis'
+        default='phot_g_mean_mag',
+        help='An expression involving catalog informatio to use as the x-axis'
         ' of the plot.'
     )
 
@@ -170,7 +171,7 @@ def parse_command_line():
         '--target-id',
         default=None,
         help='The lightcurve of the given source (any one of the '
-        'catalogue identifiers stored in the LC file) will be fit using'
+        'catalog identifiers stored in the LC file) will be fit using'
         ' reconstructive detrending, starting the transit parameter fit'
         ' with the values supplied, and fitting for the values allowed '
         'to vary. If not specified all LCs are fit in '
@@ -183,20 +184,33 @@ def parse_command_line():
         limb_darkening=True,
         fit_flags=False
     )
+    parser.add_argument(
+        '--verbose',
+        default='warning',
+        choices=['debug', 'info', 'warning', 'error', 'critical'],
+        help='The type of verbosity of logger.'
+    )
 
-    return parser.parse_args()
+    result = parser.parse_args()
+    logging.basicConfig(
+        level=getattr(logging, result.verbose.upper()),
+        format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+               '%(pathname)s.%(funcName)s:%(lineno)d'
+    )
+    return result
+
 
 def get_scatter_config(cmdline_args):
     """Return the configuration to use for extracting scatter from LC."""
 
-    return dict(
-        magfit_iteration=cmdline_args.magfit_iteration,
-        min_lc_length=cmdline_args.min_lc_length,
-        calculate_average=cmdline_args.average,
-        calculate_scatter=cmdline_args.statistic,
-        outlier_threshold=cmdline_args.outlier_threshold,
-        max_outlier_rejections=cmdline_args.max_outlier_rejections
-    )
+    return {
+        'magfit_iteration': cmdline_args.magfit_iteration,
+        'min_lc_length': cmdline_args.min_lc_length,
+        'calculate_average': cmdline_args.average,
+        'calculate_scatter': cmdline_args.statistic,
+        'outlier_threshold': cmdline_args.outlier_threshold,
+        'max_outlier_rejections': cmdline_args.max_outlier_rejections
+    }
 
 
 def default_get_magnitudes(lightcurve, dset_key, **substitutions):
@@ -294,31 +308,6 @@ def lcfname_to_hatid(lcfname):
     with LightCurveFile(lcfname, 'r') as lightcurve:
         return dict(lightcurve['Identifiers'])[b'HAT']
 
-def get_catalogue_data(catalogue_fname, lightcurve_fnames):
-    """Return the catalogue information for the given lightcurves."""
-
-    catalogue = numpy.genfromtxt(catalogue_fname,
-                                 dtype=None,
-                                 names=True,
-                                 deletechars='')
-    catalogue.dtype.names = [colname.split('[')[0] for colname in
-                             catalogue.dtype.names]
-    catalogue.sort()
-    source_names = numpy.vectorize(lcfname_to_hatid)(lightcurve_fnames)
-    return catalogue[
-        numpy.searchsorted(catalogue['ID'], source_names)
-    ]
-
-
-
-def get_plot_x(catalogue_data, x_expression):
-    """Return the x coordinate to use for each lightcurve."""
-
-    x_evaluator = Interpreter()
-    for varname in catalogue_data.dtype.names:
-        x_evaluator.symtable[varname] = catalogue_data[varname]
-    return x_evaluator(x_expression)
-
 
 def get_target_index(lc_fnames, target_id):
     """Return the index within the given lightcurve names of the target."""
@@ -350,7 +339,7 @@ def get_scatter_data(lc_fnames, detrending_mode, target_index, cmdline_args):
     result = numpy.vectorize(get_scatter)(lc_fnames)[0]
     if target_index is not None:
         transit_parameters = (get_transit_parameters(vars(cmdline_args), False),
-                              dict())
+                              {})
         result[target_index] = get_scatter(
             lc_fnames[target_index],
             get_magnitudes=ReconstructiveCorrectionTransit(
@@ -381,10 +370,10 @@ def main(cmdline_args):
 
     target_index = get_target_index(lc_fnames, cmdline_args.target_id)
 
-    catalogue_data = get_catalogue_data(cmdline_args.catalogue_fname,
-                                        lc_fnames)
-    plot_x = get_plot_x(catalogue_data, cmdline_args.x_expression)
-    square_distances = catalogue_data['xi']**2 + catalogue_data['eta']**2
+    catalog_data = add_catalog_info(lc_fnames,
+                                    cmdline_args.catalog_fname,
+                                    cmdline_args.x_expression)
+    square_distances = catalog_data['xi']**2 + catalog_data['eta']**2
     distance_splits = list(cmdline_args.distance_splits) + [numpy.inf]
     color_index = 0
 
@@ -393,14 +382,9 @@ def main(cmdline_args):
                                         detrending_mode,
                                         target_index,
                                         cmdline_args)
-        print('{:25s} {:25s}'.format('Source', 'Scatter'))
+        print(f'{"Source":25s} {"Scatter":25s}')
         for fname, scatter in zip(lc_fnames, scatter_data):
-            print(
-                '{:25s} {:25.16g}'.format(
-                    path.basename(fname),
-                    scatter
-                )
-            )
+            print(f'{path.basename(fname):25s} {scatter:25.16g}')
         unplotted_sources = numpy.ones(len(lc_fnames), dtype=bool)
         min_distance = 0
         for max_distance in sorted(distance_splits):
@@ -415,18 +399,18 @@ def main(cmdline_args):
                 plot_color = color_scheme[color_index % len(color_scheme)]
                 color_index += 1
 
-                plot_config = dict(
-                    markeredgecolor=plot_color,
-                    markerfacecolor=plot_color,
-                    linestyle='none'
-                )
+                plot_config = {
+                    'markeredgecolor': plot_color,
+                    'markerfacecolor': plot_color,
+                    'linestyle': 'none'
+                }
 
                 if target_index is not None and to_plot[target_index]:
                     to_plot[target_index] = False
                     unplotted_sources[target_index] = False
 
                     pyplot.semilogy(
-                        plot_x[target_index],
+                        catalog_data['mag'][target_index],
                         scatter_data[target_index],
                         marker='*',
                         markersize=(3 * cmdline_args.plot_marker_size),
@@ -435,7 +419,7 @@ def main(cmdline_args):
                     )
 
                 pyplot.semilogy(
-                    plot_x[to_plot],
+                    catalog_data['mag'][to_plot],
                     scatter_data[to_plot],
                     marker='.',
                     markersize=cmdline_args.plot_marker_size,

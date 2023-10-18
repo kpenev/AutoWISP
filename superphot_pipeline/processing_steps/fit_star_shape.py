@@ -55,6 +55,13 @@ def add_source_selction_options(parser):
     """Add options configuring the selection of sources for fitting."""
 
     parser.add_argument(
+        '--shapefit-disable-cover-grid',
+        dest='shapefit_src_cover_grid',
+        action='store_false',
+        default=True,
+        help='Should pixels be selected to cover the full PSF/PRF grid.'
+    )
+    parser.add_argument(
         '--shapefit-src-min-bg-pix',
         type=int,
         default=50,
@@ -206,6 +213,7 @@ def add_shape_options(parser):
         metavar='<varname>, <expression>',
         nargs='+',
         default=[],
+        type=lambda arg: tuple(e.strip() for e in arg.split(',')),
         help='Extra variables to allow the PRF to depend on in addition to '
         '(x and y). The <expression> can involve any catologue column , '
         'header variable, and `STID`, `FNUM`, `CMPOS`. The extra variables '
@@ -273,7 +281,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='fit_star_shape',
         inputs_help_extra=('The corresponding DR files must alread contain an '
                            'astrometric transformation.'),
         add_component_versions=('srcproj', 'background', 'shapefit'),
@@ -296,7 +303,7 @@ def parse_command_line(*args):
 
     parser.add_argument(
         '--photometry-catalogue', '--photometry-catalog', '--cat',
-        default='photometry_catalogue.ucac4',
+        default='MASTERS/photometry_catalogue.ucac4',
         help='A file containing the list of stars to perform photometry on.'
     )
 
@@ -699,7 +706,8 @@ def fit_star_shapes(image_collection, configuration):
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,
-                initargs=(configuration,)
+                initargs=(configuration,),
+                maxtasksperchild=1
         ) as pool:
             pool.map(
                 fit_frame_set,

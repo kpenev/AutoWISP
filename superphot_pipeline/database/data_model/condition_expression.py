@@ -21,7 +21,6 @@ class ConditionExpression(DataModelBase):
 
     __tablename__ = 'condition_expression'
 
-    #id
     id = Column(
         Integer,
         primary_key=True,
@@ -33,13 +32,11 @@ class ConditionExpression(DataModelBase):
         doc='The expression to evaluate to determine if an image meets the '
         'condition.'
     )
-    #notes
     notes = Column(
         String(1000),
         nullable=True,
         doc='Any user supplied notes describing the condition expression.'
     )
-    #timestamp
     timestamp = Column(
         TIMESTAMP,
         nullable=False,
@@ -48,6 +45,3 @@ class ConditionExpression(DataModelBase):
 
     def __str__(self):
         return f"({self.id}) {self.expression} {self.notes} {self.timestamp}"
-
-    #relationship
-    conditions = relationship("Condition", back_populates="expressions")

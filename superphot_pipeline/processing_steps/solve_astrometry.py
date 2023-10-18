@@ -35,7 +35,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='astrometry',
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True
@@ -49,7 +48,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--astrometry-catalogue', '--astrometry-catalog', '--cat',
-        default='astrometry_catalogue.ucac4',
+        default='MASTERS/astrometry_catalogue.ucac4',
         help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
@@ -61,7 +60,7 @@ def parse_command_line(*args):
         metavar=('CHANNEL:EXPRESSION'),
         type=lambda e: e.split(':'),
         action='append',
-        default=[],
+        default=None,
         help='An expression to evaluate for each catalog source to determine '
         'if the source should be used for astrometry of a given channel. If '
         'filter for a given channel is not specified, the full catalog is used '
@@ -79,6 +78,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--frame-fov-estimate',
         type=str,
+        default=None,
         help='Approximate field of view of the frame in degrees. Can be an '
         'expression involving header keywords. If not specified, the field of '
         'view of the catalog divided by 1.3 is used.'
@@ -142,7 +142,8 @@ def parse_command_line(*args):
     )
 
     result = parser.parse_args(*args)
-    result['catalogue_filter'] = dict(result['catalogue_filter'])
+    if result['catalogue_filter'] is not None:
+        result['catalogue_filter'] = dict(result['catalogue_filter'])
     return result
 
 class TempAstrometryFiles:
@@ -607,14 +608,14 @@ def astrometry_process(task_queue, result_queue, configuration):
 def prepare_configuration(configuration):
     """Apply fallbacks to the configuration."""
 
-    with fits.open(configuration['astrometry_catalog']) as cat_fits:
-        catalog_header = cat_fits[1].header
+    with fits.open(configuration['astrometry_catalogue']) as cat_fits:
+        catalogue_header = cat_fits[1].header
 
-    if configuration['frame-center-estimate'] is None:
-        configuration['frame_center_estimate'] = (catalog_header['RA'],
-                                                  catalog_header['DEC'])
-    if configuration['frame-fov-estimate'] is None:
-        configuration['frame_fov_estimate'] = catalog_header['WIDTH']
+    if configuration['frame_center_estimate'] is None:
+        configuration['frame_center_estimate'] = (catalogue_header['RA'],
+                                                  catalogue_header['DEC'])
+    if configuration['frame_fov_estimate'] is None:
+        configuration['frame_fov_estimate'] = catalogue_header['WIDTH']
 
 
 #Could not think of good way to split

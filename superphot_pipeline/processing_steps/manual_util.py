@@ -1,6 +1,8 @@
 """Collection of functions used by many processing steps."""
 
 import logging
+from sys import argv
+from os import path
 
 import numpy
 from astropy.io import fits
@@ -53,7 +55,6 @@ class ManualStepArgumentParser(ArgumentParser):
                  *,
                  input_type,
                  description,
-                 processing_step,
                  add_component_versions=(),
                  inputs_help_extra='',
                  allow_parallel_processing=False,
@@ -88,6 +89,7 @@ class ManualStepArgumentParser(ArgumentParser):
         """
 
         self.argument_descriptions = {}
+        self.argument_defaults = {}
 
         self._convert_to_dict = convert_to_dict
         super().__init__(description=description,
@@ -163,7 +165,7 @@ class ManualStepArgumentParser(ArgumentParser):
 
         self.add_argument(
             '--std-out-err-fname',
-            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.outerr'),
+            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.outerr',
             help='The filename pattern to redirect stdout and stderr during'
             'multiprocessing. Should include substitutions to distinguish '
             'output from different multiprocessing processes. May include '
@@ -178,7 +180,7 @@ class ManualStepArgumentParser(ArgumentParser):
         )
         self.add_argument(
             '--logging-fname',
-            default=(processing_step + '_{task:s}_{now:s}_pid{pid:d}.log'),
+            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log',
             help='The filename pattern to use for log files. Should include'
             ' substitutions to distinguish logs from different '
             'multiprocessing processes. May include substitutions for any '
@@ -208,17 +210,61 @@ class ManualStepArgumentParser(ArgumentParser):
     def add_argument(self, *args, **kwargs):
         """Store each argument's description in self.argument_descriptions."""
 
+        argument_name = args[0].lstrip('-')
         if kwargs.get('action', None) == 'store_false':
-            self.argument_descriptions[
-                kwargs['dest']
-            ] = {
-                'rename': args[0].lstrip('-').replace('-', '_'),
+            self.argument_descriptions[argument_name] = {
+                'rename': kwargs['dest'],
                 'help': kwargs['help']
             }
         else:
-            self.argument_descriptions[
-                args[0].lstrip('-').replace('-', '_')
-            ] = kwargs['help']
+            self.argument_descriptions[argument_name] = kwargs['help']
+
+        if 'default' in kwargs:
+            nargs = kwargs.get('nargs', 1)
+            if isinstance(kwargs['default'], str) or kwargs['default'] is None:
+                self.argument_defaults[argument_name] = kwargs['default']
+            else:
+                if kwargs.get('action', None) == 'store_true':
+                    assert kwargs.get('default', False) is False
+                    self.argument_defaults[argument_name] = 'False'
+                elif kwargs.get('action', None) == 'store_false':
+                    assert kwargs.get('default', True) is True
+                    self.argument_defaults[argument_name] = repr(
+                        kwargs['dest'] == argument_name
+                    )
+                else:
+                    self.argument_defaults[argument_name] = repr(
+                        kwargs['default']
+                    )
+                if (
+                        'type' not in kwargs
+                        and
+                        kwargs.get('action', None) not in ['store_true',
+                                                           'store_false']
+                        and
+                        nargs == 1
+                ):
+                    raise ValueError(
+                        f'Non-string default value ({kwargs["default"]}) and '
+                        f'no type specified for {argument_name}.'
+                    )
+                if kwargs.get('action', None) not in ['store_true',
+                                                      'store_false',
+                                                      'append']:
+                    if nargs == '+' or nargs > 1:
+                        self.argument_defaults[argument_name] = repr(
+                            list(kwargs['default'])
+                        )
+                    elif (
+                        kwargs['type'](self.argument_defaults[argument_name])
+                        !=
+                        kwargs['default']
+                    ):
+                        raise ValueError(
+                            'Could not convert default value of '
+                            f'{argument_name} for DB: {kwargs["default"]}'
+                        )
+
         return super().add_argument(*args, **kwargs)
 
 
@@ -227,27 +273,30 @@ class ManualStepArgumentParser(ArgumentParser):
         """Set-up logging and return cleaned up dict instead of namespace."""
 
         result = super().parse_args(*args, **kwargs)
+        result.processing_step = path.basename(argv[0])
+        assert result.processing_step.endswith('.py')
+        result.processing_step = result.processing_step[:-3]
+
+        logging_level = getattr(logging, result.verbose.upper())
+        logging.basicConfig(
+            level=logging_level,
+            format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                   '%(pathname)s.%(funcName)s:%(lineno)d'
+        )
+        logging.getLogger("sqlalchemy.engine").setLevel(logging_level)
+
         if self._convert_to_dict:
             result = vars(result)
             del result['config_file']
             del result['extra_config_file']
-            logging.basicConfig(
-                level=getattr(logging, result['verbose'].upper()),
-                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                       '%(pathname)s.%(funcName)s:%(lineno)d'
-            )
         else:
-            logging.basicConfig(
-                level=getattr(logging, result.verbose.upper()),
-                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                       '%(pathname)s.%(funcName)s:%(lineno)d'
-            )
             del result.config_file
             del result.extra_config_file
             del result.verbose
 
         if args or kwargs:
             result['argument_descriptions'] = self.argument_descriptions
+            result['argument_defaults'] = self.argument_defaults
 
         return result
     #pylint: enable=signature-differs

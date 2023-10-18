@@ -25,7 +25,6 @@ def parse_command_line(*args):
     parser = ManualStepArgumentParser(
         description=__doc__,
         input_type=inputtype,
-        processing_step='create_lightcurves',
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements and be magnitude fitted.'),
         add_component_versions=('srcproj',
@@ -48,7 +47,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--lcdump-catalogue-fname', '--lcdump-catalogue', '--lcdump-cat',
-        default='lcdump_catalogue.ucac4',
+        default='MASTERS/lcdump_catalogue.ucac4',
         help='The name of the catalogue file containing all sources to Create '
         'lightcurves for.'
     )

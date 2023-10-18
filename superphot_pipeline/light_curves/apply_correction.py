@@ -22,17 +22,8 @@ def save_correction_statistics(correction_statistics, filename):
     dframe = pandas.DataFrame(
         {
             column: correction_statistics[column]
-            for column in ['mag', 'xi', 'eta']
+            for column in ['ID', 'mag', 'xi', 'eta']
         },
-    )
-
-    dframe.insert(
-        0,
-        '2MASSID',
-        [
-            get_hat_source_id_str(int_id)
-            for int_id in correction_statistics['ID']
-        ]
     )
 
     num_photometries = correction_statistics['rms'][0].size

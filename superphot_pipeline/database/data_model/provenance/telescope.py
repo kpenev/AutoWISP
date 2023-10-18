@@ -57,6 +57,10 @@ class Telescope(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    observing_session = relationship("ObservingSession", back_populates="telescope")
-    telescope_access = relationship("TelescopeAccess", back_populates="telescope")
-    telescope_type = relationship("TelescopeType", back_populates="telescopes")
+    observing_sessions = relationship("ObservingSession",
+                                      back_populates="telescope")
+    observers = relationship("Observer",
+                             secondary="telescope_access",
+                             back_populates="telescopes")
+    telescope_type = relationship("TelescopeType",
+                                  back_populates="telescopes")

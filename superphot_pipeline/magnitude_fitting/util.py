@@ -5,7 +5,6 @@ from numpy.lib import recfunctions
 from astropy.io import fits
 
 from superphot_pipeline.catalog import read_catalog_file
-from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 
 _PHOT_QUANTITIES = ('mag', 'mag_err', 'phot_flag')
 
@@ -173,15 +172,7 @@ def get_master_photref(photref_fname):
 def read_master_catalogue(fname, source_id_parser=None):
     """Return the catalogue info in the given file formatted for magfitting."""
 
-    cat_sources, metadata = read_catalog_file(fname, return_metadata=True)
-    if 'xi' not in cat_sources.columns:
-        assert 'eta' not in cat_sources.columns
-        for colname in ['xi', 'eta']:
-            cat_sources.insert(len(cat_sources.columns), colname, numpy.nan)
-        gnomonic_projection(cat_sources,
-                            cat_sources,
-                            RA=metadata['RA'],
-                            Dec=metadata['Dec'])
+    cat_sources = read_catalog_file(fname, add_gnomonic_projection=True)
 
     cat_sources = cat_sources.to_records()
 
