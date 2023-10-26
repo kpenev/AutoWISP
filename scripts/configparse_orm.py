@@ -5,15 +5,10 @@ Usage in terminal:
 """
 import sqlite3
 from configargparse import ArgumentParser
-# from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-# from sqlalchemy.ext.automap import automap_base
 from superphot_pipeline.database.interface import Session
 from superphot_pipeline.database.processing import ProcessingManager
-# from superphot_pipeline.database.data_model.base import DataModelBase
 from superphot_pipeline.database.data_model.configuration import Configuration
-# from superphot_pipeline.database.data_model.condition_expression import ConditionExpression
-# from superphot_pipeline.database.data_model.condition import Condition
 from superphot_pipeline.database.data_model.steps_and_parameters import Parameter
 from datetime import datetime
 import configparser
@@ -34,37 +29,35 @@ def add_to_db(version, filename):
         file_content = '[dummy_section]\n' + f.read()
 
     config.read_string(file_content)
-    # print({section: dict(config[section]) for section in config})
 
     merged_config = {}
     for section in config:
         merged_config = merged_config | dict(config[section])
 
-    # print(merged_config)
-
-    # for keys,values in merged_config.items():
-    #     print(keys + " : " + values)
-    # test/dummy dictionary
-
-    exist = []
+    test = []
     with Session.begin() as db_session:
         # if no version was specified use n+1 version >> processing script
-        if (version == -1):
             # we'd want it to be a large number to capture all current versions
-            process_manage = ProcessingManager(sys.maxsize) #is this an ok value to have here?
+        process_manage = ProcessingManager(sys.maxsize) #is this an ok value to have here?
         for keys,values in merged_config.items():
+            config = process_manage.configuration.get(keys)
             # check that key matches parameter in table
-            if version == -1:
-                config = process_manage.configuration.get(keys)
-                if config is not None:
+            if config is not None:
+                if version == -1:
                     version = int(config.get('version')) + 1  # making it version n+1
-                else:
-                    print("Config: %s is NOT a valid value in CONFIGURATION table" % (keys))
+                value = config.get('value')
+                value = list(value.values())[0]
+                test.append((remove_comments(values), value))
+                #check that value is not already in table, if so skip
+                if(remove_comments(values) == value):
+                    print("not adding %s to table because it matches previous value"%(keys))
                     continue
 
+            # check that configuration exists in parameter table and then add if so
             param = db_session.query(Parameter.id).filter_by(name=keys).first()
             if param is not None:
                 # adding stuff to table with n+1 configuration
+                print(keys,values)
                 db_session.add(
                     Configuration(parameter_id=param[0], version=version, condition_id=1, value=remove_comments(values),
                                   notes="test config", timestamp=datetime.utcnow()))
