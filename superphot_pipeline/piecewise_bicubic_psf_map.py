@@ -1,5 +1,7 @@
 """Define class for working with piecewise bucubic PSF maps."""
 
+import ctypes
+
 import numpy
 from astropy.io import fits
 import superphot
@@ -124,7 +126,7 @@ class PiecewiseBicubicPSFMap:
                 (
                     frame[value_index].data.astype(numpy.float64, copy=False),
                     frame[error_index].data.astype(numpy.float64, copy=False),
-                    frame[mask_index].data.astype(numpy.float64, copy=False),
+                    frame[mask_index].data.astype(numpy.uint8, copy=False),
                     frame_sources,
                     self._eval_shape_terms(frame_sources).T
                 )
