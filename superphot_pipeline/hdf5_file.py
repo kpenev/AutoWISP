@@ -1017,13 +1017,12 @@ class HDF5File(ABC, h5py.File):
             result_dtype = variable_length_dtype
 
         if dataset.size == 0:
-            result = numpy.empty(
+            result = numpy.full(
                 shape=(dataset.shape
                        if expected_shape is None else
                        expected_shape),
-                dtype=result_dtype
+                fill_value=numpy.nan
             )
-            result.fill(numpy.nan)
         elif variable_length_dtype is not None:
             return dataset[:]
         else:
