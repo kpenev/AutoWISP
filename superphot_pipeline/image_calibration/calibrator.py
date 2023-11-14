@@ -2,7 +2,6 @@
 
 from hashlib import sha1
 from astropy.io import fits
-from astropy.time import Time
 
 import numpy
 
@@ -10,20 +9,21 @@ from superphot_pipeline.image_calibration.mask_utilities import\
     combine_masks,\
     get_saturation_mask,\
     mask_flags
-from superphot_pipeline.image_calibration.fits_util import create_result
+from superphot_pipeline.image_calibration.fits_util import\
+    create_result
 
 from superphot_pipeline.fits_utilities import\
-    read_image_components,\
-    get_primary_header
+    read_image_components
 from superphot_pipeline.pipeline_exceptions import\
     OutsideImageError,\
     ImageMismatchError
-from superphot_pipeline import Processor, Evaluator
+from superphot_pipeline import Processor
 
 from superphot_pipeline.image_calibration.mask_utilities import\
     git_id as mask_utilities_git_id
 from superphot_pipeline.image_calibration.overscan_methods import\
     git_id as overscan_methods_git_id
+from superphot_pipeline.image_calibration.fits_util import get_raw_header
 
 git_id = '$Id$'
 
@@ -165,20 +165,20 @@ class Calibrator(Processor):
     """
     #pylint: enable=anomalous-backslash-in-string
 
-    module_git_ids = dict(calibrator=git_id,
-                          overscan_methods=overscan_methods_git_id,
-                          mask_utilities=mask_utilities_git_id)
+    module_git_ids = {'calibrator': git_id,
+                      'overscan_methods': overscan_methods_git_id,
+                      'mask_utilities': mask_utilities_git_id}
 
-    default_configuration = dict(
-        overscans=dict(areas=None, method=None),
-        image_area=None,
-        bias_level_adu=0.0,
-        gain=1.0,
-        leak_directions=[],
-        split_channels=False,
-        compress_calibrated=16,
-        allow_overwrite=False
-    )
+    default_configuration = {
+        'overscans': {'areas': None, 'method': None},
+        'image_area': None,
+        'bias_level_adu': 0.0,
+        'gain': 1.0,
+        'leak_directions': [],
+        'split_channels': False,
+        'compress_calibrated': 16,
+        'allow_overwrite': False
+    }
 
     @staticmethod
     def check_calib_params(raw_image, calib_params):
@@ -310,12 +310,12 @@ class Calibrator(Processor):
 
 
         if calib_params['image_area'] is None:
-            calib_params['image_area'] = dict(
-                xmin=0,
-                ymin=0,
-                xmax=raw_image.shape[1],
-                ymax=raw_image.shape[0]
-            )
+            calib_params['image_area'] = {
+                'xmin': 0,
+                'ymin': 0,
+                'xmax': raw_image.shape[1],
+                'ymax': raw_image.shape[0]
+            }
         else:
             check_area(calib_params['image_area'], 'image_area')
         if calib_params['overscans']['areas'] is not None:
@@ -339,9 +339,9 @@ class Calibrator(Processor):
                         or
                         not isinstance(y_offset, int)
                 ):
-                    raise ValueError('Invalid leak direction: (%s, %s)'
-                                     %
-                                     (x_offset, y_offset))
+                    raise ValueError(
+                        f'Invalid leak direction: ({x_offset:s}, {y_offset:s})'
+                    )
         except Exception as leak_problem:
             raise ValueError(
                 'Malformatted list of leak directions: '
@@ -451,7 +451,7 @@ class Calibrator(Processor):
         ):
             for overscan_id, overscan_area in \
                     enumerate(calibration_params['overscans']['areas']):
-                header['OVRSCN%02d' % overscan_id] = (
+                header[f'OVRSCN{overscan_id:02d}'] = (
                     area_pattern % overscan_area,
                     'Overscan area #' + str(overscan_id)
                 )
@@ -501,12 +501,12 @@ class Calibrator(Processor):
                     calibration_params[master_type]
                 )[:3]
                 self._calib_mask_from_master(mask)
-                calibration_params[master_type] = dict(
-                    filename=calibration_params[master_type],
-                    correction=image,
-                    variance=numpy.square(error),
-                    mask=mask
-                )
+                calibration_params[master_type] = {
+                    'filename': calibration_params[master_type],
+                    'correction': image,
+                    'variance': numpy.square(error),
+                    'mask': mask
+                }
             else:
                 calibration_params[master_type] = getattr(
                     self,
@@ -515,45 +515,20 @@ class Calibrator(Processor):
 
         if 'masks' in calibration_params:
             if isinstance(calibration_params['masks'], str):
-                calibration_params['masks'] = dict(
-                    filenames=[calibration_params['masks']],
-                    image=read_image_components(
+                calibration_params['masks'] = {
+                    'filenames': [calibration_params['masks']],
+                    'image': read_image_components(
                         calibration_params['masks']
                     )[2]
-                )
+                }
             else:
-                calibration_params['masks'] = dict(
-                    filenames=calibration_params['masks'],
-                    image=combine_masks(calibration_params['masks'])[2]
-                )
+                calibration_params['masks'] = {
+                    'filenames': calibration_params['masks'],
+                    'image': combine_masks(calibration_params['masks'])[2]
+                }
         else:
             calibration_params['masks'] = self.masks
         return calibration_params
-
-
-    @staticmethod
-    def _get_raw_header(raw_image, calibration_params):
-        """Return the raw header to base the calibrated frame header on."""
-
-        result = get_primary_header(
-            raw_image,
-            add_filename_keywords=True
-        )
-        if calibration_params['combine_headers']:
-            result.update(raw_image[calibration_params['raw_hdu']].header)
-        if calibration_params.get('utc_expression'):
-            result['JD-OBS'] = Time(
-                Evaluator(result)(calibration_params['utc_expression'])
-            ).jd
-        else:
-            assert calibration_params.get('jd_expression')
-            result['JD-OBS'] = Time(
-                Evaluator(result)(calibration_params['jd_expression'])
-            ).jd
-
-        result['FNUM'] = Evaluator(result)(calibration_params['fnum'])
-
-        return result
 
 
     def __init__(self,
@@ -600,9 +575,12 @@ class Calibrator(Processor):
 
         if masks is not None:
             if isinstance(masks, str):
-                dict(filenames=[masks], image=read_image_components(masks)[2])
+                self.masks = {
+                    'filenames': [masks],
+                    'image': read_image_components(masks)[2]
+                }
             else:
-                self.masks = dict(filenames=masks, image=combine_masks(masks))
+                self.masks = {'filenames': masks, 'image': combine_masks(masks)}
         else:
             self.masks = None
 
@@ -615,12 +593,12 @@ class Calibrator(Processor):
                 setattr(
                     self,
                     'master_' + master_type,
-                    dict(
-                        filename=master_fname,
-                        correction=image,
-                        variance=numpy.square(error),
-                        mask=mask
-                    )
+                    {
+                        'filename': master_fname,
+                        'correction': image,
+                        'variance': numpy.square(error),
+                        'mask': mask
+                    }
                 )
             else:
                 setattr(self, 'master_' + master_type, None)
@@ -765,7 +743,7 @@ class Calibrator(Processor):
                 apply_flat_correction(calibration_params['flat'],
                                       calibrated_images)
 
-            raw_header = self._get_raw_header(raw_image, calibration_params)
+            raw_header = get_raw_header(raw_image, calibration_params)
 
             self._document_in_header(calibration_params, raw_header)
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])

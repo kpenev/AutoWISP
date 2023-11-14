@@ -12,7 +12,7 @@ from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
-
+inputtype = 'raw'
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -87,13 +87,8 @@ def parse_overscan(overscan_str):
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'raw'
-
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type=inputtype)
+                                      input_type='' if args else inputtype)
 
     parser.add_argument(
         '--calibrate-only-if',
@@ -226,12 +221,14 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def calibrate(image_collection, configuration):
+def calibrate(image_collection, configuration, mark_progress):
     """Calibrate the images from the specified collection."""
 
     calibrate_image = Calibrator(**configuration)
     for image_fname in image_collection:
         calibrate_image(image_fname)
+        for channel, _ in configuration['split_channels']:
+            mark_progress(image_fname, channel)
 
 
 if __name__ == '__main__':

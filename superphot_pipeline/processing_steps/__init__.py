@@ -18,8 +18,8 @@ def import_steps():
     for step_name in steps:
 
         step = import_module('superphot_pipeline.processing_steps.'
-                               +
-                               step_name)
+                             +
+                             step_name)
         __all__.append(step)
 
 import_steps()

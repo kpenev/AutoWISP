@@ -4,7 +4,60 @@ from os import path, makedirs
 from logging import getLogger
 
 from astropy.io import fits
+from astropy.time import Time
 import numpy
+
+from superphot_pipeline.fits_utilities import get_primary_header
+from superphot_pipeline import Evaluator
+
+
+def add_required_keywords(header, calibration_params):
+    """Add keywords required by the pipeline to the given header."""
+
+    if calibration_params.get('utc_expression'):
+        header['JD-OBS'] = Time(
+            Evaluator(header)(calibration_params['utc_expression'])
+        ).jd
+    else:
+        assert calibration_params.get('jd_expression')
+        header['JD-OBS'] = Time(
+            Evaluator(header)(calibration_params['jd_expression'])
+        ).jd
+
+    header['FNUM'] = Evaluator(header)(calibration_params['fnum'])
+
+
+def get_raw_header(raw_image, calibration_params):
+    """Return the raw header to base the calibrated frame header on."""
+
+    result = get_primary_header(
+        raw_image,
+        add_filename_keywords=True
+    )
+    if calibration_params.get('combine_headers'):
+        result.update(raw_image[calibration_params['raw_hdu']].header)
+    add_required_keywords(result, calibration_params)
+    return result
+
+
+def add_channel_keywords(header, channel_name, channel_slice):
+    """Add the extra keywords describing channel to header."""
+
+    if channel_name is not None:
+        header['CLRCHNL'] = channel_name
+        #False positive
+        #pylint: disable=unsubscriptable-object
+        header['CHNLXOFF'] = channel_slice[1].start
+        header['CHNLXSTP'] = channel_slice[1].step
+        header['CHNLYOFF'] = channel_slice[0].start
+        header['CHNLYSTP'] = channel_slice[0].step
+        #pylint: enable=unsubscriptable-object
+    else:
+        header['CHNLXOFF'] = 0
+        header['CHNLXSTP'] = 1
+        header['CHNLYOFF'] = 0
+        header['CHNLYSTP'] = 1
+
 
 def create_result(image_list,
                   header,
@@ -74,21 +127,7 @@ def create_result(image_list,
         logger.debug('Slice for %s channel: %s',
                      channel_name,
                      repr(channel_slice))
-        if channel_name is not None:
-            header['CLRCHNL'] = channel_name
-            #False positive
-            #pylint: disable=unsubscriptable-object
-            header['CHNLXOFF'] = channel_slice[1].start
-            header['CHNLXSTP'] = channel_slice[1].step
-            header['CHNLYOFF'] = channel_slice[0].start
-            header['CHNLYSTP'] = channel_slice[0].step
-            #pylint: enable=unsubscriptable-object
-        else:
-            header['CHNLXOFF'] = 0
-            header['CHNLXSTP'] = 1
-            header['CHNLYOFF'] = 0
-            header['CHNLYSTP'] = 1
-
+        add_channel_keywords(header, channel_name, channel_slice)
 
         hdu_list = fits.HDUList([
             fits.PrimaryHDU(
