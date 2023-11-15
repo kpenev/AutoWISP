@@ -45,7 +45,7 @@ def parse_command_line(*args):
         'reference to use to start the magnitude fitting iterations.'
     )
     parser.add_argument(
-        '--master-catalogue-fname',
+        '--magfit-catalogue',
         default='MASTERS/magfit_catalogue.ucac4',
         help='The name of the catalogue file to use as extra information in '
              'magnitude fitting terms and for excluding sources from the fit.'
@@ -196,7 +196,7 @@ def magnitude_fit(dr_collection, configuration):
     magnitude_fitting.iterative_refit(
         fit_dr_filenames=sorted(dr_collection),
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
-        master_catalogue_fname=configuration['master_catalogue_fname'],
+        master_catalogue_fname=configuration['magfit_catalogue'],
         configuration=SimpleNamespace(**configuration),
         master_photref_fname_format=(
             configuration['master_photref_fname_format']

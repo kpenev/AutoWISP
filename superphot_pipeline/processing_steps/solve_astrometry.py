@@ -24,17 +24,15 @@ from superphot_pipeline import Evaluator
 
 _logger = logging.getLogger(__name__)
 
+input_type = 'dr'
+
+
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'dr'
-
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=inputtype,
+        input_type=('' if args else input_type),
         inputs_help_extra='The DR files must already contain extracted sources',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True

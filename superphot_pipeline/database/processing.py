@@ -420,9 +420,13 @@ class ProcessingManager:
 
         pending_images = self._get_pending_images(db_session)
         self._processed_ids = {}
+        step_input_type = getattr(
+            processing_steps,
+            self.current_step.name
+        ).input_type
         for image, _ in pending_images:
             if image.id not in self._evaluated_expressions:
-                self._evaluate_expressions_image(image)
+                self._evaluate_expressions_image(image, step_input_type)
 
         return pending_images
 
@@ -521,15 +525,23 @@ class ProcessingManager:
             }
 
 
-    def __call__(self, step_name):
+    def __call__(self, steps=None):
         """Perform all the processing for the given step."""
 
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
+            if steps is None:
+                steps = db_session.scalars(select(Step.name)).all()
 
-            pending_images = self._start_step(step_name, db_session)
+        for step_name in steps:
+            #False positivie
+            #pylint: disable=no-member
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
+                pending_images = self._start_step(step_name, db_session)
+
             while pending_images:
                 batch = [pending_images.pop()]
                 matched_expressions = self._evaluated_expressions[
@@ -539,10 +551,14 @@ class ProcessingManager:
                 ][
                     'expressions'
                 ]
-                config = self._get_config(
-                    matched_expressions,
-                    db_session=db_session
-                )
+                #False positivie
+                #pylint: disable=no-member
+                with Session.begin() as db_session:
+                #pylint: enable=no-member
+                    config = self._get_config(
+                        matched_expressions,
+                        db_session=db_session
+                    )
 
                 for i in range(len(pending_images) - 1, -1):
                     if matched_expressions[

@@ -12,7 +12,7 @@ from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
 
-inputtype = 'raw'
+input_type = 'raw'
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -88,7 +88,7 @@ def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type='' if args else inputtype)
+                                      input_type='' if args else input_type)
 
     parser.add_argument(
         '--calibrate-only-if',

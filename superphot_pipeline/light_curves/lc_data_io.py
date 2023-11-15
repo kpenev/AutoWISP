@@ -274,7 +274,7 @@ class LCDataIO:
                     - max_magfit_iterations: The maximum number of magnitude
                       fitting iterations in any input frame.
 
-                    - lcdump_catalogue_fname: The filename of a catalogue file
+                    - lcdump_catalogue: The filename of a catalogue file
                       containing at least RA and Dec.
 
                     - srcextract_psf_params: List of the parameters describing
@@ -331,7 +331,7 @@ class LCDataIO:
 
         cls._path_substitutions = path_substitutions
 
-        cls._catalogue = read_master_catalogue(config['lcdump_catalogue_fname'],
+        cls._catalogue = read_master_catalogue(config['lcdump_catalogue'],
                                                source_id_parser)
         cls.dr_fname_parser = staticmethod(dr_fname_parser)
 

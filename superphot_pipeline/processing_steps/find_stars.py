@@ -15,14 +15,14 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
 
-inputtype = 'calibrated'
+input_type = 'calibrated'
 
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type=('' if args else inputtype),
+                                      input_type=('' if args else input_type),
                                       allow_parallel_processing=True,
                                       add_component_versions=('srcextract',))
     parser.add_argument(
