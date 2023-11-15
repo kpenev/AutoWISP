@@ -51,7 +51,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--srcextract-psfmap-terms',
-        default='O3{x, y, r, J-K}',
+        default='O3{x, y}*O1{phot_g_mean_mag}',
         help='An expression involving source extraction and/or catalogue '
         'variables for the weights to use for the smoothing fit.'
     )

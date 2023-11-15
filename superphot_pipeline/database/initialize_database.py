@@ -24,8 +24,8 @@ from superphot_pipeline.database.data_model import\
     ConditionExpression
 #pylint: enable=no-name-in-module
 
-def parse_command_line():
-    """Parse the commandline optinos to attributes of an object."""
+def get_command_line_parser():
+    """Create a parser with all required command line arguments."""
 
     parser = ArgumentParser(
         description='Initialize the database for first time use of the '
@@ -50,7 +50,7 @@ def parse_command_line():
         default='INFO',
         help='Set the verbosity of the DB logger.'
     )
-    return parser.parse_args()
+    return parser
 
 
 def add_default_hdf5_structures(data_reduction=True, light_curve=True):
@@ -211,4 +211,4 @@ def initialize_database(cmdline_args):
 
 
 if __name__ == '__main__':
-    initialize_database(parse_command_line())
+    initialize_database(get_command_line_parser().parse_args())

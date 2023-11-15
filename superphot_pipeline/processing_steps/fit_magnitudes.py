@@ -69,39 +69,13 @@ def parse_command_line(*args):
     parser.add_argument(
         '--correction-parametrization',
         type=str,
-        default=' + '.join(
-            [
-                'O4{xi, eta}',
-                'O2{R} * O1{J-K} * O2{xi, eta}',
-                (
-                    ' * '.join([
-                        '{1, '
-                        +
-                        ', '.join([
-                            (
-                                'sin(%(freq).1f * pi * (%(coord)c %% 1)), '
-                                'cos(%(freq).1f * pi * (%(coord)c %% 1))'
-                            )
-                            %
-                            {
-                                'freq': (2 * freq),
-                                'coord': coord
-                            }
-                            for freq in range(1, 4)
-                        ])
-                        +
-                        '}'
-                        for coord in 'xy'
-                    ])
-                )
-            ]
-        ),
+        default='O3{phot_g_mean_mag, x, y}',
         help='A string that expands to the terms to include in the magnitude '
         'fitting correction.'
     )
     parser.add_argument(
         '--mphotref-scatter-fit-terms',
-        default='O2{r,xi,eta}',
+        default='O2{phot_g_mean_mag}',
         help='Terms to include in the fit for the scatter when deciding which '
         'stars to include in the master.'
     )
@@ -116,7 +90,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--fit-source-condition',
         type=str,
-        default='(r > 0) * (r < 16) * (J - K > 0) * (J - K < 1)',
+        default='isfinite(phot_g_mean_mag)',
         help='An expression involving catalogue, reference and/or photometry '
         'variables which evaluates to zero if a source should be excluded and '
         'any non-zero value if it  should be included in the magnitude fit.'

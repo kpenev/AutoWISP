@@ -87,7 +87,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--sort-frame-by',
-        default='{DATE-OBS}',
+        default='{FNUM}',
         help='A format string involving header keywords to sort the the '
         'lightcurve entries by (alphabetically).'
     )
