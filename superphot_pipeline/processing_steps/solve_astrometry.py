@@ -393,9 +393,12 @@ def solve_image(dr_fname,
 
         result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
 
+        filter_expr = configuration['catalogue_filter']
+        if filter_expr is not None:
+            filter_expr = filter_expr.get(header['CLRCHNL'])
         catalogue = read_catalog_file(
             configuration['astrometry_catalogue'],
-            filter_expr=configuration['catalogue_filter'].get(header['CLRCHNL'])
+            filter_expr=filter_expr
         )
 
         fov_estimate = float(
