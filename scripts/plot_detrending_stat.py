@@ -121,6 +121,12 @@ def parse_command_line():
         help='The size of markers to use for plotting the formal standard '
         'deviation (i.e. expected scatter).'
     )
+    parser.add_argument(
+        '--skip-first-stat',
+        action='store_true',
+        help='Skip the first photometry when plotting the statistics. This is '
+        'useful when  plotting statistics with zero PSF fit.'
+    )
 
     return parser.parse_args()
 
@@ -214,7 +220,7 @@ def match_stat_to_catalogue(stat_fname,
     )
 
 
-def detect_stat_columns(stat, num_stat_columns):
+def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
     """
     Automatically detect the relevant columns in the statistics file.
 
@@ -248,6 +254,9 @@ def detect_stat_columns(stat, num_stat_columns):
                                num_stat * columns_per_set,
                                columns_per_set,
                                dtype=int)
+    if skip_first_stat:
+        column_mask = column_mask[1:]
+
     num_unrejected = column_mask + 2
     scatter = column_mask + 5
     formal_error = columns_per_set * num_stat + 3 + column_mask
@@ -255,7 +264,10 @@ def detect_stat_columns(stat, num_stat_columns):
     for column_selection, expected_kind in [(num_unrejected, 'iu'),
                                             (scatter, 'f'),
                                             (formal_error, 'f')]:
+        print('column selection: ' + repr(column_selection))
+        print('expected kind: ' + repr(expected_kind))
         check_dtype = stat[column_selection].dtypes.unique()
+        print('check_dtype: ' + repr(check_dtype))
         assert check_dtype.size == 1
         assert check_dtype[0].kind in expected_kind
 
@@ -404,7 +416,9 @@ def create_plot(cmdline_args):
         num_unrejected_columns,
         scatter_columns,
         expected_scatter_columns
-    ) = detect_stat_columns(data, len(data.columns) - num_cat_columns)
+    ) = detect_stat_columns(data,
+                            len(data.columns) - num_cat_columns,
+                            cmdline_args.skip_first_stat)
 
     bottom_envelope = LogPlotLine(*cmdline_args.bottom_envelope)
 
