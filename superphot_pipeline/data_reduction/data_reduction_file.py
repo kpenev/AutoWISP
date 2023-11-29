@@ -378,7 +378,16 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         try:
             self._check_for_dataset('shapefit.magnitude',
                                     **path_substitutions)
-            return True
+            return min(
+                self.get_attribute(
+                    'shapefit.cfg.psf.bicubic.grid.x',
+                    **path_substitutions
+                ).size,
+                self.get_attribute(
+                    'shapefit.cfg.psf.bicubic.grid.y',
+                    **path_substitutions
+                ).size
+            ) > 2
         except IOError:
             return False
 

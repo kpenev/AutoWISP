@@ -75,6 +75,7 @@ def get_magfit_sources(data_reduction_file,
     source_data = data_reduction_file.get_source_data(
         magfit_iterations=magfit_iterations,
         string_source_ids=False,
+        shape_fit=data_reduction_file.has_shape_fit(**path_substitutions),
         **path_substitutions
     )
     source_data.reset_index(inplace=True)
