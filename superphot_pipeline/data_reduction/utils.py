@@ -2,6 +2,7 @@
 
 from ctypes import c_uint, c_double, c_int, c_ubyte
 import re
+import logging
 
 import numpy
 
@@ -63,6 +64,8 @@ _dtype_dr_to_io_tree = {
     numpy.int32: c_int,
     numpy.float64: c_double
 }
+
+_logger = logging.getLogger(__name__)
 
 
 def _parse_grid_str(grid_str):
@@ -325,6 +328,11 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
             The expression defining which terms the PSF/PRF depends on.
     """
 
+    _logger.debug(
+        'Getting apphot inputs from %s with path substitutions: %s',
+        repr(dr_file.filename),
+        repr(path_substitutions)
+    )
     result = {}
     result['source_data'] = dr_file.get_source_data(
         magfit_iterations=[0],
@@ -394,6 +402,8 @@ def fill_aperture_photometry_input_tree(dr_file,
     aperture_photometry_inputs['source_data'] = (
         aperture_photometry_inputs['source_data'].to_records()
     )
+    _logger.debug('Adding aperture photometry inputs to tree: %s',
+                  repr(aperture_photometry_inputs))
     tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
     return aperture_photometry_inputs['source_data'].size
 

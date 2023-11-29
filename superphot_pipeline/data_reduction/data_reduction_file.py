@@ -372,22 +372,26 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         return path_substitutions['magfit_iteration']
 
-    def has_shape_fit(self, **path_substitutions):
+    def has_shape_fit(self, accept_zeropsf=True, **path_substitutions):
         """True iff shape fitting photometry exists for path_substitutions."""
 
         try:
             self._check_for_dataset('shapefit.magnitude',
                                     **path_substitutions)
-            return min(
-                self.get_attribute(
-                    'shapefit.cfg.psf.bicubic.grid.x',
-                    **path_substitutions
-                ).size,
-                self.get_attribute(
-                    'shapefit.cfg.psf.bicubic.grid.y',
-                    **path_substitutions
-                ).size
-            ) > 2
+            return (
+                accept_zeropsf
+                or
+                min(
+                    self.get_attribute(
+                        'shapefit.cfg.psf.bicubic.grid.x',
+                        **path_substitutions
+                    ).size,
+                    self.get_attribute(
+                        'shapefit.cfg.psf.bicubic.grid.y',
+                        **path_substitutions
+                    ).size
+                ) > 2
+            )
         except IOError:
             return False
 
@@ -415,7 +419,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 indices. For example ``-1`` is the final iteration.
 
             shape_fit(bool):    Should the result include shape fit photometry
-                measurements.
+                measurements. If ``True`` and no shape fit is present, still
+                excludes shape fit columns.
 
             apphot(bool):    Should the result include aperture photometry
                 measurements.
@@ -787,7 +792,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         path_substitutions['magfit_iteration'] = self.get_num_magfit_iterations(
             **path_substitutions
         )
-        include_shape_fit = self.has_shape_fit(**path_substitutions)
+        include_shape_fit = self.has_shape_fit(accept_zeropsf=False,
+                                               **path_substitutions)
         add_magfit_datasets(pad_missing_magnitudes(),
                             include_shape_fit)
 
