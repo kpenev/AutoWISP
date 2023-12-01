@@ -42,7 +42,7 @@ class Condition(DataModelBase):
     )
     notes = Column(
         String(1000),
-        nullable=False,
+        nullable=True,
         doc='Any user supplied notes describing the condition.'
     )
     timestamp = Column(

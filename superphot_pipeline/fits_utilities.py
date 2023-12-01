@@ -112,7 +112,7 @@ def get_primary_header(fits_image, add_filename_keywords=False):
     if not isinstance(fits_image, fits.HDUList):
         try:
             with fits.open(fits_image, 'readonly') as opened_fits:
-                return get_primary_header(opened_fits)
+                return get_primary_header(opened_fits, add_filename_keywords)
         except OSError:
             with DataReductionFile(fits_image, 'r') as dr_file:
                 return dr_file.get_frame_header()

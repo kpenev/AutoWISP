@@ -3,6 +3,7 @@
 """Calibrate image(s)."""
 
 import re
+import logging
 
 from configargparse import Action
 from general_purpose_python_modules.multiprocessing_util import setup_process
@@ -10,9 +11,11 @@ from general_purpose_python_modules.multiprocessing_util import setup_process
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
-    ManualStepArgumentParser
+    ManualStepArgumentParser,\
+    ignore_progress
 
 input_type = 'raw'
+_logger = logging.getLogger(__name__)
 
 def parse_area_str(area_str):
     """Parse a string formatted as <xmin>,<xmax>,<ymin>,<ymax> to dict."""
@@ -224,11 +227,12 @@ def parse_command_line(*args):
 def calibrate(image_collection, configuration, mark_progress):
     """Calibrate the images from the specified collection."""
 
+    _logger.debug('Image collection: %s', repr(image_collection))
     calibrate_image = Calibrator(**configuration)
     for image_fname in image_collection:
+        _logger.debug('Calibrating: %s', repr(image_fname))
         calibrate_image(image_fname)
-        for channel, _ in configuration['split_channels']:
-            mark_progress(image_fname, channel)
+        mark_progress(image_fname)
 
 
 if __name__ == '__main__':
@@ -239,5 +243,6 @@ if __name__ == '__main__':
             cmdline_config.pop('raw_images'),
             cmdline_config.pop('calibrate_only_if')
         ),
-        cmdline_config
+        cmdline_config,
+        ignore_progress
     )

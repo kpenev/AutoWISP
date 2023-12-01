@@ -363,12 +363,29 @@ def add_images_to_db(image_collection, configuration):
                                  header_eval,
                                  configuration,
                                  db_session)
+            existing_image = db_session.query(Image).filter_by(
+                raw_fname = image.raw_fname
+            ).one_or_none()
             image.observing_session = get_or_create_observing_session(
                 header_eval,
                 configuration,
                 db_session
             )
-            db_session.add(image)
+            if existing_image is None:
+                db_session.add(image)
+            else:
+                logging.info(
+                    'Image %s already in the database with ID: %s',
+                    image.raw_fname,
+                    existing_image.id
+                )
+                assert existing_image.image_type_id == image.image_type_id
+                assert (
+                    existing_image.observing_session_id
+                    ==
+                    image.observing_session.id
+                )
+
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()

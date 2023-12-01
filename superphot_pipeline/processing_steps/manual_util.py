@@ -335,3 +335,9 @@ def read_subpixmap(fits_fname):
         #pylint: disable=no-member
         return numpy.copy(subpixmap_file[0].data).astype('float64')
         #pylint: enable=no-member
+
+
+def ignore_progress(_image_fname, _channel):
+    """Dummy function to replace progress tracking of auto processing."""
+
+    return

@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+
 """Handle data processing DB interactions."""
 
-from os import path
+from tempfile import NamedTemporaryFile
 import logging
 
 from sqlalchemy import sql, select, tuple_, and_
+
+from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline import Evaluator
 from superphot_pipeline.database.interface import Session
@@ -21,6 +25,7 @@ from superphot_pipeline.database.data_model import\
     Step,\
     Image
 #pylint: enable=no-name-in-module
+
 
 class ProcessingManager:
     """
@@ -62,6 +67,10 @@ class ProcessingManager:
                 * calibrated: the filename of the calibrated image
 
                 * dr: the filename of the data reduction file
+
+            An additional entry with channel=None is included which contains
+            just the common (intersection) set of expressions satisfied for all
+            channels.
 
         _processed_ids(dict):    The keys are the filenames of the required
             inputs (DR or FITS) for the current step and the values are
@@ -126,7 +135,7 @@ class ProcessingManager:
             added_params = set()
             for this_step in steps:
                 outf.write(f'[{this_step.name}]\n')
-                step_config = self._get_config(
+                step_config = self._get_param_values(
                     matched_expressions,
                     [
                         param.name
@@ -135,16 +144,16 @@ class ProcessingManager:
                     ]
                 )
                 for param, value in step_config.items():
-                    outf.write(f'    {param.name} = {value}\n')
+                    if value is not None:
+                        outf.write(f'    {param} = {value}\n')
 
                 outf.write('\n')
 
 
-    def _get_config(self,
-                    matched_expressions,
-                    parameters=None,
-                    as_args=False,
-                    db_session=None):
+    def _get_param_values(self,
+                          matched_expressions,
+                          parameters=None,
+                          db_session=None):
         """
         Return the values to use for the given parameters.
 
@@ -193,14 +202,20 @@ class ProcessingManager:
         elif isinstance(parameters, Step):
             parameters = [param.name for param in parameters.parameters]
 
-        if as_args:
-            return [
-                entry
-                for param in parameters
-                for entry in ['--' + param, get_param_value(param)]
-            ]
-
         return {param: get_param_value(param) for param in parameters}
+
+
+    def _get_config(self, matched_expressions, step=None):
+
+        with NamedTemporaryFile(mode='w') as config_file:
+            self._write_config_file(matched_expressions,
+                                    config_file,
+                                    [step])
+            config_file.flush()
+            self._logger.debug('Wrote config file %s', repr(config_file.name))
+            return getattr(processing_steps, step).parse_command_line(
+                ['-c', config_file.name]
+            )
 
 
     def _get_matched_expressions(self, evaluate):
@@ -221,25 +236,57 @@ class ProcessingManager:
         )
 
 
+    def _get_step_input(self, image, channel_name, step_input_type):
+        """Return the name of the file required by the current step."""
+
+        if step_input_type == 'raw':
+            return image.raw_fname
+
+        if step_input_type.startswith('calibrated'):
+            return self._evaluated_expressions[
+                image.id
+            ][
+                channel_name
+            ][
+                'calibrated'
+            ]
+
+        if step_input_type == 'dr':
+            return self._evaluated_expressions[
+                image.id
+            ][
+                channel_name
+            ][
+                'dr'
+            ]
+
+        raise ValueError(f'Invalid step input type {step_input_type}')
+
+
     def _evaluate_expressions_image(self, image, step_input_type):
         """Add calibrated and DR filenames as attributes to given image."""
 
-        evaluate = Evaluator(get_primary_header(image.raw_fname))
-        calib_config = processing_steps.calibrate.parse_command_line(
-            self._get_config(
-                self._get_matched_expressions(evaluate),
-                'calibrate',
-                as_args=True
-            )
+        evaluate = Evaluator(get_primary_header(image.raw_fname, True))
+        calib_config = self._get_config(
+            self._get_matched_expressions(evaluate),
+            'calibrate',
         )
+        self._logger.debug('Calibration config: %s', repr(calib_config))
         add_required_keywords(evaluate.symtable, calib_config)
 
         self._evaluated_expressions[image.id] = {}
-        for channel_name, channel_slice in calib_config['split_channels']:
+        all_channel_matched = None
+        for channel_name, channel_slice in (
+                calib_config['split_channels'].items()
+        ):
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
             matched_expressions = self._get_matched_expressions(evaluate)
+            if all_channel_matched is None:
+                all_channel_matched = matched_expressions
+            else:
+                all_channel_matched = all_channel_matched & matched_expressions
             self._evaluated_expressions[image.id][channel_name] = {
                 'expressions': matched_expressions,
                 'calibrated': calib_config['calibrated_fname'].format_map(
@@ -259,33 +306,20 @@ class ProcessingManager:
                             channel_name
                     ][
                         'dr'
-                    ] = evaluate(value).format_map(evaluate.symtable)
+                    ] = value.format_map(evaluate.symtable)
                     break
-            if step_input_type == 'raw':
-                step_input_fname = image.raw_fname
-            elif step_input_type.startswith('calibrated'):
-                step_input_fname = self._evaluated_expressions[
-                    image.id
-                ][
-                    channel_name
-                ][
-                    'calibrated'
-                ]
-            elif step_input_type == 'dr':
-                step_input_fname = self._evaluated_expressions[
-                    image.id
-                ][
-                    channel_name
-                ][
-                    'dr'
-                ]
-            else:
-                raise ValueError(f'Invalid step input type {step_input_type}')
+            step_input_fname = self._get_step_input(image,
+                                                    channel_name,
+                                                    step_input_type)
 
-            self._processed_ids[step_input_fname] = {
-                'image_id': image.id,
-                'channel': channel_name
-            }
+            if step_input_fname not in self._processed_ids:
+                self._processed_ids[step_input_fname] = []
+            self._processed_ids[step_input_fname].append(
+                {'image_id': image.id, 'channel': channel_name}
+            )
+        self._evaluated_expressions[image.id][None] = {
+            'expressions': all_channel_matched
+        }
 
 
     def _get_pending_images(self, db_session):
@@ -304,19 +338,17 @@ class ProcessingManager:
 
         if not self.current_step.requires:
             return db_session.scalars(
-                db_session.scalars(
-                    select(
-                        Image
-                    ).outerjoin(
-                        ProcessedImages
-                    ).where(
-                        #That's how NULL comparison works in sqlalchemy
-                        #pylint: disable=singleton-comparison
-                        ProcessedImages.image_id == None
-                        #pylint: enable=singleton-comparison
-                    )
-                ).all()
-            )
+                select(
+                    Image
+                ).outerjoin(
+                    ProcessedImages
+                ).where(
+                    #That's how NULL comparison works in sqlalchemy
+                    #pylint: disable=singleton-comparison
+                    ProcessedImages.image_id == None
+                    #pylint: enable=singleton-comparison
+                )
+            ).all()
 
         required_progress_ids = db_session.scalars(
             select(
@@ -392,7 +424,11 @@ class ProcessingManager:
             step_name(str):    The name of the step to start.
 
         Returns:
-            None
+            [(Image, str)]:
+                The list of images and channels to process.
+
+            str:
+                The type of input expected by the current step.
         """
 
         self.current_step = db_session.execute(
@@ -411,7 +447,7 @@ class ProcessingManager:
             )
         ).scalar_one_or_none()
 
-        if self._current_processing is not None:
+        if self._current_processing is None:
             self._current_processing = ImageProcessingProgress(
                 step_id=self.current_step.id,
                 configuration_version=self.step_version[step_name]
@@ -419,16 +455,21 @@ class ProcessingManager:
             db_session.add(self._current_processing)
 
         pending_images = self._get_pending_images(db_session)
+        self._logger.debug('Pending images: %s', repr(pending_images))
         self._processed_ids = {}
         step_input_type = getattr(
             processing_steps,
             self.current_step.name
         ).input_type
+
+        if step_input_type == 'raw':
+            pending_images = [(row, None) for row in pending_images]
+
         for image, _ in pending_images:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image, step_input_type)
 
-        return pending_images
+        return pending_images, step_input_type
 
 
     def _process_batch(self, batch, config):
@@ -442,7 +483,7 @@ class ProcessingManager:
         )(
             batch,
             config,
-            self._record_processed_image
+            self._record_processed
         )
 
     def _record_processed(self, input_fname):
@@ -463,28 +504,30 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            db_session.add(
-                ProcessedImages(
-                    **processed_ids[input_fname],
-                    processing_id=self._current_processing.id
+            for done_id in self._processed_ids[input_fname]:
+                db_session.add(
+                    ProcessedImages(
+                        **done_id,
+                        progress_id=self._current_processing.id
+                    )
                 )
-            )
 
 
-    def __init__(self, version):
+    def __init__(self, version=None):
         """
         Set the public class attributes per the given configuartion version.
 
         Args:
             version(int):    The version of the parameters to get. If a
                 parameter value is not specified for this exact version use the
-                value with the largest version not exceeding ``version``.
+                value with the largest version not exceeding ``version``. By
+                default us the latest configuration version in the database.
 
         Returns:
             None
         """
 
-
+        self._logger = logging.getLogger(__name__)
         self.current_step = None
         self._current_processing = None
         self.configuration = {}
@@ -495,6 +538,12 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
+
+            if version is None:
+                version = db_session.execute(
+                    select(sql.func.max(Configuration.version))
+                ).scalar_one()
+
             db_configuration = self._get_db_configuration(version, db_session)
             for config_entry in db_configuration:
                 if config_entry.parameter.name not in self.configuration:
@@ -540,37 +589,69 @@ class ProcessingManager:
             #pylint: disable=no-member
             with Session.begin() as db_session:
             #pylint: enable=no-member
-                pending_images = self._start_step(step_name, db_session)
+                pending_images, step_input_type = self._start_step(step_name,
+                                                                   db_session)
 
-            while pending_images:
-                batch = [pending_images.pop()]
-                matched_expressions = self._evaluated_expressions[
-                    batch[0][0].id
-                ][
-                    batch[0][1]
-                ][
-                    'expressions'
-                ]
-                #False positivie
-                #pylint: disable=no-member
-                with Session.begin() as db_session:
-                #pylint: enable=no-member
-                    config = self._get_config(
-                        matched_expressions,
-                        db_session=db_session
-                    )
-
-                for i in range(len(pending_images) - 1, -1):
-                    if matched_expressions[
-                            pending_images[i][0].id
+                while pending_images:
+                    batch = []
+                    matched_expressions = self._evaluated_expressions[
+                        pending_images[-1][0].id
                     ][
-                        pending_images[i][1]
+                        pending_images[-1][1]
                     ][
                         'expressions'
-                    ] == matched_expressions:
-                        batch.append(pending_images.pop(i))
+                    ]
+                    self._logger.debug(
+                        'Finding images matching expressions: %s',
+                        repr(matched_expressions)
+                    )
+                    config = self._get_config(
+                        matched_expressions,
+                        step=step_name
+                    )
+                    config['processing_step']=step_name
+                    setup_process(task='main', **config)
 
-                self._process_batch(batch, config)
+                    for i in range(len(pending_images) - 1, -1, -1):
+                        self._logger.debug(
+                            'Comparing %s to %s',
+                            repr(
+                                self._evaluated_expressions[
+                                    pending_images[i][0].id
+                                ][
+                                    pending_images[i][1]
+                                ][
+                                    'expressions'
+                                ]
+                            ),
+                            repr(matched_expressions)
+                        )
+                        if self._evaluated_expressions[
+                                pending_images[i][0].id
+                        ][
+                            pending_images[i][1]
+                        ][
+                            'expressions'
+                        ] == matched_expressions:
+                            batch.append(
+                                self._get_step_input(
+                                    *pending_images.pop(i),
+                                    step_input_type
+                                )
+                            )
+                            self._logger.debug(
+                                'Added image to batch, now: %s',
+                                repr(batch)
+                            )
+                        else:
+                            self._logger.debug('Not a match')
+
+
+                    self._process_batch(batch, config)
+                    self._logger.debug(
+                        'Processed batch leaving %d pending images',
+                        len(pending_images)
+                    )
 
 
     def create_config_file(self, example_header, outf, steps=None):
@@ -611,20 +692,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    test_fits = path.join(
-        path.dirname(
-            path.dirname(
-                path.dirname(
-                    path.abspath(__file__)
-                )
-            )
-        ),
-        'usage_examples',
-        'test_data',
-        '10-20170306',
-        '10-464933_2_R1.fits.fz'
-    )
-    ProcessingManager(1).create_config_file(
-        test_fits,
-        'test.cfg'
-    )
+    ProcessingManager()(['calibrate'])

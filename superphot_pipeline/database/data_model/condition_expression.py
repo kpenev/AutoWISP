@@ -29,6 +29,8 @@ class ConditionExpression(DataModelBase):
     expression = Column(
         String(1000),
         nullable=False,
+        unique=True,
+        index=True,
         doc='The expression to evaluate to determine if an image meets the '
         'condition.'
     )
