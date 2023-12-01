@@ -10,7 +10,8 @@ from general_purpose_python_modules.multiprocessing_util import \
     setup_process_map
 
 from superphot_pipeline.processing_steps.manual_util import\
-    ManualStepArgumentParser
+    ManualStepArgumentParser,\
+    ignore_progress
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
@@ -61,7 +62,10 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def find_stars_single(image_fname, find_stars_in_image, srcextract_version):
+def find_stars_single(image_fname,
+                      find_stars_in_image,
+                      srcextract_version,
+                      mark_progress):
     """Find the stars in a single image."""
 
     fits_header = get_primary_header(image_fname)
@@ -75,10 +79,11 @@ def find_stars_single(image_fname, find_stars_in_image, srcextract_version):
             'srcextract_column_name',
             srcextract_version=srcextract_version
         )
+        mark_progress(image_fname)
 
 
 
-def find_stars(image_collection, configuration):
+def find_stars(image_collection, configuration, mark_progress):
     """Extract sources from all input images and save them to DR files."""
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
@@ -91,7 +96,8 @@ def find_stars(image_collection, configuration):
         for image_fname in image_collection:
             find_stars_single(image_fname,
                               find_stars_in_image,
-                              configuration['srcextract_version'])
+                              configuration['srcextract_version'],
+                              mark_progress)
     else:
         with Pool(
                 configuration['num_parallel_processes'],
@@ -101,7 +107,8 @@ def find_stars(image_collection, configuration):
             pool.map(
                 partial(find_stars_single,
                         find_stars_in_image=find_stars_in_image,
-                        srcextract_version=configuration['srcextract_version']),
+                        srcextract_version=configuration['srcextract_version'],
+                        mark_progress=mark_progress),
                 image_collection
             )
 
@@ -114,5 +121,6 @@ if __name__ == '__main__':
             cmdline_config['calibrated_images'],
             cmdline_config['srcextract_only_if']
         ),
-        cmdline_config
+        cmdline_config,
+        ignore_progress
     )

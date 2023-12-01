@@ -372,10 +372,12 @@ class ProcessingManager:
             #pylint: enable=not-callable
         ).where(
             ProcessedImages.progress_id.in_(required_progress_ids)
+        ).where(
+            ProcessedImages.status == 0
         ).group_by(
             ProcessedImages.image_id,
             ProcessedImages.channel
-        )
+        ).subquery()
 
         done_subq = select(
             ProcessedImages.image_id,
@@ -416,7 +418,7 @@ class ProcessingManager:
         ).all()
 
 
-    def _start_step(self, step_name, db_session):
+    def _start_step(self, step_name):
         """
         Record the start of a processing step and return the images to process.
 
@@ -431,62 +433,63 @@ class ProcessingManager:
                 The type of input expected by the current step.
         """
 
-        self.current_step = db_session.execute(
-            select(
-                Step
-            ).filter_by(
-                name=step_name
-            )
-        ).scalar_one()
-        self._current_processing = db_session.execute(
-            select(
-                ImageProcessingProgress
-            ).filter_by(
-                step_id=self.current_step.id,
-                configuration_version=self.step_version[step_name]
-            )
-        ).scalar_one_or_none()
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            self.current_step = db_session.execute(
+                select(
+                    Step
+                ).filter_by(
+                    name=step_name
+                )
+            ).scalar_one()
+            self._current_processing = db_session.execute(
+                select(
+                    ImageProcessingProgress
+                ).filter_by(
+                    step_id=self.current_step.id,
+                    configuration_version=self.step_version[step_name]
+                )
+            ).scalar_one_or_none()
 
-        if self._current_processing is None:
-            self._current_processing = ImageProcessingProgress(
-                step_id=self.current_step.id,
-                configuration_version=self.step_version[step_name]
-            )
-            db_session.add(self._current_processing)
+            if self._current_processing is None:
+                self._current_processing = ImageProcessingProgress(
+                    step_id=self.current_step.id,
+                    configuration_version=self.step_version[step_name]
+                )
+                db_session.add(self._current_processing)
 
-        pending_images = self._get_pending_images(db_session)
-        self._logger.debug('Pending images: %s', repr(pending_images))
-        self._processed_ids = {}
-        step_input_type = getattr(
-            processing_steps,
-            self.current_step.name
-        ).input_type
+            pending_images = self._get_pending_images(db_session)
+            self._logger.debug('Pending images: %s', repr(pending_images))
+            self._processed_ids = {}
+            step_input_type = getattr(
+                processing_steps,
+                self.current_step.name
+            ).input_type
 
-        if step_input_type == 'raw':
-            pending_images = [(row, None) for row in pending_images]
+            if step_input_type == 'raw':
+                pending_images = [(image, None) for image in pending_images]
 
-        for image, _ in pending_images:
-            if image.id not in self._evaluated_expressions:
-                self._evaluate_expressions_image(image, step_input_type)
+            for image, _ in pending_images:
+                if image.id not in self._evaluated_expressions:
+                    self._evaluate_expressions_image(image, step_input_type)
 
-        return pending_images, step_input_type
+            return pending_images, step_input_type
 
 
-    def _process_batch(self, batch, config):
+    def _process_batch(self, batch, config, step_name):
         """Run the current step for a batch of images given configuration."""
 
-        step_module = getattr(processing_steps, self.current_step.name)
+        step_module = getattr(processing_steps, step_name)
 
-        getattr(
-            step_module,
-            self.current_step.name
-        )(
+        getattr(step_module, step_name)(
             batch,
             config,
             self._record_processed
         )
 
-    def _record_processed(self, input_fname):
+    def _record_processed(self, input_fname, status=0):
         """
         Record that the given input filename was processed by the current step.
 
@@ -508,7 +511,11 @@ class ProcessingManager:
                 db_session.add(
                     ProcessedImages(
                         **done_id,
-                        progress_id=self._current_processing.id
+                        status=status,
+                        progress_id=db_session.merge(
+                            self._current_processing,
+                            load=False
+                        ).id
                     )
                 )
 
@@ -585,14 +592,24 @@ class ProcessingManager:
                 steps = db_session.scalars(select(Step.name)).all()
 
         for step_name in steps:
-            #False positivie
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-                pending_images, step_input_type = self._start_step(step_name,
-                                                                   db_session)
+            pending_images, step_input_type = self._start_step(step_name)
 
-                while pending_images:
+            while pending_images:
+                #False positivie
+                #pylint: disable=no-member
+                with Session.begin() as db_session:
+                #pylint: enable=no-member
+                    pending_images = [
+                        (db_session.merge(image, load=False), channel)
+                        for image, channel in pending_images
+                    ]
+                    self.current_step = db_session.merge(self.current_step,
+                                                         load=False)
+                    self._current_processing = db_session.merge(
+                        self._current_processing,
+                        load=False
+                    )
+
                     batch = []
                     matched_expressions = self._evaluated_expressions[
                         pending_images[-1][0].id
@@ -646,12 +663,11 @@ class ProcessingManager:
                         else:
                             self._logger.debug('Not a match')
 
-
-                    self._process_batch(batch, config)
-                    self._logger.debug(
-                        'Processed batch leaving %d pending images',
-                        len(pending_images)
-                    )
+                self._process_batch(batch, config, step_name)
+                self._logger.debug(
+                    'Processed batch leaving %d pending images',
+                    len(pending_images)
+                )
 
 
     def create_config_file(self, example_header, outf, steps=None):
@@ -692,4 +708,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    ProcessingManager()(['calibrate'])
+    ProcessingManager()(['calibrate', 'find_stars'])

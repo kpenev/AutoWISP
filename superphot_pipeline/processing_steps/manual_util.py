@@ -337,7 +337,7 @@ def read_subpixmap(fits_fname):
         #pylint: enable=no-member
 
 
-def ignore_progress(_image_fname, _channel):
+def ignore_progress(_input_fname, _status=0):
     """Dummy function to replace progress tracking of auto processing."""
 
     return

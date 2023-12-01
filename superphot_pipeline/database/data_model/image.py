@@ -58,6 +58,13 @@ class ProcessedImages(DataModelBase):
         primary_key=True,
         doc='The id of the processing progress'
     )
+    status = Column(
+        Integer,
+        nullable=False,
+        doc='The status of the processing (0 = success, other values indicate '
+        'various reasons for failure). The meaning of non-zero values is step '
+        'dependent.'
+    )
     timestamp = Column(
         TIMESTAMP,
         nullable=False,
