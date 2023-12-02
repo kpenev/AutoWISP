@@ -476,18 +476,20 @@ class MasterPhotrefCollector:
         """Ingest a fitted frame's photometry into the statistics."""
 
 
+        logger = logging.getLogger(__name__)
         for phot, fitted in fit_results:
             if phot is None:
                 continue
 
             simple_source_ids = phot['source_id'][0].shape == ()
 
-            logging.getLogger(__name__).debug(
+            logger.debug(
                 'Collecting %d magfit sources for master.',
                 len(phot['source_id'])
             )
 
-            print('Return code of grcollect: ' + repr(self._grcollect.poll()))
+            logger.debug('Return code of grcollect: %s',
+                         repr(self._grcollect.poll()))
             assert self._grcollect.poll() is None
 
             formal_errors = phot['mag_err'][:, -1]
@@ -521,6 +523,8 @@ class MasterPhotrefCollector:
                     self._grcollect.stdin.write(
                         (self._line_format % print_args + '\n').encode('ascii')
                     )
+            logger.debug('Finished sending fit data to grcollect')
+
 
 
     #TODO: Add support for scatter cut based on quantile of fit residuals.
