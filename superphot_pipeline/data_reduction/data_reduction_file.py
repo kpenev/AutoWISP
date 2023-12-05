@@ -156,7 +156,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         Return a collection of sources previously stored in the DR file.
 
         Args:
-            dataset_key(str):    The pipeline key for the dataset to add.
+            dataset_key(str):    The pipeline key for the dataset to return.
 
             column_substitution_name(str):    The %-subsittution variable to
                 distinguish between the column in the array.

@@ -9,22 +9,31 @@ import os
 from traceback import format_exc
 
 import numpy
+from astropy import units
 from astropy.io import fits
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline.processing_steps.manual_util import\
-    ManualStepArgumentParser
+    ManualStepArgumentParser,\
+    ignore_progress
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
     refine_transformation
-from superphot_pipeline.catalog import read_catalog_file
+from superphot_pipeline.catalog import read_catalog_file, create_catalog_file
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
 
 _logger = logging.getLogger(__name__)
 
 input_type = 'dr'
+fail_reasons = {
+    'failed to converge': 1,
+    'few matched': 2,
+    'high rms': 3,
+    'solve-field failed': 4,
+    'other': 5
+}
 
 
 def parse_command_line(*args):
@@ -51,8 +60,37 @@ def parse_command_line(*args):
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
         'fainter brightness limit. Different brightness limits are then imposed'
-        'for each color channel using the ``--catalogue-filter`` argument.'
+        'for each color channel using the ``--catalogue-filter`` argument. If '
+        'the file does not exist one is automatically generated to cover an '
+        'area larger than the field of view by ``--image-scale-factor``, '
+        'centered on the median pointing and to have the same density as the '
+        '``--catalog-density-quantile`` of the extracted sources within the '
+        'frames being processed.'
     )
+    parser.add_argument(
+        '--catalog-magnitude-expression',
+        default='phot_g_mean_mag',
+        help='An expression involving the catalogue columns that correlates as '
+        'closely as possible with the brightness of the star in the images in '
+        'units of magnitude. Only relevant if the catalog does not exist.'
+    )
+    parser.add_argument(
+        '--catalog-density-quantile',
+        type=float,
+        default=0.9,
+        help='The quantile within the number extracted sources of the separate '
+        'frames to use when determining the faint limit of automatically '
+        'generated catalogs. Only relevant if the catalog does not exist.'
+    )
+    parser.add_argument(
+        '--catalog-density-scaling',
+        type=float,
+        default=1.2,
+        help='The density of stars estimated from source extraction is '
+        'multiplied by this factor to determine how many stars to include in '
+        'the catalog. Only relevant if the catalog does not exist.'
+    )
+
     parser.add_argument(
         '--catalogue-filter', '--catalog-filter', '--cat-filter',
         metavar=('CHANNEL:EXPRESSION'),
@@ -65,6 +103,14 @@ def parse_command_line(*args):
         'for that channel.'
     )
     parser.add_argument(
+        '--catalogue-epoch', '--catalog-epoch', '--cat-epoch',
+        type=str,
+        default='(float(DATE[:4])+0.5) * units.yr',
+        help='An expression to evaluate for each catalog source to determine '
+        'the epoch to which to propagate star positions.'
+    )
+
+    parser.add_argument(
         '--frame-center-estimate',
         nargs=2,
         type=str,
@@ -75,11 +121,13 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--frame-fov-estimate',
+        nargs=2,
         type=str,
         default=None,
+        metavar=('WIDTH', 'HEIGHT'),
         help='Approximate field of view of the frame in degrees. Can be an '
         'expression involving header keywords. If not specified, the field of '
-        'view of the catalog divided by 1.3 is used.'
+        'view of the catalog divided by ``--image-scale-factor`` is used.'
     )
     parser.add_argument(
         '--max-srcmatch-distance',
@@ -296,7 +344,9 @@ def save_to_dr(*,
                              'catalogue_version',
                              'skytoframe_version']
     }
-    catalogue_sources = read_catalog_file(configuration['astrometry_catalogue'])
+    catalogue_sources = read_catalog_file(
+        configuration['astrometry_catalogue'].format_map(header)
+    )
 
     dr_file.add_sources(catalogue_sources,
                         'catalogue.columns',
@@ -348,7 +398,10 @@ def transformation_from_raw(trans_x, trans_y, header, in_place=False):
 
 
 
+#TODO: Think of a way to split
 #pylint: disable=too-many-locals
+#pylint: disable=too-many-statements
+#pylint: disable=too-many-branches
 def solve_image(dr_fname,
                 transformation_estimate=None,
                 **configuration):
@@ -390,6 +443,8 @@ def solve_image(dr_fname,
     with DataReductionFile(dr_fname, 'r+') as dr_file:
 
         header = dr_file.get_frame_header()
+        dr_eval = Evaluator(header)
+        configuration = prepare_configuration(configuration, header)
 
         result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
 
@@ -397,13 +452,11 @@ def solve_image(dr_fname,
         if filter_expr is not None:
             filter_expr = filter_expr.get(header['CLRCHNL'])
         catalogue = read_catalog_file(
-            configuration['astrometry_catalogue'],
+            configuration['astrometry_catalogue'].format_map(header),
             filter_expr=filter_expr
         )
 
-        fov_estimate = float(
-            Evaluator(header)(configuration['frame_fov_estimate'])
-        )
+        fov_estimate = max(*configuration['frame_fov_estimate'])
         with TempAstrometryFiles() as (sources_fname,
                                        corr_fname,
                                        axy_fname):
@@ -440,11 +493,13 @@ def solve_image(dr_fname,
                 except subprocess.SubprocessError:
                     _logger.critical("solve-field failed with error:\n%s",
                                      format_exc())
+                    result['fail_reason'] = 'solve-field failed'
                     continue
 
                 if not os.path.isfile(corr_fname):
                     _logger.critical("Correspondence file %s not created.",
                                      repr(corr_fname))
+                    result['fail_reason'] = 'solve-field failed'
                     return result
 
                 with fits.open(corr_fname, mode='readonly') as corr:
@@ -467,7 +522,7 @@ def solve_image(dr_fname,
 
                     if transformation_estimate is None:
                         transformation_estimate = {
-                            key: float(Evaluator(header)(expression))
+                            key: dr_eval(expression).to_value('deg')
                             for key, expression in zip(
                                 ['ra_cent', 'dec_cent'],
                                 configuration['frame_center_estimate']
@@ -507,7 +562,8 @@ def solve_image(dr_fname,
                             res_rms,
                             ratio,
                             ra_cent,
-                            dec_cent
+                            dec_cent,
+                            success
                         ) = refine_transformation(
                             xy_extracted=xy_extracted,
                             catalogue=catalogue,
@@ -528,21 +584,23 @@ def solve_image(dr_fname,
                             dr_fname,
                             format_exc()
                         )
+                        result['fail_reason'] = fail_reasons['other']
                         return result
                     #pylint: enable=bare-except
 
                     try:
-                        # print('trans_x:'+repr(trans_x))
-                        # print('trans_y:'+repr(trans_y))
-                        # print('matched_sources:'+repr(cat_extracted_corr))
                         _logger.debug('RMS residual: %s', repr(res_rms))
                         _logger.debug('Ratio: %s', repr(ratio))
 
-                        if (
-                                ratio > configuration['min_match_fraction']
-                                and
-                                res_rms < configuration['max_rms_distance']
-                        ):
+                        if ratio < configuration['min_match_fraction']:
+                            result['fail_reason'] = fail_reasons['few matched']
+                        elif res_rms > configuration['max_rms_distance']:
+                            result['fail_reason'] = fail_reasons['high rms']
+                        elif not success:
+                            result['fail_reason'] = fail_reasons[
+                                'failed to converge'
+                            ]
+                        else:
                             _logger.info(
                                 'Succesful astrometry solution found for %s:',
                                 dr_fname
@@ -581,12 +639,15 @@ def solve_image(dr_fname,
                         return result
                     #pylint: enable=bare-except
 
+            result['fail_reason'] = 'solve-field failed'
             _logger.error(
                 'No Astrometry.net solution found in tweak range [%d, %d]',
                 *configuration['tweak_order']
             )
             return result
 #pylint: enable=too-many-locals
+#pylint: enable=too-many-statements
+#pylint: enable=too-many-branches
 
 
 def astrometry_process(task_queue, result_queue, configuration):
@@ -606,25 +667,180 @@ def astrometry_process(task_queue, result_queue, configuration):
     _logger.debug('Astrometry solving process finished.')
 
 
-def prepare_configuration(configuration):
+def prepare_configuration(configuration, dr_header):
     """Apply fallbacks to the configuration."""
 
-    with fits.open(configuration['astrometry_catalogue']) as cat_fits:
+    _logger.debug('Preparing configuration from: %s',
+                  repr(configuration))
+    result = configuration.copy()
+    with fits.open(
+            configuration['astrometry_catalogue'].format_map(dr_header)
+    ) as cat_fits:
         catalogue_header = cat_fits[1].header
 
     if configuration['frame_center_estimate'] is None:
-        configuration['frame_center_estimate'] = (catalogue_header['RA'],
-                                                  catalogue_header['DEC'])
+        result['frame_center_estimate'] = (catalogue_header['RA'],
+                                           catalogue_header['DEC'])
     if configuration['frame_fov_estimate'] is None:
-        configuration['frame_fov_estimate'] = catalogue_header['WIDTH']
+        result['frame_fov_estimate'] = (
+            catalogue_header['WIDTH'] / configuration['image_scale_factor'],
+            catalogue_header['HEIGHT'] / configuration['image_scale_factor']
+        )
+    else:
+        dr_eval = Evaluator(dr_header)
+        result['frame_fov_estimate'] = (
+            dr_eval(
+                configuration['frame_fov_estimate'][0]
+            ).to_value('deg'),
+            dr_eval(
+                configuration['frame_fov_estimate'][1]
+            ).to_value('deg')
+        )
+
+    result.update(
+        binning=1,
+        srcextract_filter='True',
+        sky_preprojection='tan',
+        weights_expression='1.0'
+    )
+    return result
+
+
+def get_new_catalog_info(configuration, dr_collection):
+    """Get information about new catalogues to generate."""
+
+    to_generate = {}
+    for dr_fname in dr_collection:
+        with DataReductionFile(dr_fname, 'r') as dr_file:
+            header = dr_file.get_frame_header()
+
+            catalog_fname = configuration['astrometry_catalogue'].format_map(
+                header
+            )
+            eval_header_expr = Evaluator(header)
+            if os.path.exists(catalog_fname):
+                continue
+
+            catalog_fov = tuple(
+                (
+                    eval_header_expr(fov_expression)
+                    *
+                    configuration['image_scale_factor']
+                )
+                for fov_expression in configuration['frame_fov_estimate']
+            )
+            catalog_epoch = eval_header_expr(configuration['catalogue_epoch'])
+
+            if catalog_fname not in to_generate:
+                to_generate[catalog_fname] = {
+                    'width': catalog_fov[0],
+                    'height': catalog_fov[1],
+                    'ra': [],
+                    'dec': [],
+                    'epoch': catalog_epoch,
+                    'num_stars': []
+                }
+            assert (
+                (
+                    to_generate[catalog_fname]['width'],
+                    to_generate[catalog_fname]['height']
+                )
+                ==
+                catalog_fov
+            )
+            assert (
+                to_generate[catalog_fname]['epoch']
+                ==
+                catalog_epoch
+            )
+            to_generate[catalog_fname]['ra'].append(
+                eval_header_expr(
+                    configuration['frame_center_estimate'][0]
+                ).to_value(
+                    units.deg
+                )
+            )
+            to_generate[catalog_fname]['dec'].append(
+                eval_header_expr(
+                    configuration['frame_center_estimate'][1]
+                ).to_value(
+                    units.deg
+                )
+            )
+
+            to_generate[catalog_fname]['num_stars'].append(
+                dr_file.get_dataset_shape(
+                    'srcextract.sources',
+                    srcextract_version=configuration['srcextract_version'],
+                    srcextract_column_name='x'
+                )[0]
+                *
+                configuration['image_scale_factor']**2
+                *
+                configuration['catalog_density_scaling']
+            )
+    for catalog_fname in to_generate:
+        for quantity in ['ra', 'dec', 'width', 'height']:
+            to_generate[catalog_fname][quantity] = numpy.array(
+                to_generate[catalog_fname][quantity]
+            ) * units.deg
+    return to_generate
+
+
+def create_catalogs(configuration, dr_collection):
+    """Create al catalogs required to find astrometry of given DR files."""
+
+    to_generate = get_new_catalog_info(configuration, dr_collection)
+    for catalog_fname, catalog_properties in to_generate.items():
+        _logger.info('Creating catalog %s (%s)',
+                     repr(catalog_fname),
+                     repr(catalog_properties))
+
+        create_catalog_file(
+            catalog_fname=catalog_fname,
+            ra=numpy.median(catalog_properties['ra']),
+            dec=numpy.median(catalog_properties['dec']),
+            width=catalog_properties['width'],
+            height=catalog_properties['height'],
+            max_objects=int(
+                numpy.quantile(
+                    catalog_properties['num_stars'],
+                    configuration['catalog_density_quantile']
+                )
+            ),
+            magnitude_expression=configuration['catalog_magnitude_expression'],
+            epoch=catalog_properties['epoch'],
+            magnitude_limit=None,
+            verbose=True,
+            columns=['source_id',
+                     'ra',
+                     'dec',
+                     'pmra',
+                     'pmdec',
+                     'phot_g_n_obs',
+                     'phot_g_mean_mag',
+                     'phot_g_mean_flux',
+                     'phot_g_mean_flux_error',
+                     'phot_bp_n_obs',
+                     'phot_bp_mean_mag',
+                     'phot_bp_mean_flux',
+                     'phot_bp_mean_flux_error',
+                     'phot_rp_n_obs',
+                     'phot_rp_mean_mag',
+                     'phot_rp_mean_flux',
+                     'phot_rp_mean_flux_error',
+                     'phot_proc_mode',
+                     'phot_bp_rp_excess_factor']
+        )
 
 
 #Could not think of good way to split
 #pylint: disable=too-many-branches
-def solve_astrometry(dr_collection, configuration):
+#pylint: disable=too-many-locals
+def solve_astrometry(dr_collection, configuration, mark_progress):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
-    prepare_configuration(configuration)
+    create_catalogs(configuration, dr_collection)
     pending = {}
     failed = {}
     for dr_fname in dr_collection:
@@ -665,10 +881,13 @@ def solve_astrometry(dr_collection, configuration):
                     result['dr_fname']
                 )
                 break
+            mark_progress(result['dr_fname'])
             if result['fnum'] in failed:
                 if result['fnum'] not in pending:
                     pending[result['fnum']] = []
-                pending[result['fnum']].extend(failed[result['fnum']])
+                pending[result['fnum']].extend(
+                    [f[0] for f in failed[result['fnum']]]
+                )
                 del failed[result['fnum']]
 
             for dr_fname in pending.get(result['fnum'], []):
@@ -680,7 +899,9 @@ def solve_astrometry(dr_collection, configuration):
         else:
             if result['fnum'] not in failed:
                 failed[result['fnum']] = []
-            failed[result['fnum']].append(result['dr_fname'])
+            failed[result['fnum']].append(
+                (result['dr_fname'], result['fail_reason'])
+            )
             if pending.get(result['fnum'], False):
                 task_queue.put((pending[result['fnum']].pop(), None))
                 num_queued += 1
@@ -688,24 +909,28 @@ def solve_astrometry(dr_collection, configuration):
             if not pending.get(result['fnum'], True):
                 del pending[result['fnum']]
 
+    for fnum_failed in failed.values():
+        for dr_fname, reason in fnum_failed:
+            mark_progress(dr_fname, reason)
+            _logger.critical(
+                'Failed astrometry for DR file %s: %s',
+                dr_fname,
+                [key for key in fail_reasons if fail_reasons[key] == reason][0]
+            )
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
         task_queue.put('STOP')
 
     for process in workers:
         process.join()
+#pylint: enable=too-many-locals
 #pylint: enable=too-many-branches
 
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    cmdline_config.update(
-        binning=1,
-        srcextract_filter='True',
-        sky_preprojection='tan',
-        weights_expression='1.0'
-    )
     setup_process(task='manage', **cmdline_config)
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
-                     cmdline_config)
+                     cmdline_config,
+                     ignore_progress)

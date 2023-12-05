@@ -173,30 +173,34 @@ def refine_transformation(*,
     its difference from the previous one is less than a threshold
 
     Args:
-        astrometry_order(int): The order of the transformation to fit
+        astrometry_order(int):    The order of the transformation to fit
 
-        max_srcmatch_distance(float): The upper bound distance in the
+        max_srcmatch_distance(float):    The upper bound distance in the
             KD tree
 
-        trans_threshold(float): The threshold for the difference of two
+        trans_threshold(float):    The threshold for the difference of two
             consecutive transformations
 
-        trans_x(numpy array): Initial estimate for the x transformation matrix
+        trans_x(numpy array):    Initial estimate for the x transformation
+            matrix
 
-        trans_y(numpy array): Initial estimate for the x transformation matrix
+        trans_y(numpy array):    Initial estimate for the x transformation
+            matrix
 
-        ra_cent(float): Initial estimate for the RA of the center of the frame
+        ra_cent(float):    Initial estimate for the RA of the center of the
+            frame
 
-        dec_cent(float): Initial estimate for the Dec of the center of the frame
+        dec_cent(float):    Initial estimate for the Dec of the center of the
+            frame
 
-        x_frame(float): length of the frame in pixels
+        x_frame(float):    length of the frame in pixels
 
-        y_frame(float): width of the frame in pixels
+        y_frame(float):    width of the frame in pixels
 
-        xy_extracted(structured numpy array): x and y of the extracted
+        xy_extracted(structured numpy array):    x and y of the extracted
             sources of the frame
 
-        catalogue(pandas.DataFrame): The catalogue of sources to match to
+        catalogue(pandas.DataFrame):    The catalogue of sources to match to
 
     Returns:
         trans_x(2D numpy array):
@@ -224,6 +228,7 @@ def refine_transformation(*,
     counter = 0
     x_transformed = numpy.inf
     y_transformed = numpy.inf
+    logger = logging.getLogger(__name__)
 
     kdtree = spatial.KDTree(xy_extracted)
 
@@ -260,10 +265,10 @@ def refine_transformation(*,
         y_transformed = trans_matrix_xy @ trans_y
 
         in_frame = numpy.logical_and(
-            numpy.logical_and(x_transformed > -3,
-                              x_transformed < (x_frame + 3)),
-            numpy.logical_and(y_transformed > -3,
-                              y_transformed < (y_frame + 3))
+            numpy.logical_and(x_transformed > 0,
+                              x_transformed < x_frame),
+            numpy.logical_and(y_transformed > 0,
+                              y_transformed < y_frame)
         ).flatten()
 
         diff = numpy.sqrt(
@@ -271,8 +276,13 @@ def refine_transformation(*,
             (old_y_transformed - y_transformed)**2
         ).flatten()[in_frame]
 
-        print('diff:'+repr(diff.max()))
-        if not (diff > trans_threshold).any() or counter > max_iterations:
+        logger.debug('diff:'+repr(diff.max()))
+
+        if (
+                not (diff > trans_threshold).any()
+                or
+                counter > max_iterations
+        ):
             # pylint:disable=used-before-assignment
             cat_extracted_corr = numpy.empty((n_matched, 2),
                                              dtype=int)
@@ -286,7 +296,9 @@ def refine_transformation(*,
                 res_rms, \
                 ratio, \
                 ra_cent, \
-                dec_cent
+                dec_cent, \
+                counter <= max_iterations
+
             # pylint:enable=used-before-assignment
         xy_transformed = numpy.block([x_transformed, y_transformed])
         d, ix = kdtree.query(
@@ -308,7 +320,7 @@ def refine_transformation(*,
         res_rms = numpy.sqrt(numpy.square(d[matched]).mean())
         ratio = n_matched / n_extracted
 
-        logging.debug("# of matched: %d out of %d", n_matched, n_extracted)
+        logger.debug("# of matched: %d out of %d", n_matched, n_extracted)
         matched_sources = \
             numpy.empty(
                 n_matched,

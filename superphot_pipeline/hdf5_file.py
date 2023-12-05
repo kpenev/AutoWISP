@@ -1039,6 +1039,17 @@ class HDF5File(ABC, h5py.File):
 
         return result
 
+    def get_dataset_shape(self, dataset_key, **substitutions):
+        """Return the shape of the given dataset."""
+
+        dataset_path = self._file_structure[dataset_key].abspath % substitutions
+
+        if dataset_path not in self:
+            return None
+
+        return self[dataset_path].shape
+
+
     @staticmethod
     def _replace_nonfinite(data, expected_dtype, replace_nonfinite):
         """Return (copy of) data with non-finite values replaced."""

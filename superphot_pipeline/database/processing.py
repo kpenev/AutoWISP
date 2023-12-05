@@ -308,15 +308,7 @@ class ProcessingManager:
                         'dr'
                     ] = value.format_map(evaluate.symtable)
                     break
-            step_input_fname = self._get_step_input(image,
-                                                    channel_name,
-                                                    step_input_type)
 
-            if step_input_fname not in self._processed_ids:
-                self._processed_ids[step_input_fname] = []
-            self._processed_ids[step_input_fname].append(
-                {'image_id': image.id, 'channel': channel_name}
-            )
         self._evaluated_expressions[image.id][None] = {
             'expressions': all_channel_matched
         }
@@ -418,6 +410,27 @@ class ProcessingManager:
         ).all()
 
 
+    def _init_processed_ids(self, image, channels, step_input_type):
+        """Prepare to record processing of the given image by current step."""
+
+        if channels == [None]:
+            channels = self._evaluated_expressions[image.id].keys()
+
+        for channel_name in channels:
+            if channel_name is None:
+                continue
+
+            step_input_fname = self._get_step_input(image,
+                                                    channel_name,
+                                                    step_input_type)
+
+            if step_input_fname not in self._processed_ids:
+                self._processed_ids[step_input_fname] = []
+            self._processed_ids[step_input_fname].append(
+                {'image_id': image.id, 'channel': channel_name}
+            )
+
+
     def _start_step(self, step_name):
         """
         Record the start of a processing step and return the images to process.
@@ -471,9 +484,10 @@ class ProcessingManager:
             if step_input_type == 'raw':
                 pending_images = [(image, None) for image in pending_images]
 
-            for image, _ in pending_images:
+            for image, channel_name in pending_images:
                 if image.id not in self._evaluated_expressions:
                     self._evaluate_expressions_image(image, step_input_type)
+                self._init_processed_ids(image, [channel_name], step_input_type)
 
             return pending_images, step_input_type
 
@@ -503,6 +517,7 @@ class ProcessingManager:
 
         assert self.current_step is not None
         assert self._current_processing is not None
+        self._logger.debug('Processed IDs: %s', repr(self._processed_ids))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -708,4 +723,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    ProcessingManager()(['calibrate', 'find_stars'])
+    ProcessingManager()(['calibrate', 'find_stars', 'solve_astrometry'])

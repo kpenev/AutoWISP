@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Utilities for querying catalogs for astrometry."""
 
+from os import path, makedirs
+
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 import pandas
@@ -20,11 +22,12 @@ class SuperPhotGaia(GaiaClass):
                               dec,
                               width,
                               height,
-                              condition,
                               order_by,
+                              condition=None,
                               epoch=None,
                               columns=None,
                               order_dir='ASC',
+                              max_objects=None,
                               verbose=False):
         """
         Get GAIA sources within a box satisfying given condition (ADQL).
@@ -109,32 +112,42 @@ class SuperPhotGaia(GaiaClass):
         height = height.to_value(units.deg)
         table_name = self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE
 
+        select = 'SELECT'
+        if max_objects is not None:
+            select += f' TOP {max_objects}'
+        query_str = f"""
+            {select}
+            {columns}
+            FROM {table_name}
+            WHERE
+                1 = CONTAINS(
+                    POINT(
+                        'ICRS',
+                        {self.MAIN_GAIA_TABLE_RA},
+                        {self.MAIN_GAIA_TABLE_DEC}
+                    ),
+                    BOX(
+                        'ICRS',
+                        {ra},
+                        {dec},
+                        {width},
+                        {height}
+                    )
+                )
+        """
+        if condition is not None:
+            query_str += f"""
+                AND
+                ({condition})
+            """
+        query_str += f"""
+            ORDER BY
+                {order_by}
+                {order_dir}
+        """
+
         return get_result(
-            f"""
-             SELECT
-             {columns}
-             FROM {table_name}
-             WHERE
-                 1 = CONTAINS(
-                     POINT(
-                         'ICRS',
-                         {self.MAIN_GAIA_TABLE_RA},
-                         {self.MAIN_GAIA_TABLE_DEC}
-                     ),
-                     BOX(
-                         'ICRS',
-                         {ra},
-                         {dec},
-                         {width},
-                         {height}
-                     )
-                 )
-                 AND
-                 ({condition})
-             ORDER BY
-                 {order_by}
-                 {order_dir}
-            """,
+            query_str,
             add_propagated
         )
 
@@ -174,19 +187,20 @@ class SuperPhotGaia(GaiaClass):
             query_kwargs['order_by'] = 'magnitude'
             query_kwargs['order_dir'] = 'ASC'
 
-        try:
-            min_mag, max_mag = magnitude_limit
-            condition = (f'({magnitude_expression}) > {min_mag} AND '
-                         f'({magnitude_expression}) < {max_mag}')
-        except ValueError:
-            condition = f'{magnitude_expression} < {magnitude_limit[0]}'
+        if magnitude_limit is not None:
+            try:
+                min_mag, max_mag = magnitude_limit
+                condition = (f'({magnitude_expression}) > {min_mag} AND '
+                             f'({magnitude_expression}) < {max_mag}')
+            except ValueError:
+                condition = f'{magnitude_expression} < {magnitude_limit[0]}'
 
-        if 'condition' in query_kwargs:
-            query_kwargs['condition'] = (
-                f'({query_kwargs["condition"]}) AND ({condition})'
-            )
-        else:
-            query_kwargs['condition'] = condition
+            if 'condition' in query_kwargs:
+                query_kwargs['condition'] = (
+                    f'({query_kwargs["condition"]}) AND ({condition})'
+                )
+            else:
+                query_kwargs['condition'] = condition
 
         return self.query_object_filtered(**query_kwargs)
 
@@ -227,14 +241,17 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
 
     query.meta['EPOCH'] = query_kwargs['epoch'].to_value(units.yr)
     query.meta['MAGEXPR'] = query_kwargs['magnitude_expression']
-    try:
-        (
-            query.meta['MAGMIN'],
-            query.meta['MAGMAX']
-        ) = query_kwargs['magnitude_limit']
-    except ValueError:
-        query.meta['MAGMAX'] = query_kwargs['magnitude_limit'][0]
+    if query_kwargs.get('magnitude_limit') is not None:
+        try:
+            (
+                query.meta['MAGMIN'],
+                query.meta['MAGMAX']
+            ) = query_kwargs['magnitude_limit']
+        except ValueError:
+            query.meta['MAGMAX'] = query_kwargs['magnitude_limit'][0]
 
+    if not path.exists(path.dirname(catalog_fname)):
+        makedirs(path.dirname(catalog_fname))
     query.write(
         catalog_fname,
         format='fits',

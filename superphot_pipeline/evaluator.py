@@ -4,6 +4,7 @@ from os import path
 
 from asteval import asteval
 from astropy.io import fits
+from astropy import units
 import pandas
 
 from superphot_pipeline.fits_utilities import get_primary_header
@@ -47,3 +48,4 @@ class Evaluator(asteval.Interpreter):
             else:
                 for hdr_key, hdr_val in data_entry.items():
                     self.symtable[hdr_key.replace('-', '_')] = hdr_val
+        self.symtable['units'] = units

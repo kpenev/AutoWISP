@@ -302,27 +302,30 @@ class ManualStepArgumentParser(ArgumentParser):
     #pylint: enable=signature-differs
 
 
-def add_image_options(parser):
+def add_image_options(parser, include=('subpixmap', 'gain', 'magnitude-1adu')):
     """Add options specifying the properties of the image."""
 
-    parser.add_argument(
-        '--subpixmap',
-        default=None,
-        help='The sub-pixel sensitivity map to assume. If not specified '
-        'uniform sensitivy is assumed.'
-    )
-    parser.add_argument(
-        '--gain',
-        type=float,
-        default=1.0,
-        help='The gain to assume for the input images.'
-    )
-    parser.add_argument(
-        '--magnitude-1adu',
-        type=float,
-        default=10.0,
-        help='The magnitude which corresponds to a source flux of 1ADU'
-    )
+    if 'subpixmap' in include:
+        parser.add_argument(
+            '--subpixmap',
+            default=None,
+            help='The sub-pixel sensitivity map to assume. If not specified '
+            'uniform sensitivy is assumed.'
+        )
+    if 'gain' in include:
+        parser.add_argument(
+            '--gain',
+            type=float,
+            default=1.0,
+            help='The gain to assume for the input images.'
+        )
+    if 'magnitude-1adu' in include:
+        parser.add_argument(
+            '--magnitude-1adu',
+            type=float,
+            default=10.0,
+            help='The magnitude which corresponds to a source flux of 1ADU'
+        )
 
 
 def read_subpixmap(fits_fname):

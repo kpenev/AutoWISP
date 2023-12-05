@@ -2,8 +2,9 @@
 
 """Create all datbase tables and define default configuration."""
 
-from argparse import ArgumentParser
 import re
+
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
@@ -29,7 +30,16 @@ def get_command_line_parser():
 
     parser = ArgumentParser(
         description='Initialize the database for first time use of the '
-        'pipeline.'
+        'pipeline.',
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False
+    )
+    parser.add_argument(
+        '--config-file', '-c',
+        is_config_file=True,
+        # default=config_file,
+        help='Specify a configuration file in liu of using command line '
+        'options. Any option can still be overriden on the command line.'
     )
     parser.add_argument(
         '--drop-all-tables',
