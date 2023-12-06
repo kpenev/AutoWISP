@@ -124,8 +124,7 @@ def parse_command_line():
     parser.add_argument(
         '--skip-first-stat',
         action='store_true',
-        help='Skip the first photometry when plotting the statistics. This is '
-        'useful when  plotting statistics with zero PSF fit.'
+        help='Skip the first photometry when plotting the statistics.'
     )
 
     return parser.parse_args()

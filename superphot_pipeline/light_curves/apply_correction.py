@@ -57,8 +57,11 @@ def load_correction_statistics(filename):
                 dframe[prefix + '_%02d' % phot_index]
             )
 
-    for index, source_id in enumerate(dframe['2MASSID']):
-        result['ID'][index] = mem_dr.parse_hat_source_id(source_id)
+    if '2MASSID' in dframe.columns:
+        for index, source_id in enumerate(dframe['2MASSID']):
+            result['ID'][index] = mem_dr.parse_hat_source_id(source_id)
+    else:
+        result['ID'] = dframe['ID']
 
     mem_dr.close()
 

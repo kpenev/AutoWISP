@@ -258,20 +258,28 @@ def get_minimum_scatter(lc_fname,
 
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         bjd = lightcurve.get_dataset('skypos.BJD')
-        try:
-            best_mags, scatter_mags = get_magnitudes(
-                lightcurve,
-                'shapefit.' + detrending_mode + '.magnitude',
-                magfit_iteration=magfit_iteration
-            )
-            min_scatter, selected_lc_length = (
-                calculate_iterative_rejection_scatter(
-                    scatter_mags,
-                    **scatter_config
+
+        selected_lc_length = 0
+        if (
+            lightcurve.get_dataset('shapefit.cfg.psf.bicubic.grid.x').shape[1]
+            >
+            2
+        ):
+            try:
+                best_mags, scatter_mags = get_magnitudes(
+                    lightcurve,
+                    'shapefit.' + detrending_mode + '.magnitude',
+                    magfit_iteration=magfit_iteration
                 )
-            )
-        except OSError:
-            selected_lc_length = 0
+
+                min_scatter, selected_lc_length = (
+                    calculate_iterative_rejection_scatter(
+                        scatter_mags,
+                        **scatter_config
+                    )
+                )
+            except OSError:
+                pass
 
         if selected_lc_length < min_lc_length:
             min_scatter = numpy.inf

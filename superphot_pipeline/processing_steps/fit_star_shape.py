@@ -106,10 +106,13 @@ def add_source_selction_options(parser):
     parser.add_argument(
         '--shapefit-max-sources',
         type=int,
-        default=10000,
+        default=0,
         help='The maximum number of sources to include in the fit. Excess '
         'sources (those with lowest signal to noise) are not included in '
-        'the shape fit, though still get photometry measured.'
+        'the shape fit, though still get photometry measured. The only '
+        'exception is if zero PSF model is used, in which case the fluxes of '
+        'discarded sources are set to NaN. Set to zero to disable trimming the '
+        'source list.'
     )
     parser.add_argument(
         '--discard-faint',

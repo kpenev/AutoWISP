@@ -97,6 +97,8 @@ def find_fits_with_dr_fnames(image_collection,
         """Check if a FITS file has a corresponding DR file."""
 
         header = get_primary_header(fits_fname, True)
+        _logger.debug('looking for: %s',
+                      repr(dr_fname_format.format_map(header)))
         return os.path.exists(dr_fname_format.format_map(header))
 
 
