@@ -426,19 +426,20 @@ def main(cmdline_args):
                         **plot_config
                     )
 
+                if min_distance == 0 and not numpy.isfinite(max_distance):
+                    distance_label = ''
+                else:
+                    distance_label = rf' ${min_distance:s}<\sqrt{{\xi^2+\eta^2}}<{max_distance}$'
+
                 pyplot.semilogy(
                     catalog_data['mag'][to_plot],
                     scatter_data[to_plot],
                     marker='.',
                     markersize=cmdline_args.plot_marker_size,
                     label=(
-                        r'%s $%s<\sqrt{\xi^2+\eta^2}<%s$'
-                        %
-                        (
-                            detrending_mode.upper(),
-                            min_distance,
-                            max_distance
-                        )
+                        f'{detrending_mode.upper()}'
+                        +
+                        distance_label
                     ),
                     **plot_config
                 )
@@ -453,6 +454,10 @@ def main(cmdline_args):
 
     pyplot.xlim(cmdline_args.plot_x_range)
     pyplot.ylim(cmdline_args.plot_y_range)
+    pyplot.xlabel(cmdline_args.x_expression)
+    pyplot.ylabel('MAD')
+
+
     pyplot.grid(True, which='both')
     pyplot.legend()
     if cmdline_args.plot_fname is None:

@@ -250,7 +250,7 @@ def _get_frame_datasets():
                     'ID of the position of the camera on the mount.'
                 ),
                 (
-                    'COLOR',
+                    'CLRCHNL',
                     'ColorChannel',
                     'numpy.string_',
                     None,

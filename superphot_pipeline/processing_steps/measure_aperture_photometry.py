@@ -104,7 +104,7 @@ def photometer_frame(frame_fname, configuration):
     """Perform aperture photometry on a single frame."""
 
     photometer = get_photometer(configuration)
-    header = get_primary_header(frame_fname, True)
+    header = get_primary_header(frame_fname)
     header['FITGROUP'] = configuration['shapefit_group']
 
     with DataReductionFile(

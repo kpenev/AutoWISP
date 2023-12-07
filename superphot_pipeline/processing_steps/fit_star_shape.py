@@ -469,7 +469,7 @@ class SourceListCreator:
         self.remove_group_id = remove_group_id
 
         if grouping_frame:
-            header = get_primary_header(grouping_frame, True)
+            header = get_primary_header(grouping_frame)
             self._project_sources(header)
             self._grouping = grouping(
                 self._sources,
@@ -496,7 +496,7 @@ class SourceListCreator:
         """
 
         self._logger.debug('Getting sources from %s',repr(frame_fname))
-        header = get_primary_header(frame_fname, True)
+        header = get_primary_header(frame_fname)
 
         grouping, in_frame = self._group_and_flag_in_frame(header)
         self._logger.debug(
@@ -626,7 +626,7 @@ def fit_frame_set(frame_filenames_configuration):
     def get_dr_fname(frame_fname):
         """Return the filename to saving a shape fit."""
 
-        header = get_primary_header(frame_fname, True)
+        header = get_primary_header(frame_fname)
         return configuration['data_reduction_fname'].format_map(header)
 
 
