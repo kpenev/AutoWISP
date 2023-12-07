@@ -11,6 +11,7 @@ from matplotlib import pyplot
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 from pytransit import QuadraticModel
+import pandas
 
 from superphot_pipeline import LightCurveFile
 from superphot_pipeline.file_utilities import find_lc_fnames
@@ -23,6 +24,7 @@ from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
 from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
 from superphot_pipeline.processing_steps.lc_detrending import add_catalog_info
+
 
 def add_scatter_arguments(parser, multi_mode=True):
     """Add arguments to cmdline parser determining how scatter is calculated."""
@@ -77,6 +79,13 @@ def add_scatter_arguments(parser, multi_mode=True):
         default=200,
         help='Lightcurves should contain at least this main points, after '
         'outlier rejection, to be included in the plot.'
+    )
+    parser.add_argument(
+        '--combine-by',
+        chaices=['fnum', 'imageid'],
+        help='If specified, more than one lightcurve of each object is expected'
+        ' and the scatter is calculated for a LC calculated by matching the LCs'
+        ' on frame number (not implemented yet) or image ID and averaging.'
     )
 
 
@@ -220,21 +229,72 @@ def default_get_magnitudes(lightcurve, dset_key, **substitutions):
     return magnitudes, magnitudes
 
 
-#pylint: disable=too-many-locals
-def get_minimum_scatter(lc_fname,
-                        detrending_mode,
-                        magfit_iteration,
-                        min_lc_length,
-                        *,
-                        stat_only=False,
-                        get_magnitudes=default_get_magnitudes,
-                        **scatter_config):
+def match_lightcurves(lightcurve_filenames):
+    """Group lightcurves by source."""
+
+    result = {}
+    for lc_fname in lightcurve_filenames:
+        with LightCurveFile(lc_fname, 'r') as lightcurve:
+            lc_id = dict(lightcurve['Identifiers'].asstr())['Gaia DR3']
+            if lc_id not in result:
+                result[lc_id] = []
+            result[lc_id].append(lc_fname)
+    return result
+
+
+def get_specified_photometry(lightcurve_filenames,
+                             *,
+                             aperture_index,
+                             detrending_mode,
+                             magfit_iteration,
+                             stat_only=False,
+                             **scatter_config):
+    """Same as get_minimum_scatter, except return specified aperture."""
+
+    for lc_fname in lightcurve_filenames:
+        with LightCurveFile(lc_fname, 'r') as lightcurve:
+            bjd = lightcurve.get_dataset('skypos.BJD')
+
+            if aperture_index >= 0:
+                magnitudes = lightcurve.get_dataset(
+                    'apphot.' + detrending_mode + '.magnitude',
+                    magfit_iteration=magfit_iteration,
+                    aperture_index=aperture_index
+                )
+            else:
+                magnitudes = lightcurve.get_dataset(
+                    'shapefit.' + detrending_mode + '.magnitude',
+                    magfit_iteration=magfit_iteration
+                )
+
+    min_scatter, selected_lc_length = (
+        calculate_iterative_rejection_scatter(
+            magnitudes,
+            **scatter_config
+        )
+    )
+
+    if stat_only:
+        return min_scatter, selected_lc_length
+    return min_scatter, selected_lc_length, bjd, magnitudes
+
+
+def get_lc_minimum_scatter(lc_fname,
+                           detrending_mode,
+                           magfit_iteration,
+                           min_lc_length,
+                           *,
+                           stat_only=False,
+                           get_magnitudes=default_get_magnitudes,
+                           match_by=imageid,
+                           **scatter_config)
     """
-    Find the photometry with the smallest scatter and return that scatter.
+    Find the photometry with the smallest scatter in given LC.
 
     Args:
-        lc_fname(str):    The filename of the lightcurve to find the smallest
-            scatter for.
+        lightcurve_filenames([str]):    The filenames of all the lightcurve for
+            a single object which will be combined before finding the smallest
+            scatter.
 
         detrending_mode(str):    Which version of detrending to extract the
             scatter for. Should be one of `'magfit'`, `'epd'`, or `'tfa'`.
@@ -254,14 +314,31 @@ def get_minimum_scatter(lc_fname,
 
         scatter_config:    Arguments to pass to get_scatter() configuring
             how the scatter is to be calculated.
+
+    Returns:
+        float:
+            The smallest scatter found in the lightcurve.
+
+        int:
+            The number of non-rejected points when calculating the scatter.
+
+        array(float):
+            The BJD of each point in the lightcurve.
+
+        array(float):
+            The magnitude of each point in the lightcurve for the aperture or
+            PSF with smallest scatter.
     """
 
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         bjd = lightcurve.get_dataset('skypos.BJD')
+        image_ids = lightcurve.get_dataset('fitsheader.' + match_by)
 
         selected_lc_length = 0
         if (
-            lightcurve.get_dataset('shapefit.cfg.psf.bicubic.grid.x').shape[1]
+            lightcurve.get_dataset(
+                'shapefit.cfg.psf.bicubic.grid.x'
+            ).shape[1]
             >
             2
         ):
@@ -286,6 +363,7 @@ def get_minimum_scatter(lc_fname,
 
         try:
             for aperture_index in count():
+                print('aperture_index', aperture_index)
                 magnitudes, scatter_mags = get_magnitudes(
                     lightcurve,
                     'apphot.' + detrending_mode + '.magnitude',
@@ -306,7 +384,47 @@ def get_minimum_scatter(lc_fname,
 
     if stat_only:
         return min_scatter, selected_lc_length
-    return min_scatter, selected_lc_length, bjd, best_mags
+    return min_scatter, selected_lc_length, image_ids, bjd, best_mags
+
+
+
+#pylint: disable=too-many-locals
+def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
+    """
+    Get the minimum combined scatter for each star.
+
+    Args:
+        lightcurve_filenames([str]):    The filenames of all the lightcurve for
+            a single object which will be combined before finding the smallest
+            scatter.
+
+        args:    See get_lc_minimum_scatter().
+
+        kwargs:    See get_lc_minimum_scatter().
+
+    Returns:
+        See get_lc_minimum_scatter().
+    """
+
+    def get_lc_data(lc_fname, lc_index)
+
+        return pandas.DataFrame(
+            dict(
+                zip(
+                    ('image_id', f'bjd_{lc_index:03d}', f'mag_{lc_index:03d}'),
+                    get_lc_minimum_scatter([lc_fname], *args, **kwargs)[-3:]
+                )
+            )
+        ).set_index('image_id')
+
+    num_lcs = len(lightcurve_filenames)
+    if num_lcs > 1:
+        matched = get_lc_data(lightcurve_filenames[0])
+        for lc_index, lc_fname in enumerate(lightcurve_filenames[1:]):
+            matched = matched.join(get_lc_data(lc_fname), how=inner)
+
+
+    return get_lc_minimum_scatter(lightcurve_filenames[0], *args, **kwargs)
 #pylint: enable=too-many-locals
 
 
@@ -335,7 +453,7 @@ def get_target_index(lc_fnames, target_id):
                        repr(target_id.decode()))
 
 
-def get_scatter_data(lc_fnames, detrending_mode, target_index, cmdline_args):
+def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
     """Return the scatter of the given lightcurves, including the target."""
 
     get_scatter = partial(
@@ -344,12 +462,15 @@ def get_scatter_data(lc_fnames, detrending_mode, target_index, cmdline_args):
         detrending_mode=detrending_mode,
         **get_scatter_config(cmdline_args)
     )
-    result = numpy.vectorize(get_scatter)(lc_fnames)[0]
-    if target_index is not None:
+    result = {
+        source_id: get_scatter(source_lcs)[0]
+        for source_id, source_lcs in lc_fnames.items()
+    }
+    if cmdline_args.target_id is not None:
         transit_parameters = (get_transit_parameters(vars(cmdline_args), False),
                               {})
-        result[target_index] = get_scatter(
-            lc_fnames[target_index],
+        result[target_id] = get_scatter(
+            lc_fnames[target_id],
             get_magnitudes=ReconstructiveCorrectionTransit(
                 transit_model=QuadraticModel(),
                 correction=None,
@@ -374,8 +495,9 @@ def main(cmdline_args):
                     '#a65628',
                     '#f781bf']
 
-    lc_fnames = list(find_lc_fnames(cmdline_args.lightcurves))
+    lc_fnames = match_lightcurves(find_lc_fnames(cmdline_args.lightcurves))
 
+    <++>
     target_index = get_target_index(lc_fnames, cmdline_args.target_id)
 
     catalog_data = add_catalog_info(lc_fnames,
@@ -388,7 +510,6 @@ def main(cmdline_args):
     for detrending_mode in cmdline_args.detrending_mode:
         scatter_data = get_scatter_data(lc_fnames,
                                         detrending_mode,
-                                        target_index,
                                         cmdline_args)
         print(f'{"Source":25s} {"Scatter":25s}')
         for fname, scatter in zip(lc_fnames, scatter_data):

@@ -19,6 +19,7 @@ from superphot_pipeline.processing_steps.lc_detrending import\
 
 from plot_lc_scatter import\
     get_minimum_scatter,\
+    get_specified_photometry,\
     add_scatter_arguments,\
     add_plot_config_arguments,\
     get_scatter_config
@@ -42,7 +43,6 @@ def parse_command_line():
         'with corresponding colors (light and dark greed for the two green '
         'chanels).'
     )
-
     parser.add_argument(
         '--config-file', '-c',
         is_config_file=True,
@@ -52,6 +52,14 @@ def parse_command_line():
     add_scatter_arguments(parser)
     add_plot_config_arguments(parser)
 
+    parser.add_argument(
+        '--aperture-index', '-a',
+        type=int,
+        default=None,
+        help='If specified, plots the lightcurve using the given aperture (-1 '
+        'for PSF fitting). If not specified, the photometry with smallest '
+        'scatter is plotted.'
+    )
     parser.add_argument(
         '--fold-period',
         type=float,
@@ -557,6 +565,7 @@ def add_lc_to_plot(select_photometry, configuration):
     colors = iter(colors)
 
     skip_gap_axes, figure = [pyplot.gca()], pyplot.gcf()
+    bjd_offset = None
     for zorder, detrending_mode in enumerate(
             reversed(configuration.detrending_mode)
     ):
@@ -564,22 +573,22 @@ def add_lc_to_plot(select_photometry, configuration):
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
             scatter, _, bjd, magnitudes = select_photometry(
-                lc_fname,
+                [lc_fname],
                 detrending_mode=detrending_mode,
             )
             #pylint: enable=unbalanced-tuple-unpacking
 
-            ref_mag = getattr(numpy, 'nan' + configuration.zero_stat)(
-                magnitudes
-            )
-            keep_points = (numpy.abs(magnitudes - ref_mag)
+            if configuration.zero_stat is not None:
+                ref_mag = getattr(numpy, 'nan' + configuration.zero_stat)(
+                    magnitudes
+                )
+                magnitudes -= ref_mag
+
+            keep_points = (numpy.abs(magnitudes)
                            <
                            configuration.drop_outliers * scatter)
             bjd = bjd[keep_points]
             magnitudes = magnitudes[keep_points]
-
-            if configuration.zero_stat is not None:
-                magnitudes -= ref_mag
 
             if configuration.combined_binned_lc:
                 combined_magnitudes = numpy.concatenate((
@@ -590,7 +599,7 @@ def add_lc_to_plot(select_photometry, configuration):
                     combined_bjd,
                     bjd
                 ))
-            bjd_offset = int(bjd.min())
+            bjd_offset = bjd_offset or int(bjd.min())
             bjd -= bjd_offset
             if len(configuration.lightcurves) == 1 and configuration.skip_gaps:
                 figure, skip_gap_axes = get_skip_gap_axes(
@@ -637,10 +646,18 @@ def main(configuration):
         configuration.binning /= configuration.fold_period
 
     scatter_config = get_scatter_config(configuration)
-    if configuration.variability == 'transit':
+    print('Scatter config: %s' % repr(scatter_config))
+    if configuration.aperture_index is not None:
+        del scatter_config['min_lc_length']
+        select_photometry = partial(
+            get_specified_photometry,
+            aperture_index=configuration.aperture_index,
+            **scatter_config
+        )
+    elif configuration.variability == 'transit':
         transit_parameters = (
             get_transit_parameters(vars(configuration), False),
-            dict()
+            {}
         )
         transit_model=QuadraticModel()
         select_photometry = partial(
@@ -660,7 +677,7 @@ def main(configuration):
         bjd,
         bjd_offset,
         last_magnitudes,
-        scatter,
+        _scatter,
         skip_gap_axes,
         figure
     ) = add_lc_to_plot(
