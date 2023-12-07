@@ -146,7 +146,9 @@ def create_result(image_list,
         for hdu in hdu_list:
             hdu.update_header()
 
+        logger.debug('Compression level: %s', repr(compress))
         if compress is not False and compress is not None:
+            logger.debug('Creating compressed HDU')
             hdu_list = fits.HDUList(
                 [fits.PrimaryHDU()]
                 +

@@ -176,7 +176,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--compress-calibrated',
         default=None,
-        type=int,
+        type=float,
         help='Specify a quantization level for compressing the calibrated '
         'image.'
     )
