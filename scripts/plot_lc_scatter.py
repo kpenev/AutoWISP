@@ -13,7 +13,8 @@ import numpy
 from pytransit import QuadraticModel
 import pandas
 
-from superphot_pipeline import LightCurveFile
+from superphot_pipeline import LightCurveFile, Evaluator
+from superphot_pipeline.catalog import read_catalog_file
 from superphot_pipeline.file_utilities import find_lc_fnames
 from superphot_pipeline.light_curves.apply_correction import\
     calculate_iterative_rejection_scatter
@@ -23,7 +24,7 @@ from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
 from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
-from superphot_pipeline.processing_steps.lc_detrending import add_catalog_info
+from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
 
 
 def add_scatter_arguments(parser, multi_mode=True):
@@ -82,10 +83,18 @@ def add_scatter_arguments(parser, multi_mode=True):
     )
     parser.add_argument(
         '--combine-by',
-        chaices=['fnum', 'imageid'],
+        choices=['fnum', 'imageid'],
+        default='imageid',
         help='If specified, more than one lightcurve of each object is expected'
         ' and the scatter is calculated for a LC calculated by matching the LCs'
         ' on frame number (not implemented yet) or image ID and averaging.'
+    )
+    parser.add_argument(
+        '--min-combined',
+        type=int,
+        default=1,
+        help='At least this many lightcurves must be found for a star for it '
+        'to be included in the plot.'
     )
 
 
@@ -229,16 +238,21 @@ def default_get_magnitudes(lightcurve, dset_key, **substitutions):
     return magnitudes, magnitudes
 
 
-def match_lightcurves(lightcurve_filenames):
+def match_lightcurves(lightcurve_filenames, min_combined):
     """Group lightcurves by source."""
 
     result = {}
     for lc_fname in lightcurve_filenames:
         with LightCurveFile(lc_fname, 'r') as lightcurve:
-            lc_id = dict(lightcurve['Identifiers'].asstr())['Gaia DR3']
+            lc_id = int(dict(lightcurve['Identifiers'].asstr())['Gaia DR3'])
             if lc_id not in result:
                 result[lc_id] = []
             result[lc_id].append(lc_fname)
+
+    for lc_id in list(result.keys()):
+        if len(result[lc_id]) < min_combined:
+            del result[lc_id]
+
     return result
 
 
@@ -286,8 +300,8 @@ def get_lc_minimum_scatter(lc_fname,
                            *,
                            stat_only=False,
                            get_magnitudes=default_get_magnitudes,
-                           match_by=imageid,
-                           **scatter_config)
+                           match_by='imageid',
+                           **scatter_config):
     """
     Find the photometry with the smallest scatter in given LC.
 
@@ -360,10 +374,10 @@ def get_lc_minimum_scatter(lc_fname,
 
         if selected_lc_length < min_lc_length:
             min_scatter = numpy.inf
+            best_mags = None
 
         try:
             for aperture_index in count():
-                print('aperture_index', aperture_index)
                 magnitudes, scatter_mags = get_magnitudes(
                     lightcurve,
                     'apphot.' + detrending_mode + '.magnitude',
@@ -406,24 +420,27 @@ def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
         See get_lc_minimum_scatter().
     """
 
-    def get_lc_data(lc_fname, lc_index)
+    def get_lc_data(lc_fname, lc_index):
 
         return pandas.DataFrame(
             dict(
                 zip(
                     ('image_id', f'bjd_{lc_index:03d}', f'mag_{lc_index:03d}'),
-                    get_lc_minimum_scatter([lc_fname], *args, **kwargs)[-3:]
+                    get_lc_minimum_scatter(lc_fname, *args, **kwargs)[-3:]
                 )
             )
         ).set_index('image_id')
 
+    stat_only = kwargs.get('stat_only', False)
+    kwargs['stat_only'] = False
     num_lcs = len(lightcurve_filenames)
     if num_lcs > 1:
-        matched = get_lc_data(lightcurve_filenames[0])
+        matched = get_lc_data(lightcurve_filenames[0], 0)
         for lc_index, lc_fname in enumerate(lightcurve_filenames[1:]):
-            matched = matched.join(get_lc_data(lc_fname), how=inner)
+            matched = matched.join(get_lc_data(lc_fname, lc_index+1),
+                                   how='inner')
 
-
+    kwargs['stat_only'] = stat_only
     return get_lc_minimum_scatter(lightcurve_filenames[0], *args, **kwargs)
 #pylint: enable=too-many-locals
 
@@ -462,15 +479,18 @@ def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
         detrending_mode=detrending_mode,
         **get_scatter_config(cmdline_args)
     )
-    result = {
-        source_id: get_scatter(source_lcs)[0]
-        for source_id, source_lcs in lc_fnames.items()
-    }
+    result = pandas.DataFrame(
+        index=lc_fnames.keys(),
+        columns=['scatter']
+    )
+    for source_id, source_lcs in lc_fnames.items():
+        result.loc[source_id] = get_scatter(source_lcs)[0]
+
     if cmdline_args.target_id is not None:
         transit_parameters = (get_transit_parameters(vars(cmdline_args), False),
                               {})
-        result[target_id] = get_scatter(
-            lc_fnames[target_id],
+        result.loc[cmdline_args.target_id] = get_scatter(
+            lc_fnames[cmdline_args.target_id],
             get_magnitudes=ReconstructiveCorrectionTransit(
                 transit_model=QuadraticModel(),
                 correction=None,
@@ -479,6 +499,20 @@ def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
             ).get_fit_data
         )[0]
     return result
+
+
+def read_catalog(source_ids, catalog_fname, x_expression):
+    """Return the catalog data for the given sources."""
+
+    catalog_data = read_catalog_file(catalog_fname,
+                                     add_gnomonic_projection=True)
+    catalog_data['magnitude'] = Evaluator(catalog_data)(x_expression)
+    catalog_data.insert(
+        len(catalog_data.columns),
+        'square_distance',
+        catalog_data['xi']**2 + catalog_data['eta']**2
+    )
+    return catalog_data
 
 
 #TODO: consider simplifying
@@ -495,15 +529,14 @@ def main(cmdline_args):
                     '#a65628',
                     '#f781bf']
 
-    lc_fnames = match_lightcurves(find_lc_fnames(cmdline_args.lightcurves))
+    lc_fnames = match_lightcurves(find_lc_fnames(cmdline_args.lightcurves),
+                                  cmdline_args.min_combined)
+    print("LC filenames:" + repr(lc_fnames))
 
-    <++>
-    target_index = get_target_index(lc_fnames, cmdline_args.target_id)
+    catalog_data = read_catalog(lc_fnames.keys(),
+                                     cmdline_args.catalog_fname,
+                                     cmdline_args.x_expression)
 
-    catalog_data = add_catalog_info(lc_fnames,
-                                    cmdline_args.catalog_fname,
-                                    cmdline_args.x_expression)
-    square_distances = catalog_data['xi']**2 + catalog_data['eta']**2
     distance_splits = list(cmdline_args.distance_splits) + [numpy.inf]
     color_index = 0
 
@@ -511,18 +544,22 @@ def main(cmdline_args):
         scatter_data = get_scatter_data(lc_fnames,
                                         detrending_mode,
                                         cmdline_args)
-        print(f'{"Source":25s} {"Scatter":25s}')
-        for fname, scatter in zip(lc_fnames, scatter_data):
-            print(f'{path.basename(fname):25s} {scatter:25.16g}')
-        unplotted_sources = numpy.ones(len(lc_fnames), dtype=bool)
+        scatter_data = catalog_data.join(scatter_data, how='inner')
+        if cmdline_args.target_id is not None:
+            target_index = scatter_data.index[
+                target_data.index == cmdline_args.target_id
+            ].index[0]
+
+        unplotted_sources = numpy.ones(scatter_data.shape[0], dtype=bool)
         min_distance = 0
         for max_distance in sorted(distance_splits):
             #False positive
             #pylint: disable=assignment-from-no-return
             to_plot = numpy.logical_and(
                 unplotted_sources,
-                square_distances < max_distance**2
+                (scatter_data['square_distance'] < max_distance**2).values
             )
+            print('To plot: ' + repr(to_plot))
             #pylint: enable=assignment-from-no-return
             if to_plot.any():
                 plot_color = color_scheme[color_index % len(color_scheme)]
@@ -534,13 +571,13 @@ def main(cmdline_args):
                     'linestyle': 'none'
                 }
 
-                if target_index is not None and to_plot[target_index]:
+                if cmdline_args.target_id is not None and to_plot[target_index]:
                     to_plot[target_index] = False
                     unplotted_sources[target_index] = False
 
                     pyplot.semilogy(
-                        catalog_data['mag'][target_index],
-                        scatter_data[target_index],
+                        scatter_data['magnitude'][target_index],
+                        scatter_data['scatter'][target_index],
                         marker='*',
                         markersize=(3 * cmdline_args.plot_marker_size),
                         label=cmdline_args.target_id,
@@ -553,8 +590,8 @@ def main(cmdline_args):
                     distance_label = rf' ${min_distance:s}<\sqrt{{\xi^2+\eta^2}}<{max_distance}$'
 
                 pyplot.semilogy(
-                    catalog_data['mag'][to_plot],
-                    scatter_data[to_plot],
+                    scatter_data['magnitude'].iloc[to_plot],
+                    scatter_data['scatter'].iloc[to_plot],
                     marker='.',
                     markersize=cmdline_args.plot_marker_size,
                     label=(
