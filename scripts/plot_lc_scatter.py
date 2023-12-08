@@ -403,7 +403,7 @@ def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
         kwargs:    See get_lc_minimum_scatter().
 
     Returns:
-        See get_lc_minimum_scatter().
+        Same as get_lc_minimum_scatter().
     """
 
     def get_lc_data(lc_fname, lc_index)
@@ -411,7 +411,7 @@ def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
         return pandas.DataFrame(
             dict(
                 zip(
-                    ('image_id', f'bjd_{lc_index:03d}', f'mag_{lc_index:03d}'),
+                    ('image_id', f'bjd', f'mag_{lc_index:03d}'),
                     get_lc_minimum_scatter([lc_fname], *args, **kwargs)[-3:]
                 )
             )
@@ -419,10 +419,23 @@ def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
 
     num_lcs = len(lightcurve_filenames)
     if num_lcs > 1:
-        matched = get_lc_data(lightcurve_filenames[0])
+        matched_mags = get_lc_data(lightcurve_filenames[0])
         for lc_index, lc_fname in enumerate(lightcurve_filenames[1:]):
-            matched = matched.join(get_lc_data(lc_fname), how=inner)
+            matched = matched.join(
+                get_lc_data(lc_fname).drop('bjd', axis=1),
+                how=inner
+            )
+        bjd = matched['bjd']
+        avg_mag = matched.drop('bjd', axis=1).mean(axis=1)
 
+    scatter, lc_length = calculate_iterative_rejection_scatter(
+        avg_mag,
+        **scatter_config
+    )
+
+    if stat_only:
+        return scatter, lc_length
+    return scatter, lc_length, image_ids, bjd, avg_mag
 
     return get_lc_minimum_scatter(lightcurve_filenames[0], *args, **kwargs)
 #pylint: enable=too-many-locals
