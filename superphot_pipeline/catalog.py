@@ -250,7 +250,11 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
         except ValueError:
             query.meta['MAGMAX'] = query_kwargs['magnitude_limit'][0]
 
-    if not path.exists(path.dirname(catalog_fname)):
+    if (
+            path.dirname(catalog_fname)
+            and 
+            not path.exists(path.dirname(catalog_fname))
+    ):
         makedirs(path.dirname(catalog_fname))
     query.write(
         catalog_fname,
