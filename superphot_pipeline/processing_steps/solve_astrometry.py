@@ -2,9 +2,7 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
-import subprocess
 from multiprocessing import Queue, Process
-from tempfile import mkstemp
 import os
 from traceback import format_exc
 
@@ -192,32 +190,6 @@ def parse_command_line(*args):
         result['catalogue_filter'] = dict(result['catalogue_filter'])
     return result
 
-class TempAstrometryFiles:
-    """Context manager for the temporary files needed for astrometry."""
-
-    def __init__(self):
-        """Create all required temporary files."""
-
-        self._file_types = ['sources', 'corr', 'axy']
-        for file_type in self._file_types:
-            handle, fname = mkstemp()
-            setattr(self, '_' + file_type, handle)
-            setattr(self, file_type + '_fname', fname)
-
-    def __enter__(self):
-        """Return the filenames of the temporary files."""
-
-        return tuple(getattr(self, file_type + '_fname')
-                     for file_type in self._file_types)
-
-    def __exit__(self, *ignored_args, **ignored_kwargs):
-        """Close and delete the temporary files."""
-
-        for file_type in self._file_types:
-            os.close(getattr(self, '_' + file_type))
-            fname = getattr(self, file_type + '_fname')
-            if os.path.exists(fname):
-                os.remove(fname)
 
 def print_file_contents(fname,
                         label):
@@ -230,31 +202,6 @@ def print_file_contents(fname,
         print(open_file.read())
     print(80*'-')
 
-def create_sources_file(dr_file, sources_fname, srcextract_version):
-    """Create a FITS BinTable file with the given name containing
-    the extracted sources.
-
-    Returns: an array containing x-y extracted sources
-    """
-
-    sources = dr_file.get_sources(
-        'srcextract.sources',
-        'srcextract_column_name',
-        srcextract_version=srcextract_version
-    )
-    x_extracted = fits.Column(name='x', format='D', array=sources['x'].values)
-    y_extracted = fits.Column(name='y', format='D', array=sources['y'].values)
-    xyls = fits.BinTableHDU.from_columns([x_extracted, y_extracted])
-    xyls.writeto(sources_fname)
-
-    xy_extracted = numpy.zeros(
-        (len(sources['x'].values)),
-        dtype=[('x', '>f8'), ('y', '>f8')]
-    )
-    xy_extracted['x'] = sources['x'].values
-    xy_extracted['y'] = sources['y'].values
-
-    return xy_extracted
 
 def save_trans_to_dr(*,
                      trans_x,
@@ -443,208 +390,166 @@ def solve_image(dr_fname,
     with DataReductionFile(dr_fname, 'r+') as dr_file:
 
         header = dr_file.get_frame_header()
-        dr_eval = Evaluator(header)
         configuration = prepare_configuration(configuration, header)
 
         result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
 
+        fov_estimate = max(*configuration['frame_fov_estimate'])
+
+        sources = dr_file.get_sources(
+            'srcextract.sources',
+            'srcextract_column_name',
+            srcextract_version=configuration['srcextract_version']
+        )
+        xy_extracted = numpy.zeros(
+            (len(sources['x'].values)),
+            dtype=[('x', '>f8'), ('y', '>f8')]
+        )
+        xy_extracted['x'] = sources['x'].values
+        xy_extracted['y'] = sources['y'].values
+
+        if transformation_estimate is None:
+            dr_eval = Evaluator(header)
+            transformation_estimate = {
+                key: dr_eval(expression).to_value('deg')
+                for key, expression in zip(
+                    ['ra_cent', 'dec_cent'],
+                    configuration['frame_center_estimate']
+                )
+            }
+            (
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y'],
+                status
+            ) = estimate_transformation(
+                dr_file=dr_file,
+                header=header,
+                astrometry_order=configuration['astrometry_order'],
+                tweak_order_range=configuration['tweak_order'],
+                fov_range=(
+                    fov_estimate / configuration['image_scale_factor'],
+                    fov_estimate * configuration['image_scale_factor']
+                ),
+                **transformation_estimate
+            )
+            if status != 'success':
+                result['fail_reason'] = status
+                return result
+
+        else:
+            (
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y']
+            ) = transformation_from_raw(
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y'],
+                header,
+                True
+            )
+
+
+        _logger.debug('Using transformation estimate: %s',
+                      repr(transformation_estimate))
+
         filter_expr = configuration['catalogue_filter']
         if filter_expr is not None:
             filter_expr = filter_expr.get(header['CLRCHNL'])
-        catalogue = read_catalog_file(
+        catalog = read_catalog_file(
             configuration['astrometry_catalogue'].format_map(header),
             filter_expr=filter_expr
         )
 
-        fov_estimate = max(*configuration['frame_fov_estimate'])
-        with TempAstrometryFiles() as (sources_fname,
-                                       corr_fname,
-                                       axy_fname):
-            xy_extracted = create_sources_file(
-                dr_file,
-                sources_fname,
-                configuration['srcextract_version']
+        try:
+            (
+                trans_x,
+                trans_y,
+                cat_extracted_corr,
+                res_rms,
+                ratio,
+                ra_cent,
+                dec_cent,
+                success
+            ) = refine_transformation(
+                xy_extracted=xy_extracted,
+                catalog=catalog,
+                x_frame=header['NAXIS1'],
+                y_frame=header['NAXIS2'],
+                astrometry_order=configuration['astrometry_order'],
+                max_srcmatch_distance=configuration[
+                    'max_srcmatch_distance'
+                ],
+                max_iterations=configuration['max_astrom_iter'],
+                trans_threshold=configuration['trans_threshold'],
+                **transformation_estimate,
             )
-            for tweak in range(*configuration['tweak_order']):
-                solve_field_command = [
-                    'solve-field',
-                    sources_fname,
-                    '--corr', corr_fname,
-                    '--width', str(header['NAXIS1']),
-                    '--height', str(header['NAXIS2']),
-                    '--tweak-order', str(tweak),
-                    '--match', 'none',
-                    '--wcs', 'none',
-                    '--index-xyls', 'none',
-                    '--rdls', 'none',
-                    '--solved', 'none',
-                    '--axy', axy_fname,
-                    '--no-plots',
-                    '--scale-low', repr(fov_estimate
-                                        /
-                                        configuration['image_scale_factor']),
-                    '--scale-high', repr(fov_estimate
-                                         *
-                                         configuration['image_scale_factor']),
-                    '--overwrite'
+        #pylint: disable=bare-except
+        except:
+            _logger.critical(
+                'Failed to find solution to DR file %s:\n%s',
+                dr_fname,
+                format_exc()
+            )
+            result['fail_reason'] = fail_reasons['other']
+            return result
+        #pylint: enable=bare-except
+
+        try:
+            _logger.debug('RMS residual: %s', repr(res_rms))
+            _logger.debug('Ratio: %s', repr(ratio))
+
+            if ratio < configuration['min_match_fraction']:
+                result['fail_reason'] = fail_reasons['few matched']
+            elif res_rms > configuration['max_rms_distance']:
+                result['fail_reason'] = fail_reasons['high rms']
+            elif not success:
+                result['fail_reason'] = fail_reasons[
+                    'failed to converge'
                 ]
-                try:
-                    subprocess.run(solve_field_command, check=True)
-                except subprocess.SubprocessError:
-                    _logger.critical("solve-field failed with error:\n%s",
-                                     format_exc())
-                    result['fail_reason'] = 'solve-field failed'
-                    continue
+            else:
+                _logger.info(
+                    'Succesful astrometry solution found for %s:',
+                    dr_fname
+                )
+                save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                           trans_x=trans_x,
+                           trans_y=trans_y,
+                           ra_cent=ra_cent,
+                           dec_cent=dec_cent,
+                           res_rms=res_rms,
+                           configuration=configuration,
+                           header=header,
+                           dr_file=dr_file)
+                result['saved'] = True
 
-                if not os.path.isfile(corr_fname):
-                    _logger.critical("Correspondence file %s not created.",
-                                     repr(corr_fname))
-                    result['fail_reason'] = 'solve-field failed'
-                    return result
+                transformation_to_raw(trans_x,
+                                      trans_y,
+                                      header,
+                                      True)
+                result['raw_transformation'] = {
+                    'ra_cent':  ra_cent,
+                    'dec_cent': dec_cent,
+                    'trans_x':  trans_x,
+                    'trans_y': trans_y
+                }
+            return result
 
-                with fits.open(corr_fname, mode='readonly') as corr:
-                    field_corr = corr[1].data[:]
-
-                if field_corr.size > ((tweak+1)*(tweak+2))//2:
-
-                    initial_corr = numpy.zeros(
-                        (field_corr['field_x'].shape),
-                        dtype=[('x', '>f8'),
-                               ('y', '>f8'),
-                               ('RA', '>f8'),
-                               ('Dec', '>f8')]
-                    )
-
-                    initial_corr['x'] = field_corr['field_x']
-                    initial_corr['y'] = field_corr['field_y']
-                    initial_corr['RA'] = field_corr['index_ra']
-                    initial_corr['Dec'] = field_corr['index_dec']
-
-                    if transformation_estimate is None:
-                        transformation_estimate = {
-                            key: dr_eval(expression).to_value('deg')
-                            for key, expression in zip(
-                                ['ra_cent', 'dec_cent'],
-                                configuration['frame_center_estimate']
-                            )
-                        }
-
-                        (
-                            transformation_estimate['trans_x'],
-                            transformation_estimate['trans_y']
-                        ) = estimate_transformation(
-                            initial_corr=initial_corr,
-                            tweak_order=tweak,
-                            astrometry_order=configuration['astrometry_order'],
-                            ra_cent=transformation_estimate['ra_cent'],
-                            dec_cent=transformation_estimate['dec_cent'],
-                        )
-                    else:
-                        (
-                            transformation_estimate['trans_x'],
-                            transformation_estimate['trans_y']
-                        ) = transformation_from_raw(
-                            transformation_estimate['trans_x'],
-                            transformation_estimate['trans_y'],
-                            header,
-                            True
-                        )
-
-
-                    _logger.debug('Using transformation estimate: %s',
-                                  repr(transformation_estimate))
-
-                    try:
-                        (
-                            trans_x,
-                            trans_y,
-                            cat_extracted_corr,
-                            res_rms,
-                            ratio,
-                            ra_cent,
-                            dec_cent,
-                            success
-                        ) = refine_transformation(
-                            xy_extracted=xy_extracted,
-                            catalogue=catalogue,
-                            x_frame=header['NAXIS1'],
-                            y_frame=header['NAXIS2'],
-                            astrometry_order=configuration['astrometry_order'],
-                            max_srcmatch_distance=configuration[
-                                'max_srcmatch_distance'
-                            ],
-                            max_iterations=configuration['max_astrom_iter'],
-                            trans_threshold=configuration['trans_threshold'],
-                            **transformation_estimate,
-                        )
-                    #pylint: disable=bare-except
-                    except:
-                        _logger.critical(
-                            'Failed to find solution to DR file %s:\n%s',
-                            dr_fname,
-                            format_exc()
-                        )
-                        result['fail_reason'] = fail_reasons['other']
-                        return result
-                    #pylint: enable=bare-except
-
-                    try:
-                        _logger.debug('RMS residual: %s', repr(res_rms))
-                        _logger.debug('Ratio: %s', repr(ratio))
-
-                        if ratio < configuration['min_match_fraction']:
-                            result['fail_reason'] = fail_reasons['few matched']
-                        elif res_rms > configuration['max_rms_distance']:
-                            result['fail_reason'] = fail_reasons['high rms']
-                        elif not success:
-                            result['fail_reason'] = fail_reasons[
-                                'failed to converge'
-                            ]
-                        else:
-                            _logger.info(
-                                'Succesful astrometry solution found for %s:',
-                                dr_fname
-                            )
-                            save_to_dr(cat_extracted_corr=cat_extracted_corr,
-                                       trans_x=trans_x,
-                                       trans_y=trans_y,
-                                       ra_cent=ra_cent,
-                                       dec_cent=dec_cent,
-                                       res_rms=res_rms,
-                                       configuration=configuration,
-                                       header=header,
-                                       dr_file=dr_file)
-                            result['saved'] = True
-
-                            transformation_to_raw(trans_x,
-                                                  trans_y,
-                                                  header,
-                                                  True)
-                            result['raw_transformation'] = {
-                                'ra_cent':  ra_cent,
-                                'dec_cent': dec_cent,
-                                'trans_x':  trans_x,
-                                'trans_y': trans_y
-                            }
-                        return result
-
-                    #pylint: disable=bare-except
-                    except:
-                        _logger.critical(
-                            'Failed to save found astrometry solution to '
-                            'DR file %s:\n%s',
-                            dr_fname,
-                            format_exc()
-                        )
-                        return result
-                    #pylint: enable=bare-except
-
-            result['fail_reason'] = 'solve-field failed'
-            _logger.error(
-                'No Astrometry.net solution found in tweak range [%d, %d]',
-                *configuration['tweak_order']
+        #pylint: disable=bare-except
+        except:
+            _logger.critical(
+                'Failed to save found astrometry solution to '
+                'DR file %s:\n%s',
+                dr_fname,
+                format_exc()
             )
             return result
+        #pylint: enable=bare-except
+
+    result['fail_reason'] = 'solve-field failed'
+    _logger.error(
+        'No Astrometry.net solution found in tweak range [%d, %d]',
+        *configuration['tweak_order']
+    )
+    return result
 #pylint: enable=too-many-locals
 #pylint: enable=too-many-statements
 #pylint: enable=too-many-branches
@@ -779,10 +684,10 @@ def get_new_catalog_info(configuration, dr_collection):
                 *
                 configuration['catalog_density_scaling']
             )
-    for catalog_fname in to_generate:
+    for catalog_properties in to_generate.values():
         for quantity in ['ra', 'dec', 'width', 'height']:
-            to_generate[catalog_fname][quantity] = numpy.array(
-                to_generate[catalog_fname][quantity]
+            catalog_properties[quantity] = numpy.array(
+                catalog_properties[quantity]
             ) * units.deg
     return to_generate
 
@@ -916,7 +821,8 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
             _logger.critical(
                 'Failed astrometry for DR file %s: %s',
                 dr_fname,
-                [key for key in fail_reasons if fail_reasons[key] == reason][0]
+                [fail_key for fail_key, fail_reason in fail_reasons.items()
+                 if fail_reason == reason][0]
             )
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
