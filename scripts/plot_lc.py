@@ -364,7 +364,7 @@ def get_skip_gap_axes(plot_x, min_gap, pad_frac=0.01):
     axes[0].spines['left'].set_visible(True)
     axes[0].tick_params(labelleft=True)
     axes[0].tick_params(left=True)
-    axes[0].set_yticks([-0.02, -0.01, 0.0, 0.01, 0.02])
+#    axes[0].set_yticks([-0.02, -0.01, 0.0, 0.01, 0.02])
     axes[-1].spines['left'].set_visible(False)
     axes[-1].tick_params(left=False)
 
@@ -547,7 +547,11 @@ def add_lc_to_plot(select_photometry, configuration):
     if configuration.combined_binned_lc:
         combined_magnitudes = numpy.array([], dtype=float)
         combined_bjd = numpy.array([], dtype=float)
-        if len(configuration.detrending_mode) == 1:
+        if (
+            len(configuration.detrending_mode) == 1
+            and
+            len(configuration.lightcurves) == 1
+        ):
             colors = ['black']
 
         assert (
@@ -569,39 +573,67 @@ def add_lc_to_plot(select_photometry, configuration):
     for zorder, detrending_mode in enumerate(
             reversed(configuration.detrending_mode)
     ):
-        for lc_fname in configuration.lightcurves:
+        for lc_collection in (
+            [configuration.lightcurves]
+            if (
+                configuration.combined_binned_lc
+                and
+                configuration.binning is None
+            ) else
+            [[lc_fname] for lc_fname in configuration.lightcurves]
+        ):
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
-            scatter, _, bjd, magnitudes = select_photometry(
-                [lc_fname],
+            scatter, _, _, bjd, magnitudes = select_photometry(
+                lc_collection,
                 detrending_mode=detrending_mode,
             )
             #pylint: enable=unbalanced-tuple-unpacking
 
             if configuration.zero_stat is not None:
-                ref_mag = getattr(numpy, 'nan' + configuration.zero_stat)(
-                    magnitudes
-                )
-                magnitudes -= ref_mag
+                for colname in magnitudes.columns:
+                    magnitudes[colname] -= getattr(
+                        numpy, 'nan' + configuration.zero_stat
+                    )(
+                        magnitudes[colname]
+                    )
 
-            keep_points = (numpy.abs(magnitudes)
-                           <
-                           configuration.drop_outliers * scatter)
-            bjd = bjd[keep_points]
-            magnitudes = magnitudes[keep_points]
+            if len(lc_collection) == 1:
+                keep_points = (numpy.abs(magnitudes)
+                               <
+                               configuration.drop_outliers * scatter)
+                bjd = bjd.iloc[keep_points].to_numpy(dtype=float)
+                magnitudes = magnitudes.iloc[keep_points]
+            else:
+                bjd = bjd.to_numpy(dtype=float)
 
-            if configuration.combined_binned_lc:
-                combined_magnitudes = numpy.concatenate((
-                    combined_magnitudes,
-                    magnitudes
-                ))
-                combined_bjd = numpy.concatenate((
-                    combined_bjd,
-                    bjd
-                ))
+            if len(lc_collection) == 1:
+                magnitudes = magnitudes.to_numpy(dtype=float)
+
+                if configuration.combined_binned_lc:
+                    combined_magnitudes = numpy.concatenate((
+                        combined_magnitudes,
+                        magnitudes
+                    ))
+                    combined_bjd = numpy.concatenate((
+                        combined_bjd,
+                        bjd
+                    ))
             bjd_offset = bjd_offset or int(bjd.min())
             bjd -= bjd_offset
-            if len(configuration.lightcurves) == 1 and configuration.skip_gaps:
+            if (
+                (
+                    len(configuration.lightcurves) == 1
+                    or
+                    (
+                        configuration.combined_binned_lc
+                        and
+                        configuration.binning is None
+                    )
+                )
+                and
+                configuration.skip_gaps
+            ):
                 figure, skip_gap_axes = get_skip_gap_axes(
                     bjd,
                     configuration.skip_gaps
@@ -613,7 +645,12 @@ def add_lc_to_plot(select_photometry, configuration):
                       len(configuration.lightcurves))
 
 
-            if not configuration.combined_binned_lc:
+            if (
+                not configuration.combined_binned_lc
+                or
+                configuration.binning is None
+            ):
+                print(f'Plotting individual LCs: {magnitudes!r}')
                 lc_color = next(colors)
                 for plot_axes in skip_gap_axes:
                     plot_lc(bjd,
@@ -625,16 +662,26 @@ def add_lc_to_plot(select_photometry, configuration):
                             configuration=configuration)
 
         if configuration.combined_binned_lc:
+            if configuration.binning is None:
+                magnitudes = magnitudes.mean(axis=1).to_numpy(dtype=float)
+                combined_bjd = bjd
+            else:
+                magnitudes = combined_magnitudes
+
             bjd_offset = int(combined_bjd.min())
             bjd = combined_bjd - bjd_offset
-            magnitudes = combined_magnitudes
+            lc_color = next(colors)
 
-            plot_lc(bjd,
-                    magnitudes,
-                    detrending_mode=detrending_mode,
-                    lc_color=next(colors),
-                    zorder=zorder,
-                    configuration=configuration)
+            for plot_axes in (skip_gap_axes if configuration.skip_gaps
+                              else [pyplot.gca()]):
+                print('Plotting combined')
+                plot_lc(bjd,
+                        magnitudes,
+                        detrending_mode=detrending_mode,
+                        plot_axes=plot_axes,
+                        lc_color=lc_color,
+                        zorder=zorder,
+                        configuration=configuration)
 
     return (bjd, bjd_offset, magnitudes, scatter, skip_gap_axes, figure)
 
@@ -707,8 +754,12 @@ def main(configuration):
         oot_magnitude = numpy.median(last_magnitudes)
 
     figure.add_subplot(111, frameon=False)
-    pyplot.tick_params(labelcolor='none', which='both', top=False, bottom=False,
-                    left=False, right=False)
+    pyplot.tick_params(labelcolor='none',
+                       which='both',
+                       top=False,
+                       bottom=False,
+                       left=False,
+                       right=False)
     pyplot.ylim(configuration.plot_y_range)
     for plot_ax in skip_gap_axes:
         plot_ax.set_ylim(configuration.plot_y_range)

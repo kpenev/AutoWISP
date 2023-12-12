@@ -71,7 +71,9 @@ def calculate_iterative_rejection_scatter(values,
                                           calculate_average,
                                           calculate_scatter,
                                           outlier_threshold,
-                                          max_outlier_rejections):
+                                          max_outlier_rejections,
+                                          *,
+                                          return_average=False):
     """
     Calculate the scatter for a dataset, with outlier rejectio iterations.
 
@@ -91,6 +93,9 @@ def calculate_iterative_rejection_scatter(values,
         max_outlier_rejections(int):    The maximum number of iterations between
             outlier rejection and re-calculating the scatter to perform.
 
+        return_average(bool):    Should the average of the poinst also be
+            returned?
+
     Returns:
         float, int:
             The scatter in values and the number of non-rejected points in the
@@ -101,11 +106,8 @@ def calculate_iterative_rejection_scatter(values,
     non_outliers = True
     for _ in range(max_outlier_rejections):
         include_points = numpy.logical_and(include_points, non_outliers)
-        square_deviations = numpy.square(
-            values
-            -
-            calculate_average(values[include_points])
-        )
+        average = calculate_average(values[include_points])
+        square_deviations = numpy.square(values - average)
         square_scatter = calculate_scatter(square_deviations[include_points])
         non_outliers = (square_deviations
                         <=
@@ -113,6 +115,8 @@ def calculate_iterative_rejection_scatter(values,
         if non_outliers[include_points].all():
             break
 
+    if return_average:
+        return numpy.sqrt(square_scatter), include_points.sum(), average
     return numpy.sqrt(square_scatter), include_points.sum()
 
 def recalculate_correction_statistics(lc_fnames,

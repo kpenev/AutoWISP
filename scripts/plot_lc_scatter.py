@@ -2,18 +2,21 @@
 
 """Extract statistics directly from the LCs and plot."""
 
+from os import path
 from functools import partial
 from itertools import count
-from os import path
 import logging
 
-from matplotlib import pyplot
+from matplotlib import pyplot, patheffects
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 from pytransit import QuadraticModel
 import pandas
+from colormath.color_objects import sRGBColor, HSLColor
+from colormath.color_conversions import convert_color
 
-from superphot_pipeline import LightCurveFile
+from superphot_pipeline import LightCurveFile, Evaluator
+from superphot_pipeline.catalog import read_catalog_file
 from superphot_pipeline.file_utilities import find_lc_fnames
 from superphot_pipeline.light_curves.apply_correction import\
     calculate_iterative_rejection_scatter
@@ -23,7 +26,6 @@ from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
 from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
-from superphot_pipeline.processing_steps.lc_detrending import add_catalog_info
 
 
 def add_scatter_arguments(parser, multi_mode=True):
@@ -82,10 +84,18 @@ def add_scatter_arguments(parser, multi_mode=True):
     )
     parser.add_argument(
         '--combine-by',
-        chaices=['fnum', 'imageid'],
+        choices=['fnum', 'imageid'],
+        default='imageid',
         help='If specified, more than one lightcurve of each object is expected'
         ' and the scatter is calculated for a LC calculated by matching the LCs'
         ' on frame number (not implemented yet) or image ID and averaging.'
+    )
+    parser.add_argument(
+        '--min-combined',
+        type=int,
+        default=1,
+        help='At least this many lightcurves must be found for a star for it '
+        'to be included in the plot.'
     )
 
 
@@ -112,6 +122,13 @@ def add_plot_config_arguments(parser):
         type=int,
         default=2,
         help='The size of the markers to use in the plot.'
+    )
+    parser.add_argument(
+        '--add-moving-average',
+        nargs=2,
+        metavar=('AVGFUNC', 'WINDOW'),
+        default=None,
+        help='Add a moving average line for each collection of points plotted.'
     )
     parser.add_argument(
         '--plot-fname', '-o',
@@ -229,16 +246,24 @@ def default_get_magnitudes(lightcurve, dset_key, **substitutions):
     return magnitudes, magnitudes
 
 
-def match_lightcurves(lightcurve_filenames):
+def match_lightcurves(lightcurve_filenames, min_combined):
     """Group lightcurves by source."""
 
     result = {}
     for lc_fname in lightcurve_filenames:
         with LightCurveFile(lc_fname, 'r') as lightcurve:
-            lc_id = dict(lightcurve['Identifiers'].asstr())['Gaia DR3']
+            #False positive
+            #pylint:disable=no-member
+            lc_id = int(dict(lightcurve['Identifiers'].asstr())['Gaia DR3'])
+            #pylint:enable=no-member
             if lc_id not in result:
                 result[lc_id] = []
             result[lc_id].append(lc_fname)
+
+    for lc_id in list(result.keys()):
+        if len(result[lc_id]) < min_combined:
+            del result[lc_id]
+
     return result
 
 
@@ -286,8 +311,8 @@ def get_lc_minimum_scatter(lc_fname,
                            *,
                            stat_only=False,
                            get_magnitudes=default_get_magnitudes,
-                           match_by=imageid,
-                           **scatter_config)
+                           match_by='imageid',
+                           **scatter_config):
     """
     Find the photometry with the smallest scatter in given LC.
 
@@ -332,7 +357,10 @@ def get_lc_minimum_scatter(lc_fname,
 
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         bjd = lightcurve.get_dataset('skypos.BJD')
-        image_ids = lightcurve.get_dataset('fitsheader.' + match_by)
+        image_ids = [
+            img_id.rsplit(b'_', 1)[1]
+            for img_id in lightcurve.get_dataset('fitsheader.' + match_by)
+        ]
 
         selected_lc_length = 0
         if (
@@ -360,10 +388,10 @@ def get_lc_minimum_scatter(lc_fname,
 
         if selected_lc_length < min_lc_length:
             min_scatter = numpy.inf
+            best_mags = None
 
         try:
             for aperture_index in count():
-                print('aperture_index', aperture_index)
                 magnitudes, scatter_mags = get_magnitudes(
                     lightcurve,
                     'apphot.' + detrending_mode + '.magnitude',
@@ -387,9 +415,16 @@ def get_lc_minimum_scatter(lc_fname,
     return min_scatter, selected_lc_length, image_ids, bjd, best_mags
 
 
-
 #pylint: disable=too-many-locals
-def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
+def get_minimum_scatter(lightcurve_filenames,
+                        detrending_mode,
+                        magfit_iteration,
+                        min_lc_length,
+                        *,
+                        stat_only=False,
+                        get_magnitudes=default_get_magnitudes,
+                        match_by='imageid',
+                        **scatter_config):
     """
     Get the minimum combined scatter for each star.
 
@@ -398,46 +433,83 @@ def get_minimum_scatter(lightcurve_filenames, *args, **kwargs):
             a single object which will be combined before finding the smallest
             scatter.
 
-        args:    See get_lc_minimum_scatter().
-
-        kwargs:    See get_lc_minimum_scatter().
+        For all other arguments see get_lc_minimum_scatter().
 
     Returns:
         Same as get_lc_minimum_scatter().
     """
 
-    def get_lc_data(lc_fname, lc_index)
+    def get_lc_data(lc_fname, lc_index):
 
         return pandas.DataFrame(
             dict(
                 zip(
-                    ('image_id', f'bjd', f'mag_{lc_index:03d}'),
-                    get_lc_minimum_scatter([lc_fname], *args, **kwargs)[-3:]
+                    ('image_id', 'bjd', f'mag_{lc_index:03d}'),
+                    get_lc_minimum_scatter(lc_fname,
+                                           detrending_mode=detrending_mode,
+                                           magfit_iteration=magfit_iteration,
+                                           min_lc_length=min_lc_length,
+                                           stat_only=False,
+                                           get_magnitudes=get_magnitudes,
+                                           match_by=match_by,
+                                           **scatter_config)[-3:]
                 )
             )
         ).set_index('image_id')
 
+    def get_scatter_no_fail(array):
+        """Return the scatter of the given array or NaN on any failure."""
+
+        try:
+            return calculate_iterative_rejection_scatter(
+                array,
+                **scatter_config
+            )[0]
+        except Exception:
+            return numpy.nan
+
     num_lcs = len(lightcurve_filenames)
+    print(f'Finding minimum scatter for {num_lcs} lightcurves: '
+          f'{lightcurve_filenames!r}')
     if num_lcs > 1:
-        matched_mags = get_lc_data(lightcurve_filenames[0])
+        matched = get_lc_data(lightcurve_filenames[0], 0)
+
         for lc_index, lc_fname in enumerate(lightcurve_filenames[1:]):
             matched = matched.join(
-                get_lc_data(lc_fname).drop('bjd', axis=1),
-                how=inner
+                get_lc_data(lc_fname, lc_index + 1).drop('bjd', axis=1),
+                how='inner'
             )
+
         bjd = matched['bjd']
-        avg_mag = matched.drop('bjd', axis=1).mean(axis=1)
+        matched = matched.drop('bjd', axis=1)
+        avg_mag = matched.mean(axis=1)
 
-    scatter, lc_length = calculate_iterative_rejection_scatter(
-        avg_mag,
-        **scatter_config
-    )
+        avg_scatter, lc_length = calculate_iterative_rejection_scatter(
+            avg_mag,
+            **scatter_config
+        )
 
-    if stat_only:
-        return scatter, lc_length
-    return scatter, lc_length, image_ids, bjd, avg_mag
+        scatter = (
+            [avg_scatter]
+            +
+            [
+                get_scatter_no_fail(matched[f'mag_{lc_index:03d}'])
+                for lc_index in range(num_lcs)
+            ]
+        )
 
-    return get_lc_minimum_scatter(lightcurve_filenames[0], *args, **kwargs)
+        if stat_only:
+            return scatter, lc_length
+        return scatter, lc_length, None, bjd, matched
+
+    return get_lc_minimum_scatter(lightcurve_filenames[0],
+                                  detrending_mode=detrending_mode,
+                                  magfit_iteration=magfit_iteration,
+                                  min_lc_length=min_lc_length,
+                                  stat_only=stat_only,
+                                  get_magnitudes=get_magnitudes,
+                                  match_by=match_by,
+                                  **scatter_config)
 #pylint: enable=too-many-locals
 
 
@@ -475,15 +547,31 @@ def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
         detrending_mode=detrending_mode,
         **get_scatter_config(cmdline_args)
     )
-    result = {
-        source_id: get_scatter(source_lcs)[0]
-        for source_id, source_lcs in lc_fnames.items()
-    }
+    max_combined = max(map(len, lc_fnames.values()))
+
+    result = pandas.DataFrame(
+        index=lc_fnames.keys(),
+        columns=(
+            ['combined_scatter']
+            +
+            (
+                [f'individual_scatter_{i:03d}' for i in range(max_combined)]
+                if max_combined > 1 else
+                []
+            )
+        )
+    )
+    for progress, (source_id, source_lcs) in enumerate(lc_fnames.items()):
+        scatter = get_scatter(source_lcs)[0]
+        result.loc[source_id][:len(scatter)] = scatter
+        if progress % 100 == 0:
+            print(f'Progress: {progress}/{len(lc_fnames)}')
+
     if cmdline_args.target_id is not None:
         transit_parameters = (get_transit_parameters(vars(cmdline_args), False),
                               {})
-        result[target_id] = get_scatter(
-            lc_fnames[target_id],
+        result.loc[cmdline_args.target_id] = get_scatter(
+            lc_fnames[cmdline_args.target_id],
             get_magnitudes=ReconstructiveCorrectionTransit(
                 transit_model=QuadraticModel(),
                 correction=None,
@@ -494,10 +582,72 @@ def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
     return result
 
 
-#TODO: consider simplifying
-#pylint: disable=too-many-locals
-def main(cmdline_args):
-    """Avoid polluting global namespace."""
+def read_catalog(catalog_fname, x_expression):
+    """Return the catalog data for the given sources."""
+
+    catalog_data = read_catalog_file(catalog_fname,
+                                     add_gnomonic_projection=True)
+    catalog_data['magnitude'] = Evaluator(catalog_data)(x_expression)
+    catalog_data.insert(
+        len(catalog_data.columns),
+        'square_distance',
+        catalog_data['xi']**2 + catalog_data['eta']**2
+    )
+    return catalog_data
+
+
+def get_x_label(x_expression):
+    """Return the label that should be used for the x-axis."""
+
+    if x_expression == 'phot_g_mean_mag':
+        return 'Gaia G magnitude'
+    return x_expression
+
+
+class MovingAverage:
+    """Calculates a moving iterative rejection average of given points."""
+
+    def __init__(self,
+                 x,
+                 y,
+                 window_size,
+                 **scatter_config):
+
+        """
+        Set up the moving average with the given configuration.
+
+        See calculate_iterative_rejection_scatter() for a description of the
+        arguments.
+        """
+
+        self._x = x
+        self._y = y
+        self._half_window = window_size / 2.0
+        self._scatter_config = scatter_config
+        self._scatter_config['return_average'] = True
+
+
+    def __call__(self, x):
+        """Return the moving average around the given location."""
+
+        average_points = numpy.logical_and(
+            self._x >= x - self._half_window,
+            self._x <= x + self._half_window,
+        )
+        return calculate_iterative_rejection_scatter(
+            self._y[average_points],
+            **self._scatter_config
+        )[-1]
+
+
+def add_plot_points(scatter_data,
+                    to_plot,
+                    cmdline_args,
+                    *,
+                    detrending_mode=None,
+                    min_distance=0,
+                    max_distance=numpy.inf):
+    """Add one collection of points to the plot."""
 
     color_scheme = ['#e41a1c',
                     '#377eb8',
@@ -507,76 +657,185 @@ def main(cmdline_args):
                     '#ffff33',
                     '#a65628',
                     '#f781bf']
+    color_scheme = ['#ff0000', '#0000ff']
+    if not hasattr(add_plot_points, 'color_index'):
+        add_plot_points.color_index = 0
+    else:
+        add_plot_points.color_index += 1
 
-    lc_fnames = match_lightcurves(find_lc_fnames(cmdline_args.lightcurves))
 
-    <++>
-    target_index = get_target_index(lc_fnames, cmdline_args.target_id)
+    plot_color = color_scheme[add_plot_points.color_index % len(color_scheme)]
 
-    catalog_data = add_catalog_info(lc_fnames,
-                                    cmdline_args.catalog_fname,
-                                    cmdline_args.x_expression)
-    square_distances = catalog_data['xi']**2 + catalog_data['eta']**2
+    plot_config = {
+        'markeredgecolor': 'none',
+        'markerfacecolor': plot_color,
+        'linestyle': 'none',
+        'alpha': 0.8
+    }
+
+    if cmdline_args.target_id is not None:
+        target_index = scatter_data.index[
+            scatter_data.index == cmdline_args.target_id
+        ].index[0]
+
+    plot_target = cmdline_args.target_id is not None and to_plot[target_index]
+    if plot_target:
+        plot_config['label'] = cmdline_args.target_id
+        pyplot.semilogy(
+            scatter_data['magnitude'][target_index],
+            scatter_data['scatter'][target_index],
+            marker='*',
+            markersize=(3 * cmdline_args.plot_marker_size),
+            **plot_config
+        )
+
+    if min_distance == 0 and not numpy.isfinite(max_distance):
+        distance_label = ''
+    else:
+        distance_label = (
+            f' ${min_distance:s}'
+            r'<\sqrt{\xi^2+\eta^2}<'
+            f'{max_distance}$'
+        )
+
+    plot_config['marker'] = '.'
+    plot_config['markersize'] = cmdline_args.plot_marker_size
+
+    try:
+        for lc_ind in count(-1):
+            if lc_ind == -1:
+                plot_config['label'] = (
+                    'combined'
+                    +
+                    (f' {detrending_mode.upper()}' if detrending_mode else '')
+                    +
+                    distance_label
+                )
+            elif lc_ind == 0:
+                plot_config['label'] = (
+                    'individual'
+                    +
+                    plot_config['label'][len('combined'):]
+                )
+            else:
+                break
+#                plot_config['label'] = None
+
+            plot_xy = (
+                scatter_data['magnitude'].iloc[to_plot],
+                scatter_data[
+                    'combined_scatter'
+                    if lc_ind == -1 else
+                    f'individual_scatter_{lc_ind:03d}'
+                ].iloc[to_plot]
+            )
+            print(f'Plotting {lc_ind} {plot_config["label"]}: ' + repr(plot_xy))
+            pyplot.semilogy(
+                *plot_xy,
+                **plot_config,
+                zorder=10 * (10 - lc_ind)
+            )
+            if cmdline_args.add_moving_average:
+                print('Adding moving average')
+                moving_average = MovingAverage(
+                    *plot_xy,
+                    window_size=float(cmdline_args.add_moving_average[1]),
+                    calculate_average=getattr(
+                        numpy,
+                        'nan' + cmdline_args.add_moving_average[0]
+                    ),
+                    calculate_scatter=cmdline_args.statistic,
+                    outlier_threshold=cmdline_args.outlier_threshold,
+                    max_outlier_rejections=cmdline_args.max_outlier_rejections
+                )
+                color = convert_color(
+                    sRGBColor.new_from_rgb_hex(plot_config['markerfacecolor']),
+                    HSLColor
+                )
+                color.hsl_l += 0.3
+                color = convert_color(color, sRGBColor)
+                plot_x = numpy.linspace(numpy.min(plot_xy[0]),
+                                        numpy.max(plot_xy[0]),
+                                        100)
+                plot_y = numpy.vectorize(moving_average)(plot_x)
+                print(f'Plot x: {plot_x!r}, y: {plot_y!r}')
+                pyplot.plot(
+                    plot_x,
+                    plot_y,
+                    linewidth=5,
+                    color=color.get_rgb_hex(),
+                    zorder=120,
+                    path_effects=[
+                        patheffects.Stroke(linewidth=7, foreground='black'),
+                        patheffects.Normal()
+                    ]
+                )
+
+
+            if lc_ind == -1:
+                add_plot_points.color_index += 1
+                plot_color = color_scheme[
+                    add_plot_points.color_index % len(color_scheme)
+                ]
+                plot_config['markerfacecolor'] =  plot_color
+    except KeyError:
+        pass
+    if plot_target:
+        to_plot[target_index] = True
+
+
+#TODO: consider simplifying
+#pylint: disable=too-many-locals
+def main(cmdline_args):
+    """Avoid polluting global namespace."""
+
+    lc_fnames = None
+    catalog_data = read_catalog(cmdline_args.catalog_fname,
+                                cmdline_args.x_expression)
+
     distance_splits = list(cmdline_args.distance_splits) + [numpy.inf]
-    color_index = 0
 
     for detrending_mode in cmdline_args.detrending_mode:
-        scatter_data = get_scatter_data(lc_fnames,
-                                        detrending_mode,
-                                        cmdline_args)
-        print(f'{"Source":25s} {"Scatter":25s}')
-        for fname, scatter in zip(lc_fnames, scatter_data):
-            print(f'{path.basename(fname):25s} {scatter:25.16g}')
-        unplotted_sources = numpy.ones(len(lc_fnames), dtype=bool)
+        if path.exists(detrending_mode + 'scatter.pkl'):
+            scatter_data = pandas.read_pickle(detrending_mode + 'scatter.pkl')
+        else:
+            if lc_fnames is None:
+                lc_fnames = match_lightcurves(
+                    find_lc_fnames(cmdline_args.lightcurves),
+                    cmdline_args.min_combined
+                )
+
+            scatter_data = get_scatter_data(lc_fnames,
+                                            detrending_mode,
+                                            cmdline_args)
+            scatter_data = catalog_data.join(scatter_data, how='inner')
+            scatter_data.to_pickle(detrending_mode + 'scatter.pkl')
+
+        print('Scatter data: ' + repr(scatter_data))
+
+        unplotted_sources = numpy.ones(scatter_data.shape[0], dtype=bool)
         min_distance = 0
         for max_distance in sorted(distance_splits):
             #False positive
             #pylint: disable=assignment-from-no-return
             to_plot = numpy.logical_and(
                 unplotted_sources,
-                square_distances < max_distance**2
+                (scatter_data['square_distance'] < max_distance**2).values
             )
+            print('To plot: ' + repr(to_plot))
             #pylint: enable=assignment-from-no-return
+
             if to_plot.any():
-                plot_color = color_scheme[color_index % len(color_scheme)]
-                color_index += 1
-
-                plot_config = {
-                    'markeredgecolor': plot_color,
-                    'markerfacecolor': plot_color,
-                    'linestyle': 'none'
-                }
-
-                if target_index is not None and to_plot[target_index]:
-                    to_plot[target_index] = False
-                    unplotted_sources[target_index] = False
-
-                    pyplot.semilogy(
-                        catalog_data['mag'][target_index],
-                        scatter_data[target_index],
-                        marker='*',
-                        markersize=(3 * cmdline_args.plot_marker_size),
-                        label=cmdline_args.target_id,
-                        **plot_config
-                    )
-
-                if min_distance == 0 and not numpy.isfinite(max_distance):
-                    distance_label = ''
-                else:
-                    distance_label = rf' ${min_distance:s}<\sqrt{{\xi^2+\eta^2}}<{max_distance}$'
-
-                pyplot.semilogy(
-                    catalog_data['mag'][to_plot],
-                    scatter_data[to_plot],
-                    marker='.',
-                    markersize=cmdline_args.plot_marker_size,
-                    label=(
-                        f'{detrending_mode.upper()}'
-                        +
-                        distance_label
+                add_plot_points(
+                    scatter_data,
+                    to_plot,
+                    cmdline_args,
+                    detrending_mode=(
+                        detrending_mode if len(cmdline_args.detrending_mode) > 1
+                        else None
                     ),
-                    **plot_config
-                )
+                    min_distance=min_distance,
+                    max_distance=max_distance)
                 #False positive
                 #pylint: disable=assignment-from-no-return
                 unplotted_sources = numpy.logical_and(
@@ -588,12 +847,12 @@ def main(cmdline_args):
 
     pyplot.xlim(cmdline_args.plot_x_range)
     pyplot.ylim(cmdline_args.plot_y_range)
-    pyplot.xlabel(cmdline_args.x_expression)
-    pyplot.ylabel('MAD')
+    pyplot.xlabel(get_x_label(cmdline_args.x_expression))
+    pyplot.ylabel('Median Abssolute Deviation')
 
 
     pyplot.grid(True, which='both')
-    pyplot.legend()
+    pyplot.legend(markerscale=3, framealpha=1.0)
     if cmdline_args.plot_fname is None:
         pyplot.show()
     else:
