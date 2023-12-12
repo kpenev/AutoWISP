@@ -840,7 +840,7 @@ def create_catalogs(configuration, dr_collection):
 def solve_astrometry(dr_collection, configuration, mark_progress):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
-    create_catalogs(configuration, dr_collection)
+    #create_catalogs(configuration, dr_collection)
     pending = {}
     failed = {}
     for dr_fname in dr_collection:
@@ -867,6 +867,7 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 
     for process in workers:
         process.start()
+    _logger.debug('Starting astrometry on %d pending frames', len(pending))
 
     while pending or num_queued:
         _logger.debug('Pending: %s', repr(pending))
@@ -930,7 +931,9 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
+    
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
                      cmdline_config,
                      ignore_progress)
+    _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
