@@ -867,7 +867,7 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
-    
+
     solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
                                     cmdline_config.pop('astrometry_only_if')),
                      cmdline_config,
