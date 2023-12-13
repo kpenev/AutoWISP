@@ -57,15 +57,15 @@ def transformation_matrix(astrometry_order, xi, eta):
 
     return trans_matrix
 
-def new_xieta_cent_function(xieta_cent,
-                            trans_x,
-                            trans_y,
-                            x_cent,
-                            y_cent,
-                            astrometry_order):
+def find_ra_dec_center(xieta_guess,
+                       trans_x,
+                       trans_y,
+                       old_radec_cent,
+                       x_cent,
+                       y_cent,
+                       astrometry_order):
     """
-    Constructing the two non-linear function to be solved for
-    new center (xi, eta)
+    Find the (xi, eta) that map to the center of the frame.
 
     Args:
         xieta_cent(numpy array): the center of xi and eta
@@ -84,23 +84,36 @@ def new_xieta_cent_function(xieta_cent,
         new_xieta_cent(numpy array): the new center function for (xi, eta)
 
     """
-    xi = xieta_cent[0]
-    eta = xieta_cent[1]
 
-    new_xieta_cent = numpy.empty(2)
+    def equations(xieta_cent):
+        """The equations that need to be solved to find the center."""
 
-    new_xieta_cent[0] = trans_x[0, 0] - x_cent
-    new_xieta_cent[1] = trans_y[0, 0] - y_cent
+        xi = xieta_cent[0]
+        eta = xieta_cent[1]
 
-    k = 1
-    for i in range(1, astrometry_order + 1):
-        for j in range(i + 1):
-            new_xieta_cent[0] = new_xieta_cent[0] + \
-                                trans_x[k, 0] * xi ** (i - j) * eta ** j
-            new_xieta_cent[1] = new_xieta_cent[1] + \
-                                trans_y[k, 0] * xi ** (i - j) * eta ** j
-            k = k + 1
-    return new_xieta_cent
+        new_xieta_cent = numpy.empty(2)
+
+        new_xieta_cent[0] = trans_x[0, 0] - x_cent
+        new_xieta_cent[1] = trans_y[0, 0] - y_cent
+
+        k = 1
+        for i in range(1, astrometry_order + 1):
+            for j in range(i + 1):
+                new_xieta_cent[0] = new_xieta_cent[0] + \
+                                    trans_x[k, 0] * xi ** (i - j) * eta ** j
+                new_xieta_cent[1] = new_xieta_cent[1] + \
+                                    trans_y[k, 0] * xi ** (i - j) * eta ** j
+                k = k + 1
+        return new_xieta_cent
+
+    xieta_cent = numpy.empty(1, dtype=[('xi', float), ('eta', float)])
+    xieta_cent['xi'], xieta_cent['eta'] = fsolve(equations, xieta_guess)
+
+    source = numpy.empty(1, dtype=[('RA', float), ('Dec', float)])
+    inv_projection(source, xieta_cent, **old_radec_cent)
+
+    return {'RA': source['RA'][0], 'Dec': source['Dec'][0]}
+
 
 def estimate_transformation_from_corr(initial_corr,
                                       ra_cent,
@@ -470,33 +483,15 @@ def refine_transformation(*,
                 matched_sources['y'][j] = xy_extracted[ix[i], 1]
                 j = j + 1
 
-        xieta_guess = numpy.array(
-            [numpy.mean(xi),
-             numpy.mean(eta)]
+        cent_new = find_ra_dec_center(
+            numpy.array([numpy.mean(xi), numpy.mean(eta)]),
+            trans_x,
+            trans_y,
+            radec_cent,
+            x_cent,
+            y_cent,
+            astrometry_order
         )
-        new_xieta_cent = fsolve(
-            new_xieta_cent_function,
-            xieta_guess,
-            args=(trans_x,
-                  trans_y,
-                  x_cent,
-                  y_cent,
-                  astrometry_order)
-        )
-
-        xieta_cent = numpy.empty(1, dtype=[('xi', float), ('eta', float)])
-        xieta_cent['xi'] = new_xieta_cent[0]
-        xieta_cent['eta'] = new_xieta_cent[1]
-
-        source = numpy.empty(
-            1,
-            dtype=[('RA', float), ('Dec', float)]
-        )
-        inv_projection(source, xieta_cent, **radec_cent)
-
-        cent_new = {
-            'RA': source['RA'][0], 'Dec': source['Dec'][0]
-        }
 
         projected_new = numpy.empty(
             matched_sources.shape[0], dtype=[('xi', float), ('eta', float)]
