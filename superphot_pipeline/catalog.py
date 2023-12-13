@@ -252,7 +252,7 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
 
     if (
             path.dirname(catalog_fname)
-            and 
+            and
             not path.exists(path.dirname(catalog_fname))
     ):
         makedirs(path.dirname(catalog_fname))
@@ -263,7 +263,7 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
     )
 
 
-def read_catalog_file(catalog_fname,
+def read_catalog_file(cat_fits,
                       filter_expr=None,
                       sort_expr=None,
                       return_metadata=False,
@@ -272,21 +272,28 @@ def read_catalog_file(catalog_fname,
     Read a catalog FITS file.
 
     Args:
-        catalog_fname(str):    Name of the catalog file to read.
+        cat_fits(str, or opened FITS file):    The file to read.
 
     Returns:
         pandas.DataFrame:
             The catalog information as columns.
     """
 
-    with fits.open(catalog_fname) as cat_fits:
-        fixed_dtype = cat_fits[1].data.dtype.newbyteorder('=')
-        result = pandas.DataFrame.from_records(
-            cat_fits[1].data.astype(fixed_dtype),
-            index='source_id'
-        )
-        if return_metadata or add_gnomonic_projection:
-            metadata = cat_fits[1].header
+    if isinstance(cat_fits, str):
+        with fits.open(catalog_fname) as opened_cat_fits:
+            return read_catalog_file(opened_cat_fits,
+                                     filter_expr,
+                                     sort_expr,
+                                     return_metadata,
+                                     add_gnomonic_projection)
+
+    fixed_dtype = cat_fits[1].data.dtype.newbyteorder('=')
+    result = pandas.DataFrame.from_records(
+        cat_fits[1].data.astype(fixed_dtype),
+        index='source_id'
+    )
+    if return_metadata or add_gnomonic_projection:
+        metadata = cat_fits[1].header
 
     cat_eval = Evaluator(result)
     if sort_expr is not None:
