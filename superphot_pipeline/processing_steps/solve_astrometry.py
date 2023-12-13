@@ -17,7 +17,8 @@ from superphot_pipeline.processing_steps.manual_util import\
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
-    refine_transformation
+    refine_transformation,\
+    find_ra_dec_center
 from superphot_pipeline.catalog import read_catalog_file, create_catalog_file
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
@@ -57,11 +58,13 @@ def parse_command_line(*args):
         help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
-        'fainter brightness limit. Different brightness limits are then imposed'
-        'for each color channel using the ``--catalogue-filter`` argument. If '
-        'the file does not exist one is automatically generated to cover an '
-        'area larger than the field of view by ``--image-scale-factor``, '
-        'centered on the median pointing and to have the same density as the '
+        'fainter brightness limit. Different brightness limits can then be '
+        'imposed for each color channel using the ``--catalogue-filter`` '
+        'argument. If the file does not exist one is automatically generated to'
+        ' cover an area larger than the field of view by '
+        '``--image-scale-factor``, centered on the (RA * cos(Dec), Dec) of the '
+        'frame rounded to ``--catalog-pointing-precision`` fraction of the '
+        'field of view, and to have the same density as the '
         '``--catalog-density-quantile`` of the extracted sources within the '
         'frames being processed.'
     )
@@ -87,6 +90,13 @@ def parse_command_line(*args):
         help='The density of stars estimated from source extraction is '
         'multiplied by this factor to determine how many stars to include in '
         'the catalog. Only relevant if the catalog does not exist.'
+    )
+    parser.add_argument(
+        '--catalog-pointing-precision',
+        type=float,
+        default=0.1,
+        help='The precision with which to round the center of the frame to '
+        'determine the center of the catalog to use.'
     )
 
     parser.add_argument(
@@ -423,14 +433,15 @@ def solve_image(dr_fname,
                 status
             ) = estimate_transformation(
                 dr_file=dr_file,
-                header=header,
+                xy_extracted=xy_extracted,
                 astrometry_order=configuration['astrometry_order'],
                 tweak_order_range=configuration['tweak_order'],
                 fov_range=(
                     fov_estimate / configuration['image_scale_factor'],
                     fov_estimate * configuration['image_scale_factor']
                 ),
-                **transformation_estimate
+                **transformation_estimate,
+                header=header
             )
             if status != 'success':
                 result['fail_reason'] = status
@@ -611,8 +622,23 @@ def prepare_configuration(configuration, dr_header):
     return result
 
 
-def get_new_catalog_info(configuration, dr_collection):
-    """Get information about new catalogues to generate."""
+def get_catalog_info(transformation_estimate, header, configuration):
+    """Get the configuration of the catalog needed for this frame."""
+
+    frame_center = find_ra_dec_center(
+        (0.0, 0.0),
+        transformation_estimate['trans_x'],
+        transformation_estimate['trans_y,'],
+        {
+            coord: transformation_estimate[coord]
+            for coord in ['ra_cent', 'dec_cent']
+        },
+        header['NAXIS1'] / 2.0,
+        header['NAXIS2'] / 2.0,
+        configuration['astrometry_order']
+    )
+
+    <++>
 
     to_generate = {}
     for dr_fname in dr_collection:
@@ -690,6 +716,10 @@ def get_new_catalog_info(configuration, dr_collection):
                 catalog_properties[quantity]
             ) * units.deg
     return to_generate
+
+
+def ensure_catalog(transformation_estimate, header, configuration):
+    """Re-use or create astrometry catalog suitable for the given frame."""
 
 
 def create_catalogs(configuration, dr_collection):
