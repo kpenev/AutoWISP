@@ -53,6 +53,13 @@ def parse_command_line(*args):
         'discarded).'
     )
     parser.add_argument(
+        '--srcextract-max-sources',
+        type=int,
+        default=4000,
+        help='If more than this many sources are extracted, the list is sorted '
+        'by flux and truncated to this number.'
+    )
+    parser.add_argument(
         '--data-reduction-fname',
         default='DR/{RAWFNAME}.h5',
         help='Format string to generate the filename(s) of the data reduction '
@@ -90,7 +97,8 @@ def find_stars(image_collection, configuration, mark_progress):
     find_stars_in_image = SourceFinder(
         tool=configuration['srcfind_tool'],
         brightness_threshold=configuration['brightness_threshold'],
-        filter_sources=configuration['filter_sources']
+        filter_sources=configuration['filter_sources'],
+        max_sources=configuration['srcextract_max_sources']
     )
     if configuration['num_parallel_processes'] == 1:
         for image_fname in image_collection:
