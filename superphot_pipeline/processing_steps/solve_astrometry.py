@@ -53,34 +53,37 @@ def parse_command_line(*args):
         'image collection should/should not be processed.'
     )
     parser.add_argument(
-        '--astrometry-catalogue', '--astrometry-catalog', '--cat',
-        default='MASTERS/astrometry_catalogue.ucac4',
+        '--astrometry-catalog', '--astrometry-catalogue', '--cat',
+        default='MASTERS/astrometry_catalog.ucac4',
         help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
         'fainter brightness limit. Different brightness limits can then be '
-        'imposed for each color channel using the ``--catalogue-filter`` '
+        'imposed for each color channel using the ``--catalog-filter`` '
         'argument. If the file does not exist one is automatically generated to'
         ' cover an area larger than the field of view by '
         '``--image-scale-factor``, centered on the (RA * cos(Dec), Dec) of the '
-        'frame rounded to ``--catalog-pointing-precision``, and to have the '
-        'same density as the ``--catalog-density-quantile`` of the extracted '
-        'sources within the frames being processed.'
+        'frame rounded to ``--catalog-pointing-precision``, and to have '
+        'magnitude range set by .'
     )
     parser.add_argument(
         '--catalog-magnitude-expression',
         default='phot_g_mean_mag',
-        help='An expression involving the catalogue columns that correlates as '
+        help='An expression involving the catalog columns that correlates as '
         'closely as possible with the brightness of the star in the images in '
         'units of magnitude. Only relevant if the catalog does not exist.'
     )
     parser.add_argument(
-        '--catalog-density-quantile',
+        '--catalog-max-magnitude',
         type=float,
-        default=0.9,
-        help='The quantile within the number extracted sources of the separate '
-        'frames to use when determining the faint limit of automatically '
-        'generated catalogs. Only relevant if the catalog does not exist.'
+        default=12.0,
+        help='The faintest magnitude to include in the catalog.'
+    )
+    parser.add_argument(
+        '--catalog-min-magnitude',
+        type=float,
+        default=None,
+        help='The brightest magnitude to include in the catalog.'
     )
     parser.add_argument(
         '--catalog-density-scaling',
@@ -99,7 +102,7 @@ def parse_command_line(*args):
     )
 
     parser.add_argument(
-        '--catalogue-filter', '--catalog-filter', '--cat-filter',
+        '--catalog-filter', '--catalogue-filter', '--cat-filter',
         metavar=('CHANNEL:EXPRESSION'),
         type=lambda e: e.split(':'),
         action='append',
@@ -110,7 +113,7 @@ def parse_command_line(*args):
         'for that channel.'
     )
     parser.add_argument(
-        '--catalogue-epoch', '--catalog-epoch', '--cat-epoch',
+        '--catalog-epoch', '--catalogue-epoch', '--cat-epoch',
         type=str,
         default='(float(DATE[:4])+0.5) * units.yr',
         help='An expression to evaluate for each catalog source to determine '
@@ -184,7 +187,7 @@ def parse_command_line(*args):
         type=float,
         default=0.8,
         help='The minimum fraction of extracted sources that must be matched to'
-        ' a catalogue soure for the solution to be considered valid.'
+        ' a catalog soure for the solution to be considered valid.'
     )
     parser.add_argument(
         '--max-rms-distance',
@@ -195,8 +198,8 @@ def parse_command_line(*args):
     )
 
     result = parser.parse_args(*args)
-    if result['catalogue_filter'] is not None:
-        result['catalogue_filter'] = dict(result['catalogue_filter'])
+    if result['catalog_filter'] is not None:
+        result['catalog_filter'] = dict(result['catalog_filter'])
     return result
 
 
@@ -281,7 +284,7 @@ def save_trans_to_dr(*,
             **path_substitutions
         )
 
-#TODO: Add catalogue query configuration to DR
+#TODO: Add catalog query configuration to DR
 def save_to_dr(*,
                cat_extracted_corr,
                trans_x,
@@ -300,11 +303,11 @@ def save_to_dr(*,
                              'catalogue_version',
                              'skytoframe_version']
     }
-    catalogue_sources = read_catalog_file(
-        configuration['astrometry_catalogue'].format_map(header)
+    catalog_sources = read_catalog_file(
+        configuration['astrometry_catalog'].format_map(header)
     )
 
-    dr_file.add_sources(catalogue_sources,
+    dr_file.add_sources(catalog_sources,
                         'catalogue.columns',
                         'catalogue_column_name',
                         parse_ids=False,
@@ -461,7 +464,7 @@ def solve_image(dr_fname,
         _logger.debug('Using transformation estimate: %s',
                       repr(transformation_estimate))
 
-        filter_expr = configuration['catalogue_filter']
+        filter_expr = configuration['catalog_filter']
         if filter_expr is not None:
             filter_expr = filter_expr.get(header['CLRCHNL'])
         catalog = ensure_catalog(transformation_estimate,
@@ -587,28 +590,34 @@ def prepare_configuration(configuration, dr_header):
     _logger.debug('Preparing configuration from: %s',
                   repr(configuration))
     result = configuration.copy()
-    with fits.open(
-            configuration['astrometry_catalogue'].format_map(dr_header)
-    ) as cat_fits:
-        catalogue_header = cat_fits[1].header
+    cat_fname = configuration['astrometry_catalog'].format_map(dr_header)
+    if os.path.exists(cat_fname):
+        with fits.open(
 
-    if configuration['frame_center_estimate'] is None:
-        result['frame_center_estimate'] = (catalogue_header['RA'],
-                                           catalogue_header['DEC'])
-    if configuration['frame_fov_estimate'] is None:
-        result['frame_fov_estimate'] = (
-            catalogue_header['WIDTH'] / configuration['image_scale_factor'],
-            catalogue_header['HEIGHT'] / configuration['image_scale_factor']
-        )
+        ) as cat_fits:
+            catalog_header = cat_fits[1].header
+
+        if configuration['frame_center_estimate'] is None:
+            result['frame_center_estimate'] = (catalog_header['RA'],
+                                               catalog_header['DEC'])
+
+        if configuration['frame_fov_estimate'] is None:
+            result['frame_fov_estimate'] = (
+                (
+                    catalog_header['WIDTH'] * units.deg
+                    /
+                    configuration['image_scale_factor']
+                ),
+                (
+                    catalog_header['HEIGHT'] * units.deg
+                    /
+                    configuration['image_scale_factor']
+                )
+            )
     else:
         dr_eval = Evaluator(dr_header)
-        result['frame_fov_estimate'] = (
-            dr_eval(
-                configuration['frame_fov_estimate'][0]
-            ).to_value('deg'),
-            dr_eval(
-                configuration['frame_fov_estimate'][1]
-            ).to_value('deg')
+        result['frame_fov_estimate'] = tuple(
+            dr_eval(expr) for expr in configuration['frame_fov_estimate']
         )
 
     result.update(
@@ -626,10 +635,10 @@ def get_catalog_info(transformation_estimate, header, configuration):
     frame_center = find_ra_dec_center(
         (0.0, 0.0),
         transformation_estimate['trans_x'],
-        transformation_estimate['trans_y,'],
+        transformation_estimate['trans_y'],
         {
-            coord: transformation_estimate[coord]
-            for coord in ['ra_cent', 'dec_cent']
+            coord: transformation_estimate[coord.lower() + '_cent']
+            for coord in ['RA', 'Dec']
         },
         header['NAXIS1'] / 2.0,
         header['NAXIS2'] / 2.0,
@@ -638,15 +647,21 @@ def get_catalog_info(transformation_estimate, header, configuration):
     pointing_precision = configuration['catalog_pointing_precision'] * units.deg
 
     catalog_info = {
-        'dec_ind': int(numpy.round(frame_center['Dec'] * units.deg))
+        'dec_ind': int(
+            numpy.round(frame_center['Dec'] * units.deg / pointing_precision)
+        )
     }
     catalog_info['dec'] = pointing_precision * catalog_info['dec_ind']
 
     catalog_info['ra_ind'] = int(
         numpy.round(
-            frame_center['ra'] * units.deg
-            *
-            numpy.cos(catalog_info['dec'])
+            (
+                frame_center['RA'] * units.deg
+                *
+                numpy.cos(catalog_info['dec'])
+            )
+            /
+            pointing_precision
         )
     )
     catalog_info['ra'] = (
@@ -655,28 +670,40 @@ def get_catalog_info(transformation_estimate, header, configuration):
         numpy.cos(catalog_info['dec'])
     )
     catalog_info['magnitude_expression'] = (
-        configuration['catalogue_magnitude_expression']
+        configuration['catalog_magnitude_expression']
     )
 
-    catalog_info['magnitude_limit'] = configuration['magnitude_limit']
+    if configuration['catalog_max_magnitude'] is None:
+        assert configuration['catalog_min_magnitude'] is None
+        catalog_info['magnitude_limit'] = None
+    else:
+        catalog_info['magnitude_limit'] = (
+            (configuration['catalog_max_magnitude'],)
+            if configuration['catalog_min_magnitude'] is None else
+            (
+                configuration['catalog_min_magnitude'],
+                configuration['catalog_max_magnitude']
+            )
+        )
 
     eval_expression = Evaluator(header)
     eval_expression.symtable.update(catalog_info)
 
+    _logger.debug('Determining catalog query size from: '
+                  'frame_fov_estimate=%s, '
+                  'image_scale_factor=%s',
+                  repr(configuration['frame_fov_estimate']),
+                  repr(configuration['image_scale_factor']))
     catalog_info['width'], catalog_info['height'] = (
-        (
-            eval_expression(fov_expression)
-            *
-            configuration['image_scale_factor']
-        )
+        fov_expression * configuration['image_scale_factor']
         for fov_expression in configuration['frame_fov_estimate']
     )
-    catalog_info['epoch'] = eval_expression(configuration['catalogue_epoch'])
+    catalog_info['epoch'] = eval_expression(configuration['catalog_epoch'])
 
 
     catalog_info['catalog_fname'] = (
-        configuration['astrometry_catalogue'].format(
-            **header,
+        configuration['astrometry_catalog'].format(
+            **dict(header),
             **catalog_info
         )
     )
@@ -750,8 +777,8 @@ def ensure_catalog(transformation_estimate, header, configuration):
             ):
             #pylint: enable=too-many-boolean-expressions
                 filter_expr = (
-                    ['(' + configuration['catalogue_filter'] + ')']
-                    if configuration['catalogue_filter'] else
+                    ['(' + configuration['catalog_filter'] + ')']
+                    if configuration['catalog_filter'] else
                     []
                 )
                 if (
@@ -789,7 +816,10 @@ def ensure_catalog(transformation_estimate, header, configuration):
                                  else None)
                 )
 
-    create_catalog_file(**catalog_info)
+    del catalog_info['ra_ind']
+    del catalog_info['dec_ind']
+
+    create_catalog_file(**catalog_info, verbose=True)
     return read_catalog_file(catalog_info['catalog_fname'])
 
 
@@ -893,7 +923,9 @@ if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
 
-    solve_astrometry(find_dr_fnames(cmdline_config.pop('dr_files'),
-                                    cmdline_config.pop('astrometry_only_if')),
-                     cmdline_config,
-                     ignore_progress)
+    solve_astrometry(
+        list(find_dr_fnames(cmdline_config.pop('dr_files'),
+                            cmdline_config.pop('astrometry_only_if'))),
+        cmdline_config,
+        ignore_progress
+    )
