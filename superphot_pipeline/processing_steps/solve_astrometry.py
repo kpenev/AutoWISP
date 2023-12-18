@@ -2,9 +2,10 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
-from multiprocessing import Queue, Process
+from multiprocessing import Queue, Process, Lock
 import os
 from traceback import format_exc
+from hashlib import md5
 
 import numpy
 from astropy import units
@@ -54,7 +55,7 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--astrometry-catalog', '--astrometry-catalogue', '--cat',
-        default='MASTERS/astrometry_catalog.ucac4',
+        default='Gaia/{checksum:s}.fits',
         help='A file containing (approximately) all the same stars that '
         'were extracted from the frame for the area of the sky covered by the '
         'image. It is perferctly fine to include a larger area of sky and '
@@ -64,7 +65,10 @@ def parse_command_line(*args):
         ' cover an area larger than the field of view by '
         '``--image-scale-factor``, centered on the (RA * cos(Dec), Dec) of the '
         'frame rounded to ``--catalog-pointing-precision``, and to have '
-        'magnitude range set by .'
+        'magnitude range set by. The filename can be a format string which will'
+        ' be substituted with the any header keywords or configuration for the '
+        'query. It may also include ``{checksum}`` which will be replaced with '
+        'the MD5 checksum of the parameters defining the query.'
     )
     parser.add_argument(
         '--catalog-magnitude-expression',
@@ -84,14 +88,6 @@ def parse_command_line(*args):
         type=float,
         default=None,
         help='The brightest magnitude to include in the catalog.'
-    )
-    parser.add_argument(
-        '--catalog-density-scaling',
-        type=float,
-        default=1.2,
-        help='The density of stars estimated from source extraction is '
-        'multiplied by this factor to determine how many stars to include in '
-        'the catalog. Only relevant if the catalog does not exist.'
     )
     parser.add_argument(
         '--catalog-pointing-precision',
@@ -119,12 +115,38 @@ def parse_command_line(*args):
         help='An expression to evaluate for each catalog source to determine '
         'the epoch to which to propagate star positions.'
     )
+    parser.add_argument(
+        '--catalog-columns', '--catalogue-columns', '--cat-columns',
+        type=str,
+        nargs='+',
+        default=['source_id',
+                 'ra',
+                 'dec',
+                 'pmra',
+                 'pmdec',
+                 'phot_g_n_obs',
+                 'phot_g_mean_mag',
+                 'phot_g_mean_flux',
+                 'phot_g_mean_flux_error',
+                 'phot_bp_n_obs',
+                 'phot_bp_mean_mag',
+                 'phot_bp_mean_flux',
+                 'phot_bp_mean_flux_error',
+                 'phot_rp_n_obs',
+                 'phot_rp_mean_mag',
+                 'phot_rp_mean_flux',
+                 'phot_rp_mean_flux_error',
+                 'phot_proc_mode',
+                 'phot_bp_rp_excess_factor'],
+        help='The columns to include in the catalog file. Use \'*\' to include '
+        'everything.'
+    )
 
     parser.add_argument(
         '--frame-center-estimate',
         nargs=2,
         type=str,
-        default=None,
+        default=('RA * units.deg', 'DEC_MNT * units.deg'),
         help='The approximate right ascention and declination of the center of '
         'the frame in degrees. Can be an expression involving header keywords. '
         'If not specified, the center of the catalog is used.'
@@ -133,7 +155,7 @@ def parse_command_line(*args):
         '--frame-fov-estimate',
         nargs=2,
         type=str,
-        default=None,
+        default=('10.0 * units.deg', '15.0 * units.deg'),
         metavar=('WIDTH', 'HEIGHT'),
         help='Approximate field of view of the frame in degrees. Can be an '
         'expression involving header keywords. If not specified, the field of '
@@ -294,7 +316,8 @@ def save_to_dr(*,
                res_rms,
                configuration,
                header,
-               dr_file):
+               dr_file,
+               catalog):
     """Save the solved astrometry to the given DR file."""
 
     path_substitutions = {
@@ -303,11 +326,8 @@ def save_to_dr(*,
                              'catalogue_version',
                              'skytoframe_version']
     }
-    catalog_sources = read_catalog_file(
-        configuration['astrometry_catalog'].format_map(header)
-    )
 
-    dr_file.add_sources(catalog_sources,
+    dr_file.add_sources(catalog,
                         'catalogue.columns',
                         'catalogue_column_name',
                         parse_ids=False,
@@ -363,6 +383,8 @@ def transformation_from_raw(trans_x, trans_y, header, in_place=False):
 #pylint: disable=too-many-branches
 def solve_image(dr_fname,
                 transformation_estimate=None,
+                *,
+                catalog_lock,
                 **configuration):
     """
     Find the astrometric transformation for a single image and save to DR file.
@@ -469,7 +491,8 @@ def solve_image(dr_fname,
             filter_expr = filter_expr.get(header['CLRCHNL'])
         catalog = ensure_catalog(transformation_estimate,
                                  header,
-                                 configuration)
+                                 configuration,
+                                 catalog_lock)
 
         try:
             (
@@ -530,7 +553,8 @@ def solve_image(dr_fname,
                            res_rms=res_rms,
                            configuration=configuration,
                            header=header,
-                           dr_file=dr_file)
+                           dr_file=dr_file,
+                           catalog=catalog)
                 result['saved'] = True
 
                 transformation_to_raw(trans_x,
@@ -567,7 +591,7 @@ def solve_image(dr_fname,
 #pylint: enable=too-many-branches
 
 
-def astrometry_process(task_queue, result_queue, configuration):
+def astrometry_process(task_queue, result_queue, configuration, catalog_lock):
     """Run pending astrometry tasks from the queue in process."""
 
     setup_process(task='solve', **configuration)
@@ -578,6 +602,7 @@ def astrometry_process(task_queue, result_queue, configuration):
             solve_image(
                 dr_fname,
                 transformation_estimate,
+                catalog_lock=catalog_lock,
                 **configuration
             )
         )
@@ -590,35 +615,11 @@ def prepare_configuration(configuration, dr_header):
     _logger.debug('Preparing configuration from: %s',
                   repr(configuration))
     result = configuration.copy()
-    cat_fname = configuration['astrometry_catalog'].format_map(dr_header)
-    if os.path.exists(cat_fname):
-        with fits.open(
 
-        ) as cat_fits:
-            catalog_header = cat_fits[1].header
-
-        if configuration['frame_center_estimate'] is None:
-            result['frame_center_estimate'] = (catalog_header['RA'],
-                                               catalog_header['DEC'])
-
-        if configuration['frame_fov_estimate'] is None:
-            result['frame_fov_estimate'] = (
-                (
-                    catalog_header['WIDTH'] * units.deg
-                    /
-                    configuration['image_scale_factor']
-                ),
-                (
-                    catalog_header['HEIGHT'] * units.deg
-                    /
-                    configuration['image_scale_factor']
-                )
-            )
-    else:
-        dr_eval = Evaluator(dr_header)
-        result['frame_fov_estimate'] = tuple(
-            dr_eval(expr) for expr in configuration['frame_fov_estimate']
-        )
+    dr_eval = Evaluator(dr_header)
+    result['frame_fov_estimate'] = tuple(
+        dr_eval(expr) for expr in configuration['frame_fov_estimate']
+    )
 
     result.update(
         binning=1,
@@ -700,164 +701,195 @@ def get_catalog_info(transformation_estimate, header, configuration):
     )
     catalog_info['epoch'] = eval_expression(configuration['catalog_epoch'])
 
+    catalog_info['columns'] = configuration['catalog_columns']
+
+    get_checksum = md5()
+    for cfg in sorted(catalog_info.items()):
+        get_checksum.update(repr(cfg).encode('ascii'))
 
     catalog_info['catalog_fname'] = (
         configuration['astrometry_catalog'].format(
             **dict(header),
-            **catalog_info
+            **catalog_info,
+            checksum=get_checksum.hexdigest()
         )
     )
     return catalog_info, frame_center
 
-def ensure_catalog(transformation_estimate, header, configuration):
+def ensure_catalog(transformation_estimate,
+                   header,
+                   configuration,
+                   lock):
     """Re-use or create astrometry catalog suitable for the given frame."""
 
     catalog_info, frame_center = get_catalog_info(transformation_estimate,
                                                   header,
                                                   configuration)
-
+    lock.acquire()
     if os.path.exists(catalog_info['catalog_fname']):
         with fits.open(catalog_info['catalog_fname']) as cat_fits:
             catalog_header = cat_fits[1].header
             #pylint: disable=too-many-boolean-expressions
             if (
-                catalog_header['EPOCH'] == catalog_info['epoch']
-                and
-                (
-                    catalog_header['MAGEXPR']
-                    ==
-                    catalog_info['magnitude_expression']
+                    numpy.abs(
+                        catalog_header['EPOCH']
+                        -
+                        catalog_info['epoch'].to_value('yr')
+                    ) > 0.25
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} '
+                    f'has epoch {catalog_header["EPOCH"]!r}, '
+                    f'but {catalog_info["epoch"]!r} is needed'
                 )
-                and
-                (
-                    catalog_header.get('MAGMIN') is None
-                    or
-                    (
-                        catalog_header['MAGMIN']
-                        <=
-                        catalog_info['magnitude_limit'][0]
-                    )
+
+            if (
+                catalog_header['MAGEXPR']
+                !=
+                catalog_info['magnitude_expression']
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} '
+                    f'has magnitude expression {catalog_header["MAGEXPR"]!r} '
+                    f'instead of {catalog_info["magnitude_expression"]!r}'
                 )
+
+            if (
+                catalog_header.get('MAGMIN') is not None
+                and
+                len(catalog_info['magnitude_limit']) == 2
                 and
                 (
-                    catalog_header.get('MAGMAX') is None
-                    or
-                    (
-                        catalog_header['MAGMAX']
-                        >=
-                        catalog_info['magnitude_limit'][1]
-                    )
-                )
-                and
-                (
-                    catalog_header['WIDTH']
-                    >=
-                    catalog_info['WIDTH'].to_value(units.deg)
-                )
-                and
-                (
-                    catalog_header['HEIGHT']
-                    >=
-                    catalog_info['HEIGHT'].to_value(units.deg)
-                )
-                and
-                (
-                    (catalog_header['RA'] - frame_center['RA']) * units.deg
-                    *
-                    numpy.cos(catalog_header['DEC'] * units.deg)
-                    <
-                    configuration['catalog_pointing_precision'] * units.deg
-                )
-                and
-                (
-                    (catalog_header['DEC'] - frame_center['Dec']) * units.deg
-                    <
-                    configuration['catalog_pointing_precision'] * units.deg
+                    catalog_header['MAGMIN']
+                    >
+                    catalog_info['magnitude_limit'][0]
                 )
             ):
-            #pylint: enable=too-many-boolean-expressions
-                filter_expr = (
-                    ['(' + configuration['catalog_filter'] + ')']
-                    if configuration['catalog_filter'] else
-                    []
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} excludes sources '
+                    f'brighter than {catalog_header["MAGMIN"]!r} but '
+                    f'{catalog_info["magnitude_limit"][0]!r} are required.'
                 )
-                if (
-                    (
-                        catalog_header.get('MAGMIN') is None
-                        and
-                        len(catalog_info['magnitude_limit']) == 2
-                    )
-                    or
-                    (
-                        catalog_header['MAGMIN']
-                        <
-                        catalog_info['magnitude_limit'][0]
-                    )
-                ):
-                    filter_expr = [
-                        f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
-                    ]
-                if(
+
+            if (
+                catalog_header.get('MAGMAX') is not None
+                and
+                (
+                    catalog_header['MAGMAX']
+                    <
+                    catalog_info['magnitude_limit'][-1]
+                )
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} excludes sources '
+                    f'fainter than {catalog_header["MAGMAX"]!r} but '
+                    f'{catalog_info["magnitude_limit"][-1]!r} are required.'
+                )
+
+            if (
+                catalog_header['WIDTH']
+                <
+                catalog_info['width'].to_value(units.deg)
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} width '
+                    f'{catalog_header["WIDTH"]!r} is less than the required '
+                    f'{catalog_info["width"]!r}'
+                )
+            if (
+                catalog_header['HEIGHT']
+                <
+                catalog_info['height'].to_value(units.deg)
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} height '
+                    f'{catalog_header["HEIGHT"]!r} is less than the required '
+                    f'{catalog_info["height"]!r}'
+                )
+
+            if (
+                (catalog_header['RA'] - frame_center['RA']) * units.deg
+                *
+                numpy.cos(catalog_header['DEC'] * units.deg)
+                >
+                configuration['catalog_pointing_precision'] * units.deg
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} center RA '
+                    f'{catalog_header["RA"]!r} is too far from the '
+                    f'required RA={frame_center["RA"]!r}'
+                )
+
+            if (
+                (catalog_header['DEC'] - frame_center['Dec']) * units.deg
+                >
+                configuration['catalog_pointing_precision'] * units.deg
+            ):
+                raise RuntimeError(
+                    f'Catalog {catalog_info["catalog_fname"]} center Dec '
+                    f'{catalog_header["DEC"]!r} is too far from the '
+                    f'required Dec={frame_center["Dec"]!r}'
+                )
+
+            #pylint: enable=too-many-boolean-expressions
+            filter_expr = (
+                ['(' + configuration['catalog_filter'] + ')']
+                if configuration['catalog_filter'] else
+                []
+            )
+            if (
+                len(catalog_info['magnitude_limit']) == 2
+                and
+                (
                     catalog_header.get('MAGMIN') is None
                     or
-                    (
-                        catalog_header['MAGMAX']
-                        >
-                        catalog_info['magnitude_limit'][-1]
-                    )
-                ):
-                    filter_expr.append(
-                        '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
-                    )
-
-                return read_catalog_file(
-                    cat_fits,
-                    filter_expr=(' and '.join(filter_expr) if filter_expr
-                                 else None)
+                    catalog_header['MAGMIN']
+                    <
+                    catalog_info['magnitude_limit'][0]
                 )
+            ):
+                filter_expr = [
+                    f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
+                ]
+            if(
+                catalog_header.get('MAGMAX') is None
+                or
+                (
+                    catalog_header['MAGMAX']
+                    >
+                    catalog_info['magnitude_limit'][-1]
+                )
+            ):
+                filter_expr.append(
+                    '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
+                )
+
+            lock.release()
+            return read_catalog_file(
+                cat_fits,
+                filter_expr=(' and '.join(filter_expr) if filter_expr
+                             else None)
+            )
 
     del catalog_info['ra_ind']
     del catalog_info['dec_ind']
 
     create_catalog_file(**catalog_info, verbose=True)
+    lock.release()
     return read_catalog_file(catalog_info['catalog_fname'])
 
 
 #Could not think of good way to split
 #pylint: disable=too-many-branches
-#pylint: disable=too-many-locals
-def solve_astrometry(dr_collection, configuration, mark_progress):
-    """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
-
-    _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
-    #create_catalogs(configuration, dr_collection)
-    pending = {}
-    failed = {}
-    for dr_fname in dr_collection:
-        with DataReductionFile(dr_fname, 'r+') as dr_file:
-            header = dr_file.get_frame_header()
-            if header['FNUM'] not in pending:
-                pending[header['FNUM']] = [dr_fname]
-            else:
-                pending[header['FNUM']].append(dr_fname)
-
-    task_queue = Queue()
-    result_queue = Queue()
+def manage_astrometry(pending, task_queue, result_queue, mark_progress):
+    """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
     for fnum_pending in pending.values():
         task_queue.put((fnum_pending.pop(), None))
         num_queued += 1
 
-    workers = [
-        Process(target=astrometry_process,
-                args=(task_queue, result_queue, configuration))
-        for _ in range(configuration['num_parallel_processes'])
-    ]
-
-    for process in workers:
-        process.start()
-    _logger.debug('Starting astrometry on %d pending frames', len(pending))
+    failed = {}
 
     while pending or num_queued:
         _logger.debug('Pending: %s', repr(pending))
@@ -909,14 +941,44 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
                 [fail_key for fail_key, fail_reason in fail_reasons.items()
                  if fail_reason == reason][0]
             )
+#pylint: enable=too-many-branches
+
+def solve_astrometry(dr_collection, configuration, mark_progress):
+    """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
+
+    _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
+    #create_catalogs(configuration, dr_collection)
+    pending = {}
+    for dr_fname in dr_collection:
+        with DataReductionFile(dr_fname, 'r+') as dr_file:
+            header = dr_file.get_frame_header()
+            if header['FNUM'] not in pending:
+                pending[header['FNUM']] = [dr_fname]
+            else:
+                pending[header['FNUM']].append(dr_fname)
+
+    task_queue = Queue()
+    result_queue = Queue()
+
+    catalog_lock=Lock()
+    workers = [
+        Process(target=astrometry_process,
+                args=(task_queue, result_queue, configuration, catalog_lock))
+        for _ in range(configuration['num_parallel_processes'])
+    ]
+
+    for process in workers:
+        process.start()
+    _logger.debug('Starting astrometry on %d pending frames', len(pending))
+
+    manage_astrometry(pending, task_queue, result_queue, mark_progress)
+
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
         task_queue.put('STOP')
 
     for process in workers:
         process.join()
-#pylint: enable=too-many-locals
-#pylint: enable=too-many-branches
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@
 """Utilities for querying catalogs for astrometry."""
 
 from os import path, makedirs
+import logging
 
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
@@ -12,6 +13,8 @@ from astroquery.gaia import GaiaClass, conf
 
 from superphot_pipeline import Evaluator
 from superphot_pipeline.astrometry.map_projections import gnomonic_projection
+
+_logger = logging.getLogger(__name__)
 
 class SuperPhotGaia(GaiaClass):
     """Extend queries with condition and sorting."""
@@ -174,10 +177,19 @@ class SuperPhotGaia(GaiaClass):
             astropy Table:
                 The result of the query.
         """
+        _logger.debug('Querying Gaia for sources with magnitude: %s, '
+                      'limits: %s, and kwargs: %s',
+                      repr(magnitude_expression),
+                      repr(magnitude_limit),
+                      repr(query_kwargs))
 
         if query_kwargs.get('columns', False):
-            query_kwargs['columns'].append(
-                f'({magnitude_expression}) AS magnitude'
+            query_kwargs['columns'] = (
+                query_kwargs['columns']
+                +
+                [
+                    f'({magnitude_expression}) AS magnitude'
+                ]
             )
         else:
             query_kwargs['columns'] = [f'({magnitude_expression}) AS magnitude',
@@ -280,7 +292,7 @@ def read_catalog_file(cat_fits,
     """
 
     if isinstance(cat_fits, str):
-        with fits.open(catalog_fname) as opened_cat_fits:
+        with fits.open(cat_fits) as opened_cat_fits:
             return read_catalog_file(opened_cat_fits,
                                      filter_expr,
                                      sort_expr,
