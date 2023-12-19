@@ -18,7 +18,7 @@ from astropy.io import fits
 
 from superphot_pipeline.astrometry.map_projections import\
     gnomonic_projection,\
-    inv_projection
+    inverse_gnomonic_projection
 
 _logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ def find_ra_dec_center(xieta_guess,
     xieta_cent['xi'], xieta_cent['eta'] = fsolve(equations, xieta_guess)
 
     source = numpy.empty(1, dtype=[('RA', float), ('Dec', float)])
-    inv_projection(source, xieta_cent, **old_radec_cent)
+    inverse_gnomonic_projection(source, xieta_cent, **old_radec_cent)
 
     return {'RA': source['RA'][0], 'Dec': source['Dec'][0]}
 
