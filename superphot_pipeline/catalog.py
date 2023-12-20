@@ -23,6 +23,37 @@ _logger = logging.getLogger(__name__)
 class SuperPhotGaia(GaiaClass):
     """Extend queries with condition and sorting."""
 
+    def _get_result(self,
+                    query,
+                    add_propagated,
+                    verbose=False):
+        """Get and format the result as specified by user."""
+
+        job = self.launch_job_async(query, verbose=verbose)
+        result = job.get_results()
+        result.rename_column('ra', 'RA_orig')
+        result.rename_column('dec', 'Dec_orig')
+
+        if add_propagated:
+            propagated = {coord: numpy.empty(len(result))
+                          for coord in ['RA', 'Dec']}
+            for i, pos in enumerate(result['propagated']):
+                for coord, value_str in zip(
+                        ['RA', 'Dec'],
+                        pos.strip().strip('()').split(',')
+                ):
+                    propagated[coord][i] = (float(value_str)
+                                            *
+                                            180.0 / numpy.pi)
+
+            result.remove_column('propagated')
+            for coord in add_propagated:
+                result.add_column(propagated[coord], name=coord)
+
+        return result
+
+
+    #pylint: disable=too-many-locals
     def query_object_filtered(self,
                               *,
                               ra,
@@ -63,33 +94,6 @@ class SuperPhotGaia(GaiaClass):
             astropy Table:
                 The result of the query.
         """
-
-        def get_result(query, add_propagated):
-            """Get and format the result as specified by user."""
-
-            job = self.launch_job_async(query, verbose=verbose)
-            result = job.get_results()
-            result.rename_column('ra', 'RA_orig')
-            result.rename_column('dec', 'Dec_orig')
-
-            if epoch is not None and add_propagated:
-                propagated = {coord: numpy.empty(len(result))
-                              for coord in ['RA', 'Dec']}
-                for i, pos in enumerate(result['propagated']):
-                    for coord, value_str in zip(
-                            ['RA', 'Dec'],
-                            pos.strip().strip('()').split(',')
-                    ):
-                        propagated[coord][i] = (float(value_str)
-                                                *
-                                                180.0 / numpy.pi)
-
-                result.remove_column('propagated')
-                for coord in add_propagated:
-                    result.add_column(propagated[coord], name=coord)
-
-            return result
-
 
         if columns is None:
             columns = "*"
@@ -167,10 +171,12 @@ class SuperPhotGaia(GaiaClass):
                 {order_dir}
         """
 
-        return get_result(
+        return self._get_result(
             query_str,
-            add_propagated
+            epoch is not None and add_propagated,
+            verbose
         )
+    #pylint: enable=too-many-locals
 
 
     def query_brightness_limited(self,
@@ -465,14 +471,16 @@ def show_stars(catalog_fname):
 
     phi, theta = numpy.mgrid[0.0 : numpy.pi / 2.0 : 10j,
                              0.0 : 2.0*numpy.pi: 10j]
-    x = numpy.sin(phi) * numpy.cos(theta)
-    y = numpy.sin(phi) * numpy.sin(theta)
-    z = numpy.cos(phi)
+    sphere_x = numpy.sin(phi) * numpy.cos(theta)
+    sphere_y = numpy.sin(phi) * numpy.sin(theta)
+    sphere_z = numpy.cos(phi)
 
 
     fig = pyplot.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    pyplot.gca().plot_surface(x, y, z,
+    axes = fig.add_subplot(111, projection='3d')
+    pyplot.gca().plot_surface(sphere_x,
+                              sphere_y,
+                              sphere_z,
                               rstride=1,
                               cstride=1,
                               color='c',
@@ -489,7 +497,7 @@ def show_stars(catalog_fname):
                numpy.sin(numpy.radians(stars['RA'])))
     stars_z = numpy.sin(numpy.radians(stars['Dec']))
 
-    ax.scatter(stars_x, stars_y, stars_z, color="k", s=20)
+    axes.scatter(stars_x, stars_y, stars_z, color="k", s=20)
 
 
     pyplot.show()

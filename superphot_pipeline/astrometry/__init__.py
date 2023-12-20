@@ -6,6 +6,6 @@ from superphot_pipeline.astrometry.anmatch_transformation import\
 from superphot_pipeline.astrometry.astrometry import \
     estimate_transformation,\
     refine_transformation,\
-    find_ra_dec_center
+    find_ra_dec
 
 __all__ = ['Transformation', 'AnmatchTransformation']

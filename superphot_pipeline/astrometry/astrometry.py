@@ -62,8 +62,7 @@ def find_ra_dec(xieta_guess,
                 trans_y,
                 radec_cent,
                 frame_x,
-                frame_y,
-                astrometry_order):
+                frame_y):
     """
     Find the (xi, eta) that map to given coordinates in the frame.
 
@@ -82,12 +81,13 @@ def find_ra_dec(xieta_guess,
 
         frame_y(float):    y coordinate for which to find RA, Dec.
 
-        astrometry_order(int):    The order of the transformation to fit
-
     Returns:
         new_xieta_cent(numpy array): the new center function for (xi, eta)
 
     """
+
+    assert trans_x.size == trans_y.size
+    astrometry_order = ((trans_x.size + 1) * (trans_x.size + 2)) // 2
 
     def equations(xieta_cent):
         """The equations that need to be solved to find the center."""
@@ -493,8 +493,7 @@ def refine_transformation(*,
             trans_y,
             radec_cent,
             x_cent,
-            y_cent,
-            astrometry_order
+            y_cent
         )
 
         projected_new = numpy.empty(

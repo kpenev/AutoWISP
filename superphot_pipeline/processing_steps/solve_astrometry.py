@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+#pylint: disable=too-many-lines
+
 """Fit for a transformation between sky and image coordinates."""
 import logging
 from multiprocessing import Queue, Process, Lock
@@ -19,7 +21,8 @@ from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
     refine_transformation,\
-    find_ra_dec_center
+    find_ra_dec
+from superphot_pipeline.astrometry.map_projections import gnomonic_projection
 from superphot_pipeline.catalog import read_catalog_file, create_catalog_file
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
@@ -78,19 +81,20 @@ def parse_command_line(*args):
         'units of magnitude. Only relevant if the catalog does not exist.'
     )
     parser.add_argument(
-        '--catalog-max-magnitude',
+        '--catalog-max-magnitude', '--catalogue-max-magnitude',
+
         type=float,
         default=12.0,
         help='The faintest magnitude to include in the catalog.'
     )
     parser.add_argument(
-        '--catalog-min-magnitude',
+        '--catalog-min-magnitude', '--catalogue-min-magnitude',
         type=float,
         default=None,
         help='The brightest magnitude to include in the catalog.'
     )
     parser.add_argument(
-        '--catalog-pointing-precision',
+        '--catalog-pointing-precision', '--catalogue-pointing-precision',
         type=float,
         default=0.1,
         help='The precision with which to round the center of the frame to '
@@ -141,7 +145,15 @@ def parse_command_line(*args):
         help='The columns to include in the catalog file. Use \'*\' to include '
         'everything.'
     )
-
+    parser.add_argument(
+        '--catalog-fov-safety-margin', '--catalogue-fov-safety-margin',
+        type=float,
+        default=0.1,
+        help='The fractional safety margin to require of the field of view of '
+        'the catalog. More specifically, the absolute valueso f xi and eta of '
+        'the corners of the frame times this factor must be less than the half '
+        'width and half height of the catalog respectively.'
+    )
     parser.add_argument(
         '--frame-center-estimate',
         nargs=2,
@@ -376,264 +388,10 @@ def transformation_from_raw(trans_x, trans_y, header, in_place=False):
     return trans_x, trans_y
 
 
-
-#TODO: Think of a way to split
-#pylint: disable=too-many-locals
-#pylint: disable=too-many-statements
-#pylint: disable=too-many-branches
-def solve_image(dr_fname,
-                transformation_estimate=None,
-                *,
-                catalog_lock,
-                **configuration):
-    """
-    Find the astrometric transformation for a single image and save to DR file.
-
-    Args:
-        dr_fname(str):    The name of the data reduction file containing the
-            extracted sources from the frame and that will be updated with the
-            newly solved astrometry.
-
-        transformation_estimate(None or (matrix, matrix)):    Estimate of the
-            transformations x(xi, eta) and y(xi, eta) for the raw frame (i.e.
-            before channel splitting) that will be refined. If ``None``,
-            ``solve_field`` from astrometry.net is used to find iniitial
-            estimates.
-
-        configuration:    Parameters defining how astrometry is to be fit.
-
-    Returns:
-        trans_x(2D numpy array):
-            the coefficients of the x(xi, eta) transformation converted to RAW
-            image coordinates (i.e. before channel splitting)
-
-        trans_y(2D numpy array):
-            the coefficients of the y(xi, eta) transformation converted to RAW
-            image coordinates (i.e. before channel splitting)
-
-        ra_cent(float): the RA center around which the above transformation
-            applies
-
-        dec_cent(float): the Dec center around which the above transformation
-            applies
-    """
-
-    _logger.debug('Solving: %s %s transformation estimate.',
-                  repr(dr_fname),
-                  ('with' if transformation_estimate else 'without'))
-    with DataReductionFile(dr_fname, 'r+') as dr_file:
-
-        header = dr_file.get_frame_header()
-        configuration = prepare_configuration(configuration, header)
-
-        result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
-
-        fov_estimate = max(*configuration['frame_fov_estimate'])
-
-        sources = dr_file.get_sources(
-            'srcextract.sources',
-            'srcextract_column_name',
-            srcextract_version=configuration['srcextract_version']
-        )
-        xy_extracted = numpy.zeros(
-            (len(sources['x'].values)),
-            dtype=[('x', '>f8'), ('y', '>f8')]
-        )
-        xy_extracted['x'] = sources['x'].values
-        xy_extracted['y'] = sources['y'].values
-
-        if transformation_estimate is None:
-            dr_eval = Evaluator(header)
-            transformation_estimate = {
-                key: dr_eval(expression).to_value('deg')
-                for key, expression in zip(
-                    ['ra_cent', 'dec_cent'],
-                    configuration['frame_center_estimate']
-                )
-            }
-            (
-                transformation_estimate['trans_x'],
-                transformation_estimate['trans_y'],
-                status
-            ) = estimate_transformation(
-                dr_file=dr_file,
-                xy_extracted=xy_extracted,
-                astrometry_order=configuration['astrometry_order'],
-                tweak_order_range=configuration['tweak_order'],
-                fov_range=(
-                    fov_estimate / configuration['image_scale_factor'],
-                    fov_estimate * configuration['image_scale_factor']
-                ),
-                **transformation_estimate,
-                header=header
-            )
-            if status != 'success':
-                result['fail_reason'] = status
-                return result
-
-        else:
-            (
-                transformation_estimate['trans_x'],
-                transformation_estimate['trans_y']
-            ) = transformation_from_raw(
-                transformation_estimate['trans_x'],
-                transformation_estimate['trans_y'],
-                header,
-                True
-            )
-
-
-        _logger.debug('Using transformation estimate: %s',
-                      repr(transformation_estimate))
-
-        filter_expr = configuration['catalog_filter']
-        if filter_expr is not None:
-            filter_expr = filter_expr.get(header['CLRCHNL'])
-        catalog = ensure_catalog(transformation_estimate,
-                                 header,
-                                 configuration,
-                                 catalog_lock)
-
-        try:
-            (
-                trans_x,
-                trans_y,
-                cat_extracted_corr,
-                res_rms,
-                ratio,
-                ra_cent,
-                dec_cent,
-                success
-            ) = refine_transformation(
-                xy_extracted=xy_extracted,
-                catalog=catalog,
-                x_frame=header['NAXIS1'],
-                y_frame=header['NAXIS2'],
-                astrometry_order=configuration['astrometry_order'],
-                max_srcmatch_distance=configuration[
-                    'max_srcmatch_distance'
-                ],
-                max_iterations=configuration['max_astrom_iter'],
-                trans_threshold=configuration['trans_threshold'],
-                **transformation_estimate,
-            )
-        #pylint: disable=bare-except
-        except:
-            _logger.critical(
-                'Failed to find solution to DR file %s:\n%s',
-                dr_fname,
-                format_exc()
-            )
-            result['fail_reason'] = fail_reasons['other']
-            return result
-        #pylint: enable=bare-except
-
-        try:
-            _logger.debug('RMS residual: %s', repr(res_rms))
-            _logger.debug('Ratio: %s', repr(ratio))
-
-            if ratio < configuration['min_match_fraction']:
-                result['fail_reason'] = fail_reasons['few matched']
-            elif res_rms > configuration['max_rms_distance']:
-                result['fail_reason'] = fail_reasons['high rms']
-            elif not success:
-                result['fail_reason'] = fail_reasons[
-                    'failed to converge'
-                ]
-            else:
-                _logger.info(
-                    'Succesful astrometry solution found for %s:',
-                    dr_fname
-                )
-                save_to_dr(cat_extracted_corr=cat_extracted_corr,
-                           trans_x=trans_x,
-                           trans_y=trans_y,
-                           ra_cent=ra_cent,
-                           dec_cent=dec_cent,
-                           res_rms=res_rms,
-                           configuration=configuration,
-                           header=header,
-                           dr_file=dr_file,
-                           catalog=catalog)
-                result['saved'] = True
-
-                transformation_to_raw(trans_x,
-                                      trans_y,
-                                      header,
-                                      True)
-                result['raw_transformation'] = {
-                    'ra_cent':  ra_cent,
-                    'dec_cent': dec_cent,
-                    'trans_x':  trans_x,
-                    'trans_y': trans_y
-                }
-            return result
-
-        #pylint: disable=bare-except
-        except:
-            _logger.critical(
-                'Failed to save found astrometry solution to '
-                'DR file %s:\n%s',
-                dr_fname,
-                format_exc()
-            )
-            return result
-        #pylint: enable=bare-except
-
-    result['fail_reason'] = 'solve-field failed'
-    _logger.error(
-        'No Astrometry.net solution found in tweak range [%d, %d]',
-        *configuration['tweak_order']
-    )
-    return result
-#pylint: enable=too-many-locals
-#pylint: enable=too-many-statements
-#pylint: enable=too-many-branches
-
-
-def astrometry_process(task_queue, result_queue, configuration, catalog_lock):
-    """Run pending astrometry tasks from the queue in process."""
-
-    setup_process(task='solve', **configuration)
-    _logger.info('Starting astrometry solving process.')
-    for dr_fname, transformation_estimate in iter(task_queue.get,
-                                                  'STOP'):
-        result_queue.put(
-            solve_image(
-                dr_fname,
-                transformation_estimate,
-                catalog_lock=catalog_lock,
-                **configuration
-            )
-        )
-    _logger.debug('Astrometry solving process finished.')
-
-
-def prepare_configuration(configuration, dr_header):
-    """Apply fallbacks to the configuration."""
-
-    _logger.debug('Preparing configuration from: %s',
-                  repr(configuration))
-    result = configuration.copy()
-
-    dr_eval = Evaluator(dr_header)
-    result['frame_fov_estimate'] = tuple(
-        dr_eval(expr) for expr in configuration['frame_fov_estimate']
-    )
-
-    result.update(
-        binning=1,
-        srcextract_filter='True',
-        sky_preprojection='tan',
-        weights_expression='1.0'
-    )
-    return result
-
-
 def get_catalog_info(transformation_estimate, header, configuration):
     """Get the configuration of the catalog needed for this frame."""
 
-    frame_center = find_ra_dec_center(
+    frame_center = find_ra_dec(
         (0.0, 0.0),
         transformation_estimate['trans_x'],
         transformation_estimate['trans_y'],
@@ -642,8 +400,7 @@ def get_catalog_info(transformation_estimate, header, configuration):
             for coord in ['RA', 'Dec']
         },
         header['NAXIS1'] / 2.0,
-        header['NAXIS2'] / 2.0,
-        configuration['astrometry_order']
+        header['NAXIS2'] / 2.0
     )
     pointing_precision = configuration['catalog_pointing_precision'] * units.deg
 
@@ -690,14 +447,19 @@ def get_catalog_info(transformation_estimate, header, configuration):
     eval_expression = Evaluator(header)
     eval_expression.symtable.update(catalog_info)
 
+    frame_fov_estimate = numpy.max(
+        numpy.array(get_max_abs_corner_xi_eta(header, transformation_estimate)),
+        numpy.array(configuration['frame_fov_estimate'])
+    )
+
     _logger.debug('Determining catalog query size from: '
                   'frame_fov_estimate=%s, '
                   'image_scale_factor=%s',
-                  repr(configuration['frame_fov_estimate']),
+                  repr(frame_fov_estimate),
                   repr(configuration['image_scale_factor']))
     catalog_info['width'], catalog_info['height'] = (
-        fov_expression * configuration['image_scale_factor']
-        for fov_expression in configuration['frame_fov_estimate']
+        fov_size * configuration['image_scale_factor']
+        for fov_size in frame_fov_estimate
     )
     catalog_info['epoch'] = eval_expression(configuration['catalog_epoch'])
 
@@ -716,6 +478,9 @@ def get_catalog_info(transformation_estimate, header, configuration):
     )
     return catalog_info, frame_center
 
+
+#No god way to simplify
+#pylint: disable=too-many-branches
 def ensure_catalog(transformation_estimate,
                    header,
                    configuration,
@@ -831,12 +596,13 @@ def ensure_catalog(transformation_estimate,
                     f'required Dec={frame_center["Dec"]!r}'
                 )
 
-            #pylint: enable=too-many-boolean-expressions
-            filter_expr = (
-                ['(' + configuration['catalog_filter'] + ')']
-                if configuration['catalog_filter'] else
-                []
-            )
+            filter_expr = configuration['catalog_filter'].get(header['CLRCHNL'])
+            if filter_expr is not None:
+                filter_expr = ['(' + filter_expr + ')']
+            else:
+                filter_expr = []
+
+
             if (
                 len(catalog_info['magnitude_limit']) == 2
                 and
@@ -848,9 +614,9 @@ def ensure_catalog(transformation_estimate,
                     catalog_info['magnitude_limit'][0]
                 )
             ):
-                filter_expr = [
+                filter_expr.append(
                     f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
-                ]
+                )
             if(
                 catalog_header.get('MAGMAX') is None
                 or
@@ -863,12 +629,14 @@ def ensure_catalog(transformation_estimate,
                 filter_expr.append(
                     '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
                 )
+            #pylint: enable=too-many-boolean-expressions
 
             lock.release()
             return read_catalog_file(
                 cat_fits,
                 filter_expr=(' and '.join(filter_expr) if filter_expr
-                             else None)
+                             else None),
+
             )
 
     del catalog_info['ra_ind']
@@ -877,6 +645,359 @@ def ensure_catalog(transformation_estimate,
     create_catalog_file(**catalog_info, verbose=True)
     lock.release()
     return read_catalog_file(catalog_info['catalog_fname'])
+#pylint: enable=too-many-branches
+
+
+def get_max_abs_corner_xi_eta(header,
+                              transformation_estimate,
+                              center=None):
+    """Return the max absolute values of the frame corners xi and eta."""
+
+    max_xi = max_eta = 0
+    if center is None:
+        center = {'RA': transformation_estimate['ra_cent'],
+                  'Dec': transformation_estimate['dec_cent']}
+    for x in [0.0, float(header['NAXIS1'])]:
+        for y in [0.0, float(header['NAXIS2'])]:
+            rhs = numpy.array([x - transformation_estimate['trans_x'][0],
+                               x - transformation_estimate['trans_y'][0]])
+            matrix = numpy.array([transformation_estimate['trans_x'][1:3],
+                                  transformation_estimate['trans_y'][1:3]])
+
+            sky_coords = find_ra_dec(
+                xieta_guess = numpy.linalg.solve(matrix, rhs),
+                trans_x=transformation_estimate['trans_x'],
+                trans_y=transformation_estimate['trans_y'],
+                radec_cent={'RA': transformation_estimate['ra_cent'],
+                            'Dec': transformation_estimate['dec_cent']},
+                frame_x=x,
+                frame_y=y
+            )
+            projected_coords = {}
+            gnomonic_projection(
+                sky_coords,
+                projected_coords,
+                **center
+            )
+            max_xi = max(max_xi, abs(projected_coords['xi']))
+            max_eta = max(max_xi, abs(projected_coords['eta']))
+
+    return max_xi, max_eta
+
+
+def check_catalog_coverage(header,
+                           transformation_estimate,
+                           catalog_header,
+                           safety_margin):
+    """
+    Return True iff te catalog covers the frame fully including a safety margin.
+
+    Args:
+        header(dict-like):    The header of the frame being astrometried.
+
+        transformation_estimate(dict):    The current best fit transformation.
+            Should contain entries for ``'trans_x'``, ``'trans_y'``,
+            ``'ra_cent'`` and ``'dec_cent'``.
+
+        catalog_header(dict-like):    The header of the catalog being used for
+            astrometry.
+
+        safety_margin(float):    The absolute values of xi and eta
+            (relative to the catalog center) corresponding to the corners of the
+            frame increased by this fraction must be smaller than the field of
+            view of the catalogfor the frame to be considered covered.
+
+    Returns:
+        bool:
+            Whether the catalog covers the frame fully including the safety
+            margin.
+    """
+
+    width, height = get_max_abs_corner_xi_eta(
+        header,
+        transformation_estimate,
+        {'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
+    )
+    width *= 2.0 * safety_margin
+    height *= 2.0 * safety_margin
+    return width < catalog_header['WIDTH'] and height < catalog_header['HEIGHT']
+
+
+def find_final_transformation(header,
+                              transformation_estimate,
+                              xy_extracted,
+                              catalog_lock,
+                              configuration):
+    """Find the final transformation for a given image."""
+
+    _logger.debug('Using transformation estimate: %s',
+                  repr(transformation_estimate))
+
+
+    frame_is_covered = False
+    while not frame_is_covered:
+        catalog, catalog_header = ensure_catalog(transformation_estimate,
+                                                 header,
+                                                 configuration,
+                                                 catalog_lock)
+
+        (
+            transformation_estimate['trans_x'],
+            transformation_estimate['trans_y'],
+            cat_extracted_corr,
+            res_rms,
+            ratio,
+            transformation_estimate['ra_cent'],
+            transformation_estimate['dec_cent'],
+            success
+        ) = refine_transformation(
+            xy_extracted=xy_extracted,
+            catalog=catalog,
+            x_frame=header['NAXIS1'],
+            y_frame=header['NAXIS2'],
+            astrometry_order=configuration['astrometry_order'],
+            max_srcmatch_distance=configuration[
+                'max_srcmatch_distance'
+            ],
+            max_iterations=configuration['max_astrom_iter'],
+            trans_threshold=configuration['trans_threshold'],
+            **transformation_estimate,
+        )
+        frame_is_covered = check_catalog_coverage(
+            header,
+            transformation_estimate,
+            catalog_header,
+            configuration['catalog_fov_safety_margin']
+        )
+
+    return (
+        transformation_estimate,
+        catalog,
+        cat_extracted_corr,
+        {
+            'rms': res_rms,
+            'ratio': ratio,
+            'success': success
+        }
+    )
+
+
+def solve_image(dr_fname,
+                transformation_estimate=None,
+                *,
+                catalog_lock,
+                **configuration):
+    """
+    Find the astrometric transformation for a single image and save to DR file.
+
+    Args:
+        dr_fname(str):    The name of the data reduction file containing the
+            extracted sources from the frame and that will be updated with the
+            newly solved astrometry.
+
+        transformation_estimate(None or (matrix, matrix)):    Estimate of the
+            transformations x(xi, eta) and y(xi, eta) for the raw frame (i.e.
+            before channel splitting) that will be refined. If ``None``,
+            ``solve_field`` from astrometry.net is used to find iniitial
+            estimates.
+
+        configuration:    Parameters defining how astrometry is to be fit.
+
+    Returns:
+        trans_x(2D numpy array):
+            the coefficients of the x(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        trans_y(2D numpy array):
+            the coefficients of the y(xi, eta) transformation converted to RAW
+            image coordinates (i.e. before channel splitting)
+
+        ra_cent(float): the RA center around which the above transformation
+            applies
+
+        dec_cent(float): the Dec center around which the above transformation
+            applies
+    """
+
+    _logger.debug('Solving: %s %s transformation estimate.',
+                  repr(dr_fname),
+                  ('with' if transformation_estimate else 'without'))
+    with DataReductionFile(dr_fname, 'r+') as dr_file:
+
+        header = dr_file.get_frame_header()
+        configuration = prepare_configuration(configuration, header)
+
+        result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
+
+        fov_estimate = max(*configuration['frame_fov_estimate'])
+
+        sources = dr_file.get_sources(
+            'srcextract.sources',
+            'srcextract_column_name',
+            srcextract_version=configuration['srcextract_version']
+        )
+        xy_extracted = numpy.zeros(
+            (len(sources['x'].values)),
+            dtype=[('x', '>f8'), ('y', '>f8')]
+        )
+        xy_extracted['x'] = sources['x'].values
+        xy_extracted['y'] = sources['y'].values
+
+        if transformation_estimate is None:
+            dr_eval = Evaluator(header)
+            transformation_estimate = {
+                key: dr_eval(expression).to_value('deg')
+                for key, expression in zip(
+                    ['ra_cent', 'dec_cent'],
+                    configuration['frame_center_estimate']
+                )
+            }
+            (
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y'],
+                status
+            ) = estimate_transformation(
+                dr_file=dr_file,
+                xy_extracted=xy_extracted,
+                astrometry_order=configuration['astrometry_order'],
+                tweak_order_range=configuration['tweak_order'],
+                fov_range=(
+                    fov_estimate / configuration['image_scale_factor'],
+                    fov_estimate * configuration['image_scale_factor']
+                ),
+                **transformation_estimate,
+                header=header
+            )
+            if status != 'success':
+                result['fail_reason'] = status
+                return result
+
+        else:
+            (
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y']
+            ) = transformation_from_raw(
+                transformation_estimate['trans_x'],
+                transformation_estimate['trans_y'],
+                header,
+                True
+            )
+
+
+        try:
+            (
+                transformation_estimate,
+                catalog,
+                cat_extracted_corr,
+                diagnostics
+            ) = find_final_transformation(
+                header,
+                transformation_estimate,
+                xy_extracted,
+                catalog_lock,
+                configuration
+            )
+        #pylint: disable=bare-except
+        except:
+            _logger.critical(
+                'Failed to find solution to DR file %s:\n%s',
+                dr_fname,
+                format_exc()
+            )
+            result['fail_reason'] = fail_reasons['other']
+            return result
+        #pylint: enable=bare-except
+
+
+        try:
+            _logger.debug('RMS residual: %s', repr(diagnostics['rms']))
+            _logger.debug('Ratio: %s', repr(diagnostics['ratio']))
+
+            if diagnostics['ratio'] < configuration['min_match_fraction']:
+                result['fail_reason'] = fail_reasons['few matched']
+            elif diagnostics['rms'] > configuration['max_rms_distance']:
+                result['fail_reason'] = fail_reasons['high rms']
+            elif not diagnostics['success']:
+                result['fail_reason'] = fail_reasons[
+                    'failed to converge'
+                ]
+            else:
+                _logger.info(
+                    'Succesful astrometry solution found for %s:',
+                    dr_fname
+                )
+                save_to_dr(cat_extracted_corr=cat_extracted_corr,
+                           **transformation_estimate,
+                           res_rms=diagnostics['rms'],
+                           configuration=configuration,
+                           header=header,
+                           dr_file=dr_file,
+                           catalog=catalog)
+                result['saved'] = True
+
+                transformation_to_raw(transformation_estimate['trans_x'],
+                                      transformation_estimate['trans_y'],
+                                      header,
+                                      True)
+                result['raw_transformation'] = transformation_estimate
+            return result
+
+        #pylint: disable=bare-except
+        except:
+            _logger.critical(
+                'Failed to save found astrometry solution to '
+                'DR file %s:\n%s',
+                dr_fname,
+                format_exc()
+            )
+            return result
+        #pylint: enable=bare-except
+
+    result['fail_reason'] = 'solve-field failed'
+    _logger.error(
+        'No Astrometry.net solution found in tweak range [%d, %d]',
+        *configuration['tweak_order']
+    )
+    return result
+
+
+def astrometry_process(task_queue, result_queue, configuration, catalog_lock):
+    """Run pending astrometry tasks from the queue in process."""
+
+    setup_process(task='solve', **configuration)
+    _logger.info('Starting astrometry solving process.')
+    for dr_fname, transformation_estimate in iter(task_queue.get,
+                                                  'STOP'):
+        result_queue.put(
+            solve_image(
+                dr_fname,
+                transformation_estimate,
+                catalog_lock=catalog_lock,
+                **configuration
+            )
+        )
+    _logger.debug('Astrometry solving process finished.')
+
+
+def prepare_configuration(configuration, dr_header):
+    """Apply fallbacks to the configuration."""
+
+    _logger.debug('Preparing configuration from: %s',
+                  repr(configuration))
+    result = configuration.copy()
+
+    dr_eval = Evaluator(dr_header)
+    result['frame_fov_estimate'] = tuple(
+        dr_eval(expr) for expr in configuration['frame_fov_estimate']
+    )
+
+    result.update(
+        binning=1,
+        srcextract_filter='True',
+        sky_preprojection='tan',
+        weights_expression='1.0'
+    )
+    return result
 
 
 #Could not think of good way to split
