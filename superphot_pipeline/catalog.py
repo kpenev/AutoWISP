@@ -15,6 +15,8 @@ from superphot_pipeline import Evaluator
 from superphot_pipeline.astrometry.map_projections import \
     gnomonic_projection,\
     inverse_gnomonic_projection
+if __name__ == '__main__':
+    from matplotlib import pyplot
 
 _logger = logging.getLogger(__name__)
 
@@ -450,7 +452,47 @@ def parse_command_line():
         help='The columns to include in the catalog file. Use \'*\' to include '
         'everything.'
     )
+    parser.add_argument(
+        '--show-stars',
+        action='store_true',
+        help='Show the stars in the catalog on a 3-D plot of the sky.'
+    )
     return parser.parse_args()
+
+
+def show_stars(catalog_fname):
+    """Show the stars in the catalog on a 3-D plot of the sky."""
+
+    phi, theta = numpy.mgrid[0.0 : numpy.pi / 2.0 : 10j,
+                             0.0 : 2.0*numpy.pi: 10j]
+    x = numpy.sin(phi) * numpy.cos(theta)
+    y = numpy.sin(phi) * numpy.sin(theta)
+    z = numpy.cos(phi)
+
+
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    pyplot.gca().plot_surface(x, y, z,
+                              rstride=1,
+                              cstride=1,
+                              color='c',
+                              alpha=0.6,
+                              linewidth=1)
+
+    stars = read_catalog_file(catalog_fname)
+
+    stars_x = (numpy.cos(numpy.radians(stars['Dec']))
+               *
+               numpy.cos(numpy.radians(stars['RA'])))
+    stars_y = (numpy.cos(numpy.radians(stars['Dec']))
+               *
+               numpy.sin(numpy.radians(stars['RA'])))
+    stars_z = numpy.sin(numpy.radians(stars['Dec']))
+
+    ax.scatter(stars_x, stars_y, stars_z, color="k", s=20)
+
+
+    pyplot.show()
 
 
 def main(config):
@@ -469,6 +511,8 @@ def main(config):
         verbose=config.verbose,
         overwrite=config.overwrite
     )
+    if config.show_stars:
+        show_stars(config.catalog_fname)
 
 
 if __name__ == '__main__':
