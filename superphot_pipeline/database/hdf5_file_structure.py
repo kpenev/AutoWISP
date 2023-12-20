@@ -3,7 +3,7 @@
 from sqlalchemy.orm import contains_eager
 
 from superphot_pipeline.hdf5_file import HDF5File
-from superphot_pipeline.database.interface import Session
+from superphot_pipeline.database.interface import Session, retry_on_db_fail
 
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module
@@ -26,6 +26,7 @@ class HDF5FileDatabaseStructure(HDF5File):
 
         return self._defined_elements
 
+    @retry_on_db_fail
     @classmethod
     def _get_file_structure(cls, version=None):
         """See :meth:HDF5File._get_file_structure for description."""
@@ -57,7 +58,11 @@ class HDF5FileDatabaseStructure(HDF5File):
                 str(structure.structure_versions[0].version)
             )
 
+        #False positivie
+        #pylint: disable=no-member
         with Session.begin() as db_session:
+        #pylint: enable=no-member
+
             #False positive
             #pylint: disable=no-member
             query = db_session.query(

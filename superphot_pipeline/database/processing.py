@@ -10,7 +10,7 @@ from sqlalchemy import sql, select, tuple_, and_
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline import Evaluator
-from superphot_pipeline.database.interface import Session
+from superphot_pipeline.database.interface import Session, retry_on_db_fail
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.image_calibration.fits_util import\
     add_required_keywords,\
@@ -431,6 +431,7 @@ class ProcessingManager:
             )
 
 
+    @retry_on_db_fail
     def _start_step(self, step_name):
         """
         Record the start of a processing step and return the images to process.
@@ -503,6 +504,7 @@ class ProcessingManager:
             self._record_processed
         )
 
+    @retry_on_db_fail
     def _record_processed(self, input_fname, status=0):
         """
         Record that the given input filename was processed by the current step.
@@ -535,27 +537,10 @@ class ProcessingManager:
                 )
 
 
-    def __init__(self, version=None):
-        """
-        Set the public class attributes per the given configuartion version.
+    @retry_on_db_fail
+    def _init_from_db(self, version=None):
+        """Complete the DB dependent part of __init__."""
 
-        Args:
-            version(int):    The version of the parameters to get. If a
-                parameter value is not specified for this exact version use the
-                value with the largest version not exceeding ``version``. By
-                default us the latest configuration version in the database.
-
-        Returns:
-            None
-        """
-
-        self._logger = logging.getLogger(__name__)
-        self.current_step = None
-        self._current_processing = None
-        self.configuration = {}
-        self.condition_expressions = {}
-        self._evaluated_expressions = {}
-        self._processed_ids = {}
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -594,6 +579,31 @@ class ProcessingManager:
                 )
                 for step in db_session.scalars(select(Step)).all()
             }
+
+
+
+    def __init__(self, version=None):
+        """
+        Set the public class attributes per the given configuartion version.
+
+        Args:
+            version(int):    The version of the parameters to get. If a
+                parameter value is not specified for this exact version use the
+                value with the largest version not exceeding ``version``. By
+                default us the latest configuration version in the database.
+
+        Returns:
+            None
+        """
+
+        self._logger = logging.getLogger(__name__)
+        self.current_step = None
+        self._current_processing = None
+        self.configuration = {}
+        self.condition_expressions = {}
+        self._evaluated_expressions = {}
+        self._processed_ids = {}
+        self._init_from_db(version)
 
 
     def __call__(self, steps=None):

@@ -14,7 +14,7 @@ from superphot_pipeline import Evaluator
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser
-from superphot_pipeline.database.interface import Session
+from superphot_pipeline.database.interface import Session, retry_on_db_fail
 #false positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model.provenance import\
@@ -347,44 +347,52 @@ def create_image(image_fname, header_eval, configuration, db_session):
     return Image(raw_fname=image_fname, image_type_id=image_type_id)
 
 
+@retry_on_db_fail
+def add_single_image(image_fname, configuration):
+    """Add a single image to the database."""
+
+    logging.debug('Adding image %s to database', image_fname)
+    header_eval = Evaluator(image_fname)
+    _logger.debug('Defining evaluator with keys: %s',
+                  repr(header_eval.symtable.keys()))
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        image = create_image(image_fname,
+                             header_eval,
+                             configuration,
+                             db_session)
+        existing_image = db_session.query(Image).filter_by(
+            raw_fname = image.raw_fname
+        ).one_or_none()
+        image.observing_session = get_or_create_observing_session(
+            header_eval,
+            configuration,
+            db_session
+        )
+        if existing_image is None:
+            db_session.add(image)
+        else:
+            logging.info(
+                'Image %s already in the database with ID: %s',
+                image.raw_fname,
+                existing_image.id
+            )
+            assert existing_image.image_type_id == image.image_type_id
+            assert (
+                existing_image.observing_session_id
+                ==
+                image.observing_session.id
+            )
+
+
+
 def add_images_to_db(image_collection, configuration):
     """Add all the images in the collection to the database."""
 
     for image_fname in image_collection:
-        logging.debug('Adding image %s to database', image_fname)
-        header_eval = Evaluator(image_fname)
-        _logger.debug('Defining evaluator with keys: %s',
-                      repr(header_eval.symtable.keys()))
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
-            image = create_image(image_fname,
-                                 header_eval,
-                                 configuration,
-                                 db_session)
-            existing_image = db_session.query(Image).filter_by(
-                raw_fname = image.raw_fname
-            ).one_or_none()
-            image.observing_session = get_or_create_observing_session(
-                header_eval,
-                configuration,
-                db_session
-            )
-            if existing_image is None:
-                db_session.add(image)
-            else:
-                logging.info(
-                    'Image %s already in the database with ID: %s',
-                    image.raw_fname,
-                    existing_image.id
-                )
-                assert existing_image.image_type_id == image.image_type_id
-                assert (
-                    existing_image.observing_session_id
-                    ==
-                    image.observing_session.id
-                )
+        add_single_image(image_fname, configuration)
 
 
 if __name__ == '__main__':
