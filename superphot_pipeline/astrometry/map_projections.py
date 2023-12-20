@@ -23,7 +23,7 @@ def gnomonic_projection(sources, projected, **center):
     degree_to_rad = numpy.pi / 180.0
     center['RA'] *= degree_to_rad
     center['Dec'] *= degree_to_rad
-    ra_diff = (sources['RA'] * degree_to_rad - center['RA'])
+    ra_diff = sources['RA'] * degree_to_rad - center['RA']
     cos_ra_diff = numpy.cos(ra_diff)
     cos_source_dec = numpy.cos(sources['Dec'] * degree_to_rad)
     cos_center_dec = numpy.cos(center['Dec'])
@@ -44,9 +44,9 @@ def gnomonic_projection(sources, projected, **center):
     ) / denominator
 
 
-def inv_projection(sources, projected, **center):
+def inverse_gnomonic_projection(sources, projected, **center):
     """
-    Inverse projection from tangent plane (xi, eta) to the sky position (RA, Dec)
+    Inverse projection from tangent plane (xi, eta) to sky position (RA, Dec)
 
     Args:
         sources: An empty numpy array with "RA" and "Dec" fields to fill
@@ -71,18 +71,39 @@ def inv_projection(sources, projected, **center):
     projected['eta'] *= degree_to_rad
 
     rho = numpy.sqrt(projected['xi'] ** 2 + projected['eta'] ** 2)
-    c = numpy.arctan(rho)
-    denominator = rho * numpy.cos(center['Dec']) * numpy.cos(c) - \
-                  projected['eta'] * numpy.sin(center['Dec']) * numpy.sin(c)
+    rho_angle = numpy.arctan(rho)
+    denominator = (
+        rho * numpy.cos(center['Dec']) * numpy.cos(rho_angle)
+        -
+        projected['eta'] * numpy.sin(center['Dec']) * numpy.sin(rho_angle)
+    )
 
-    sources['RA'] = center['RA'] + \
-                    numpy.arctan((projected['xi'] * numpy.sin(c)) / denominator)
+    sources['RA'] = (
+        center['RA']
+        +
+        numpy.arctan2((projected['xi'] * numpy.sin(rho_angle)), denominator)
+    )
 
-    sources['Dec'] = numpy.arcsin(numpy.cos(c) * numpy.sin(center['Dec']) + \
-                                  (projected['eta'] * numpy.sin(c) * numpy.cos(center['Dec'])) / rho)
+    sources['Dec'] = numpy.arcsin(
+        numpy.cos(rho_angle) * numpy.sin(center['Dec'])
+        +
+        (
+            projected['eta']
+            *
+            numpy.sin(rho_angle)
+            *
+            numpy.cos(center['Dec'])
+        ) / rho
+    )
+
+    while (sources['RA'] < 0).any():
+        sources['RA'][sources['RA'] < 0] += 2.0 * numpy.pi
+
+    while (sources['RA'] > 2.0 * numpy.pi).any():
+        sources['RA'][sources['RA'] > 2.0 * numpy.pi] -= 2.0 * numpy.pi
+
 
     sources['RA'] *= rad_to_degree
     sources['Dec'] *= rad_to_degree
 
 tan_projection = gnomonic_projection
-sky_projection = inv_projection

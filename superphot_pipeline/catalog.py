@@ -12,7 +12,11 @@ from astropy.io import fits
 from astroquery.gaia import GaiaClass, conf
 
 from superphot_pipeline import Evaluator
-from superphot_pipeline.astrometry.map_projections import gnomonic_projection
+from superphot_pipeline.astrometry.map_projections import \
+    gnomonic_projection,\
+    inverse_gnomonic_projection
+if __name__ == '__main__':
+    from matplotlib import pyplot
 
 _logger = logging.getLogger(__name__)
 
@@ -109,10 +113,22 @@ class SuperPhotGaia(GaiaClass):
                 f'radial_velocity, ref_epoch, {epoch}) AS propagated, '
             ) + columns
 
-        ra = ra.to_value(units.deg)
-        dec = dec.to_value(units.deg)
+        corners = numpy.empty(shape=(4,),
+                                     dtype=[('RA', float), ('Dec', float)])
+        corners_xi_eta = numpy.empty(shape=(4,),
+                                     dtype=[('xi', float), ('eta', float)])
         width = width.to_value(units.deg)
         height = height.to_value(units.deg)
+        corners_xi_eta[0] = (-width/2, -height/2)
+        corners_xi_eta[1] = (-width/2, height/2)
+        corners_xi_eta[2] = (width/2, height/2)
+        corners_xi_eta[3] = (width/2, -height/2)
+
+        inverse_gnomonic_projection(corners,
+                                    corners_xi_eta,
+                                    RA=ra.to_value(units.deg),
+                                    Dec=dec.to_value(units.deg))
+
         table_name = self.MAIN_GAIA_TABLE or conf.MAIN_GAIA_TABLE
 
         select = 'SELECT'
@@ -125,16 +141,18 @@ class SuperPhotGaia(GaiaClass):
             WHERE
                 1 = CONTAINS(
                     POINT(
-                        'ICRS',
                         {self.MAIN_GAIA_TABLE_RA},
                         {self.MAIN_GAIA_TABLE_DEC}
                     ),
-                    BOX(
-                        'ICRS',
-                        {ra},
-                        {dec},
-                        {width},
-                        {height}
+                    POLYGON(
+                        {corners[0]['RA']},
+                        {corners[0]['Dec']},
+                        {corners[1]['RA']},
+                        {corners[1]['Dec']},
+                        {corners[2]['RA']},
+                        {corners[2]['Dec']},
+                        {corners[3]['RA']},
+                        {corners[3]['Dec']}
                     )
                 )
         """
@@ -206,6 +224,8 @@ class SuperPhotGaia(GaiaClass):
                              f'({magnitude_expression}) < {max_mag}')
             except ValueError:
                 condition = f'{magnitude_expression} < {magnitude_limit[0]}'
+            except TypeError:
+                condition = f'{magnitude_expression} < {magnitude_limit}'
 
             if 'condition' in query_kwargs:
                 query_kwargs['condition'] = (
@@ -261,6 +281,8 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
             ) = query_kwargs['magnitude_limit']
         except ValueError:
             query.meta['MAGMAX'] = query_kwargs['magnitude_limit'][0]
+        except TypeError:
+            query.meta['MAGMAX'] = query_kwargs['magnitude_limit']
 
     if (
             path.dirname(catalog_fname)
@@ -430,7 +452,47 @@ def parse_command_line():
         help='The columns to include in the catalog file. Use \'*\' to include '
         'everything.'
     )
+    parser.add_argument(
+        '--show-stars',
+        action='store_true',
+        help='Show the stars in the catalog on a 3-D plot of the sky.'
+    )
     return parser.parse_args()
+
+
+def show_stars(catalog_fname):
+    """Show the stars in the catalog on a 3-D plot of the sky."""
+
+    phi, theta = numpy.mgrid[0.0 : numpy.pi / 2.0 : 10j,
+                             0.0 : 2.0*numpy.pi: 10j]
+    x = numpy.sin(phi) * numpy.cos(theta)
+    y = numpy.sin(phi) * numpy.sin(theta)
+    z = numpy.cos(phi)
+
+
+    fig = pyplot.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    pyplot.gca().plot_surface(x, y, z,
+                              rstride=1,
+                              cstride=1,
+                              color='c',
+                              alpha=0.6,
+                              linewidth=1)
+
+    stars = read_catalog_file(catalog_fname)
+
+    stars_x = (numpy.cos(numpy.radians(stars['Dec']))
+               *
+               numpy.cos(numpy.radians(stars['RA'])))
+    stars_y = (numpy.cos(numpy.radians(stars['Dec']))
+               *
+               numpy.sin(numpy.radians(stars['RA'])))
+    stars_z = numpy.sin(numpy.radians(stars['Dec']))
+
+    ax.scatter(stars_x, stars_y, stars_z, color="k", s=20)
+
+
+    pyplot.show()
 
 
 def main(config):
@@ -449,6 +511,8 @@ def main(config):
         verbose=config.verbose,
         overwrite=config.overwrite
     )
+    if config.show_stars:
+        show_stars(config.catalog_fname)
 
 
 if __name__ == '__main__':
