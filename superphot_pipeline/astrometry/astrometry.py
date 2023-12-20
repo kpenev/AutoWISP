@@ -57,28 +57,32 @@ def transformation_matrix(astrometry_order, xi, eta):
 
     return trans_matrix
 
-def find_ra_dec_center(xieta_guess,
-                       trans_x,
-                       trans_y,
-                       old_radec_cent,
-                       x_cent,
-                       y_cent,
-                       astrometry_order):
+def find_ra_dec(xieta_guess,
+                trans_x,
+                trans_y,
+                radec_cent,
+                frame_x,
+                frame_y,
+                astrometry_order):
     """
-    Find the (xi, eta) that map to the center of the frame.
+    Find the (xi, eta) that map to given coordinates in the frame.
 
     Args:
-        xieta_cent(numpy array): the center of xi and eta
+        xieta_guess(numpy array):    Starting point for the solver trying find
+            (xi, eta) that map to the given coordinates.
 
-        trans_x(numpy array): transformation matrix for x
+        trans_x(numpy array):    transformation matrix for x
 
-        trans_y(numpy array): transformation matrix for y
+        trans_y(numpy array):    transformation matrix for y
 
-        x_cent(float): x of the center of the frame
+        radec_cent(dict):    The RA and Dec of the center of the gnomonic
+            projection defining (xi, eta).
 
-        y_cent(float): y of the center of the frame
+        frame_x(float):    x coordinate for which to find RA, Dec.
 
-        astrometry_order(int): The order of the transformation to fit
+        frame_y(float):    y coordinate for which to find RA, Dec.
+
+        astrometry_order(int):    The order of the transformation to fit
 
     Returns:
         new_xieta_cent(numpy array): the new center function for (xi, eta)
@@ -93,8 +97,8 @@ def find_ra_dec_center(xieta_guess,
 
         new_xieta_cent = numpy.empty(2)
 
-        new_xieta_cent[0] = trans_x[0, 0] - x_cent
-        new_xieta_cent[1] = trans_y[0, 0] - y_cent
+        new_xieta_cent[0] = trans_x[0, 0] - frame_x
+        new_xieta_cent[1] = trans_y[0, 0] - frame_y
 
         k = 1
         for i in range(1, astrometry_order + 1):
@@ -110,7 +114,7 @@ def find_ra_dec_center(xieta_guess,
     xieta_cent['xi'], xieta_cent['eta'] = fsolve(equations, xieta_guess)
 
     source = numpy.empty(1, dtype=[('RA', float), ('Dec', float)])
-    inv_projection(source, xieta_cent, **old_radec_cent)
+    inv_projection(source, xieta_cent, **radec_cent)
 
     return {'RA': source['RA'][0], 'Dec': source['Dec'][0]}
 
@@ -483,7 +487,7 @@ def refine_transformation(*,
                 matched_sources['y'][j] = xy_extracted[ix[i], 1]
                 j = j + 1
 
-        cent_new = find_ra_dec_center(
+        cent_new = find_ra_dec(
             numpy.array([numpy.mean(xi), numpy.mean(eta)]),
             trans_x,
             trans_y,
@@ -519,63 +523,3 @@ def refine_transformation(*,
             trans_matrix,
             matched_sources['y'].reshape(matched_sources['x'].size, 1)
         )[0]
-
-        #pylint: disable=line-too-long
-        # x_extracted = xy_extracted[:, 0]
-        # y_extracted = xy_extracted[:, 1]
-        #
-        # x_projected = x_transformed
-        # y_projected = y_transformed
-        #
-        # x_matched = matched_sources['x']
-        # y_matched = matched_sources['y']
-        # if counter == 22:
-        #
-        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_extracted(r)_projected(g)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
-        #         for x, y in zip(x_extracted, y_extracted):
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=red width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=5,
-        #                     h=5
-        #                 )
-        #             )
-        #         for x, y in zip(x_projected, y_projected):
-        #             x = numpy.float64(x)
-        #             y = numpy.float64(y)
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=green width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=8,
-        #                     h=8
-        #                 )
-        #             )
-        #         for x, y in zip(x_matched, y_matched):
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=3,
-        #                     h=3
-        #                 )
-        #             )
-        # if counter == 23:
-        #
-        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_projected(b)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
-        #
-        #         for x, y in zip(x_projected, y_projected):
-        #             x = numpy.float64(x)
-        #             y = numpy.float64(y)
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=1 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=8,
-        #                     h=8
-        #                 )
-        #             )
-        # if counter > 23:
-        #     break
-        #pylint: enable=line-too-long
