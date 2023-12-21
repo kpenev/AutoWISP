@@ -2,6 +2,10 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
+from tempfile import mkstemp
+import subprocess
+import os
+from traceback import format_exc
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -10,9 +14,13 @@ from scipy import linalg
 from scipy import spatial
 from scipy.optimize import fsolve
 
+from astropy.io import fits
+
 from superphot_pipeline.astrometry.map_projections import\
     gnomonic_projection,\
-    inv_projection
+    inverse_gnomonic_projection
+
+_logger = logging.getLogger(__name__)
 
 #pylint:disable=R0913
 #pylint:disable=R0914
@@ -49,56 +57,77 @@ def transformation_matrix(astrometry_order, xi, eta):
 
     return trans_matrix
 
-def new_xieta_cent_function(xieta_cent,
-                            trans_x,
-                            trans_y,
-                            x_cent,
-                            y_cent,
-                            astrometry_order):
+def find_ra_dec(xieta_guess,
+                trans_x,
+                trans_y,
+                radec_cent,
+                frame_x,
+                frame_y):
     """
-    Constructing the two non-linear function to be solved for
-    new center (xi, eta)
+    Find the (xi, eta) that map to given coordinates in the frame.
 
     Args:
-        xieta_cent(numpy array): the center of xi and eta
+        xieta_guess(numpy array):    Starting point for the solver trying find
+            (xi, eta) that map to the given coordinates.
 
-        trans_x(numpy array): transformation matrix for x
+        trans_x(numpy array):    transformation matrix for x
 
-        trans_y(numpy array): transformation matrix for y
+        trans_y(numpy array):    transformation matrix for y
 
-        x_cent(float): x of the center of the frame
+        radec_cent(dict):    The RA and Dec of the center of the gnomonic
+            projection defining (xi, eta).
 
-        y_cent(float): y of the center of the frame
+        frame_x(float):    x coordinate for which to find RA, Dec.
 
-        astrometry_order(int): The order of the transformation to fit
+        frame_y(float):    y coordinate for which to find RA, Dec.
 
     Returns:
         new_xieta_cent(numpy array): the new center function for (xi, eta)
 
     """
-    xi = xieta_cent[0]
-    eta = xieta_cent[1]
 
-    new_xieta_cent = numpy.empty(2)
+    assert trans_x.size == trans_y.size
+    astrometry_order = (numpy.sqrt(1.0 + 8.0 * trans_x.size) - 3.0) / 2.0
+    assert numpy.allclose(astrometry_order,
+                          numpy.round(astrometry_order),
+                          atol=1e-10)
+    astrometry_order = numpy.rint(astrometry_order).astype(int)
 
-    new_xieta_cent[0] = trans_x[0, 0] - x_cent
-    new_xieta_cent[1] = trans_y[0, 0] - y_cent
+    def equations(xieta_cent):
+        """The equations that need to be solved to find the center."""
 
-    k = 1
-    for i in range(1, astrometry_order + 1):
-        for j in range(i + 1):
-            new_xieta_cent[0] = new_xieta_cent[0] + \
-                                trans_x[k, 0] * xi ** (i - j) * eta ** j
-            new_xieta_cent[1] = new_xieta_cent[1] + \
-                                trans_y[k, 0] * xi ** (i - j) * eta ** j
-            k = k + 1
-    return new_xieta_cent
+        xi = xieta_cent[0]
+        eta = xieta_cent[1]
 
-def estimate_transformation(initial_corr,
-                            ra_cent,
-                            dec_cent,
-                            tweak_order,
-                            astrometry_order):
+        new_xieta_cent = numpy.empty(2)
+
+        new_xieta_cent[0] = trans_x[0, 0] - frame_x
+        new_xieta_cent[1] = trans_y[0, 0] - frame_y
+
+        k = 1
+        for i in range(1, astrometry_order + 1):
+            for j in range(i + 1):
+                new_xieta_cent[0] = new_xieta_cent[0] + \
+                                    trans_x[k, 0] * xi ** (i - j) * eta ** j
+                new_xieta_cent[1] = new_xieta_cent[1] + \
+                                    trans_y[k, 0] * xi ** (i - j) * eta ** j
+                k = k + 1
+        return new_xieta_cent
+
+    xieta_cent = numpy.empty(1, dtype=[('xi', float), ('eta', float)])
+    xieta_cent['xi'], xieta_cent['eta'] = fsolve(equations, xieta_guess)
+
+    source = numpy.empty(1, dtype=[('RA', float), ('Dec', float)])
+    inverse_gnomonic_projection(source, xieta_cent, **radec_cent)
+
+    return {'RA': source['RA'][0], 'Dec': source['Dec'][0]}
+
+
+def estimate_transformation_from_corr(initial_corr,
+                                      ra_cent,
+                                      dec_cent,
+                                      tweak_order,
+                                      astrometry_order):
     """
     Estimate the transformation from astrometry.net correspondence file.
 
@@ -129,7 +158,7 @@ def estimate_transformation(initial_corr,
     projected = numpy.empty(initial_corr.shape[0],
                             dtype=[('xi', float), ('eta', float)])
 
-    radec_center = dict(RA=ra_cent, Dec=dec_cent)
+    radec_center = {'RA': ra_cent, 'Dec': dec_cent}
 
     gnomonic_projection(initial_corr,
                         projected,
@@ -155,6 +184,126 @@ def estimate_transformation(initial_corr,
     return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
 
 
+class TempAstrometryFiles:
+    """Context manager for the temporary files needed for astrometry."""
+
+    def __init__(self):
+        """Create all required temporary files."""
+
+        self._file_types = ['sources', 'corr', 'axy']
+        for file_type in self._file_types:
+            handle, fname = mkstemp()
+            setattr(self, '_' + file_type, handle)
+            setattr(self, file_type + '_fname', fname)
+
+    def __enter__(self):
+        """Return the filenames of the temporary files."""
+
+        return tuple(getattr(self, file_type + '_fname')
+                     for file_type in self._file_types)
+
+    def __exit__(self, *ignored_args, **ignored_kwargs):
+        """Close and delete the temporary files."""
+
+        for file_type in self._file_types:
+            os.close(getattr(self, '_' + file_type))
+            fname = getattr(self, file_type + '_fname')
+            if os.path.exists(fname):
+                os.remove(fname)
+
+
+def create_sources_file(xy_extracted, sources_fname):
+    """Create a FITS BinTable file with the given name containing
+    the extracted sources.
+
+    Returns: an array containing x-y extracted sources
+    """
+
+    x_extracted = fits.Column(name='x', format='D', array=xy_extracted['x'])
+    y_extracted = fits.Column(name='y', format='D', array=xy_extracted['y'])
+    xyls = fits.BinTableHDU.from_columns([x_extracted, y_extracted])
+    xyls.writeto(sources_fname)
+
+    return xy_extracted
+
+
+def estimate_transformation(*,
+                            dr_file,
+                            xy_extracted,
+                            astrometry_order,
+                            tweak_order_range,
+                            fov_range,
+                            ra_cent,
+                            dec_cent,
+                            header=None):
+    """Attempt to estimate the sky-to-frame transformation for given DR file."""
+
+    if header is None:
+        header = dr_file.get_frame_header()
+    with TempAstrometryFiles() as (sources_fname,
+                                   corr_fname,
+                                   axy_fname):
+        xy_extracted = create_sources_file(xy_extracted, sources_fname)
+        for tweak in range(*tweak_order_range):
+            solve_field_command = [
+                'solve-field',
+                sources_fname,
+                '--corr', corr_fname,
+                '--width', str(header['NAXIS1']),
+                '--height', str(header['NAXIS2']),
+                '--tweak-order', str(tweak),
+                '--match', 'none',
+                '--wcs', 'none',
+                '--index-xyls', 'none',
+                '--rdls', 'none',
+                '--solved', 'none',
+                '--axy', axy_fname,
+                '--no-plots',
+                '--scale-low', repr(fov_range[0]),
+                '--scale-high', repr(fov_range[1]),
+                '--overwrite'
+            ]
+            try:
+                subprocess.run(solve_field_command, check=True)
+            except subprocess.SubprocessError:
+                _logger.critical("solve-field failed with error:\n%s",
+                                 format_exc())
+                continue
+
+            if not os.path.isfile(corr_fname):
+                _logger.critical("Correspondence file %s not created.",
+                                 repr(corr_fname))
+                return None, None, 'solve-field failed'
+
+            with fits.open(corr_fname, mode='readonly') as corr:
+                field_corr = corr[1].data[:]
+
+            if field_corr.size > ((tweak+1)*(tweak+2))//2:
+
+                initial_corr = numpy.zeros(
+                    (field_corr['field_x'].shape),
+                    dtype=[('x', '>f8'),
+                           ('y', '>f8'),
+                           ('RA', '>f8'),
+                           ('Dec', '>f8')]
+                )
+
+                initial_corr['x'] = field_corr['field_x']
+                initial_corr['y'] = field_corr['field_y']
+                initial_corr['RA'] = field_corr['index_ra']
+                initial_corr['Dec'] = field_corr['index_dec']
+
+                return estimate_transformation_from_corr(
+                    initial_corr=initial_corr,
+                    tweak_order=tweak,
+                    astrometry_order=astrometry_order,
+                    ra_cent=ra_cent,
+                    dec_cent=dec_cent
+                ) + ('success',)
+    return None, None, 'solve-field failed'
+
+
+
 def refine_transformation(*,
                           astrometry_order,
                           max_srcmatch_distance,
@@ -167,7 +316,7 @@ def refine_transformation(*,
                           x_frame,
                           y_frame,
                           xy_extracted,
-                          catalogue):
+                          catalog):
     """
     Iterate the process until we get a transformation that
     its difference from the previous one is less than a threshold
@@ -200,7 +349,7 @@ def refine_transformation(*,
         xy_extracted(structured numpy array):    x and y of the extracted
             sources of the frame
 
-        catalogue(pandas.DataFrame):    The catalogue of sources to match to
+        catalog(pandas.DataFrame):    The catalog of sources to match to
 
     Returns:
         trans_x(2D numpy array):
@@ -210,7 +359,7 @@ def refine_transformation(*,
             the coefficients of the y(xi, eta) transformation
 
         cat_extracted_corr(structured numpy array):
-            the catalogues extracted correspondence indexes
+            the catalogs extracted correspondence indexes
 
         res_rms(float): the residual
 
@@ -245,10 +394,10 @@ def refine_transformation(*,
                       "Dec": dec_cent}
 
         projected = numpy.empty(
-            catalogue.shape[0],
+            catalog.shape[0],
             dtype=[('xi', float), ('eta', float)]
         )
-        gnomonic_projection(catalogue, projected, **radec_cent)
+        gnomonic_projection(catalog, projected, **radec_cent)
 
         xi = projected['xi']
         xi = xi.reshape(len(xi), 1)  # convert shape from (n,) to (n, 1)
@@ -276,7 +425,7 @@ def refine_transformation(*,
             (old_y_transformed - y_transformed)**2
         ).flatten()[in_frame]
 
-        logger.debug('diff:'+repr(diff.max()))
+        logger.debug('diff: %s', repr(diff.max()))
 
         if (
                 not (diff > trans_threshold).any()
@@ -286,7 +435,7 @@ def refine_transformation(*,
             # pylint:disable=used-before-assignment
             cat_extracted_corr = numpy.empty((n_matched, 2),
                                              dtype=int)
-            cat_extracted_corr[:, 0] = numpy.arange(catalogue.shape[0])[matched]
+            cat_extracted_corr[:, 0] = numpy.arange(catalog.shape[0])[matched]
             cat_extracted_corr[:, 1] = ix[matched]
             # Exclude the sources that are not within the frame:
 
@@ -309,7 +458,7 @@ def refine_transformation(*,
         result, count = numpy.unique(ix, return_counts=True)
 
         for multi_match_i in result[count > 1][:-1]:
-            bad_match = (ix == multi_match_i)
+            bad_match = ix == multi_match_i
             d[bad_match] = numpy.inf
             ix[bad_match] = result[-1]
 
@@ -336,39 +485,20 @@ def refine_transformation(*,
         for i in range(ix.size):
             k += 1
             if not numpy.isinf(d[i]):
-                matched_sources['RA'][j] = catalogue['RA'].iloc[k]
-                matched_sources['Dec'][j] = catalogue['Dec'].iloc[k]
+                matched_sources['RA'][j] = catalog['RA'].iloc[k]
+                matched_sources['Dec'][j] = catalog['Dec'].iloc[k]
                 matched_sources['x'][j] = xy_extracted[ix[i], 0]
                 matched_sources['y'][j] = xy_extracted[ix[i], 1]
                 j = j + 1
 
-        xieta_guess = numpy.array(
-            [numpy.mean(xi),
-             numpy.mean(eta)]
+        cent_new = find_ra_dec(
+            numpy.array([numpy.mean(xi), numpy.mean(eta)]),
+            trans_x,
+            trans_y,
+            radec_cent,
+            x_cent,
+            y_cent
         )
-        new_xieta_cent = fsolve(
-            new_xieta_cent_function,
-            xieta_guess,
-            args=(trans_x,
-                  trans_y,
-                  x_cent,
-                  y_cent,
-                  astrometry_order)
-        )
-
-        xieta_cent = numpy.empty(1, dtype=[('xi', float), ('eta', float)])
-        xieta_cent['xi'] = new_xieta_cent[0]
-        xieta_cent['eta'] = new_xieta_cent[1]
-
-        source = numpy.empty(
-            1,
-            dtype=[('RA', float), ('Dec', float)]
-        )
-        inv_projection(source, xieta_cent, **radec_cent)
-
-        cent_new = {
-            'RA': source['RA'][0], 'Dec': source['Dec'][0]
-        }
 
         projected_new = numpy.empty(
             matched_sources.shape[0], dtype=[('xi', float), ('eta', float)]
@@ -396,61 +526,3 @@ def refine_transformation(*,
             trans_matrix,
             matched_sources['y'].reshape(matched_sources['x'].size, 1)
         )[0]
-
-        # x_extracted = xy_extracted[:, 0]
-        # y_extracted = xy_extracted[:, 1]
-        #
-        # x_projected = x_transformed
-        # y_projected = y_transformed
-        #
-        # x_matched = matched_sources['x']
-        # y_matched = matched_sources['y']
-        # if counter == 22:
-        #
-        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_extracted(r)_projected(g)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
-        #         for x, y in zip(x_extracted, y_extracted):
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=red width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=5,
-        #                     h=5
-        #                 )
-        #             )
-        #         for x, y in zip(x_projected, y_projected):
-        #             x = numpy.float64(x)
-        #             y = numpy.float64(y)
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=green width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=8,
-        #                     h=8
-        #                 )
-        #             )
-        #         for x, y in zip(x_matched, y_matched):
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=4 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=3,
-        #                     h=3
-        #                 )
-        #             )
-        # if counter == 23:
-        #
-        #     with open (os.path.join('/home/aer140130/python_work/SonyAlphaPhotometry/scripts/','regions_ds9_projected(b)_counter_'+str(counter)+'.reg'),'w+') as reg_file:
-        #
-        #         for x, y in zip(x_projected, y_projected):
-        #             x = numpy.float64(x)
-        #             y = numpy.float64(y)
-        #             reg_file.write(
-        #                 'box({xc!r},{yc!r},{w!r},{h!r},0) # color=blue width=1 \n'.format(
-        #                     xc=x + 0.5,
-        #                     yc=y + 0.5,
-        #                     w=8,
-        #                     h=8
-        #                 )
-        #             )
-        # if counter > 23:
-        #     break
