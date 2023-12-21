@@ -87,7 +87,11 @@ def find_ra_dec(xieta_guess,
     """
 
     assert trans_x.size == trans_y.size
-    astrometry_order = ((trans_x.size + 1) * (trans_x.size + 2)) // 2
+    astrometry_order = (numpy.sqrt(1.0 + 8.0 * trans_x.size) - 3.0) / 2.0
+    assert numpy.allclose(astrometry_order,
+                          numpy.round(astrometry_order),
+                          atol=1e-10)
+    astrometry_order = numpy.rint(astrometry_order).astype(int)
 
     def equations(xieta_cent):
         """The equations that need to be solved to find the center."""

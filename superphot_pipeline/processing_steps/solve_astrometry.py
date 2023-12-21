@@ -96,10 +96,19 @@ def parse_command_line(*args):
     parser.add_argument(
         '--catalog-pointing-precision', '--catalogue-pointing-precision',
         type=float,
-        default=0.1,
+        default=1.0,
+        help='The precision with which to round the center of the frame to '
+        'determine the center of the catalog to use in degrees. The catalog FOV'
+        ' is also expanded by this amount to ensure coverage'
+    )
+    parser.add_argument(
+        '--catalog-fov-precision', '--catalogue-fov-precision',
+        type=float,
+        default=1.0,
         help='The precision with which to round the center of the frame to '
         'determine the center of the catalog to use in degrees.'
     )
+
 
     parser.add_argument(
         '--catalog-filter', '--catalogue-filter', '--cat-filter',
@@ -447,9 +456,21 @@ def get_catalog_info(transformation_estimate, header, configuration):
     eval_expression = Evaluator(header)
     eval_expression.symtable.update(catalog_info)
 
-    frame_fov_estimate = numpy.max(
-        numpy.array(get_max_abs_corner_xi_eta(header, transformation_estimate)),
-        numpy.array(configuration['frame_fov_estimate'])
+    trans_fov = get_max_abs_corner_xi_eta(header, transformation_estimate)
+    _logger.debug('From transformation estimate half FOV is: %s',
+                  repr(trans_fov))
+    frame_fov_estimate = tuple(
+        numpy.round(
+            (
+                max(
+                    2.0 * trans_fov[i] * units.deg,
+                    configuration['frame_fov_estimate'][i]
+                ) + pointing_precision
+            )
+            /
+            (configuration['catalog_fov_precision'] * units.deg)
+        ) * configuration['catalog_fov_precision'] * units.deg
+        for i in range(2)
     )
 
     _logger.debug('Determining catalog query size from: '
@@ -596,11 +617,11 @@ def ensure_catalog(transformation_estimate,
                     f'required Dec={frame_center["Dec"]!r}'
                 )
 
-            filter_expr = configuration['catalog_filter'].get(header['CLRCHNL'])
-            if filter_expr is not None:
-                filter_expr = ['(' + filter_expr + ')']
-            else:
+            filter_expr = configuration['catalog_filter']
+            if filter_expr is None or header['CLRCHNL'] not in filter_expr:
                 filter_expr = []
+            else:
+                filter_expr = ['(' + filter_expr[header['CLRCHNL']] + ')']
 
 
             if (
@@ -636,7 +657,7 @@ def ensure_catalog(transformation_estimate,
                 cat_fits,
                 filter_expr=(' and '.join(filter_expr) if filter_expr
                              else None),
-
+                return_metadata=True
             )
 
     del catalog_info['ra_ind']
@@ -644,7 +665,8 @@ def ensure_catalog(transformation_estimate,
 
     create_catalog_file(**catalog_info, verbose=True)
     lock.release()
-    return read_catalog_file(catalog_info['catalog_fname'])
+    return read_catalog_file(catalog_info['catalog_fname'],
+                             return_metadata=True)
 #pylint: enable=too-many-branches
 
 
@@ -659,10 +681,17 @@ def get_max_abs_corner_xi_eta(header,
                   'Dec': transformation_estimate['dec_cent']}
     for x in [0.0, float(header['NAXIS1'])]:
         for y in [0.0, float(header['NAXIS2'])]:
-            rhs = numpy.array([x - transformation_estimate['trans_x'][0],
-                               x - transformation_estimate['trans_y'][0]])
-            matrix = numpy.array([transformation_estimate['trans_x'][1:3],
-                                  transformation_estimate['trans_y'][1:3]])
+            rhs = numpy.array([
+                x - float(transformation_estimate['trans_x'][0]),
+                x - float(transformation_estimate['trans_y'][0])
+            ])
+            matrix = numpy.array([
+                transformation_estimate['trans_x'].ravel()[1:3],
+                transformation_estimate['trans_y'].ravel()[1:3]
+            ])
+            _logger.debug('Solving %s * [xi, eta] = %s',
+                          repr(matrix),
+                          repr(rhs))
 
             sky_coords = find_ra_dec(
                 xieta_guess = numpy.linalg.solve(matrix, rhs),
@@ -718,8 +747,9 @@ def check_catalog_coverage(header,
         transformation_estimate,
         {'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
     )
-    width *= 2.0 * safety_margin
-    height *= 2.0 * safety_margin
+    factor = 2.0 * (1.0 + safety_margin)
+    width *= factor
+    height *= factor
     return width < catalog_header['WIDTH'] and height < catalog_header['HEIGHT']
 
 
