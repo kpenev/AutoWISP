@@ -563,7 +563,10 @@ def get_scatter_data(lc_fnames, detrending_mode, cmdline_args):
     )
     for progress, (source_id, source_lcs) in enumerate(lc_fnames.items()):
         scatter = get_scatter(source_lcs)[0]
-        result.loc[source_id][:len(scatter)] = scatter
+        if max_combined > 1:
+            result.loc[source_id][:len(scatter)] = scatter
+        else:
+            result.loc[source_id] = scatter
         if progress % 100 == 0:
             print(f'Progress: {progress}/{len(lc_fnames)}')
 
@@ -712,6 +715,8 @@ def add_plot_points(scatter_data,
                     distance_label
                 )
             elif lc_ind == 0:
+                if len(scatter_data.columns) == 1:
+                    break
                 plot_config['label'] = (
                     'individual'
                     +
