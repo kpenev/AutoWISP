@@ -157,7 +157,8 @@ def photometer_image_collection(image_collection, configuration):
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,
-                initargs=(configuration,)
+                initargs=(configuration,),
+                maxtasksperchild=1
         ) as pool:
             pool.map(
                 photometer_one,

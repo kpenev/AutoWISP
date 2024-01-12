@@ -660,7 +660,7 @@ def add_plot_points(scatter_data,
                     '#ffff33',
                     '#a65628',
                     '#f781bf']
-    color_scheme = ['#ff0000', '#0000ff']
+    #color_scheme = ['#ff0000', '#0000ff']
     if not hasattr(add_plot_points, 'color_index'):
         add_plot_points.color_index = 0
     else:
