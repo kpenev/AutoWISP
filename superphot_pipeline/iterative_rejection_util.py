@@ -293,12 +293,8 @@ def iterative_rejection_smoothing_spline(x,
                         <
                         outlier_threshold**2 * scipy.mean(square_residuals))
         print('Non outliers: ' + repr(non_outliers))
-        print('Rejecting %d / %d points.'
-              %
-              (
-                  len(non_outliers) - non_outliers.sum(),
-                  len(non_outliers)
-              ))
+        print(f'Rejecting {len(non_outliers) - non_outliers.sum():d} / '
+              f'{len(non_outliers):d} points.')
 
         fit_x = fit_x[non_outliers]
         fit_y = fit_y[non_outliers]

@@ -1,16 +1,16 @@
 """Unified interface to the detrending algorithms."""
 
 from multiprocessing import Pool
-from general_purpose_python_modules.multiprocessing_util import setup_process
 import logging
 
 import numpy
 from scipy.optimize import minimize
 import pandas
 
+from general_purpose_python_modules.multiprocessing_util import setup_process
+
 from superphot_pipeline import DataReductionFile, LightCurveFile
 from superphot_pipeline.database.interface import db_engine
-from superphot_pipeline.miscellaneous import get_hat_source_id_str
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
@@ -30,11 +30,11 @@ def save_correction_statistics(correction_statistics, filename):
 
     for prefix in ['rms', 'num_finite']:
         for phot_index in range(num_photometries):
-            dframe[prefix + '_%02d' % phot_index] = (
+            dframe[prefix + f'_{phot_index:02d}'] = (
                 correction_statistics[prefix][:, phot_index]
             )
 
-    with open(filename, 'w') as outf:
+    with open(filename, 'w', encoding='utf-8') as outf:
         dframe.to_string(outf, col_space=25, index=False, justify='left')
 
 def load_correction_statistics(filename):
@@ -54,7 +54,7 @@ def load_correction_statistics(filename):
     for prefix in ['rms', 'num_finite']:
         for phot_index in range(num_photometries):
             result[prefix][:, phot_index] = (
-                dframe[prefix + '_%02d' % phot_index]
+                dframe[prefix + f'_{phot_index:02d}']
             )
 
     if '2MASSID' in dframe.columns:
@@ -151,6 +151,8 @@ def recalculate_correction_statistics(lc_fnames,
                     fit_datasets
             ):
                 try:
+                    #False positive
+                    #pylint: disable=unbalanced-tuple-unpacking
                     (
                         result['rms'][lc_index][fit_index],
                         result['num_finite'][lc_index][fit_index]
@@ -158,6 +160,7 @@ def recalculate_correction_statistics(lc_fnames,
                         lightcurve.get_dataset(to_dset, **substitutions),
                         **calculate_scatter_config
                     )
+                    #pylint: enable=unbalanced-tuple-unpacking
                 except OSError:
                     result['rms'][lc_index][fit_index] = numpy.nan
                     result['num_finite'][lc_index][fit_index] = 0

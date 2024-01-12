@@ -7,7 +7,6 @@ from astropy.io import fits
 from superphot_pipeline.pipeline_exceptions import BadImageError
 from superphot_pipeline.data_reduction.data_reduction_file import\
     DataReductionFile
-from asteval import Interpreter
 
 def read_image_components(fits_fname,
                           *,
@@ -67,12 +66,8 @@ def read_image_components(fits_fname,
                     mask = hdu.data
                     if mask.dtype.itemsize != 1:
                         raise BadImageError(
-                            (
-                                'Mask image (hdu #%d) of %s had data type %s '
-                                '(not int8)'
-                            )
-                            %
-                            (hdu_index, fits_fname, mask.dtype)
+                            f'Mask image (hdu #{hdu_index:d}) of {fits_fname} '
+                            f'had data type {mask.dtype!s} (not int8).'
                         )
             if (
                     image is not None

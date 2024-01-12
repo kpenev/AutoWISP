@@ -197,7 +197,7 @@ class MagnitudeFit(ABC):
         groups = scipy.unique(conditions)
         self.logger.debug('Groups: %s', repr(groups))
         for group_id, group_condition in enumerate(groups):
-            in_group = (conditions == group_condition)
+            in_group = conditions == group_condition
             self.logger.debug('Group %d contains %d entries',
                               group_id,
                               in_group.sum())

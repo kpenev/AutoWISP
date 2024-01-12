@@ -4,13 +4,7 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    Date,\
-    TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    TIMESTAMP
 
 from sqlalchemy.orm import relationship
 

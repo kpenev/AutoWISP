@@ -177,7 +177,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             path_substitutions
         )
         pre_column, verify, _, _ = next(parsed_path)
-        print('Pre_column: {0}, verify: {1}'.format(pre_column, verify))
+        print(f'Pre_column: {pre_column}, verify: {verify}')
         assert verify == 'column'
         try:
             name_tail = next(parsed_path)
@@ -194,12 +194,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         parent, name_head = pre_column.rsplit('/', 1)
         result = pandas.DataFrame()
         print(
-            (
-                'Collecting columns frcom {0} under {1}, starting with {2} '
-                'and ending with {3}'
-            ).format(
-                self.filename, parent, name_head, name_tail
-            )
+            f'Collecting columns frcom {self.filename} under {parent}, '
+            f'starting with {name_head} and ending with {name_tail}'
         )
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
@@ -578,7 +574,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     else:
                         dataset_key_middle = 'magfit.'
                     path_substitutions['magfit_iteration'] = magfit_iter - 1
-                    column_tail = '_mfit{0:03d}'.format(magfit_iter)
+                    column_tail = f'_mfit{magfit_iter:03d}'
                     if shape_fit:
                         result[
                             'shapefit_'
@@ -603,7 +599,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         )
                         for aperture_index in range(num_apertures):
                             result[
-                                'ap{0:03d}_'.format(aperture_index)
+                                f'ap{aperture_index:03d}_'
                                 +
                                 result_key
                                 +

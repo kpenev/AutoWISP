@@ -5,42 +5,16 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    Date,\
     TIMESTAMP,\
     DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    ForeignKey
 
 from sqlalchemy.orm import relationship
 
 #Comment for database testing
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-# For database testing
-# from base import DataModelBase
-from superphot_pipeline.database.data_model.provenance import\
-    camera,\
-    camera_access,\
-    camera_type,\
-    mount,\
-    mount_type,\
-    mount_access,\
-    telescope,\
-    telescope_type,\
-    telescope_access,\
-    observatory,\
-    observer
-#How do I import these provenance properly and replace them where they need to be
-
-#pylint false positive: this is actually a class name
-#pylint: disable=invalid-name
-#pylint: enable=invalid-name
-
 __all__= ['ObservingSession']
-#The standard use of SQLAlchemy ORM requires classes with no public methods.
-#pylint: disable=too-few-public-methods
 
 #TODO replace proper provenance terms
 

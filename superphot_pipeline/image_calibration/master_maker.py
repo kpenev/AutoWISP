@@ -97,9 +97,9 @@ class MasterMaker(Processor):
                 filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
             )
             if 'IMAGETYP' not in master_header:
-                raise BadImageError('Image %s does not define IMAGETYP'
-                                    %
-                                    filename)
+                raise BadImageError(
+                    f'Image {filename:s} does not define IMAGETYP'
+                )
         else:
             print('Checking master header against ' + filename)
 
@@ -116,12 +116,10 @@ class MasterMaker(Processor):
                 if delete:
                     if master_card[0] == 'IMAGETYP':
                         raise ImageMismatchError(
-                            (
-                                'Attempting to combine images with '
-                                'IMAGETYP = %s and IMAGETYP=%s into a master!'
-                            )
-                            %
-                            (master_card[1], frame_header['IMAGETYP'])
+                            'Attempting to combine images with '
+                            f'IMAGETYP = {master_card[1]} and '
+                            f"IMAGETYP={frame_header['IMAGETYP']} "
+                            'into a master!'
                         )
                     delete_indices.insert(0, card_index)
             print('Deleting:\n'
@@ -129,10 +127,10 @@ class MasterMaker(Processor):
                   '\n'.join([
                       repr(master_header.cards[i][0]) for i in delete_indices
                   ]))
-            print('Starting with %d cards' % len(master_header.cards))
+            print(f'Starting with {len(master_header.cards):d} cards')
             for index in delete_indices:
                 del master_header[index]
-            print('%d cards remain' % len(master_header.cards))
+            print(f'{len(master_header.cards):d} cards remain')
 
     def __init__(self,
                  *,
@@ -153,17 +151,16 @@ class MasterMaker(Processor):
             None
         """
 
-        self.stacking_options = dict(
-            outlier_threshold=outlier_threshold,
-            average_func=average_func,
-            min_valid_frames=min_valid_frames,
-            min_valid_values=min_valid_values,
-            max_iter=max_iter,
-            exclude_mask=exclude_mask
-        )
+        super().__init__()
+        self.stacking_options = {
+            'outlier_threshold': outlier_threshold,
+            'average_func': average_func,
+            'min_valid_frames': min_valid_frames,
+            'min_valid_values': min_valid_values,
+            'max_iter': max_iter,
+            'exclude_mask': exclude_mask
+        }
 
-    #This method is intended to be overriden.
-    #pylint: disable=no-self-use
     def prepare_for_stacking(self, image):
         """
         Override with any useful pre-processing of images before stacking.
@@ -178,7 +175,6 @@ class MasterMaker(Processor):
         """
 
         return image
-    #pylint: enable=no-self-use
 
     #Re-factoring to reduce locals will make things less readable.
     #pylint: disable=too-many-locals
@@ -191,7 +187,9 @@ class MasterMaker(Processor):
               min_valid_values,
               max_iter,
               exclude_mask,
-              custom_header=dict()):
+              custom_header=None):
+        #No way to avoid
+        #pylint: disable=line-too-long
         """
         Create a master by stacking a list of frames.
 
@@ -242,16 +240,16 @@ class MasterMaker(Processor):
                     stacking failed.
 
                 fits.Header:
-                    The header to use for the newly created master frame. None if
-                    stacking failed.
+                    The header to use for the newly created master frame. None
+                    if stacking failed.
 
                 [<FITS filenames>]:
                     List of the frames that were excluded by
                     self.prepare_for_stacking().
         """
+        #pylint: enable=line-too-long
 
-        #pylint triggers on doxygen commands.
-        #pylint: disable=anomalous-backslash-in-string
+
         def document_in_header(header):
             """
             Document how the stacking was done in the given header.
@@ -288,7 +286,7 @@ class MasterMaker(Processor):
             header['NUMFCOMB'] = (len(frame_list),
                                   'Number frames combined in master')
             for index, fname in enumerate(frame_list):
-                header['ORIGF%03d' % index] = (
+                header[f'ORIGF{index:03d}'] = (
                     fname,
                     'Original frame contributing to master'
                 )
@@ -315,6 +313,9 @@ class MasterMaker(Processor):
             header['IMAGETYP'] = 'master' + header['IMAGETYP']
         #pylint: enable=anomalous-backslash-in-string
 
+        if custom_header is None:
+            custom_header = {}
+
         if len(frame_list) < min_valid_frames:
             return None, None, None, None, []
 
@@ -324,9 +325,13 @@ class MasterMaker(Processor):
         discarded_frames = []
         first_frame = True
         for frame_fname in frame_list:
+            #False positive
+            #pylint: disable=unbalanced-tuple-unpacking
             image, mask, header = read_image_components(frame_fname,
                                                         read_error=False,
                                                         read_header=True)
+            #pylint: enable=unbalanced-tuple-unpacking
+
             stack_image = self.prepare_for_stacking(image)
             if stack_image is None:
                 discarded_frames.append(frame_fname)
@@ -376,14 +381,13 @@ class MasterMaker(Processor):
     #pylint: enable=too-many-locals
 
 
-
     def __call__(self,
                  frame_list,
                  output_fname,
                  *,
                  compress=16,
                  allow_overwrite=False,
-                 custom_header=dict(),
+                 custom_header=None,
                  **stacking_options):
         """
         Create a master by stacking the given frames.
@@ -415,6 +419,9 @@ class MasterMaker(Processor):
             [<FITS filenames>]:
                 Frames which were discarded during stacking.
         """
+
+        if custom_header is None:
+            custom_header = {}
 
         for option_name, default_value in self.stacking_options.items():
             if option_name not in stacking_options:

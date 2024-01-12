@@ -13,27 +13,27 @@ from superphot_pipeline.database.data_model import\
     HDF5Link
 #pylint: enable=no-name-in-module
 
-_default_paths = dict(
-    srcextract=dict(
-        root='/SourceExtraction/Version%(srcextract_version)03d',
-        sources='/Sources',
-        psf_map='/PSFMap'
-    ),
-    catalogue='/CatalogueSources/Version%(catalogue_version)03d',
-    skytoframe=dict(
-        root='/SkyToFrameTransformation/Version%(skytoframe_version)03d',
-        coefficients='/ProjectedToFrameMap',
-        matched='/MatchedSources'
-    ),
-    srcproj='/ProjectedSources/Version%(srcproj_version)03d',
-    background='/Background/Version%(background_version)03d',
-    shapefit='/ShapeFit/Version%(shapefit_version)03d',
-    apphot=dict(
-        root='/AperturePhotometry/Version%(apphot_version)03d',
-        apsplit='/Aperture%(aperture_index)03d'
-    ),
-    subpixmap='/SubPixelMap/Version%(subpixmap_version)03d',
-)
+_default_paths = {
+    'srcextract': {
+        'root': '/SourceExtraction/Version%(srcextract_version)03d',
+        'sources': '/Sources',
+        'psf_map': '/PSFMap'
+    },
+    'catalogue': '/CatalogueSources/Version%(catalogue_version)03d',
+    'skytoframe': {
+        'root': '/SkyToFrameTransformation/Version%(skytoframe_version)03d',
+        'coefficients': '/ProjectedToFrameMap',
+        'matched': '/MatchedSources'
+    },
+    'srcproj': '/ProjectedSources/Version%(srcproj_version)03d',
+    'background': '/Background/Version%(background_version)03d',
+    'shapefit': '/ShapeFit/Version%(shapefit_version)03d',
+    'apphot': {
+        'root': '/AperturePhotometry/Version%(apphot_version)03d',
+        'apsplit': '/Aperture%(aperture_index)03d'
+    },
+    'subpixmap': '/SubPixelMap/Version%(subpixmap_version)03d',
+}
 
 _default_nonfinite=repr(numpy.finfo('f4').min/2)
 
@@ -754,11 +754,7 @@ def _get_magfit_datasets(photometry_mode):
             dtype='numpy.float64',
             scaleoffset=5,
             replace_nonfinite=_default_nonfinite,
-            description=(
-                'The fitted %s photometry magnitudes.'
-                %
-                photometry_mode
-            )
+            description=(f'The fitted {photometry_mode} photometry magnitudes.')
         )
     ]
 

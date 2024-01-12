@@ -5,9 +5,12 @@ from asteval import asteval
 from antlr4 import InputStream, CommonTokenStream
 from superphot_pipeline.fit_expression.FitTermsLexer import FitTermsLexer
 from superphot_pipeline.fit_expression.FitTermsParser import FitTermsParser
-from superphot_pipeline.fit_expression.list_terms_visitor import ListTermsVisitor
-from superphot_pipeline.fit_expression.count_terms_visitor import CountTermsVisitor
-from superphot_pipeline.fit_expression.evaluate_terms_visitor import EvaluateTermsVisitor
+from superphot_pipeline.fit_expression.list_terms_visitor import\
+    ListTermsVisitor
+from superphot_pipeline.fit_expression.count_terms_visitor import\
+    CountTermsVisitor
+from superphot_pipeline.fit_expression.evaluate_terms_visitor import\
+    EvaluateTermsVisitor
 from superphot_pipeline.fit_expression.used_var_finder import UsedVarFinder
 
 #TODO: add detailed description of the expansion terms language
@@ -69,4 +72,4 @@ if __name__ == '__main__':
     from multiprocessing import Pool
 
     with Pool(3) as p:
-        p.map(istream, [dict(x=1), dict(x=2), dict(x=3)])
+        p.map(istream, [{'x': 1}, {'x': 2}, {'x': 3}])

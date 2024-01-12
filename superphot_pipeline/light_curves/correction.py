@@ -166,13 +166,13 @@ class Correction:
                 for predictor in result.dtype.names[-num_extra_predictors:]:
                     result[predictor][0][fit_index] = scipy.nan
 
-            fit_results = dict(
-                corrected_values=scipy.full(raw_values.shape,
-                                            scipy.nan,
-                                            dtype=raw_values.dtype),
-                fit_residual=scipy.nan,
-                non_rejected_points=0,
-            )
+            fit_results = {
+                'corrected_values': scipy.full(raw_values.shape,
+                                               scipy.nan,
+                                               dtype=raw_values.dtype),
+                'fit_residual': scipy.nan,
+                'non_rejected_points': 0
+            }
 
         else:
             if num_extra_predictors:
@@ -192,11 +192,11 @@ class Correction:
                                     -
                                     scipy.dot(fit_results[0], predictors))
 
-            fit_results = dict(
-                corrected_values=corrected_values,
-                fit_residual=fit_results[1]**0.5,
-                non_rejected_points=fit_results[2],
-            )
+            fit_results = {
+                'corrected_values': corrected_values,
+                'fit_residual': fit_results[1]**0.5,
+                'non_rejected_points': fit_results[2],
+            }
 
         result['rms'][0][fit_index] = scipy.sqrt(
             scipy.nanmean(

@@ -40,7 +40,7 @@ class MasterPhotrefCollector:
         raise ChildProcessError(
             'grcollect command failed! '
             +
-            'Return code: %d.' % self._grcollect.returncode
+            f'Return code: {self._grcollect.returncode:d}.'
             +
             '\nOutput:\n' + grcollect_outerr[0].decode()
             +
@@ -65,7 +65,7 @@ class MasterPhotrefCollector:
             count_col = self._stat_quantities.index('rcount')
         else:
             count_col = self._stat_quantities.index('count')
-        with open(self._statistics_fname, 'r') as stat_file:
+        with open(self._statistics_fname, 'r', encoding='ascii') as stat_file:
             med = numpy.median([float(l.split()[count_col]) for l in stat_file])
         return med
 
@@ -112,9 +112,7 @@ class MasterPhotrefCollector:
                 for phot_ind in range(self._num_photometries):
                     column_names.extend(
                         [
-                            '%s_%s_%d' % (stat_quantity,
-                                          phot_quantity,
-                                          phot_ind)
+                            f'{stat_quantity}_{phot_quantity}_{phot_ind:d}'
                             for stat_quantity in self._stat_quantities
                         ]
                     )
@@ -125,7 +123,7 @@ class MasterPhotrefCollector:
         def create_result(num_sources, catalogue_columns):
             """Create an empty result to fill with data."""
 
-            special_dtypes = dict(phqual='S3', magsrcflag='S9')
+            special_dtypes = {'phqual': 'S3', 'magsrcflag': 'S9'}
             example_source_id = next(iter(catalogue.keys()))
             if isinstance(example_source_id, tuple):
                 source_id_size = (len(example_source_id),)
@@ -164,14 +162,14 @@ class MasterPhotrefCollector:
 
             for phot_index in range(self._num_photometries):
                 result['full_count'][:, phot_index] = stat_data[
-                    'count_mag_%d' % phot_index
+                    f'count_mag_{phot_index:d}'
                 ]
                 result['rejected_count'][:, phot_index] = stat_data[
-                    'rcount_mag_%d' % phot_index
+                    f'rcount_mag_{phot_index:d}'
                 ]
                 for statistic in ['median', 'mediandev', 'medianmeddev']:
                     result[statistic][:, phot_index] = stat_data[
-                        'r' + statistic + '_mag_%d' % phot_index
+                        'r' + statistic + f'_mag_{phot_index:d}'
                     ]
 
         def add_catalogue_info(catalogue_columns, result):
@@ -435,15 +433,9 @@ class MasterPhotrefCollector:
                 grcollect_cmd.extend([
                     '--rejection',
                     (
-                        'column=%d,iterations=%d,%s,%s=%f'
-                        %
-                        (
-                            col,
-                            max_rejection_iterations,
-                            rejection_center,
-                            rejection_units,
-                            outlier_threshold
-                        )
+                        f'column={col:d},iterations='
+                        f'{max_rejection_iterations:d},{rejection_center!s},'
+                        f'{rejection_units!s}={outlier_threshold:f}'
                     )
                 ])
         else:
@@ -461,10 +453,14 @@ class MasterPhotrefCollector:
         if not os.path.exists(temp_directory):
             os.makedirs(temp_directory)
         print("Starting grcollect command: '" + "' '".join(grcollect_cmd) + "'")
+        #Needs to persist after function exits
+        #pylint: disable=consider-using-with
         self._grcollect = Popen(grcollect_cmd,
                                 stdin=PIPE,
                                 stdout=PIPE,
                                 stderr=PIPE)
+        #pylint: enable=consider-using-with
+
         self._num_photometries = num_photometries
         self._source_name_format = source_name_format
         self._line_format = ('%s' + (' %9.5f') * (2 * self._num_photometries))
@@ -480,8 +476,6 @@ class MasterPhotrefCollector:
         for phot, fitted in fit_results:
             if phot is None:
                 continue
-
-            simple_source_ids = phot['source_id'][0].shape == ()
 
             logger.debug(
                 'Collecting %d magfit sources for master.',

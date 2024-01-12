@@ -1,4 +1,5 @@
 """Define aclass for applying TFA corrections to lightcurves."""
+#pylint: disable=too-many-lines
 
 import logging
 
@@ -133,10 +134,10 @@ class TFACorrection(Correction):
             """Create a plot of projected catalogue positions."""
 
             fname_substitutions['plot_id'] = 'xi_eta'
-            plot_fname = plot_fname_pattern % dict(
-                phot_index=phot_index,
+            plot_fname = plot_fname_pattern % {
+                'phot_index': phot_index,
                 **fname_substitutions
-            )
+            }
 
             axis = pyplot.gca()
 
@@ -178,10 +179,10 @@ class TFACorrection(Correction):
             """Create a plot of RMS vs magnitude showing template selection."""
 
             fname_substitutions['plot_id'] = 'mag_rms'
-            plot_fname = plot_fname_pattern % dict(
-                phot_index=phot_index,
+            plot_fname = plot_fname_pattern % {
+                'phot_index': phot_index,
                 **fname_substitutions
-            )
+            }
             pyplot.semilogy(rejected['mag'],
                             rejected['rms'][:, phot_index],
                             'rx')
@@ -203,10 +204,10 @@ class TFACorrection(Correction):
             """Create a plot of number of observations vs magnitude."""
 
             fname_substitutions['plot_id'] = 'mag_nobs'
-            plot_fname = plot_fname_pattern % dict(
-                phot_index=phot_index,
+            plot_fname = plot_fname_pattern % {
+                'phot_index': phot_index,
                 **fname_substitutions
-            )
+            }
             pyplot.plot(rejected['mag'],
                         rejected['num_finite'][:, phot_index],
                         'rx')
@@ -322,7 +323,7 @@ class TFACorrection(Correction):
                 )
                 excess_lg_rms = fit_lg_rms - numpy.dot(coefficients,
                                                        phot_predictors)
-                result[in_fit, phot_index] = (excess_lg_rms < max_excess_lg_rms)
+                result[in_fit, phot_index] = excess_lg_rms < max_excess_lg_rms
 
             return result
 
@@ -582,16 +583,14 @@ class TFACorrection(Correction):
             )
 
             assert template_observation_ids.size < combined_observation_ids.size
-            print('Resizing template data from shape %s to shape %s'
-                  %
-                  (
-                      template_measurements.shape,
-                      (
-                          (combined_observation_ids.size,)
-                          +
-                          template_measurements.shape[1:]
-                      )
-                  ))
+            print(
+                'Resizing template data from shape '
+                f'{template_measurements.shape} to shape '
+                +
+                str((combined_observation_ids.size,)
+                    +
+                    template_measurements.shape[1:])
+            )
             new_template_measurements = numpy.zeros(
                 shape=(
                     (combined_observation_ids.size,)
@@ -604,18 +603,21 @@ class TFACorrection(Correction):
             print('Template observation IDs size: '
                   +
                   repr(template_observation_ids.size))
-            print('Min and max old indices: %s, %s'
-                  %
-                  (
-                      repr(
-                          numpy.searchsorted(combined_observation_ids,
-                                             template_observation_ids).min()
-                      ),
-                      repr(
-                          numpy.searchsorted(combined_observation_ids,
-                                             template_observation_ids).max()
-                      )
-                  ))
+            print(
+                'Min and max old indices: '
+                +
+                repr(
+                    numpy.searchsorted(combined_observation_ids,
+                                       template_observation_ids).min()
+                )
+                +
+                ', '
+                +
+                repr(
+                    numpy.searchsorted(combined_observation_ids,
+                                       template_observation_ids).max()
+                )
+            )
             print(
                 'Destinations: '
                 +
@@ -722,7 +724,7 @@ class TFACorrection(Correction):
                     phot_source_ids,
                     phot_template_data.T
             ):
-                template_selection = (template_data != 0.0)
+                template_selection = template_data != 0.0
                 with LightCurveFile(
                         self._configuration['lc_fname'].format(*source_id),
                         'r'
@@ -733,7 +735,7 @@ class TFACorrection(Correction):
                         *fit_dataset[:2]
                     )
                     print('Observation IDs: ' + repr(lc_observation_ids))
-                    lc_selection = (lc_data != 0.0)
+                    lc_selection = lc_data != 0.0
 #                    max_length = max(len(template_data[template_selection]),
 #                                     len(lc_data[lc_selection]))
 #                    print('{:5s}: {:32s} {:32s}'.format('Index',

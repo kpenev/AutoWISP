@@ -1,7 +1,5 @@
 """Define class for working with piecewise bucubic PSF maps."""
 
-import ctypes
-
 import numpy
 from astropy.io import fits
 import superphot

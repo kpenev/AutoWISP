@@ -72,7 +72,8 @@ def parse_command_line(*args):
 def find_stars_single(image_fname,
                       find_stars_in_image,
                       srcextract_version,
-                      mark_progress):
+                      mark_start,
+                      mark_end):
     """Find the stars in a single image."""
 
     fits_header = get_primary_header(image_fname)
@@ -80,17 +81,18 @@ def find_stars_single(image_fname,
         dr_file.add_frame_header(fits_header)
         extracted_sources = find_stars_in_image(image_fname)
         print(f'Extracted sources: {extracted_sources!r}')
+        mark_start(image_fname)
         dr_file.add_sources(
             extracted_sources,
             'srcextract.sources',
             'srcextract_column_name',
             srcextract_version=srcextract_version
         )
-        mark_progress(image_fname)
+        mark_end(image_fname)
 
 
 
-def find_stars(image_collection, configuration, mark_progress):
+def find_stars(image_collection, configuration, mark_start, mark_end):
     """Extract sources from all input images and save them to DR files."""
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
@@ -105,7 +107,8 @@ def find_stars(image_collection, configuration, mark_progress):
             find_stars_single(image_fname,
                               find_stars_in_image,
                               configuration['srcextract_version'],
-                              mark_progress)
+                              mark_start,
+                              mark_end)
     else:
         with Pool(
                 configuration['num_parallel_processes'],
@@ -116,7 +119,8 @@ def find_stars(image_collection, configuration, mark_progress):
                 partial(find_stars_single,
                         find_stars_in_image=find_stars_in_image,
                         srcextract_version=configuration['srcextract_version'],
-                        mark_progress=mark_progress),
+                        mark_start=mark_start,
+                        mark_end=mark_end),
                 image_collection
             )
 
@@ -130,5 +134,6 @@ if __name__ == '__main__':
             cmdline_config['srcextract_only_if']
         ),
         cmdline_config,
+        ignore_progress,
         ignore_progress
     )

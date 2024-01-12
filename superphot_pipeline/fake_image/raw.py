@@ -89,7 +89,7 @@ class FakeRawImage:
         """
 
         self._pixels = numpy.zeros((full_resolution['y'], full_resolution['x']))
-        self._image_offset = dict(x=image_area['xmin'], y=image_area['ymin'])
+        self._image_offset = {'x': image_area['xmin'], 'y': image_area['ymin']}
         self._image = self._pixels[image_area['ymin'] : image_area['ymax'],
                                    image_area['xmin'] : image_area['xmax']]
         self._gain = gain

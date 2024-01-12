@@ -2,8 +2,6 @@
 
 import numpy
 
-from asteval import asteval
-
 class UsedVarFinder:
     """Record the names of all keys not in default symtable ever requested."""
 

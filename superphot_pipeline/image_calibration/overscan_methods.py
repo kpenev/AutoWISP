@@ -247,18 +247,16 @@ class Median(Base):
 
         if overscan_values.size < self.min_pixels:
             raise ConvergenceError(
-                ('Median overscan: Too few pixels remain (%d) after %d '
-                 'rejection iterations.')
-                %
-                (overscan_values.size, self._last_num_reject_iter)
+                'Median overscan: Too few pixels remain '
+                f'({overscan_values.size:d}) after '
+                f'{self._last_num_reject_iter:d} rejection iterations.'
             )
         if num_rejected > 0 and self.require_convergence:
             assert self._last_num_reject_iter > self.max_reject_iterations
             raise ConvergenceError(
-                ('Median overscan correction iterative rejection exceeded the '
-                 'maximum number (%d) of iteratons allowed')
-                %
-                self.max_reject_iterations
+                'Median overscan correction iterative rejection exceeded the '
+                f'maximum number ({self.max_reject_iterations:d}) of iteratons '
+                'allowed'
             )
 
         self._last_num_pixels = overscan_values.size
@@ -266,10 +264,10 @@ class Median(Base):
 
         image_shape = (image_area['ymax'] - image_area['ymin'],
                        image_area['xmax'] - image_area['xmin'])
-        return dict(
-            correction=numpy.full(image_shape, correction),
-            variance=numpy.full(image_shape,
-                                deviation_scale / overscan_values.size)
-        )
+        return {
+            'correction': numpy.full(image_shape, correction),
+            'variance': numpy.full(image_shape,
+                                   deviation_scale / overscan_values.size)
+        }
 
 #pylint: enable=too-few-public-methods

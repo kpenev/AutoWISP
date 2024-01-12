@@ -1,6 +1,5 @@
 """Connect to the database and provide a session scope for queries."""
 
-from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
@@ -8,8 +7,8 @@ from sqlalchemy.pool import NullPool
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
     #'SuperPhotPipeline',
-#    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
-    'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
+    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
+#    'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
     echo=True,
     poolclass=NullPool,
     pool_pre_ping=True,

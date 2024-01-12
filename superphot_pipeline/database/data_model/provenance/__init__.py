@@ -8,9 +8,11 @@ from inspect import isclass
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-#TODO separate impoprt table definitions as a new file and make two inits for provenance and datamodel and then separate
-# __all__ from the import_module lists generated and combine them run an end step
-# keep them separate (keep frames_provenance and frames separate, keep in that modules namespace only)
+#TODO separate impoprt table definitions as a new file and make two inits for
+#provenance and datamodel and then separate __all__ from the import_module lists
+#generated and combine them run an end step keep them separate (keep
+#frames_provenance and frames separate, keep in that modules namespace only)
+
 __all__ = []
 
 def import_table_definitions():
@@ -25,20 +27,25 @@ def import_table_definitions():
         )
     )
     for module_name in table_modules:
-        module = import_module('superphot_pipeline.database.data_model.provenance.'
-                               +
-                               module_name)
+        module = import_module(
+            'superphot_pipeline.database.data_model.provenance.'
+            +
+            module_name
+        )
         #Pylint false positive
         #pylint: disable=cell-var-from-loop
-        is_table = lambda mod_attr: (
-            mod_attr[0] != '_'
-            and
-            mod_attr != 'DataModelBase'
-            and
-            isclass(getattr(module, mod_attr))
-            and
-            issubclass(getattr(module, mod_attr), DataModelBase)
-        )
+        def is_table(mod_attr):
+            """Check if module attribute is a table."""
+            return (
+                mod_attr[0] != '_'
+                and
+                mod_attr != 'DataModelBase'
+                and
+                isclass(getattr(module, mod_attr))
+                and
+                issubclass(getattr(module, mod_attr), DataModelBase)
+            )
+
         #pylint: enable=cell-var-from-loop
         table_class_name = list(
             filter(
@@ -46,8 +53,7 @@ def import_table_definitions():
                 getattr(module, '__all__', [])
             )
         )
-        print('(%s) Table class name: %s' % (module_name,
-                                             repr(table_class_name)))
+        print(f'({module_name}) Table class name: {table_class_name!r}')
         assert len(table_class_name) == 1
         table_class_name = table_class_name[0]
         setattr(this_module,
