@@ -127,7 +127,7 @@ def parse_command_line(*args):
 def dummy_fname_parser(_):
     """No extra keywords to add from filename."""
 
-    return dict()
+    return {}
 
 
 def get_observatory(header, configuration):
@@ -155,8 +155,8 @@ def get_observatory(header, configuration):
 def sort_by_observatory(dr_collection, configuration):
     """Split the DR files by observatory coords and sort within observatory."""
 
-    result = dict()
-    sort_keys = dict()
+    result = {}
+    sort_keys = {}
     for dr_fname in dr_collection:
         with DataReductionFile(dr_fname, 'r') as dr_file:
             header = dr_file.get_frame_header()
@@ -178,7 +178,7 @@ def create_lightcurves(dr_collection, configuration):
     #TODO: figure out source extraction map variables from DR file
     dr_by_observatory = sort_by_observatory(dr_collection, configuration)
 
-    path_substitutions = dict()
+    path_substitutions = {}
     for option, value in configuration.items():
         if option.endswith('_version'):
             path_substitutions[option] = value
@@ -191,9 +191,9 @@ def create_lightcurves(dr_collection, configuration):
             configuration,
             dr_fname_parser=dummy_fname_parser,
             optional_header='all',
-            observatory=dict(SITELAT=lat,
-                             SITELONG=lon,
-                             SITEALT=alt),
+            observatory={'SITELAT': lat,
+                         'SITELONG': lon,
+                         'SITEALT': alt},
             **path_substitutions
         )
 

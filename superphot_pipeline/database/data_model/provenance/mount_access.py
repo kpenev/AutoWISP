@@ -6,8 +6,6 @@ from sqlalchemy import\
     TIMESTAMP,\
     ForeignKey
 
-from sqlalchemy.orm import relationship
-
 from superphot_pipeline.database.data_model.base import DataModelBase
 
 #pylint false positive: this is actually a class name

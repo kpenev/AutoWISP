@@ -6,12 +6,7 @@ from sqlalchemy import\
     Integer,\
     String,\
     Float,\
-    Date,\
-    TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    TIMESTAMP
 
 from sqlalchemy.orm import relationship
 

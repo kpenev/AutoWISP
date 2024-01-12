@@ -21,9 +21,9 @@ def parse_transformation(filename):
             the comments.
     """
 
-    transformation = dict()
-    info = dict()
-    with open(filename, 'r') as trans_file:
+    transformation = {}
+    info = {}
+    with open(filename, 'r', encoding='ascii') as trans_file:
         for line in trans_file:
             if line.strip()[0] == '#':
                 split_line = line.strip().lstrip('#').strip().split(':', 1)

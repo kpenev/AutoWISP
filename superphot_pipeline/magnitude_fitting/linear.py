@@ -1,7 +1,6 @@
 """Implement magnitude fitting using linear regression."""
 
 import numpy
-import scipy.optimize
 
 from superphot_pipeline.magnitude_fitting.base import MagnitudeFit
 from superphot_pipeline.fit_expression import Interface as FitTermsInterface
@@ -84,13 +83,13 @@ class LinearMagnitudeFit(MagnitudeFit):
             if weights.size == 0:
                 for group_id in fit_group_ids:
                     group_results.append(
-                        dict(
-                            coefficients=None,
-                            residual=None,
-                            initial_src_count=0,
-                            final_src_count=0,
-                            group_id=group_id
-                        )
+                        {
+                            'coefficients': None,
+                            'residual': None,
+                            'initial_src_count': 0,
+                            'final_src_count': 0,
+                            'group_id': group_id
+                        }
                     )
                 return group_results
 
@@ -104,7 +103,7 @@ class LinearMagnitudeFit(MagnitudeFit):
 
             for group_id in fit_group_ids:
                 if group_id is not None:
-                    in_group = (fit_group == group_id)
+                    in_group = fit_group == group_id
                     if phot_skip_indices.size:
                         in_group = numpy.delete(in_group, phot_skip_indices)
 
@@ -125,9 +124,9 @@ class LinearMagnitudeFit(MagnitudeFit):
                     error_avg=self.config.error_avg,
                     rej_level=self.config.rej_level,
                     max_rej_iter=self.config.max_rej_iter,
-                    fit_identifier=('%s, photometry #%d'
-                                    %
-                                    (self._dr_fname, phot_ind))
+                    fit_identifier=(
+                        f'{self._dr_fname}, photometry #{phot_ind:d}'
+                    )
                 )
 
                 if coefficients is None:
@@ -140,11 +139,11 @@ class LinearMagnitudeFit(MagnitudeFit):
                 fit_residual = (None if fit_res2 is None
                                 else numpy.sqrt(fit_res2))
 
-                group_results.append(dict(coefficients=coefficients,
-                                          residual=fit_residual,
-                                          initial_src_count=len(predictors[0]),
-                                          final_src_count=final_src_count,
-                                          group_id=group_id))
+                group_results.append({'coefficients': coefficients,
+                                      'residual': fit_residual,
+                                      'initial_src_count': len(predictors[0]),
+                                      'final_src_count': final_src_count,
+                                      'group_id': group_id})
             return group_results
 
         assert fit_data['mag'].shape[1] == 1

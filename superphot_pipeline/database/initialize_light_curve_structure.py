@@ -21,12 +21,12 @@ from superphot_pipeline.database.initialize_data_reduction_structure import\
 
 _version_rex = re.compile(r'/Version%\([a-zA-Z_]*\)[0-9]*d')
 
-_default_paths = dict(
-    srcextract_psf_map='/SourceExtraction/PSFMap',
-    catalogue='/SkyToFrameTransformation',
-    magfit='/MagnitudeFitting',
-    sky_position='/SkyPosition',
-)
+_default_paths = {
+    'srcextract_psf_map': '/SourceExtraction/PSFMap',
+    'catalogue': '/SkyToFrameTransformation',
+    'magfit': '/MagnitudeFitting',
+    'sky_position': '/SkyPosition',
+}
 
 _default_nonfinite=repr(numpy.finfo('f4').min/2)
 
@@ -213,13 +213,13 @@ def _get_frame_datasets():
                     'Elevation of Moon [deg]'
                 )
         ]:
-            args = dict(
-                pipeline_key='fitsheader.' + keyword.lower(),
-                abspath='/FrameInformation/' + dset_name,
-                dtype=dtype,
-                replace_nonfinite=default,
-                description=description
-            )
+            args = {
+                'pipeline_key': 'fitsheader.' + keyword.lower(),
+                'abspath': '/FrameInformation/' + dset_name,
+                'dtype': dtype,
+                'replace_nonfinite': default,
+                'description': description
+            }
             if dtype == 'numpy.float64':
                 args['scaleoffset'] = 3
             else:
@@ -355,12 +355,12 @@ def _get_frame_datasets():
                     'Nominal Dec of midexpo [hr] (averaged field center)'
                 ),
         ]:
-            args = dict(
-                pipeline_key='fitsheader.cfg.' + keyword.lower(),
-                abspath='/FrameInformation/Configuration/' + dset_name,
-                dtype=dtype,
-                description=description
-            )
+            args = {
+                'pipeline_key': 'fitsheader.cfg.' + keyword.lower(),
+                'abspath': '/FrameInformation/Configuration/' + dset_name,
+                'dtype': dtype,
+                'description': description
+            }
             if scaleoffset is None:
                 args['compression'] = 'gzip'
                 args['compression_options'] = '9'
@@ -501,12 +501,12 @@ def _get_data_reduction_attribute_datasets(db_session):
             dr_attribute.name
         )
 
-        args = dict(
-            pipeline_key=pipeline_key,
-            abspath=lc_path,
-            dtype=dr_attribute.dtype,
-            description=dr_attribute.description
-        )
+        args = {
+            'pipeline_key': pipeline_key,
+            'abspath': lc_path,
+            'dtype': dr_attribute.dtype,
+            'description': dr_attribute.description
+        }
         if scaleoffset is None:
             args['compression'] = 'gzip'
             args['compression_options'] = '9'
@@ -646,9 +646,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 compression=magfit_dset.compression,
                 compression_options=magfit_dset.compression_options,
                 replace_nonfinite=magfit_dset.replace_nonfinite,
-                description=('The %s corrected magnitude fitted magnitudes.'
-                             %
-                             mode)
+                description=f'The {mode} corrected magnitude fitted magnitudes.'
             ),
             HDF5DataSet(
                 pipeline_key=(property_key_prefix + '.fit_residual'),
@@ -658,9 +656,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 replace_nonfinite=_default_nonfinite,
                 description=(
                     'The residual of the last iteration of the iterative '
-                    'rejction %s fit.'
-                    %
-                    mode
+                    f'rejction {mode} fit.'
                 )
             ),
             HDF5DataSet(
@@ -671,9 +667,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 compression_options='9',
                 description=(
                     'The number of points used in the last iteration of the '
-                    'iterative rejction %s fit.'
-                    %
-                    mode
+                    f'iterative rejction {mode} fit.'
                 )
             ),
             HDF5DataSet(
@@ -709,10 +703,8 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 compression='gzip',
                 compression_options='9',
                 description=(
-                    'The index within the datasets containing %s fit '
+                    f'The index within the datasets containing {mode} fit '
                     'properties applicable to each data point.'
-                    %
-                    mode
                 )
             )
         ])
@@ -753,9 +745,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                     compression_options='9',
                     description=(
                         'The expression that expands to the weights used for '
-                        'each point in the %s fit.'
-                        %
-                        mode
+                        f'each point in the {mode} fit.'
                     )
                 )
             ])
@@ -876,13 +866,15 @@ def _get_configuration_index_datasets(db_session):
 
     result = []
 
-    storage_options = dict(
-        dtype='numpy.uint',
-        compression='gzip',
-        compression_options='9',
-        description=('The index within the configuration datasets containing '
-                     'the configuration used for this light curve point.')
-    )
+    storage_options = {
+        'dtype': 'numpy.uint',
+        'compression': 'gzip',
+        'compression_options': '9',
+        'description': (
+            'The index within the configuration datasets containing '
+            'the configuration used for this light curve point.'
+        )
+    }
     key_tail = '.cfg_index'
     path_tail = '/ConfigurationIndex'
 

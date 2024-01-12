@@ -33,7 +33,7 @@ class HDF5FileDatabaseStructure(HDF5File):
         def get_defined_elements(structure):
             """Fill cls._defined_elements with all defined pipeline keys."""
 
-            defined_elements = dict()
+            defined_elements = {}
             for element_type in ['dataset', 'attribute', 'link']:
                 defined_elements[element_type] = set(
                     element.pipeline_key
@@ -45,7 +45,7 @@ class HDF5FileDatabaseStructure(HDF5File):
         def create_result(structure):
             """Create the final result of the parent function."""
 
-            file_structure = dict()
+            file_structure = {}
             for element_type in ['datasets', 'attributes', 'links']:
                 for element in getattr(structure.structure_versions[0],
                                        element_type):
@@ -57,9 +57,10 @@ class HDF5FileDatabaseStructure(HDF5File):
                 str(structure.structure_versions[0].version)
             )
 
+        #False positive
+        #pylint: disable=no-member
         with Session.begin() as db_session:
-            #False positive
-            #pylint: disable=no-member
+        #pylint: enable=no-member
             query = db_session.query(
                 HDF5Product
             ).join(
@@ -85,7 +86,6 @@ class HDF5FileDatabaseStructure(HDF5File):
             ).filter(
                 HDF5Product.pipeline_key == cls._product()
             )
-            #pylint: disable=no-member
 
             if version is None:
                 structure = query.order_by(

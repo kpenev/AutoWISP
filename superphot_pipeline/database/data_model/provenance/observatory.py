@@ -5,12 +5,7 @@ from sqlalchemy import\
     Integer,\
     String,\
     Float,\
-    Date,\
-    TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
+    TIMESTAMP
 
 from sqlalchemy.orm import relationship
 
@@ -61,4 +56,3 @@ class Observatory(DataModelBase):
 
     observing_sessions = relationship("ObservingSession",
                                       back_populates="observatory")
-

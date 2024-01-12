@@ -28,7 +28,7 @@ class ListTermsVisitor(ProcessTermsVisitor):
             if power == 1:
                 term_factors.append(term)
             elif power > 1:
-                term_factors.append('%s**%d' % (term, power))
+                term_factors.append(f'{term!s}**{power:d}')
         self._current_expansion_terms.append(' * '.join(term_factors))
 
     def _end_polynomial_expansion(self):

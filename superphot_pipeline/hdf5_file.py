@@ -245,10 +245,8 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_key not in self._file_structure:
             raise KeyError(
-                "The key '%s' does not exist in the list of configured %s file "
-                "entries."
-                %
-                (dataset_key, self._product())
+                f"The key '{dataset_key:s}' does not exist in the list of "
+                f"configured {self._product()!s} file entries."
             )
 
         if (
@@ -257,9 +255,8 @@ class HDF5File(ABC, h5py.File):
                 dataset_key not in self.elements['link']
         ):
             raise KeyError(
-                "The key '%s' does not identify a dataset or link in '%s'"
-                %
-                (dataset_key, self.filename)
+                f"The key '{dataset_key!s}' does not identify a dataset or "
+                f"link in '{self.filename!s}'"
             )
 
         if must_exist:
@@ -268,9 +265,8 @@ class HDF5File(ABC, h5py.File):
                             substitutions)
             if dataset_path not in self:
                 raise IOError(
-                    "Requried dataset ('%s') '%s' does not exist in '%s'"
-                    %
-                    (dataset_key, dataset_path, self.filename)
+                    f"Requried dataset ('{dataset_key}') '{dataset_path}' does "
+                    f"not exist in '{self.filename}'"
                 )
 
     @classmethod
@@ -329,8 +325,8 @@ class HDF5File(ABC, h5py.File):
         """Create an etree.Element decsribing the currently defined layout."""
 
         root = etree.Element('group',
-                             dict(name=self._get_root_tag_name(),
-                                  version=self._file_structure_version))
+                             {'name': self._get_root_tag_name(),
+                              'version': self._file_structure_version})
 
         def require_parent(path, must_be_group):
             """
@@ -481,6 +477,8 @@ class HDF5File(ABC, h5py.File):
 
     #The path_substitutions arg is used by overloading functions.
     #pylint: disable=unused-argument
+    #The point of this function is to handle many cases
+    #pylint: disable=too-many-branches
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
         """
         Return all arguments to pass to create_dataset() except the content.
@@ -500,7 +498,7 @@ class HDF5File(ABC, h5py.File):
         self._check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
-        result = dict(shuffle=dataset_config.shuffle)
+        result = {'shuffle': dataset_config.shuffle}
 
         dtype = self.get_dtype(dataset_key)
         if dtype is not None:
@@ -585,6 +583,8 @@ class HDF5File(ABC, h5py.File):
 
         return result
     #pylint: enable=unused-argument
+    #pylint: enable=too-many-branches
+
 
     @staticmethod
     def hdf5_class_string(hdf5_class):
@@ -671,9 +671,9 @@ class HDF5File(ABC, h5py.File):
                 return parent.attrs[attribute_name]
             if if_exists == 'error':
                 raise HDF5LayoutError(
-                    "Attribute '%s/%s.%s' already exists!"
-                    %
-                    (self.filename, parent_path, attribute_name)
+                    "Attribute "
+                    f"'{self.filename}/{parent_path}.{attribute_name}' "
+                    "already exists!"
                 )
             assert if_exists == 'overwrite'
 
@@ -738,27 +738,15 @@ class HDF5File(ABC, h5py.File):
                     return existing_target_path
 
                 raise IOError(
-                    "Unable to create link with key %s: a link at '%s' already"
-                    " exists in '%s', and points to '%s' instead of '%s'!"
-                    %
-                    (
-                        link_key,
-                        link_path,
-                        self.filename,
-                        existing_target_path,
-                        target_path
-                    )
+                    f"Unable to create link with key {link_key}: a link at "
+                    f"'{link_path}' already exists in '{self.filename}', and "
+                    f"points to '{existing_target_path}' instead of "
+                    f"'{target_path}'!"
                 )
             raise IOError(
-                "Unable to create link with key %s: a %s at '%s' already"
-                " exists in '%s'!"
-                %
-                (
-                    link_key,
-                    self.hdf5_class_string(existing_class),
-                    link_path,
-                    self.filename,
-                )
+                f"Unable to create link with key {link_key}: a "
+                f"{self.hdf5_class_string(existing_class)} at '{link_path}' "
+                f"already exists in '{self.filename}'!"
             )
         self[link_path] = h5py.SoftLink(target_path)
         return target_path
@@ -875,7 +863,10 @@ class HDF5File(ABC, h5py.File):
 
         created_dataset = self.dump_file_or_text(
             dataset_key,
-            (open(fname, 'r') if os.path.exists(fname) else None),
+            #Switching to if would result in unnecessarily complicated code
+            #pylint: disable=consider-using-with
+            (open(fname, 'rb') if os.path.exists(fname) else None),
+            #pylint: enable=consider-using-with
             if_exists,
             **substitutions
         )
@@ -883,11 +874,11 @@ class HDF5File(ABC, h5py.File):
             if created_dataset:
                 os.remove(fname)
             else:
-                raise IOError("Dataset '%s' containing a dump of '%s' not "
-                              "created in '%s' but original deletion was "
-                              "requested!"
-                              %
-                              (dataset_key, fname, self.filename))
+                raise IOError(
+                    f"Dataset '{dataset_key}' containing a dump of '{fname}' "
+                    f"not created in '{self.filename}' but original deletion "
+                    "was requested!"
+                )
 
     def get_attribute(self,
                       attribute_key,
@@ -922,17 +913,13 @@ class HDF5File(ABC, h5py.File):
 
         if attribute_key not in self._file_structure:
             raise KeyError(
-                "The key '%s' does not exist in the list of configured HDF5 "
-                "file structure."
-                %
-                attribute_key
+                f"The key '{attribute_key}' does not exist in the list of "
+                "configured HDF5 file structure."
             )
         if attribute_key not in self.elements['attribute']:
             raise KeyError(
-                "The key '%s' does not correspond to an attribute in the "
-                "configured HDF5 file structure."
-                %
-                attribute_key
+                f"The key '{attribute_key}' does not correspond to an attribute"
+                " in the configured HDF5 file structure."
             )
 
         attribute_config = self._file_structure[attribute_key]
@@ -944,24 +931,16 @@ class HDF5File(ABC, h5py.File):
             if default_value is not None:
                 return default_value
             raise IOError(
-                "Requested attribute (%s) '%s' from a non-existent path: '%s' "
-                "in '%s'!"
-                %
-                (
-                    attribute_key,
-                    attribute_name,
-                    parent_path,
-                    self.filename,
-                )
+                f"Requested attribute ({attribute_key}) '{attribute_name}' from"
+                f" a non-existent path: '{parent_path}' in '{self.filename}'!"
             )
         parent = self[parent_path]
         if attribute_name not in parent.attrs:
             if default_value is not None:
                 return default_value
             raise IOError(
-                "The attribute (%s) '%s' is not defined for '%s' in '%s'!"
-                %
-                (attribute_key, attribute_name, parent_path, self.filename)
+                f"The attribute ({attribute_key}) '{attribute_name}' is not "
+                f"defined for '{parent_path}' in '{self.filename}'!"
             )
         return parent.attrs[attribute_name]
 
@@ -1013,8 +992,8 @@ class HDF5File(ABC, h5py.File):
 
         dataset = self[dataset_path]
         variable_length_dtype = h5py.check_dtype(vlen=dataset.dtype)
-        if variable_length_dtype is not None:
-            result_dtype = variable_length_dtype
+#        if variable_length_dtype is not None:
+#            result_dtype = variable_length_dtype
 
         if dataset.size == 0:
             result = numpy.full(
@@ -1133,18 +1112,15 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_path in self:
             print(
-                'Dataset {0!r} already existis in {1!r}!'.format(
-                    dataset_path,
-                    self.filename
-                )
-            )
+                f'Dataset {dataset_path!r} already existis in '
+                f'{self.filename!r}!'            )
             if if_exists == 'ignore':
                 return
             if if_exists == 'error':
-                raise IOError("Dataset ('%s') '%s' already exists in '%s' and "
-                              "overwriting is not allowed!"
-                              %
-                              (dataset_key, dataset_path, self.filename))
+                raise IOError(
+                    f"Dataset ('{dataset_key}') '{dataset_path}' already exists"
+                    f" in '{self.filename}' and overwriting is not allowed!"
+                )
             self._delete_obsolete_dataset(dataset_key, **substitutions)
 
         creation_args = self.get_dataset_creation_args(dataset_key,
@@ -1181,9 +1157,6 @@ class HDF5File(ABC, h5py.File):
             assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
             creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
 
-        if 'scaleoffset' in creation_args:
-            assert data is None or numpy.isfinite(data_copy).all()
-
         logging.getLogger(__name__).debug(
             'Creating dataset %s with shape %s, input dtype %s, '
             'creation_args %s',
@@ -1192,6 +1165,10 @@ class HDF5File(ABC, h5py.File):
             repr(None if data_copy is None else data_copy.dtype),
             repr(creation_args)
         )
+
+        if 'scaleoffset' in creation_args:
+            assert data is None or numpy.isfinite(data_copy).all()
+
         self.create_dataset(
             dataset_path,
             data=data_copy,

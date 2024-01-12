@@ -8,11 +8,7 @@ from sqlalchemy import \
     ForeignKey
 from sqlalchemy.orm import relationship
 
-# Comment for database testing
 from superphot_pipeline.database.data_model.base import DataModelBase
-
-# For database testing
-# from base import DataModelBase
 
 __all__ = ['Condition']
 

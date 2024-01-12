@@ -122,9 +122,13 @@ def init_processing():
                                                  notes='Default expression')
         db_session.add(default_expression)
 
+        #False positive
+        #pylint: disable=not-callable
         default_condition = Condition(id=1,
                                       expression_id=default_expression.id,
                                       notes='Default configuration')
+        #pylint: enable=not-callable
+
         db_session.add(default_condition)
 
         for step_id, (step_name, dependencies) in enumerate(step_dependencies):
@@ -173,6 +177,8 @@ def init_processing():
                             name=param,
                             description=description
                         )
+                        #False positive
+                        #pylint: disable=not-callable
                         configuration = Configuration(
                             version=0,
                             condition_id=default_condition.id,
@@ -182,6 +188,7 @@ def init_processing():
                                 param
                             ]
                         )
+                        #pylint: enable=not-callable
                         configuration.parameter = db_parameters[param]
                         db_configurations.append(configuration)
                     db_steps[step_name].parameters.append(db_parameters[param])

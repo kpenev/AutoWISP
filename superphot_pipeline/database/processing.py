@@ -5,7 +5,7 @@
 from tempfile import NamedTemporaryFile
 import logging
 
-from sqlalchemy import sql, select, tuple_, and_
+from sqlalchemy import sql, select, update, tuple_, and_
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
@@ -27,6 +27,7 @@ from superphot_pipeline.database.data_model import\
 #pylint: enable=no-name-in-module
 
 
+#pylint: disable=too-many-instance-attributes
 class ProcessingManager:
     """
     Read configuration and record processing progress in the database.
@@ -81,6 +82,8 @@ class ProcessingManager:
     def _get_db_configuration(self, version, db_session):
         """Return list of Configuration instances given version."""
 
+        #False positives:
+        #pylint: disable=no-member
         param_version_subq = select(
             Configuration.parameter_id,
             #False positivie
@@ -112,6 +115,7 @@ class ProcessingManager:
                 )
             )
         ).all()
+        #pylint: enable=no-member
 
 
     def _write_config_file(self, matched_expressions, outf, steps=None):
@@ -263,7 +267,7 @@ class ProcessingManager:
         raise ValueError(f'Invalid step input type {step_input_type}')
 
 
-    def _evaluate_expressions_image(self, image, step_input_type):
+    def _evaluate_expressions_image(self, image):
         """Add calibrated and DR filenames as attributes to given image."""
 
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
@@ -365,7 +369,7 @@ class ProcessingManager:
         ).where(
             ProcessedImages.progress_id.in_(required_progress_ids)
         ).where(
-            ProcessedImages.status == 0
+            ProcessedImages.status > 0
         ).group_by(
             ProcessedImages.image_id,
             ProcessedImages.channel
@@ -405,9 +409,59 @@ class ProcessingManager:
                 pending_image_id_subq.c.channel
             ).join(
                 pending_image_id_subq,
+                #False positive
+                #pylint: disable=no-member
                 Image.id == pending_image_id_subq.c.image_id
+                #pylint: enable=no-member
             )
         ).all()
+
+
+    def _cleanup_interrupted(self, db_session):
+        """Cleanup previously interrupted processing for the current step."""
+
+        step_module = getattr(processing_steps, self.current_step.name)
+
+        matched_expressions = None
+        for image, processed in db_session.execute(
+            select(
+                Image, ProcessedImages
+            ).join(
+                ProcessedImages
+            ).where(
+                ProcessedImages.progress_id == self._current_processing.id
+            ).where(
+                ProcessedImages.status == 0
+            )
+        ):
+            if image.id not in self._evaluated_expressions:
+                self._evaluate_expressions_image(image)
+
+            image_matches = self._evaluated_expressions[
+                image.id
+            ][
+                processed.channel
+            ][
+                'expressions'
+            ]
+            if image_matches != matched_expressions:
+                matched_expressions = image_matches
+                config = self._get_config(
+                    matched_expressions,
+                    step=self.current_step.name
+                )
+                config['processing_step']=self.current_step.name
+
+            interrupted_fname = self._get_step_input(image,
+                                                     processed.channel,
+                                                     step_module.input_type)
+            self._logger.warning(
+                'Cleaning up interrupted %s processing of %s',
+                self.current_step.name,
+                interrupted_fname
+            )
+            step_module.cleanup_interrupted(interrupted_fname, config)
+            db_session.delete(processed)
 
 
     def _init_processed_ids(self, image, channels, step_input_type):
@@ -473,6 +527,8 @@ class ProcessingManager:
                 )
                 db_session.add(self._current_processing)
 
+            self._cleanup_interrupted(db_session)
+
             pending_images = self._get_pending_images(db_session)
             self._logger.debug('Pending images: %s', repr(pending_images))
             self._processed_ids = {}
@@ -486,7 +542,7 @@ class ProcessingManager:
 
             for image, channel_name in pending_images:
                 if image.id not in self._evaluated_expressions:
-                    self._evaluate_expressions_image(image, step_input_type)
+                    self._evaluate_expressions_image(image)
                 self._init_processed_ids(image, [channel_name], step_input_type)
 
             return pending_images, step_input_type
@@ -500,12 +556,47 @@ class ProcessingManager:
         getattr(step_module, step_name)(
             batch,
             config,
-            self._record_processed
+            self._start_processing,
+            self._end_processing
         )
 
-    def _record_processed(self, input_fname, status=0):
+
+    def _start_processing(self, input_fname):
         """
-        Record that the given input filename was processed by the current step.
+        Mark in the database that processing the given file has begun.
+
+        Args:
+            input_fname:    The filename of the input (DR or FITS) that is about
+                to begin processing.
+
+        Returns:
+            None
+        """
+
+        assert self.current_step is not None
+        assert self._current_processing is not None
+        self._logger.debug('Starting processing IDs: %s',
+                           repr(self._processed_ids))
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            for starting_id in self._processed_ids[input_fname]:
+                db_session.add(
+                    ProcessedImages(
+                        **starting_id,
+                        progress_id=db_session.merge(
+                            self._current_processing,
+                            load=False
+                        ).id,
+                        status=0
+                    )
+                )
+
+
+    def _end_processing(self, input_fname, status=1):
+        """
+        Record that the current step has finished processing the given file.
 
         Args:
             input_fname:    The filename of the input (DR or FITS) that was
@@ -517,22 +608,27 @@ class ProcessingManager:
 
         assert self.current_step is not None
         assert self._current_processing is not None
-        self._logger.debug('Processed IDs: %s', repr(self._processed_ids))
+        self._logger.debug('Finished processing IDs: %s',
+                           repr(self._processed_ids))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            for done_id in self._processed_ids[input_fname]:
-                db_session.add(
-                    ProcessedImages(
-                        **done_id,
-                        status=status,
-                        progress_id=db_session.merge(
+            db_session.execute(
+                update(ProcessedImages),
+                [
+                    {
+                        'image_id': finished_id['image_id'],
+                        'channel': finished_id['channel'],
+                        'progress_id': db_session.merge(
                             self._current_processing,
                             load=False
-                        ).id
-                    )
-                )
+                        ).id,
+                        'status': status
+                    }
+                    for finished_id in self._processed_ids[input_fname]
+                ]
+            )
 
 
     def __init__(self, version=None):
@@ -563,7 +659,12 @@ class ProcessingManager:
 
             if version is None:
                 version = db_session.execute(
+                    #False positivie
+                    #pylint: disable=not-callable
+                    #pylint: disable=no-member
                     select(sql.func.max(Configuration.version))
+                    #pylint: enable=not-callable
+                    #pylint: enable=no-member
                 ).scalar_one()
 
             db_configuration = self._get_db_configuration(version, db_session)
@@ -599,11 +700,12 @@ class ProcessingManager:
     def __call__(self, steps=None):
         """Perform all the processing for the given step."""
 
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
-            if steps is None:
+
+        if steps is None:
+            #False positivie
+            #pylint: disable=no-member
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
                 steps = db_session.scalars(select(Step.name)).all()
 
         for step_name in steps:
@@ -717,6 +819,7 @@ class ProcessingManager:
                                         steps)
         else:
             self._write_config_file(matched_expressions, outf, steps)
+#pylint: enable=too-many-instance-attributes
 
 
 if __name__ == '__main__':

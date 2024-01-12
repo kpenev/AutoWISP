@@ -91,9 +91,9 @@ class LCDataSlice(Structure):
                 The number of frames that will fit into the structure.
         """
 
-        atomic_ctypes = dict()
+        atomic_ctypes = {}
 
-        dset_size = dict()
+        dset_size = {}
         perframe_bytes = 0
         for dset_name, dset_dimensions in dataset_dimensions.items():
             if 'frame' in dset_dimensions or 'source' in dset_dimensions:
@@ -117,10 +117,10 @@ class LCDataSlice(Structure):
                 #Too complicated to make lazy
                 #pylint: disable=logging-not-lazy
                 _logger.debug(
-                    'Dset: %s size = %d (' % (dset_name, dset_size[dset_name])
+                    f'Dset: {dset_name} size = {dset_size[dset_name]:d} ('
                     +
                     ' x '.join(
-                        '(%d %s)' % (max_dimension_size[dimension], dimension)
+                        f'({max_dimension_size[dimension]:d} {dimension!s})'
                         for dimension in filter(lambda d: d != 'frame',
                                                 dset_dimensions)
                     )

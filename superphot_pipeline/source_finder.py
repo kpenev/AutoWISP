@@ -101,6 +101,7 @@ class SourceFinder:
                  tool='hatphot',
                  brightness_threshold=10,
                  filter_sources='True',
+                 max_sources=0,
                  allow_overwrite=False,
                  allow_dir_creation=False,
                  always_return_sources=False):
@@ -112,7 +113,8 @@ class SourceFinder:
             'allow_overwrite': allow_overwrite,
             'allow_dir_creation': allow_dir_creation,
             'always_return_sources': always_return_sources,
-            'filter_sources': filter_sources
+            'filter_sources': filter_sources,
+            'max_sources': max_sources
         }
 
     def __call__(self, fits_fname, source_fname=None, **configuration):
@@ -169,6 +171,10 @@ class SourceFinder:
                 result = result[
                     Evaluator(result)(configuration['filter_sources'])
                 ]
+            result.sort(order='flux')
+            result = numpy.flip(result)
+            if configuration['max_sources'] > 0:
+                result = result[:configuration['max_sources']]
 
             if not source_fname:
                 extraction_process.communicate()

@@ -34,7 +34,7 @@ class Evaluator(asteval.Interpreter):
                     self.symtable[varname] = data_entry[varname]
             elif isinstance(data_entry, pandas.DataFrame):
                 for varname in data_entry:
-                    print('Setting symtable {0}'.format(varname))
+                    print(f'Setting symtable {varname}')
                     self.symtable[varname] = data_entry[varname].to_numpy()
             elif (isinstance(data_entry, str) and path.exists(data_entry)):
                 if path.splitext(data_entry)[-1] in ['.h5', '.hdf5']:

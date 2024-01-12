@@ -9,9 +9,10 @@ from sqlalchemy import\
     String,\
     ForeignKey,\
     TIMESTAMP
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
+from superphot_pipeline.database.data_model.condition import Condition
 
 __all__ = ['Configuration']
 
@@ -64,3 +65,9 @@ class Configuration(DataModelBase):
         uselist=True
     )
     parameter = relationship("Parameter")
+
+    def __repr__(self):
+        return (
+            f'Config v{self.version}: {self.parameter.name}={self.value} '
+            f'if {self.conditions!r}'
+        )

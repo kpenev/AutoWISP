@@ -4,6 +4,7 @@
 
 import re
 import logging
+import os
 
 from configargparse import Action
 from general_purpose_python_modules.multiprocessing_util import setup_process
@@ -13,6 +14,7 @@ from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     ignore_progress
+from superphot_pipeline.image_calibration.fits_util import get_raw_header
 
 input_type = 'raw'
 _logger = logging.getLogger(__name__)
@@ -224,15 +226,26 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def calibrate(image_collection, configuration, mark_progress):
+def calibrate(image_collection, configuration, mark_start, mark_end):
     """Calibrate the images from the specified collection."""
 
     _logger.debug('Image collection: %s', repr(image_collection))
     calibrate_image = Calibrator(**configuration)
     for image_fname in image_collection:
         _logger.debug('Calibrating: %s', repr(image_fname))
+        mark_start(image_fname)
         calibrate_image(image_fname)
-        mark_progress(image_fname)
+        mark_end(image_fname)
+
+
+def cleanup_inerrupted(interrupted_raw_fname, configuration):
+    """Cleanup file system after partially calibrated images."""
+
+    calibrated_fname = configuration['calibrated_fname'].format_map(
+        get_raw_header(interrupted_raw_fname, configuration['raw_hdu'])
+    )
+    if os.path.exists(calibrated_fname):
+        os.remove(calibrated_fname)
 
 
 if __name__ == '__main__':
@@ -244,5 +257,6 @@ if __name__ == '__main__':
             cmdline_config.pop('calibrate_only_if')
         ),
         cmdline_config,
+        ignore_progress,
         ignore_progress
     )

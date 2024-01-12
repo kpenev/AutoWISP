@@ -291,20 +291,16 @@ class Calibrator(Processor):
                             ' ' + master_component
                             +
                             (
-                                ' shape (%dx%d) does not match the image area '
-                                'specified during calibration '
-                                '(%d < x < %d, %d < y < %d).'
-                            )
-                            %
-                            (
-                                master_shape
-                                +
-                                (
-                                    calib_params['image_area']['xmin'],
-                                    calib_params['image_area']['xmax'],
-                                    calib_params['image_area']['ymin'],
-                                    calib_params['image_area']['ymax']
-                                )
+                                ' shape '
+                                f'({master_shape[0]:d}x{master_shape[0]:d}) '
+                                'does not match the image area specified during'
+                                ' calibration '
+                                f"({calib_params['image_area']['xmin']:d} "
+                                '< x < '
+                                f"{calib_params['image_area']['xmax']:d}, "
+                                f"{calib_params['image_area']['ymin']:d} "
+                                '< y < '
+                                f"{calib_params['image_area']['ymax']:d})."
                             )
                         )
 

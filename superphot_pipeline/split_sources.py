@@ -97,6 +97,9 @@ class SplitSources:
         self.mag_split_min_sources = mag_split_by_source_count
         assert self.radius_splits[0] == 0
 
+
+    #TODO: See if it can be simplified
+    #pylint: disable=too-many-locals
     def __call__(self, sources, image_resolution):
         """
         Return an array of integers grouping PRF fitting sources as specified.
@@ -190,4 +193,7 @@ class SplitSources:
                 group_id += 1
 
         return grouping, in_frame
+    #pylint: enable=too-many-locals
+
+
 #pylint: enable=too-few-public-methods

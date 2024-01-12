@@ -22,10 +22,10 @@ class AnmatchTransformation:
             None
         """
 
-        self.coefficients = dict(x=[], y=[])
+        self.coefficients = {'x': [], 'y': []}
         if trans_file is not None:
             if os.path.exists(trans_file):
-                with open(trans_file) as trans_lines:
+                with open(trans_file, encoding='ascii') as trans_lines:
                     self.read_anmatch_transformation(trans_lines)
             else:
                 self.read_anmatch_transformation(trans_file)
@@ -49,7 +49,7 @@ class AnmatchTransformation:
                     #pylint: disable=invalid-name
                     ra, dec = map(float, line[1:].strip().split()[1:3])
                     #pylint: enable=invalid-name
-                    self.center = dict(RA=ra, Dec=dec)
+                    self.center = {'RA': ra, 'Dec': dec}
             else:
                 key, value = map(str.strip, line.split('='))
                 if key == 'type':

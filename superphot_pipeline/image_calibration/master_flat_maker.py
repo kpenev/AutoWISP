@@ -114,7 +114,7 @@ class MasterFlatMaker(MasterMaker):
         >>>     zoom_interp_order=3
         >>> )
         >>>
-        >>> #Configuration for smoothnig for the purposes of checking for clouds.
+        >>> #Configuration for smoothnig when checking for clouds.
         >>> #After smoothing to the master large scale structure:
         >>> #  * extract a central stamp is extracted from each flat covering
         >>> #    3/4 of the frame along each dimension
@@ -168,7 +168,8 @@ class MasterFlatMaker(MasterMaker):
         >>>
         >>> #Create an object for stacking calibrated flat frames to master
         >>> #flats. In addition to the stamp-based rejections:
-        >>> #  * reject flats that point within 40 arcsec of each other on the sky.
+        >>> #  * reject flats that point within 40 arcsec of each other on the
+        >>> #    sky.
         >>> #  * Require at least 10 frames to be combined into a high master
         >>> #    and at least 5 for a low master.
         >>> #  * if the smoothed cloud-check image contains pixels with absolute
@@ -213,9 +214,12 @@ class MasterFlatMaker(MasterMaker):
                    ('num_averaged', numpy.uint)]
         )
         for frame_index, fname in enumerate(frame_list):
+            #False positive
+            #pylint: disable=unbalanced-tuple-unpacking
             image, mask = read_image_components(fname,
                                                 read_error=False,
                                                 read_header=False)
+            #pylint: enable=unbalanced-tuple-unpacking
 
             y_size = int(image.shape[0]
                          *
@@ -248,8 +252,12 @@ class MasterFlatMaker(MasterMaker):
                 stamp_statistics[frame_index] = numpy.nan, numpy.nan, numpy.nan
             else:
                 smooth_stamp = stamp_statistics_config['smoother'].detrend(
+                    #False positive
+                    #pylint: disable=unsubscriptable-object
                     image[y_off : y_off + y_size, x_off : x_off + x_size]
+                    #pylint: enable=unsubscriptable-object
                 )
+
                 stamp_statistics[frame_index] = iterative_rejection_average(
                     smooth_stamp.flatten(),
                     average_func=stamp_statistics_config['average'],
@@ -305,7 +313,11 @@ class MasterFlatMaker(MasterMaker):
                 or
                 stamp_select_config['cloudy_frame_threshold'] is not None
         ):
-            fit_coef, residual, best_fit_variance = iterative_rej_polynomial_fit(
+            (
+                fit_coef,
+                residual,
+                best_fit_variance
+            ) = iterative_rej_polynomial_fit(
                 x=stamp_statistics['mean'],
                 y=stamp_statistics['variance'],
                 order=2,
@@ -318,22 +330,17 @@ class MasterFlatMaker(MasterMaker):
                 return_predicted=True
             )
 
-            print("Flat stamp pixel statistics:\n\t%50s|%10s|%10s|%10s"
-                  %
-                  ("frame", "mean", "std", "fitstd"))
+            print('Flat stamp pixel statistics:\n'
+                  f'\t{"frame":50s}|{"mean":10s}|{"std":10s}|{"fitstd":10s}')
             print("\t" + 92 * '_')
             for fname, stat, fitvar in zip(frame_list,
                                            stamp_statistics,
                                            best_fit_variance):
-                print("\t%50s|%10g|%10g|%10g"
-                      %
-                      (fname,
-                       stat['mean'],
-                       stat['variance']**0.5,
-                       fitvar**0.5))
-            print("Best fit quadratic: %f + %f*m + %f*m^2; residue=%f"
-                  %
-                  (tuple(fit_coef) + (residual,)))
+                print(f"\t{fname:50s}|{stat['mean']:10g}|"
+                      f"{stat['variance']**0.5:10g}|{fitvar**0.5:10g}")
+            print('Best fit quadratic: '
+                  f'{fit_coef[0]:f} + {fit_coef[1]:f}*m + {fit_coef[2]:f}*m^2; '
+                  f'residual={residual:f}')
 
             if(
                     (
@@ -464,8 +471,8 @@ class MasterFlatMaker(MasterMaker):
 
         super().__init__()
 
-        self.stamp_statistics_config = dict()
-        self.stamp_select_config = dict()
+        self.stamp_statistics_config = {}
+        self.stamp_select_config = {}
         self.large_scale_smoother = large_scale_smoother
         self.cloud_check_smoother = cloud_check_smoother
         self.master_stack_config = master_stack_config
@@ -476,7 +483,7 @@ class MasterFlatMaker(MasterMaker):
         if stamp_select_config is not None:
             self.configure_stamp_selection(**stamp_select_config)
 
-        self._master_large_scale = dict()
+        self._master_large_scale = {}
 
     def configure_stamp_statistics(self,
                                    *,
@@ -658,10 +665,12 @@ class MasterFlatMaker(MasterMaker):
                  *,
                  compress=True,
                  allow_overwrite=False,
-                 stamp_statistics_config=dict(),
-                 stamp_select_config=dict(),
-                 master_stack_config=dict(),
-                 custom_header=dict()):
+                 stamp_statistics_config=None,
+                 stamp_select_config=None,
+                 master_stack_config=None,
+                 custom_header=None):
+        #No good way to avoid
+        #pylint: disable=line-too-long
         """
         Attempt to create high & low master flat from the given frames.
 
@@ -722,8 +731,18 @@ class MasterFlatMaker(MasterMaker):
                         as cloudy either based on their stamps or on the final
                         full-frame cloud check.
         """
+        #pylint: enable=line-too-long
 
-        frames = dict()
+        if stamp_statistics_config is None:
+            stamp_statistics_config = {}
+        if stamp_select_config is None:
+            stamp_select_config = {}
+        if master_stack_config is None:
+            master_stack_config = {}
+        if custom_header is None:
+            custom_header = {}
+
+        frames = {}
         isolated_frames, frames['colocated'] = self._find_colocated(frame_list)
 
         print('Isolated:\n\t' + '\n\t'.join(isolated_frames))
@@ -739,23 +758,23 @@ class MasterFlatMaker(MasterMaker):
 
         print('Stamp frame classification:')
         for key, filenames in frames.items():
-            print('\t%s (%d):\n\t\t' % (key, len(filenames))
+            print(f'\t{key:s} ({len(filenames):d}):\n\t\t'
                   +
                   '\n\t\t'.join(filenames))
 
-        min_combine = dict(
-            high=master_stack_config.get(
+        min_combine = {
+            'high': master_stack_config.get(
                 'min_high_combine',
                 self.master_stack_config['min_high_combine']
             ),
-            low=master_stack_config.get(
+            'low': master_stack_config.get(
                 'min_low_combine',
                 self.master_stack_config['min_low_combine']
             )
-        )
+        }
 
         if len(frames['high']) >= min_combine['high']:
-            self._master_large_scale = dict()
+            self._master_large_scale = {}
             (
                 self._master_large_scale['values'],
                 self._master_large_scale['stdev'],
@@ -802,14 +821,13 @@ class MasterFlatMaker(MasterMaker):
                 for frame in more_cloudy_frames:
                     frames['low'].remove(frame)
             else:
-                print(('Skipping low master flat since only %d frames remain, '
-                       'but %d are required')
-                      %
-                      (len(frames['low']), min_combine['low']))
+                print('Skipping low master flat since only '
+                      f"{len(frames['low']):d} frames remain, "
+                      f"but {min_combine['low']:d} are required")
 
         print('Final frame classification:')
         for key, filenames in frames.items():
-            print('\t%s (%d):\n\t\t' % (key, len(filenames))
+            print(f'\t{key:s} ({len(filenames):d}):\n\t\t'
                   +
                   '\n\t\t'.join(filenames))
         return frames

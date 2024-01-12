@@ -95,12 +95,12 @@ class ReconstructiveCorrectionTransit:
 
         if self.fit_amplitude:
             with LightCurveFile(lc_fname, 'r') as light_curve:
-                extra_predictors = dict(
-                    transit=magnitude_change(light_curve,
-                                             self.transit_model,
-                                             *transit_parameters_pos,
-                                             **transit_parameters_kw)
-                )
+                extra_predictors = {
+                    'transit': magnitude_change(light_curve,
+                                                self.transit_model,
+                                                *transit_parameters_pos,
+                                                **transit_parameters_kw)
+                }
         else:
             self.transit_parameters = (transit_parameters_pos,
                                        transit_parameters_kw)

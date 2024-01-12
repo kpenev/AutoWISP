@@ -86,9 +86,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         def report_indistinct_configurations(config_list):
             """Report all repeating configurations in an exception."""
 
-            message = ('Identical %s configurations found in %s:\n'
-                       %
-                       (component, self.filename))
+            message = (f'Identical {component!s} configurations found in '
+                       f'{self.filename}:\n')
             hash_list = [hash(c) for c in config_list]
             for config in set(config_list):
                 if config_list.count(config) != 1:
@@ -98,7 +97,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                          if this_hash == h]
                     ) + ') contain: \n'
                     for key, value in zip(quantities, config):
-                        message += '\t %s = %s\n' % (key, repr(value))
+                        message += f'\t {key} = {value!r}\n'
             raise IOError(message)
 
         substitution_set = frozenset(substitutions.items())
@@ -120,7 +119,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         result = {hash(config): (index, config)
                   for index, config in enumerate(stored_config_sets)}
         if component not in self._configurations:
-            self._configurations[component] = dict()
+            self._configurations[component] = {}
         self._configurations[component][substitution_set] = result
         return result
 
@@ -144,8 +143,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         """
 
         super().__init__(*args, **kwargs)
-        self._configurations = dict()
-        self._config_indices = dict()
+        self._configurations = {}
+        self._config_indices = {}
 
         if 'Identifiers' not in self and self.driver != 'core':
             if not source_ids:
@@ -202,7 +201,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         **substitutions
                     )
                     if config_component not in self._config_indices:
-                        self._config_indices[config_component] = dict()
+                        self._config_indices[config_component] = {}
                     self._config_indices[config_component][substitution_key] = (
                         result
                     )
@@ -271,6 +270,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                            component,
                            configurations,
                            config_indices,
+                           *,
                            resolve_size=None,
                            config_index_selection=None,
                            **substitutions):
@@ -366,14 +366,11 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         if config_index_selection is not None:
             print(
                 (
-                    'Adding configurations for {0!r} in {1!r} for indices '
-                    '(shape={2.shape!r}): {2!r}, index selection '
-                    '(shape={3.shape!r}): {3!r}'
-                ).format(
-                    component,
-                    self.filename,
-                    config_indices,
-                    config_index_selection
+                    f'Adding configurations for {component!r} in '
+                    f'{self.filename!r} for indices '
+                    f'(shape={config_indices.shape!r}): {config_indices!r}, '
+                    f'index selection (shape={config_index_selection.shape!r}):'
+                    f' {config_index_selection!r}'
                 )
             )
 
@@ -390,6 +387,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                                  shape=new_data.shape,
                                  dtype=new_data.dtype,
                                  **substitutions)
+                #This is actually more readable
+                #pylint: disable=consider-using-f-string
                 print(
                     (
                         'Adding entries to {!s} in {!r}: dset shape {!r}, '
@@ -421,6 +420,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         new_data.shape
                     )
                 )
+                #pylint: enable=consider-using-f-string
 
                 self[self._file_structure[pipeline_key].abspath
                      %
@@ -486,18 +486,13 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 try:
                     all_data = numpy.concatenate((dataset[:confirmed_length],
                                                   data_copy))
-                except:
+                except Exception as exc:
                     raise IOError(
-                        "Failed to read lightcurve dataset '%s/%s' "
-                        "(actual length of %d, expected %d)!"
-                        %
-                        (
-                            self.filename,
-                            dataset.name,
-                            len(dataset),
-                            confirmed_length
-                        )
-                    )
+                        'Failed to read lightcurve dataset '
+                        f"'{self.filename}/{dataset.name}' "
+                        f'(actual length of {len(dataset):d}, '
+                        f'expected {confirmed_length:d})!'
+                    ) from exc
                 self.add_dataset(
                     dataset_key=dataset_key,
                     data=all_data,
@@ -525,28 +520,17 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     resolve_size != 'actual'
             ):
                 raise IOError(
-                    'The %s dataset of %s has a length of %d, smaller '
-                    'than the confirmed length of the lightcurve (%d).'
-                    %
-                    (
-                        dataset_path,
-                        self.filename,
-                        actual_length,
-                        confirmed_length
-                    )
+                    f'The {dataset_path} dataset of {self.filename} has a '
+                    f'length of {actual_length}, smaller than the confirmed '
+                    f'length of the lightcurve ({confirmed_length}).'
                 )
             if confirmed_length != actual_length:
                 if not resolve_size:
                     raise IOError(
-                        "The lightcurve dataset '%s/%s' has an actual "
-                        "length of %d, expected %d!"
-                        %
-                        (
-                            self.filename,
-                            dataset_path,
-                            len(dataset),
-                            confirmed_length
-                        )
+                        "The lightcurve dataset "
+                        f"'{self.filename}/{dataset_path}' has an actual "
+                        f"length of {len(dataset):d}, expected "
+                        f"{confirmed_length:d}!"
                     )
                 if resolve_size == 'actual':
                     confirmed_length = actual_length

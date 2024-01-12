@@ -45,14 +45,15 @@ class EPDCorrection(Correction):
         def format_substitutions(substitutions):
             """Return a string of `var=value` containing the given subs dict."""
 
-            return '; '.join('%s = %s' % item for item in substitutions.items())
+            return '; '.join(f'{item[0]} = {item[1]}'
+                             for item in substitutions.items())
 
         fit_variables_str = '; '.join([
-            '%s = %s (%s)'
-            %
-            (var_name, dataset_key, format_substitutions(substitutions))
-            for var_name, (dataset_key,
-                           substitutions) in self.used_variables.items()
+            (
+                f'{var_name} = {dataset_key} '
+                f'({format_substitutions(substitutions)})'
+            ) for var_name, (dataset_key,
+                             substitutions) in self.used_variables.items()
         ])
         result = []
         for fit_target, fit_weights in zip(

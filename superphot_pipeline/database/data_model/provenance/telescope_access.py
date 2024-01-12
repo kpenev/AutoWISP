@@ -3,16 +3,8 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    String,\
-    Float,\
-    Date,\
     TIMESTAMP,\
-    DateTime,\
-    ForeignKey,\
-    Index,\
-    ForeignKeyConstraint
-
-from sqlalchemy.orm import relationship
+    ForeignKey
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 

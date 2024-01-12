@@ -180,8 +180,11 @@ def get_or_create_target(header_eval,
                     'dec': header_eval(configuration['target_dec'])}
 
     if db_target is None:
+        #False positive
+        #pylint: disable=not-callable
         db_target = Target(**image_target,
                            name=header_eval(configuration['target_name']))
+        #pylint: enable=not-callable
         db_session.add(db_target)
     else:
         image_target = SkyCoord(image_target['ra'] * units.deg,
@@ -344,7 +347,11 @@ def create_image(image_fname, header_eval, configuration, db_session):
     ).filter_by(
         type_name = image_type
     ).one()[0]
+
+    #False positive
+    #pylint: disable=not-callable
     return Image(raw_fname=image_fname, image_type_id=image_type_id)
+    #pylint: enable=not-callable
 
 
 def add_images_to_db(image_collection, configuration):

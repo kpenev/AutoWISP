@@ -61,9 +61,9 @@ class ProcessedImages(DataModelBase):
     status = Column(
         Integer,
         nullable=False,
-        doc='The status of the processing (0 = success, other values indicate '
-        'various reasons for failure). The meaning of non-zero values is step '
-        'dependent.'
+        doc='The status of the processing (0 = started, 1 = success, '
+        'negative values indicate various reasons for failure). The meaning of '
+        'negative values is step dependent.'
     )
     timestamp = Column(
         TIMESTAMP,

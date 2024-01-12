@@ -7,6 +7,8 @@ class Processor:
     Providing and enforcing uniform interface for config, recovery, and logging.
     """
 
+    default_configuration = {}
+
     def __init__(self, **configuration):
         """Prepare to process with the given configuration."""
 
@@ -17,9 +19,9 @@ class Processor:
     def __call__(self, **configuration):
         """Add/overwrite any configuration parameters at time of processing."""
 
-        for key in self.configuration:
+        for key, value in self.configuration.items():
             if key not in configuration:
-                configuration[key] = self.configuration[key]
+                configuration[key] = value
         return configuration
 
 #pylint: enable=too-few-public-methods
