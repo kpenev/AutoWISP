@@ -4,11 +4,42 @@ from os import path, makedirs
 from logging import getLogger
 
 from astropy.io import fits
-from astropy.time import Time
+from astropy.time import Time, TimeISO
 import numpy
 
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import Evaluator
+
+class TimeISOTNoSep(TimeISO):
+    """
+    A class to parse ISO times without any separators.
+    """
+    name = "isotnosep"
+    subfmts = (
+        (
+            "date_hms",
+            "%Y%m%dT%H%M%S",
+            "{year:d}{mon:02d}{day:02d}T{hour:02d}{min:02d}{sec:02d}",
+        ),
+        (
+            "date_hm",
+            "%Y%m%dT%H%M",
+            "{year:d}{mon:02d}{day:02d}T{hour:02d}{min:02d}",
+        ),
+        ("date", "%Y-%m-%d", "{year:d}{mon:02d}{day:02d}"),
+    )
+
+
+    # See TimeISO for explanation
+    fast_parser_pars = {
+        'delims': (0, 0, 0, ord('T'), 0, 0, 0, 0),
+        'starts': (0, 4, 6, 8, 11, 13, 15),
+        'stops': (3, 5, 7, 10, 12, 14, -1),
+        # Break allowed *before*
+        #                 y  m  d  h  m  s  f
+        'break_allowed': (0, 0, 0, 0, 0, 0, 0),
+        'has_day_of_year': 0
+    }
 
 
 def add_required_keywords(header, calibration_params):
