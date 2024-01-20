@@ -3,8 +3,12 @@
 """Plot brightness measurements vs time for a star."""
 
 from functools import partial
+from os import path
 
 from matplotlib import pyplot
+from matplotlib.backends.backend_pdf import PdfPages
+
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 import numpy
 from scipy import stats
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -16,13 +20,19 @@ from superphot_pipeline.light_curves.reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
 from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
+from superphot_pipeline.catalog import read_catalog_file
+from superphot_pipeline.tess_interface import get_tess_lightcurve
 
+#This is not third party
+#pylint: disable=wrong-import-order
 from plot_lc_scatter import\
     get_minimum_scatter,\
     get_specified_photometry,\
     add_scatter_arguments,\
     add_plot_config_arguments,\
     get_scatter_config
+#pylint: enable=wrong-import-order
+
 
 def parse_command_line():
     """Return the command line arguments as attributes of an object."""
@@ -41,7 +51,9 @@ def parse_command_line():
         'specified and only one binning mode, the assumption is that they are '
         'red, green, green, and blue LC of the same source, and hence plotted '
         'with corresponding colors (light and dark greed for the two green '
-        'chanels).'
+        'chanels). Alternatively, specify a format string and use the '
+        '`--from-catalog` option to plot any LCs in the catalog for which the.'
+        'pattern produces a filename that exists.'
     )
     parser.add_argument(
         '--config-file', '-c',
@@ -51,6 +63,17 @@ def parse_command_line():
     )
     add_scatter_arguments(parser)
     add_plot_config_arguments(parser)
+    parser.add_argument(
+        '--pages',
+        action='store_true',
+        help='If specified, each LCs is plotted on a separate page in a PDF.'
+    )
+    parser.add_argument(
+        '--from-catalog',
+        help='If specified, the stars to plotL are taken from the '
+        'specified catalog, and the source IDs are substituted in the format '
+        'string specified as positional argument to select lightcurves to plot.'
+    )
 
     parser.add_argument(
         '--aperture-index', '-a',
@@ -126,6 +149,26 @@ def parse_command_line():
         default=numpy.inf,
         type=float,
         help='Outliers larger than this times the scatter are not plotted.'
+    )
+    parser.add_argument(
+        '--time-bar',
+        default=None,
+        type=float,
+        help='If specified, a horizont bar is plotted with length corresponding'
+        ' to the given number of hours.'
+    )
+    parser.add_argument(
+        '--overplot-tess-lc',
+        default=None,
+        type=int,
+        help='If specified, the TESS LC of the given TIC is also added to the '
+        'plot. This usually only makes sense for phase folded plots.'
+    )
+    parser.add_argument(
+        '--shift-tess-bjd',
+        type=float,
+        default=0.0,
+        help='If specified, the TESS LC is shifted by the given number of days'
     )
     LCDetrendingArgumentParser.add_transit_parameters(
         parser,
@@ -329,7 +372,7 @@ def mark_transit(transit_flux,
         style=':'
 
 
-def get_skip_gap_axes(plot_x, min_gap, pad_frac=0.01):
+def get_skip_gap_axes(plot_x, min_gap, y_range, pad_frac=0.01):
     """Return list of axes skipping gaps in plot_x that exceed min_gap."""
 
     gap_indices = numpy.nonzero(plot_x[1:] - plot_x[:-1] > min_gap)[0]
@@ -346,8 +389,10 @@ def get_skip_gap_axes(plot_x, min_gap, pad_frac=0.01):
         1,
         gap_indices.size + 1,
         sharey=True,
-        gridspec_kw=dict(width_ratios=[l[1] - l[0] for l in ax_limits])
+        gridspec_kw=dict(width_ratios=[l[1] - l[0] for l in ax_limits]),
+        squeeze=False
     )
+    axes = axes.flatten()
 
     min_x = plot_x[0]
     for gap_i, ax_part in zip(gap_indices, axes):
@@ -359,6 +404,8 @@ def get_skip_gap_axes(plot_x, min_gap, pad_frac=0.01):
 
         pad = (plot_x[gap_i] - min_x) * pad_frac * gap_indices.size
         ax_part.set_xlim(min_x - pad, plot_x[gap_i] + pad)
+        if y_range is not None:
+            ax_part.set_ylim(y_range)
         min_x = plot_x[gap_i+1]
 
     axes[0].spines['left'].set_visible(True)
@@ -441,8 +488,8 @@ def plot_lc(plot_x,
         plot_x %= configuration.fold_period
 
     plot_axes.plot(
-        plot_x,
-        magnitudes,
+        plot_x[mask],
+        magnitudes[mask],
         '.',
         markersize=(
             configuration.plot_marker_size
@@ -457,8 +504,8 @@ def plot_lc(plot_x,
 
     if configuration.binning:
         plot_binned(
-            plot_x,
-            magnitudes,
+            plot_x[mask],
+            magnitudes[mask],
             configuration.binning,
             configuration.binning_errorbars,
             continuous=(1000 if configuration.binned_continuous else False),
@@ -509,6 +556,37 @@ def add_transit_to_plot(transit_param,
 #pylint: enable=too-many-arguments
 
 
+def add_tess_lc_to_plot(configuration, plot_axes=pyplot.gca()):
+    """Plot the TESS lightcurve."""
+
+
+    for lc_data in get_tess_lightcurve(configuration.overplot_tess_lc,
+                                       'all').values():
+        print(f'Lightcurve: {lc_data!r}')
+        plot_x = lc_data['TIME'] - configuration.shift_tess_bjd
+        if configuration.fold_period:
+            plot_x %= configuration.fold_period
+
+        if 'PDCSAP_FLUX' in lc_data.dtype.names:
+            plot_y = lc_data['PDCSAP_FLUX']
+        else:
+            plot_y = lc_data['SAP_FLUX']
+
+        plot_y = -2.5 * numpy.log10(plot_y)
+        if configuration.zero_stat:
+            plot_y -= getattr(
+                        numpy, 'nan' + configuration.zero_stat
+            )(
+                plot_y,
+                axis=0
+            )
+        plot_axes.plot(
+            plot_x,
+            plot_y,
+            '.'
+        )
+
+
 def add_lc_to_plot(select_photometry, configuration):
     """
     Add the lightcurve data to the plot.
@@ -540,9 +618,12 @@ def add_lc_to_plot(select_photometry, configuration):
             and
             len(configuration.detrending_mode) == 1
     ):
-        colors = ['red', 'green', 'lime', 'blue']
+        plot_colors = ['red', 'green', 'lime', 'blue']
     else:
-        colors = pyplot.rcParams['axes.prop_cycle'].by_key()['color']
+        plot_colors = pyplot.rcParams['axes.prop_cycle'].by_key()['color']
+
+    if configuration.pages:
+        pdf = PdfPages(configuration.plot_fname)
 
     if configuration.combined_binned_lc:
         combined_magnitudes = numpy.array([], dtype=float)
@@ -552,21 +633,24 @@ def add_lc_to_plot(select_photometry, configuration):
             and
             len(configuration.lightcurves) == 1
         ):
-            colors = ['black']
+            plot_colors = ['black']
 
         assert (
-            len(colors)
+            len(plot_colors)
             >=
             len(configuration.detrending_mode)
         )
 
     else:
+        print('Plot colors: ' + repr(plot_colors))
         assert (
-            len(colors)
+            len(plot_colors)
             >=
-            len(configuration.lightcurves) * len(configuration.detrending_mode)
+            (1 if configuration.pages else len(configuration.lightcurves))
+            *
+            len(configuration.detrending_mode)
         )
-    colors = iter(colors)
+    colors = iter(plot_colors)
 
     skip_gap_axes, figure = [pyplot.gca()], pyplot.gcf()
     bjd_offset = None
@@ -582,6 +666,8 @@ def add_lc_to_plot(select_photometry, configuration):
             ) else
             [[lc_fname] for lc_fname in configuration.lightcurves]
         ):
+            if configuration.pages:
+                colors = iter(plot_colors)
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
             scatter, _, _, bjd, magnitudes = select_photometry(
@@ -590,25 +676,29 @@ def add_lc_to_plot(select_photometry, configuration):
             )
             #pylint: enable=unbalanced-tuple-unpacking
 
+            if len(lc_collection) > 1:
+                magnitudes = magnitudes.to_numpy(dtype=float)
+                bjd = bjd.to_numpy(dtype=float)
+
+            if magnitudes is None:
+                continue
+
             if configuration.zero_stat is not None:
-                for colname in magnitudes.columns:
-                    magnitudes[colname] -= getattr(
+                    magnitudes -= getattr(
                         numpy, 'nan' + configuration.zero_stat
                     )(
-                        magnitudes[colname]
+                        magnitudes,
+                        axis=0
                     )
 
             if len(lc_collection) == 1:
                 keep_points = (numpy.abs(magnitudes)
                                <
                                configuration.drop_outliers * scatter)
-                bjd = bjd.iloc[keep_points].to_numpy(dtype=float)
-                magnitudes = magnitudes.iloc[keep_points]
-            else:
-                bjd = bjd.to_numpy(dtype=float)
+                bjd = bjd[keep_points]
+                magnitudes = magnitudes[keep_points]
 
             if len(lc_collection) == 1:
-                magnitudes = magnitudes.to_numpy(dtype=float)
 
                 if configuration.combined_binned_lc:
                     combined_magnitudes = numpy.concatenate((
@@ -630,13 +720,16 @@ def add_lc_to_plot(select_photometry, configuration):
                         and
                         configuration.binning is None
                     )
+                    or
+                    configuration.pages
                 )
                 and
                 configuration.skip_gaps
             ):
                 figure, skip_gap_axes = get_skip_gap_axes(
                     bjd,
-                    configuration.skip_gaps
+                    configuration.skip_gaps,
+                    configuration.plot_y_range
                 )
                 print('Skip gap axes generated!')
             else:
@@ -660,8 +753,15 @@ def add_lc_to_plot(select_photometry, configuration):
                             zorder=zorder,
                             plot_axes=plot_axes,
                             configuration=configuration)
+                if configuration.pages:
+                    figure.suptitle(path.basename(lc_collection[0]))
+                    pdf.savefig(figure)
+                    pyplot.close()
 
         if configuration.combined_binned_lc:
+            if configuration.pages:
+                colors = iter(plot_colors)
+
             if configuration.binning is None:
                 magnitudes = magnitudes.mean(axis=1).to_numpy(dtype=float)
                 combined_bjd = bjd
@@ -683,7 +783,27 @@ def add_lc_to_plot(select_photometry, configuration):
                         zorder=zorder,
                         configuration=configuration)
 
+            if configuration.pages:
+                figure.suptitle(path.basename(lc_collection[0]))
+                pdf.savefig(figure)
+                pyplot.close()
+
+    if configuration.pages:
+        pdf.close()
+
     return (bjd, bjd_offset, magnitudes, scatter, skip_gap_axes, figure)
+
+
+def get_lightcurve_filenames(fname_format, catalog):
+    """Get lightcurve filenames corresponding to stars in the catalog."""
+
+    catalog = read_catalog_file(catalog)
+    return [
+        fname_format.format(star) for star in catalog.index if path.exists(
+            fname_format.format(star)
+        )
+    ]
+
 
 
 def main(configuration):
@@ -691,6 +811,15 @@ def main(configuration):
 
     if configuration.fold_period and configuration.binning:
         configuration.binning /= configuration.fold_period
+
+    if configuration.from_catalog:
+        assert len(configuration.lightcurves) == 1
+        configuration.lightcurves = get_lightcurve_filenames(
+            configuration.lightcurves[0],
+            configuration.from_catalog
+        )
+        print(f'Found {len(configuration.lightcurves):d} lightcurves from '
+              'catalog')
 
     scatter_config = get_scatter_config(configuration)
     print('Scatter config: %s' % repr(scatter_config))
@@ -753,6 +882,10 @@ def main(configuration):
         assert configuration.variability is None
         oot_magnitude = numpy.median(last_magnitudes)
 
+    if configuration.overplot_tess_lc:
+        for plot_axes in skip_gap_axes:
+            add_tess_lc_to_plot(configuration, plot_axes)
+
     figure.add_subplot(111, frameon=False)
     pyplot.tick_params(labelcolor='none',
                        which='both',
@@ -763,6 +896,18 @@ def main(configuration):
     pyplot.ylim(configuration.plot_y_range)
     for plot_ax in skip_gap_axes:
         plot_ax.set_ylim(configuration.plot_y_range)
+
+    if configuration.time_bar:
+        skip_gap_axes[0].add_artist(
+            AnchoredSizeBar(
+                skip_gap_axes[0].transData,
+                configuration.time_bar / 24.0,
+                f'{configuration.time_bar} h',
+                'upper left',
+                frameon=False,
+                size_vertical=0.002,
+            )
+        )
 
     if configuration.fold_period:
         pyplot.xlabel(
@@ -783,10 +928,11 @@ def main(configuration):
 #    pyplot.ylim()
     pyplot.legend()
 
-    if configuration.plot_fname is None:
-        pyplot.show()
-    else:
-        pyplot.savefig(configuration.plot_fname)
+    if not configuration.pages:
+        if configuration.plot_fname is None:
+            pyplot.show()
+        else:
+            pyplot.savefig(configuration.plot_fname)
 
 
 if __name__ == '__main__':

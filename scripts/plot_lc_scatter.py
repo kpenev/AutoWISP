@@ -235,7 +235,8 @@ def get_scatter_config(cmdline_args):
         'calculate_average': cmdline_args.average,
         'calculate_scatter': cmdline_args.statistic,
         'outlier_threshold': cmdline_args.outlier_threshold,
-        'max_outlier_rejections': cmdline_args.max_outlier_rejections
+        'max_outlier_rejections': cmdline_args.max_outlier_rejections,
+        'match_by': cmdline_args.combine_by,
     }
 
 
