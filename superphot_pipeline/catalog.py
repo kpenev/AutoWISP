@@ -31,6 +31,8 @@ class SuperPhotGaia(GaiaClass):
 
         job = self.launch_job_async(query, verbose=verbose)
         result = job.get_results()
+        if result.colnames == ['num_obj']:
+            return result['num_obj'][0]
         result.rename_column('ra', 'RA_orig')
         result.rename_column('dec', 'Dec_orig')
 
@@ -66,36 +68,52 @@ class SuperPhotGaia(GaiaClass):
                               columns=None,
                               order_dir='ASC',
                               max_objects=None,
-                              verbose=False):
+                              verbose=False,
+                              count_only=False):
         """
         Get GAIA sources within a box satisfying given condition (ADQL).
 
         Args:
             ra:   The RA of the center of the box to query, with units.
+
             dec:    The declination of the center of the box to query,
                 with units.
+
             width:    The width of the box (half goes on each side of ``ra``),
                 with units.
+
             height:    The height of the box (half goes on each side of
                 ``dec``), with units.
+
+            order_by(str):    How should the stars be ordered.
 
             condition(str):    Condition the returned sources must satisfy
                 (typically imposes a brightness limit)
 
+            epoch:    The epoch to propagate the positions to. If unspecified,
+                no propagation will be done.
+
             columns(iterable):    List of columns to select from the catalog. If
                 unspecified, all columns will be returned.
 
-            order_by(str):    How should the stars be ordered.
-
             order_dir(str):    Should the order be ascending (``'ASC'``) or
                 descending (``'DESC'``).
+
+            max_objects(int):    Maximum number of objects to return.
+
+            verbose(bool):    Use verbose mode when submitting querries to GAIA.
+
+            count_only(bool):    If ``True``, only the number of objects is
+                returned without actually fetching the data.
 
         Returns:
             astropy Table:
                 The result of the query.
         """
 
-        if columns is None:
+        if count_only:
+            columns = 'COUNT(*) AS num_obj'
+        elif columns is None:
             columns = "*"
         else:
             add_propagated = []
@@ -107,7 +125,7 @@ class SuperPhotGaia(GaiaClass):
 
             columns = ', '.join(map(str, columns))
 
-        if '*' in columns:
+        if '*' in columns and not count_only:
             add_propagated = ['RA', 'Dec']
 
         if epoch is not None:
@@ -165,15 +183,17 @@ class SuperPhotGaia(GaiaClass):
                 AND
                 ({condition})
             """
-        query_str += f"""
-            ORDER BY
-                {order_by}
-                {order_dir}
-        """
+
+        if not count_only:
+            query_str += f"""
+                ORDER BY
+                    {order_by}
+                    {order_dir}
+            """
 
         return self._get_result(
             query_str,
-            epoch is not None and add_propagated,
+            epoch is not None and not count_only and add_propagated,
             verbose
         )
     #pylint: enable=too-many-locals
@@ -262,6 +282,9 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
     """
 
     query = gaia.query_brightness_limited(**query_kwargs)
+    if query_kwargs.get('count_only', False):
+        print('Number of sources: ', repr(query))
+        return
     for colname in ['DESIGNATION',
                     'phot_variable_flag',
                     'datalink_url',
@@ -277,7 +300,11 @@ def create_catalog_file(catalog_fname, overwrite=False, **query_kwargs):
     for k in ['ra', 'dec', 'width', 'height']:
         query.meta[k.upper()] = query_kwargs[k].to_value(units.deg)
 
-    query.meta['EPOCH'] = query_kwargs['epoch'].to_value(units.yr)
+    query.meta['EPOCH'] = (
+        query_kwargs['epoch'].to_value(units.yr)
+        if query_kwargs['epoch'] is not None else
+        None
+    )
     query.meta['MAGEXPR'] = query_kwargs['magnitude_expression']
     if query_kwargs.get('magnitude_limit') is not None:
         try:
@@ -403,8 +430,9 @@ def parse_command_line():
     parser.add_argument(
         '--epoch', '-t',
         type=float,
-        default=2023.5,
-        help='The epoch for proper motion corrections in years.'
+        default=None,
+        help='The epoch for proper motion corrections in years. If not '
+        'specified, positions are not propagated.'
     )
     parser.add_argument(
         '--magnitude-expression',
@@ -420,6 +448,11 @@ def parse_command_line():
         'to impose.'
     )
     parser.add_argument(
+        '--extra-condition',
+        default=None,
+        help='An extra condition to impose on the selected sources.'
+    )
+    parser.add_argument(
         '--verbose',
         action='store_true',
         help='Print out information about the query being executed.'
@@ -433,6 +466,11 @@ def parse_command_line():
         '--catalog-fname',
         default='gaia.fits',
         help='The name of the catalog file to create.'
+    )
+    parser.add_argument(
+        '--count-only',
+        action='store_true',
+        help='Only count the number of sources in the query.'
     )
     parser.add_argument(
         '--columns',
@@ -506,20 +544,23 @@ def show_stars(catalog_fname):
 def main(config):
     """Avoid polluting global namespace."""
 
-    create_catalog_file(
-        config.catalog_fname,
-        ra=config.ra * units.deg,
-        dec=config.dec * units.deg,
-        width=config.width * units.deg,
-        height=config.height * units.deg,
-        epoch=config.epoch * units.yr,
-        magnitude_expression=config.magnitude_expression,
-        magnitude_limit=config.magnitude_limit,
-        columns=config.columns,
-        verbose=config.verbose,
-        overwrite=config.overwrite
-    )
-    if config.show_stars:
+    kwargs = {
+        'ra': config.ra * units.deg,
+        'dec': config.dec * units.deg,
+        'width': config.width * units.deg,
+        'height': config.height * units.deg,
+        'epoch': config.epoch * units.yr if config.epoch is not None else None,
+        'magnitude_expression': config.magnitude_expression,
+        'magnitude_limit': config.magnitude_limit,
+        'columns': config.columns,
+        'verbose': config.verbose,
+        'overwrite': config.overwrite,
+        'count_only': config.count_only
+    }
+    if config.extra_condition is not None:
+        kwargs['condition'] = config.extra_condition
+    create_catalog_file(config.catalog_fname, **kwargs)
+    if config.show_stars and not config.count_only:
         show_stars(config.catalog_fname)
 
 

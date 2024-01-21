@@ -82,7 +82,6 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--catalog-max-magnitude', '--catalogue-max-magnitude',
-
         type=float,
         default=12.0,
         help='The faintest magnitude to include in the catalog.'
