@@ -510,161 +510,159 @@ def ensure_catalog(transformation_estimate,
     catalog_info, frame_center = get_catalog_info(transformation_estimate,
                                                   header,
                                                   configuration)
-    lock.acquire()
-    if os.path.exists(catalog_info['catalog_fname']):
-        with fits.open(catalog_info['catalog_fname']) as cat_fits:
-            catalog_header = cat_fits[1].header
-            #pylint: disable=too-many-boolean-expressions
-            if (
-                    numpy.abs(
-                        catalog_header['EPOCH']
-                        -
-                        catalog_info['epoch'].to_value('yr')
-                    ) > 0.25
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} '
-                    f'has epoch {catalog_header["EPOCH"]!r}, '
-                    f'but {catalog_info["epoch"]!r} is needed'
-                )
+    with lock:
+        if os.path.exists(catalog_info['catalog_fname']):
+            with fits.open(catalog_info['catalog_fname']) as cat_fits:
+                catalog_header = cat_fits[1].header
+                #pylint: disable=too-many-boolean-expressions
+                if (
+                        numpy.abs(
+                            catalog_header['EPOCH']
+                            -
+                            catalog_info['epoch'].to_value('yr')
+                        ) > 0.25
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} '
+                        f'has epoch {catalog_header["EPOCH"]!r}, '
+                        f'but {catalog_info["epoch"]!r} is needed'
+                    )
 
-            if (
-                catalog_header['MAGEXPR']
-                !=
-                catalog_info['magnitude_expression']
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} '
-                    f'has magnitude expression {catalog_header["MAGEXPR"]!r} '
-                    f'instead of {catalog_info["magnitude_expression"]!r}'
-                )
+                if (
+                    catalog_header['MAGEXPR']
+                    !=
+                    catalog_info['magnitude_expression']
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} '
+                        f'has magnitude expression {catalog_header["MAGEXPR"]!r} '
+                        f'instead of {catalog_info["magnitude_expression"]!r}'
+                    )
 
-            if (
-                catalog_header.get('MAGMIN') is not None
-                and
-                len(catalog_info['magnitude_limit']) == 2
-                and
-                (
-                    catalog_header['MAGMIN']
-                    >
-                    catalog_info['magnitude_limit'][0]
-                )
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} excludes sources '
-                    f'brighter than {catalog_header["MAGMIN"]!r} but '
-                    f'{catalog_info["magnitude_limit"][0]!r} are required.'
-                )
+                if (
+                    catalog_header.get('MAGMIN') is not None
+                    and
+                    len(catalog_info['magnitude_limit']) == 2
+                    and
+                    (
+                        catalog_header['MAGMIN']
+                        >
+                        catalog_info['magnitude_limit'][0]
+                    )
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} excludes sources '
+                        f'brighter than {catalog_header["MAGMIN"]!r} but '
+                        f'{catalog_info["magnitude_limit"][0]!r} are required.'
+                    )
 
-            if (
-                catalog_header.get('MAGMAX') is not None
-                and
-                (
-                    catalog_header['MAGMAX']
+                if (
+                    catalog_header.get('MAGMAX') is not None
+                    and
+                    (
+                        catalog_header['MAGMAX']
+                        <
+                        catalog_info['magnitude_limit'][-1]
+                    )
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} excludes sources '
+                        f'fainter than {catalog_header["MAGMAX"]!r} but '
+                        f'{catalog_info["magnitude_limit"][-1]!r} are required.'
+                    )
+
+                if (
+                    catalog_header['WIDTH']
                     <
-                    catalog_info['magnitude_limit'][-1]
-                )
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} excludes sources '
-                    f'fainter than {catalog_header["MAGMAX"]!r} but '
-                    f'{catalog_info["magnitude_limit"][-1]!r} are required.'
-                )
+                    catalog_info['width'].to_value(units.deg)
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} width '
+                        f'{catalog_header["WIDTH"]!r} is less than the required '
+                        f'{catalog_info["width"]!r}'
+                    )
+                if (
+                    catalog_header['HEIGHT']
+                    <
+                    catalog_info['height'].to_value(units.deg)
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} height '
+                        f'{catalog_header["HEIGHT"]!r} is less than the required '
+                        f'{catalog_info["height"]!r}'
+                    )
 
-            if (
-                catalog_header['WIDTH']
-                <
-                catalog_info['width'].to_value(units.deg)
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} width '
-                    f'{catalog_header["WIDTH"]!r} is less than the required '
-                    f'{catalog_info["width"]!r}'
-                )
-            if (
-                catalog_header['HEIGHT']
-                <
-                catalog_info['height'].to_value(units.deg)
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} height '
-                    f'{catalog_header["HEIGHT"]!r} is less than the required '
-                    f'{catalog_info["height"]!r}'
-                )
+                if (
+                    (catalog_header['RA'] - frame_center['RA']) * units.deg
+                    *
+                    numpy.cos(catalog_header['DEC'] * units.deg)
+                    >
+                    configuration['catalog_pointing_precision'] * units.deg
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} center RA '
+                        f'{catalog_header["RA"]!r} is too far from the '
+                        f'required RA={frame_center["RA"]!r}'
+                    )
 
-            if (
-                (catalog_header['RA'] - frame_center['RA']) * units.deg
-                *
-                numpy.cos(catalog_header['DEC'] * units.deg)
-                >
-                configuration['catalog_pointing_precision'] * units.deg
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} center RA '
-                    f'{catalog_header["RA"]!r} is too far from the '
-                    f'required RA={frame_center["RA"]!r}'
-                )
+                if (
+                    (catalog_header['DEC'] - frame_center['Dec']) * units.deg
+                    >
+                    configuration['catalog_pointing_precision'] * units.deg
+                ):
+                    raise RuntimeError(
+                        f'Catalog {catalog_info["catalog_fname"]} center Dec '
+                        f'{catalog_header["DEC"]!r} is too far from the '
+                        f'required Dec={frame_center["Dec"]!r}'
+                    )
 
-            if (
-                (catalog_header['DEC'] - frame_center['Dec']) * units.deg
-                >
-                configuration['catalog_pointing_precision'] * units.deg
-            ):
-                raise RuntimeError(
-                    f'Catalog {catalog_info["catalog_fname"]} center Dec '
-                    f'{catalog_header["DEC"]!r} is too far from the '
-                    f'required Dec={frame_center["Dec"]!r}'
-                )
-
-            filter_expr = configuration['catalog_filter']
-            if filter_expr is None or header['CLRCHNL'] not in filter_expr:
-                filter_expr = []
-            else:
-                filter_expr = ['(' + filter_expr[header['CLRCHNL']] + ')']
+                filter_expr = configuration['catalog_filter']
+                if filter_expr is None or header['CLRCHNL'] not in filter_expr:
+                    filter_expr = []
+                else:
+                    filter_expr = ['(' + filter_expr[header['CLRCHNL']] + ')']
 
 
-            if (
-                len(catalog_info['magnitude_limit']) == 2
-                and
-                (
-                    catalog_header.get('MAGMIN') is None
+                if (
+                    len(catalog_info['magnitude_limit']) == 2
+                    and
+                    (
+                        catalog_header.get('MAGMIN') is None
+                        or
+                        catalog_header['MAGMIN']
+                        <
+                        catalog_info['magnitude_limit'][0]
+                    )
+                ):
+                    filter_expr.append(
+                        f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
+                    )
+                if(
+                    catalog_header.get('MAGMAX') is None
                     or
-                    catalog_header['MAGMIN']
-                    <
-                    catalog_info['magnitude_limit'][0]
-                )
-            ):
-                filter_expr.append(
-                    f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
-                )
-            if(
-                catalog_header.get('MAGMAX') is None
-                or
-                (
-                    catalog_header['MAGMAX']
-                    >
-                    catalog_info['magnitude_limit'][-1]
-                )
-            ):
-                filter_expr.append(
-                    '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
-                )
-            #pylint: enable=too-many-boolean-expressions
+                    (
+                        catalog_header['MAGMAX']
+                        >
+                        catalog_info['magnitude_limit'][-1]
+                    )
+                ):
+                    filter_expr.append(
+                        '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
+                    )
+                #pylint: enable=too-many-boolean-expressions
 
-            lock.release()
-            return read_catalog_file(
-                cat_fits,
-                filter_expr=(' and '.join(filter_expr) if filter_expr
-                             else None),
-                return_metadata=True
-            )
+                return read_catalog_file(
+                    cat_fits,
+                    filter_expr=(' and '.join(filter_expr) if filter_expr
+                                 else None),
+                    return_metadata=True
+                )
 
-    del catalog_info['ra_ind']
-    del catalog_info['dec_ind']
+        del catalog_info['ra_ind']
+        del catalog_info['dec_ind']
 
-    create_catalog_file(**catalog_info, verbose=True)
-    lock.release()
-    return read_catalog_file(catalog_info['catalog_fname'],
+        create_catalog_file(**catalog_info, verbose=True)
+        return read_catalog_file(catalog_info['catalog_fname'],
                              return_metadata=True)
 #pylint: enable=too-many-branches
 
