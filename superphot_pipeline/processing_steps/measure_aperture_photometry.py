@@ -26,7 +26,8 @@ from superphot_pipeline.processing_steps.fit_star_shape import add_image_options
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.data_reduction.utils import\
     fill_aperture_photometry_input_tree,\
-    add_aperture_photometry
+    add_aperture_photometry,\
+    delete_aperture_photometry
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -100,7 +101,7 @@ def get_photometer(configuration):
     )
 
 
-def photometer_frame(frame_fname, configuration):
+def photometer_frame(frame_fname, configuration, mark_start, mark_end):
     """Perform aperture photometry on a single frame."""
 
     photometer = get_photometer(configuration)
@@ -137,6 +138,7 @@ def photometer_frame(frame_fname, configuration):
             ),
             io_tree
         )
+        mark_start(frame_fname)
         add_aperture_photometry(
             dr_file,
             io_tree,
@@ -144,12 +146,19 @@ def photometer_frame(frame_fname, configuration):
             len(configuration['apertures']),
             apphot_version=configuration['apphot_version']
         )
+        mark_end(frame_fname)
 
 
-def photometer_image_collection(image_collection, configuration):
+def photometer_image_collection(image_collection,
+                                configuration,
+                                mark_start,
+                                mark_end):
     """Extract aperture photometry from the given images."""
 
-    photometer_one = partial(photometer_frame, configuration=configuration)
+    photometer_one = partial(photometer_frame,
+                             configuration=configuration,
+                             mark_start=mark_start,
+                             mark_end=mark_end)
     if configuration['num_parallel_processes'] == 1:
         for frame_fname in image_collection:
             photometer_one(frame_fname)
@@ -164,6 +173,23 @@ def photometer_image_collection(image_collection, configuration):
                 photometer_one,
                 image_collection
             )
+
+
+def cleanup_interrupted(frame_fname, configuration):
+    """Remove the aperture photometry from a frame that was interrupted."""
+
+    header = get_primary_header(frame_fname)
+
+    with DataReductionFile(
+            configuration['data_reduction_fname'].format_map(header),
+            'a'
+    ) as dr_file:
+        dr_path_substitutions = {
+            version_name + '_version': configuration[version_name + '_version']
+            for version_name in ['background', 'shapefit', 'srcproj', 'apphot']
+        }
+        delete_aperture_photometry(dr_file, **dr_path_substitutions)
+
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()

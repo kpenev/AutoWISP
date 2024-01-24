@@ -207,11 +207,11 @@ def detrend_light_curves(lc_collection,
         if configuration['target_id'] is not None:
             lc_fnames.append(target_lc_fname)
 
-    if configuration['detrending_catalogue'] is not None:
+    if configuration['detrending_catalog'] is not None:
         recalculate_detrending_performance(
             lc_collection,
             fit_datasets=configuration['fit_datasets'],
-            catalog_fname=configuration['detrending_catalogue'],
+            catalog_fname=configuration['detrending_catalog'],
             magnitude_column=configuration['magnitude_column'],
             output_statistics_fname=output_statistics_fname,
             calculate_average=getattr(numpy,

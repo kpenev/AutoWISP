@@ -45,9 +45,9 @@ def parse_command_line(*args):
         'reference to use to start the magnitude fitting iterations.'
     )
     parser.add_argument(
-        '--magfit-catalogue',
+        '--magfit-catalog', '--magfit-catalogue',
         default='MASTERS/magfit_catalogue.ucac4',
-        help='The name of the catalogue file to use as extra information in '
+        help='The name of the catalog file to use as extra information in '
              'magnitude fitting terms and for excluding sources from the fit.'
              'Default: %(default)s'
     )
@@ -91,7 +91,7 @@ def parse_command_line(*args):
         '--fit-source-condition',
         type=str,
         default='isfinite(phot_g_mean_mag)',
-        help='An expression involving catalogue, reference and/or photometry '
+        help='An expression involving catalog, reference and/or photometry '
         'variables which evaluates to zero if a source should be excluded and '
         'any non-zero value if it  should be included in the magnitude fit.'
     )
@@ -99,7 +99,7 @@ def parse_command_line(*args):
         '--grouping',
         default=None,
         help=(
-            'An expression using catalogue, and/or photometry variables which '
+            'An expression using catalog, and/or photometry variables which '
             'evaluates to several distinct values. Each value '
             'defines a separate fitting group (i.e. a group of sources which '
             'participate in magnitude fitting together, excluding sources '
@@ -170,7 +170,7 @@ def magnitude_fit(dr_collection, configuration):
     magnitude_fitting.iterative_refit(
         fit_dr_filenames=sorted(dr_collection),
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
-        master_catalogue_fname=configuration['magfit_catalogue'],
+        master_catalogue_fname=configuration['magfit_catalog'],
         configuration=SimpleNamespace(**configuration),
         master_photref_fname_format=(
             configuration['master_photref_fname_format']

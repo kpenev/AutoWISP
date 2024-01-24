@@ -691,6 +691,23 @@ class HDF5File(ABC, h5py.File):
 
         return parent.attrs[attribute_name]
 
+
+    def delete_attribute(self, attribute_key, **substitutions):
+        """Delete the given attribute."""
+
+        attribute_config = self._file_structure[attribute_key]
+        parent_path = (attribute_config.parent
+                       %
+                       substitutions)
+        if parent_path in self:
+            parent = self[parent_path]
+            attribute_name = attribute_config.name % substitutions
+            try:
+                del parent.attrs[attribute_name]
+            except KeyError:
+                pass
+
+
     def add_link(self, link_key, if_exists='overwrite', **substitutions):
         """
         Adds a soft link to the HDF5 file.
@@ -751,7 +768,37 @@ class HDF5File(ABC, h5py.File):
         self[link_path] = h5py.SoftLink(target_path)
         return target_path
 
-    def _delete_obsolete_dataset(self, dataset_key, **substitutions):
+
+    def delete_link(self, link_key, **substitutions):
+        """Delete the link corresponding to the given key."""
+
+        link_path = self._file_structure[link_key].abspath % substitutions
+        if link_path in self:
+            del self[link_path]
+
+
+    def _add_repack_dataset(self, dataset_path):
+        """Add the given dataset to the list of datasets to repack."""
+
+        repack_attribute_config = self._file_structure['repack']
+        if repack_attribute_config.parent not in self:
+            self.create_group(repack_attribute_config.parent)
+        repack_parent = self[repack_attribute_config.parent]
+        if repack_attribute_config.name in repack_parent.attrs:
+            repack_parent.attrs[repack_attribute_config.name] = (
+                self.attrs[repack_attribute_config.name]
+                +
+                ','
+                +
+                dataset_path
+            )
+        else:
+            repack_parent.attrs.create(repack_attribute_config.name,
+                                       dataset_path,
+                                       dtype=self.get_dtype('repack'))
+
+
+    def delete_dataset(self, dataset_key, **substitutions):
         """
         Delete obsolete HDF5 dataset if it exists and update repacking flag.
 
@@ -777,22 +824,7 @@ class HDF5File(ABC, h5py.File):
         dataset_path = dataset_config.abspath % substitutions
 
         if dataset_path in self:
-            repack_attribute_config = self._file_structure['repack']
-            if repack_attribute_config.parent not in self:
-                self.create_group(repack_attribute_config.parent)
-            repack_parent = self[repack_attribute_config.parent]
-            if repack_attribute_config.name in repack_parent.attrs:
-                repack_parent.attrs[repack_attribute_config.name] = (
-                    self.attrs[repack_attribute_config.name]
-                    +
-                    ','
-                    +
-                    dataset_path
-                )
-            else:
-                repack_parent.attrs.create(repack_attribute_config.name,
-                                           dataset_path,
-                                           dtype=self.get_dtype('repack'))
+            self._add_repack_dataset(dataset_path)
             del self[dataset_path]
             return True
 
@@ -1121,7 +1153,7 @@ class HDF5File(ABC, h5py.File):
                     f"Dataset ('{dataset_key}') '{dataset_path}' already exists"
                     f" in '{self.filename}' and overwriting is not allowed!"
                 )
-            self._delete_obsolete_dataset(dataset_key, **substitutions)
+            self.delete_dataset(dataset_key, **substitutions)
 
         creation_args = self.get_dataset_creation_args(dataset_key,
                                                        **substitutions)
@@ -1304,4 +1336,25 @@ class HDF5File(ABC, h5py.File):
             destination.insert(len(destination.columns),
                                column_name,
                                insert_values)
+
+
+    def delete_columns(self,
+                       parent,
+                       name_head,
+                       name_tail,
+                       dset_name):
+        """Delete 1D datasets under parent if name starts and ends as given."""
+
+        if (
+                isinstance(parent[dset_name], h5py.Dataset)
+                and
+                dset_name.startswith(name_head)
+                and
+                dset_name.endswith(name_tail)
+                and
+                len(parent[dset_name].shape) == 1
+        ):
+            if dset_name in parent:
+                self._add_repack_dataset(parent[dset_name].name)
+                del parent[dset_name]
 #pylint: enable=too-many-ancestors

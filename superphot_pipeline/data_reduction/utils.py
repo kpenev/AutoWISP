@@ -10,7 +10,7 @@ from superphot_pipeline import fit_expression
 from superphot_pipeline.data_reduction.source_extracted_psf_map import\
     SourceExtractedPSFMap
 
-_key_io_tree_to_dr = {
+key_io_tree_to_dr = {
     'projsrc.x': 'srcproj.x',
     'projsrc.y': 'srcproj.y',
     'bg.model': 'bg.cfg.model',
@@ -107,9 +107,9 @@ def _add_shapefit_map(dr_file,
                            if_exists='error',
                            **path_substitutions)
     dr_file.add_attribute('shapefit.cfg.psf.terms',
-                       fit_terms_expression,
-                       if_exists='error',
-                       **path_substitutions)
+                          fit_terms_expression,
+                          if_exists='error',
+                          **path_substitutions)
 
     num_terms = fit_expression.Interface(
         fit_terms_expression
@@ -179,7 +179,7 @@ def _auto_add_tree_quantities(dr_file,
         else:
             key_quantity = quantity_name
 
-        dr_key = _key_io_tree_to_dr.get(key_quantity, key_quantity)
+        dr_key = key_io_tree_to_dr.get(key_quantity, key_quantity)
 
         for element_type in ['dataset', 'attribute', 'link']:
             if (
@@ -200,6 +200,26 @@ def _auto_add_tree_quantities(dr_file,
                                                      if_exists='error',
                                                      **path_substitutions)
                 break
+
+
+def _auto_delete_tree_quantities(dr_file,
+                                 skip_quantities,
+                                 **path_substitutions):
+    """Remove all elements from the DR file not matching skip_quantities rex."""
+
+    for tree_key, dr_key in key_io_tree_to_dr.items():
+        if skip_quantities.match(tree_key) is not None:
+            continue
+        for element_type in ['dataset', 'attribute', 'link']:
+            if dr_key in dr_file.elements[element_type]:
+                getattr(
+                    dr_file,
+                    'delete_' + element_type
+                )(
+                    dr_key,
+                    **path_substitutions
+                )
+
 
 
 def _get_shapefit_map_grid(dr_file, **path_substitutions):
@@ -272,7 +292,7 @@ def add_star_shape_fit(dr_file,
                       shape_fit_result_tree,
                       **path_substitutions)
     dr_file.add_attribute(
-        _key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
+        key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
         (
             shape_fit_result_tree.get(
                 'psffit.srcpix_cover_bicubic_grid',
@@ -308,6 +328,28 @@ def add_star_shape_fit(dr_file,
         image_index=image_index,
         **path_substitutions
     )
+
+
+def delete_star_shape_fit(dr_file, **path_substitutions):
+    """Delete all DR elements added by `add_star_shape_fit()`."""
+
+    dr_file.delete_attribute('shapefit.cfg.psf.terms', **path_substitutions)
+
+    dr_file.delete_attribute(
+        'shapefit.cfg.psf.ignore_dropped',
+        **dr_path_substitutions
+    )
+    _auto_delete_tree_quantities(
+        dr_file,
+        skip_quantities=re.compile(
+            '|'.join([r'^psffit\.variables$',
+                      r'^psffit\.terms$',
+                      r'^projsrc\.',
+                      r'^apphot\.'])
+        ),
+        **path_substitutions
+    )
+
 
 def get_aperture_photometry_inputs(dr_file, **path_substitutions):
     """
@@ -438,10 +480,10 @@ def add_aperture_photometry(dr_file,
                                    shape=(num_apertures,))
     ):
         dr_file.add_attribute('apphot.cfg.aperture',
-                           aperture,
-                           if_exists='error',
-                           apphot_version=0,
-                           aperture_index=aperture_index)
+                              aperture,
+                              if_exists='error',
+                              apphot_version=0,
+                              aperture_index=aperture_index)
 
     _auto_add_tree_quantities(
         dr_file,
@@ -450,6 +492,14 @@ def add_aperture_photometry(dr_file,
         skip_quantities=re.compile(r'(?!apphot\.)|^apphot.aperture$'),
         **path_substitutions
     )
+
+
+def delete_aperture_photometry(dr_file, **path_substitutions):
+    """Delete all DR elements of an aperture photometry."""
+
+    _auto_delete_tree_quantities(dr_file,
+                                 re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+                                 **path_substitutions)
 
 
 def get_source_extracted_psf_map(dr_file, **path_substitutions):

@@ -542,7 +542,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                                         fit_flags=True)
 
         self.add_argument(
-            '--detrending-catalogue', '--detrending-catalog', '--cat',
+            '--detrending-catalog', '--detrending-catalogue', '--cat',
             default=None,
             help='The name of a catalogue file containing the sources in the '
             'frame. Used only to generate performance statistics reports. If '

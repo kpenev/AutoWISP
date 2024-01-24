@@ -238,11 +238,11 @@ def calibrate(image_collection, configuration, mark_start, mark_end):
         mark_end(image_fname)
 
 
-def cleanup_inerrupted(interrupted_raw_fname, configuration):
+def cleanup_interrupted(raw_fname, configuration):
     """Cleanup file system after partially calibrated images."""
 
     calibrated_fname = configuration['calibrated_fname'].format_map(
-        get_raw_header(interrupted_raw_fname, configuration['raw_hdu'])
+        get_raw_header(raw_fname, configuration['raw_hdu'])
     )
     if os.path.exists(calibrated_fname):
         os.remove(calibrated_fname)

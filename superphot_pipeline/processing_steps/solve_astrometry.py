@@ -50,6 +50,13 @@ def parse_command_line(*args):
         allow_parallel_processing=True
     )
     parser.add_argument(
+        '--reuse-transformation-key',
+        default='RAWFNAME',
+        help='Expression involving  header keywords that results in unique '
+        'value for each group of frames representing separate channels of the '
+        'same raw image.'
+    )
+    parser.add_argument(
         '--astrometry-only-if',
         default='True',
         help='Expression involving the header of the input images that '
@@ -123,7 +130,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--catalog-epoch', '--catalogue-epoch', '--cat-epoch',
         type=str,
-        default='(float(DATE[:4])+0.5) * units.yr',
+        default='(JD_OBS // 365.25 - 4711.5) * units.yr',
         help='An expression to evaluate for each catalog source to determine '
         'the epoch to which to propagate star positions.'
     )
@@ -534,8 +541,8 @@ def ensure_catalog(transformation_estimate,
                     catalog_info['magnitude_expression']
                 ):
                     raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} '
-                        f'has magnitude expression {catalog_header["MAGEXPR"]!r} '
+                        f'Catalog {catalog_info["catalog_fname"]} has '
+                        f'magnitude expression {catalog_header["MAGEXPR"]!r} '
                         f'instead of {catalog_info["magnitude_expression"]!r}'
                     )
 
@@ -551,9 +558,10 @@ def ensure_catalog(transformation_estimate,
                     )
                 ):
                     raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} excludes sources '
-                        f'brighter than {catalog_header["MAGMIN"]!r} but '
-                        f'{catalog_info["magnitude_limit"][0]!r} are required.'
+                        f'Catalog {catalog_info["catalog_fname"]} excludes '
+                        f'sources brighter than {catalog_header["MAGMIN"]!r} '
+                        f'but {catalog_info["magnitude_limit"][0]!r} are '
+                        'required.'
                     )
 
                 if (
@@ -566,9 +574,10 @@ def ensure_catalog(transformation_estimate,
                     )
                 ):
                     raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} excludes sources '
-                        f'fainter than {catalog_header["MAGMAX"]!r} but '
-                        f'{catalog_info["magnitude_limit"][-1]!r} are required.'
+                        f'Catalog {catalog_info["catalog_fname"]} excludes '
+                        f'sources fainter than {catalog_header["MAGMAX"]!r} but'
+                        f' {catalog_info["magnitude_limit"][-1]!r} are '
+                        'required.'
                     )
 
                 if (
@@ -578,8 +587,8 @@ def ensure_catalog(transformation_estimate,
                 ):
                     raise RuntimeError(
                         f'Catalog {catalog_info["catalog_fname"]} width '
-                        f'{catalog_header["WIDTH"]!r} is less than the required '
-                        f'{catalog_info["width"]!r}'
+                        f'{catalog_header["WIDTH"]!r} is less than the required'
+                        f' {catalog_info["width"]!r}'
                     )
                 if (
                     catalog_header['HEIGHT']
@@ -588,8 +597,8 @@ def ensure_catalog(transformation_estimate,
                 ):
                     raise RuntimeError(
                         f'Catalog {catalog_info["catalog_fname"]} height '
-                        f'{catalog_header["HEIGHT"]!r} is less than the required '
-                        f'{catalog_info["height"]!r}'
+                        f'{catalog_header["HEIGHT"]!r} is less than the '
+                        f'required {catalog_info["height"]!r}'
                     )
 
                 if (
@@ -680,7 +689,7 @@ def get_max_abs_corner_xi_eta(header,
         for y in [0.0, float(header['NAXIS2'])]:
             rhs = numpy.array([
                 x - float(transformation_estimate['trans_x'][0]),
-                x - float(transformation_estimate['trans_y'][0])
+                y - float(transformation_estimate['trans_y'][0])
             ])
             matrix = numpy.array([
                 transformation_estimate['trans_x'].ravel()[1:3],
@@ -706,7 +715,7 @@ def get_max_abs_corner_xi_eta(header,
                 **center
             )
             max_xi = max(max_xi, abs(projected_coords['xi']))
-            max_eta = max(max_xi, abs(projected_coords['eta']))
+            max_eta = max(max_eta, abs(projected_coords['eta']))
 
     return max_xi, max_eta
 
@@ -852,9 +861,15 @@ def solve_image(dr_fname,
     with DataReductionFile(dr_fname, 'r+') as dr_file:
 
         header = dr_file.get_frame_header()
+        dr_eval = Evaluator(header)
+
         configuration = prepare_configuration(configuration, header)
 
-        result = {'dr_fname': dr_fname, 'fnum': header['FNUM'], 'saved': False}
+        result = {
+            'dr_fname': dr_fname,
+            'trans_key': dr_eval(configuration['reuse transformation key']),
+            'saved': False
+        }
 
         fov_estimate = max(*configuration['frame_fov_estimate'])
 
@@ -871,7 +886,6 @@ def solve_image(dr_fname,
         xy_extracted['y'] = sources['y'].values
 
         if transformation_estimate is None:
-            dr_eval = Evaluator(header)
             transformation_estimate = {
                 key: dr_eval(expression).to_value('deg')
                 for key, expression in zip(
@@ -1033,8 +1047,8 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
-    for fnum_pending in pending.values():
-        task_queue.put((fnum_pending.pop(), None))
+    for pending_set in pending.values():
+        task_queue.put((pending_set.pop(), None))
         num_queued += 1
 
     failed = {}
@@ -1053,35 +1067,35 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
                 )
                 break
             mark_progress(result['dr_fname'])
-            if result['fnum'] in failed:
-                if result['fnum'] not in pending:
-                    pending[result['fnum']] = []
-                pending[result['fnum']].extend(
-                    [f[0] for f in failed[result['fnum']]]
+            if result['trans_key'] in failed:
+                if result['trans_key'] not in pending:
+                    pending[result['trans_key']] = []
+                pending[result['trans_key']].extend(
+                    [f[0] for f in failed[result['trans_key']]]
                 )
-                del failed[result['fnum']]
+                del failed[result['trans_key']]
 
-            for dr_fname in pending.get(result['fnum'], []):
+            for dr_fname in pending.get(result['trans_key'], []):
                 task_queue.put((dr_fname, result['raw_transformation']))
                 num_queued += 1
 
-            if result['fnum'] in pending:
-                del pending[result['fnum']]
+            if result['trans_key'] in pending:
+                del pending[result['trans_key']]
         else:
-            if result['fnum'] not in failed:
-                failed[result['fnum']] = []
-            failed[result['fnum']].append(
+            if result['trans_key'] not in failed:
+                failed[result['trans_key']] = []
+            failed[result['trans_key']].append(
                 (result['dr_fname'], result['fail_reason'])
             )
-            if pending.get(result['fnum'], False):
-                task_queue.put((pending[result['fnum']].pop(), None))
+            if pending.get(result['trans_key'], False):
+                task_queue.put((pending[result['trans_key']].pop(), None))
                 num_queued += 1
 
-            if not pending.get(result['fnum'], True):
-                del pending[result['fnum']]
+            if not pending.get(result['trans_key'], True):
+                del pending[result['trans_key']]
 
-    for fnum_failed in failed.values():
-        for dr_fname, reason in fnum_failed:
+    for failed_set in failed.values():
+        for dr_fname, reason in failed_set:
             mark_progress(dr_fname, reason)
             _logger.critical(
                 'Failed astrometry for DR file %s: %s',
@@ -1098,12 +1112,15 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
     #create_catalogs(configuration, dr_collection)
     pending = {}
     for dr_fname in dr_collection:
-        with DataReductionFile(dr_fname, 'r+') as dr_file:
-            header = dr_file.get_frame_header()
-            if header['FNUM'] not in pending:
-                pending[header['FNUM']] = [dr_fname]
-            else:
-                pending[header['FNUM']].append(dr_fname)
+        reuse_key = Evaluator(
+            dr_fname
+        )(
+            configuration['reuse_transformation_key']
+        )
+        if reuse_key not in pending:
+            pending[reuse_key] = [dr_fname]
+        else:
+            pending[reuse_key].append(dr_fname)
 
     task_queue = Queue()
     result_queue = Queue()
@@ -1117,7 +1134,7 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 
     for process in workers:
         process.start()
-    _logger.debug('Starting astrometry on %d pending frames', len(pending))
+    _logger.debug('Starting astrometry on %d pending frame sets', len(pending))
 
     manage_astrometry(pending, task_queue, result_queue, mark_progress)
 
@@ -1127,6 +1144,38 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 
     for process in workers:
         process.join()
+
+
+def cleanup_interrupted(dr_fname, configuration):
+    """Delete any astrometry datasets left over from prior interrupted run."""
+
+    path_substitutions = {
+        substitution: configuration[substitution]
+        for substitution in ['srcextract_version',
+                             'catalogue_version',
+                             'skytoframe_version']
+    }
+    with DataReductionFile(dr_fname, 'r+') as dr_file:
+        dr_file.delete_columns(
+            'catalogue.columns',
+            'catalogue_column_name',
+            **path_substitutions
+        )
+        for dataset_key in ['skytoframe.matched',
+                            'skytoframe.coefficients']:
+            dr_file.delete_dataset(dataset_key, **path_substitutions)
+
+        for attribute_key in ['skytoframe.type',
+                              'skytoframe.terms',
+                              'skytoframe.sky_center',
+                              'skytoframe.residual',
+                              'srcextract.cfg.binning',
+                              'skytoframe.cfg.srcextract_filter',
+                              'skytoframe.cfg.sky_preprojection',
+                              'skytoframe.cfg.max_match_distance',
+                              'skytoframe.cfg.frame_center',
+                              'skytoframe.cfg.weights_expression']:
+            dr_file.delete_attribute(attribute_key, **path_substitutions)
 
 
 if __name__ == '__main__':

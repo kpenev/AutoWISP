@@ -46,7 +46,7 @@ def parse_command_line(*args):
              'image collection should/should not be processed.'
     )
     parser.add_argument(
-        '--lcdump-catalogue', '--lcdump-cat',
+        '--lcdump-catalog', '--lcdump-catalogue', '--lcdump-cat',
         default='MASTERS/lcdump_catalogue.ucac4',
         help='The name of the catalogue file containing all sources to Create '
         'lightcurves for.'

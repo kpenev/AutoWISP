@@ -163,8 +163,6 @@ def init_processing():
                         not param.endswith('-only-if')
                         and
                         not param.endswith('-version')
-                        and
-                        not param.endswith('-catalog')
                 ):
                     description = (
                         default_step_config['argument_descriptions'][param]

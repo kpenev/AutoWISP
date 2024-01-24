@@ -91,7 +91,6 @@ def find_stars_single(image_fname,
         mark_end(image_fname)
 
 
-
 def find_stars(image_collection, configuration, mark_start, mark_end):
     """Extract sources from all input images and save them to DR files."""
 
@@ -123,6 +122,19 @@ def find_stars(image_collection, configuration, mark_start, mark_end):
                         mark_end=mark_end),
                 image_collection
             )
+
+
+def cleanup_interrupted(image_fname, configuration):
+    """Remove the extracted stars from the DR of the given calibrated image."""
+
+    fits_header = get_primary_header(image_fname)
+    with DataReductionFile(header=fits_header, mode='a') as dr_file:
+        dr_file.delete_sources(
+            'srcextract.sources',
+            'srcextract_column_name',
+            srcextract_version=configuration['srcextract_version']
+        )
+    #TODO: implement repacking
 
 
 if __name__ == '__main__':

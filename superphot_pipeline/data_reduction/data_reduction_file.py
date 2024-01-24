@@ -53,6 +53,53 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
         return 'DataReduction'
 
+    def _prepare_source_iter(self,
+                             dataset_key,
+                             column_substitution_name,
+                             **path_substitutions):
+        """
+        Return required head and tail of paths identifying source collection.
+
+        Args:
+            See `get_sources()`.
+
+        Returns:
+            str:    The path to the parent group containing all source columns.
+
+            str:    The string that must be in the beginning of each path for it
+                to be considered part of the source collection.
+
+            str:    The string that must be in the end of each path for it to be
+                considered part of the source collection.
+        """
+
+        path_substitutions[column_substitution_name] = '{column}'
+        print('Parsing source path: '
+              +
+              repr(self._file_structure[dataset_key].abspath))
+        parsed_path = string.Formatter().parse(
+            self._file_structure[dataset_key].abspath
+            %
+            path_substitutions
+        )
+        pre_column, verify, _, _ = next(parsed_path)
+        print(f'Pre_column: {pre_column}, verify: {verify}')
+        assert verify == 'column'
+        try:
+            name_tail = next(parsed_path)
+            for i in range(1, 4):
+                assert name_tail[i] is None
+            name_tail = name_tail[0]
+            try:
+                next(parsed_path)
+                assert False
+            except  StopIteration:
+                pass
+        except StopIteration:
+            name_tail = ''
+        parent, name_head = pre_column.rsplit('/', 1)
+        return parent, name_head, name_tail
+
 
     @classmethod
     def get_fname_from_header(cls, header):
@@ -148,6 +195,22 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 )
 
 
+    def delete_sources(self,
+                       dataset_key,
+                       column_substitution_name,
+                       **path_substitutions):
+        """Delete all columns of a given source collection."""
+
+        parent, name_head, name_tail = self._prepare_source_iter(
+            dataset_key,
+            column_substitution_name,
+            **path_substitutions
+        )
+        self[parent].visit(
+            partial(self.delete_columns, parent, name_head, name_tail)
+        )
+
+
     def get_sources(self,
                     dataset_key,
                     column_substitution_name,
@@ -167,31 +230,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 are 1-D numpy arrays containing the data.
         """
 
-        path_substitutions[column_substitution_name] = '{column}'
-        print('Parsing source path: '
-              +
-              repr(self._file_structure[dataset_key].abspath))
-        parsed_path = string.Formatter().parse(
-            self._file_structure[dataset_key].abspath
-            %
-            path_substitutions
+        parent, name_head, name_tail = self._prepare_source_iter(
+            dataset_key,
+            column_substitution_name,
+            **path_substitutions
         )
-        pre_column, verify, _, _ = next(parsed_path)
-        print(f'Pre_column: {pre_column}, verify: {verify}')
-        assert verify == 'column'
-        try:
-            name_tail = next(parsed_path)
-            for i in range(1, 4):
-                assert name_tail[i] is None
-            name_tail = name_tail[0]
-            try:
-                next(parsed_path)
-                assert False
-            except  StopIteration:
-                pass
-        except StopIteration:
-            name_tail = ''
-        parent, name_head = pre_column.rsplit('/', 1)
         result = pandas.DataFrame()
         print(
             f'Collecting columns frcom {self.filename} under {parent}, '

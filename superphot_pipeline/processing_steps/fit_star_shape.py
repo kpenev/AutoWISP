@@ -4,6 +4,7 @@
 
 from multiprocessing import Pool
 import logging
+from functools import partial
 
 import numpy
 import pandas
@@ -12,16 +13,21 @@ from general_purpose_python_modules.multiprocessing_util import \
     setup_process,\
     setup_process_map
 
-from superphot_pipeline import Evaluator, PiecewiseBicubicPSFMap
+from superphot_pipeline import\
+    Evaluator,\
+    PiecewiseBicubicPSFMap,\
+    DataReductionFile
 from superphot_pipeline.astrometry import Transformation
 from superphot_pipeline.file_utilities import find_fits_with_dr_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     add_image_options,\
-    read_subpixmap
+    read_subpixmap,\
+    ignore_progress
 from superphot_pipeline.catalog import read_catalog_file
 from superphot_pipeline.split_sources import SplitSources
+from superphot_pipeline.data_reduction.utils import delete_star_shape_fit
 
 def parse_grid_arg(grid_str):
     """Parse the string specifying the grid on which to model PSF/PRF."""
@@ -233,7 +239,7 @@ def add_grouping_options(parser):
     parser.add_argument(
         '--split-magnitude-column',
         default='phot_g_mean_mag',
-        help='The catalogue column to use as the brightness indicator of '
+        help='The catalog column to use as the brightness indicator of '
         'the sources when splitting into groups.'
     )
     parser.add_argument(
@@ -301,11 +307,11 @@ def parse_command_line(*args):
         type=int,
         default=0,
         help='The version of the sky -> frame transformation to use for '
-        'projecting the photometry catalogue.'
+        'projecting the photometry catalog.'
     )
 
     parser.add_argument(
-        '--photometry-catalogue', '--photometry-catalog', '--cat',
+        '--photometry-catalog', '--photometry-catalogue', '--cat',
         default='MASTERS/photometry_catalogue.ucac4',
         help='A file containing the list of stars to perform photometry on.'
     )
@@ -393,7 +399,7 @@ class SourceListCreator:
     def __init__(self,
                  *,
                  dr_fname_format,
-                 catalogue_fname,
+                 catalog_fname,
                  fit_variables,
                  grouping,
                  grouping_frame=None,
@@ -407,14 +413,14 @@ class SourceListCreator:
             dr_fname_format:    A format string to generate the name of the
                 data reduction file that corresponds to each frame.
 
-            catalogue_fname:    The filename containing a list of catalogue
+            catalog_fname:    The filename containing a list of catalog
                 sources to fit the shape and measure the brightness of.
 
             extra_fit_variables:    See --map-variables command line argument.
 
             grouping:    A splitting of the input sources in groups, each of
                 which is enabled separately during PRF fitting. Should be a
-                callable taking the input projected sources, catalogue
+                callable taking the input projected sources, catalog
                 information, frame header and extra fit variables and returning
                 A numpy integer array indicating for each source the PRF fitting
                 group it is in. Sources assigned to negative group IDs are never
@@ -441,7 +447,7 @@ class SourceListCreator:
         """
 
         self._logger = logging.getLogger(__name__)
-        self._sources = read_catalog_file(catalogue_fname)
+        self._sources = read_catalog_file(catalog_fname)
         print('Source columns: ' + repr(self._sources.columns))
         if 'ID' not in self._sources:
             self._sources.insert(
@@ -552,7 +558,7 @@ def create_source_list_creator(configuration):
 
     return SourceListCreator(
         dr_fname_format=configuration['data_reduction_fname'],
-        catalogue_fname=configuration['photometry_catalogue'],
+        catalog_fname=configuration['photometry_catalog'],
         fit_variables=configuration['map_variables'],
         grouping=SplitSources(
             magnitude_column=configuration['split_magnitude_column'],
@@ -607,7 +613,7 @@ def get_shape_fitter_config(configuration):
     return result
 
 
-def fit_frame_set(frame_filenames_configuration):
+def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
     """
     Perform a simultaneous fit of all frames included in frame_filenames.
     Args:
@@ -618,6 +624,13 @@ def fit_frame_set(frame_filenames_configuration):
 
         configuration(dict):    The configuration to use for PSF/PRF fitting,
             background extraction etc.
+
+        mark_start(callable):     Called for each frame in the set before
+            processing begins.
+
+        mark_end(callable):     Called for each frame in the set after
+            processing ends.
+
 
     Returns:
         None
@@ -632,7 +645,6 @@ def fit_frame_set(frame_filenames_configuration):
 
     logger = logging.getLogger(__name__)
 
-    frame_filenames, configuration = frame_filenames_configuration
     logger.debug('Fitting frame set: %s', repr(frame_filenames))
     logger.debug('Fitting configuration: %s', repr(configuration))
 
@@ -650,6 +662,8 @@ def fit_frame_set(frame_filenames_configuration):
     num_fit_groups = max(len(frame_sources) for frame_sources in fit_sources)
     logger.debug('Fitting %s group', repr(num_fit_groups))
 
+    for fname in frame_filenames:
+        mark_start(fname)
     for fit_group in range(num_fit_groups):
         shape_fitter_config['dr_path_substitutions']['fit_group'] = fit_group
         logger.debug(
@@ -669,9 +683,11 @@ def fit_frame_set(frame_filenames_configuration):
             **shape_fitter_config
         )
         logger.debug('Done fitting')
+    for fname in frame_filenames:
+        mark_end(fname)
 
 
-def fit_star_shapes(image_collection, configuration):
+def fit_star_shapes(image_collection, configuration, mark_start, mark_end):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
     image_collection = sorted(image_collection)
@@ -679,15 +695,13 @@ def fit_star_shapes(image_collection, configuration):
                               len(image_collection),
                               configuration['num_simultaneous'])
     fit_arguments = [
-        (
-            image_collection[
-                split
-                :
-                min(split + configuration['num_simultaneous'],
-                    len(image_collection))
-            ],
-            configuration
-        ) for split in frame_list_splits
+        image_collection[
+            split
+            :
+            min(split + configuration['num_simultaneous'],
+                len(image_collection))
+        ]
+        for split in frame_list_splits
     ]
 
     logging.getLogger(__name__).debug(
@@ -703,8 +717,8 @@ def fit_star_shapes(image_collection, configuration):
     )
 
     if configuration['num_parallel_processes'] == 1:
-        for args in fit_arguments:
-            fit_frame_set(args)
+        for frame_set in fit_arguments:
+            fit_frame_set(frame_set, configuration, mark_start, mark_end)
     else:
         with Pool(
                 processes=configuration['num_parallel_processes'],
@@ -713,9 +727,29 @@ def fit_star_shapes(image_collection, configuration):
                 maxtasksperchild=1
         ) as pool:
             pool.map(
-                fit_frame_set,
+                partial(fit_frame_set,
+                        configuration=configuration,
+                        mark_start=mark_start,
+                        mark_end=mark_end),
                 fit_arguments
             )
+
+
+def cleanup_interrupted(image_fname, configuration):
+    """Remove star shape fit datasets from the DR file of the given image."""
+
+    fits_header = get_primary_header(image_fname)
+    with DataReductionFile(header=fits_header, mode='r+') as dr_file:
+        dr_path_substitutions = {
+            version_name + '_version': configuration[version_name + '_version']
+            for version_name in ['background', 'shapefit', 'srcproj']
+        }
+        dr_file.delete_sources(
+            'srcproj.columns',
+            'srcproj_column_name',
+            **dr_path_substitutions
+        )
+        delete_star_shape_fit(dr_file, **dr_path_substitutions)
 
 
 if __name__ == '__main__':
@@ -727,5 +761,7 @@ if __name__ == '__main__':
             cmdline_config.pop('shapefit_only_if'),
             dr_fname_format=cmdline_config['data_reduction_fname']
         ),
-        cmdline_config
+        cmdline_config,
+        ignore_progress,
+        ignore_progress
     )
