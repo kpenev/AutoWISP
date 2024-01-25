@@ -30,6 +30,7 @@ def iterative_refit(fit_dr_filenames,
                     magfit_stat_fname_format,
                     master_scatter_fit_terms,
                     max_iterations=5,
+                    continue_from_iteration=0,
                     **path_substitutions):
     """
     Iteratively performa magnitude fitting/generating master until convergence.
@@ -159,13 +160,22 @@ def iterative_refit(fit_dr_filenames,
 
         return new_reference
 
+
+    path_substitutions['magfit_iteration'] = continue_from_iteration
+
     with DataReductionFile(single_photref_dr_fname, 'r') as photref_dr:
-        photref = get_single_photref(photref_dr, **path_substitutions)
         single_photref_header = photref_dr.get_frame_header()
+        if continue_from_iteration > 0:
+            master_reference_fname = master_photref_fname_format.format(
+                **dict(single_photref_header),
+                **path_substitutions
+            )
+            photref = get_master_photref(master_reference_fname)
+        else:
+            photref = get_single_photref(photref_dr, **path_substitutions)
 
     catalogue = read_master_catalogue(master_catalogue_fname,
                                       photref_dr.parse_hat_source_id)
-    path_substitutions['magfit_iteration'] = 0
 
     num_photometries = next(iter(photref.values()))['mag'].size
 

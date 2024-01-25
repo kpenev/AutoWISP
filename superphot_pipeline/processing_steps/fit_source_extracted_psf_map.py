@@ -248,7 +248,7 @@ def fit_srcextract_psf_map(dr_collection,
             mark_end(dr_fname)
 
 
-def cleanup_interrupted(dr_fname, configuration):
+def cleanup_interrupted(dr_fname, _, configuration):
     """Remove the source extracted PSF map from the given DR file."""
 
     with DataReductionFile(dr_fname, 'r+') as dr_file:

@@ -6,6 +6,7 @@ from typing import List
 from sqlalchemy import\
     Column,\
     Integer,\
+    Boolean,\
     String,\
     TIMESTAMP,\
     ForeignKey,\
@@ -61,9 +62,18 @@ class ProcessedImages(DataModelBase):
     status = Column(
         Integer,
         nullable=False,
-        doc='The status of the processing (0 = started, 1 = success, '
-        'negative values indicate various reasons for failure). The meaning of '
-        'negative values is step dependent.'
+        doc='The status of the processing (0 = started, >0 = successfully saved'
+        ' progress, negative values indicate various reasons for failure). The '
+        'meaning of negative values is step dependent. For most steps 1 is '
+        'the final status, but for magnitude fitting the value indicates the '
+        'iteration.'
+    )
+    final = Column(
+        Boolean,
+        nullable=False,
+        doc='Is this the final processing status? The only case where '
+        '`status`=1 is not final is for magnitude fitting, where there may be '
+        'additional iterations needed.'
     )
     timestamp = Column(
         TIMESTAMP,

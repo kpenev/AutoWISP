@@ -238,7 +238,7 @@ def calibrate(image_collection, configuration, mark_start, mark_end):
         mark_end(image_fname)
 
 
-def cleanup_interrupted(raw_fname, configuration):
+def cleanup_interrupted(raw_fname, _, configuration):
     """Cleanup file system after partially calibrated images."""
 
     calibrated_fname = configuration['calibrated_fname'].format_map(

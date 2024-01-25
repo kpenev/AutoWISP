@@ -9,7 +9,8 @@ from general_purpose_python_modules.multiprocessing_util import setup_process
 from superphot_pipeline import magnitude_fitting
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
-    ManualStepArgumentParser
+    ManualStepArgumentParser,\
+    ignore_progress
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
@@ -154,10 +155,19 @@ def parse_command_line(*args):
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting to allow.'
     )
+    parser.add_argument(
+        '--continue-from-iteration',
+        type=int,
+        default=0,
+        help='Leave zero if magfit should start from single photometric '
+        'reference. If values bigger than zero is specified, fitting continues '
+        'from that iteration using the corresponding master photometric '
+        'reference (must exist). Default: %(default)s'
+    )
     return parser.parse_args(*args)
 
 
-def magnitude_fit(dr_collection, configuration):
+def magnitude_fit(dr_collection, configuration, mark_start, mark_end):
     """Perform magnitude fitting for the given DR files."""
 
     path_substitutions = {what + '_version': configuration[what + '_version']
@@ -188,5 +198,7 @@ if __name__ == '__main__':
     magnitude_fit(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('magfit_only_if')),
-        cmdline_config
+        cmdline_config,
+        ignore_progress,
+        ignore_progress
     )

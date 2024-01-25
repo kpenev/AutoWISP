@@ -1146,7 +1146,7 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
         process.join()
 
 
-def cleanup_interrupted(dr_fname, configuration):
+def cleanup_interrupted(dr_fname, _, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
     path_substitutions = {

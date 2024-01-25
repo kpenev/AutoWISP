@@ -369,7 +369,7 @@ class ProcessingManager:
         ).where(
             ProcessedImages.progress_id.in_(required_progress_ids)
         ).where(
-            ProcessedImages.status > 0
+            ProcessedImages.final
         ).group_by(
             ProcessedImages.image_id,
             ProcessedImages.channel
@@ -431,7 +431,7 @@ class ProcessingManager:
             ).where(
                 ProcessedImages.progress_id == self._current_processing.id
             ).where(
-                ProcessedImages.status == 0
+                ~ProcessedImages.final
             )
         ):
             if image.id not in self._evaluated_expressions:
@@ -460,8 +460,13 @@ class ProcessingManager:
                 self.current_step.name,
                 interrupted_fname
             )
-            step_module.cleanup_interrupted(interrupted_fname, config)
-            db_session.delete(processed)
+            step_module.cleanup_interrupted(interrupted_fname,
+                                            processed.status,
+                                            config)
+            if processed.status == 1:
+                db_session.delete(processed)
+            else:
+                processed.status -= 1
 
 
     def _init_processed_ids(self, image, channels, step_input_type):
@@ -589,12 +594,13 @@ class ProcessingManager:
                             self._current_processing,
                             load=False
                         ).id,
-                        status=0
+                        status=0,
+                        final=False
                     )
                 )
 
 
-    def _end_processing(self, input_fname, status=1):
+    def _end_processing(self, input_fname, status=1, final=True):
         """
         Record that the current step has finished processing the given file.
 
@@ -624,7 +630,8 @@ class ProcessingManager:
                             self._current_processing,
                             load=False
                         ).id,
-                        'status': status
+                        'status': status,
+                        'final': final
                     }
                     for finished_id in self._processed_ids[input_fname]
                 ]

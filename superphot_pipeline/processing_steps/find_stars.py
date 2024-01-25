@@ -124,7 +124,7 @@ def find_stars(image_collection, configuration, mark_start, mark_end):
             )
 
 
-def cleanup_interrupted(image_fname, configuration):
+def cleanup_interrupted(image_fname, _, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
 
     fits_header = get_primary_header(image_fname)
