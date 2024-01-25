@@ -20,7 +20,8 @@ from superphot_pipeline.fits_utilities import\
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
-    read_subpixmap
+    read_subpixmap,\
+    ignore_progress
 from superphot_pipeline.processing_steps.fit_star_shape import add_image_options
 
 from superphot_pipeline import DataReductionFile
@@ -197,5 +198,7 @@ if __name__ == '__main__':
     photometer_image_collection(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('apphot_only_if')),
-        cmdline_config
+        cmdline_config,
+        ignore_progress,
+        ignore_progress
     )

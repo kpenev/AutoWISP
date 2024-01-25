@@ -15,7 +15,8 @@ from superphot_pipeline.fit_expression import\
     iterative_fit
 from superphot_pipeline.evaluator import Evaluator
 from superphot_pipeline.processing_steps.manual_util import\
-    ManualStepArgumentParser
+    ManualStepArgumentParser,\
+    ignore_progress
 
 _logger = logging.getLogger(__name__)
 
@@ -222,7 +223,10 @@ def smooth_srcextract_psf(dr_file,
     )
 
 
-def fit_srcextract_psf_map(dr_collection, configuration):
+def fit_srcextract_psf_map(dr_collection,
+                           configuration,
+                           mark_start,
+                           mark_end):
     """Fit a smooth dependence of source extraction PSF for a DR collection."""
 
     kwargs = {what + '_version': configuration[what + '_version']
@@ -233,6 +237,7 @@ def fit_srcextract_psf_map(dr_collection, configuration):
 
     for dr_fname in dr_collection:
         with DataReductionFile(dr_fname, 'r+') as dr_file:
+            mark_start(dr_fname)
             smooth_srcextract_psf(
                 dr_file=dr_file,
                 psf_parameters=configuration['srcextract_psf_params'],
@@ -240,6 +245,19 @@ def fit_srcextract_psf_map(dr_collection, configuration):
                 weights_expression=configuration['srcextract_psfmap_weights'],
                 **kwargs
             )
+            mark_end(dr_fname)
+
+
+def cleanup_interrupted(dr_fname, configuration):
+    """Remove the source extracted PSF map from the given DR file."""
+
+    with DataReductionFile(dr_fname, 'r+') as dr_file:
+        path_substitutions = {
+            what + '_version': configuration[what + '_version']
+            for what in ['srcextract', 'catalogue', 'skytoframe']
+        }
+        dr_file.delete_dataset('srcextract.psf_map', **path_substitutions)
+
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
@@ -247,5 +265,7 @@ if __name__ == '__main__':
     fit_srcextract_psf_map(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('srcextract_only_if')),
-        cmdline_config
+        cmdline_config,
+        ignore_progress,
+        ignore_progress
     )
