@@ -774,6 +774,37 @@ class ProcessingManager:
                         ][
                             'expressions'
                         ] == matched_expressions:
+                            if step_name == 'fit_magnitudes':
+                                magfit_iteration = db_session.execute(
+                                    select(
+                                        ProcessedImages.status
+                                    ).where(
+                                        ProcessedImages.image_id
+                                        ==
+                                        pending_images[i][0].id
+                                    ).where(
+                                        ProcessedImages.channel
+                                        ==
+                                        pending_images[i][1]
+                                    ).where(
+                                        ProcessedImages.progress_id
+                                        ==
+                                        self._current_processing.id
+                                    )
+                                ).scalar_one_or_none()
+                                if magfit_iteration is None:
+                                    magfit_iteration = 0
+                                if config['continue_from_iteration'] == 0:
+                                    config['continue_from_iteration'] = (
+                                        magfit_iteration
+                                    )
+                                else:
+                                    assert (
+                                        config['continue_from_iteration']
+                                        ==
+                                        magfit_iteration
+                                    )
+
                             batch.append(
                                 self._get_step_input(
                                     *pending_images.pop(i),

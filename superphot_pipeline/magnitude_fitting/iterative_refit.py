@@ -1,7 +1,6 @@
 """Interface for performing iterative magnitude fitting."""
 
 from tempfile import TemporaryDirectory
-import functools
 from multiprocessing import Pool
 import logging
 
@@ -29,6 +28,8 @@ def iterative_refit(fit_dr_filenames,
                     master_photref_fname_format,
                     magfit_stat_fname_format,
                     master_scatter_fit_terms,
+                    mark_start,
+                    mark_end,
                     max_iterations=5,
                     continue_from_iteration=0,
                     **path_substitutions):
@@ -73,6 +74,12 @@ def iterative_refit(fit_dr_filenames,
 
         master_scatter_fit_terms(str):    Terms to include in the fit for the
             scatter when deciding which stars to include in the master.
+
+        mark_start(callable):    A function called at the start of each DR file
+            fitting.
+
+        mark_end(callable):    A function called after each DR file has finished
+            fitting.
 
         max_iterations(int):    The maximum number of iterations of deriving a
             master and re-fitting to allow.
@@ -209,7 +216,12 @@ def iterative_refit(fit_dr_filenames,
                 source_name_format=source_name_format
             )
 
-            pool_magfit = functools.partial(magfit, **path_substitutions)
+            def pool_magfit(dr_fname):
+                mark_start(dr_fname)
+                result = magfit(dr_fname, **path_substitutions)
+                mark_end(dr_fname)
+                return result
+
             if configuration.num_parallel_processes > 1:
                 with Pool(
                         configuration.num_parallel_processes,

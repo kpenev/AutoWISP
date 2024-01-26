@@ -3,10 +3,11 @@
 """Apply magnitude fitting to hdf5 files"""
 
 from types import SimpleNamespace
+from itertools import count
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
-from superphot_pipeline import magnitude_fitting
+from superphot_pipeline import magnitude_fitting, DataReductionFile
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
@@ -167,15 +168,19 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
+def get_path_substitutions(configuration):
+    """Return the path substitutions to find magfit datasets."""
+
+    return {what + '_version': configuration[what + '_version']
+            for what in ['shapefit',
+                         'srcproj',
+                         'apphot',
+                         'background',
+                         'magfit']}
+
+
 def magnitude_fit(dr_collection, configuration, mark_start, mark_end):
     """Perform magnitude fitting for the given DR files."""
-
-    path_substitutions = {what + '_version': configuration[what + '_version']
-                          for what in ['shapefit',
-                                       'srcproj',
-                                       'apphot',
-                                       'background',
-                                       'magfit']}
 
     magnitude_fitting.iterative_refit(
         fit_dr_filenames=sorted(dr_collection),
@@ -187,9 +192,29 @@ def magnitude_fit(dr_collection, configuration, mark_start, mark_end):
         ),
         magfit_stat_fname_format=configuration['magfit_stat_fname_format'],
         master_scatter_fit_terms=configuration['mphotref_scatter_fit_terms'],
+        mark_start=mark_start,
+        mark_end=mark_end,
         max_iterations=configuration['max_magfit_iterations'],
-        **path_substitutions
+        **get_path_substitutions(configuration)
     )
+
+
+def cleanup_interrupted(dr_fname, magfit_iteration, configuration):
+    """Remove DR entries stats and magfit references for magfit_iteration."""
+
+    path_substitutions = get_path_substitutions(configuration)
+    path_substitutions['magfit_iteration'] = magfit_iteration
+    with DataReductionFile(dr_fname, 'r+') as dr_file:
+        dr_file.delete_dataset('shapefit.magfit.magnitude',
+                               **path_substitutions)
+        for aperture_index in count():
+            if not dr_file.check_for_dataset('apphot.magnitude',
+                                             aperture_index=aperture_index,
+                                             **path_substitutions):
+                break
+            dr_file.delete_dataset('apphot.magfit.magnitude',
+                                   aperture_index=aperture_index,
+                                   **path_substitutions)
 
 
 if __name__ == '__main__':

@@ -217,7 +217,7 @@ class HDF5File(ABC, h5py.File):
                                     endcard=False,
                                     padding=False)
 
-    def _check_for_dataset(self, dataset_key, must_exist=True, **substitutions):
+    def check_for_dataset(self, dataset_key, must_exist=True, **substitutions):
         """
         Check if the given key identifies a dataset and it actually exists.
 
@@ -495,7 +495,7 @@ class HDF5File(ABC, h5py.File):
                 except: name, shape and data.
         """
 
-        self._check_for_dataset(dataset_key, False)
+        self.check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
         result = {'shuffle': dataset_config.shuffle}
@@ -818,7 +818,7 @@ class HDF5File(ABC, h5py.File):
         if dataset_key not in self._file_structure:
             return False
 
-        self._check_for_dataset(dataset_key, False)
+        self.check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
@@ -1012,7 +1012,7 @@ class HDF5File(ABC, h5py.File):
                 specified
         """
 
-        self._check_for_dataset(dataset_key,
+        self.check_for_dataset(dataset_key,
                                 default_value is None,
                                 **substitutions)
 
@@ -1138,7 +1138,7 @@ class HDF5File(ABC, h5py.File):
             None
         """
 
-        self._check_for_dataset(dataset_key, False)
+        self.check_for_dataset(dataset_key, False)
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
 

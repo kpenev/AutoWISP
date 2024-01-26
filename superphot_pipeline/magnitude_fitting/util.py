@@ -68,7 +68,7 @@ def _init_magfit_sources(source_data):
 
 
 def get_magfit_sources(data_reduction_file,
-                        magfit_iterations='all',
+                       magfit_iterations='all',
                        **path_substitutions):
     """Return the sources in the given DR file formatted for magfit."""
 
