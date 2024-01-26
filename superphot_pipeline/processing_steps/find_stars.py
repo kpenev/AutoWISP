@@ -4,6 +4,7 @@
 
 from functools import partial
 from multiprocessing import Pool
+from os import path
 
 from general_purpose_python_modules.multiprocessing_util import \
     setup_process,\
@@ -128,7 +129,11 @@ def cleanup_interrupted(image_fname, _, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
 
     fits_header = get_primary_header(image_fname)
-    with DataReductionFile(header=fits_header, mode='a') as dr_file:
+    dr_fname = DataReductionFile.get_fname_from_header(fits_header)
+    if not path.exists(dr_fname):
+        return
+
+    with DataReductionFile(dr_fname, mode='r+') as dr_file:
         dr_file.delete_sources(
             'srcextract.sources',
             'srcextract_column_name',

@@ -822,6 +822,8 @@ def solve_image(dr_fname,
                 transformation_estimate=None,
                 *,
                 catalog_lock,
+                mark_start,
+                mark_end,
                 **configuration):
     """
     Find the astrometric transformation for a single image and save to DR file.
@@ -836,6 +838,15 @@ def solve_image(dr_fname,
             before channel splitting) that will be refined. If ``None``,
             ``solve_field`` from astrometry.net is used to find iniitial
             estimates.
+
+        catalog_lock(multiprocessing.Lock):    A lock that is held hile a
+            catalog file is checked and/or created.
+
+        mark_start(callable):    Called before anything is written to the DR
+            file if successful transformation is found.
+
+        mark_end(callable):    Called after a successful transformation is fully
+            written to the DR file.
 
         configuration:    Parameters defining how astrometry is to be fit.
 
@@ -867,7 +878,7 @@ def solve_image(dr_fname,
 
         result = {
             'dr_fname': dr_fname,
-            'trans_key': dr_eval(configuration['reuse transformation key']),
+            'trans_key': dr_eval(configuration['reuse_transformation_key']),
             'saved': False
         }
 
@@ -910,7 +921,7 @@ def solve_image(dr_fname,
                 header=header
             )
             if status != 'success':
-                result['fail_reason'] = status
+                result['fail_reason'] = fail_reasons[status]
                 return result
 
         else:
@@ -967,6 +978,7 @@ def solve_image(dr_fname,
                     'Succesful astrometry solution found for %s:',
                     dr_fname
                 )
+                mark_start(dr_fname)
                 save_to_dr(cat_extracted_corr=cat_extracted_corr,
                            **transformation_estimate,
                            res_rms=diagnostics['rms'],
@@ -974,6 +986,7 @@ def solve_image(dr_fname,
                            header=header,
                            dr_file=dr_file,
                            catalog=catalog)
+                mark_end(dr_fname)
                 result['saved'] = True
 
                 transformation_to_raw(transformation_estimate['trans_x'],
@@ -994,7 +1007,7 @@ def solve_image(dr_fname,
             return result
         #pylint: enable=bare-except
 
-    result['fail_reason'] = 'solve-field failed'
+    result['fail_reason'] = fail_reasons['solve-field failed']
     _logger.error(
         'No Astrometry.net solution found in tweak range [%d, %d]',
         *configuration['tweak_order']
@@ -1002,7 +1015,13 @@ def solve_image(dr_fname,
     return result
 
 
-def astrometry_process(task_queue, result_queue, configuration, catalog_lock):
+def astrometry_process(task_queue,
+                       result_queue,
+                       *,
+                       configuration,
+                       catalog_lock,
+                       mark_start,
+                       mark_end):
     """Run pending astrometry tasks from the queue in process."""
 
     setup_process(task='solve', **configuration)
@@ -1014,6 +1033,8 @@ def astrometry_process(task_queue, result_queue, configuration, catalog_lock):
                 dr_fname,
                 transformation_estimate,
                 catalog_lock=catalog_lock,
+                mark_start=mark_start,
+                mark_end=mark_end,
                 **configuration
             )
         )
@@ -1043,7 +1064,7 @@ def prepare_configuration(configuration, dr_header):
 
 #Could not think of good way to split
 #pylint: disable=too-many-branches
-def manage_astrometry(pending, task_queue, result_queue, mark_progress):
+def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
@@ -1066,7 +1087,6 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
                     result['dr_fname']
                 )
                 break
-            mark_progress(result['dr_fname'])
             if result['trans_key'] in failed:
                 if result['trans_key'] not in pending:
                     pending[result['trans_key']] = []
@@ -1096,7 +1116,7 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
 
     for failed_set in failed.values():
         for dr_fname, reason in failed_set:
-            mark_progress(dr_fname, reason)
+            mark_end(dr_fname, reason)
             _logger.critical(
                 'Failed astrometry for DR file %s: %s',
                 dr_fname,
@@ -1105,7 +1125,7 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
             )
 #pylint: enable=too-many-branches
 
-def solve_astrometry(dr_collection, configuration, mark_progress):
+def solve_astrometry(dr_collection, configuration, mark_start, mark_end):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
     _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
@@ -1127,8 +1147,16 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
 
     catalog_lock=Lock()
     workers = [
-        Process(target=astrometry_process,
-                args=(task_queue, result_queue, configuration, catalog_lock))
+        Process(
+            target=astrometry_process,
+            args=(task_queue, result_queue),
+            kwargs={
+                'configuration': configuration,
+                'catalog_lock': catalog_lock,
+                'mark_start': mark_start,
+                'mark_end': mark_end
+            }
+        )
         for _ in range(configuration['num_parallel_processes'])
     ]
 
@@ -1136,7 +1164,7 @@ def solve_astrometry(dr_collection, configuration, mark_progress):
         process.start()
     _logger.debug('Starting astrometry on %d pending frame sets', len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_progress)
+    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
 
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:

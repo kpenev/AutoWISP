@@ -31,6 +31,8 @@ class SuperPhotGaia(GaiaClass):
 
         job = self.launch_job_async(query, verbose=verbose)
         result = job.get_results()
+        _logger.debug('Gaia query result: %s', repr(result))
+        _logger.debug('Gaia query result columns: %s', repr(result.colnames))
         if result.colnames == ['num_obj']:
             return result['num_obj'][0]
         result.rename_column('ra', 'RA_orig')

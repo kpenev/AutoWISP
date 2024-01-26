@@ -28,6 +28,7 @@ class Evaluator(asteval.Interpreter):
         """
 
         super().__init__()
+        print('Creating evaluator from: ' + repr(data))
         for data_entry in data:
             if hasattr(data_entry, 'dtype'):
                 for varname in data_entry.dtype.names:

@@ -5,6 +5,7 @@
 import re
 
 from configargparse import ArgumentParser, DefaultsFormatter
+from sqlalchemy import MetaData
 
 from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
@@ -150,7 +151,9 @@ def init_processing():
                 +
                 '\n\t'.join(
                     f'{param}: {value}'
-                    for param, value in default_step_config.items()
+                    for param, value in default_step_config[
+                        'argument_defaults'
+                    ].items()
                 )
             )
             for param in default_step_config['argument_descriptions'].keys():
@@ -177,6 +180,10 @@ def init_processing():
                             name=param,
                             description=description
                         )
+                        print(
+                            f'Setting {param} = '
+                            f'{default_step_config["argument_defaults"][param]}'
+                        )
                         #False positive
                         #pylint: disable=not-callable
                         configuration = Configuration(
@@ -191,6 +198,7 @@ def init_processing():
                         #pylint: enable=not-callable
                         configuration.parameter = db_parameters[param]
                         db_configurations.append(configuration)
+
                     db_steps[step_name].parameters.append(db_parameters[param])
 
             db_session.add(db_steps[step_name])
@@ -204,7 +212,9 @@ def drop_tables_matching(pattern):
 
 
     if pattern is None:
-        DataModelBase.metadata.drop_all(db_engine)
+        metadata = MetaData()
+        metadata.reflect(db_engine)
+        metadata.drop_all(db_engine)
     else:
         DataModelBase.metadata.drop_all(
             db_engine,

@@ -252,8 +252,13 @@ class ManualStepArgumentParser(ArgumentParser):
                                                       'store_false',
                                                       'append']:
                     if nargs == '+' or nargs > 1:
-                        self.argument_defaults[argument_name] = repr(
-                            list(kwargs['default'])
+                        self.argument_defaults[argument_name] = (
+                            '['
+                            +
+                            ', '.join([x if isinstance(x, str) else repr(x)
+                                       for x in kwargs['default']])
+                            +
+                            ']'
                         )
                     elif (
                         kwargs['type'](self.argument_defaults[argument_name])

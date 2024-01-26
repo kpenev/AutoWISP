@@ -7,12 +7,13 @@ from sqlalchemy.pool import NullPool
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
     #'SuperPhotPipeline',
-#    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox',
+#    'mysql+pymysql://kpenev:shakakaa@localhost.utdallas.edu/sandbox',
     'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
     echo=True,
-    poolclass=NullPool,
     pool_pre_ping=True,
-    pool_recycle=3600
+    pool_recycle=3600,
+    connect_args={'connect_timeout': 600},
+    poolclass=NullPool
 )
 
 #pylint false positive - Session is actually a class name.
