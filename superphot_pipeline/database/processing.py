@@ -119,8 +119,15 @@ class ProcessingManager:
 
 
     def _write_config_file(self, matched_expressions, outf, steps=None):
-        """Write to given file configuration for given matched expressions."""
+        """
+        Write to given file configuration for given matched expressions.
 
+        Returns:
+            Set of tuples of parameters and values as set in the file. Used for
+            comparing configurations.
+        """
+
+        result = set()
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -150,8 +157,11 @@ class ProcessingManager:
                 for param, value in step_config.items():
                     if value is not None:
                         outf.write(f'    {param} = {value}\n')
+                        result.add((param, value))
 
                 outf.write('\n')
+
+        return frozenset(result)
 
 
     def _get_param_values(self,
@@ -210,16 +220,17 @@ class ProcessingManager:
 
 
     def _get_config(self, matched_expressions, step=None):
+        """Return the configuration for the given step for given expressions."""
 
         with NamedTemporaryFile(mode='w') as config_file:
-            self._write_config_file(matched_expressions,
-                                    config_file,
-                                    [step])
+            config_key = self._write_config_file(matched_expressions,
+                                                 config_file,
+                                                 [step])
             config_file.flush()
             self._logger.debug('Wrote config file %s', repr(config_file.name))
             return getattr(processing_steps, step).parse_command_line(
                 ['-c', config_file.name]
-            )
+            ), config_key
 
 
     def _get_matched_expressions(self, evaluate):
@@ -274,7 +285,7 @@ class ProcessingManager:
         calib_config = self._get_config(
             self._get_matched_expressions(evaluate),
             'calibrate',
-        )
+        )[0]
         self._logger.debug('Calibration config: %s', repr(calib_config))
         add_required_keywords(evaluate.symtable, calib_config)
 
@@ -449,8 +460,8 @@ class ProcessingManager:
                 config = self._get_config(
                     matched_expressions,
                     step=self.current_step.name
-                )
-                config['processing_step']=self.current_step.name
+                )[0]
+                config['processing_step'] = self.current_step.name
 
             interrupted_fname = self._get_step_input(image,
                                                      processed.channel,
@@ -490,7 +501,7 @@ class ProcessingManager:
             )
 
 
-    def _start_step(self, step_name):
+    def _start_step(self, step_name, db_session):
         """
         Record the start of a processing step and return the images to process.
 
@@ -505,52 +516,50 @@ class ProcessingManager:
                 The type of input expected by the current step.
         """
 
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
-            self.current_step = db_session.execute(
-                select(
-                    Step
-                ).filter_by(
-                    name=step_name
-                )
-            ).scalar_one()
-            self._current_processing = db_session.execute(
-                select(
-                    ImageProcessingProgress
-                ).filter_by(
-                    step_id=self.current_step.id,
-                    configuration_version=self.step_version[step_name]
-                )
-            ).scalar_one_or_none()
+        self.current_step = db_session.execute(
+            select(
+                Step
+            ).filter_by(
+                name=step_name
+            )
+        ).scalar_one()
+        self._current_processing = db_session.execute(
+            select(
+                ImageProcessingProgress
+            ).filter_by(
+                step_id=self.current_step.id,
+                configuration_version=self.step_version[step_name]
+            )
+        ).scalar_one_or_none()
 
-            if self._current_processing is None:
-                self._current_processing = ImageProcessingProgress(
-                    step_id=self.current_step.id,
-                    configuration_version=self.step_version[step_name]
-                )
-                db_session.add(self._current_processing)
+        if self._current_processing is None:
+            self._current_processing = ImageProcessingProgress(
+                step_id=self.current_step.id,
+                configuration_version=self.step_version[step_name]
+            )
+            db_session.add(self._current_processing)
 
-            self._cleanup_interrupted(db_session)
+        self._cleanup_interrupted(db_session)
 
-            pending_images = self._get_pending_images(db_session)
-            self._logger.debug('Pending images: %s', repr(pending_images))
-            self._processed_ids = {}
-            step_input_type = getattr(
-                processing_steps,
-                self.current_step.name
-            ).input_type
+        pending_images = self._get_pending_images(db_session)
+        self._logger.debug('Pending images: %s', repr(pending_images))
+        self._processed_ids = {}
+        step_input_type = getattr(
+            processing_steps,
+            self.current_step.name
+        ).input_type
 
-            if step_input_type == 'raw':
-                pending_images = [(image, None) for image in pending_images]
+        if step_input_type == 'raw':
+            pending_images = [(image, None) for image in pending_images]
 
-            for image, channel_name in pending_images:
-                if image.id not in self._evaluated_expressions:
-                    self._evaluate_expressions_image(image)
-                self._init_processed_ids(image, [channel_name], step_input_type)
+        for image, channel_name in pending_images:
+            if image.id not in self._evaluated_expressions:
+                self._evaluate_expressions_image(image)
+            self._init_processed_ids(image, [channel_name], step_input_type)
 
-            return pending_images, step_input_type
+        self._logger.info('Starting %s step', self.current_step.name)
+
+        return pending_images, step_input_type
 
 
     def _process_batch(self, batch, config, step_name):
@@ -638,6 +647,127 @@ class ProcessingManager:
             )
 
 
+    def _group_pending_by_conditions(self, pending_images, db_session):
+        """Group pendig_images grouped by condition expressions they satisfy."""
+
+        result = []
+        while pending_images:
+            pending_images = [
+                (db_session.merge(image, load=False), channel)
+                for image, channel in pending_images
+            ]
+            self.current_step = db_session.merge(self.current_step,
+                                                 load=False)
+            self._current_processing = db_session.merge(
+                self._current_processing,
+                load=False
+            )
+
+            batch = []
+            matched_expressions = self._evaluated_expressions[
+                pending_images[-1][0].id
+            ][
+                pending_images[-1][1]
+            ][
+                'expressions'
+            ]
+            self._logger.debug(
+                'Finding images matching expressions: %s',
+                repr(matched_expressions)
+            )
+
+            for i in range(len(pending_images) - 1, -1, -1):
+                self._logger.debug(
+                    'Comparing %s to %s',
+                    repr(
+                        self._evaluated_expressions[
+                            pending_images[i][0].id
+                        ][
+                            pending_images[i][1]
+                        ][
+                            'expressions'
+                        ]
+                    ),
+                    repr(matched_expressions)
+                )
+                if self._evaluated_expressions[
+                        pending_images[i][0].id
+                ][
+                    pending_images[i][1]
+                ][
+                    'expressions'
+                ] == matched_expressions:
+                    batch.append(pending_images.pop(i))
+                    self._logger.debug(
+                        'Added image to batch, now:\n\t%s',
+                        '\n\t'.join(
+                            f'{image.raw_fname}: {channel}'
+                            for image, channel in batch
+                        )
+                    )
+                else:
+                    self._logger.debug('Not a match')
+            result.append((matched_expressions, batch))
+        return result
+
+
+    def _get_batches(self, pending_images, step_input_type, db_session):
+        """Return the batches of images to process with identical config."""
+
+        result = {}
+        for matched_expressions, batch in self._group_pending_by_conditions(
+            pending_images,
+            db_session
+        ):
+            config, config_key = self._get_config(
+                matched_expressions,
+                step=self.current_step.name
+            )
+            config['processing_step']=self.current_step.name
+            setup_process(task='main', **config)
+
+            if self.current_step.name == 'fit_magnitudes':
+                for image, channel in batch:
+                    magfit_iteration = db_session.execute(
+                        select(
+                            ProcessedImages.status
+                        ).where(
+                            ProcessedImages.image_id == image.id
+                        ).where(
+                            ProcessedImages.channel == channel
+                        ).where(
+                            ProcessedImages.progress_id
+                            ==
+                            self._current_processing.id
+                        )
+                    ).scalar_one_or_none()
+
+                    if magfit_iteration is None:
+                        magfit_iteration = 0
+                    if config['continue_from_iteration'] == 0:
+                        config['continue_from_iteration'] = (
+                            magfit_iteration
+                        )
+                    else:
+                        assert (
+                            config['continue_from_iteration']
+                            ==
+                            magfit_iteration
+                        )
+
+            input_batch = [
+                self._get_step_input(*image_channel, step_input_type)
+                for image_channel in batch
+            ]
+
+            if config_key in result:
+                result[config_key][1].extend(input_batch)
+            else:
+                result[config_key] = (config, input_batch)
+
+        return result.values()
+
+
     def __init__(self, version=None):
         """
         Set the public class attributes per the given configuartion version.
@@ -716,113 +846,20 @@ class ProcessingManager:
                 steps = db_session.scalars(select(Step.name)).all()
 
         for step_name in steps:
-            pending_images, step_input_type = self._start_step(step_name)
-
-            while pending_images:
-                #False positivie
-                #pylint: disable=no-member
-                with Session.begin() as db_session:
-                #pylint: enable=no-member
-                    pending_images = [
-                        (db_session.merge(image, load=False), channel)
-                        for image, channel in pending_images
-                    ]
-                    self.current_step = db_session.merge(self.current_step,
-                                                         load=False)
-                    self._current_processing = db_session.merge(
-                        self._current_processing,
-                        load=False
-                    )
-
-                    batch = []
-                    matched_expressions = self._evaluated_expressions[
-                        pending_images[-1][0].id
-                    ][
-                        pending_images[-1][1]
-                    ][
-                        'expressions'
-                    ]
-                    self._logger.debug(
-                        'Finding images matching expressions: %s',
-                        repr(matched_expressions)
-                    )
-                    config = self._get_config(
-                        matched_expressions,
-                        step=step_name
-                    )
-                    config['processing_step']=step_name
-                    setup_process(task='main', **config)
-
-                    for i in range(len(pending_images) - 1, -1, -1):
-                        self._logger.debug(
-                            'Comparing %s to %s',
-                            repr(
-                                self._evaluated_expressions[
-                                    pending_images[i][0].id
-                                ][
-                                    pending_images[i][1]
-                                ][
-                                    'expressions'
-                                ]
-                            ),
-                            repr(matched_expressions)
-                        )
-                        if self._evaluated_expressions[
-                                pending_images[i][0].id
-                        ][
-                            pending_images[i][1]
-                        ][
-                            'expressions'
-                        ] == matched_expressions:
-                            if step_name == 'fit_magnitudes':
-                                magfit_iteration = db_session.execute(
-                                    select(
-                                        ProcessedImages.status
-                                    ).where(
-                                        ProcessedImages.image_id
-                                        ==
-                                        pending_images[i][0].id
-                                    ).where(
-                                        ProcessedImages.channel
-                                        ==
-                                        pending_images[i][1]
-                                    ).where(
-                                        ProcessedImages.progress_id
-                                        ==
-                                        self._current_processing.id
-                                    )
-                                ).scalar_one_or_none()
-                                if magfit_iteration is None:
-                                    magfit_iteration = 0
-                                if config['continue_from_iteration'] == 0:
-                                    config['continue_from_iteration'] = (
-                                        magfit_iteration
-                                    )
-                                else:
-                                    assert (
-                                        config['continue_from_iteration']
-                                        ==
-                                        magfit_iteration
-                                    )
-
-                            batch.append(
-                                self._get_step_input(
-                                    *pending_images.pop(i),
-                                    step_input_type
-                                )
-                            )
-                            self._logger.debug(
-                                'Added image to batch, now: %s',
-                                repr(batch)
-                            )
-                        else:
-                            self._logger.debug('Not a match')
-
+            #False positivie
+            #pylint: disable=no-member
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
+                pending_images, step_input_type = self._start_step(step_name,
+                                                                   db_session)
+                processing_batches = self._get_batches(pending_images,
+                                                       step_input_type,
+                                                       db_session)
+            for config, batch in processing_batches:
                 self._process_batch(batch, config, step_name)
-                self._logger.debug(
-                    'Processed batch leaving %d pending images',
-                    len(pending_images)
-                )
+                self._logger.debug('Processed %s batch of %d images.',
+                                   step_name,
+                                   len(batch))
 
 
     def create_config_file(self, example_header, outf, steps=None):
