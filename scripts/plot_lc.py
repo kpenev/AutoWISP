@@ -194,6 +194,11 @@ def plot_binned(plot_x,
                 **plot_config):
     """Plot binned light curve."""
 
+    sorter = numpy.argsort(plot_x)
+    plot_x = plot_x[sorter]
+    magnitudes = magnitudes[sorter]
+    print('plot_x: ' + repr(plot_x))
+    print('magnitudes: ' + repr(magnitudes))
     if continuous:
         num_bins=continuous
         bin_step = (plot_x.max() - plot_x.min()) / num_bins
@@ -220,6 +225,7 @@ def plot_binned(plot_x,
             ) < bin_size / 2
         else:
             in_bin = bin_destinations == bin_number
+        print(f'Bin {bin_number} has {in_bin.sum()} points')
         binned_x[bin_number] = numpy.median(plot_x[in_bin])
         if errorbar_mode == 'quantiles':
             (
@@ -488,8 +494,8 @@ def plot_lc(plot_x,
         plot_x %= configuration.fold_period
 
     plot_axes.plot(
-        plot_x[mask],
-        magnitudes[mask],
+        plot_x,
+        magnitudes,
         '.',
         markersize=(
             configuration.plot_marker_size
@@ -504,8 +510,8 @@ def plot_lc(plot_x,
 
     if configuration.binning:
         plot_binned(
-            plot_x[mask],
-            magnitudes[mask],
+            plot_x,
+            magnitudes,
             configuration.binning,
             configuration.binning_errorbars,
             continuous=(1000 if configuration.binned_continuous else False),
@@ -675,6 +681,8 @@ def add_lc_to_plot(select_photometry, configuration):
                 detrending_mode=detrending_mode,
             )
             #pylint: enable=unbalanced-tuple-unpacking
+            print(f'Selected magnitudes: {magnitudes!r}')
+
 
             if len(lc_collection) > 1:
                 magnitudes = magnitudes.to_numpy(dtype=float)
@@ -759,6 +767,8 @@ def add_lc_to_plot(select_photometry, configuration):
                     pyplot.close()
 
         if configuration.combined_binned_lc:
+            combined_bjd = combined_bjd.flatten()
+            combined_magnitudes = combined_magnitudes.flatten()
             if configuration.pages:
                 colors = iter(plot_colors)
 
@@ -768,7 +778,8 @@ def add_lc_to_plot(select_photometry, configuration):
             else:
                 magnitudes = combined_magnitudes
 
-            bjd_offset = int(combined_bjd.min())
+            bjd_offset = (0 if configuration.fold_period
+                          else int(combined_bjd.min()))
             bjd = combined_bjd - bjd_offset
             lc_color = next(colors)
 

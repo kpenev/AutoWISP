@@ -405,6 +405,8 @@ def get_lc_minimum_scatter(lc_fname,
                     **scatter_config
                 )
                 if lc_length > min_lc_length and scatter < min_scatter:
+                    print(f'Found better aperture {aperture_index} for '
+                          f'{detrending_mode}.')
                     min_scatter = scatter
                     selected_lc_length = lc_length
                     best_mags = magnitudes

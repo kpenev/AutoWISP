@@ -331,7 +331,7 @@ class LCDataIO:
 
         cls._path_substitutions = path_substitutions
 
-        cls._catalogue = read_master_catalogue(config['lcdump_catalogue'],
+        cls._catalogue = read_master_catalogue(config['lcdump_catalog'],
                                                source_id_parser)
         cls.dr_fname_parser = staticmethod(dr_fname_parser)
 
