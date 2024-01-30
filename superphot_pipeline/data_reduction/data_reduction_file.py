@@ -365,7 +365,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         num_apertures = 0
         while True:
             try:
-                self._check_for_dataset('apphot.magnitude',
+                self.check_for_dataset('apphot.magnitude',
                                         aperture_index=num_apertures,
                                         **path_substitutions)
                 num_apertures += 1
@@ -392,7 +392,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         path_substitutions['magfit_iteration'] = 0
         for photometry_mode in ['shapefit', 'apphot']:
             try:
-                self._check_for_dataset(
+                self.check_for_dataset(
                     photometry_mode + '.magfit.magnitude',
                     **path_substitutions
                 )
@@ -402,7 +402,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             while True:
                 path_substitutions['magfit_iteration'] += 1
                 try:
-                    self._check_for_dataset(
+                    self.check_for_dataset(
                         photometry_mode + '.magfit.magnitude',
                         **path_substitutions
                     )
@@ -415,7 +415,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """True iff shape fitting photometry exists for path_substitutions."""
 
         try:
-            self._check_for_dataset('shapefit.magnitude',
+            self.check_for_dataset('shapefit.magnitude',
                                     **path_substitutions)
             return (
                 accept_zeropsf

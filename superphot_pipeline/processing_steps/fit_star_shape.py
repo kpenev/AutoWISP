@@ -29,6 +29,8 @@ from superphot_pipeline.catalog import read_catalog_file
 from superphot_pipeline.split_sources import SplitSources
 from superphot_pipeline.data_reduction.utils import delete_star_shape_fit
 
+input_type = 'calibrated + dr'
+
 def parse_grid_arg(grid_str):
     """Parse the string specifying the grid on which to model PSF/PRF."""
 
@@ -84,9 +86,8 @@ def add_source_selction_options(parser):
     parser.add_argument(
         '--shapefit-src-min-signal-to-noise',
         type=float,
-        default=3.0,
-        help='The S/N threshold when selecting pixels around sources. '
-        'Ignored if --shapefit-cover-grid.'
+        default=0.0,
+        help='The S/N threshold when selecting pixels around sources.'
     )
     parser.add_argument(
         '--shapefit-src-max-aperture',
@@ -208,9 +209,11 @@ def add_shape_options(parser):
     )
     parser.add_argument(
         '--shape-grid',
-        default='-3,-2,-1,0,1,2,3',
+        default='-5,5',
         type=parse_grid_arg,
-        help='The grid to use for representing the PSF/PRF.'
+        help='The grid to use for representing the PSF/PRF. If only outer '
+        'boundaries are specified (like in the default), PSF is assumed not to '
+        'vary accross the star.'
     )
     parser.add_argument(
         '--shape-terms-expression', '--shape-terms',
@@ -220,7 +223,7 @@ def add_shape_options(parser):
     parser.add_argument(
         '--map-variables',
         metavar='<varname>, <expression>',
-        nargs='+',
+        nargs='*',
         default=[],
         type=lambda arg: tuple(e.strip() for e in arg.split(',')),
         help='Extra variables to allow the PRF to depend on in addition to '
@@ -244,7 +247,7 @@ def add_grouping_options(parser):
     )
     parser.add_argument(
         '--radius-splits',
-        nargs='+',
+        nargs='*',
         type=float,
         default=[],
         help='The threshold radius values where to split sources into '
@@ -282,14 +285,9 @@ def add_grouping_options(parser):
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'calibrated + dr'
-
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=inputtype,
+        input_type=('+dr' if args else input_type),
         inputs_help_extra=('The corresponding DR files must alread contain an '
                            'astrometric transformation.'),
         add_component_versions=('srcproj', 'background', 'shapefit'),
@@ -687,7 +685,7 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
         mark_end(fname)
 
 
-def fit_star_shapes(image_collection, configuration, mark_start, mark_end):
+def fit_star_shape(image_collection, configuration, mark_start, mark_end):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
     image_collection = sorted(image_collection)
@@ -755,7 +753,7 @@ def cleanup_interrupted(image_fname, configuration):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
-    fit_star_shapes(
+    fit_star_shape(
         find_fits_with_dr_fnames(
             cmdline_config.pop('calibrated_images'),
             cmdline_config.pop('shapefit_only_if'),

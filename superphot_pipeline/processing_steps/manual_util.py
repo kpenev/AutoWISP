@@ -51,11 +51,151 @@ class ManualStepArgumentParser(ArgumentParser):
             )
 
 
+    def _add_catalog_args(self, catalog_config):
+        """Add arguments to specify a catalog query."""
+
+        prefix = catalog_config['prefix']
+        self.add_argument(
+            f'--{prefix}-catalog', f'--{prefix}-catalogue', '--cat',
+            default=catalog_config.get('fname', 'Gaia/{checksum:s}.fits'),
+            help='A file containing (approximately) all the same stars that '
+            'were extracted from the frame for the area of the sky covered by '
+            'the image. It is perferctly fine to include a larger area of sky '
+            'and fainter brightness limit. Different brightness limits can then'
+            ' be imposed for each color channel using the ``--catalog-filter`` '
+            'argument. If the file does not exist one is automatically '
+            'generated to cover an area larger than the field of view by '
+            '``--catalog-safety-factor``, centered on the (RA * cos(Dec), Dec) '
+            'of the frame rounded to ``--catalog-pointing-precision``, and to '
+            'have magnitude range set by. The filename can be a format string '
+            'which will be substituted with the any header keywords or '
+            'configuration for the query. It may also include ``{checksum}`` '
+            'which will be replaced with the MD5 checksum of the parameters '
+            'defining the query.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-magnitude-expression',
+            f'--{prefix}-catalogue-magnitude-expression',
+            '--cat-mag-expression',
+            default=catalog_config.get('magnitude_expression',
+                                       'phot_g_mean_mag'),
+            help='An expression involving the catalog columns that correlates '
+            'as closely as possible with the brightness of the star in the '
+            'images in units of magnitude. Only relevant if the catalog does '
+            'not exist.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-max-magnitude',
+            f'--{prefix}-catalogue-max-magnitude',
+            '--cat-max-mag',
+            type=float,
+            default=catalog_config.get('max_magnitude', 12.0),
+            help='The faintest magnitude to include in the catalog.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-min-magnitude',
+            f'--{prefix}-catalogue-min-magnitude',
+            '--cat-min-mag',
+            type=float,
+            default=catalog_config.get('min_magnitude'),
+            help='The brightest magnitude to include in the catalog.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-pointing-precision',
+            f'--{prefix}-catalogue-pointing-precision',
+            '--cat-pointing-precision',
+            type=float,
+            default=catalog_config.get('pointing_precision', 1.0),
+            help='The precision with which to round the center of the frame to '
+            'determine the center of the catalog to use in degrees. The catalog'
+            ' FOV is also expanded by this amount to ensure coverage'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-fov-precision',
+            f'--{prefix}-catalogue-fov-precision',
+            '--cat-fov-precision',
+            type=float,
+            default=catalog_config.get('fov_precision', 1.0),
+            help='The precision with which to round the center of the frame to '
+            'determine the center of the catalog to use in degrees.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-filter',
+            f'--{prefix}-catalogue-filter',
+            '--cat-filter',
+            metavar=('CHANNEL:EXPRESSION'),
+            type=lambda e: e.split(':'),
+            action='append',
+            default=catalog_config.get('filter'),
+            help='An expression to evaluate for each catalog source to '
+            'determine if the source should be used for astrometry of a given '
+            'channel. If filter for a given channel is not specified, the full '
+            'catalog is used for that channel.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-epoch',
+            f'--{prefix}-catalogue-epoch',
+            '--cat-epoch',
+            type=str,
+            default=catalog_config.get(
+                'epoch',
+                '(JD_OBS // 365.25 - 4711.5) * units.yr',
+            ),
+            help='An expression to evaluate for each catalog source to '
+            'determine the epoch to which to propagate star positions.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-columns',
+            f'--{prefix}-catalogue-columns',
+            '--cat-columns',
+            type=str,
+            nargs='+',
+            default=catalog_config.get(
+                'columns',
+                [
+                    'source_id',
+                    'ra',
+                    'dec',
+                    'pmra',
+                    'pmdec',
+                    'phot_g_n_obs',
+                    'phot_g_mean_mag',
+                    'phot_g_mean_flux',
+                    'phot_g_mean_flux_error',
+                    'phot_bp_n_obs',
+                    'phot_bp_mean_mag',
+                    'phot_bp_mean_flux',
+                    'phot_bp_mean_flux_error',
+                    'phot_rp_n_obs',
+                    'phot_rp_mean_mag',
+                    'phot_rp_mean_flux',
+                    'phot_rp_mean_flux_error',
+                    'phot_proc_mode',
+                    'phot_bp_rp_excess_factor'
+                ]
+            ),
+            help='The columns to include in the catalog file. Use \'*\' to '
+            'include everything.'
+        )
+        self.add_argument(
+            f'--{prefix}-catalog-fov-safety-margin',
+            f'--{prefix}-catalogue-fov-safety-margin',
+            '--cat-fov-safety',
+            type=float,
+            default=catalog_config.get('fov_safety_margin', 0.1),
+            help='The fractional safety margin to require of the field of view '
+            'of the catalog. More specifically, the absolute valueso f xi and '
+            'eta of the corners of the frame times this factor must be less '
+            'than the half width and half height of the catalog respectively.'
+        )
+
+
     def __init__(self,
                  *,
                  input_type,
                  description,
                  add_component_versions=(),
+                 add_catalog=False,
                  inputs_help_extra='',
                  allow_parallel_processing=False,
                  convert_to_dict=True,
@@ -73,6 +213,11 @@ class ManualStepArgumentParser(ArgumentParser):
 
             add_component_versions(str iterable):    A list of DR file version
                 numbers the step needs to know. For example ``('srcextract',)``.
+
+            add_catalog(False or dict):    Whether to add an arguments to
+                specify a catalog query. If not False should specify defalts
+                for some or all of the option values and a prefix for the
+                option names.
 
             inputs_help_extra(str):    Additional text to append to the help
                 string for the input files. Usually describing what requirements
@@ -205,6 +350,8 @@ class ManualStepArgumentParser(ArgumentParser):
             help='How to format date and time as part of filenames (e.g. when '
             'creating output files for multiprocessing.'
         )
+        if add_catalog:
+            self._add_catalog_args(add_catalog)
 
 
     def add_argument(self, *args, **kwargs):
@@ -251,7 +398,7 @@ class ManualStepArgumentParser(ArgumentParser):
                 if kwargs.get('action', None) not in ['store_true',
                                                       'store_false',
                                                       'append']:
-                    if nargs == '+' or nargs > 1:
+                    if nargs in ['*', '+'] or nargs > 1:
                         self.argument_defaults[argument_name] = (
                             '['
                             +
@@ -349,3 +496,16 @@ def ignore_progress(_input_fname, _status=0):
     """Dummy function to replace progress tracking of auto processing."""
 
     return
+
+
+def get_catalog_config(cmdline_args, prefix):
+    """Return the configuration for querrying a catalog per command line."""
+
+    prefix = prefix + '_catalog'
+    result = {
+        'fname' if key == prefix else key[len(prefix) + 1:]: value
+        for key, value in cmdline_args.items() if key.startswith(prefix)
+    }
+    if 'frame_fov_estimate' in cmdline_args:
+        result['frame_fov_estimate'] = cmdline_args['frame_fov_estimate']
+    return result

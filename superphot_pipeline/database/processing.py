@@ -901,4 +901,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    ProcessingManager()(['calibrate', 'find_stars', 'solve_astrometry'])
+    ProcessingManager()(['calibrate',
+                         'find_stars',
+                         'solve_astrometry',
+                         'fit_star_shape',
+                         'measure_aperture_photometry',
+                         'fit_source_extracted_psf_map'])

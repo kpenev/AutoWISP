@@ -5,25 +5,20 @@
 """Fit for a transformation between sky and image coordinates."""
 import logging
 from multiprocessing import Queue, Process, Lock
-import os
 from traceback import format_exc
-from hashlib import md5
 
 import numpy
-from astropy import units
-from astropy.io import fits
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
-    ignore_progress
+    ignore_progress,\
+    get_catalog_config
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
-    refine_transformation,\
-    find_ra_dec
-from superphot_pipeline.astrometry.map_projections import gnomonic_projection
-from superphot_pipeline.catalog import read_catalog_file, create_catalog_file
+    refine_transformation
+from superphot_pipeline.catalog import ensure_catalog, check_catalog_coverage
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
 
@@ -46,6 +41,7 @@ def parse_command_line(*args):
         description=__doc__,
         input_type=('' if args else input_type),
         inputs_help_extra='The DR files must already contain extracted sources',
+        add_catalog={'prefix': 'astrometry'},
         add_component_versions=('srcextract', 'catalogue', 'skytoframe'),
         allow_parallel_processing=True
     )
@@ -63,112 +59,7 @@ def parse_command_line(*args):
         'evaluates to True/False if a particular image from the specified '
         'image collection should/should not be processed.'
     )
-    parser.add_argument(
-        '--astrometry-catalog', '--astrometry-catalogue', '--cat',
-        default='Gaia/{checksum:s}.fits',
-        help='A file containing (approximately) all the same stars that '
-        'were extracted from the frame for the area of the sky covered by the '
-        'image. It is perferctly fine to include a larger area of sky and '
-        'fainter brightness limit. Different brightness limits can then be '
-        'imposed for each color channel using the ``--catalog-filter`` '
-        'argument. If the file does not exist one is automatically generated to'
-        ' cover an area larger than the field of view by '
-        '``--image-scale-factor``, centered on the (RA * cos(Dec), Dec) of the '
-        'frame rounded to ``--catalog-pointing-precision``, and to have '
-        'magnitude range set by. The filename can be a format string which will'
-        ' be substituted with the any header keywords or configuration for the '
-        'query. It may also include ``{checksum}`` which will be replaced with '
-        'the MD5 checksum of the parameters defining the query.'
-    )
-    parser.add_argument(
-        '--catalog-magnitude-expression',
-        default='phot_g_mean_mag',
-        help='An expression involving the catalog columns that correlates as '
-        'closely as possible with the brightness of the star in the images in '
-        'units of magnitude. Only relevant if the catalog does not exist.'
-    )
-    parser.add_argument(
-        '--catalog-max-magnitude', '--catalogue-max-magnitude',
-        type=float,
-        default=12.0,
-        help='The faintest magnitude to include in the catalog.'
-    )
-    parser.add_argument(
-        '--catalog-min-magnitude', '--catalogue-min-magnitude',
-        type=float,
-        default=None,
-        help='The brightest magnitude to include in the catalog.'
-    )
-    parser.add_argument(
-        '--catalog-pointing-precision', '--catalogue-pointing-precision',
-        type=float,
-        default=1.0,
-        help='The precision with which to round the center of the frame to '
-        'determine the center of the catalog to use in degrees. The catalog FOV'
-        ' is also expanded by this amount to ensure coverage'
-    )
-    parser.add_argument(
-        '--catalog-fov-precision', '--catalogue-fov-precision',
-        type=float,
-        default=1.0,
-        help='The precision with which to round the center of the frame to '
-        'determine the center of the catalog to use in degrees.'
-    )
 
-
-    parser.add_argument(
-        '--catalog-filter', '--catalogue-filter', '--cat-filter',
-        metavar=('CHANNEL:EXPRESSION'),
-        type=lambda e: e.split(':'),
-        action='append',
-        default=None,
-        help='An expression to evaluate for each catalog source to determine '
-        'if the source should be used for astrometry of a given channel. If '
-        'filter for a given channel is not specified, the full catalog is used '
-        'for that channel.'
-    )
-    parser.add_argument(
-        '--catalog-epoch', '--catalogue-epoch', '--cat-epoch',
-        type=str,
-        default='(JD_OBS // 365.25 - 4711.5) * units.yr',
-        help='An expression to evaluate for each catalog source to determine '
-        'the epoch to which to propagate star positions.'
-    )
-    parser.add_argument(
-        '--catalog-columns', '--catalogue-columns', '--cat-columns',
-        type=str,
-        nargs='+',
-        default=['source_id',
-                 'ra',
-                 'dec',
-                 'pmra',
-                 'pmdec',
-                 'phot_g_n_obs',
-                 'phot_g_mean_mag',
-                 'phot_g_mean_flux',
-                 'phot_g_mean_flux_error',
-                 'phot_bp_n_obs',
-                 'phot_bp_mean_mag',
-                 'phot_bp_mean_flux',
-                 'phot_bp_mean_flux_error',
-                 'phot_rp_n_obs',
-                 'phot_rp_mean_mag',
-                 'phot_rp_mean_flux',
-                 'phot_rp_mean_flux_error',
-                 'phot_proc_mode',
-                 'phot_bp_rp_excess_factor'],
-        help='The columns to include in the catalog file. Use \'*\' to include '
-        'everything.'
-    )
-    parser.add_argument(
-        '--catalog-fov-safety-margin', '--catalogue-fov-safety-margin',
-        type=float,
-        default=0.1,
-        help='The fractional safety margin to require of the field of view of '
-        'the catalog. More specifically, the absolute valueso f xi and eta of '
-        'the corners of the frame times this factor must be less than the half '
-        'width and half height of the catalog respectively.'
-    )
     parser.add_argument(
         '--frame-center-estimate',
         nargs=2,
@@ -247,8 +138,10 @@ def parse_command_line(*args):
     )
 
     result = parser.parse_args(*args)
-    if result['catalog_filter'] is not None:
-        result['catalog_filter'] = dict(result['catalog_filter'])
+    if result['astrometry_catalog_filter'] is not None:
+        result['astrometry_catalog_filter'] = dict(
+            result['astrometry_catalog_filter']
+        )
     return result
 
 
@@ -403,362 +296,6 @@ def transformation_from_raw(trans_x, trans_y, header, in_place=False):
     return trans_x, trans_y
 
 
-def get_catalog_info(transformation_estimate, header, configuration):
-    """Get the configuration of the catalog needed for this frame."""
-
-    frame_center = find_ra_dec(
-        (0.0, 0.0),
-        transformation_estimate['trans_x'],
-        transformation_estimate['trans_y'],
-        {
-            coord: transformation_estimate[coord.lower() + '_cent']
-            for coord in ['RA', 'Dec']
-        },
-        header['NAXIS1'] / 2.0,
-        header['NAXIS2'] / 2.0
-    )
-    pointing_precision = configuration['catalog_pointing_precision'] * units.deg
-
-    catalog_info = {
-        'dec_ind': int(
-            numpy.round(frame_center['Dec'] * units.deg / pointing_precision)
-        )
-    }
-    catalog_info['dec'] = pointing_precision * catalog_info['dec_ind']
-
-    catalog_info['ra_ind'] = int(
-        numpy.round(
-            (
-                frame_center['RA'] * units.deg
-                *
-                numpy.cos(catalog_info['dec'])
-            )
-            /
-            pointing_precision
-        )
-    )
-    catalog_info['ra'] = (
-        pointing_precision * catalog_info['ra_ind']
-        /
-        numpy.cos(catalog_info['dec'])
-    )
-    catalog_info['magnitude_expression'] = (
-        configuration['catalog_magnitude_expression']
-    )
-
-    if configuration['catalog_max_magnitude'] is None:
-        assert configuration['catalog_min_magnitude'] is None
-        catalog_info['magnitude_limit'] = None
-    else:
-        catalog_info['magnitude_limit'] = (
-            (configuration['catalog_max_magnitude'],)
-            if configuration['catalog_min_magnitude'] is None else
-            (
-                configuration['catalog_min_magnitude'],
-                configuration['catalog_max_magnitude']
-            )
-        )
-
-    eval_expression = Evaluator(header)
-    eval_expression.symtable.update(catalog_info)
-
-    trans_fov = get_max_abs_corner_xi_eta(header, transformation_estimate)
-    _logger.debug('From transformation estimate half FOV is: %s',
-                  repr(trans_fov))
-    frame_fov_estimate = tuple(
-        numpy.round(
-            (
-                max(
-                    2.0 * trans_fov[i] * units.deg,
-                    configuration['frame_fov_estimate'][i]
-                ) + pointing_precision
-            )
-            /
-            (configuration['catalog_fov_precision'] * units.deg)
-        ) * configuration['catalog_fov_precision'] * units.deg
-        for i in range(2)
-    )
-
-    _logger.debug('Determining catalog query size from: '
-                  'frame_fov_estimate=%s, '
-                  'image_scale_factor=%s',
-                  repr(frame_fov_estimate),
-                  repr(configuration['image_scale_factor']))
-    catalog_info['width'], catalog_info['height'] = (
-        fov_size * configuration['image_scale_factor']
-        for fov_size in frame_fov_estimate
-    )
-    catalog_info['epoch'] = eval_expression(configuration['catalog_epoch'])
-
-    catalog_info['columns'] = configuration['catalog_columns']
-
-    get_checksum = md5()
-    for cfg in sorted(catalog_info.items()):
-        get_checksum.update(repr(cfg).encode('ascii'))
-
-    catalog_info['catalog_fname'] = (
-        configuration['astrometry_catalog'].format(
-            **dict(header),
-            **catalog_info,
-            checksum=get_checksum.hexdigest()
-        )
-    )
-    return catalog_info, frame_center
-
-
-#No god way to simplify
-#pylint: disable=too-many-branches
-def ensure_catalog(transformation_estimate,
-                   header,
-                   configuration,
-                   lock):
-    """Re-use or create astrometry catalog suitable for the given frame."""
-
-    catalog_info, frame_center = get_catalog_info(transformation_estimate,
-                                                  header,
-                                                  configuration)
-    with lock:
-        if os.path.exists(catalog_info['catalog_fname']):
-            with fits.open(catalog_info['catalog_fname']) as cat_fits:
-                catalog_header = cat_fits[1].header
-                #pylint: disable=too-many-boolean-expressions
-                if (
-                        numpy.abs(
-                            catalog_header['EPOCH']
-                            -
-                            catalog_info['epoch'].to_value('yr')
-                        ) > 0.25
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} '
-                        f'has epoch {catalog_header["EPOCH"]!r}, '
-                        f'but {catalog_info["epoch"]!r} is needed'
-                    )
-
-                if (
-                    catalog_header['MAGEXPR']
-                    !=
-                    catalog_info['magnitude_expression']
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} has '
-                        f'magnitude expression {catalog_header["MAGEXPR"]!r} '
-                        f'instead of {catalog_info["magnitude_expression"]!r}'
-                    )
-
-                if (
-                    catalog_header.get('MAGMIN') is not None
-                    and
-                    len(catalog_info['magnitude_limit']) == 2
-                    and
-                    (
-                        catalog_header['MAGMIN']
-                        >
-                        catalog_info['magnitude_limit'][0]
-                    )
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} excludes '
-                        f'sources brighter than {catalog_header["MAGMIN"]!r} '
-                        f'but {catalog_info["magnitude_limit"][0]!r} are '
-                        'required.'
-                    )
-
-                if (
-                    catalog_header.get('MAGMAX') is not None
-                    and
-                    (
-                        catalog_header['MAGMAX']
-                        <
-                        catalog_info['magnitude_limit'][-1]
-                    )
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} excludes '
-                        f'sources fainter than {catalog_header["MAGMAX"]!r} but'
-                        f' {catalog_info["magnitude_limit"][-1]!r} are '
-                        'required.'
-                    )
-
-                if (
-                    catalog_header['WIDTH']
-                    <
-                    catalog_info['width'].to_value(units.deg)
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} width '
-                        f'{catalog_header["WIDTH"]!r} is less than the required'
-                        f' {catalog_info["width"]!r}'
-                    )
-                if (
-                    catalog_header['HEIGHT']
-                    <
-                    catalog_info['height'].to_value(units.deg)
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} height '
-                        f'{catalog_header["HEIGHT"]!r} is less than the '
-                        f'required {catalog_info["height"]!r}'
-                    )
-
-                if (
-                    (catalog_header['RA'] - frame_center['RA']) * units.deg
-                    *
-                    numpy.cos(catalog_header['DEC'] * units.deg)
-                    >
-                    configuration['catalog_pointing_precision'] * units.deg
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} center RA '
-                        f'{catalog_header["RA"]!r} is too far from the '
-                        f'required RA={frame_center["RA"]!r}'
-                    )
-
-                if (
-                    (catalog_header['DEC'] - frame_center['Dec']) * units.deg
-                    >
-                    configuration['catalog_pointing_precision'] * units.deg
-                ):
-                    raise RuntimeError(
-                        f'Catalog {catalog_info["catalog_fname"]} center Dec '
-                        f'{catalog_header["DEC"]!r} is too far from the '
-                        f'required Dec={frame_center["Dec"]!r}'
-                    )
-
-                filter_expr = configuration['catalog_filter']
-                if filter_expr is None or header['CLRCHNL'] not in filter_expr:
-                    filter_expr = []
-                else:
-                    filter_expr = ['(' + filter_expr[header['CLRCHNL']] + ')']
-
-
-                if (
-                    len(catalog_info['magnitude_limit']) == 2
-                    and
-                    (
-                        catalog_header.get('MAGMIN') is None
-                        or
-                        catalog_header['MAGMIN']
-                        <
-                        catalog_info['magnitude_limit'][0]
-                    )
-                ):
-                    filter_expr.append(
-                        f'(magnitude > {catalog_info["magnitude_limit"][0]!r})'
-                    )
-                if(
-                    catalog_header.get('MAGMAX') is None
-                    or
-                    (
-                        catalog_header['MAGMAX']
-                        >
-                        catalog_info['magnitude_limit'][-1]
-                    )
-                ):
-                    filter_expr.append(
-                        '(magnitude < {catalog_info["magnitude_limit"][-1]!r})'
-                    )
-                #pylint: enable=too-many-boolean-expressions
-
-                return read_catalog_file(
-                    cat_fits,
-                    filter_expr=(' and '.join(filter_expr) if filter_expr
-                                 else None),
-                    return_metadata=True
-                )
-
-        del catalog_info['ra_ind']
-        del catalog_info['dec_ind']
-
-        create_catalog_file(**catalog_info, verbose=True)
-        return read_catalog_file(catalog_info['catalog_fname'],
-                             return_metadata=True)
-#pylint: enable=too-many-branches
-
-
-def get_max_abs_corner_xi_eta(header,
-                              transformation_estimate,
-                              center=None):
-    """Return the max absolute values of the frame corners xi and eta."""
-
-    max_xi = max_eta = 0
-    if center is None:
-        center = {'RA': transformation_estimate['ra_cent'],
-                  'Dec': transformation_estimate['dec_cent']}
-    for x in [0.0, float(header['NAXIS1'])]:
-        for y in [0.0, float(header['NAXIS2'])]:
-            rhs = numpy.array([
-                x - float(transformation_estimate['trans_x'][0]),
-                y - float(transformation_estimate['trans_y'][0])
-            ])
-            matrix = numpy.array([
-                transformation_estimate['trans_x'].ravel()[1:3],
-                transformation_estimate['trans_y'].ravel()[1:3]
-            ])
-            _logger.debug('Solving %s * [xi, eta] = %s',
-                          repr(matrix),
-                          repr(rhs))
-
-            sky_coords = find_ra_dec(
-                xieta_guess = numpy.linalg.solve(matrix, rhs),
-                trans_x=transformation_estimate['trans_x'],
-                trans_y=transformation_estimate['trans_y'],
-                radec_cent={'RA': transformation_estimate['ra_cent'],
-                            'Dec': transformation_estimate['dec_cent']},
-                frame_x=x,
-                frame_y=y
-            )
-            projected_coords = {}
-            gnomonic_projection(
-                sky_coords,
-                projected_coords,
-                **center
-            )
-            max_xi = max(max_xi, abs(projected_coords['xi']))
-            max_eta = max(max_eta, abs(projected_coords['eta']))
-
-    return max_xi, max_eta
-
-
-def check_catalog_coverage(header,
-                           transformation_estimate,
-                           catalog_header,
-                           safety_margin):
-    """
-    Return True iff te catalog covers the frame fully including a safety margin.
-
-    Args:
-        header(dict-like):    The header of the frame being astrometried.
-
-        transformation_estimate(dict):    The current best fit transformation.
-            Should contain entries for ``'trans_x'``, ``'trans_y'``,
-            ``'ra_cent'`` and ``'dec_cent'``.
-
-        catalog_header(dict-like):    The header of the catalog being used for
-            astrometry.
-
-        safety_margin(float):    The absolute values of xi and eta
-            (relative to the catalog center) corresponding to the corners of the
-            frame increased by this fraction must be smaller than the field of
-            view of the catalogfor the frame to be considered covered.
-
-    Returns:
-        bool:
-            Whether the catalog covers the frame fully including the safety
-            margin.
-    """
-
-    width, height = get_max_abs_corner_xi_eta(
-        header,
-        transformation_estimate,
-        {'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
-    )
-    factor = 2.0 * (1.0 + safety_margin)
-    width *= factor
-    height *= factor
-    return width < catalog_header['WIDTH'] and height < catalog_header['HEIGHT']
-
-
 def find_final_transformation(header,
                               transformation_estimate,
                               xy_extracted,
@@ -772,10 +309,12 @@ def find_final_transformation(header,
 
     frame_is_covered = False
     while not frame_is_covered:
-        catalog, catalog_header = ensure_catalog(transformation_estimate,
-                                                 header,
-                                                 configuration,
-                                                 catalog_lock)
+        catalog, catalog_header = ensure_catalog(
+            transformation_estimate,
+            header,
+            get_catalog_config(configuration, 'astrometry'),
+            catalog_lock
+        )
 
         (
             transformation_estimate['trans_x'],
@@ -803,7 +342,7 @@ def find_final_transformation(header,
             header,
             transformation_estimate,
             catalog_header,
-            configuration['catalog_fov_safety_margin']
+            configuration['astrometry_catalog_fov_safety_margin']
         )
 
     return (
@@ -818,6 +357,24 @@ def find_final_transformation(header,
     )
 
 
+def get_xy_extracted(dr_file, srcextract_version):
+    """Return array of extracted source positions."""
+
+    sources = dr_file.get_sources(
+        'srcextract.sources',
+        'srcextract_column_name',
+        srcextract_version=srcextract_version
+    )
+    xy_extracted = numpy.zeros(
+        (len(sources['x'].values)),
+        dtype=[('x', '>f8'), ('y', '>f8')]
+    )
+    xy_extracted['x'] = sources['x'].values
+    xy_extracted['y'] = sources['y'].values
+    return xy_extracted
+
+
+#pylint: disable=too-many-locals
 def solve_image(dr_fname,
                 transformation_estimate=None,
                 *,
@@ -884,18 +441,8 @@ def solve_image(dr_fname,
 
         fov_estimate = max(*configuration['frame_fov_estimate'])
 
-        sources = dr_file.get_sources(
-            'srcextract.sources',
-            'srcextract_column_name',
-            srcextract_version=configuration['srcextract_version']
-        )
-        xy_extracted = numpy.zeros(
-            (len(sources['x'].values)),
-            dtype=[('x', '>f8'), ('y', '>f8')]
-        )
-        xy_extracted['x'] = sources['x'].values
-        xy_extracted['y'] = sources['y'].values
-
+        xy_extracted = get_xy_extracted(dr_file,
+                                        configuration['srcextract_version'])
         if transformation_estimate is None:
             transformation_estimate = {
                 key: dr_eval(expression).to_value('deg')
@@ -1013,6 +560,7 @@ def solve_image(dr_fname,
         *configuration['tweak_order']
     )
     return result
+#pylint: enable=too-many-locals
 
 
 def astrometry_process(task_queue,
@@ -1064,7 +612,7 @@ def prepare_configuration(configuration, dr_header):
 
 #Could not think of good way to split
 #pylint: disable=too-many-branches
-def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
+def manage_astrometry(pending, task_queue, result_queue, mark_end):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
@@ -1164,7 +712,7 @@ def solve_astrometry(dr_collection, configuration, mark_start, mark_end):
         process.start()
     _logger.debug('Starting astrometry on %d pending frame sets', len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
+    manage_astrometry(pending, task_queue, result_queue, mark_end)
 
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
@@ -1214,5 +762,6 @@ if __name__ == '__main__':
         list(find_dr_fnames(cmdline_config.pop('dr_files'),
                             cmdline_config.pop('astrometry_only_if'))),
         cmdline_config,
+        ignore_progress,
         ignore_progress
     )

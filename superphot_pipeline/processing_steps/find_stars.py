@@ -17,16 +17,18 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline import SourceFinder, DataReductionFile
 
-input_type = 'calibrated'
+input_type = 'calibrated + dr'
 
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type=('' if args else input_type),
-                                      allow_parallel_processing=True,
-                                      add_component_versions=('srcextract',))
+    parser = ManualStepArgumentParser(
+        description=__doc__,
+        input_type=('+dr' if args else input_type),
+        allow_parallel_processing=True,
+        add_component_versions=('srcextract',)
+    )
     parser.add_argument(
         '--srcextract-only-if',
         default='True',
@@ -59,13 +61,6 @@ def parse_command_line(*args):
         default=4000,
         help='If more than this many sources are extracted, the list is sorted '
         'by flux and truncated to this number.'
-    )
-    parser.add_argument(
-        '--data-reduction-fname',
-        default='DR/{RAWFNAME}.h5',
-        help='Format string to generate the filename(s) of the data reduction '
-        'files where extracted sources are saved. Replacement fields can be '
-        'anything from the header of the calibrated image.'
     )
     return parser.parse_args(*args)
 
