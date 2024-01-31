@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+
 """Define class to apply sky-to-frame transformation stored in DR files."""
 
 from functools import partial
 
 import numpy
+from scipy.optimize import root
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.astrometry import map_projections
@@ -84,10 +88,24 @@ class Transformation:
             RA=pre_projection_center[0],
             Dec=pre_projection_center[1]
         )
+        self.inverse_pre_projection = partial(
+            getattr(map_projections, 'inverse_' + pre_projection_name),
+            RA=pre_projection_center[0],
+            Dec=pre_projection_center[1]
+        )
+        header = dr_file.get_frame_header()
+        self._frame_resolution = (header['NAXIS1'], header['NAXIS2'])
 
         self.evaluate_terms = fit_expression.Interface(
             dr_file.get_attribute('skytoframe.terms', **dr_path_substitutions)
         )
+        self._term_indices = {
+            term: index
+            for index, term in enumerate(
+                self.evaluate_terms.get_term_str_list()
+            )
+        }
+        print(f'Term indices: {self._term_indices!r}')
         self._coefficients = dr_file.get_dataset('skytoframe.coefficients',
                                                  **dr_path_substitutions)
 
@@ -129,3 +147,112 @@ class Transformation:
             projected[coord] = self._coefficients[index].dot(terms)
 
         return None if in_place else projected
+
+
+    def inverse(self, x, y, **source_properties):
+        """Return the sky coordinates of the given source."""
+
+        def projection_error(xi_eta):
+            """Apply the (xi, eta, source preperties) -> (x, y) projection."""
+
+            source_properties['xi'], source_properties['eta'] = xi_eta
+            terms = self.evaluate_terms(source_properties)
+            return numpy.array([
+                float(coef.dot(terms)) - target
+                for coef, target in zip(self._coefficients, [x, y])
+            ])
+
+        offset_term = self._term_indices['1']
+        xi_term = self._term_indices['(xi)']
+        eta_term = self._term_indices['(eta)']
+        xi_eta_guess = numpy.linalg.solve(
+            numpy.array([
+                [
+                    self._coefficients[0][xi_term],
+                    self._coefficients[0][eta_term]
+                ],
+                [
+                    self._coefficients[1][xi_term],
+                    self._coefficients[1][eta_term]
+                ]
+            ]),
+            numpy.array([
+                x - self._coefficients[0][offset_term],
+                y - self._coefficients[1][offset_term],
+            ])
+        )
+        solution = root(projection_error, xi_eta_guess)
+        print(f'Root finding result: {solution!r}')
+        assert solution.success
+
+        result = {}
+        self.inverse_pre_projection(
+            result,
+            {'xi': solution.x[0], 'eta': solution.x[1]}
+        )
+
+        return result['RA'], result['Dec']
+
+
+def parse_command_line():
+    """Return the configuration for running this module as a script."""
+
+    parser = ArgumentParser(
+        description='Provide command line interface to the transformation in a '
+        'DR file',
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False
+    )
+    parser.add_argument(
+        'dr_fname',
+        metavar='DR_FILE',
+        help='The data reduction file to read the transformation from.'
+    )
+    parser.add_argument(
+        '--skytoframe_version',
+        type=int,
+        default=0,
+        help='The version of the sky-to-frame transformation to use.'
+    )
+    parser.add_argument(
+        '--project',
+        metavar=('RA', 'Dec'),
+        nargs=2,
+        type=float,
+        default=None,
+        help='Sky coordinates to project.'
+    )
+    parser.add_argument(
+        '--inverse',
+        metavar=('x', 'y'),
+        nargs=2,
+        type=float,
+        default=None,
+        help='Frame coordinates for which to find the corresponding RA, Dec .'
+    )
+    return parser.parse_args()
+
+
+def main(config):
+    """Avoid global variables."""
+
+    transformation = Transformation(
+        config.dr_fname,
+        skytoframe_version=config.skytoframe_version
+    )
+    if config.project is not None:
+        x, y = transformation(
+            {'RA': config.project[0], 'Dec': config.project[1]}
+        )
+        print(f'RA: {config.project[0]!r}, Dec {config.project[1]!r} -> '
+              f'({x!r}, {y!r})')
+
+    if config.inverse is not None:
+        ra, dec = transformation.inverse(config.inverse[0], config.inverse[1])
+        print(f'({config.inverse[0]!r}, {config.inverse[1]!r}) -> '
+              f'RA: {ra!r}, Dec {dec!r}')
+
+
+if __name__ == '__main__':
+    main(parse_command_line())

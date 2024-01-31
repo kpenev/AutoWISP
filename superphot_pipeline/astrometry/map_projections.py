@@ -107,3 +107,4 @@ def inverse_gnomonic_projection(sources, projected, **center):
     sources['Dec'] *= rad_to_degree
 
 tan_projection = gnomonic_projection
+inverse_tan_projection = inverse_gnomonic_projection
