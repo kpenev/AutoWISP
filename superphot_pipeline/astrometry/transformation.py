@@ -38,7 +38,8 @@ class Transformation:
             #pylint: enable=no-member
             if save_intermediate:
                 projected_dtype.extend(intermediate_dtype)
-            projected = numpy.empty(len(sources), dtype=projected_dtype)
+            projected = numpy.empty(len(numpy.atleast_1d(sources['RA'])),
+                                    dtype=projected_dtype)
         intermediate = (projected if save_intermediate
                         else numpy.empty(projected.shape, intermediate_dtype))
         return intermediate, projected
@@ -76,13 +77,6 @@ class Transformation:
         )
         pre_projection_center = dr_file.get_attribute('skytoframe.sky_center',
                                                       **dr_path_substitutions)
-        print(
-            'Pre-projection: '
-            '{name}(RA={center[0]!r}, Dec={center[1]!r})'.format(
-                name=pre_projection_name,
-                center=pre_projection_center
-            )
-        )
         self.pre_projection = partial(
             getattr(map_projections, pre_projection_name),
             RA=pre_projection_center[0],
@@ -105,7 +99,6 @@ class Transformation:
                 self.evaluate_terms.get_term_str_list()
             )
         }
-        print(f'Term indices: {self._term_indices!r}')
         self._coefficients = dr_file.get_dataset('skytoframe.coefficients',
                                                  **dr_path_substitutions)
 
@@ -139,8 +132,6 @@ class Transformation:
             in_place
         )
         self.pre_projection(sources, intermediate)
-        print('Pre-projected xi: ' + repr(intermediate['xi']))
-        print('Pre-projected eta: ' + repr(intermediate['eta']))
 
         terms = self.evaluate_terms(sources, intermediate)
         for index, coord in enumerate('xy'):
@@ -182,7 +173,6 @@ class Transformation:
             ])
         )
         solution = root(projection_error, xi_eta_guess)
-        print(f'Root finding result: {solution!r}')
         assert solution.success
 
         result = {}
@@ -242,11 +232,11 @@ def main(config):
         skytoframe_version=config.skytoframe_version
     )
     if config.project is not None:
-        x, y = transformation(
+        projected = transformation(
             {'RA': config.project[0], 'Dec': config.project[1]}
         )
         print(f'RA: {config.project[0]!r}, Dec {config.project[1]!r} -> '
-              f'({x!r}, {y!r})')
+              f'({projected!r})')
 
     if config.inverse is not None:
         ra, dec = transformation.inverse(config.inverse[0], config.inverse[1])
