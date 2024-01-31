@@ -17,7 +17,8 @@ from superphot_pipeline.processing_steps.manual_util import\
 from superphot_pipeline.file_utilities import find_dr_fnames
 from superphot_pipeline.astrometry import \
     estimate_transformation,\
-    refine_transformation
+    refine_transformation,\
+    Transformation
 from superphot_pipeline.catalog import ensure_catalog, check_catalog_coverage
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import Evaluator
@@ -296,6 +297,34 @@ def transformation_from_raw(trans_x, trans_y, header, in_place=False):
     return trans_x, trans_y
 
 
+def construct_transformation(transformation_info):
+    """Construct a `Transformation` object from the given information."""
+
+    transformation = Transformation()
+
+    transformation_order = numpy.rint(
+        (
+            numpy.sqrt(1.0 + 8.0 * transformation_info['trans_x'].size)
+            -
+            3.0
+        )
+        /
+        2.0
+    ).astype(int)
+    transformation.set_transformation(
+        pre_projection_center=(
+            transformation_info['ra_cent'],
+            transformation_info['dec_cent']
+        ),
+        terms_expression=f'O{transformation_order:d}{{xi, eta}}',
+        coefficients=(
+            transformation_info['trans_x'].flatten(),
+            transformation_info['trans_y'].flatten()
+        )
+    )
+    return transformation
+
+
 def find_final_transformation(header,
                               transformation_estimate,
                               xy_extracted,
@@ -306,11 +335,11 @@ def find_final_transformation(header,
     _logger.debug('Using transformation estimate: %s',
                   repr(transformation_estimate))
 
-
     frame_is_covered = False
+    project_to_frame = construct_transformation(transformation_estimate)
     while not frame_is_covered:
         catalog, catalog_header = ensure_catalog(
-            transformation_estimate,
+            project_to_frame,
             header,
             get_catalog_config(configuration, 'astrometry'),
             catalog_lock
@@ -338,9 +367,10 @@ def find_final_transformation(header,
             trans_threshold=configuration['trans_threshold'],
             **transformation_estimate,
         )
+        project_to_frame = construct_transformation(transformation_estimate)
         frame_is_covered = check_catalog_coverage(
             header,
-            transformation_estimate,
+            project_to_frame,
             catalog_header,
             configuration['astrometry_catalog_fov_safety_margin']
         )

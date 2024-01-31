@@ -16,7 +16,6 @@ from superphot_pipeline import Evaluator
 from superphot_pipeline.astrometry.map_projections import \
     gnomonic_projection,\
     inverse_gnomonic_projection
-from superphot_pipeline.astrometry import find_ra_dec
 if __name__ == '__main__':
     from matplotlib import pyplot
 
@@ -509,64 +508,37 @@ def parse_command_line():
 
 
 def get_max_abs_corner_xi_eta(header,
-                              transformation_estimate,
+                              transformation,
                               center=None):
     """Return the max absolute values of the frame corners xi and eta."""
 
     max_xi = max_eta = 0
-    if center is None:
-        center = {'RA': transformation_estimate['ra_cent'],
-                  'Dec': transformation_estimate['dec_cent']}
     for x in [0.0, float(header['NAXIS1'])]:
         for y in [0.0, float(header['NAXIS2'])]:
-            rhs = numpy.array([
-                x - float(transformation_estimate['trans_x'][0]),
-                y - float(transformation_estimate['trans_y'][0])
-            ])
-            matrix = numpy.array([
-                transformation_estimate['trans_x'].ravel()[1:3],
-                transformation_estimate['trans_y'].ravel()[1:3]
-            ])
-            _logger.debug('Solving %s * [xi, eta] = %s',
-                          repr(matrix),
-                          repr(rhs))
-
-            sky_coords = find_ra_dec(
-                xieta_guess = numpy.linalg.solve(matrix, rhs),
-                trans_x=transformation_estimate['trans_x'],
-                trans_y=transformation_estimate['trans_y'],
-                radec_cent={'RA': transformation_estimate['ra_cent'],
-                            'Dec': transformation_estimate['dec_cent']},
-                frame_x=x,
-                frame_y=y
-            )
-            projected_coords = {}
-            gnomonic_projection(
-                sky_coords,
-                projected_coords,
-                **center
-            )
-            max_xi = max(max_xi, abs(projected_coords['xi']))
-            max_eta = max(max_eta, abs(projected_coords['eta']))
+            if center is None:
+                xi_eta = transformation.inverse(x, y, result='pre_projected')
+            else:
+                xi_eta = {}
+                gnomonic_projection(
+                    transformation.inverse(x, y, result='equatorial'),
+                    xi_eta,
+                    **center
+                )
+            max_xi = max(max_xi, abs(xi_eta['xi']))
+            max_eta = max(max_eta, abs(xi_eta['eta']))
 
     return max_xi, max_eta
 
 
-def get_catalog_info(transformation_estimate, header, configuration):
+def get_catalog_info(transformation, header, configuration):
     """Get the configuration of the catalog needed for this frame."""
 
     _logger.debug('Creating catalog info from: %s', repr(configuration))
-    frame_center = find_ra_dec(
-        (0.0, 0.0),
-        transformation_estimate['trans_x'],
-        transformation_estimate['trans_y'],
-        {
-            coord: transformation_estimate[coord.lower() + '_cent']
-            for coord in ['RA', 'Dec']
-        },
+    frame_center = transformation.inverse(
         header['NAXIS1'] / 2.0,
         header['NAXIS2'] / 2.0
     )
+
     pointing_precision = configuration['pointing_precision'] * units.deg
 
     catalog_info = {
@@ -612,7 +584,7 @@ def get_catalog_info(transformation_estimate, header, configuration):
     eval_expression = Evaluator(header)
     eval_expression.symtable.update(catalog_info)
 
-    trans_fov = get_max_abs_corner_xi_eta(header, transformation_estimate)
+    trans_fov = get_max_abs_corner_xi_eta(header, transformation)
     _logger.debug('From transformation estimate half FOV is: %s',
                   repr(trans_fov))
     frame_fov_estimate = tuple(
@@ -660,13 +632,13 @@ def get_catalog_info(transformation_estimate, header, configuration):
 
 #No god way to simplify
 #pylint: disable=too-many-branches
-def ensure_catalog(transformation_estimate,
+def ensure_catalog(transformation,
                    header,
                    configuration,
                    lock):
     """Re-use or create astrometry catalog suitable for the given frame."""
 
-    catalog_info, frame_center = get_catalog_info(transformation_estimate,
+    catalog_info, frame_center = get_catalog_info(transformation,
                                                   header,
                                                   configuration)
     with lock:
@@ -829,7 +801,7 @@ def ensure_catalog(transformation_estimate,
 
 
 def check_catalog_coverage(header,
-                           transformation_estimate,
+                           transformation,
                            catalog_header,
                            safety_margin):
     """
@@ -838,9 +810,9 @@ def check_catalog_coverage(header,
     Args:
         header(dict-like):    The header of the frame being astrometried.
 
-        transformation_estimate(dict):    The current best fit transformation.
-            Should contain entries for ``'trans_x'``, ``'trans_y'``,
-            ``'ra_cent'`` and ``'dec_cent'``.
+        transformation(dict):    The transformation to assume applies to the
+            given image.  Should contain entries for ``'trans_x'``,
+            ``'trans_y'``, ``'ra_cent'`` and ``'dec_cent'``.
 
         catalog_header(dict-like):    The header of the catalog being used for
             astrometry.
@@ -858,7 +830,7 @@ def check_catalog_coverage(header,
 
     width, height = get_max_abs_corner_xi_eta(
         header,
-        transformation_estimate,
+        transformation,
         {'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
     )
     factor = 2.0 * (1.0 + safety_margin)

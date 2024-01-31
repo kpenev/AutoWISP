@@ -59,8 +59,11 @@ class Transformation:
         """
 
         self.pre_projection = None
+        self.inverse_pre_projection = None
         self.evaluate_transformation = None
+        self.evaluate_terms = None
         self._coefficients = None
+        self._term_indices = None
         if dr_fname is not None:
             with DataReductionFile(dr_fname, 'r') as dr_file:
                 self.read_transformation(dr_file, **dr_path_substitutions)
@@ -69,14 +72,33 @@ class Transformation:
     def read_transformation(self, dr_file, **dr_path_substitutions):
         """Read the transformation from the given DR file (already opened)."""
 
-        pre_projection_name = (
-            dr_file.get_attribute('skytoframe.cfg.sky_preprojection',
-                                  **dr_path_substitutions)
-            +
-            '_projection'
+        self.set_transformation(
+            pre_projection_name=(
+                dr_file.get_attribute('skytoframe.cfg.sky_preprojection',
+                                      **dr_path_substitutions)
+                +
+                '_projection'
+            ),
+            pre_projection_center=dr_file.get_attribute(
+                'skytoframe.sky_center',
+                **dr_path_substitutions
+            ),
+            terms_expression=dr_file.get_attribute(
+                'skytoframe.terms',
+                **dr_path_substitutions
+            ),
+            coefficients=dr_file.get_dataset('skytoframe.coefficients',
+                                             **dr_path_substitutions)
         )
-        pre_projection_center = dr_file.get_attribute('skytoframe.sky_center',
-                                                      **dr_path_substitutions)
+
+
+    def set_transformation(self,
+                           pre_projection_center,
+                           terms_expression,
+                           coefficients,
+                           pre_projection_name='tan_projection'):
+        """Set the projection to use."""
+
         self.pre_projection = partial(
             getattr(map_projections, pre_projection_name),
             RA=pre_projection_center[0],
@@ -87,20 +109,15 @@ class Transformation:
             RA=pre_projection_center[0],
             Dec=pre_projection_center[1]
         )
-        header = dr_file.get_frame_header()
-        self._frame_resolution = (header['NAXIS1'], header['NAXIS2'])
-
-        self.evaluate_terms = fit_expression.Interface(
-            dr_file.get_attribute('skytoframe.terms', **dr_path_substitutions)
-        )
+        self.evaluate_terms = fit_expression.Interface(terms_expression)
         self._term_indices = {
             term: index
             for index, term in enumerate(
                 self.evaluate_terms.get_term_str_list()
             )
         }
-        self._coefficients = dr_file.get_dataset('skytoframe.coefficients',
-                                                 **dr_path_substitutions)
+        self._coefficients = coefficients
+
 
     def __call__(self, sources, save_intermediate=False, in_place=False):
         """
@@ -140,7 +157,7 @@ class Transformation:
         return None if in_place else projected
 
 
-    def inverse(self, x, y, **source_properties):
+    def inverse(self, x, y, result='equatorial', **source_properties):
         """Return the sky coordinates of the given source."""
 
         def projection_error(xi_eta):
@@ -153,9 +170,14 @@ class Transformation:
                 for coef, target in zip(self._coefficients, [x, y])
             ])
 
+        assert result in ('equatorial', 'pre_projected', 'both')
         offset_term = self._term_indices['1']
         xi_term = self._term_indices['(xi)']
         eta_term = self._term_indices['(eta)']
+        print(f'coefficients: {self._coefficients!r}')
+        print(f'xi term: {xi_term!r}, '
+              f'eta term: {eta_term!r}, '
+              f'offset term: {offset_term!r}')
         xi_eta_guess = numpy.linalg.solve(
             numpy.array([
                 [
@@ -174,14 +196,14 @@ class Transformation:
         )
         solution = root(projection_error, xi_eta_guess)
         assert solution.success
+        intermediate = {'xi': solution.x[0], 'eta': solution.x[1]}
 
-        result = {}
-        self.inverse_pre_projection(
-            result,
-            {'xi': solution.x[0], 'eta': solution.x[1]}
-        )
-
-        return result['RA'], result['Dec']
+        if result == 'pre_projected':
+            return intermediate
+        else:
+            result = {} if result == 'equatorial' else intermediate
+            self.inverse_pre_projection(result, intermediate)
+            return result
 
 
 def parse_command_line():
@@ -239,9 +261,11 @@ def main(config):
               f'({projected!r})')
 
     if config.inverse is not None:
-        ra, dec = transformation.inverse(config.inverse[0], config.inverse[1])
+        unprojected = transformation.inverse(config.inverse[0],
+                                             config.inverse[1],
+                                             result='both')
         print(f'({config.inverse[0]!r}, {config.inverse[1]!r}) -> '
-              f'RA: {ra!r}, Dec {dec!r}')
+              f'{unprojected!r}')
 
 
 if __name__ == '__main__':
