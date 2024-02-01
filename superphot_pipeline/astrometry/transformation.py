@@ -5,6 +5,7 @@
 from functools import partial
 
 import numpy
+from numpy.lib.recfunctions import unstructured_to_structured
 from scipy.optimize import root
 from configargparse import ArgumentParser, DefaultsFormatter
 
@@ -59,6 +60,7 @@ class Transformation:
         """
 
         self.pre_projection = None
+        self.pre_projection_center = None
         self.inverse_pre_projection = None
         self.evaluate_transformation = None
         self.evaluate_terms = None
@@ -99,6 +101,7 @@ class Transformation:
                            pre_projection_name='tan_projection'):
         """Set the projection to use."""
 
+        self.pre_projection_center = pre_projection_center
         self.pre_projection = partial(
             getattr(map_projections, pre_projection_name),
             RA=pre_projection_center[0],
@@ -174,10 +177,6 @@ class Transformation:
         offset_term = self._term_indices['1']
         xi_term = self._term_indices['(xi)']
         eta_term = self._term_indices['(eta)']
-        print(f'coefficients: {self._coefficients!r}')
-        print(f'xi term: {xi_term!r}, '
-              f'eta term: {eta_term!r}, '
-              f'offset term: {offset_term!r}')
         xi_eta_guess = numpy.linalg.solve(
             numpy.array([
                 [
@@ -196,14 +195,18 @@ class Transformation:
         )
         solution = root(projection_error, xi_eta_guess)
         assert solution.success
-        intermediate = {'xi': solution.x[0], 'eta': solution.x[1]}
-
+        pre_projected = unstructured_to_structured(solution.x,
+                                                   names=['xi', 'eta'])
         if result == 'pre_projected':
-            return intermediate
-        else:
-            result = {} if result == 'equatorial' else intermediate
-            self.inverse_pre_projection(result, intermediate)
-            return result
+            return pre_projected
+
+        equatorial = numpy.empty(1, dtype=[('RA', float), ('Dec', float)])
+        self.inverse_pre_projection(equatorial, pre_projected)
+
+        if result == 'equatorial':
+            return equatorial
+
+        return pre_projected, equatorial
 
 
 def parse_command_line():

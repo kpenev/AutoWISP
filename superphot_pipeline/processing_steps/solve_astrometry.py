@@ -339,10 +339,10 @@ def find_final_transformation(header,
     project_to_frame = construct_transformation(transformation_estimate)
     while not frame_is_covered:
         catalog, catalog_header = ensure_catalog(
-            project_to_frame,
-            header,
-            get_catalog_config(configuration, 'astrometry'),
-            catalog_lock
+            transformation=project_to_frame,
+            header=header,
+            configuration=get_catalog_config(configuration, 'astrometry'),
+            lock=catalog_lock
         )
 
         (

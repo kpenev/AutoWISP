@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+#pylint: disable=too-many-lines
+
 """Utilities for querying catalogs for astrometry."""
 
 from os import path, makedirs
 import logging
 from hashlib import md5
+from contextlib import nullcontext
 
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
@@ -12,7 +15,8 @@ from astropy import units
 from astropy.io import fits
 from astroquery.gaia import GaiaClass, conf
 
-from superphot_pipeline import Evaluator
+from superphot_pipeline import Evaluator, DataReductionFile
+from superphot_pipeline.astrometry import Transformation
 from superphot_pipeline.astrometry.map_projections import \
     gnomonic_projection,\
     inverse_gnomonic_projection
@@ -508,42 +512,144 @@ def parse_command_line():
 
 
 def get_max_abs_corner_xi_eta(header,
-                              transformation,
-                              center=None):
-    """Return the max absolute values of the frame corners xi and eta."""
+                              *,
+                              transformation=None,
+                              dr_files=None,
+                              center=None,
+                              **dr_path_substitutions):
+    """
+    Return the max absolute values of the frame corners xi and eta.
 
-    max_xi = max_eta = 0
-    for x in [0.0, float(header['NAXIS1'])]:
-        for y in [0.0, float(header['NAXIS2'])]:
-            if center is None:
-                xi_eta = transformation.inverse(x, y, result='pre_projected')
-            else:
-                xi_eta = {}
-                gnomonic_projection(
-                    transformation.inverse(x, y, result='equatorial'),
-                    xi_eta,
-                    **center
+    Args:
+        header (astropy.io.fits.Header): The header of the image to find corner
+            xi and eta of..
+
+        transformation: The transformation to assume applies to the image. If
+            not specified, transformations are read from ``dr_files`` and max is
+            taken over all of them.
+
+        dr_files: The list of DR files to read transformations from. If
+            transformation is not specified. Ignored if transformation is
+            specified.
+
+        center: The center to assume for the projection. If not specified, the
+            center is calculated as average of max and min RA and Dec for all
+            DR files.
+
+        dr_path_substitutions: The substitutions to use when reading
+            transformations from DR files.
+
+    Returns:
+        float:
+            The maximum absolute value of xi over all corners of all frame.
+
+        float:
+            The maximum absolute value of eta over all corners of all frame.
+
+        structured array:
+            The center around which xi, eta are defined. Returned only if center
+            was not specified and more than one DR file was specified.
+    """
+
+    assert dr_files or transformation
+    if transformation:
+        assert header
+
+    center_ra_dec = numpy.empty(
+        1 if transformation is not None else len(dr_files),
+        dtype=[('RA', float), ('Dec', float)]
+    )
+    xi_eta = numpy.empty(
+        4 * center_ra_dec.size,
+        dtype=[('xi', float), ('eta', float)]
+    )
+
+    xi_eta_ind = 0
+    for this_trans in (dr_files if transformation is None
+                       else [transformation]):
+        if transformation is None:
+            with DataReductionFile(this_trans) as dr_file:
+                header = dr_file.get_frame_header()
+                this_trans = Transformation()
+                this_trans.read_transformation(dr_file, **dr_path_substitutions)
+
+        center_ra_dec[xi_eta_ind // 4] = tuple(
+            this_trans.pre_projection_center
+        )
+        for x in [0.0, float(header['NAXIS1'])]:
+            for y in [0.0, float(header['NAXIS2'])]:
+                xi_eta[xi_eta_ind] = transformation.inverse(
+                    x,
+                    y,
+                    result='pre_projected'
                 )
-            max_xi = max(max_xi, abs(xi_eta['xi']))
-            max_eta = max(max_eta, abs(xi_eta['eta']))
+                xi_eta_ind += 1
 
-    return max_xi, max_eta
+    if center is None and transformation is None and len(dr_files) > 1:
+        center = {
+            coord: 0.5 * (numpy.min(center_ra_dec[coord])
+                          +
+                          numpy.max(center_ra_dec[coord]))
+            for coord in ['RA', 'Dec']
+        }
+        return_center = True
+    else:
+        return_center = False
+
+    if center is not None:
+        ra_dec = numpy.empty(xi_eta.size, dtype=center_ra_dec.dtype)
+        gnomonic_projection(ra_dec, xi_eta, **center)
+        transformation.inverse_pre_projection(ra_dec, xi_eta)
+
+        xi_eta = transformation.inverse(x, y, result='pre_projected')
+
+    return (
+        max(abs(xi_eta['xi'].min()), abs(xi_eta['xi'].max())),
+        max(abs(xi_eta['eta'].min()), abs(xi_eta['eta'].max()))
+    ) + ((center,) if return_center else ())
 
 
-def get_catalog_info(transformation, header, configuration):
+def get_catalog_info(*,
+                     dr_files=None,
+                     transformation=None,
+                     header=None,
+                     configuration,
+                     **dr_path_substitutions):
     """Get the configuration of the catalog needed for this frame."""
 
+    assert dr_files or transformation
+
     _logger.debug('Creating catalog info from: %s', repr(configuration))
-    frame_center = transformation.inverse(
-        header['NAXIS1'] / 2.0,
-        header['NAXIS2'] / 2.0
-    )
+
+    if transformation is None and len(dr_files) == 1:
+        with DataReductionFile(dr_files[0], 'r') as dr_file:
+            if header is None:
+                header = dr_file.get_frame_header()
+            transformation = Transformation()
+            transformation.read_transformation(dr_file, **dr_path_substitutions)
+
+    trans_fov = get_max_abs_corner_xi_eta(dr_files=dr_files,
+                                          transformation=transformation,
+                                          header=header,
+                                          **dr_path_substitutions)
+
+    if transformation is not None:
+        trans_fov += (
+            dict(
+                zip(
+                    ['RA', 'Dec'],
+                    transformation.pre_projection_center
+                )
+            ),
+        )
+
+    _logger.debug(f'Catalog FOV info: %s', repr(trans_fov))
 
     pointing_precision = configuration['pointing_precision'] * units.deg
 
     catalog_info = {
         'dec_ind': int(
-            numpy.round(frame_center['Dec'] * units.deg / pointing_precision)
+            numpy.round(trans_fov[2]['Dec'] * units.deg / pointing_precision)
         )
     }
     catalog_info['dec'] = pointing_precision * catalog_info['dec_ind']
@@ -551,7 +657,7 @@ def get_catalog_info(transformation, header, configuration):
     catalog_info['ra_ind'] = int(
         numpy.round(
             (
-                frame_center['RA'] * units.deg
+                trans_fov[2]['RA'] * units.deg
                 *
                 numpy.cos(catalog_info['dec'])
             )
@@ -581,10 +687,6 @@ def get_catalog_info(transformation, header, configuration):
             )
         )
 
-    eval_expression = Evaluator(header)
-    eval_expression.symtable.update(catalog_info)
-
-    trans_fov = get_max_abs_corner_xi_eta(header, transformation)
     _logger.debug('From transformation estimate half FOV is: %s',
                   repr(trans_fov))
     frame_fov_estimate = tuple(
@@ -592,7 +694,7 @@ def get_catalog_info(transformation, header, configuration):
             (
                 max(
                     2.0 * trans_fov[i] * units.deg,
-                    configuration['frame_fov_estimate'][i]
+                    configuration.get('frame_fov_estimate', (0, 0))[i]
                 ) + pointing_precision
             )
             /
@@ -610,7 +712,27 @@ def get_catalog_info(transformation, header, configuration):
         fov_size * (1.0 + configuration['fov_safety_margin'])
         for fov_size in frame_fov_estimate
     )
-    catalog_info['epoch'] = eval_expression(configuration['epoch'])
+
+    if header is None:
+        with DataReductionFile(dr_files[0]) as dr_file:
+            header = dr_file.get_frame_header()
+    catalog_info['epoch'] = Evaluator(header)(configuration['epoch'])
+    if dr_files and len(dr_files) > 1:
+        for dr_fname in dr_files[1:]:
+            with DataReductionFile(dr_fname) as dr_file:
+                if (
+                    Evaluator(
+                        dr_file.get_frame_header()
+                    )(
+                        configuration['epoch']
+                    )
+                    !=
+                    catalog_info['epoch']
+                ):
+                    raise RuntimeError(
+                        'Not all data reduction files to be covered by a single'
+                        ' catalog have the same epoch'
+                    )
 
     catalog_info['columns'] = configuration['columns']
 
@@ -627,20 +749,30 @@ def get_catalog_info(transformation, header, configuration):
     )
     _logger.debug('Created catalog info: %s', repr(catalog_info))
 
-    return catalog_info, frame_center
+    return catalog_info, trans_fov[2]
 
 
 #No god way to simplify
 #pylint: disable=too-many-branches
-def ensure_catalog(transformation,
-                   header,
+def ensure_catalog(*,
+                   dr_files=None,
+                   transformation=None,
+                   header=None,
                    configuration,
-                   lock):
+                   lock=nullcontext(),
+                   return_metadata=True,
+                   **dr_path_substitutions):
     """Re-use or create astrometry catalog suitable for the given frame."""
 
-    catalog_info, frame_center = get_catalog_info(transformation,
-                                                  header,
-                                                  configuration)
+    assert dr_files or transformation
+
+    catalog_info, query_center = get_catalog_info(
+        transformation=transformation,
+        dr_files=dr_files,
+        header=header,
+        configuration=configuration,
+        **dr_path_substitutions
+    )
     with lock:
         if path.exists(catalog_info['fname']):
             with fits.open(catalog_info['fname']) as cat_fits:
@@ -726,7 +858,7 @@ def ensure_catalog(transformation,
                     )
 
                 if (
-                    (catalog_header['RA'] - frame_center['RA']) * units.deg
+                    (catalog_header['RA'] - query_center['RA']) * units.deg
                     *
                     numpy.cos(catalog_header['DEC'] * units.deg)
                     >
@@ -735,18 +867,18 @@ def ensure_catalog(transformation,
                     raise RuntimeError(
                         f'Catalog {catalog_info["fname"]} center RA '
                         f'{catalog_header["RA"]!r} is too far from the '
-                        f'required RA={frame_center["RA"]!r}'
+                        f'required RA={query_center["RA"]!r}'
                     )
 
                 if (
-                    (catalog_header['DEC'] - frame_center['Dec']) * units.deg
+                    (catalog_header['DEC'] - query_center['Dec']) * units.deg
                     >
                     configuration['pointing_precision'] * units.deg
                 ):
                     raise RuntimeError(
                         f'Catalog {catalog_info["fname"]} center Dec '
                         f'{catalog_header["DEC"]!r} is too far from the '
-                        f'required Dec={frame_center["Dec"]!r}'
+                        f'required Dec={query_center["Dec"]!r}'
                     )
 
                 filter_expr = configuration['filter']
@@ -788,7 +920,7 @@ def ensure_catalog(transformation,
                     cat_fits,
                     filter_expr=(' and '.join(filter_expr) if filter_expr
                                  else None),
-                    return_metadata=True
+                    return_metadata=return_metadata
                 )
 
         del catalog_info['ra_ind']
@@ -796,7 +928,7 @@ def ensure_catalog(transformation,
 
         create_catalog_file(**catalog_info, verbose=True)
         return read_catalog_file(catalog_info['fname'],
-                                 return_metadata=True)
+                                 return_metadata=return_metadata)
 #pylint: enable=too-many-branches
 
 
@@ -829,9 +961,9 @@ def check_catalog_coverage(header,
     """
 
     width, height = get_max_abs_corner_xi_eta(
-        header,
-        transformation,
-        {'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
+        header=header,
+        transformation=transformation,
+        center={'RA': catalog_header['RA'], 'Dec': catalog_header['DEC']}
     )
     factor = 2.0 * (1.0 + safety_margin)
     width *= factor

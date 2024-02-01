@@ -24,8 +24,9 @@ from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     add_image_options,\
     read_subpixmap,\
-    ignore_progress
-from superphot_pipeline.catalog import read_catalog_file
+    ignore_progress,\
+    get_catalog_config
+from superphot_pipeline.catalog import ensure_catalog
 from superphot_pipeline.split_sources import SplitSources
 from superphot_pipeline.data_reduction.utils import delete_star_shape_fit
 
@@ -290,6 +291,7 @@ def parse_command_line(*args):
         input_type=('+dr' if args else input_type),
         inputs_help_extra=('The corresponding DR files must alread contain an '
                            'astrometric transformation.'),
+        add_catalog={'prefix': 'photometry'},
         add_component_versions=('srcproj', 'background', 'shapefit'),
         allow_parallel_processing=True
     )
@@ -307,13 +309,6 @@ def parse_command_line(*args):
         help='The version of the sky -> frame transformation to use for '
         'projecting the photometry catalog.'
     )
-
-    parser.add_argument(
-        '--photometry-catalog', '--photometry-catalogue', '--cat',
-        default='MASTERS/photometry_catalogue.ucac4',
-        help='A file containing the list of stars to perform photometry on.'
-    )
-
     add_image_options(parser)
     add_background_options(parser)
     add_source_selction_options(parser)
@@ -341,7 +336,7 @@ class SourceListCreator:
         """
 
         Transformation(
-            self._dr_fname_format.format_map(header),
+            DataReductionFile.get_fname_from_header(header),
             **self._dr_path_substitutions
         )(
             self._sources,
@@ -396,8 +391,7 @@ class SourceListCreator:
 
     def __init__(self,
                  *,
-                 dr_fname_format,
-                 catalog_fname,
+                 catalog_sources,
                  fit_variables,
                  grouping,
                  grouping_frame=None,
@@ -408,9 +402,6 @@ class SourceListCreator:
         Set up to create source lists for PSF/PRF fitting.
 
         Args:
-            dr_fname_format:    A format string to generate the name of the
-                data reduction file that corresponds to each frame.
-
             catalog_fname:    The filename containing a list of catalog
                 sources to fit the shape and measure the brightness of.
 
@@ -445,7 +436,7 @@ class SourceListCreator:
         """
 
         self._logger = logging.getLogger(__name__)
-        self._sources = read_catalog_file(catalog_fname)
+        self._sources = catalog_sources
         print('Source columns: ' + repr(self._sources.columns))
         if 'ID' not in self._sources:
             self._sources.insert(
@@ -462,7 +453,6 @@ class SourceListCreator:
 
         self._fit_variables = fit_variables
 
-        self._dr_fname_format = dr_fname_format
         self._dr_path_substitutions = dr_path_substitutions
 
         self._logger.debug('Sources: %s', repr(self._sources))
@@ -551,12 +541,16 @@ class SourceListCreator:
 #pylint: enable=too-many-instance-attributes
 
 
-def create_source_list_creator(configuration):
+def create_source_list_creator(dr_fnames, configuration):
     """Return a fully configured instance of SourceListCreator."""
 
     return SourceListCreator(
-        dr_fname_format=configuration['data_reduction_fname'],
-        catalog_fname=configuration['photometry_catalog'],
+        catalog_sources=ensure_catalog(
+            dr_files=dr_fnames,
+            configuration=get_catalog_config(configuration, 'photometry'),
+            return_metadata=False,
+            skytoframe_version=configuration['skytoframe_version']
+        ),
         fit_variables=configuration['map_variables'],
         grouping=SplitSources(
             magnitude_column=configuration['split_magnitude_column'],
@@ -637,8 +631,9 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
     def get_dr_fname(frame_fname):
         """Return the filename to saving a shape fit."""
 
-        header = get_primary_header(frame_fname)
-        return configuration['data_reduction_fname'].format_map(header)
+        return DataReductionFile.get_fname_from_header(
+            get_primary_header(frame_fname)
+        )
 
 
     logger = logging.getLogger(__name__)
@@ -647,7 +642,8 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
     logger.debug('Fitting configuration: %s', repr(configuration))
 
 
-    get_sources = create_source_list_creator(configuration)
+    dr_fnames = [get_dr_fname(f) for f in frame_filenames]
+    get_sources = create_source_list_creator(dr_fnames, configuration)
     logger.debug('Created source getter')
 
     shape_fitter_config = get_shape_fitter_config(configuration)
@@ -677,7 +673,7 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
             fits_fnames=frame_filenames,
             sources=[sources[fit_group].to_records()
                      for sources in fit_sources],
-            output_dr_fnames=[get_dr_fname(f) for f in frame_filenames],
+            output_dr_fnames=dr_fnames,
             **shape_fitter_config
         )
         logger.debug('Done fitting')
@@ -688,6 +684,7 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
 def fit_star_shape(image_collection, configuration, mark_start, mark_end):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
+    DataReductionFile.fname_template = configuration['data_reduction_fname']
     image_collection = sorted(image_collection)
     frame_list_splits = range(0,
                               len(image_collection),

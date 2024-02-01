@@ -17,6 +17,7 @@ def get_tess_lightcurve(tic, sector, provenance='SPOC'):
     def format_result(fits_list):
         """Format the result appropriately."""
 
+        print('FITS list: ' + repr(fits_list))
         result = {}
         for fits_path, fits_sector in fits_list:
             print(f'Opening: {fits_path!r}')
