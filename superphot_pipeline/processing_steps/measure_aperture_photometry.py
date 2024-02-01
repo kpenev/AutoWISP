@@ -30,17 +30,14 @@ from superphot_pipeline.data_reduction.utils import\
     add_aperture_photometry,\
     delete_aperture_photometry
 
+input_type = 'calibrated + dr'
+
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'calibrated + dr'
-
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=inputtype,
+        input_type=('+dr' if args else input_type),
         inputs_help_extra=('The corresponding DR files must alread contain a '
                            'PSF fit.'),
         add_component_versions=('srcproj', 'background', 'shapefit', 'apphot'),
@@ -150,7 +147,7 @@ def photometer_frame(frame_fname, configuration, mark_start, mark_end):
         mark_end(frame_fname)
 
 
-def photometer_image_collection(image_collection,
+def measure_aperture_photometry(image_collection,
                                 configuration,
                                 mark_start,
                                 mark_end):
@@ -195,7 +192,7 @@ def cleanup_interrupted(frame_fname, configuration):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
-    photometer_image_collection(
+    measure_aperture_photometry(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('apphot_only_if')),
         cmdline_config,
