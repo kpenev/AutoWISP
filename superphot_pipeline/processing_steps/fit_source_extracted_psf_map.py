@@ -3,6 +3,7 @@
 """Fit a smooth dependence of source extracted PSF parameters."""
 
 import logging
+from collections import namedtuple
 
 import numpy
 
@@ -20,17 +21,15 @@ from superphot_pipeline.processing_steps.manual_util import\
 
 _logger = logging.getLogger(__name__)
 
+input_type = 'dr'
+
+
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'dr'
-
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=inputtype,
+        input_type=('' if args else input_type),
         inputs_help_extra='The DR files must already contain astrometry.',
         add_component_versions=('srcextract', 'catalogue', 'skytoframe')
     )
@@ -131,34 +130,45 @@ def detect_psf_parameters(matched_sources):
     return None
 
 
-def smooth_srcextract_psf(dr_file,
-                          psf_parameters,
-                          fit_terms_expression,
-                          weights_expression,
-                          *,
-                          error_avg,
-                          rej_level,
-                          max_rej_iter,
+def smooth_srcextract_psf(dr_fname,
+                          configuration,
+                          mark_start,
+                          mark_end,
                           **path_substitutions):
     """
     Fit PSF parameters as polynomials of srcextract and catalogue info.
 
     Args:
-        psf_parameters([str]):    A list of the variables from the source
-            extracted datasets to smooth.
+        dr_fname(str):    The name of the DR file to smooth the source extracted
+            parameters for.
 
-        fit_terms_expression(str):    A fitting terms expression defining
-            the terms to include in the fit.
+        configuration(NamedTuple):    Configuration on how to do the smoothing.
+            Should include the following attributes:
 
-        weights_expression(str):    An expression involving source
-            extraction and/or catalogue variables for the weights to use for
-            the smoothing fit.
+            psf_parameters([str]):    A list of the variables from the source
+                extracted datasets to smooth. If None, an attempt is made to
+                auto detect the parameters.
 
-        error_avg:    See iterative_fit().
+            fit_terms_expression(str):    A fitting terms expression defining
+                the terms to include in the fit.
 
-        rej_level:    See iterative_fit().
+            weights_expression(str):    An expression involving source
+                extraction and/or catalogue variables for the weights to use for
+                the smoothing fit.
 
-        max_rej_iter:    See iterative_fit().
+            error_avg:    See iterative_fit().
+
+            rej_level:    See iterative_fit().
+
+            max_rej_iter:    See iterative_fit().
+
+
+
+        mark_start(callable):    Invoked with the name of the DR file before the
+            contents of the file are updated.
+
+        mark_end(callable):    Invoked with the name of the DR file after
+            successfully completing all updates to the DR file.
 
         path_substitutions:    Any substitutions required to resolve the
             path to extracted sources, catalogue sources and the
@@ -168,84 +178,108 @@ def smooth_srcextract_psf(dr_file,
         None
     """
 
-    matched_sources = dr_file.get_matched_sources(**path_substitutions)
-    predictors, weights = get_predictors_and_weights(matched_sources,
-                                                     fit_terms_expression,
-                                                     weights_expression)
-    _logger.debug('Predictors (%sx%d)}: %s',
-                  *predictors.shape,
-                  repr(predictors))
-    if weights is not None:
-        _logger.debug('Weights %s: %s',
-                      format(weights.shape),
-                      repr(weights))
-    else:
-        _logger.debug('Not using weights')
 
-    fit_results = {
-        'coefficients': {},
-        'fit_res2': {},
-        'num_fit_src': {}
-    }
-
-    if psf_parameters is None:
-        psf_parameters = detect_psf_parameters(matched_sources)
-    if psf_parameters is None:
-        raise IOError(
-            f'Matched sources in {dr_file.filename} do not contain a full set '
-            'of either fistar or hatphot PSF parameters.'
+    with DataReductionFile(dr_fname, 'r+') as dr_file:
+        matched_sources = dr_file.get_matched_sources(**path_substitutions)
+        predictors, weights = get_predictors_and_weights(
+            matched_sources,
+            configuration.fit_terms_expression,
+            configuration.weights_expression
         )
+        _logger.debug('Predictors (%sx%d)}: %s',
+                      *predictors.shape,
+                      repr(predictors))
+        if weights is not None:
+            _logger.debug('Weights %s: %s',
+                          format(weights.shape),
+                          repr(weights))
+        else:
+            _logger.debug('Not using weights')
 
-    psf_param = get_psf_param(matched_sources, psf_parameters)
-    for param_name in psf_parameters:
-        (
-            fit_results['coefficients'][param_name],
-            fit_results['fit_res2'][param_name],
-            fit_results['num_fit_src'][param_name]
-        ) = iterative_fit(
-            predictors,
-            psf_param[param_name],
-            weights=weights,
-            error_avg=error_avg,
-            rej_level=rej_level,
-            max_rej_iter=max_rej_iter,
-            fit_identifier=f'Extracted sources PSF {param_name:s} map'
+        fit_results = {
+            'coefficients': {},
+            'fit_res2': {},
+            'num_fit_src': {}
+        }
+
+        psf_parameters = configuration.psf_parameters
+        if psf_parameters is None:
+            psf_parameters = detect_psf_parameters(
+                matched_sources
+            )
+        if psf_parameters is None:
+            raise IOError(
+                f'Matched sources in {dr_file.filename} do not contain a full '
+                'set of either fistar or hatphot PSF parameters.'
+            )
+
+        psf_param = get_psf_param(matched_sources, psf_parameters)
+        for param_name in psf_parameters:
+            (
+                fit_results['coefficients'][param_name],
+                fit_results['fit_res2'][param_name],
+                fit_results['num_fit_src'][param_name]
+            ) = iterative_fit(
+                predictors,
+                psf_param[param_name],
+                weights=weights,
+                error_avg=configuration.error_avg,
+                rej_level=configuration.rej_level,
+                max_rej_iter=configuration.max_rej_iter,
+                fit_identifier=f'Extracted sources PSF {param_name:s} map'
+            )
+
+        mark_start(dr_fname)
+        dr_file.save_source_extracted_psf_map(
+            fit_results=fit_results,
+            fit_configuration=configuration,
+            **path_substitutions
         )
-
-    dr_file.save_source_extracted_psf_map(
-        fit_results=fit_results,
-        fit_terms_expression=fit_terms_expression,
-        weights_expression=weights_expression,
-        error_avg=error_avg,
-        rej_level=rej_level,
-        max_rej_iter=max_rej_iter,
-        **path_substitutions
-    )
+        mark_end(dr_fname)
 
 
-def fit_srcextract_psf_map(dr_collection,
-                           configuration,
-                           mark_start,
-                           mark_end):
+def fit_source_extracted_psf_map(dr_collection,
+                                 configuration,
+                                 mark_start,
+                                 mark_end):
     """Fit a smooth dependence of source extraction PSF for a DR collection."""
 
-    kwargs = {what + '_version': configuration[what + '_version']
-              for what in ['srcextract', 'catalogue', 'skytoframe']}
-    for fit_config in ['error_avg', 'rej_level', 'max_rej_iter']:
-        kwargs[fit_config] = configuration['srcextract_psfmap_' + fit_config]
+    #This defines a type not variable
+    #pylint: disable=invalid-name
+    SmoothingConfigType = namedtuple(
+        'SmoothingConfigType',
+        [
+            'psf_parameters',
+            'fit_terms_expression',
+            'weights_expression',
+            'error_avg',
+            'rej_level',
+            'max_rej_iter'
+        ]
+    )
+    #pylint: enable=invalid-name
 
+    smoothing_config = SmoothingConfigType(
+        psf_parameters=configuration['srcextract_psf_params'],
+        fit_terms_expression=configuration['srcextract_psfmap_terms'],
+        weights_expression=configuration['srcextract_psfmap_weights'],
+        **{
+            fit_config: configuration['srcextract_psfmap_' + fit_config]
+            for fit_config in ['error_avg', 'rej_level', 'max_rej_iter']
+        }
+    )
 
     for dr_fname in dr_collection:
-        with DataReductionFile(dr_fname, 'r+') as dr_file:
-            mark_start(dr_fname)
-            smooth_srcextract_psf(
-                dr_file=dr_file,
-                psf_parameters=configuration['srcextract_psf_params'],
-                fit_terms_expression=configuration['srcextract_psfmap_terms'],
-                weights_expression=configuration['srcextract_psfmap_weights'],
-                **kwargs
-            )
-            mark_end(dr_fname)
+        smooth_srcextract_psf(
+            dr_fname=dr_fname,
+            configuration=smoothing_config,
+            mark_start=mark_start,
+            mark_end=mark_end,
+            **{
+                what + '_version': configuration[what + '_version']
+                for what in ['srcextract', 'catalogue', 'skytoframe']
+            }
+        )
 
 
 def cleanup_interrupted(dr_fname, _, configuration):
@@ -262,7 +296,7 @@ def cleanup_interrupted(dr_fname, _, configuration):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='main', **cmdline_config)
-    fit_srcextract_psf_map(
+    fit_source_extracted_psf_map(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('srcextract_only_if')),
         cmdline_config,

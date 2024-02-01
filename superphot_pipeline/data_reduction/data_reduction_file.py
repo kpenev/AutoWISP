@@ -1000,11 +1000,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     def save_source_extracted_psf_map(self,
                                       *,
                                       fit_results,
-                                      fit_terms_expression,
-                                      weights_expression,
-                                      error_avg,
-                                      rej_level,
-                                      max_rej_iter,
+                                      fit_configuration,
                                       **path_substitutions):
         """Create the datasets and attributes holding the fit results."""
 
@@ -1020,17 +1016,21 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     numpy.array([name.encode('ascii') for name
                                  in psf_parameters])
                 ),
-                ('cfg.terms', fit_terms_expression.encode('ascii')),
+                (
+                    'cfg.terms',
+                    fit_configuration.fit_terms_expression.encode('ascii')
+                ),
                 (
                     'cfg.weights',
                     (
-                        b'none' if weights_expression is None
-                        else weights_expression.encode('ascii')
+                        b'none'
+                        if fit_configuration.weights_expression is None else
+                        fit_configuration.weights_expression.encode('ascii')
                     )
                 ),
-                ('cfg.error_avg', error_avg.encode('ascii')),
-                ('cfg.rej_level', rej_level),
-                ('cfg.max_rej_iter', max_rej_iter),
+                ('cfg.error_avg', fit_configuration.error_avg.encode('ascii')),
+                ('cfg.rej_level', fit_configuration.rej_level),
+                ('cfg.max_rej_iter', fit_configuration.max_rej_iter),
                 (
                     'residual',
                     numpy.array([
