@@ -4,8 +4,6 @@ import numpy
 from numpy.lib import recfunctions
 from astropy.io import fits
 
-from superphot_pipeline.catalog import read_catalog_file
-
 _PHOT_QUANTITIES = ('mag', 'mag_err', 'phot_flag')
 
 
@@ -171,10 +169,8 @@ def get_master_photref(photref_fname):
                 ]
     return result
 
-def read_master_catalogue(fname, source_id_parser=None):
+def format_master_catalog(cat_sources, source_id_parser=None):
     """Return the catalogue info in the given file formatted for magfitting."""
-
-    cat_sources = read_catalog_file(fname, add_gnomonic_projection=True)
 
     cat_sources = cat_sources.to_records()
 

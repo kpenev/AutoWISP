@@ -239,10 +239,13 @@ def smooth_srcextract_psf(dr_fname,
 
 
 def fit_source_extracted_psf_map(dr_collection,
+                                 start_status,
                                  configuration,
                                  mark_start,
                                  mark_end):
     """Fit a smooth dependence of source extraction PSF for a DR collection."""
+
+    assert start_status == 0
 
     #This defines a type not variable
     #pylint: disable=invalid-name
@@ -282,8 +285,10 @@ def fit_source_extracted_psf_map(dr_collection,
         )
 
 
-def cleanup_interrupted(dr_fname, _, configuration):
+def cleanup_interrupted(dr_fname, from_status, to_status, configuration):
     """Remove the source extracted PSF map from the given DR file."""
+
+    assert from_status == to_status == 0
 
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         path_substitutions = {
@@ -299,6 +304,7 @@ if __name__ == '__main__':
     fit_source_extracted_psf_map(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('srcextract_only_if')),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

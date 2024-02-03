@@ -3,6 +3,7 @@
 from tempfile import TemporaryDirectory
 from multiprocessing import Pool
 import logging
+from functools import partial
 
 import numpy
 
@@ -16,14 +17,14 @@ from superphot_pipeline.magnitude_fitting import\
 from superphot_pipeline.magnitude_fitting.util import\
     get_single_photref,\
     get_master_photref,\
-    read_master_catalogue
+    format_master_catalog
 
 #Could not come up with a sensible way to simplify
 #pylint: disable=too-many-locals
 def iterative_refit(fit_dr_filenames,
                     *,
                     single_photref_dr_fname,
-                    master_catalogue_fname,
+                    catalog_sources,
                     configuration,
                     master_photref_fname_format,
                     magfit_stat_fname_format,
@@ -44,9 +45,9 @@ def iterative_refit(fit_dr_filenames,
             the single photometric reference to use to start the magnitude
             fitting iterations.
 
-        master_catalogue_fname(str):    The name of the catalogue file to use as
-            extra information in magnitude fitting terms and for excluding
-            sources from the fit.
+        catalog(pandas.DataFrame):    The the catalog to use as extra
+            information in magnitude fitting terms and for excluding sources
+            from the fit.
 
         configuration:    Passed directly as the config argument to
             LinearMagnitudeFit.__init__() but it must also contain the following
@@ -96,7 +97,7 @@ def iterative_refit(fit_dr_filenames,
                        old_reference,
                        source_id_parser,
                        num_photometries,
-                       single_photref_header):
+                       fname_substitutions):
         """
         Return the next iteration photometric reference or None if converged.
 
@@ -116,13 +117,12 @@ def iterative_refit(fit_dr_filenames,
         """
 
         logger = logging.getLogger(__name__)
-        master_reference_fname = master_photref_fname_format.format(
-            **dict(single_photref_header),
-            **path_substitutions
+        master_reference_fname = master_photref_fname_format.format_map(
+            fname_substitutions
         )
         magfit_stat_collector.generate_master(
             master_reference_fname=master_reference_fname,
-            catalogue=catalogue,
+            catalogue=catalog,
             fit_terms_expression=master_scatter_fit_terms,
             parse_source_id=source_id_parser
         )
@@ -171,24 +171,24 @@ def iterative_refit(fit_dr_filenames,
     path_substitutions['magfit_iteration'] = continue_from_iteration
 
     with DataReductionFile(single_photref_dr_fname, 'r') as photref_dr:
-        single_photref_header = photref_dr.get_frame_header()
+        fname_substitutions = dict(photref_dr.get_frame_header())
+        fname_substitutions.update(path_substitutions)
         if continue_from_iteration > 0:
-            master_reference_fname = master_photref_fname_format.format(
-                **dict(single_photref_header),
-                **path_substitutions
+            master_reference_fname = master_photref_fname_format.format_map(
+                fname_substitutions
             )
             photref = get_master_photref(master_reference_fname)
         else:
             photref = get_single_photref(photref_dr, **path_substitutions)
 
-    catalogue = read_master_catalogue(master_catalogue_fname,
-                                      photref_dr.parse_hat_source_id)
+    catalog = format_master_catalog(catalog_sources,
+                                    photref_dr.parse_hat_source_id)
 
     num_photometries = next(iter(photref.values()))['mag'].size
 
     source_name_format=(
         'HAT-{0[1]:03d}-{0[2]:07d}'
-        if isinstance(next(iter(catalogue)), tuple) else
+        if isinstance(next(iter(catalog)), tuple) else
         '{0:d}'
     )
 
@@ -201,10 +201,7 @@ def iterative_refit(fit_dr_filenames,
             assert next(iter(photref.values()))['mag'].size == num_photometries
 
             magfit_stat_collector = MasterPhotrefCollector(
-                magfit_stat_fname_format.format(
-                    **dict(single_photref_header),
-                    **path_substitutions
-                ),
+                magfit_stat_fname_format.format_map(fname_substitutions),
                 num_photometries,
                 grcollect_tmp_dir,
                 source_name_format=source_name_format
@@ -216,11 +213,24 @@ def iterative_refit(fit_dr_filenames,
                 source_name_format=source_name_format
             )
 
-            def pool_magfit(dr_fname):
-                mark_start(dr_fname)
-                result = magfit(dr_fname, **path_substitutions)
-                mark_end(dr_fname)
-                return result
+            pool_magfit = partial(
+                magfit,
+                mark_start=(
+                    mark_start
+                    if path_substitutions['magfit_iteration'] == 0 else
+                    partial(
+                        mark_end,
+                        status=2 * path_substitutions['magfit_iteration'],
+                        final=False
+                    )
+                ),
+                mark_end=partial(
+                    mark_end,
+                    status=2 * path_substitutions['magfit_iteration'] + 1,
+                    final=False
+                ),
+                **path_substitutions
+            )
 
             if configuration.num_parallel_processes > 1:
                 with Pool(
@@ -243,6 +253,10 @@ def iterative_refit(fit_dr_filenames,
                                      photref,
                                      photref_dr.parse_hat_source_id,
                                      num_photometries,
-                                     single_photref_header)
+                                     fname_substitutions)
             path_substitutions['magfit_iteration'] += 1
+    for fit_dr_fname in fit_dr_filenames:
+        mark_end(fit_dr_fname,
+                 status=2 * path_substitutions['magfit_iteration'] - 1,
+                 final=True)
 #pylint: enable=too-many-locals

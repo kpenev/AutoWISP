@@ -703,8 +703,14 @@ def manage_astrometry(pending, task_queue, result_queue, mark_end):
             )
 #pylint: enable=too-many-branches
 
-def solve_astrometry(dr_collection, configuration, mark_start, mark_end):
+def solve_astrometry(dr_collection,
+                     start_status,
+                     configuration,
+                     mark_start,
+                     mark_end):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
+
+    assert start_status == 0
 
     _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
     #create_catalogs(configuration, dr_collection)
@@ -752,8 +758,10 @@ def solve_astrometry(dr_collection, configuration, mark_start, mark_end):
         process.join()
 
 
-def cleanup_interrupted(dr_fname, _, configuration):
+def cleanup_interrupted(dr_fname, from_status, to_status, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
+
+    assert from_status == to_status == 0
 
     path_substitutions = {
         substitution: configuration[substitution]
@@ -791,6 +799,7 @@ if __name__ == '__main__':
     solve_astrometry(
         list(find_dr_fnames(cmdline_config.pop('dr_files'),
                             cmdline_config.pop('astrometry_only_if'))),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

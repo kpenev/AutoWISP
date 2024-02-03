@@ -148,10 +148,13 @@ def photometer_frame(frame_fname, configuration, mark_start, mark_end):
 
 
 def measure_aperture_photometry(image_collection,
+                                start_status,
                                 configuration,
                                 mark_start,
                                 mark_end):
     """Extract aperture photometry from the given images."""
+
+    assert start_status == 0
 
     photometer_one = partial(photometer_frame,
                              configuration=configuration,
@@ -173,8 +176,10 @@ def measure_aperture_photometry(image_collection,
             )
 
 
-def cleanup_interrupted(frame_fname, configuration):
+def cleanup_interrupted(frame_fname, from_status, to_status, configuration):
     """Remove the aperture photometry from a frame that was interrupted."""
+
+    assert from_status == to_status == 0
 
     header = get_primary_header(frame_fname)
 
@@ -195,6 +200,7 @@ if __name__ == '__main__':
     measure_aperture_photometry(
         find_fits_fnames(cmdline_config.pop('calibrated_images'),
                          cmdline_config.pop('apphot_only_if')),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

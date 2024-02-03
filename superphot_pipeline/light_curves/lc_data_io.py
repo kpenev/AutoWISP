@@ -17,7 +17,7 @@ from astropy import units
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 
-from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
+from superphot_pipeline.magnitude_fitting.util import format_master_catalog
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.miscellaneous import get_hat_source_id_str
 from superphot_pipeline.data_reduction.utils import get_source_extracted_psf_map
@@ -252,10 +252,11 @@ class LCDataIO:
 
     @classmethod
     def create(cls,
+               *,
+               catalog_sources,
                config,
                source_id_parser,
                dr_fname_parser,
-               *,
                source_list=None,
                optional_header=None,
                observatory=None,
@@ -331,7 +332,7 @@ class LCDataIO:
 
         cls._path_substitutions = path_substitutions
 
-        cls._catalogue = read_master_catalogue(config['lcdump_catalog'],
+        cls._catalogue = format_master_catalog(catalog_sources,
                                                source_id_parser)
         cls.dr_fname_parser = staticmethod(dr_fname_parser)
 

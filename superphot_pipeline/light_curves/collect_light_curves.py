@@ -9,6 +9,8 @@ import numpy
 
 from superphot_pipeline.hat.file_parsers import parse_fname_keywords
 from superphot_pipeline import DataReductionFile
+from superphot_pipeline.catalog import ensure_catalog
+from superphot_pipeline.processing_steps.manual_util import get_catalog_config
 from .lc_data_io import LCDataIO
 
 class DecodingStringFormatter(Formatter):
@@ -62,12 +64,20 @@ def collect_light_curves(dr_filenames,
                 **path_substitutions
             )
         ]
-        data_io = LCDataIO.create(configuration,
-                                  first_dr.parse_hat_source_id,
-                                  dr_fname_parser,
-                                  optional_header=optional_header,
-                                  observatory=observatory,
-                                  **path_substitutions)
+        data_io = LCDataIO.create(
+            catalog_sources=ensure_catalog(
+                dr_files=dr_filenames,
+                configuration=get_catalog_config(configuration, 'lc_dump'),
+                return_metadata=False,
+                skytoframe_version=configuration['skytoframe_version']
+            ),
+            config=configuration,
+            source_id_parser=first_dr.parse_hat_source_id,
+            dr_fname_parser=dr_fname_parser,
+            optional_header=optional_header,
+            observatory=observatory,
+            **path_substitutions
+        )
     frame_chunk = data_io.max_dimension_size['frame']
     logging.getLogger(__name__).debug('Generating LC filenames per: %s',
                                       repr(configuration['lc_fname']))

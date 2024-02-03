@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 
 import scipy
 from numpy.lib import recfunctions
+import numpy
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline.evaluator import Evaluator
@@ -113,18 +114,23 @@ class MagnitudeFit(ABC):
                 source.
 
         Returns:
-            dict:
+            [[dict]]:
+                For each photometry (i.e. different aperture of PSF fitting)
+                a list of dictionaries is returned containing a fit result
+                dictionary for each group of sources with the following entries:
 
-                * initial_src_count(int): How many sources did the fit start
-                    with before any iterations of outlier rejection.
+                    :coefficients: The best fit coefficients after the rejection
+                                   iterations of the fit has converged.
 
-                * final_src_count(int): After all iterations of outlier
-                    rejections, how many sources was the final fit based on.
+                    :residual: The residual of the latest iteration of the fit,
 
-                * residual(float): The residual of the final fit iteration.
+                    :initial_src_count: The number of stars the fit started with
+                                        before any rejections,
 
-                * parameters(numpy.array): The best fit parameters defining
-                    the magnitude correction.
+                    :final_src_count: The number of stars left in the fit after
+                                      the final rejection iteration,
+                    :group_id: The ID of the group of sources this fit result
+                               corresponds to.
         """
 
     @abstractmethod
@@ -143,50 +149,38 @@ class MagnitudeFit(ABC):
                 The magnitude fit corrected magnitudes.
         """
 
-    #TODO: revive once database design is complete
-    def _solved(self, num_photometries):
-        """
-        Return the best fit coefficients if already in the database.
+    def _solved(self,
+                *,
+                data_reduction,
+                deleted_phot_indices,
+                num_phot,
+                num_sources,
+                dr_path_substitutions):
+        """Return fitted mags if fit is already in DR, None otherwise."""
 
-        For row disabled.
+        try:
+            fitted = numpy.empty((num_sources, num_phot), dtype=float)
+            phot_ind = 0
+            if data_reduction.has_shapefit(accept_zeropsf=False,
+                                           **dr_path_substitutions):
+                fitted[:, 0] = data_reduction.get_dataset(
+                    'shapefit.magfit.magnitude',
+                    expected_shape=(num_sources,),
+                    **dr_path_substitutions
+                )
+                phot_ind += 1
+            while phot_ind < num_phot:
+                fitted[:, phot_ind] = data_reduction.get_dataset(
+                    'apphot.magfit.magnitude',
+                    expected_shape=(num_sources,),
+                    **dr_path_substitutions
+                )
+                phot_ind += 1
+                numpy.delete(fitted, deleted_phot_indices, axis=0)
+            return fitted
+        except (KeyError, IOError):
+            return None
 
-        Code from HATpipe:
-
-        if self.database is None : return False
-        coefficients=[]
-        for phot_ind in range(num_photometries) :
-            statement=(' FROM `'+self.config.dest_table+
-                       '` WHERE `station_id`=%s AND `fnum`=%s AND '
-                       '`cmpos`=%s AND `aperture`=%s AND '
-                       '`sphotref_id`=%s AND `magfit_version`=%s')
-            args=(self._header['STID'], self._header['FNUM'],
-                  self._header['CMPOS'], phot_ind, self._header['SPRID'],
-                  self.config.version)
-            if self.__rederive_fit :
-                statement='DELETE '+statement
-                self.database(statement, args)
-            else :
-                statement=('SELECT `input_src`, `non_rej_src`, '
-                           '`rms_residuals`, `'
-                           +
-                           '`, `'.join(self._db_columns)
-                           +
-                           '`'
-                           +
-                           statement)
-                record=self.database(statement, args)
-                if record is None : return False
-                else :
-                    coefficients.append(
-                        dict(coefficients=(None if record[3] is None
-                                           else record[3:]),
-                             residual=record[2],
-                             initial_src_count=record[0],
-                             final_src_count=record[1])
-                    )
-        if self.__rederive_fit : return False
-        else : return coefficients
-        """
 
     def _set_group(self, evaluator, result):
         """Set the fit_group column in result per grouping configuration."""
@@ -389,6 +383,45 @@ class MagnitudeFit(ABC):
         os.remove(self._fit_file)
         """
 
+
+    @staticmethod
+    def _combine_fit_statistics(fit_results):
+        """
+        Combine the statistics summarizing how the fit went from all groups.
+
+        Properly combines values from the individual group fits into single
+        numbers for each photometry method. The quantities processed are:
+        residual, initial_src_count, final_src_count.
+
+        Args:
+            fit_results:    The best fit results for this photometry.
+
+        Returns:
+            dict:
+                The derived fit statistics. Keys are residual,
+                initial_src_count, and final_src_count, with one entry for
+                each input photometry method.
+        """
+
+        num_photometries = len(fit_results)
+        result = {
+            'residual': scipy.empty(num_photometries, scipy.float64),
+            'initial_src_count': scipy.zeros(num_photometries, scipy.int_),
+            'final_src_count': scipy.zeros(num_photometries, scipy.int_),
+        }
+
+        for phot_ind, phot_result in enumerate(fit_results):
+            for group_result in phot_result:
+                for key in ['initial_src_count', 'final_src_count']:
+                    result[key][phot_ind] += group_result[key]
+            result['residual'][phot_ind] = scipy.nanmedian([
+                group_result['residual'] or scipy.nan
+                for group_result in phot_result
+            ])
+
+        return result
+
+
     def __init__(self,
                  *,
                  reference,
@@ -443,7 +476,8 @@ class MagnitudeFit(ABC):
         self._source_name_format = source_name_format
         self.logger = None
 
-    def __call__(self, dr_fname, **dr_path_substitutions):
+
+    def __call__(self, dr_fname, mark_start, mark_end, **dr_path_substitutions):
         """
         Performs the fit for the latest magfit iteration for a single frame.
 
@@ -454,44 +488,12 @@ class MagnitudeFit(ABC):
                 to DataReduction.get_source_data().
 
         Returns:
-            None
+            array:
+                The non-rejected photometry for the frame.
+
+            array:
+                The magfit corrected non-rejected photometry for the frame.
         """
-
-        def combine_fit_statistics(fit_results):
-            """
-            Combine the statistics summarizing how the fit went from all groups.
-
-            Properly combines values from the individual group fits into single
-            numbers for each photometry method. The quantities processed are:
-            residual, initial_src_count, final_src_count.
-
-            Args:
-                fit_results:    The best fit results for this photometry.
-
-            Returns:
-                dict:
-                    The derived fit statistics. Keys are residual,
-                    initial_src_count, and final_src_count, with one entry for
-                    each input photometry method.
-            """
-
-            num_photometries = len(fit_results)
-            result = {
-                'residual': scipy.empty(num_photometries, scipy.float64),
-                'initial_src_count': scipy.zeros(num_photometries, scipy.int_),
-                'final_src_count': scipy.zeros(num_photometries, scipy.int_),
-            }
-
-            for phot_ind, phot_result in enumerate(fit_results):
-                for group_result in phot_result:
-                    for key in ['initial_src_count', 'final_src_count']:
-                        result[key][phot_ind] += group_result[key]
-                result['residual'][phot_ind] = scipy.nanmedian([
-                    group_result['residual'] or scipy.nan
-                    for group_result in phot_result
-                ])
-
-            return result
 
         self.logger = logging.getLogger(__name__)
 
@@ -528,37 +530,48 @@ class MagnitudeFit(ABC):
                     self._set_group(evaluator, phot)
 
                 self.logger.debug('Checking for existing solution.')
-                fit_results = self._solved(phot['mag'].shape[2]) or False
-                if fit_results:
-                    assert 'fit_groups' not in phot
-                    fit_results = [fit_results]
-                else:
-                    self.logger.debug('Matching to reference.')
-                    fit_base, fit_indices = self._match_to_reference(
-                        phot,
-                        no_catalogue,
-                        evaluator
-                    )
-                    if fit_base.size > 0:
-                        self.logger.debug('Performing linear fit.')
-                        fit_results = self._fit(fit_base)
+                fitted = self._solved(
+                    data_reduction=data_reduction,
+                    deleted_phot_indices=deleted_phot_indices,
+                    num_phot=phot.shape[1],
+                    num_sources=phot.shape[0],
+                    dr_path_substitutions=dr_path_substitutions
+                )
+
+                self.logger.debug('Matching to reference.')
+                fit_base, fit_indices = self._match_to_reference(
+                    phot,
+                    no_catalogue,
+                    evaluator
+                )
+
+                if fitted:
+                    return phot[fit_indices], fitted[fit_indices]
+
+                if fit_base.size > 0:
+                    self.logger.debug('Performing linear fit.')
+                    fit_results = self._fit(fit_base)
+
                 if fit_results:
                     self.logger.debug('Post-processing fit.')
                     fitted = self._apply_fit(phot, fit_results)
                     assert fitted.shape == (phot['mag'].shape[0],
                                             phot['mag'].shape[2])
-                    fit_statistics = combine_fit_statistics(fit_results)
-
                     self.logger.debug('Adding to DR file.')
+                    mark_start(dr_fname)
                     data_reduction.add_magnitude_fitting(
                         fitted_magnitudes=fitted,
-                        fit_statistics=fit_statistics,
+                        fit_statistics=self._combine_fit_statistics(
+                            fit_results
+                        ),
                         magfit_configuration=self.config,
                         missing_indices=deleted_phot_indices,
                         **dr_path_substitutions
                     )
+                    mark_end(dr_fname)
                     self.logger.debug('Updating calibration status.')
                     return phot[fit_indices], fitted[fit_indices]
+                return None, None
         except Exception as ex:
             #Does not make sense to avoid building message.
             #pylint: disable=logging-not-lazy

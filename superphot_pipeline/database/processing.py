@@ -434,7 +434,7 @@ class ProcessingManager:
         step_module = getattr(processing_steps, self.current_step.name)
 
         matched_expressions = None
-        for image, processed in db_session.execute(
+        need_cleanup = db_session.execute(
             select(
                 Image, ProcessedImages
             ).join(
@@ -444,7 +444,19 @@ class ProcessingManager:
             ).where(
                 ~ProcessedImages.final
             )
-        ):
+        )
+
+        if need_cleanup:
+            to_status = need_clenup[1].status
+            downgrade = to_status > 0
+            for _, processed in need_cleanup:
+                if processed.status < to_status:
+                    downgrade = False
+                    to_status = processed.status
+            if downgrade:
+                to_status -= 1
+
+        for image, processed in need_cleanup:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
@@ -473,11 +485,14 @@ class ProcessingManager:
             )
             step_module.cleanup_interrupted(interrupted_fname,
                                             processed.status,
+                                            to_status,
                                             config)
-            if processed.status == 1:
+            assert new_status >= 0
+            assert new_status <= processed.status
+            if new_status == 0:
                 db_session.delete(processed)
             else:
-                processed.status -= 1
+                processed.status = new_status
 
 
     def _init_processed_ids(self, image, channels, step_input_type):
@@ -562,13 +577,14 @@ class ProcessingManager:
         return pending_images, step_input_type
 
 
-    def _process_batch(self, batch, config, step_name):
+    def _process_batch(self, batch, start_status, config, step_name):
         """Run the current step for a batch of images given configuration."""
 
         step_module = getattr(processing_steps, step_name)
 
         getattr(step_module, step_name)(
             batch,
+            start_status,
             config,
             self._start_processing,
             self._end_processing
@@ -726,46 +742,40 @@ class ProcessingManager:
             config['processing_step']=self.current_step.name
             setup_process(task='main', **config)
 
-            if self.current_step.name == 'fit_magnitudes':
-                for image, channel in batch:
-                    magfit_iteration = db_session.execute(
-                        select(
-                            ProcessedImages.status
-                        ).where(
-                            ProcessedImages.image_id == image.id
-                        ).where(
-                            ProcessedImages.channel == channel
-                        ).where(
-                            ProcessedImages.progress_id
-                            ==
-                            self._current_processing.id
-                        )
-                    ).scalar_one_or_none()
+            batch_status = 0
+            for image, channel in batch:
+                status = db_session.execute(
+                    select(
+                        ProcessedImages.status
+                    ).where(
+                        ProcessedImages.image_id == image.id
+                    ).where(
+                        ProcessedImages.channel == channel
+                    ).where(
+                        ProcessedImages.progress_id
+                        ==
+                        self._current_processing.id
+                    )
+                ).scalar_one_or_none()
 
-                    if magfit_iteration is None:
-                        magfit_iteration = 0
-                    if config['continue_from_iteration'] == 0:
-                        config['continue_from_iteration'] = (
-                            magfit_iteration
-                        )
-                    else:
-                        assert (
-                            config['continue_from_iteration']
-                            ==
-                            magfit_iteration
-                        )
+                if status is None:
+                    status = 0
+                if batch_status == 0:
+                    batch_status = status
+                else:
+                    assert batch_status == status
 
             input_batch = [
                 self._get_step_input(*image_channel, step_input_type)
                 for image_channel in batch
             ]
 
-            if config_key in result:
-                result[config_key][1].extend(input_batch)
+            if config_key, batch_status in result:
+                result[config_key, batch_status][1].extend(input_batch)
             else:
-                result[config_key] = (config, input_batch)
+                result[config_key, batch_status] = (config, input_batch)
 
-        return result.values()
+        return result
 
 
     def __init__(self, version=None):
@@ -855,8 +865,11 @@ class ProcessingManager:
                 processing_batches = self._get_batches(pending_images,
                                                        step_input_type,
                                                        db_session)
-            for config, batch in processing_batches:
-                self._process_batch(batch, config, step_name)
+            for (
+                    (_, start_status),
+                    (config, batch)
+            ) in processing_batches.items():
+                self._process_batch(batch, start_status, config, step_name)
                 self._logger.debug('Processed %s batch of %d images.',
                                    step_name,
                                    len(batch))
@@ -906,4 +919,5 @@ if __name__ == '__main__':
                          'solve_astrometry',
                          'fit_star_shape',
                          'measure_aperture_photometry',
-                         'fit_source_extracted_psf_map'])
+                         'fit_source_extracted_psf_map',
+                         'fit_magnitudes'])

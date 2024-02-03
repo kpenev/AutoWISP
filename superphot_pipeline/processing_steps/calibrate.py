@@ -226,8 +226,14 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def calibrate(image_collection, configuration, mark_start, mark_end):
+def calibrate(image_collection,
+              start_status,
+              configuration,
+              mark_start,
+              mark_end):
     """Calibrate the images from the specified collection."""
+
+    assert start_status == 0
 
     _logger.debug('Image collection: %s', repr(image_collection))
     calibrate_image = Calibrator(**configuration)
@@ -238,8 +244,10 @@ def calibrate(image_collection, configuration, mark_start, mark_end):
         mark_end(image_fname)
 
 
-def cleanup_interrupted(raw_fname, _, configuration):
+def cleanup_interrupted(raw_fname, from_status, to_status, configuration):
     """Cleanup file system after partially calibrated images."""
+
+    assert from_status == to_status == 0
 
     calibrated_fname = configuration['calibrated_fname'].format_map(
         get_raw_header(raw_fname, configuration['raw_hdu'])
@@ -256,6 +264,7 @@ if __name__ == '__main__':
             cmdline_config.pop('raw_images'),
             cmdline_config.pop('calibrate_only_if')
         ),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

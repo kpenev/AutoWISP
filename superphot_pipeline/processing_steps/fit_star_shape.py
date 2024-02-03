@@ -681,8 +681,14 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
         mark_end(fname)
 
 
-def fit_star_shape(image_collection, configuration, mark_start, mark_end):
+def fit_star_shape(image_collection,
+                   start_status,
+                   configuration,
+                   mark_start,
+                   mark_end):
     """Find the best-fit model for the PSF/PRF in the given images."""
+
+    assert start_status == 0
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
     image_collection = sorted(image_collection)
@@ -730,8 +736,10 @@ def fit_star_shape(image_collection, configuration, mark_start, mark_end):
             )
 
 
-def cleanup_interrupted(image_fname, configuration):
+def cleanup_interrupted(image_fname, from_status, to_status, configuration):
     """Remove star shape fit datasets from the DR file of the given image."""
+
+    assert from_status == to_status == 0
 
     fits_header = get_primary_header(image_fname)
     with DataReductionFile(header=fits_header, mode='r+') as dr_file:
@@ -756,6 +764,7 @@ if __name__ == '__main__':
             cmdline_config.pop('shapefit_only_if'),
             dr_fname_format=cmdline_config['data_reduction_fname']
         ),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

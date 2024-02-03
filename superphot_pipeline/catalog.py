@@ -643,7 +643,7 @@ def get_catalog_info(*,
             ),
         )
 
-    _logger.debug(f'Catalog FOV info: %s', repr(trans_fov))
+    _logger.debug('Catalog FOV info: %s', repr(trans_fov))
 
     pointing_precision = configuration['pointing_precision'] * units.deg
 

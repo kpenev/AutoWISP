@@ -87,8 +87,14 @@ def find_stars_single(image_fname,
         mark_end(image_fname)
 
 
-def find_stars(image_collection, configuration, mark_start, mark_end):
+def find_stars(image_collection,
+               start_status,
+               configuration,
+               mark_start,
+               mark_end):
     """Extract sources from all input images and save them to DR files."""
+
+    assert start_status == 0
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
     find_stars_in_image = SourceFinder(
@@ -120,8 +126,10 @@ def find_stars(image_collection, configuration, mark_start, mark_end):
             )
 
 
-def cleanup_interrupted(image_fname, _, configuration):
+def cleanup_interrupted(image_fname, from_status, to_status, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
+
+    assert from_status == to_status == 0
 
     fits_header = get_primary_header(image_fname)
     dr_fname = DataReductionFile.get_fname_from_header(fits_header)
@@ -145,6 +153,7 @@ if __name__ == '__main__':
             cmdline_config['calibrated_images'],
             cmdline_config['srcextract_only_if']
         ),
+        0,
         cmdline_config,
         ignore_progress,
         ignore_progress

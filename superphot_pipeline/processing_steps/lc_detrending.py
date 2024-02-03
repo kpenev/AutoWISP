@@ -11,7 +11,8 @@ from general_purpose_python_modules.multiprocessing_util import\
 
 from superphot_pipeline import DataReductionFile
 from superphot_pipeline import LightCurveFile
-from superphot_pipeline.magnitude_fitting.util import read_master_catalogue
+from superphot_pipeline.catalog import read_catalog_file
+from superphot_pipeline.magnitude_fitting.util import format_master_catalog
 from superphot_pipeline.light_curves.apply_correction import\
     apply_parallel_correction,\
     apply_reconstructive_correction_transit,\
@@ -30,13 +31,13 @@ def extract_target_lc(lc_fnames, target_id):
     raise ValueError('None of the lightcurves seems to be for the target.')
 
 
-def add_catalog_info(lc_fnames,
-                     catalog_fname,
-                     magnitude_expression,
-                     result=None):
+def _add_catalog_info(lc_fnames,
+                      catalog_sources,
+                      magnitude_expression,
+                      result=None):
     """Fill the catalog information fields in result."""
 
-    catalog = read_master_catalogue(catalog_fname,
+    catalog = format_master_catalog(catalog_sources,
                                     DataReductionFile().parse_hat_source_id)
 
     for lc_ind, fname in enumerate(lc_fnames):
@@ -129,11 +130,11 @@ def correct_target_lc(target_lc_fname, configuration, correct):
     )
 
 
-def recalculate_detrending_performance(lc_fnames,
-                                       catalog_fname,
-                                       magnitude_column,
-                                       output_statistics_fname,
-                                       **recalc_arguments):
+def _calculate_detrending_performance(lc_fnames,
+                                      catalog_sources,
+                                      magnitude_column,
+                                      output_statistics_fname,
+                                      **recalc_arguments):
     """
     Re-create a statistics file after de-trending directly from LCs.
 
@@ -155,7 +156,10 @@ def recalculate_detrending_performance(lc_fnames,
 
     statistics = recalculate_correction_statistics(lc_fnames,
                                                    **recalc_arguments)
-    add_catalog_info(lc_fnames, catalog_fname, magnitude_column, statistics)
+    _add_catalog_info(lc_fnames,
+                      catalog_sources,
+                      magnitude_column,
+                      statistics)
 
     if not path.exists(path.dirname(output_statistics_fname)):
         makedirs(path.dirname(output_statistics_fname))
@@ -208,10 +212,12 @@ def detrend_light_curves(lc_collection,
             lc_fnames.append(target_lc_fname)
 
     if configuration['detrending_catalog'] is not None:
-        recalculate_detrending_performance(
+        _calculate_detrending_performance(
             lc_collection,
             fit_datasets=configuration['fit_datasets'],
-            catalog_fname=configuration['detrending_catalog'],
+            catalog_sources=read_catalog_file(
+                configuration['detrending_catalog']
+            ),
             magnitude_column=configuration['magnitude_column'],
             output_statistics_fname=output_statistics_fname,
             calculate_average=getattr(numpy,

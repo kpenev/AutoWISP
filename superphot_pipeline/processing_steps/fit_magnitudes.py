@@ -4,28 +4,30 @@
 
 from types import SimpleNamespace
 from itertools import count
+import os
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline import magnitude_fitting, DataReductionFile
 from superphot_pipeline.file_utilities import find_dr_fnames
+from superphot_pipeline.catalog import ensure_catalog
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
-    ignore_progress
+    ignore_progress,\
+    get_catalog_config
+
+input_type = 'dr'
+
 
 def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
-    if args:
-        inputtype = ''
-    else:
-        inputtype = 'dr'
-
     parser = ManualStepArgumentParser(
         description=__doc__,
-        input_type=inputtype,
+        input_type=('' if args else input_type),
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements.'),
+        add_catalog={'prefix': 'magfit'},
         add_component_versions=('srcproj',
                                 'background',
                                 'shapefit',
@@ -45,13 +47,6 @@ def parse_command_line(*args):
         default='single_photref.hdf5.0',
         help='The name of the data reduction file of the single photometric '
         'reference to use to start the magnitude fitting iterations.'
-    )
-    parser.add_argument(
-        '--magfit-catalog', '--magfit-catalogue',
-        default='MASTERS/magfit_catalogue.ucac4',
-        help='The name of the catalog file to use as extra information in '
-             'magnitude fitting terms and for excluding sources from the fit.'
-             'Default: %(default)s'
     )
     parser.add_argument(
         '--master-photref-fname-format',
@@ -156,15 +151,6 @@ def parse_command_line(*args):
         help='The maximum number of iterations of deriving a master photometric'
         ' referene and re-fitting to allow.'
     )
-    parser.add_argument(
-        '--continue-from-iteration',
-        type=int,
-        default=0,
-        help='Leave zero if magfit should start from single photometric '
-        'reference. If values bigger than zero is specified, fitting continues '
-        'from that iteration using the corresponding master photometric '
-        'reference (must exist). Default: %(default)s'
-    )
     return parser.parse_args(*args)
 
 
@@ -179,13 +165,26 @@ def get_path_substitutions(configuration):
                          'magfit']}
 
 
-def magnitude_fit(dr_collection, configuration, mark_start, mark_end):
+def magnitude_fit(dr_collection,
+                  start_status,
+                  configuration,
+                  mark_start,
+                  mark_end):
     """Perform magnitude fitting for the given DR files."""
 
+    if start_status is None:
+        start_status = 0
+
+    dr_fnames = sorted(dr_collection)
     magnitude_fitting.iterative_refit(
-        fit_dr_filenames=sorted(dr_collection),
+        fit_dr_filenames=dr_fnames,
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
-        master_catalogue_fname=configuration['magfit_catalog'],
+        catalog_sources=ensure_catalog(
+            dr_files=dr_fnames,
+            configuration=get_catalog_config(configuration, 'magfit'),
+            return_metadata=False,
+            skytoframe_version=configuration['skytoframe_version']
+        ),
         configuration=SimpleNamespace(**configuration),
         master_photref_fname_format=(
             configuration['master_photref_fname_format']
@@ -195,15 +194,41 @@ def magnitude_fit(dr_collection, configuration, mark_start, mark_end):
         mark_start=mark_start,
         mark_end=mark_end,
         max_iterations=configuration['max_magfit_iterations'],
+        continue_from_iteration=(start_status + 1) // 2,
         **get_path_substitutions(configuration)
     )
 
 
-def cleanup_interrupted(dr_fname, magfit_iteration, configuration):
+def cleanup_interrupted(dr_fname, from_status, to_status, configuration):
     """Remove DR entries stats and magfit references for magfit_iteration."""
 
+    assert to_status in (from_status - 1, from_status)
+    assert to_status >= 0
+
     path_substitutions = get_path_substitutions(configuration)
-    path_substitutions['magfit_iteration'] = magfit_iteration
+    path_substitutions['magfit_iteration'] = (to_status + 1) // 2
+
+    with DataReductionFile(
+        configuration['single_photref_dr_fname'],
+        'r+'
+    ) as single_photref_dr:
+        fname_substitutions = dict(single_photref_dr.get_frame_header())
+        fname_substitutions.update(path_substitutions)
+        for master_type in ['master_photref', 'magfit_stat']:
+            to_delete = configuration[master_type + '_fname_format'].format_map(
+                fname_substitutions
+            )
+            if os.path.exists(to_delete):
+                if to_status % 2:
+                    raise RuntimeError(
+                        f'{master_type} file {to_delete!r} should not exist!'
+                        'Cleaning up interrupted magnitude fitting failed!'
+                    )
+                os.remove(to_delete)
+    if from_status % 2:
+        return
+
+    path_substitutions['magfit_iteration'] = from_status // 2
     with DataReductionFile(dr_fname, 'r+') as dr_file:
         dr_file.delete_dataset('shapefit.magfit.magnitude',
                                **path_substitutions)
@@ -223,6 +248,7 @@ if __name__ == '__main__':
     magnitude_fit(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('magfit_only_if')),
+        None,
         cmdline_config,
         ignore_progress,
         ignore_progress
