@@ -446,16 +446,7 @@ class ProcessingManager:
             )
         )
 
-        if need_cleanup:
-            to_status = need_clenup[1].status
-            downgrade = to_status > 0
-            for _, processed in need_cleanup:
-                if processed.status < to_status:
-                    downgrade = False
-                    to_status = processed.status
-            if downgrade:
-                to_status -= 1
-
+        interrupted = []
         for image, processed in need_cleanup:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
@@ -467,29 +458,34 @@ class ProcessingManager:
             ][
                 'expressions'
             ]
-            if image_matches != matched_expressions:
+            if matched_expressions is None:
                 matched_expressions = image_matches
                 config = self._get_config(
                     matched_expressions,
                     step=self.current_step.name
                 )[0]
                 config['processing_step'] = self.current_step.name
+            else:
+                assert matched_expressions == image_matches
 
-            interrupted_fname = self._get_step_input(image,
-                                                     processed.channel,
-                                                     step_module.input_type)
-            self._logger.warning(
-                'Cleaning up interrupted %s processing of %s',
-                self.current_step.name,
-                interrupted_fname
+            interrupted.append(
+                self._get_step_input(image,
+                                     processed.channel,
+                                     step_module.input_type),
+                processed.status
             )
-            step_module.cleanup_interrupted(interrupted_fname,
-                                            processed.status,
-                                            to_status,
-                                            config)
-            assert new_status >= 0
+        self._logger.warning(
+            'Cleaning up interrupted %s processing of %d images: %s',
+            self.current_step.name,
+            len(interrupted),
+            repr(interrupted)
+        )
+        new_status = step_module.cleanup_interrupted(interrupted,
+                                                     config)
+        for _, processed in need_cleanup:
+            assert new_status >= -1
             assert new_status <= processed.status
-            if new_status == 0:
+            if new_status == -1:
                 db_session.delete(processed)
             else:
                 processed.status = new_status
@@ -770,7 +766,7 @@ class ProcessingManager:
                 for image_channel in batch
             ]
 
-            if config_key, batch_status in result:
+            if (config_key, batch_status) in result:
                 result[config_key, batch_status][1].extend(input_batch)
             else:
                 result[config_key, batch_status] = (config, input_batch)

@@ -126,23 +126,24 @@ def find_stars(image_collection,
             )
 
 
-def cleanup_interrupted(image_fname, from_status, to_status, configuration):
+def cleanup_interrupted(interrupted, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
 
-    assert from_status == to_status == 0
+    for image_fname, status in interrupted:
+        assert status == 0
 
-    fits_header = get_primary_header(image_fname)
-    dr_fname = DataReductionFile.get_fname_from_header(fits_header)
-    if not path.exists(dr_fname):
-        return
+        fits_header = get_primary_header(image_fname)
+        dr_fname = DataReductionFile.get_fname_from_header(fits_header)
+        if not path.exists(dr_fname):
+            return -1
 
-    with DataReductionFile(dr_fname, mode='r+') as dr_file:
-        dr_file.delete_sources(
-            'srcextract.sources',
-            'srcextract_column_name',
-            srcextract_version=configuration['srcextract_version']
-        )
-    #TODO: implement repacking
+        with DataReductionFile(dr_fname, mode='r+') as dr_file:
+            dr_file.delete_sources(
+                'srcextract.sources',
+                'srcextract_column_name',
+                srcextract_version=configuration['srcextract_version']
+            )
+    return -1
 
 
 if __name__ == '__main__':

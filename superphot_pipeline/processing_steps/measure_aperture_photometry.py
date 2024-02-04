@@ -176,22 +176,30 @@ def measure_aperture_photometry(image_collection,
             )
 
 
-def cleanup_interrupted(frame_fname, from_status, to_status, configuration):
+def cleanup_interrupted(interrupted, configuration):
     """Remove the aperture photometry from a frame that was interrupted."""
 
-    assert from_status == to_status == 0
+    for frame_fname, status in interrupted:
+        assert status == 0
 
-    header = get_primary_header(frame_fname)
+        header = get_primary_header(frame_fname)
 
-    with DataReductionFile(
-            configuration['data_reduction_fname'].format_map(header),
-            'a'
-    ) as dr_file:
-        dr_path_substitutions = {
-            version_name + '_version': configuration[version_name + '_version']
-            for version_name in ['background', 'shapefit', 'srcproj', 'apphot']
-        }
-        delete_aperture_photometry(dr_file, **dr_path_substitutions)
+        with DataReductionFile(
+                configuration['data_reduction_fname'].format_map(header),
+                'a'
+        ) as dr_file:
+            dr_path_substitutions = {
+                version_name + '_version': configuration[version_name
+                                                         +
+                                                         '_version']
+                for version_name in ['background',
+                                     'shapefit',
+                                     'srcproj',
+                                     'apphot']
+            }
+            delete_aperture_photometry(dr_file, **dr_path_substitutions)
+
+    return -1
 
 
 if __name__ == '__main__':

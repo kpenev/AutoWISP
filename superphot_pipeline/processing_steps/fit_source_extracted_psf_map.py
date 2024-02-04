@@ -285,17 +285,20 @@ def fit_source_extracted_psf_map(dr_collection,
         )
 
 
-def cleanup_interrupted(dr_fname, from_status, to_status, configuration):
+def cleanup_interrupted(interrupted, configuration):
     """Remove the source extracted PSF map from the given DR file."""
 
-    assert from_status == to_status == 0
+    for dr_fname, status in interrupted:
+        assert status == 0
 
-    with DataReductionFile(dr_fname, 'r+') as dr_file:
-        path_substitutions = {
-            what + '_version': configuration[what + '_version']
-            for what in ['srcextract', 'catalogue', 'skytoframe']
-        }
-        dr_file.delete_dataset('srcextract.psf_map', **path_substitutions)
+        with DataReductionFile(dr_fname, 'r+') as dr_file:
+            path_substitutions = {
+                what + '_version': configuration[what + '_version']
+                for what in ['srcextract', 'catalogue', 'skytoframe']
+            }
+            dr_file.delete_dataset('srcextract.psf_map', **path_substitutions)
+
+    return -1
 
 
 if __name__ == '__main__':

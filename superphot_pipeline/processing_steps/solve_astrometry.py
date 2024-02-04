@@ -758,38 +758,40 @@ def solve_astrometry(dr_collection,
         process.join()
 
 
-def cleanup_interrupted(dr_fname, from_status, to_status, configuration):
+def cleanup_interrupted(interrupted, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
-    assert from_status == to_status == 0
+    for dr_fname, status in interrupted:
+        assert status == 0
 
-    path_substitutions = {
-        substitution: configuration[substitution]
-        for substitution in ['srcextract_version',
-                             'catalogue_version',
-                             'skytoframe_version']
-    }
-    with DataReductionFile(dr_fname, 'r+') as dr_file:
-        dr_file.delete_columns(
-            'catalogue.columns',
-            'catalogue_column_name',
-            **path_substitutions
-        )
-        for dataset_key in ['skytoframe.matched',
-                            'skytoframe.coefficients']:
-            dr_file.delete_dataset(dataset_key, **path_substitutions)
+        path_substitutions = {
+            substitution: configuration[substitution]
+            for substitution in ['srcextract_version',
+                                 'catalogue_version',
+                                 'skytoframe_version']
+        }
+        with DataReductionFile(dr_fname, 'r+') as dr_file:
+            dr_file.delete_columns(
+                'catalogue.columns',
+                'catalogue_column_name',
+                **path_substitutions
+            )
+            for dataset_key in ['skytoframe.matched',
+                                'skytoframe.coefficients']:
+                dr_file.delete_dataset(dataset_key, **path_substitutions)
 
-        for attribute_key in ['skytoframe.type',
-                              'skytoframe.terms',
-                              'skytoframe.sky_center',
-                              'skytoframe.residual',
-                              'srcextract.cfg.binning',
-                              'skytoframe.cfg.srcextract_filter',
-                              'skytoframe.cfg.sky_preprojection',
-                              'skytoframe.cfg.max_match_distance',
-                              'skytoframe.cfg.frame_center',
-                              'skytoframe.cfg.weights_expression']:
-            dr_file.delete_attribute(attribute_key, **path_substitutions)
+            for attribute_key in ['skytoframe.type',
+                                  'skytoframe.terms',
+                                  'skytoframe.sky_center',
+                                  'skytoframe.residual',
+                                  'srcextract.cfg.binning',
+                                  'skytoframe.cfg.srcextract_filter',
+                                  'skytoframe.cfg.sky_preprojection',
+                                  'skytoframe.cfg.max_match_distance',
+                                  'skytoframe.cfg.frame_center',
+                                  'skytoframe.cfg.weights_expression']:
+                dr_file.delete_attribute(attribute_key, **path_substitutions)
+    return -1
 
 
 if __name__ == '__main__':

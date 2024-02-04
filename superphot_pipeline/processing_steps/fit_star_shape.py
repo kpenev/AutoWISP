@@ -736,23 +736,28 @@ def fit_star_shape(image_collection,
             )
 
 
-def cleanup_interrupted(image_fname, from_status, to_status, configuration):
+def cleanup_interrupted(interrupted, configuration):
     """Remove star shape fit datasets from the DR file of the given image."""
 
-    assert from_status == to_status == 0
+    for image_fname, status in interrupted:
+        assert status == 0
 
-    fits_header = get_primary_header(image_fname)
-    with DataReductionFile(header=fits_header, mode='r+') as dr_file:
-        dr_path_substitutions = {
-            version_name + '_version': configuration[version_name + '_version']
-            for version_name in ['background', 'shapefit', 'srcproj']
-        }
-        dr_file.delete_sources(
-            'srcproj.columns',
-            'srcproj_column_name',
-            **dr_path_substitutions
-        )
-        delete_star_shape_fit(dr_file, **dr_path_substitutions)
+        fits_header = get_primary_header(image_fname)
+        with DataReductionFile(header=fits_header, mode='r+') as dr_file:
+            dr_path_substitutions = {
+                version_name + '_version': configuration[version_name
+                                                         +
+                                                         '_version']
+                for version_name in ['background', 'shapefit', 'srcproj']
+            }
+            dr_file.delete_sources(
+                'srcproj.columns',
+                'srcproj_column_name',
+                **dr_path_substitutions
+            )
+            delete_star_shape_fit(dr_file, **dr_path_substitutions)
+
+    return -1
 
 
 if __name__ == '__main__':
