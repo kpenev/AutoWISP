@@ -680,7 +680,7 @@ def get_max_abs_corner_xi_eta(header,
         for y in [0.0, float(header['NAXIS2'])]:
             rhs = numpy.array([
                 x - float(transformation_estimate['trans_x'][0]),
-                x - float(transformation_estimate['trans_y'][0])
+                y - float(transformation_estimate['trans_y'][0])
             ])
             matrix = numpy.array([
                 transformation_estimate['trans_x'].ravel()[1:3],
@@ -706,7 +706,7 @@ def get_max_abs_corner_xi_eta(header,
                 **center
             )
             max_xi = max(max_xi, abs(projected_coords['xi']))
-            max_eta = max(max_xi, abs(projected_coords['eta']))
+            max_eta = max(max_eta, abs(projected_coords['eta']))
 
     return max_xi, max_eta
 
