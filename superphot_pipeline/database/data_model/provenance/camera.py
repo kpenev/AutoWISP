@@ -58,4 +58,7 @@ class Camera(DataModelBase):
     observers = relationship("Observer",
                              secondary="camera_access",
                              back_populates="cameras")
+    channels = relationship('CameraChannel',
+                            secondary='camera_type',
+                            viewonly=True)
 #pylint: enable=too-few-public-methods

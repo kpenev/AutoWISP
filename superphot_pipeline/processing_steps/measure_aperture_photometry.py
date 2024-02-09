@@ -180,7 +180,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove the aperture photometry from a frame that was interrupted."""
 
     for frame_fname, status in interrupted:
-        assert status == 0
+        assert status is None
 
         header = get_primary_header(frame_fname)
 

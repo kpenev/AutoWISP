@@ -154,7 +154,7 @@ def parse_command_line(*args):
     #pylint: enable=no-member
         for image_type in [
                 record[0]
-                for record in db_session.query(ImageType.type_name).all()
+                for record in db_session.query(ImageType.name).all()
         ]:
             parser.add_argument(
                 f'--{image_type}-check',
@@ -327,7 +327,7 @@ def create_image(image_fname, header_eval, configuration, db_session):
     """Create the database Image entry corresponding to the given file."""
 
     recognized_image_types = [
-        record[0] for record in db_session.query(ImageType.type_name).all()
+        record[0] for record in db_session.query(ImageType.name).all()
     ]
     if configuration['image_type']:
         image_type = header_eval(configuration['image_type']).lower()
@@ -345,7 +345,7 @@ def create_image(image_fname, header_eval, configuration, db_session):
     image_type_id = db_session.query(
         ImageType.id
     ).filter_by(
-        type_name = image_type
+        name = image_type
     ).one()[0]
 
     #False positive

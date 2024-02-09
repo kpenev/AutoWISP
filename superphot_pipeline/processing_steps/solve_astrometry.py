@@ -762,7 +762,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
     for dr_fname, status in interrupted:
-        assert status == 0
+        assert status is None
 
         path_substitutions = {
             substitution: configuration[substitution]

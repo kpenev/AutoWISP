@@ -34,7 +34,7 @@ class ImageType(DataModelBase):
         primary_key=True,
         doc='A unique identifier for each image type'
     )
-    type_name = Column(
+    name = Column(
         String(100),
         nullable=False,
         doc='The image type name'
@@ -52,7 +52,7 @@ class ImageType(DataModelBase):
 
     def __repr__(self):
         return (
-            f"({self.id}) {self.type_name} {self.description} {self.timestamp}"
+            f"({self.id}) {self.name} {self.description} {self.timestamp}"
         )
 
     image = relationship("Image", back_populates="image_type")

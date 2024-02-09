@@ -233,7 +233,7 @@ def calibrate(image_collection,
               mark_end):
     """Calibrate the images from the specified collection."""
 
-    assert start_status == 0
+    assert start_status is None
 
     _logger.debug('Image collection: %s', repr(image_collection))
     calibrate_image = Calibrator(**configuration)

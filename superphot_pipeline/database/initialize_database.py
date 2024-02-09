@@ -20,10 +20,12 @@ from superphot_pipeline import processing_steps
 from superphot_pipeline.database.data_model import\
     ImageType,\
     Step,\
+    StepDependencies,\
     Parameter,\
     Configuration,\
     Condition,\
-    ConditionExpression
+    ConditionExpression,\
+    ProcessingSequence
 #pylint: enable=no-name-in-module
 
 def get_command_line_parser():
@@ -86,41 +88,18 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
             db_session.add(get_default_light_curve_structure(db_session))
 
 
-#No good way to simplify
-#pylint: disable=too-many-locals
-def init_processing():
-    """Initialize the tables controlling how processing is to be done."""
+#This is meant to function as callable
+#pylint: disable=too-few-public-methods
+class StepCreator:
+    """Add steps to the database one by one."""
 
-    step_dependencies = [
-        ('add_images_to_db', []),
-        ('calibrate', []),
-        ('find_stars', ['calibrate']),
-        ('solve_astrometry', ['find_stars']),
-        ('fit_star_shape', ['solve_astrometry', 'calibrate']),
-        ('measure_aperture_photometry', ['fit_star_shape', 'calibrate']),
-        ('fit_source_extracted_psf_map', ['find_stars', 'solve_astrometry']),
-        ('fit_magnitudes', ['solve_astrometry',
-                            'fit_star_shape',
-                            'measure_aperture_photometry',
-                            'fit_source_extracted_psf_map']),
-        ('create_lightcurves', ['solve_astrometry',
-                                'fit_star_shape',
-                                'measure_aperture_photometry',
-                                'fit_magnitudes',
-                                'fit_source_extracted_psf_map']),
-        ('epd', ['create_lightcurves']),
-        ('tfa', ['create_lightcurves', 'epd'])
-    ]
+    def __init__(self, db_session):
+        """Get ready to add steps to the database."""
 
-    #False positivie
-    #pylint: disable=no-member
-    with Session.begin() as db_session:
-    #pylint: enable=no-member
-        for image_type in ['bias', 'dark', 'flat', 'object']:
-            db_session.add(ImageType(type_name=image_type))
-        db_steps = {}
-        db_parameters = {}
-        db_configurations = []
+        self._db_session = db_session
+        self._step_id = 1
+        self._db_parameters = {}
+
         default_expression = ConditionExpression(id=1,
                                                  expression='True',
                                                  notes='Default expression')
@@ -128,83 +107,219 @@ def init_processing():
 
         #False positive
         #pylint: disable=not-callable
-        default_condition = Condition(id=1,
-                                      expression_id=default_expression.id,
-                                      notes='Default configuration')
+        self._default_condition = Condition(
+            id=1,
+            expression_id=default_expression.id,
+            notes='Default configuration'
+        )
         #pylint: enable=not-callable
 
-        db_session.add(default_condition)
+        db_session.add(self._default_condition)
 
-        for step_id, (step_name, dependencies) in enumerate(step_dependencies):
-            step_module = getattr(processing_steps, step_name)
-            db_steps[step_name] = Step(
-                id=step_id + 1,
-                name=step_name,
-                description=step_module.__doc__
+
+    def __call__(self, step_name):
+        """Add a step with the given name to the database."""
+
+        step_module = getattr(processing_steps, step_name)
+        new_step = Step(
+            id=self._step_id,
+            name=step_name,
+            description=step_module.__doc__
+        )
+        self._step_id += 1
+
+        print(f'Initializing {step_name} parameters')
+        default_step_config = step_module.parse_command_line([])
+        print(
+            'Default step config:\n\t'
+            +
+            '\n\t'.join(
+                f'{param}: {value}'
+                for param, value in default_step_config[
+                    'argument_defaults'
+                ].items()
             )
-            for required_name in dependencies:
-                db_steps[step_name].requires.append(db_steps[required_name])
+        )
+        for param in default_step_config['argument_descriptions'].keys():
+            if (
+                    param not in ['h',
+                                  'config-file',
+                                  'extra-config-file',
+                                  'num-parallel-processes',
+                                  'epd-datasets',
+                                  'tfa-datasets',
+                                  'split-channels']
+                    and
+                    not param.endswith('-only-if')
+                    and
+                    not param.endswith('-version')
+            ):
+                description = (
+                    default_step_config['argument_descriptions'][param]
+                )
+                if isinstance(description, dict):
+                    description = description['help']
+                    configuration = None
+                if param not in self._db_parameters:
+                    self._db_parameters[param] = Parameter(
+                        name=param,
+                        description=description
+                    )
+                    print(
+                        f'Setting {param} = '
+                        f'{default_step_config["argument_defaults"][param]}'
+                    )
+                    #False positive
+                    #pylint: disable=not-callable
+                    configuration = Configuration(
+                        version=0,
+                        condition_id=self._default_condition.id,
+                        value=default_step_config[
+                            'argument_defaults'
+                        ][
+                            param
+                        ]
+                    )
+                    #pylint: enable=not-callable
+                    configuration.parameter = self._db_parameters[param]
+                    self._db_session.add(configuration)
 
-            print(f'Initializing {step_name} parameters')
-            default_step_config = step_module.parse_command_line([])
-            print(
-                'Default step config:\n\t'
-                +
-                '\n\t'.join(
-                    f'{param}: {value}'
-                    for param, value in default_step_config[
-                        'argument_defaults'
-                    ].items()
+                new_step.parameters.append(self._db_parameters[param])
+
+        self._db_session.add(new_step)
+        return new_step
+#pylint: enable=too-few-public-methods
+
+
+#No good way to simplify
+#pylint: disable=too-many-locals
+def init_processing():
+    """Initialize the tables controlling how processing is to be done."""
+
+    image_type_list = ['bias', 'dark', 'flat', 'object']
+    step_dependencies = [
+        (
+            'add_images_to_db', None,
+            []
+        ),
+        (
+            'calibrate', 'bias',
+            []
+        ),
+        (
+            'calibrate', 'dark',
+            [
+                ('calibrate', 'bias')
+            ]
+        ),
+        (
+            'calibrate', 'flat',
+            [
+                ('calibrate', 'bias'),
+                ('calibrate', 'dark')
+            ]
+        ),
+        (
+            'calibrate', 'object',
+            [
+                ('calibrate', 'bias'),
+                ('calibrate', 'dark'),
+                ('calibrate', 'flat')
+            ]
+        ),
+        (
+            'find_stars', 'object',
+            [
+                ('calibrate', 'object')
+            ]
+        ),
+        (
+            'solve_astrometry', 'object',
+            [
+                ('find_stars', 'object')
+            ]
+        ),
+        (
+            'fit_star_shape', 'object',
+            [
+                ('solve_astrometry', 'object'),
+                ('calibrate', 'object')
+            ]
+        ),
+        (
+            'measure_aperture_photometry', 'object',
+            [
+                ('fit_star_shape', 'object'),
+                ('calibrate', 'object')
+            ]
+        ),
+        (
+            'fit_source_extracted_psf_map', 'object',
+            [
+                ('find_stars', 'object'),
+                ('solve_astrometry', 'object')
+            ]
+        ),
+        (
+            'fit_magnitudes', 'object',
+            [
+                ('solve_astrometry', 'object'),
+                ('fit_star_shape', 'object'),
+                ('measure_aperture_photometry', 'object'),
+                ('fit_source_extracted_psf_map', 'object')
+            ]
+        ),
+        (
+            'create_lightcurves', 'object',
+            [
+                ('solve_astrometry', 'object'),
+                ('fit_star_shape', 'object'),
+                ('measure_aperture_photometry', 'object'),
+                ('fit_magnitudes', 'object'),
+                ('fit_source_extracted_psf_map', 'object')
+            ]
+        )
+    ]
+
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        add_processing_step = StepCreator(db_session)
+        for image_type_id, image_type in enumerate(image_type_list, 1):
+            db_session.add(
+                ImageType(id=image_type_id,
+                          name=image_type)
+            )
+        db_steps = {}
+
+        for processing_id, (step_name, image_type, dependencies) in enumerate(
+                step_dependencies,
+                1
+        ):
+            if step_name not in db_steps:
+                db_steps[step_name] = add_processing_step(step_name)
+            db_session.add(
+                ProcessingSequence(
+                    id = processing_id,
+                    step_id=db_steps[step_name].id,
+                    image_type_id=(None if image_type is None
+                                   else image_type_list.index(image_type) + 1)
                 )
             )
-            for param in default_step_config['argument_descriptions'].keys():
-                if (
-                        param not in ['h',
-                                      'config-file',
-                                      'extra-config-file',
-                                      'num-parallel-processes',
-                                      'epd-datasets',
-                                      'tfa-datasets']
-                        and
-                        not param.endswith('-only-if')
-                        and
-                        not param.endswith('-version')
-                ):
-                    description = (
-                        default_step_config['argument_descriptions'][param]
+            for required_step, required_imtype in dependencies:
+                db_session.add(
+                    StepDependencies(
+                        blocked_step_id=db_steps[step_name].id,
+                        blocked_image_type_id=image_type_list.index(
+                            image_type
+                        ) + 1,
+                        blocking_step_id=db_steps[required_step].id,
+                        blocking_image_type_id=image_type_list.index(
+                            required_imtype
+                        ) + 1
                     )
-                    if isinstance(description, dict):
-                        description = description['help']
-                        configuration = None
-                    if param not in db_parameters:
-                        db_parameters[param] = Parameter(
-                            name=param,
-                            description=description
-                        )
-                        print(
-                            f'Setting {param} = '
-                            f'{default_step_config["argument_defaults"][param]}'
-                        )
-                        #False positive
-                        #pylint: disable=not-callable
-                        configuration = Configuration(
-                            version=0,
-                            condition_id=default_condition.id,
-                            value=default_step_config[
-                                'argument_defaults'
-                            ][
-                                param
-                            ]
-                        )
-                        #pylint: enable=not-callable
-                        configuration.parameter = db_parameters[param]
-                        db_configurations.append(configuration)
-
-                    db_steps[step_name].parameters.append(db_parameters[param])
-
-            db_session.add(db_steps[step_name])
-
-        db_session.add_all(db_configurations)
+                )
 #pylint: enable=too-many-locals
 
 

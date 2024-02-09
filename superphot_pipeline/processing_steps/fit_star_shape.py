@@ -740,7 +740,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove star shape fit datasets from the DR file of the given image."""
 
     for image_fname, status in interrupted:
-        assert status == 0
+        assert status is None
 
         fits_header = get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode='r+') as dr_file:

@@ -289,7 +289,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove the source extracted PSF map from the given DR file."""
 
     for dr_fname, status in interrupted:
-        assert status == 0
+        assert status is None
 
         with DataReductionFile(dr_fname, 'r+') as dr_file:
             path_substitutions = {

@@ -150,6 +150,7 @@ class Image(DataModelBase):
         back_populates='image'
     )
 
+
 class ImageProcessingProgress(DataModelBase):
     """The table describing the Image Processing Progress"""
 

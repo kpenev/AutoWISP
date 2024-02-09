@@ -5,7 +5,8 @@ from sqlalchemy import\
     Integer,\
     String,\
     Float,\
-    TIMESTAMP
+    TIMESTAMP,\
+    ForeignKey
 
 from sqlalchemy.orm import relationship
 
@@ -14,6 +15,7 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 #pylint: disable=invalid-name
 #pylint: enable=invalid-name
 __all__ = ['CameraType']
+
 
 #The standard use of SQLAlchemy ORM requires classes with no public methods.
 #pylint: disable=too-few-public-methods
@@ -73,3 +75,4 @@ class CameraType(DataModelBase):
         doc='When was this record last changed.'
     )
     cameras = relationship("Camera", back_populates="camera_type")
+    channels = relationship("CameraChannel")

@@ -5,8 +5,7 @@
 from tempfile import NamedTemporaryFile
 import logging
 
-from sqlalchemy import sql, select, update, tuple_, and_
-
+from sqlalchemy import sql, select, update, and_
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline import Evaluator
@@ -19,11 +18,19 @@ from superphot_pipeline import processing_steps
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
+    ProcessingSequence,\
+    StepDependencies,\
     ImageProcessingProgress,\
     ProcessedImages,\
     Configuration,\
     Step,\
-    Image
+    Image,\
+    ImageType,\
+    ObservingSession
+from superphot_pipeline.database.data_model.provenance import\
+    Camera,\
+    CameraChannel,\
+    CameraType
 #pylint: enable=no-name-in-module
 
 
@@ -53,7 +60,7 @@ class ProcessingManager:
         current_step(Step):    The currently active step.
 
         _progress(dict):    Indexed by step name, ImageProcessingProgress
-            instances of all steps for which star_step was invoked.
+            instances of all steps for which start_step was invoked.
 
         _current_processing(ImageProcessingProgress):    The currently active
             step (the processing progress initiated the last time `start_step()`
@@ -77,6 +84,11 @@ class ProcessingManager:
             inputs (DR or FITS) for the current step and the values are
             dictionaries with keys ``'image_id'`` and ``'channel'`` identifying
             what was processed.
+
+        _pending(dict):    Indexed by step ID, and image type ID list of
+            (Image, channel name) tuples listing all the images of the given
+            type that have not been processed by the currently selected version
+            of the step in the key.
     """
 
     def _get_db_configuration(self, version, db_session):
@@ -116,52 +128,6 @@ class ProcessingManager:
             )
         ).all()
         #pylint: enable=no-member
-
-
-    def _write_config_file(self, matched_expressions, outf, steps=None):
-        """
-        Write to given file configuration for given matched expressions.
-
-        Returns:
-            Set of tuples of parameters and values as set in the file. Used for
-            comparing configurations.
-        """
-
-        result = set()
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
-
-            if steps is None:
-                steps = db_session.scalars(select(Step).order_by(Step.id)).all()
-            else:
-                steps = [
-                    db_session.execute(
-                        select(Step).filter_by(name=step_name)
-                    ).scalar_one()
-                    for step_name in steps
-                ]
-
-            added_params = set()
-            for this_step in steps:
-                outf.write(f'[{this_step.name}]\n')
-                step_config = self._get_param_values(
-                    matched_expressions,
-                    [
-                        param.name
-                        for param in this_step.parameters
-                        if param.name not in added_params
-                    ]
-                )
-                for param, value in step_config.items():
-                    if value is not None:
-                        outf.write(f'    {param} = {value}\n')
-                        result.add((param, value))
-
-                outf.write('\n')
-
-        return frozenset(result)
 
 
     def _get_param_values(self,
@@ -219,6 +185,52 @@ class ProcessingManager:
         return {param: get_param_value(param) for param in parameters}
 
 
+    def _write_config_file(self, matched_expressions, outf, steps=None):
+        """
+        Write to given file configuration for given matched expressions.
+
+        Returns:
+            Set of tuples of parameters and values as set in the file. Used for
+            comparing configurations.
+        """
+
+        result = set()
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+
+            if steps is None:
+                steps = db_session.scalars(select(Step).order_by(Step.id)).all()
+            else:
+                steps = [
+                    db_session.execute(
+                        select(Step).filter_by(name=step_name)
+                    ).scalar_one()
+                    for step_name in steps
+                ]
+
+            added_params = set()
+            for this_step in steps:
+                outf.write(f'[{this_step.name}]\n')
+                step_config = self._get_param_values(
+                    matched_expressions,
+                    [
+                        param.name
+                        for param in this_step.parameters
+                        if param.name not in added_params
+                    ]
+                )
+                for param, value in step_config.items():
+                    if value is not None:
+                        outf.write(f'    {param} = {value}\n')
+                        result.add((param, value))
+
+                outf.write('\n')
+
+        return frozenset(result)
+
+
     def _get_config(self, matched_expressions, step=None):
         """Return the configuration for the given step for given expressions."""
 
@@ -231,6 +243,16 @@ class ProcessingManager:
             return getattr(processing_steps, step).parse_command_line(
                 ['-c', config_file.name]
             ), config_key
+
+
+    def _get_split_channels(self, image):
+        """Return the ``split_channels`` option for the given image."""
+
+        return {
+            channel.name: (slice(channel.y_offset, None, channel.y_step),
+                           slice(channel.x_offset, None, channel.x_step))
+            for channel in image.observing_session.camera.channels
+        }
 
 
     def _get_matched_expressions(self, evaluate):
@@ -291,9 +313,9 @@ class ProcessingManager:
 
         self._evaluated_expressions[image.id] = {}
         all_channel_matched = None
-        for channel_name, channel_slice in (
-                calib_config['split_channels'].items()
-        ):
+        for channel_name, channel_slice in self._get_split_channels(
+                image
+        ).items():
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
@@ -329,125 +351,136 @@ class ProcessingManager:
         }
 
 
-    def _get_pending_images(self, db_session):
+    def _fill_pending(self, db_session):
         """
-        Return the images and channels to process by the current step.
+        Return the images and channels of a type not yet processed by a step.
 
         Args:
+            step_id(Step):    The step to determine pending images for.
+
+            image_type(ImageType):    The type of images to check for pending
+                processing by the specified step.
+
             db_session(Session):    The database session to use.
 
         Returns:
             (Image, [str]):
-                The images and channels for which all required inputs exist
-                with correct versions but to which ``step`` has not been applied
-                with the current configuration.
+                The images and channels of the specified type for which the
+                specified step has not applied with the current configuration.
         """
 
-        if not self.current_step.requires:
-            return db_session.scalars(
-                select(
-                    Image
-                ).outerjoin(
-                    ProcessedImages
+        select_imgage_channel = select(
+            Image,
+            CameraChannel.name
+        ).join(
+            ObservingSession,
+        ).join(
+            Camera
+        ).join(
+            CameraType
+        ).join(
+            CameraChannel
+        )
+
+        for step, image_type in self._get_processing_sequence(db_session):
+            processed_subquery = select(
+                ProcessedImages.image_id,
+                ProcessedImages.channel
+            ).join(
+                ImageProcessingProgress
+            ).where(
+                ImageProcessingProgress.step_id == step.id
+            ).where(
+                ImageProcessingProgress.configuration_version
+                ==
+                self.step_version[step.name]
+            ).subquery()
+
+            self._pending[(step.id, image_type.id)] = db_session.execute(
+                select_imgage_channel.outerjoin(
+                    processed_subquery,
+                    and_(Image.id == processed_subquery.c.image_id,
+                         CameraChannel.name == processed_subquery.c.channel),
                 ).where(
-                    #That's how NULL comparison works in sqlalchemy
+                    #This is how NULL comparison is done in SQLAlchemy
                     #pylint: disable=singleton-comparison
-                    ProcessedImages.image_id == None
+                    processed_subquery.c.image_id == None
                     #pylint: enable=singleton-comparison
+                ).where(
+                    Image.image_type_id == image_type.id
                 )
             ).all()
-
-        required_progress_ids = db_session.scalars(
-            select(
-                ImageProcessingProgress.id
-            ).where(
-                tuple_(
-                    ImageProcessingProgress.step_id,
-                    ImageProcessingProgress.configuration_version
-                ).in_([
-                    (step.id, self.step_version[step.name])
-                    for step in self.current_step.requires
-                ])
+            self._logger.debug(
+                'Identified %d %s images for which %s is pending',
+                len(self._pending[(step.id, image_type.id)]),
+                image_type.name,
+                step.name
             )
-        ).all()
-        match_inputs_subq = select(
-            ProcessedImages.image_id,
-            ProcessedImages.channel,
-            #False positive
-            #pylint: disable=not-callable
-            sql.func.count().label('num_satisfied')
-            #pylint: enable=not-callable
-        ).where(
-            ProcessedImages.progress_id.in_(required_progress_ids)
-        ).where(
-            ProcessedImages.final
-        ).group_by(
-            ProcessedImages.image_id,
-            ProcessedImages.channel
-        ).subquery()
+        self._logger.debug('Pending: %s', repr(self._pending))
 
-        done_subq = select(
-            ProcessedImages.image_id,
-            ProcessedImages.channel,
-        ).where(
-            ProcessedImages.progress_id == self._current_processing.id
-        ).subquery()
 
-        pending_image_id_subq = select(
-            match_inputs_subq
-        ).outerjoin(
-            done_subq,
-            and_(
-                match_inputs_subq.c.image_id
-                ==
-                done_subq.c.image_id,
-                match_inputs_subq.c.channel
-                ==
-                done_subq.c.channel
-            )
-        ).where(
-            match_inputs_subq.c.num_satisfied == len(required_progress_ids)
-        ).where(
-            #That's how NULL comparison works in sqlalchemy
-            #pylint: disable=singleton-comparison
-            done_subq.c.image_id == None
-            #pylint: enable=singleton-comparison
-        ).subquery()
+    def _check_ready(self, step, image_type, db_session):
+        """
+        Check if the given type of images is ready to process with given step.
 
-        return db_session.execute(
-            select(
-                Image,
-                pending_image_id_subq.c.channel
-            ).join(
-                pending_image_id_subq,
-                #False positive
-                #pylint: disable=no-member
-                Image.id == pending_image_id_subq.c.image_id
-                #pylint: enable=no-member
-            )
-        ).all()
+        Args:
+            step(Step):    The step to check for readiness.
+
+            image_type(ImageType):    The type of images to check for readiness.
+
+            db_session(Session):    The database session to use.
+
+        Returns:
+            bool:    Whether all requirements for the specified processing are
+                satisfied.
+        """
+
+        for requirement in db_session.execute(
+                select(
+                    StepDependencies.blocking_step_id,
+                    StepDependencies.blocking_image_type_id,
+                ).where(
+                    StepDependencies.blocked_step_id == step.id
+                ).where(
+                    StepDependencies.blocked_image_type_id == image_type.id
+                )
+        ).all():
+            if self._pending[requirement]:
+                return False
+        return True
 
 
     def _cleanup_interrupted(self, db_session):
         """Cleanup previously interrupted processing for the current step."""
 
-        step_module = getattr(processing_steps, self.current_step.name)
-
         matched_expressions = None
         need_cleanup = db_session.execute(
             select(
-                Image, ProcessedImages
+                Image,
+                ProcessedImages,
+                Step.name
             ).join(
                 ProcessedImages
-            ).where(
-                ProcessedImages.progress_id == self._current_processing.id
+            ).join(
+                ImageProcessingProgress
+            ).join(
+                Step
             ).where(
                 ~ProcessedImages.final
+            ).order_by(
+                Step.name
             )
-        )
+        ).all()
+        if not need_cleanup:
+            return
 
         interrupted = []
-        for image, processed in need_cleanup:
+        cleanup_step = need_cleanup[0][2]
+        step_module = getattr(processing_steps, cleanup_step)
+        for image, processed, step in need_cleanup:
+
+            assert step == cleanup_step
+
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
@@ -462,21 +495,21 @@ class ProcessingManager:
                 matched_expressions = image_matches
                 config = self._get_config(
                     matched_expressions,
-                    step=self.current_step.name
+                    step=step
                 )[0]
-                config['processing_step'] = self.current_step.name
+                config['processing_step'] = step
             else:
                 assert matched_expressions == image_matches
 
-            interrupted.append(
+            interrupted.append((
                 self._get_step_input(image,
                                      processed.channel,
                                      step_module.input_type),
                 processed.status
-            )
+            ))
         self._logger.warning(
             'Cleaning up interrupted %s processing of %d images: %s',
-            self.current_step.name,
+            cleanup_step,
             len(interrupted),
             repr(interrupted)
         )
@@ -512,7 +545,7 @@ class ProcessingManager:
             )
 
 
-    def _start_step(self, step_name, db_session):
+    def _start_step(self, step, image_type, db_session):
         """
         Record the start of a processing step and return the images to process.
 
@@ -527,48 +560,52 @@ class ProcessingManager:
                 The type of input expected by the current step.
         """
 
-        self.current_step = db_session.execute(
-            select(
-                Step
-            ).filter_by(
-                name=step_name
-            )
-        ).scalar_one()
+        step = db_session.merge(step, load=False)
+        image_type = db_session.merge(image_type, load=False)
+
+        self.current_step = step
         self._current_processing = db_session.execute(
             select(
                 ImageProcessingProgress
             ).filter_by(
                 step_id=self.current_step.id,
-                configuration_version=self.step_version[step_name]
+                configuration_version=self.step_version[step.name]
             )
         ).scalar_one_or_none()
 
         if self._current_processing is None:
             self._current_processing = ImageProcessingProgress(
-                step_id=self.current_step.id,
-                configuration_version=self.step_version[step_name]
+                step_id=step.id,
+                configuration_version=self.step_version[step.name]
             )
             db_session.add(self._current_processing)
 
-        self._cleanup_interrupted(db_session)
+        pending_images = [
+            (db_session.merge(image, load=False), channel)
+            for image, channel in self._pending[(step.id, image_type.id)]
+        ]
 
-        pending_images = self._get_pending_images(db_session)
-        self._logger.debug('Pending images: %s', repr(pending_images))
         self._processed_ids = {}
-        step_input_type = getattr(
-            processing_steps,
-            self.current_step.name
-        ).input_type
+        step_input_type = getattr(processing_steps, step.name).input_type
 
         if step_input_type == 'raw':
-            pending_images = [(image, None) for image in pending_images]
+            added = set()
+            new_pending = []
+            for image, _ in pending_images:
+                if image.id not in added:
+                    added.add(image.id)
+                    new_pending.append((image, None))
+            pending_images = new_pending
 
         for image, channel_name in pending_images:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
-        self._logger.info('Starting %s step', self.current_step.name)
+        self._logger.info('Starting %s step for %d %s images',
+                          self.current_step.name,
+                          len(pending_images),
+                          image_type.name)
 
         return pending_images, step_input_type
 
@@ -659,21 +696,21 @@ class ProcessingManager:
             )
 
 
-    def _group_pending_by_conditions(self, pending_images, db_session):
+    def _group_pending_by_conditions(self, pending_images):
         """Group pendig_images grouped by condition expressions they satisfy."""
 
         result = []
         while pending_images:
-            pending_images = [
-                (db_session.merge(image, load=False), channel)
-                for image, channel in pending_images
-            ]
-            self.current_step = db_session.merge(self.current_step,
-                                                 load=False)
-            self._current_processing = db_session.merge(
-                self._current_processing,
-                load=False
-            )
+#            pending_images = [
+#                (db_session.merge(image, load=False), channel)
+#                for image, channel in pending_images
+#            ]
+#            self.current_step = db_session.merge(self.current_step,
+#                                                 load=False)
+#            self._current_processing = db_session.merge(
+#                self._current_processing,
+#                load=False
+#            )
 
             batch = []
             matched_expressions = self._evaluated_expressions[
@@ -728,17 +765,18 @@ class ProcessingManager:
 
         result = {}
         for matched_expressions, batch in self._group_pending_by_conditions(
-            pending_images,
-            db_session
+            pending_images
         ):
             config, config_key = self._get_config(
                 matched_expressions,
                 step=self.current_step.name
             )
+            if self.current_step.name == 'calibrate':
+                config['split_channels'] = self._get_split_channels(batch[0][0])
             config['processing_step']=self.current_step.name
             setup_process(task='main', **config)
 
-            batch_status = 0
+            batch_status = None
             for image, channel in batch:
                 status = db_session.execute(
                     select(
@@ -754,12 +792,11 @@ class ProcessingManager:
                     )
                 ).scalar_one_or_none()
 
-                if status is None:
-                    status = 0
-                if batch_status == 0:
-                    batch_status = status
-                else:
-                    assert batch_status == status
+                if status is not None:
+                    if batch_status is None:
+                        batch_status = status
+                    else:
+                        assert batch_status == status
 
             input_batch = [
                 self._get_step_input(*image_channel, step_input_type)
@@ -772,6 +809,26 @@ class ProcessingManager:
                 result[config_key, batch_status] = (config, input_batch)
 
         return result
+
+
+    @staticmethod
+    def _get_processing_sequence(db_session):
+        """Return the sequence of step/image type pairs to process."""
+
+        return db_session.execute(
+            select(
+                Step,
+                ImageType
+            ).select_from(
+                ProcessingSequence
+            ).join(
+                Step,
+                ProcessingSequence.step_id == Step.id
+            ).join(
+                ImageType,
+                ProcessingSequence.image_type_id == ImageType.id
+            )
+        ).all()
 
 
     def __init__(self, version=None):
@@ -795,6 +852,7 @@ class ProcessingManager:
         self.condition_expressions = {}
         self._evaluated_expressions = {}
         self._processed_ids = {}
+        self._pending = {}
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -839,24 +897,40 @@ class ProcessingManager:
                 for step in db_session.scalars(select(Step)).all()
             }
 
+            self._fill_pending(db_session)
 
-    def __call__(self, steps=None):
+
+    def __call__(self, limit_to_steps=None):
         """Perform all the processing for the given step."""
 
 
-        if steps is None:
-            #False positivie
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-                steps = db_session.scalars(select(Step.name)).all()
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            self._cleanup_interrupted(db_session)
 
-        for step_name in steps:
+        for step, image_type in self._get_processing_sequence(db_session):
+            if limit_to_steps is not None and step not in limit_to_steps:
+                self._logger.debug('Skipping disabled %s for %s frames',
+                                   step.name,
+                                   image_type.name)
+                continue
+
             #False positivie
             #pylint: disable=no-member
             with Session.begin() as db_session:
             #pylint: enable=no-member
-                pending_images, step_input_type = self._start_step(step_name,
+                if not self._check_ready(step, image_type, db_session):
+                    self._logger.debug(
+                        'Not ready for %s of %d %s frames',
+                        step.name,
+                        len(self._pending[(step.id, image_type.id)]),
+                        image_type.name
+                    )
+
+                pending_images, step_input_type = self._start_step(step,
+                                                                   image_type,
                                                                    db_session)
                 processing_batches = self._get_batches(pending_images,
                                                        step_input_type,
@@ -865,9 +939,13 @@ class ProcessingManager:
                     (_, start_status),
                     (config, batch)
             ) in processing_batches.items():
-                self._process_batch(batch, start_status, config, step_name)
+                self._logger.debug('Starting %s for a batch of %d images.',
+                                   step.name,
+                                   len(batch))
+
+                self._process_batch(batch, start_status, config, step.name)
                 self._logger.debug('Processed %s batch of %d images.',
-                                   step_name,
+                                   step.name,
                                    len(batch))
 
 
@@ -910,10 +988,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    ProcessingManager()(['calibrate',
-                         'find_stars',
-                         'solve_astrometry',
-                         'fit_star_shape',
-                         'measure_aperture_photometry',
-                         'fit_source_extracted_psf_map',
-                         'fit_magnitudes'])
+    ProcessingManager()()

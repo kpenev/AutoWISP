@@ -28,7 +28,8 @@ def parse_command_line(*args):
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements.'),
         add_catalog={'prefix': 'magfit'},
-        add_component_versions=('srcproj',
+        add_component_versions=('skytoframe',
+                                'srcproj',
                                 'background',
                                 'shapefit',
                                 'apphot',
@@ -165,11 +166,11 @@ def get_path_substitutions(configuration):
                          'magfit']}
 
 
-def magnitude_fit(dr_collection,
-                  start_status,
-                  configuration,
-                  mark_start,
-                  mark_end):
+def fit_magnitudes(dr_collection,
+                   start_status,
+                   configuration,
+                   mark_start,
+                   mark_end):
     """Perform magnitude fitting for the given DR files."""
 
     if start_status is None:
@@ -269,7 +270,7 @@ def cleanup_interrupted(interrupted, configuration):
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
-    magnitude_fit(
+    fit_magnitudes(
         find_dr_fnames(cmdline_config.pop('dr_files'),
                        cmdline_config.pop('magfit_only_if')),
         None,

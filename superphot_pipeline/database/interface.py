@@ -7,9 +7,9 @@ from sqlalchemy.pool import NullPool
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
     #'SuperPhotPipeline',
-#    'mysql+pymysql://kpenev:shakakaa@localhost.utdallas.edu/sandbox',
-    'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
-    echo=True,
+    'mysql+pymysql://kpenev:shakakaa@localhost.utdallas.edu/sandbox_automation',
+    #'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
+#    echo=True,
     pool_pre_ping=True,
     pool_recycle=3600,
     connect_args={'connect_timeout': 600},

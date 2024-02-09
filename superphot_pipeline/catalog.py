@@ -559,31 +559,33 @@ def get_max_abs_corner_xi_eta(header,
         1 if transformation is not None else len(dr_files),
         dtype=[('RA', float), ('Dec', float)]
     )
-    xi_eta = numpy.empty(
+    change_center = transformation is None or center is not None
+    corner_coords = numpy.empty(
         4 * center_ra_dec.size,
-        dtype=[('xi', float), ('eta', float)]
+        dtype=([('RA', float), ('Dec', float)] if change_center
+               else [('xi', float), ('eta', float)])
     )
 
-    xi_eta_ind = 0
+    corner_ind = 0
     for this_trans in (dr_files if transformation is None
                        else [transformation]):
         if transformation is None:
-            with DataReductionFile(this_trans) as dr_file:
+            with DataReductionFile(this_trans, 'r') as dr_file:
                 header = dr_file.get_frame_header()
                 this_trans = Transformation()
                 this_trans.read_transformation(dr_file, **dr_path_substitutions)
 
-        center_ra_dec[xi_eta_ind // 4] = tuple(
+        center_ra_dec[corner_ind // 4] = tuple(
             this_trans.pre_projection_center
         )
         for x in [0.0, float(header['NAXIS1'])]:
             for y in [0.0, float(header['NAXIS2'])]:
-                xi_eta[xi_eta_ind] = transformation.inverse(
+                corner_coords[corner_ind] = this_trans.inverse(
                     x,
                     y,
-                    result='pre_projected'
+                    result=('equatorial' if change_center else 'pre_projected')
                 )
-                xi_eta_ind += 1
+                corner_ind += 1
 
     if center is None and transformation is None and len(dr_files) > 1:
         center = {
@@ -596,12 +598,12 @@ def get_max_abs_corner_xi_eta(header,
     else:
         return_center = False
 
-    if center is not None:
-        ra_dec = numpy.empty(xi_eta.size, dtype=center_ra_dec.dtype)
-        gnomonic_projection(ra_dec, xi_eta, **center)
-        transformation.inverse_pre_projection(ra_dec, xi_eta)
-
-        xi_eta = transformation.inverse(x, y, result='pre_projected')
+    if change_center:
+        xi_eta = numpy.empty(corner_coords.size,
+                             dtype=[('xi', float), ('eta', float)])
+        gnomonic_projection(corner_coords, xi_eta, **center)
+    else:
+        xi_eta = corner_coords
 
     return (
         max(abs(xi_eta['xi'].min()), abs(xi_eta['xi'].max())),
@@ -714,12 +716,12 @@ def get_catalog_info(*,
     )
 
     if header is None:
-        with DataReductionFile(dr_files[0]) as dr_file:
+        with DataReductionFile(dr_files[0], 'r') as dr_file:
             header = dr_file.get_frame_header()
     catalog_info['epoch'] = Evaluator(header)(configuration['epoch'])
     if dr_files and len(dr_files) > 1:
         for dr_fname in dr_files[1:]:
-            with DataReductionFile(dr_fname) as dr_file:
+            with DataReductionFile(dr_fname, 'r') as dr_file:
                 if (
                     Evaluator(
                         dr_file.get_frame_header()

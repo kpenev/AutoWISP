@@ -94,7 +94,7 @@ def find_stars(image_collection,
                mark_end):
     """Extract sources from all input images and save them to DR files."""
 
-    assert start_status == 0
+    assert start_status is None
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
     find_stars_in_image = SourceFinder(
