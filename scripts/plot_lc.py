@@ -562,14 +562,16 @@ def add_transit_to_plot(transit_param,
 #pylint: enable=too-many-arguments
 
 
-def add_tess_lc_to_plot(configuration, plot_axes=pyplot.gca()):
+def add_tess_lc_to_plot(configuration,
+                        plot_axes=pyplot.gca(),
+                        bjd_offset=0):
     """Plot the TESS lightcurve."""
 
 
     for lc_data in get_tess_lightcurve(configuration.overplot_tess_lc,
                                        'all').values():
         print(f'Lightcurve: {lc_data!r}')
-        plot_x = lc_data['TIME'] - configuration.shift_tess_bjd
+        plot_x = lc_data['TIME'] + 2457000 - configuration.shift_tess_bjd
         if configuration.fold_period:
             plot_x %= configuration.fold_period
 
@@ -589,11 +591,16 @@ def add_tess_lc_to_plot(configuration, plot_axes=pyplot.gca()):
         plot_axes.plot(
             plot_x,
             plot_y,
-            '.'
+            '.',
+            zorder=0
         )
+        return
 
 
-def add_lc_to_plot(select_photometry, configuration):
+def add_lc_to_plot(select_photometry,
+                   configuration,
+                   transit_model,
+                   transit_parameters):
     """
     Add the lightcurve data to the plot.
 
@@ -692,12 +699,22 @@ def add_lc_to_plot(select_photometry, configuration):
                 continue
 
             if configuration.zero_stat is not None:
-                    magnitudes -= getattr(
-                        numpy, 'nan' + configuration.zero_stat
-                    )(
-                        magnitudes,
-                        axis=0
+                if transit_model:
+                    transit_model.set_data(bjd)
+                    oot_flag = (
+                        transit_model.evaluate(*transit_parameters[0],
+                                               **transit_parameters[1])
+                        ==
+                        1.0
                     )
+                else:
+                    oot_flag = None
+                magnitudes -= getattr(
+                    numpy, 'nan' + configuration.zero_stat
+                )(
+                    magnitudes[oot_flag],
+                    axis=0
+                )
 
             if len(lc_collection) == 1:
                 keep_points = (numpy.abs(magnitudes)
@@ -869,7 +886,9 @@ def main(configuration):
         figure
     ) = add_lc_to_plot(
         select_photometry,
-        configuration
+        configuration,
+        transit_model,
+        transit_parameters
     )
 
     if configuration.variability == 'transit':
@@ -895,7 +914,7 @@ def main(configuration):
 
     if configuration.overplot_tess_lc:
         for plot_axes in skip_gap_axes:
-            add_tess_lc_to_plot(configuration, plot_axes)
+            add_tess_lc_to_plot(configuration, plot_axes, bjd_offset)
 
     figure.add_subplot(111, frameon=False)
     pyplot.tick_params(labelcolor='none',
@@ -935,7 +954,9 @@ def main(configuration):
 
     skip_gap_axes[0].set_ylabel('Magnitude')
     if not configuration.skip_gaps:
-        pyplot.xlim(configuration.plot_x_range)
+        print(f'Setting x range to {configuration.plot_x_range!r}')
+        for plot_ax in skip_gap_axes:
+            plot_ax.set_xlim(configuration.plot_x_range)
 #    pyplot.ylim()
     pyplot.legend()
 
