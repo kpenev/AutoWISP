@@ -453,7 +453,6 @@ class ProcessingManager:
     def _cleanup_interrupted(self, db_session):
         """Cleanup previously interrupted processing for the current step."""
 
-        matched_expressions = None
         need_cleanup = db_session.execute(
             select(
                 Image,
@@ -477,6 +476,7 @@ class ProcessingManager:
         interrupted = []
         cleanup_step = need_cleanup[0][2]
         step_module = getattr(processing_steps, cleanup_step)
+        matched_expressions = None
         for image, processed, step in need_cleanup:
 
             assert step == cleanup_step
@@ -493,13 +493,25 @@ class ProcessingManager:
             ]
             if matched_expressions is None:
                 matched_expressions = image_matches
-                config = self._get_config(
+                config, config_key = self._get_config(
                     matched_expressions,
                     step=step
-                )[0]
+                )
                 config['processing_step'] = step
+                if step == 'calibrate':
+                    config['split_channels'] = self._get_split_channels(image)
             else:
-                assert matched_expressions == image_matches
+                if matched_expressions != image_matches:
+                    compare_config, compare_key = self._get_config(
+                        matched_expressions,
+                        step=step
+                    )
+                    if compare_key != config_key:
+                        raise RuntimeError(
+                            'Not all images with interrupted processing have '
+                            'the same configuration: '
+                            f'{config} vs. {compare_config}'
+                        )
 
             interrupted.append((
                 self._get_step_input(image,
@@ -508,14 +520,16 @@ class ProcessingManager:
                 processed.status
             ))
         self._logger.warning(
-            'Cleaning up interrupted %s processing of %d images: %s',
+            'Cleaning up interrupted %s processing of %d images:\n'
+            '%s\n'
+            'config: %s',
             cleanup_step,
             len(interrupted),
-            repr(interrupted)
+            repr(interrupted),
+            repr(config)
         )
-        new_status = step_module.cleanup_interrupted(interrupted,
-                                                     config)
-        for _, processed in need_cleanup:
+        new_status = step_module.cleanup_interrupted(interrupted, config)
+        for _, processed, _ in need_cleanup:
             assert new_status >= -1
             assert new_status <= processed.status
             if new_status == -1:

@@ -245,7 +245,7 @@ def fit_source_extracted_psf_map(dr_collection,
                                  mark_end):
     """Fit a smooth dependence of source extraction PSF for a DR collection."""
 
-    assert start_status == 0
+    assert start_status is None
 
     #This defines a type not variable
     #pylint: disable=invalid-name

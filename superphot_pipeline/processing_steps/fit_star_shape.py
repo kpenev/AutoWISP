@@ -688,7 +688,7 @@ def fit_star_shape(image_collection,
                    mark_end):
     """Find the best-fit model for the PSF/PRF in the given images."""
 
-    assert start_status == 0
+    assert start_status is None
 
     DataReductionFile.fname_template = configuration['data_reduction_fname']
     image_collection = sorted(image_collection)

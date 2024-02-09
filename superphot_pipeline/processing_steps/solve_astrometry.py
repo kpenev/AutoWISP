@@ -710,7 +710,7 @@ def solve_astrometry(dr_collection,
                      mark_end):
     """Find the (RA, Dec) -> (x, y) transformation for the given DR files."""
 
-    assert start_status == 0
+    assert start_status is None
 
     _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
     #create_catalogs(configuration, dr_collection)

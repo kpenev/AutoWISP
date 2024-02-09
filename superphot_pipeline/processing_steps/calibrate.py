@@ -14,7 +14,9 @@ from superphot_pipeline.image_calibration import Calibrator, overscan_methods
 from superphot_pipeline.processing_steps.manual_util import\
     ManualStepArgumentParser,\
     ignore_progress
-from superphot_pipeline.image_calibration.fits_util import get_raw_header
+from superphot_pipeline.image_calibration.fits_util import \
+    get_raw_header,\
+    add_channel_keywords
 
 input_type = 'raw'
 _logger = logging.getLogger(__name__)
@@ -249,11 +251,17 @@ def cleanup_interrupted(interrupted, configuration):
 
     for raw_fname, status in interrupted:
         assert status == 0
-        calibrated_fname = configuration['calibrated_fname'].format_map(
-            get_raw_header(raw_fname, configuration['raw_hdu'])
-        )
-        if os.path.exists(calibrated_fname):
-            os.remove(calibrated_fname)
+        header = get_raw_header(raw_fname, configuration)
+        for channel_name, channel_slice in configuration[
+                'split_channels'
+        ].items():
+            add_channel_keywords(header, channel_name, channel_slice)
+
+            calibrated_fname = configuration['calibrated_fname'].format_map(
+                header
+            )
+            if os.path.exists(calibrated_fname):
+                os.remove(calibrated_fname)
 
     return -1
 

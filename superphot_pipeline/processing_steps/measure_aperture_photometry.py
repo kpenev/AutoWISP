@@ -154,7 +154,7 @@ def measure_aperture_photometry(image_collection,
                                 mark_end):
     """Extract aperture photometry from the given images."""
 
-    assert start_status == 0
+    assert start_status is None
 
     photometer_one = partial(photometer_frame,
                              configuration=configuration,
