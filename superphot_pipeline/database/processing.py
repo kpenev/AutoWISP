@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
+#pylint: disable=too-many-lines
 
 """Handle data processing DB interactions."""
 
 from tempfile import NamedTemporaryFile
 import logging
+from os import path
 
 from sqlalchemy import sql, select, update, and_
+from asteval import asteval
+import numpy
+
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from superphot_pipeline import Evaluator
@@ -26,7 +31,9 @@ from superphot_pipeline.database.data_model import\
     Step,\
     Image,\
     ImageType,\
-    ObservingSession
+    ObservingSession,\
+    MasterFile,\
+    RequiredMasterTypes
 from superphot_pipeline.database.data_model.provenance import\
     Camera,\
     CameraChannel,\
@@ -66,11 +73,14 @@ class ProcessingManager:
             step (the processing progress initiated the last time `start_step()`
             was called).
 
-        _evaluated_expressions(dict):    Indexed by image ID and then channel,
+        _condition_expressions(dict):    Indexed by image ID and then channel,
             dictionary containing dictionary with keys:
 
-                * expressions: the condition expressions that are matched for
-                  the given image and channel
+                * values: the values of the condition expressions for
+                  the given image and channel indexed by their expression IDs.
+
+                * matched: A set of the expression IDs for which the
+                  corresponding expression converts to boolean True.
 
                 * calibrated: the filename of the calibrated image
 
@@ -185,7 +195,11 @@ class ProcessingManager:
         return {param: get_param_value(param) for param in parameters}
 
 
-    def _write_config_file(self, matched_expressions, outf, steps=None):
+    def _write_config_file(self,
+                           matched_expressions,
+                           outf,
+                           db_steps=None,
+                           step_names=None):
         """
         Write to given file configuration for given matched expressions.
 
@@ -194,55 +208,130 @@ class ProcessingManager:
             comparing configurations.
         """
 
-        result = set()
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
+        if db_steps is None:
 
-            if steps is None:
-                steps = db_session.scalars(select(Step).order_by(Step.id)).all()
-            else:
-                steps = [
-                    db_session.execute(
-                        select(Step).filter_by(name=step_name)
-                    ).scalar_one()
-                    for step_name in steps
-                ]
+            #False positivie
+            #pylint: disable=no-member
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
 
-            added_params = set()
-            for this_step in steps:
-                outf.write(f'[{this_step.name}]\n')
-                step_config = self._get_param_values(
-                    matched_expressions,
-                    [
-                        param.name
-                        for param in this_step.parameters
-                        if param.name not in added_params
+                if step_names is None:
+                    steps = db_session.scalars(
+                        select(Step).order_by(Step.id)
+                    ).all()
+                else:
+                    steps = [
+                        db_session.execute(
+                            select(Step).filter_by(name=name)
+                        ).scalar_one()
+                        for name in step_names
                     ]
-                )
-                for param, value in step_config.items():
-                    if value is not None:
-                        outf.write(f'    {param} = {value}\n')
-                        result.add((param, value))
+                return self._write_config_file(matched_expressions,
+                                               outf,
+                                               db_steps=steps)
 
-                outf.write('\n')
+        result = set()
+
+        added_params = set()
+        for step in db_steps:
+            outf.write(f'[{step.name}]\n')
+            step_config = self._get_param_values(
+                matched_expressions,
+                [
+                    param.name
+                    for param in step.parameters
+                    if param.name not in added_params
+                ]
+            )
+            for param, value in step_config.items():
+                if value is not None:
+                    outf.write(f'    {param} = {value}\n')
+                    result.add((param, value))
+
+            outf.write('\n')
 
         return frozenset(result)
 
 
-    def _get_config(self, matched_expressions, step=None):
+    def _get_config(self, matched_expressions, db_step=None, step_name=None):
         """Return the configuration for the given step for given expressions."""
 
+        assert db_step or step_name
         with NamedTemporaryFile(mode='w') as config_file:
-            config_key = self._write_config_file(matched_expressions,
-                                                 config_file,
-                                                 [step])
+            config_key = self._write_config_file(
+                matched_expressions,
+                config_file,
+                db_steps=[db_step] if db_step else None,
+                step_names=[step_name] if not db_step else None
+            )
             config_file.flush()
             self._logger.debug('Wrote config file %s', repr(config_file.name))
-            return getattr(processing_steps, step).parse_command_line(
+            return getattr(
+                processing_steps,
+                db_step.name if db_step else step_name
+            ).parse_command_line(
                 ['-c', config_file.name]
             ), config_key
+
+
+    def _get_image_config(self, image, channel, step, db_session):
+        """Return the configuration for processing image/channel with step."""
+
+        config, config_key = self._get_config(
+            self._condition_expressions[image.id][channel]['matched'],
+            db_step=step
+        )
+        key_extra = set()
+        if step.name == 'calibrate':
+            config['split_channels'] = self._get_split_channels(image)
+            key_extra.add((
+                'split_channels',
+                ''.join(
+                    repr(c)
+                    for c in image.observing_session.camera.channels
+                )
+            ))
+        config['processing_step'] = step.name
+
+        for required_master_type in db_session.scalars(
+                select(RequiredMasterTypes).filter_by(
+                    step_id=step.id,
+                    image_type_id=image.image_type_id
+                )
+        ).all():
+            candidate_masters = db_session.scalars(
+                MasterFile
+            ).filter_by(
+                type_id=required_master_type.master_type_id,
+            ).all()
+            if not candidate_masters:
+                raise ValueError(
+                    f'No master {required_master_type.master_type.name} found '
+                    f'for {step.name} step of {image.type.name} image '
+                    f'{image.raw_fname} channel {channel}.'
+                )
+            if len(candidate_masters) == 1:
+                config[required_master_type.config_name] = candidate_masters[0]
+            else:
+                assert master.use_smallest is not None
+                image_eval = self._evaluate_expressions_image(image,
+                                                              channel,
+                                                              True)
+                best_master_value = numpy.inf
+                for master in candidate_masters:
+                    master_value = image_eval(master.use_smallest)
+                    if master_value < best_master_value:
+                        best_master_value = master_value
+                        config[required_master_type.config_name] = master
+            key_extra.add((
+                required_master_type.config_name,
+                config[required_master_type.config_name]
+            ))
+
+        if key_extra:
+            config_key |= key_extra
+
+        return config, config_key
 
 
     def _get_split_channels(self, image):
@@ -280,7 +369,7 @@ class ProcessingManager:
             return image.raw_fname
 
         if step_input_type.startswith('calibrated'):
-            return self._evaluated_expressions[
+            return self._condition_expressions[
                 image.id
             ][
                 channel_name
@@ -289,7 +378,7 @@ class ProcessingManager:
             ]
 
         if step_input_type == 'dr':
-            return self._evaluated_expressions[
+            return self._condition_expressions[
                 image.id
             ][
                 channel_name
@@ -300,18 +389,48 @@ class ProcessingManager:
         raise ValueError(f'Invalid step input type {step_input_type}')
 
 
-    def _evaluate_expressions_image(self, image):
-        """Add calibrated and DR filenames as attributes to given image."""
+    def _evaluate_expressions_image(self,
+                                    image,
+                                    eval_channel=None,
+                                    return_evaluator=False):
+        """
+        Return evaluator for header expressions for given image.
 
+        If channel_name is given, the evaluator will involve all keywords that
+        can be expected of the calibrated header. Otherwise, only raw and
+        required header keywords will be available.
+
+        """
+
+
+        if image.id in self._condition_expressions:
+            if not return_evaluator:
+                return None
+            image_expressions = self._condition_expressions[
+                image.id
+            ][
+                eval_channel
+            ]
+            for product in ['dr', 'calibrated']:
+                if path.exists(image_expressions[product]):
+                    return Evaluator(image_expressions[product])
+
+        self._logger.debug('Evaluating expressions for: %s',
+                           repr(image))
+        result = asteval.Interpreter()
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
+        self._logger.debug('Matched expressions: %s',
+                           repr(self._get_matched_expressions(evaluate)))
         calib_config = self._get_config(
             self._get_matched_expressions(evaluate),
-            'calibrate',
+            step_name='calibrate',
         )[0]
         self._logger.debug('Calibration config: %s', repr(calib_config))
         add_required_keywords(evaluate.symtable, calib_config)
+        if return_evaluator and eval_channel is None:
+            result.symtable.update(evaluate.symtable)
 
-        self._evaluated_expressions[image.id] = {}
+        self._condition_expressions[image.id] = {}
         all_channel_matched = None
         for channel_name, channel_slice in self._get_split_channels(
                 image
@@ -319,36 +438,52 @@ class ProcessingManager:
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
-            matched_expressions = self._get_matched_expressions(evaluate)
-            if all_channel_matched is None:
-                all_channel_matched = matched_expressions
-            else:
-                all_channel_matched = all_channel_matched & matched_expressions
-            self._evaluated_expressions[image.id][channel_name] = {
-                'expressions': matched_expressions,
+            if return_evaluator and eval_channel == channel_name:
+                result.symtable.update(evaluate.symtable)
+            condition_expressions = {
+                'values': {expr_id: evaluate(expression)
+                           for expr_id, expression in
+                           self.condition_expressions.items()},
                 'calibrated': calib_config['calibrated_fname'].format_map(
                     evaluate.symtable
                 )
             }
+            condition_expressions['matched'] = set(
+                expr_id
+                for expr_id, value in condition_expressions['values'].items()
+                if value
+            )
+
+            if all_channel_matched is None:
+                all_channel_matched = condition_expressions['matched']
+            else:
+                all_channel_matched = (all_channel_matched
+                                       &
+                                       condition_expressions['matched'])
 
             for required_expressions, value in self.configuration[
                     'data-reduction-fname'
             ][
                     'value'
             ].items():
-                if required_expressions <= matched_expressions:
-                    self._evaluated_expressions[
-                        image.id
-                    ][
-                            channel_name
-                    ][
-                        'dr'
-                    ] = value.format_map(evaluate.symtable)
+                if required_expressions <= condition_expressions['matched']:
+                    condition_expressions['dr'] = value.format_map(
+                        evaluate.symtable
+                    )
                     break
+            assert 'dr' in condition_expressions
 
-        self._evaluated_expressions[image.id][None] = {
-            'expressions': all_channel_matched
+            self._condition_expressions[image.id][channel_name] = (
+                condition_expressions
+            )
+
+        self._condition_expressions[image.id][None] = {
+            'matched': all_channel_matched
         }
+        self._logger.debug('Evaluated expressions for image %s: %s',
+                           image,
+                           repr(self._condition_expressions[image.id]))
+        return result if return_evaluator else None
 
 
     def _fill_pending(self, db_session):
@@ -450,6 +585,65 @@ class ProcessingManager:
         return True
 
 
+    def _get_interrupted(self, need_cleanup, db_session):
+        """Return list of interrupted files and configuration for cleanup."""
+
+        interrupted = []
+        cleanup_step = need_cleanup[0][2]
+        input_type = getattr(processing_steps, cleanup_step.name).input_type
+        matched_expressions = None
+        for image, processed, step in need_cleanup:
+
+            assert step == cleanup_step
+
+            if image.id not in self._condition_expressions:
+                self._evaluate_expressions_image(image)
+
+            image_matches = self._condition_expressions[
+                image.id
+            ][
+                processed.channel
+            ][
+                'matched'
+            ]
+            if matched_expressions is None:
+                matched_expressions = image_matches
+                config, config_key = self._get_image_config(
+                    image,
+                    processed.channel,
+                    step,
+                    db_session
+                )
+            else:
+                compare_config, compare_key = self._get_image_config(
+                    image,
+                    processed.channel,
+                    step,
+                    db_session
+                )
+                if compare_key != config_key:
+                    raise RuntimeError(
+                        'Not all images with interrupted processing have '
+                        'the same configuration:\n\t'
+                        +
+                        '\n\t'.join([f'{key}: {value!r}'
+                                     for key, value in config.items()])
+                        +
+                        'vs\n\t'
+                        +
+                        '\n\t'.join([
+                            f'{key}: {value!r}'
+                            for key, value in compare_config.items()
+                        ])
+                    )
+
+            interrupted.append((
+                self._get_step_input(image, processed.channel, input_type),
+                processed.status
+            ))
+        return interrupted, config
+
+
     def _cleanup_interrupted(self, db_session):
         """Cleanup previously interrupted processing for the current step."""
 
@@ -457,7 +651,7 @@ class ProcessingManager:
             select(
                 Image,
                 ProcessedImages,
-                Step.name
+                Step
             ).join(
                 ProcessedImages
             ).join(
@@ -470,60 +664,18 @@ class ProcessingManager:
                 Step.name
             )
         ).all()
+
         if not need_cleanup:
             return
 
-        interrupted = []
-        cleanup_step = need_cleanup[0][2]
-        step_module = getattr(processing_steps, cleanup_step)
-        matched_expressions = None
-        for image, processed, step in need_cleanup:
+        step_module = getattr(processing_steps, need_cleanup[0][2].name)
 
-            assert step == cleanup_step
-
-            if image.id not in self._evaluated_expressions:
-                self._evaluate_expressions_image(image)
-
-            image_matches = self._evaluated_expressions[
-                image.id
-            ][
-                processed.channel
-            ][
-                'expressions'
-            ]
-            if matched_expressions is None:
-                matched_expressions = image_matches
-                config, config_key = self._get_config(
-                    matched_expressions,
-                    step=step
-                )
-                config['processing_step'] = step
-                if step == 'calibrate':
-                    config['split_channels'] = self._get_split_channels(image)
-            else:
-                if matched_expressions != image_matches:
-                    compare_config, compare_key = self._get_config(
-                        matched_expressions,
-                        step=step
-                    )
-                    if compare_key != config_key:
-                        raise RuntimeError(
-                            'Not all images with interrupted processing have '
-                            'the same configuration: '
-                            f'{config} vs. {compare_config}'
-                        )
-
-            interrupted.append((
-                self._get_step_input(image,
-                                     processed.channel,
-                                     step_module.input_type),
-                processed.status
-            ))
+        interrupted, config = self._get_interrupted(need_cleanup, db_session)
         self._logger.warning(
             'Cleaning up interrupted %s processing of %d images:\n'
             '%s\n'
             'config: %s',
-            cleanup_step,
+            need_cleanup[0][2],
             len(interrupted),
             repr(interrupted),
             repr(config)
@@ -542,7 +694,7 @@ class ProcessingManager:
         """Prepare to record processing of the given image by current step."""
 
         if channels == [None]:
-            channels = self._evaluated_expressions[image.id].keys()
+            channels = self._condition_expressions[image.id].keys()
 
         for channel_name in channels:
             if channel_name is None:
@@ -612,7 +764,7 @@ class ProcessingManager:
             pending_images = new_pending
 
         for image, channel_name in pending_images:
-            if image.id not in self._evaluated_expressions:
+            if image.id not in self._condition_expressions:
                 self._evaluate_expressions_image(image)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
@@ -727,12 +879,12 @@ class ProcessingManager:
 #            )
 
             batch = []
-            matched_expressions = self._evaluated_expressions[
+            matched_expressions = self._condition_expressions[
                 pending_images[-1][0].id
             ][
                 pending_images[-1][1]
             ][
-                'expressions'
+                'matched'
             ]
             self._logger.debug(
                 'Finding images matching expressions: %s',
@@ -743,22 +895,22 @@ class ProcessingManager:
                 self._logger.debug(
                     'Comparing %s to %s',
                     repr(
-                        self._evaluated_expressions[
+                        self._condition_expressions[
                             pending_images[i][0].id
                         ][
                             pending_images[i][1]
                         ][
-                            'expressions'
+                            'matched'
                         ]
                     ),
                     repr(matched_expressions)
                 )
-                if self._evaluated_expressions[
+                if self._condition_expressions[
                         pending_images[i][0].id
                 ][
                     pending_images[i][1]
                 ][
-                    'expressions'
+                    'matched'
                 ] == matched_expressions:
                     batch.append(pending_images.pop(i))
                     self._logger.debug(
@@ -770,7 +922,7 @@ class ProcessingManager:
                     )
                 else:
                     self._logger.debug('Not a match')
-            result.append((matched_expressions, batch))
+            result.append(batch)
         return result
 
 
@@ -778,16 +930,14 @@ class ProcessingManager:
         """Return the batches of images to process with identical config."""
 
         result = {}
-        for matched_expressions, batch in self._group_pending_by_conditions(
+        for batch in self._group_pending_by_conditions(
             pending_images
         ):
-            config, config_key = self._get_config(
-                matched_expressions,
-                step=self.current_step.name
+            config, config_key = self._get_image_config(
+                *batch[0],
+                self.current_step,
+                db_session
             )
-            if self.current_step.name == 'calibrate':
-                config['split_channels'] = self._get_split_channels(batch[0][0])
-            config['processing_step']=self.current_step.name
             setup_process(task='main', **config)
 
             batch_status = None
@@ -864,7 +1014,7 @@ class ProcessingManager:
         self._current_processing = None
         self.configuration = {}
         self.condition_expressions = {}
-        self._evaluated_expressions = {}
+        self._condition_expressions = {}
         self._processed_ids = {}
         self._pending = {}
         #False positivie
@@ -911,6 +1061,7 @@ class ProcessingManager:
                 for step in db_session.scalars(select(Step)).all()
             }
 
+            self._cleanup_interrupted(db_session)
             self._fill_pending(db_session)
 
 
@@ -922,19 +1073,21 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            self._cleanup_interrupted(db_session)
+            processing_sequence = self._get_processing_sequence(db_session)
 
-        for step, image_type in self._get_processing_sequence(db_session):
-            if limit_to_steps is not None and step not in limit_to_steps:
-                self._logger.debug('Skipping disabled %s for %s frames',
-                                   step.name,
-                                   image_type.name)
-                continue
-
-            #False positivie
+        for step, image_type in processing_sequence:
             #pylint: disable=no-member
             with Session.begin() as db_session:
             #pylint: enable=no-member
+                step = db_session.merge(step)
+                step_name = step.name
+                image_type = db_session.merge(image_type)
+                if limit_to_steps is not None and step not in limit_to_steps:
+                    self._logger.debug('Skipping disabled %s for %s frames',
+                                       step.name,
+                                       image_type.name)
+                    continue
+
                 if not self._check_ready(step, image_type, db_session):
                     self._logger.debug(
                         'Not ready for %s of %d %s frames',
@@ -954,12 +1107,12 @@ class ProcessingManager:
                     (config, batch)
             ) in processing_batches.items():
                 self._logger.debug('Starting %s for a batch of %d images.',
-                                   step.name,
+                                   step_name,
                                    len(batch))
 
-                self._process_batch(batch, start_status, config, step.name)
+                self._process_batch(batch, start_status, config, step_name)
                 self._logger.debug('Processed %s batch of %d images.',
-                                   step.name,
+                                   step_name,
                                    len(batch))
 
 
@@ -992,9 +1145,11 @@ class ProcessingManager:
             with open(outf, 'w', encoding='utf-8') as opened_outf:
                 self._write_config_file(matched_expressions,
                                         opened_outf,
-                                        steps)
+                                        step_names=steps)
         else:
-            self._write_config_file(matched_expressions, outf, steps)
+            self._write_config_file(matched_expressions,
+                                    outf,
+                                    step_names=steps)
 #pylint: enable=too-many-instance-attributes
 
 

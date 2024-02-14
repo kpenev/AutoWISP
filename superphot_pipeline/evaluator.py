@@ -49,3 +49,11 @@ class Evaluator(asteval.Interpreter):
                 for hdr_key, hdr_val in data_entry.items():
                     self.symtable[hdr_key.replace('-', '_')] = hdr_val
         self.symtable['units'] = units
+
+
+    def __call__(self, *args, **kwargs):
+        """Evaluate the expression enabling error."""
+
+        if 'raise_errors' not in kwargs:
+            kwargs['raise_errors'] = True
+        return super().__call__(*args, **kwargs)

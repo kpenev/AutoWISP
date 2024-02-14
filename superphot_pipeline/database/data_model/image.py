@@ -16,7 +16,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from superphot_pipeline.database.data_model.base import DataModelBase
 
-__all__= ['Image', 'ImageProcessingProgress', 'ProcessedImages']
+__all__ = ['Image', 'ImageProcessingProgress', 'ProcessedImages']
 
 _processing_input = Table(
     'processing_input',
@@ -107,7 +107,7 @@ class Image(DataModelBase):
         String(1000),
         nullable=False,
         unique=True,
-        doc='The filename of the raw image'
+        doc='The full path of the raw image'
     )
     image_type_id = Column(
         Integer,
