@@ -208,6 +208,7 @@ class ProcessingManager:
             comparing configurations.
         """
 
+        #TODO: exclude master options
         if db_steps is None:
 
             #False positivie
@@ -274,6 +275,31 @@ class ProcessingManager:
             ), config_key
 
 
+    def _get_candidate_masters(self, image_eval, master_type, db_session):
+        """Return list of masters of given type that are applicable to image."""
+
+        print(f'Image keys: {image_eval.symtable.keys()!r}')
+        candidate_masters = db_session.scalars(
+            select(
+                MasterFile
+            ).filter_by(
+                type_id=master_type.master_type_id,
+            )
+        ).all()
+        result = []
+        for master in candidate_masters:
+            master_eval = Evaluator(master.filename)
+            print(f'Master keys: {master_eval.symtable.keys()!r}')
+            all_match = True
+            for expr in master.master_type.match_expressions:
+                if master_eval(expr.expression) != image_eval(expr.expression):
+                    all_match = False
+                    break
+            if all_match:
+                result.append(master)
+        return result
+
+
     def _get_image_config(self, image, channel, step, db_session):
         """Return the configuration for processing image/channel with step."""
 
@@ -299,34 +325,38 @@ class ProcessingManager:
                     image_type_id=image.image_type_id
                 )
         ).all():
-            candidate_masters = db_session.scalars(
-                MasterFile
-            ).filter_by(
-                type_id=required_master_type.master_type_id,
-            ).all()
+            image_eval = self._evaluate_expressions_image(image,
+                                                          channel,
+                                                          True)
+
+            candidate_masters = self._get_candidate_masters(
+                image_eval,
+                required_master_type,
+                db_session
+            )
             if not candidate_masters:
                 raise ValueError(
                     f'No master {required_master_type.master_type.name} found '
-                    f'for {step.name} step of {image.type.name} image '
+                    f'for {step.name} step of {image.image_type.name} image '
                     f'{image.raw_fname} channel {channel}.'
                 )
             if len(candidate_masters) == 1:
-                config[required_master_type.config_name] = candidate_masters[0]
+                best_master_fname = candidate_masters[0].filename
             else:
-                assert master.use_smallest is not None
-                image_eval = self._evaluate_expressions_image(image,
-                                                              channel,
-                                                              True)
                 best_master_value = numpy.inf
+                best_master_fname = None
                 for master in candidate_masters:
+                    assert master.use_smallest is not None
                     master_value = image_eval(master.use_smallest)
                     if master_value < best_master_value:
                         best_master_value = master_value
-                        config[required_master_type.config_name] = master
-            key_extra.add((
-                required_master_type.config_name,
-                config[required_master_type.config_name]
-            ))
+                        best_master_fname = master.filename
+                assert best_master_fname
+
+            config[
+                required_master_type.config_name.replace('-', '_')
+            ] = best_master_fname
+            key_extra.add((required_master_type.config_name, best_master_fname))
 
         if key_extra:
             config_key |= key_extra

@@ -6,6 +6,7 @@ import re
 
 from configargparse import ArgumentParser, DefaultsFormatter
 from sqlalchemy import MetaData
+from sqlalchemy import sql, select
 
 from superphot_pipeline.database.interface import db_engine, Session
 from superphot_pipeline.database.data_model.base import DataModelBase
@@ -25,8 +26,167 @@ from superphot_pipeline.database.data_model import\
     Configuration,\
     Condition,\
     ConditionExpression,\
-    ProcessingSequence
+    ProcessingSequence,\
+    MasterType,\
+    RequiredMasterTypes
 #pylint: enable=no-name-in-module
+
+
+master_info =  {
+    'mask': {
+        'must_match': frozenset((
+            'CAMSN',
+            'CLRCHNL'
+        )),
+        'config_name': 'master-mask',
+        'required_by': [
+            ('calibrate', 'bias'),
+            ('calibrate', 'dark'),
+            ('calibrate', 'flat'),
+            ('calibrate', 'object')
+        ],
+        'description': 'A bit mask indicating hot/dead/... bad pixels.'
+    },
+    'bias': {
+        'must_match': frozenset((
+            'CAMSN',
+            'CLRCHNL'
+        )),
+        'config_name': 'master-bias',
+        'required_by': [
+            ('calibrate', 'dark'),
+            ('calibrate', 'flat'),
+            ('calibrate', 'object')
+        ],
+        'description': 'An estimate of the bias level of a camera.'
+    },
+    'dark': {
+        'must_match': frozenset((
+            'CAMSN',
+            'CLRCHNL'
+        )),
+        'config_name': 'master-dark',
+        'required_by': [
+            ('calibrate', 'flat'),
+            ('calibrate', 'object')
+        ],
+        'description': 'An estimate of the dark current of a camera.'
+
+    },
+    'flat': {
+        'must_match': frozenset((
+            'CAMSN',
+            'CLRCHNL',
+            'INTSN'
+        )),
+        'config_name': 'master-flat',
+        'required_by': [
+            ('calibrate', 'object')
+        ],
+        'description': 'An estimate of the relative sensitivity of image '
+        'pixels to light from infinity entering the telescope.'
+    },
+    'single_photref': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'single-photref-dr-fname',
+        'required_by': [
+            ('fit_magnitudes', 'object')
+        ],
+        'description': 'The reference image to use to start magnitude '
+        'fitting. Subsequently replaced by average of the corrected '
+        'brightnes of each star.'
+    }
+}
+
+
+step_dependencies = [
+    (
+        'add_images_to_db', None,
+        []
+    ),
+    (
+        'calibrate', 'bias',
+        []
+    ),
+    (
+        'calibrate', 'dark',
+        [
+            ('calibrate', 'bias')
+        ]
+    ),
+    (
+        'calibrate', 'flat',
+        [
+            ('calibrate', 'bias'),
+            ('calibrate', 'dark')
+        ]
+    ),
+    (
+        'calibrate', 'object',
+        [
+            ('calibrate', 'bias'),
+            ('calibrate', 'dark'),
+            ('calibrate', 'flat')
+        ]
+    ),
+    (
+        'find_stars', 'object',
+        [
+            ('calibrate', 'object')
+        ]
+    ),
+    (
+        'solve_astrometry', 'object',
+        [
+            ('find_stars', 'object')
+        ]
+    ),
+    (
+        'fit_star_shape', 'object',
+        [
+            ('solve_astrometry', 'object'),
+            ('calibrate', 'object')
+        ]
+    ),
+    (
+        'measure_aperture_photometry', 'object',
+        [
+            ('fit_star_shape', 'object'),
+            ('calibrate', 'object')
+        ]
+    ),
+    (
+        'fit_source_extracted_psf_map', 'object',
+        [
+            ('find_stars', 'object'),
+            ('solve_astrometry', 'object')
+        ]
+    ),
+    (
+        'fit_magnitudes', 'object',
+        [
+            ('solve_astrometry', 'object'),
+            ('fit_star_shape', 'object'),
+            ('measure_aperture_photometry', 'object'),
+            ('fit_source_extracted_psf_map', 'object')
+        ]
+    ),
+    (
+        'create_lightcurves', 'object',
+        [
+            ('solve_astrometry', 'object'),
+            ('fit_star_shape', 'object'),
+            ('measure_aperture_photometry', 'object'),
+            ('fit_magnitudes', 'object'),
+            ('fit_source_extracted_psf_map', 'object')
+        ]
+    )
+]
+
 
 def get_command_line_parser():
     """Create a parser with all required command line arguments."""
@@ -191,96 +351,71 @@ class StepCreator:
 #pylint: enable=too-few-public-methods
 
 
+def add_master_dependencies(db_session):
+    """Fill the master_types table."""
+
+    expressions = set()
+    for master_config in master_info.values():
+        expressions.update(master_config['must_match'])
+
+    db_expressions = {
+        expr: ConditionExpression(expression=expr)
+        for expr in expressions
+    }
+    db_session.add_all(db_expressions.values())
+
+    next_condition_id = db_session.scalar(
+        select(sql.functions.max(Condition.id) + 1)
+    )
+
+    condition_ids = {}
+    for master_type, master_config in master_info.items():
+        print(f'Master {master_type} config: {master_config!r}')
+        if master_config['must_match'] not in condition_ids:
+            db_session.add_all([
+                Condition(
+                    id=next_condition_id,
+                    expression_id=db_expressions[expr].id,
+                )
+                for expr in master_config['must_match']
+            ])
+            condition_ids[master_config['must_match']] = next_condition_id
+            next_condition_id += 1
+        db_master_type = MasterType(
+            name=master_type,
+            condition_id=condition_ids[master_config['must_match']],
+            description=master_config['description']
+        )
+        db_session.add(db_master_type)
+        for step, image_type in master_config['required_by']:
+            db_session.add(
+                RequiredMasterTypes(
+                    step_id=db_session.scalar(
+                        select(
+                            Step.id
+                        ).where(
+                            Step.name == step
+                        )
+                    ),
+                    image_type_id=db_session.scalar(
+                        select(
+                            ImageType.id
+                        ).where(
+                            ImageType.name == image_type
+                        )
+                    ),
+                    master_type_id=db_master_type.id,
+                    config_name=master_config['config_name']
+                )
+            )
+
+
 #No good way to simplify
 #pylint: disable=too-many-locals
 def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
     image_type_list = ['bias', 'dark', 'flat', 'object']
-    step_dependencies = [
-        (
-            'add_images_to_db', None,
-            []
-        ),
-        (
-            'calibrate', 'bias',
-            []
-        ),
-        (
-            'calibrate', 'dark',
-            [
-                ('calibrate', 'bias')
-            ]
-        ),
-        (
-            'calibrate', 'flat',
-            [
-                ('calibrate', 'bias'),
-                ('calibrate', 'dark')
-            ]
-        ),
-        (
-            'calibrate', 'object',
-            [
-                ('calibrate', 'bias'),
-                ('calibrate', 'dark'),
-                ('calibrate', 'flat')
-            ]
-        ),
-        (
-            'find_stars', 'object',
-            [
-                ('calibrate', 'object')
-            ]
-        ),
-        (
-            'solve_astrometry', 'object',
-            [
-                ('find_stars', 'object')
-            ]
-        ),
-        (
-            'fit_star_shape', 'object',
-            [
-                ('solve_astrometry', 'object'),
-                ('calibrate', 'object')
-            ]
-        ),
-        (
-            'measure_aperture_photometry', 'object',
-            [
-                ('fit_star_shape', 'object'),
-                ('calibrate', 'object')
-            ]
-        ),
-        (
-            'fit_source_extracted_psf_map', 'object',
-            [
-                ('find_stars', 'object'),
-                ('solve_astrometry', 'object')
-            ]
-        ),
-        (
-            'fit_magnitudes', 'object',
-            [
-                ('solve_astrometry', 'object'),
-                ('fit_star_shape', 'object'),
-                ('measure_aperture_photometry', 'object'),
-                ('fit_source_extracted_psf_map', 'object')
-            ]
-        ),
-        (
-            'create_lightcurves', 'object',
-            [
-                ('solve_astrometry', 'object'),
-                ('fit_star_shape', 'object'),
-                ('measure_aperture_photometry', 'object'),
-                ('fit_magnitudes', 'object'),
-                ('fit_source_extracted_psf_map', 'object')
-            ]
-        )
-    ]
-
     #False positivie
     #pylint: disable=no-member
     with Session.begin() as db_session:
@@ -320,6 +455,7 @@ def init_processing():
                         ) + 1
                     )
                 )
+        add_master_dependencies(db_session)
 #pylint: enable=too-many-locals
 
 

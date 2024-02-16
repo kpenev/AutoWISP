@@ -1,13 +1,20 @@
 """Define the MasterFiles table for the pipeline."""
 
+from typing import List
+
 from sqlalchemy import\
     Column,\
     Integer,\
     String,\
     TIMESTAMP,\
     ForeignKey
+from sqlalchemy.orm import relationship, Mapped
+
 
 from superphot_pipeline.database.data_model.base import DataModelBase
+from superphot_pipeline.database.data_model.condition import Condition
+from superphot_pipeline.database.data_model.condition_expression import \
+    ConditionExpression
 
 
 __all__ = ['MasterType', 'MasterFile']
@@ -45,6 +52,10 @@ class MasterType(DataModelBase):
         TIMESTAMP,
         nullable=False,
         doc='When was this record last changed.'
+    )
+    master_files = relationship('MasterFile', back_populates='master_type')
+    match_expressions: Mapped[List[ConditionExpression]] = relationship(
+        secondary=Condition.__table__
     )
 
 
@@ -86,3 +97,4 @@ class MasterFile(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
+    master_type = relationship('MasterType', back_populates='master_files')
