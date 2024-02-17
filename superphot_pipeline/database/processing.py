@@ -33,7 +33,10 @@ from superphot_pipeline.database.data_model import\
     ImageType,\
     ObservingSession,\
     MasterFile,\
-    RequiredMasterTypes
+    MasterType,\
+    RequiredMasterTypes,\
+    Condition,\
+    ConditionExpression
 from superphot_pipeline.database.data_model.provenance import\
     Camera,\
     CameraChannel,\
@@ -73,7 +76,7 @@ class ProcessingManager:
             step (the processing progress initiated the last time `start_step()`
             was called).
 
-        _condition_expressions(dict):    Indexed by image ID and then channel,
+        _evaluated_expressions(dict):    Indexed by image ID and then channel,
             dictionary containing dictionary with keys:
 
                 * values: the values of the condition expressions for
@@ -304,7 +307,7 @@ class ProcessingManager:
         """Return the configuration for processing image/channel with step."""
 
         config, config_key = self._get_config(
-            self._condition_expressions[image.id][channel]['matched'],
+            self._evaluated_expressions[image.id][channel]['matched'],
             db_step=step
         )
         key_extra = set()
@@ -399,7 +402,7 @@ class ProcessingManager:
             return image.raw_fname
 
         if step_input_type.startswith('calibrated'):
-            return self._condition_expressions[
+            return self._evaluated_expressions[
                 image.id
             ][
                 channel_name
@@ -408,7 +411,7 @@ class ProcessingManager:
             ]
 
         if step_input_type == 'dr':
-            return self._condition_expressions[
+            return self._evaluated_expressions[
                 image.id
             ][
                 channel_name
@@ -433,10 +436,10 @@ class ProcessingManager:
         """
 
 
-        if image.id in self._condition_expressions:
+        if image.id in self._evaluated_expressions:
             if not return_evaluator:
                 return None
-            image_expressions = self._condition_expressions[
+            image_expressions = self._evaluated_expressions[
                 image.id
             ][
                 eval_channel
@@ -460,7 +463,7 @@ class ProcessingManager:
         if return_evaluator and eval_channel is None:
             result.symtable.update(evaluate.symtable)
 
-        self._condition_expressions[image.id] = {}
+        self._evaluated_expressions[image.id] = {}
         all_channel_matched = None
         for channel_name, channel_slice in self._get_split_channels(
                 image
@@ -470,7 +473,7 @@ class ProcessingManager:
                                  channel_slice)
             if return_evaluator and eval_channel == channel_name:
                 result.symtable.update(evaluate.symtable)
-            condition_expressions = {
+            evaluated_expressions = {
                 'values': {expr_id: evaluate(expression)
                            for expr_id, expression in
                            self.condition_expressions.items()},
@@ -478,41 +481,41 @@ class ProcessingManager:
                     evaluate.symtable
                 )
             }
-            condition_expressions['matched'] = set(
+            evaluated_expressions['matched'] = set(
                 expr_id
-                for expr_id, value in condition_expressions['values'].items()
+                for expr_id, value in evaluated_expressions['values'].items()
                 if value
             )
 
             if all_channel_matched is None:
-                all_channel_matched = condition_expressions['matched']
+                all_channel_matched = evaluated_expressions['matched']
             else:
                 all_channel_matched = (all_channel_matched
                                        &
-                                       condition_expressions['matched'])
+                                       evaluated_expressions['matched'])
 
             for required_expressions, value in self.configuration[
                     'data-reduction-fname'
             ][
                     'value'
             ].items():
-                if required_expressions <= condition_expressions['matched']:
-                    condition_expressions['dr'] = value.format_map(
+                if required_expressions <= evaluated_expressions['matched']:
+                    evaluated_expressions['dr'] = value.format_map(
                         evaluate.symtable
                     )
                     break
-            assert 'dr' in condition_expressions
+            assert 'dr' in evaluated_expressions
 
-            self._condition_expressions[image.id][channel_name] = (
-                condition_expressions
+            self._evaluated_expressions[image.id][channel_name] = (
+                evaluated_expressions
             )
 
-        self._condition_expressions[image.id][None] = {
+        self._evaluated_expressions[image.id][None] = {
             'matched': all_channel_matched
         }
         self._logger.debug('Evaluated expressions for image %s: %s',
                            image,
-                           repr(self._condition_expressions[image.id]))
+                           repr(self._evaluated_expressions[image.id]))
         return result if return_evaluator else None
 
 
@@ -618,60 +621,30 @@ class ProcessingManager:
     def _get_interrupted(self, need_cleanup, db_session):
         """Return list of interrupted files and configuration for cleanup."""
 
-        interrupted = []
+        interrupted = {}
         cleanup_step = need_cleanup[0][2]
         input_type = getattr(processing_steps, cleanup_step.name).input_type
-        matched_expressions = None
         for image, processed, step in need_cleanup:
 
             assert step == cleanup_step
 
-            if image.id not in self._condition_expressions:
+            if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
-            image_matches = self._condition_expressions[
-                image.id
-            ][
-                processed.channel
-            ][
-                'matched'
-            ]
-            if matched_expressions is None:
-                matched_expressions = image_matches
-                config, config_key = self._get_image_config(
-                    image,
-                    processed.channel,
-                    step,
-                    db_session
-                )
-            else:
-                compare_config, compare_key = self._get_image_config(
-                    image,
-                    processed.channel,
-                    step,
-                    db_session
-                )
-                if compare_key != config_key:
-                    raise RuntimeError(
-                        'Not all images with interrupted processing have '
-                        'the same configuration:\n\t'
-                        +
-                        '\n\t'.join([f'{key}: {value!r}'
-                                     for key, value in config.items()])
-                        +
-                        'vs\n\t'
-                        +
-                        '\n\t'.join([
-                            f'{key}: {value!r}'
-                            for key, value in compare_config.items()
-                        ])
-                    )
+            config, config_key = self._get_image_config(
+                image,
+                processed.channel,
+                step,
+                db_session
+            )
+            if config_key not in interrupted:
+                interrupted[config_key] = [[], config]
 
-            interrupted.append((
+            interrupted[config_key][0].append((
                 self._get_step_input(image, processed.channel, input_type),
                 processed.status
             ))
-        return interrupted, config
+        return interrupted.values()
 
 
     def _cleanup_interrupted(self, db_session):
@@ -700,31 +673,32 @@ class ProcessingManager:
 
         step_module = getattr(processing_steps, need_cleanup[0][2].name)
 
-        interrupted, config = self._get_interrupted(need_cleanup, db_session)
-        self._logger.warning(
-            'Cleaning up interrupted %s processing of %d images:\n'
-            '%s\n'
-            'config: %s',
-            need_cleanup[0][2],
-            len(interrupted),
-            repr(interrupted),
-            repr(config)
-        )
-        new_status = step_module.cleanup_interrupted(interrupted, config)
-        for _, processed, _ in need_cleanup:
-            assert new_status >= -1
-            assert new_status <= processed.status
-            if new_status == -1:
-                db_session.delete(processed)
-            else:
-                processed.status = new_status
+        for interrupted, config in self._get_interrupted(need_cleanup,
+                                                         db_session):
+            self._logger.warning(
+                'Cleaning up interrupted %s processing of %d images:\n'
+                '%s\n'
+                'config: %s',
+                need_cleanup[0][2],
+                len(interrupted),
+                repr(interrupted),
+                repr(config)
+            )
+            new_status = step_module.cleanup_interrupted(interrupted, config)
+            for _, processed, _ in need_cleanup:
+                assert new_status >= -1
+                assert new_status <= processed.status
+                if new_status == -1:
+                    db_session.delete(processed)
+                else:
+                    processed.status = new_status
 
 
     def _init_processed_ids(self, image, channels, step_input_type):
         """Prepare to record processing of the given image by current step."""
 
         if channels == [None]:
-            channels = self._condition_expressions[image.id].keys()
+            channels = self._evaluated_expressions[image.id].keys()
 
         for channel_name in channels:
             if channel_name is None:
@@ -794,7 +768,7 @@ class ProcessingManager:
             pending_images = new_pending
 
         for image, channel_name in pending_images:
-            if image.id not in self._condition_expressions:
+            if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
@@ -835,7 +809,7 @@ class ProcessingManager:
         assert self.current_step is not None
         assert self._current_processing is not None
         self._logger.debug('Starting processing IDs: %s',
-                           repr(self._processed_ids))
+                           repr(self._processed_ids[input_fname]))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -868,8 +842,8 @@ class ProcessingManager:
 
         assert self.current_step is not None
         assert self._current_processing is not None
-        self._logger.debug('Finished processing IDs: %s',
-                           repr(self._processed_ids))
+        self._logger.debug('Finished processing %s',
+                           repr(self._processed_ids[input_fname]))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -892,10 +866,33 @@ class ProcessingManager:
             )
 
 
-    def _group_pending_by_conditions(self, pending_images):
+    def _group_pending_by_conditions(self, pending_images, db_session):
         """Group pendig_images grouped by condition expressions they satisfy."""
 
         result = []
+        master_expression_ids = db_session.scalars(
+            select(
+                ConditionExpression.id
+            ).select_from(
+                RequiredMasterTypes
+            ).join(
+                MasterType
+            ).join(
+                Condition
+            ).join(
+                ConditionExpression
+            ).where(
+                RequiredMasterTypes.step_id
+                ==
+                self.current_step.id
+            ).where(
+                RequiredMasterTypes.image_type_id
+                ==
+                pending_images[0][0].image_type_id
+            ).group_by(
+                ConditionExpression.id
+            )
+        ).all()
         while pending_images:
 #            pending_images = [
 #                (db_session.merge(image, load=False), channel)
@@ -909,39 +906,47 @@ class ProcessingManager:
 #            )
 
             batch = []
-            matched_expressions = self._condition_expressions[
+            last_evaluated = self._evaluated_expressions[
                 pending_images[-1][0].id
             ][
                 pending_images[-1][1]
-            ][
-                'matched'
             ]
+            target_matched_expressions = last_evaluated['matched']
+            target_master_expression_values = tuple(
+                last_evaluated['values'][expression_id]
+                for expression_id in master_expression_ids
+            )
             self._logger.debug(
-                'Finding images matching expressions: %s',
-                repr(matched_expressions)
+                'Finding images matching expressions %s and values %s',
+                repr(target_matched_expressions),
+                repr(target_master_expression_values)
             )
 
             for i in range(len(pending_images) - 1, -1, -1):
-                self._logger.debug(
-                    'Comparing %s to %s',
-                    repr(
-                        self._condition_expressions[
-                            pending_images[i][0].id
-                        ][
-                            pending_images[i][1]
-                        ][
-                            'matched'
-                        ]
-                    ),
-                    repr(matched_expressions)
-                )
-                if self._condition_expressions[
-                        pending_images[i][0].id
+                image_evaluated = self._evaluated_expressions[
+                    pending_images[i][0].id
                 ][
                     pending_images[i][1]
-                ][
-                    'matched'
-                ] == matched_expressions:
+                ]
+                image_master_expression_values = tuple(
+                    image_evaluated['values'][expression_id]
+                    for expression_id in master_expression_ids
+                )
+
+                self._logger.debug(
+                    'Comparing %s to %s and %s to %s',
+                    repr(image_evaluated['matched']),
+                    repr(target_matched_expressions),
+                    repr(image_master_expression_values),
+                    repr(target_master_expression_values)
+                )
+                if(
+                    image_evaluated['matched'] == target_matched_expressions
+                    and
+                    image_master_expression_values
+                    ==
+                    target_master_expression_values
+                ):
                     batch.append(pending_images.pop(i))
                     self._logger.debug(
                         'Added image to batch, now:\n\t%s',
@@ -961,7 +966,8 @@ class ProcessingManager:
 
         result = {}
         for batch in self._group_pending_by_conditions(
-            pending_images
+            pending_images,
+            db_session
         ):
             config, config_key = self._get_image_config(
                 *batch[0],
@@ -1044,7 +1050,7 @@ class ProcessingManager:
         self._current_processing = None
         self.configuration = {}
         self.condition_expressions = {}
-        self._condition_expressions = {}
+        self._evaluated_expressions = {}
         self._processed_ids = {}
         self._pending = {}
         #False positivie
@@ -1082,6 +1088,12 @@ class ProcessingManager:
                         self.condition_expressions[cond.expression_id] = (
                             cond.expression.expression
                         )
+
+            for master_type in db_session.scalars(select(MasterType)).all():
+                for expression in master_type.match_expressions:
+                    self.condition_expressions[expression.id] = (
+                        expression.expression
+                    )
 
             self.step_version = {
                 step.name: max(

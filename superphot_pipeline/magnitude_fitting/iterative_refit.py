@@ -255,6 +255,7 @@ def iterative_refit(fit_dr_filenames,
                                      num_photometries,
                                      fname_substitutions)
             path_substitutions['magfit_iteration'] += 1
+            fname_substitutions['magfit_iteration'] += 1
     for fit_dr_fname in fit_dr_filenames:
         mark_end(fit_dr_fname,
                  status=2 * path_substitutions['magfit_iteration'] - 1,

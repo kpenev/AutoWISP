@@ -5,6 +5,7 @@
 from types import SimpleNamespace
 from itertools import count
 import os
+import logging
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
@@ -51,7 +52,10 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--master-photref-fname-format',
-        default='MASTERS/mphotref_iter{magfit_iteration:03d}.fits',
+        default=(
+            'MASTERS/mphotref_'
+            '{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter{magfit_iteration:03d}.fits'
+        ),
         help='A format string involving a {magfit_iteration} substitution along'
         ' with any variables from the header of the single photometric '
         'reference or passed through the path_substitutions arguments, that '
@@ -60,7 +64,10 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--magfit-stat-fname-format',
-        default='MASTERS/mfit_stat_iter{magfit_iteration:03d}.txt',
+        default=(
+            'MASTERS/mfit_stat_{FIELD}_{CLRCHNL}_{EXPTIME}sec_iter'
+            '{magfit_iteration:03d}.txt'
+        ),
         help='Similar to ``master_photref_fname_format``, but defines the name'
         ' to use for saving the statistics of a magnitude fitting iteration.'
     )
@@ -205,15 +212,21 @@ def fit_magnitudes(dr_collection,
 def cleanup_interrupted(interrupted, configuration):
     """Remove DR entries stats and magfit references for magfit_iteration."""
 
+    logger = logging.getLogger(__name__)
+
     dr_substitutions = get_path_substitutions(configuration)
 
     min_status = min(interrupted, key=lambda x: x[1])[1]
     max_status = max(interrupted, key=lambda x: x[1])[1]
+    logger.info('Cleaning up interrupted magfit with status %d to %d',
+                min_status,
+                max_status)
 
     if min_status < max_status - 1 - max_status % 2:
         raise ValueError(
-            'Encountere internally inconsistent interrupted status values when '
-            'cleaning up magnitude fitting!'
+            'Encountered internally inconsistent interrupted status values when'
+            ' cleaning up magnitude fitting '
+            f'(min: {min_status}, max: {max_status})!'
         )
 
     with DataReductionFile(
@@ -223,13 +236,15 @@ def cleanup_interrupted(interrupted, configuration):
         fname_substitutions = dict(single_photref_dr.get_frame_header())
         fname_substitutions.update(dr_substitutions)
 
-
     for master_type in ['master_photref', 'magfit_stat']:
         fname_substitutions['magfit_iteration'] = max_status // 2
         to_delete = configuration[master_type + '_fname_format'].format_map(
             fname_substitutions
         )
         if os.path.exists(to_delete):
+            logger.warning("Removing potentially partial %s file '%s'!",
+                           master_type,
+                           to_delete)
             os.remove(to_delete)
         for iteration in range(0, max_status // 2):
             fname_substitutions['magfit_iteration'] = iteration
@@ -254,6 +269,9 @@ def cleanup_interrupted(interrupted, configuration):
             continue
 
         dr_substitutions['magfit_iteration'] = from_status // 2
+        logger.warning("Deleting magfit iteration %d from '%s'!",
+                       dr_substitutions['magfit_iteration'],
+                       dr_fname)
         with DataReductionFile(dr_fname, 'r+') as dr_file:
             dr_file.delete_dataset('shapefit.magfit.magnitude',
                                    **dr_substitutions)
@@ -265,6 +283,8 @@ def cleanup_interrupted(interrupted, configuration):
                 dr_file.delete_dataset('apphot.magfit.magnitude',
                                        aperture_index=aperture_index,
                                        **dr_substitutions)
+
+    return max_status - 1 - max_status % 2
 
 
 if __name__ == '__main__':

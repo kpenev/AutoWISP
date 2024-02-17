@@ -161,8 +161,8 @@ class MagnitudeFit(ABC):
         try:
             fitted = numpy.empty((num_sources, num_phot), dtype=float)
             phot_ind = 0
-            if data_reduction.has_shapefit(accept_zeropsf=False,
-                                           **dr_path_substitutions):
+            if data_reduction.has_shape_fit(accept_zeropsf=False,
+                                            **dr_path_substitutions):
                 fitted[:, 0] = data_reduction.get_dataset(
                     'shapefit.magfit.magnitude',
                     expected_shape=(num_sources,),
@@ -533,8 +533,8 @@ class MagnitudeFit(ABC):
                 fitted = self._solved(
                     data_reduction=data_reduction,
                     deleted_phot_indices=deleted_phot_indices,
-                    num_phot=phot.shape[1],
-                    num_sources=phot.shape[0],
+                    num_phot=phot['mag'].shape[2],
+                    num_sources=phot['mag'].shape[0],
                     dr_path_substitutions=dr_path_substitutions
                 )
 
