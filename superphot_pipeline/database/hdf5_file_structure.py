@@ -57,6 +57,11 @@ class HDF5FileDatabaseStructure(HDF5File):
                 str(structure.structure_versions[0].version)
             )
 
+        if not hasattr(cls, '_file_structure'):
+            cls._file_structure = {}
+        if version in cls._file_structure:
+            return cls._file_structure[version]
+
         #False positive
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -98,7 +103,8 @@ class HDF5FileDatabaseStructure(HDF5File):
 
             db_session.expunge_all()
 
-        return create_result(structure)
+        cls._file_structure[version] = create_result(structure)
+        return cls._file_structure[version]
 
 #pylint: enable=abstract-method
 

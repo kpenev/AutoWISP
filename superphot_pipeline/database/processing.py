@@ -537,7 +537,7 @@ class ProcessingManager:
                 specified step has not applied with the current configuration.
         """
 
-        select_imgage_channel = select(
+        select_image_channel = select(
             Image,
             CameraChannel.name
         ).join(
@@ -562,10 +562,12 @@ class ProcessingManager:
                 ImageProcessingProgress.configuration_version
                 ==
                 self.step_version[step.name]
+            ).where(
+                ProcessedImages.final
             ).subquery()
 
             self._pending[(step.id, image_type.id)] = db_session.execute(
-                select_imgage_channel.outerjoin(
+                select_image_channel.outerjoin(
                     processed_subquery,
                     and_(Image.id == processed_subquery.c.image_id,
                          CameraChannel.name == processed_subquery.c.channel),
@@ -1141,6 +1143,9 @@ class ProcessingManager:
                 pending_images, step_input_type = self._start_step(step,
                                                                    image_type,
                                                                    db_session)
+                if not pending_images:
+                    continue
+
                 processing_batches = self._get_batches(pending_images,
                                                        step_input_type,
                                                        db_session)

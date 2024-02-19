@@ -295,10 +295,8 @@ class LCDataIO:
                 returning extra keywrds to add to the header.
 
             source_list:    A list that includes all sources for which
-                lightcurves will be generated. Sources should be formatted
-                as (field, source) tuples of two integers. Sources not in this
-                list are ignored. If None, the sources in the catalogue are used
-                instead.
+                lightcurves will be generated. Sources not in this list are
+                ignored. If None, the sources in the catalogue are used instead.
 
             optional_header: Indicate which header keywords could
                 be missing from the FITS header. Missing keywors will
@@ -1248,7 +1246,7 @@ class LCDataIO:
                               light_curve,
                               source_index,
                               defined_indices,
-                              resolve_lc_size='actual'):
+                              resolve_lc_size='confirmed'):
         """
         Add all configurations to the LC and fix their config_ids in slice.
 
@@ -1404,7 +1402,7 @@ class LCDataIO:
 
             try:
                 source_ids = {'HAT': get_hat_source_id_str(source_id)}
-            except IndexError:
+            except (IndexError, TypeError):
                 source_ids = {'Gaia DR3': repr(source_id)}
 
             with LightCurveFile(
@@ -1415,10 +1413,10 @@ class LCDataIO:
                 self._write_configurations(light_curve,
                                            source_index,
                                            defined_indices,
-                                           resolve_lc_size='actual')
+                                           resolve_lc_size='confirmed')
                 self._write_slice_data(light_curve,
                                        source_index,
                                        defined_indices,
-                                       resolve_lc_size='actual')
+                                       resolve_lc_size='confirmed')
         except Exception as ex:
             raise IOError('While writing source: ' + repr(source_id)) from ex

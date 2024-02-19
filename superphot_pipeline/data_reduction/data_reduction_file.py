@@ -562,7 +562,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 result.set_index(hat_id_components, inplace=True)
 
             logging.getLogger(__name__).debug(
-                'Source data after formatting ID: %s',
+                'Source data after formatting ID:\n%s',
                 repr(result)
             )
 
@@ -572,7 +572,11 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def normalize_magfit_iterations():
             """Make sure ``magfit_iterations`` is a list of positive indices."""
 
-            if magfit_iterations != 'all' and min(magfit_iterations) >= 0:
+            if magfit_iterations != 'all' and (
+                len(magfit_iterations) == 0
+                or
+                min(magfit_iterations) >= 0
+            ):
                 return magfit_iterations
 
             all_magfit_indices = numpy.array(
@@ -691,7 +695,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                     shape_map_variables=False,
                                     background=False,
                                     position=False,
-                                    **path_substitutions)['ID']
+                                    **path_substitutions).index
 
     def add_magnitude_fitting(self,
                               *,

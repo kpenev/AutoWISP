@@ -304,7 +304,7 @@ class ManualStepArgumentParser(ArgumentParser):
         if add_lc_fname_arg:
             self.add_argument(
                 '--lc-fname',
-                default='LC/{0!d}-{1:03d}-{2:07d}.h5',
+                default='LC/GDR3_{:d}.h5',
                 help='The light curve dumping filename pattern to use.'
             )
 

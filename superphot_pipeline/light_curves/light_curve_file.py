@@ -545,6 +545,19 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                              unlimited=True,
                              **substitutions)
 
+
+    def confirm_lc_length(self, **substitutions):
+        """Set the confirmed length of the lightcurve to match actual length."""
+
+
+        dataset_path = (self._file_structure['skypos.BJD'].abspath
+                        %
+                        substitutions)
+        assert dataset_path in self
+        actual_length = len(self[dataset_path])
+        self.add_attribute('confirmed_lc_length', actual_length)
+
+
     def add_corrected_dataset(self,
                               original_key,
                               corrected_key,

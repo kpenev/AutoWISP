@@ -9,7 +9,6 @@ import os.path
 from sys import exc_info
 #from ast import literal_eval
 from traceback import format_exception
-import logging
 
 from lxml import etree
 import h5py
@@ -1188,15 +1187,6 @@ class HDF5File(ABC, h5py.File):
         if dtype.kind == 'S':
             assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
             creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
-
-        logging.getLogger(__name__).debug(
-            'Creating dataset %s with shape %s, input dtype %s, '
-            'creation_args %s',
-            dataset_path,
-            shape,
-            repr(None if data_copy is None else data_copy.dtype),
-            repr(creation_args)
-        )
 
         if 'scaleoffset' in creation_args:
             assert data is None or numpy.isfinite(data_copy).all()
