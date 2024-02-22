@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SuperPhot Pipeline Configuration</title>
+        <link rel="icon" href="img/logo.png">
+        <link rel="stylesheet" 
+              href="{% static 'configuration/css/jquery.orgchart.css' %}">
+        <link rel="stylesheet" 
+              href="{% static 'configuration/css/style.css' %}">
+        <link rel="stylesheet" 
+              href="{% static 'configuration/css/navbar.css' %}">
+        <style type="text/css">
+            #chart-container { text-align: left; }
+        </style>
+    </head>
+    <body>
+
+        <div class="navbar">
+            <div class="dropdown">
+                <button class="dropbtn">Step: {{ selected_step }}
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    {% for step_name in pipeline_steps %}
+                    <a href="/configuration/{{step_name}}/{{selected_version}}">
+                        {{ step_name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div> 
+            <div class="dropdown">
+                <button class="dropbtn">Version: {{ selected_version }} 
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    {% for version in config_versions %}
+                    <a href="/configuration/{{selected_step}}/{{version}}">
+                        {{ version }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div> 
+        </div>
+
+        <div id="chart-container"></div>
+
+        <script type="text/javascript" 
+                src="{% static 'configuration/css/jquery.min.js' %}">
+        </script>
+        <script type="text/javascript" 
+                src="{% static 'configuration/js/jquery.orgchart.js' %}">
+        </script>
+        <script type="text/javascript">
+            $(function() {
+
+                {% autoescape off %}
+                var datascource = {{ config_json }};
+                {% endautoescape %}
+
+                $('#chart-container').orgchart({
+                                               'data' : datascource,
+                                               'nodeContent': 'content',
+                                               'direction': 'l2r'
+                });
+
+            });
+        </script>
+    </body>
+</html>

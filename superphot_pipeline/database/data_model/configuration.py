@@ -37,6 +37,9 @@ class Configuration(DataModelBase):
     )
     condition_id = Column(
         Integer,
+        ForeignKey('condition.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         primary_key=True,
         doc='The id of the condition that must be met for this configuration to'
         ' apply'
@@ -65,6 +68,10 @@ class Configuration(DataModelBase):
         uselist=True
     )
     parameter = relationship("Parameter")
+    condition_expressions = relationship(
+        "ConditionExpression",
+        secondary=Condition.__tablename__
+    )
 
     def __repr__(self):
         return (

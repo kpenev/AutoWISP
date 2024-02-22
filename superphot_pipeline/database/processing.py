@@ -20,6 +20,7 @@ from superphot_pipeline.image_calibration.fits_util import\
     add_required_keywords,\
     add_channel_keywords
 from superphot_pipeline import processing_steps
+from superphot_pipeline.database.user_interface import get_db_configuration
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
@@ -103,44 +104,6 @@ class ProcessingManager:
             type that have not been processed by the currently selected version
             of the step in the key.
     """
-
-    def _get_db_configuration(self, version, db_session):
-        """Return list of Configuration instances given version."""
-
-        #False positives:
-        #pylint: disable=no-member
-        param_version_subq = select(
-            Configuration.parameter_id,
-            #False positivie
-            #pylint: disable=not-callable
-            sql.func.max(Configuration.version).label('version'),
-            #pylint: enable=not-callable
-        ).filter(
-            Configuration.version <= version
-        ).group_by(
-            Configuration.parameter_id
-        ).subquery()
-
-        return db_session.scalars(
-            select(
-                Configuration
-            ).join(
-                param_version_subq,
-                sql.expression.and_(
-                    (
-                        Configuration.parameter_id
-                        ==
-                        param_version_subq.c.parameter_id
-                    ),
-                    (
-                        Configuration.version
-                        ==
-                        param_version_subq.c.version
-                    )
-                )
-            )
-        ).all()
-        #pylint: enable=no-member
 
 
     def _get_param_values(self,
@@ -1070,7 +1033,7 @@ class ProcessingManager:
                     #pylint: enable=no-member
                 ).scalar_one()
 
-            db_configuration = self._get_db_configuration(version, db_session)
+            db_configuration = get_db_configuration(version, db_session)
             for config_entry in db_configuration:
                 if config_entry.parameter.name not in self.configuration:
                     self.configuration[config_entry.parameter.name] = {
