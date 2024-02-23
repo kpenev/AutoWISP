@@ -20,18 +20,18 @@ from superphot_pipeline.image_calibration.fits_util import\
     add_required_keywords,\
     add_channel_keywords
 from superphot_pipeline import processing_steps
-from superphot_pipeline.database.user_interface import get_db_configuration
+from superphot_pipeline.database.user_interface import\
+    get_db_configuration,\
+    get_processing_sequence
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
-    ProcessingSequence,\
     StepDependencies,\
     ImageProcessingProgress,\
     ProcessedImages,\
     Configuration,\
     Step,\
     Image,\
-    ImageType,\
     ObservingSession,\
     MasterFile,\
     MasterType,\
@@ -513,7 +513,7 @@ class ProcessingManager:
             CameraChannel
         )
 
-        for step, image_type in self._get_processing_sequence(db_session):
+        for step, image_type in get_processing_sequence(db_session):
             processed_subquery = select(
                 ProcessedImages.image_id,
                 ProcessedImages.channel
@@ -976,26 +976,6 @@ class ProcessingManager:
         return result
 
 
-    @staticmethod
-    def _get_processing_sequence(db_session):
-        """Return the sequence of step/image type pairs to process."""
-
-        return db_session.execute(
-            select(
-                Step,
-                ImageType
-            ).select_from(
-                ProcessingSequence
-            ).join(
-                Step,
-                ProcessingSequence.step_id == Step.id
-            ).join(
-                ImageType,
-                ProcessingSequence.image_type_id == ImageType.id
-            )
-        ).all()
-
-
     def __init__(self, version=None):
         """
         Set the public class attributes per the given configuartion version.
@@ -1080,7 +1060,7 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            processing_sequence = self._get_processing_sequence(db_session)
+            processing_sequence = get_processing_sequence(db_session)
 
         for step, image_type in processing_sequence:
             #pylint: disable=no-member

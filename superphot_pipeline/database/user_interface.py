@@ -1,19 +1,34 @@
 """Define interface to the pipeline database."""
 
 import json
+import logging
 
-from sqlalchemy import select
-from sqlalchemy import sql
+from sqlalchemy import sql, select, func, and_
 
 from superphot_pipeline.database.interface import Session
 #False positive
 #pylint: disable=no-name-in-module
+from superphot_pipeline.database.data_model.provenance import\
+    Camera,\
+    CameraType,\
+    CameraChannel
+
 from superphot_pipeline.database.data_model import\
+    ObservingSession,\
     Configuration,\
-    Step
+    Step,\
+    Image,\
+    ImageType,\
+    ProcessingSequence,\
+    ProcessedImages,\
+    ImageProcessingProgress,\
+    step_param_association
 #pylint: enable=no-name-in-module
 
-def get_db_configuration(version, db_session):
+def get_db_configuration(version,
+                         db_session,
+                         step_id=None,
+                         max_version_only=False):
     """Return list of Configuration instances given version."""
 
     #False positives:
@@ -30,26 +45,194 @@ def get_db_configuration(version, db_session):
         Configuration.parameter_id
     ).subquery()
 
-    return db_session.scalars(
-        select(
-            Configuration
-        ).join(
-            param_version_subq,
-            sql.expression.and_(
-                (
-                    Configuration.parameter_id
-                    ==
-                    param_version_subq.c.parameter_id
-                ),
-                (
-                    Configuration.version
-                    ==
-                    param_version_subq.c.version
-                )
+    config_select = select(
+        func.max(Configuration.version) if max_version_only else Configuration
+    ).join(
+        param_version_subq,
+        sql.expression.and_(
+            (
+                Configuration.parameter_id
+                ==
+                param_version_subq.c.parameter_id
+            ),
+            (
+                Configuration.version
+                ==
+                param_version_subq.c.version
             )
         )
-    ).all()
+    )
+    if step_id is not None:
+        config_select = config_select.join(
+            step_param_association,
+            Configuration.parameter_id == step_param_association.c.param_id
+        ).where(
+            step_param_association.c.step_id == step_id
+        )
+
+    if max_version_only:
+        return db_session.scalars(config_select).one()
+    return db_session.scalars(config_select).all()
     #pylint: enable=no-member
+
+
+def get_processing_sequence(db_session):
+    """Return the sequence of step/image type pairs to process."""
+
+    return db_session.execute(
+        select(
+            Step,
+            ImageType
+        ).select_from(
+            ProcessingSequence
+        ).join(
+            Step,
+            ProcessingSequence.step_id == Step.id
+        ).join(
+            ImageType,
+            ProcessingSequence.image_type_id == ImageType.id
+        )
+    ).all()
+
+
+def get_progress(step_id, image_type_id, config_version, db_session):
+    """
+    Return number of images in final state and by status for given step/imtype.
+
+    Args:
+        step:    Step instance for which to return the progress.
+
+        image_type:    ImageType instance for which to return the progress.
+
+        config_version:    Version of the configuration for which to report
+            progress.
+
+        db_session:    Database session to use.
+
+    Returns:
+        [
+            str:    The name of the channel for which the progress is reported.
+
+            (int, int):    The final status code and the number of images in the
+                final status.
+
+            int:    The number of images with no processing by given step.
+            [
+                (int, int):    Status code, Number of images in the given
+                    status.
+            ]
+        ]
+    """
+
+    step_version = get_db_configuration(config_version,
+                                        db_session,
+                                        step_id,
+                                        max_version_only=True)
+
+    def complete_processed_select(_select):
+        """Return the given select joined and filtered to given processed."""
+
+        return _select.join(
+            ImageProcessingProgress
+        ).where(
+            ImageProcessingProgress.step_id == step_id
+        ).where(
+            ImageProcessingProgress.configuration_version == step_version
+        )
+
+    select_image_channel = select(
+        CameraChannel.name,
+        #False poisitive
+        #pylint: disable=not-callable
+        func.count(Image.id)
+        #pylint: enable=not-callable
+    ).join(
+        ObservingSession,
+    ).join(
+        Camera
+    ).join(
+        CameraType
+    ).join(
+        CameraChannel
+    )
+
+    processed_select = complete_processed_select(
+        select(
+            ProcessedImages.channel,
+            ProcessedImages.status,
+            #False poisitive
+            #pylint: disable=not-callable
+            func.count(ProcessedImages.image_id)
+            #pylint: enable=not-callable
+        ).join(
+            Image
+        ).join(
+            ImageType
+        )
+    ).where(
+        ImageType.id == image_type_id
+    )
+    final = {
+        channel: (status, count)
+        for channel, status, count in db_session.execute(
+            processed_select.where(
+                ProcessedImages.final
+            ).group_by(
+                ProcessedImages.status,
+                ProcessedImages.channel
+            )
+        ).all()
+    }
+    by_status = db_session.execute(
+        processed_select.group_by(ProcessedImages.status,
+                                  ProcessedImages.channel)
+    ).all()
+    processed_subquery = complete_processed_select(
+        select(
+            ProcessedImages.image_id,
+            ProcessedImages.channel
+        )
+    ).where(
+        ProcessedImages.final
+    ).subquery()
+
+    pending = dict(
+        db_session.execute(
+            select_image_channel.outerjoin(
+                processed_subquery,
+                and_(Image.id == processed_subquery.c.image_id,
+                     CameraChannel.name == processed_subquery.c.channel),
+            ).where(
+                #This is how NULL comparison is done in SQLAlchemy
+                #pylint: disable=singleton-comparison
+                processed_subquery.c.image_id == None
+                #pylint: enable=singleton-comparison
+            ).where(
+                Image.image_type_id == image_type_id
+            ).group_by(
+                CameraChannel.name
+            )
+        ).all()
+    )
+    result = {}
+    for channel, status, count in by_status:
+        if channel not in result:
+            result[channel] = [
+                final.get(channel, (0, None)),
+                pending.get(channel, 0),
+                [
+                    (status, count)
+                ]
+            ]
+        else:
+            result[channel].append(status, count)
+    for channel, num_pending in pending.items():
+        if channel not in result:
+            result[channel] = [(0, None), num_pending, []]
+    return [
+        (channel, *result[channel])
+        for channel in sorted(result)
+    ]
 
 
 def _get_config_info(version, step='All'):
@@ -162,8 +345,8 @@ def get_json_config(version=0, step='All', **dump_kwargs):
     return json.dumps(config_data, **dump_kwargs)
 
 
-def list_steps(enabled_only=False):
-    """List the pipeline steps (or only those from the processing sequence)."""
+def list_steps():
+    """List the pipeline steps."""
 
     #False positive:
     #pylint: disable=no-member
@@ -174,5 +357,16 @@ def list_steps(enabled_only=False):
         ).all()
 
 
+def main():
+    """Avoid polluting the global namespace."""
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
+    #False positive:
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        print(get_progress(8, 4, 0, db_session))
+
 if __name__ == '__main__':
-    print(get_json_config(indent=4, sort_keys=True))
+    main()

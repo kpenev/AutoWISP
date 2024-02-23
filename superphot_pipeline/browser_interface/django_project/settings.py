@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['localhost', 'kartof', 'kartof.utdallas.edu']
 # Application definition
 
 INSTALLED_APPS = [
+    'processing_status.apps.ProcessingStatusConfig',
     'configuration.apps.ConfigurationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -122,3 +123,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]

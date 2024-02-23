@@ -7,6 +7,8 @@ from importlib import import_module
 from inspect import isclass
 
 from superphot_pipeline.database.data_model.base import DataModelBase
+from superphot_pipeline.database.data_model.steps_and_parameters import\
+    step_param_association
 
 __all__ = []
 

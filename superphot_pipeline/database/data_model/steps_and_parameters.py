@@ -17,7 +17,7 @@ from superphot_pipeline.database.data_model.step_dependencies import \
 
 __all__= ['Step', 'Parameter']
 
-_step_param_association = Table(
+step_param_association = Table(
     'step_parameters',
     DataModelBase.metadata,
     Column('step_id', ForeignKey('step.id'), primary_key=True),
@@ -57,7 +57,7 @@ class Step(DataModelBase):
         return f"({self.id}) {self.name}: {self.description} ({self.timestamp})"
 
     parameters: Mapped[List[Parameter]] = relationship(
-        secondary=_step_param_association,
+        secondary=step_param_association,
         back_populates='steps'
     )
     prerequisites: Mapped[List[StepDependencies]] = relationship(
@@ -93,6 +93,6 @@ class Parameter(DataModelBase):
         return f"({self.id}) {self.name}: {self.description} {self.timestamp}"
 
     steps: Mapped[List[Step]] = relationship(
-        secondary=_step_param_association,
+        secondary=step_param_association,
         back_populates='parameters'
     )

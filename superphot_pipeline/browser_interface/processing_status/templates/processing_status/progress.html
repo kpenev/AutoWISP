@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SuperPhot Pipeline Reductions Progress</title>
+        <link rel="icon" href="img/logo.png">
+        <link rel="stylesheet" 
+              href="{% static 'processing_status/css/jquery.orgchart.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" 
+              href="{% static 'css/navbar.css' %}">
+        <style type="text/css">
+            #chart-container { text-align: left; }
+        </style>
+
+    </head>
+    <body>
+        {% for step, imtype, progress in progress_data %}
+        <h1 style="background-color: #D6EEEE;">{{ step }}: {{ imtype }}</h1>
+        <table>
+            <tr>
+                <th>Channel</th>
+                <th colspan=2>Progress</th>
+            </tr>
+            {% for channel, final, pending, by_status in progress %}
+            <tr>
+                {% with total=final|add:pending %}
+                <td rowspan="{{ by_status|length|add:'1'}}">{{channel}}</td>
+                <td colspan="2">
+                    <div id="progress-with-label" style="width: 100%">
+                        <span style="width:{% widthratio final total 100 %}% ;">{{final}}/{{total}}</span>
+                        <progress value="{{ final }}" max="{{ total }}" style="foreground-color:black"></progress>
+                    </div>
+                </td>
+            </tr>
+            {% for status, count in by_status %}
+            <tr>
+                <td>Status {{ status }}</td>
+                <td>
+                    <div id="progress-with-label" style="width: 100%">
+                        <span style="width:{% widthratio count total 100 %}% ;">{{count}}/{{total}}</span>
+                        <progress value="{{ count }}" max="{{ total }}" style="foreground-color:black"></progress>
+                    </div>
+                </td>
+                {% endfor %}
+                {% endwith %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+    </body>
+</html>
+
