@@ -253,33 +253,34 @@ def add_default_hdf5_structures(data_reduction=True, light_curve=True):
 class StepCreator:
     """Add steps to the database one by one."""
 
-    def __init__(self, db_session):
+    def __init__(self):
         """Get ready to add steps to the database."""
 
-        self._db_session = db_session
-        self._step_id = 1
-        self._db_parameters = {}
+        with Session.begin() as db_session:
+            self._step_id = 1
+            self._db_parameters = {}
 
-        default_expression = ConditionExpression(id=1,
-                                                 expression='True',
-                                                 notes='Default expression')
-        db_session.add(default_expression)
+            default_expression = ConditionExpression(id=1,
+                                                     expression='True',
+                                                     notes='Default expression')
+            db_session.add(default_expression)
 
-        #False positive
-        #pylint: disable=not-callable
-        self._default_condition = Condition(
-            id=1,
-            expression_id=default_expression.id,
-            notes='Default configuration'
-        )
-        #pylint: enable=not-callable
+            #False positive
+            #pylint: disable=not-callable
+            self._default_condition = Condition(
+                id=1,
+                expression_id=default_expression.id,
+                notes='Default configuration'
+            )
+            #pylint: enable=not-callable
 
-        db_session.add(self._default_condition)
+            db_session.add(self._default_condition)
 
 
-    def __call__(self, step_name):
+    def __call__(self, step_name, db_session):
         """Add a step with the given name to the database."""
 
+        self._default_condition = db_session.merge(self._default_condition)
         step_module = getattr(processing_steps, step_name)
         new_step = Step(
             id=self._step_id,
@@ -342,11 +343,11 @@ class StepCreator:
                     )
                     #pylint: enable=not-callable
                     configuration.parameter = self._db_parameters[param]
-                    self._db_session.add(configuration)
+                    db_session.add(configuration)
 
                 new_step.parameters.append(self._db_parameters[param])
 
-        self._db_session.add(new_step)
+        db_session.add(new_step)
         return new_step
 #pylint: enable=too-few-public-methods
 
@@ -416,11 +417,13 @@ def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
     image_type_list = ['bias', 'dark', 'flat', 'object']
+
+    add_processing_step = StepCreator()
+
     #False positivie
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        add_processing_step = StepCreator(db_session)
         for image_type_id, image_type in enumerate(image_type_list, 1):
             db_session.add(
                 ImageType(id=image_type_id,
@@ -433,7 +436,7 @@ def init_processing():
                 1
         ):
             if step_name not in db_steps:
-                db_steps[step_name] = add_processing_step(step_name)
+                db_steps[step_name] = add_processing_step(step_name, db_session)
             db_session.add(
                 ProcessingSequence(
                     id = processing_id,

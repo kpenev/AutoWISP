@@ -16,7 +16,7 @@
     </head>
     <body>
 
-        <div class="navbar">
+        <div class="navbar" id="navbar">
             <div class="dropdown">
                 <button class="dropbtn">Step: {{ selected_step }}
                     <i class="fa fa-caret-down"></i>
@@ -42,6 +42,22 @@
                 </div>
             </div> 
         </div>
+        <div id="edit-panel">
+            <table style="width: 100%">
+                <tr>
+                    <td style="width:1%;white-space:nowrap">
+                        <label id="node-type" style="font-size:24px">
+                            Node type:
+                        </label>
+                    </td>
+                    <td>
+                        <input type="text" 
+                               id="edit-node" 
+                               style="width: 100%;font-size:24px">
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         <div id="chart-container"></div>
 
@@ -52,16 +68,37 @@
                 src="{% static 'js/jquery.orgchart.js' %}">
         </script>
         <script type="text/javascript">
+            let remainingHeight = screen.availHeight
+                - 
+                document.getElementById('navbar').offsetHeight
+                -
+                document.getElementById('edit-panel').offsetHeight;
+            remainingHeight *= (98.0 / screen.height);
+
+            document.getElementById('chart-container').style.height = 
+                remainingHeight + '%';
+
             $(function() {
 
                 {% autoescape off %}
-                var datascource = {{ config_json }};
+                let datascource = {{ config_json }};
                 {% endautoescape %}
 
-                $('#chart-container').orgchart({
-                                               'data' : datascource,
-                                               'nodeContent': 'content',
-                                               'direction': 'l2r'
+                let configTree = $('#chart-container').orgchart({
+                        'data' : datascource,
+                        'nodeContent': 'type',
+                        'direction': 'l2r'
+                });
+
+                configTree.$chartContainer.on('click', '.node', function() {
+                    let $this = $(this);
+                    let nodeType = $this.find('.content').text()
+                    $('#edit-node').val($this.find('.title').text());
+                    document.getElementById('edit-node').disabled = 
+                        (nodeType != 'value' &&  nodeType != 'condition');
+                    document.getElementById("node-type").innerHTML = 
+                        nodeType + ":"
+
                 });
 
             });

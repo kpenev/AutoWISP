@@ -70,7 +70,8 @@ class Configuration(DataModelBase):
     parameter = relationship("Parameter")
     condition_expressions = relationship(
         "ConditionExpression",
-        secondary=Condition.__tablename__
+        secondary=Condition.__tablename__,
+        viewonly=True
     )
 
     def __repr__(self):

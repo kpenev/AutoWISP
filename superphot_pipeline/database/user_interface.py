@@ -95,6 +95,12 @@ def get_processing_sequence(db_session):
     ).all()
 
 
+def list_channels(db_session):
+    """List the combine set of channels for all cameras."""
+
+    return db_session.scalars(func.distinct(CameraChannel.name)).all()
+
+
 def get_progress(step_id, image_type_id, config_version, db_session):
     """
     Return number of images in final state and by status for given step/imtype.
@@ -110,18 +116,17 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         db_session:    Database session to use.
 
     Returns:
-        [
-            str:    The name of the channel for which the progress is reported.
+        [str, int, int]:    Information on the images in final state. The
+            entries are channel name, status, number of images of that channel
+            that have that status which is flagged final.
 
-            (int, int):    The final status code and the number of images in the
-                final status.
+        [str, int]:    Information about the images not in final state. The
+            entries are channel name, number of non-final images of that
+            channel.
 
-            int:    The number of images with no processing by given step.
-            [
-                (int, int):    Status code, Number of images in the given
-                    status.
-            ]
-        ]
+        [str, int, int]:    The pending images broken by status. The format is
+            the same as the final state information, except for images not
+            flagged as in final state for the given step.
     """
 
     step_version = get_db_configuration(config_version,
@@ -172,20 +177,21 @@ def get_progress(step_id, image_type_id, config_version, db_session):
     ).where(
         ImageType.id == image_type_id
     )
-    final = {
-        channel: (status, count)
-        for channel, status, count in db_session.execute(
-            processed_select.where(
-                ProcessedImages.final
-            ).group_by(
-                ProcessedImages.status,
-                ProcessedImages.channel
-            )
-        ).all()
-    }
+    final = db_session.execute(
+        processed_select.where(
+            ProcessedImages.final
+        ).group_by(
+            ProcessedImages.status,
+            ProcessedImages.channel
+        )
+    ).all()
     by_status = db_session.execute(
-        processed_select.group_by(ProcessedImages.status,
-                                  ProcessedImages.channel)
+        processed_select.where(
+            ~ProcessedImages.final
+        ).group_by(
+            ProcessedImages.status,
+            ProcessedImages.channel
+        )
     ).all()
     processed_subquery = complete_processed_select(
         select(
@@ -196,24 +202,24 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         ProcessedImages.final
     ).subquery()
 
-    pending = dict(
-        db_session.execute(
-            select_image_channel.outerjoin(
-                processed_subquery,
-                and_(Image.id == processed_subquery.c.image_id,
-                     CameraChannel.name == processed_subquery.c.channel),
-            ).where(
-                #This is how NULL comparison is done in SQLAlchemy
-                #pylint: disable=singleton-comparison
-                processed_subquery.c.image_id == None
-                #pylint: enable=singleton-comparison
-            ).where(
-                Image.image_type_id == image_type_id
-            ).group_by(
-                CameraChannel.name
-            )
-        ).all()
-    )
+    pending = db_session.execute(
+        select_image_channel.outerjoin(
+            processed_subquery,
+            and_(Image.id == processed_subquery.c.image_id,
+                 CameraChannel.name == processed_subquery.c.channel),
+        ).where(
+            #This is how NULL comparison is done in SQLAlchemy
+            #pylint: disable=singleton-comparison
+            processed_subquery.c.image_id == None
+            #pylint: enable=singleton-comparison
+        ).where(
+            Image.image_type_id == image_type_id
+        ).group_by(
+            CameraChannel.name
+        )
+    ).all()
+    return final, pending, by_status
+
     result = {}
     for channel, status, count in by_status:
         if channel not in result:
@@ -225,7 +231,7 @@ def get_progress(step_id, image_type_id, config_version, db_session):
                 ]
             ]
         else:
-            result[channel].append(status, count)
+            result[channel][-1].append((status, count))
     for channel, num_pending in pending.items():
         if channel not in result:
             result[channel] = [(0, None), num_pending, []]
@@ -296,7 +302,7 @@ def get_json_config(version=0, step='All', **dump_kwargs):
                 result.append(
                     {
                         'name': value,
-                        'content': ''
+                        'type': 'value'
                     }
                 )
             elif expression_order[0] in val_expressions:
@@ -310,7 +316,7 @@ def get_json_config(version=0, step='All', **dump_kwargs):
             result.append(
                 {
                     'name': expression_order[0],
-                    'content': '',
+                    'type': 'condition',
                     'children': get_children(child_values,
                                              expression_order[1:])
                 }
@@ -323,7 +329,7 @@ def get_json_config(version=0, step='All', **dump_kwargs):
 
     config_data = {
         'name': 'All' if step == 'All' else step,
-        'content': '',
+        'type': 'step',
         'children': []
     }
     for param, param_info in _get_config_info(version, step).items():
@@ -338,7 +344,7 @@ def get_json_config(version=0, step='All', **dump_kwargs):
         config_data['children'].append(
             {
                 'name': param,
-                'content': '',
+                'type': 'parameter',
                 'children': get_children(param_info['values'], expression_order)
             }
         )
@@ -366,6 +372,7 @@ def main():
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
+        print('Channels: ' + repr(list_channels(db_session)))
         print(get_progress(8, 4, 0, db_session))
 
 if __name__ == '__main__':

@@ -55,7 +55,8 @@ class MasterType(DataModelBase):
     )
     master_files = relationship('MasterFile', back_populates='master_type')
     match_expressions: Mapped[List[ConditionExpression]] = relationship(
-        secondary=Condition.__table__
+        secondary=Condition.__table__,
+        viewonly=True
     )
 
 
