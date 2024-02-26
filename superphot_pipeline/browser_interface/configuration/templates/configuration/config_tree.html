@@ -53,7 +53,8 @@
                     <td>
                         <input type="text" 
                                id="edit-node" 
-                               style="width: 100%;font-size:24px">
+                               style="width: 100%;font-size:24px"
+                               onchange="theTree.changeNodeText()">
                     </td>
                 </tr>
             </table>
@@ -67,6 +68,10 @@
         <script type="text/javascript" 
                 src="{% static 'js/jquery.orgchart.js' %}">
         </script>
+        <script type="text/javascript" 
+                src="{% static 'configuration/js/superphot.config.tree.js' %}">
+        </script>
+
         <script type="text/javascript">
             let remainingHeight = screen.availHeight
                 - 
@@ -78,30 +83,12 @@
             document.getElementById('chart-container').style.height = 
                 remainingHeight + '%';
 
-            $(function() {
-
+            let theTree = new configTree(
                 {% autoescape off %}
-                let datascource = {{ config_json }};
+                {{ config_json }}
                 {% endautoescape %}
+            );
 
-                let configTree = $('#chart-container').orgchart({
-                        'data' : datascource,
-                        'nodeContent': 'type',
-                        'direction': 'l2r'
-                });
-
-                configTree.$chartContainer.on('click', '.node', function() {
-                    let $this = $(this);
-                    let nodeType = $this.find('.content').text()
-                    $('#edit-node').val($this.find('.title').text());
-                    document.getElementById('edit-node').disabled = 
-                        (nodeType != 'value' &&  nodeType != 'condition');
-                    document.getElementById("node-type").innerHTML = 
-                        nodeType + ":"
-
-                });
-
-            });
         </script>
     </body>
 </html>

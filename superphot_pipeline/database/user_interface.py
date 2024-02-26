@@ -291,20 +291,24 @@ def _get_config_info(version, step='All'):
 def get_json_config(version=0, step='All', **dump_kwargs):
     """Return the configuration as a JSON object."""
 
-    def get_children(values, expression_order):
+    def get_children(values, expression_order, parent_id, first_child_id=0):
         """Return the sub-tree for the given expressions."""
 
         result = []
         child_values = {}
         sibling_values = {}
+        child_id = first_child_id
         for value, val_expressions in values.items():
             if not val_expressions:
                 result.append(
                     {
                         'name': value,
-                        'type': 'value'
+                        'type': 'value',
+                        'id': f'{parent_id}.{child_id}',
+                        'children': []
                     }
                 )
+                child_id += 1
             elif expression_order[0] in val_expressions:
                 child_values[value] = (val_expressions
                                        -
@@ -313,26 +317,35 @@ def get_json_config(version=0, step='All', **dump_kwargs):
                 sibling_values[value] = val_expressions
 
         if child_values:
+            id_str = f'{parent_id}.{child_id}'
+            child_id += 1
             result.append(
                 {
                     'name': expression_order[0],
                     'type': 'condition',
+                    'id': id_str,
                     'children': get_children(child_values,
-                                             expression_order[1:])
+                                             expression_order[1:],
+                                             id_str)
                 }
             )
         if sibling_values:
             result.extend(get_children(sibling_values,
-                                       expression_order[1:]))
+                                       expression_order[1:],
+                                       parent_id,
+                                       child_id))
         return result
 
 
     config_data = {
         'name': 'All' if step == 'All' else step,
         'type': 'step',
+        'id': '',
         'children': []
     }
-    for param, param_info in _get_config_info(version, step).items():
+    for sub_id, (param, param_info) in enumerate(
+            _get_config_info(version, step).items()
+    ):
         expression_order = [
             expr_count[0]
             for expr_count in sorted(
@@ -341,11 +354,15 @@ def get_json_config(version=0, step='All', **dump_kwargs):
                 reverse=True
             )
         ]
+        id_str = f'{sub_id}'
         config_data['children'].append(
             {
                 'name': param,
                 'type': 'parameter',
-                'children': get_children(param_info['values'], expression_order)
+                'id': id_str,
+                'children': get_children(param_info['values'],
+                                         expression_order,
+                                         id_str)
             }
         )
     return json.dumps(config_data, **dump_kwargs)
