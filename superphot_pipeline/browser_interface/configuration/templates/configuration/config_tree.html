@@ -15,7 +15,7 @@
         </style>
     </head>
     <body>
-
+        {% csrf_token %}
         <div class="navbar" id="navbar">
             <div class="dropdown">
                 <button class="dropbtn">Step: {{ selected_step }}
@@ -29,6 +29,11 @@
                     {% endfor %}
                 </div>
             </div> 
+            <button type="button" 
+                    onclick="theTree.save()"
+                    style="font-size:24px">
+                Save
+            </button>
             <div class="dropdown">
                 <button class="dropbtn">Version: {{ selected_version }} 
                     <i class="fa fa-caret-down"></i>
@@ -85,8 +90,9 @@
 
             let theTree = new configTree(
                 {% autoescape off %}
-                {{ config_json }}
+                {{ config_json }},
                 {% endautoescape %}
+                "{% url 'configuration:save_config' version=1%}"
             );
 
         </script>

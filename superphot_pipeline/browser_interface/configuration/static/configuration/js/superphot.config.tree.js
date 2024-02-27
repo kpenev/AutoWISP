@@ -10,11 +10,29 @@ function startEditNodeText()
 }
 
 
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
 class configTree {
-    constructor(data)
+    constructor(data, saveURL)
     {
         this.addFlags(data)
         this.data = data
+        this.saveURL = saveURL
         this.createDiagram(false);
 
         this.treeDiagram.$chartContainer.on('click', 
@@ -130,5 +148,21 @@ class configTree {
         $node.find('.title').text(
              $('#edit-node').val()
         );
+    }
+
+    save()
+    {
+        let csrftoken = getCookie('csrftoken');
+        let headers = new Headers();
+        headers.append('X-CSRFToken', csrftoken);
+        headers.append("Content-type", "application/json; charset=UTF-8")
+        fetch(this.saveURL, {
+            method: "POST",
+            body: JSON.stringify(this.data),
+            headers: headers,
+            credentials: 'include'
+        })
+            .then((response) => response.body)
+
     }
 }
