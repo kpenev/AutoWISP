@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from superphot_pipeline.database.user_interface import\
     get_json_config,\
+    save_json_config,\
     list_steps
 
 
@@ -28,5 +29,5 @@ def config_tree(request, version=0, step='All'):
 def save_config(request, version=1):
     """Save a user-defined configuration to the database."""
 
-    print('Will save configuration: ' + repr(request.body))
+    save_json_config(request.body, version)
     return HttpResponseRedirect(reverse("configuration:config_tree"))

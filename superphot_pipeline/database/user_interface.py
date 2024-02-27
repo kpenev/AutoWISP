@@ -22,6 +22,9 @@ from superphot_pipeline.database.data_model import\
     ProcessingSequence,\
     ProcessedImages,\
     ImageProcessingProgress,\
+    ConditionExpression,\
+    Condition,\
+    Parameter,\
     step_param_association
 #pylint: enable=no-name-in-module
 
@@ -366,6 +369,209 @@ def get_json_config(version=0, step='All', **dump_kwargs):
             }
         )
     return json.dumps(config_data, **dump_kwargs)
+
+
+def _parse_json_config(json_config):
+    """
+    Organize the given JSON configuration to parameters and conditions.
+
+    Args:
+        json_config: JSON configuration to be parsed. Formatted as a decision
+            tree, where the path through the tree defines the combination of
+            condition expressions that must be satisfied and the leaf at the end
+            specifies the value for the parameter .
+
+    Returns:
+        dict:
+            parameter name: [
+                {
+                    'expressions': set(expression ID index in below list),
+                    'value': value of parameter if all expressions are satisfied
+                },
+                ...
+            ]
+
+        [str]:
+            list of expression strings
+    """
+
+    result = {}
+    expression_list = []
+    def walk_json(sub_tree, parameter=None, expression_ids=None):
+        """Recursively walk the JSON configuration tree adding to results."""
+
+        if sub_tree['type'] == 'parameter':
+            assert parameter is None
+            assert sub_tree['name'] not in result
+            assert expression_ids is None
+            assert sub_tree['children']
+            for child in sub_tree['children']:
+                walk_json(child, sub_tree['name'], ())
+        elif sub_tree['type'] == 'value':
+            assert not sub_tree['children']
+            assert parameter
+            assert expression_ids is not None
+            if parameter not in result:
+                result[parameter] = []
+            result[parameter].append({'expressions': set(expression_ids),
+                                      'value': sub_tree['name']})
+        elif sub_tree['type'] == 'condition':
+            assert sub_tree['children']
+            assert parameter
+            try:
+                condition_id = expression_list.index(sub_tree['name'])
+            except ValueError:
+                condition_id = len(expression_list)
+                expression_list.append(sub_tree['name'])
+            for child in sub_tree['children']:
+                walk_json(child, parameter, expression_ids + (condition_id,))
+        else:
+            raise ValueError(f'Unexpected node type: {sub_tree["type"]} in JSON'
+                             ' configuration')
+
+
+    for child in json_config['children']:
+        walk_json(child)
+
+    return result, expression_list
+
+
+def _get_db_conditions(db_session):
+    """Return dict of condition IDs containing sets of expression IDs."""
+
+    result = {}
+    for condition_id, expression_id in db_session.execute(
+            select(Condition.id, Condition.expression_id)
+    ).all():
+        if condition_id not in result:
+            result[condition_id] = set()
+        result[condition_id].add(
+            expression_id
+        )
+    return result
+
+
+def _save_expressions(expressions, db_session):
+    """Save new expressions to database and update configuration with DB IDs."""
+
+    expression_db_ids = [None for _ in expressions]
+    for expr_ind, expression_str in enumerate(expressions):
+        expression = db_session.execute(
+            select(
+                ConditionExpression
+            ).where(
+                ConditionExpression.expression == (expression_str or 'True')
+            )
+        ).scalar_one_or_none()
+        if expression is None:
+            expression = ConditionExpression(expression=expression_str)
+            db_session.add(expression)
+            db_session.flush()
+        expression_db_ids[expr_ind] = expression.id
+    return expression_db_ids
+
+
+def _save_conditions(configuration, expression_db_ids, db_session):
+    """Create new conditions encounted in configuration and add their IDs."""
+
+    db_conditions = _get_db_conditions(db_session)
+    print(
+        'DB conditions:\n\t'
+        +
+        '\n\t'.join(f'{k}: {v!r}' for k, v in db_conditions.items())
+    )
+    print('DB condition values: ' + repr(db_conditions.values()))
+
+    new_condition_id = db_session.scalar(
+        select(sql.functions.max(Condition.id) + 1)
+    )
+    default_expression_set = set([db_session.scalar(
+        select(ConditionExpression.id).where(
+            ConditionExpression.expression == 'True'
+        )
+    )])
+    default_condition_id = [k for k, v in db_conditions.items()
+                            if v == default_expression_set][0]
+
+    for param_info in configuration.values():
+        for param_condition in param_info:
+            condition_expression_ids = set(
+                expression_db_ids[expr_id]
+                for expr_id in param_condition['expressions']
+            ) - default_expression_set
+            param_condition['expressions'] = condition_expression_ids
+            if not condition_expression_ids:
+                param_condition['condition_id'] = default_condition_id
+            else:
+                matching_condition = [
+                    k for k, v in db_conditions.items()
+                    if v == condition_expression_ids
+                ]
+                if matching_condition:
+                    param_condition['condition_id'] = matching_condition[0]
+                else:
+                    db_session.add_all(
+                        Condition(
+                            id=new_condition_id,
+                            expression_id=expression_id
+                        )
+                        for expression_id in condition_expression_ids
+                    )
+                    param_condition['condition_id'] = new_condition_id
+                    new_condition_id += 1
+
+
+def save_json_config(json_config, version):
+    """Save configuration provided in JSON format to the database."""
+
+    json_config = json.loads(json_config.decode('ascii'))
+
+    configuration, expressions = _parse_json_config(json_config)
+    #False positive:
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        compare_config = get_db_configuration(version, db_session)
+
+        expression_db_ids = _save_expressions(expressions, db_session)
+        _save_conditions(configuration, expression_db_ids, db_session)
+        params_to_save = dict()
+        for param_name, param_info in configuration.items():
+            param_id = db_session.scalar(
+                select(Parameter.id).where(Parameter.name == param_name)
+            )
+            for condition_info in param_info:
+                found = False
+                for old_config in compare_config:
+                    if (
+                        old_config.parameter_id == param_id
+                        and
+                        (
+                            old_config.condition_id
+                            ==
+                            condition_info['condition_id']
+                        )
+                        and
+                        old_config.value == condition_info['value']
+                    ):
+                        found = True
+                        print(repr(condition_info) + ' already in DB')
+                        break
+                if not found:
+                    print('New configuration for ' + repr(param_name))
+                    params_to_save[param_name] = param_id
+        for param_name, param_info in configuration.items():
+            if param_name in params_to_save:
+                db_session.add_all(
+                    Configuration(
+                        parameter_id=params_to_save[param_name],
+                        condition_id=condition_info['condition_id'],
+                        value=condition_info['value'],
+                        version=version
+                    )
+                    for condition_info in param_info
+                )
+            print('Adding ' + repr(condition_info) + ' to DB')
 
 
 def list_steps():

@@ -66,7 +66,12 @@ class configTree {
         node.children.forEach(this.addFlags.bind(this));
         let num_children = node.children.length
         if ( num_children > 0 ) {
-            node.children[num_children - 1].relationship = '011';
+            let last_child = node.children[num_children - 1]
+            if ( last_child['type'] == 'condition' ) {
+                last_child.relationship = '011';
+            } else if ( last_child['type'] == 'value' ) {
+                last_child.relationship = '010';
+            }
         }
     }
 
