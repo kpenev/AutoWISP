@@ -1,9 +1,9 @@
 """ Program to upload camera configuration files to database.
 
 Usage in terminal:
-    > python read_config.py --filename (REQUIRED) <name/path to config file> 
+    > python3 read_config.py --filename (REQUIRED) <name/path to config file> 
                             --version <what version to assign updated parameters>
-                            --choices (REQUIRED) <how to deal with duplicate parameters>
+                            --option (REQUIRED) <how to deal with duplicate parameters>
 """
 from configargparse import ArgumentParser
 from superphot_pipeline.database.interface import Session
@@ -60,7 +60,20 @@ def add_to_db(version, filename, option):
             
             # check that configuration exists in parameter table and then add if so
             param = db_session.query(Parameter.id).filter_by(name=keys).first()
-            if param is not None:
+            if (
+                        param not in ['h',
+                                      'config-file',
+                                      'extra-config-file',
+                                      'num-parallel-processes',
+                                      'epd-datasets',
+                                      'tfa-datasets',
+                                      'split-channels']
+                        and
+                        not param.endswith('-only-if')
+                        and
+                        not param.endswith('-version')
+                        and param is not None
+                ):
                 #check if value exists in config table
                 exists = False
                 for val in value:
@@ -106,6 +119,3 @@ if __name__ == '__main__':
 
     #for testing
     # add_to_db(None, 'PANOPTES_R.cfg', 3)
-
-
-
