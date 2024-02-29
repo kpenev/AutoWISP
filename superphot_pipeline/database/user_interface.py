@@ -3,7 +3,7 @@
 import json
 import logging
 
-from sqlalchemy import sql, select, func, and_
+from sqlalchemy import sql, select, delete, func, and_
 
 from superphot_pipeline.database.interface import Session
 #False positive
@@ -223,26 +223,6 @@ def get_progress(step_id, image_type_id, config_version, db_session):
     ).all()
     return final, pending, by_status
 
-    result = {}
-    for channel, status, count in by_status:
-        if channel not in result:
-            result[channel] = [
-                final.get(channel, (0, None)),
-                pending.get(channel, 0),
-                [
-                    (status, count)
-                ]
-            ]
-        else:
-            result[channel][-1].append((status, count))
-    for channel, num_pending in pending.items():
-        if channel not in result:
-            result[channel] = [(0, None), num_pending, []]
-    return [
-        (channel, *result[channel])
-        for channel in sorted(result)
-    ]
-
 
 def _get_config_info(version, step='All'):
     """Return info for displaying the configuration with given version."""
@@ -397,6 +377,9 @@ def _parse_json_config(json_config):
             assert expression_ids is not None
             if parameter not in result:
                 result[parameter] = []
+            print('Adding to parsed: ' + repr(set(expression_ids)) + ' -> '
+                  +
+                  repr(sub_tree['name']))
             result[parameter].append({'expressions': set(expression_ids),
                                       'value': sub_tree['name']})
         elif sub_tree['type'] == 'condition':
@@ -508,18 +491,21 @@ def _save_conditions(configuration, expression_db_ids, db_session):
 def save_json_config(json_config, version):
     """Save configuration provided in JSON format to the database."""
 
-    json_config = json.loads(json_config.decode('ascii'))
-
-    configuration, expressions = _parse_json_config(json_config)
+    configuration, expressions = _parse_json_config(
+        json.loads(json_config.decode('ascii'))
+    )
     #False positive:
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
         compare_config = get_db_configuration(version, db_session)
 
-        expression_db_ids = _save_expressions(expressions, db_session)
-        _save_conditions(configuration, expression_db_ids, db_session)
-        params_to_save = dict()
+        _save_conditions(
+            configuration,
+            _save_expressions(expressions, db_session),
+            db_session
+        )
+        params_to_save = {}
         for param_name, param_info in configuration.items():
             param_id = db_session.scalar(
                 select(Parameter.id).where(Parameter.name == param_name)
@@ -539,23 +525,36 @@ def save_json_config(json_config, version):
                         old_config.value == condition_info['value']
                     ):
                         found = True
-                        print(repr(condition_info) + ' already in DB')
+                        compare_config.remove(old_config)
                         break
                 if not found:
-                    print('New configuration for ' + repr(param_name))
                     params_to_save[param_name] = param_id
+        for old_config in compare_config:
+            if old_config.parameter.name not in configuration:
+                continue
+            params_to_save[old_config.parameter.name] = (
+                old_config.parameter_id
+            )
         for param_name, param_info in configuration.items():
             if param_name in params_to_save:
+                parameter_id = params_to_save[param_name]
+                delete_statement = delete(
+                    Configuration
+                ).where(
+                    Configuration.parameter_id == parameter_id
+                ).where(
+                    Configuration.version == version
+                )
+                db_session.execute(delete_statement)
                 db_session.add_all(
                     Configuration(
-                        parameter_id=params_to_save[param_name],
+                        parameter_id=parameter_id,
                         condition_id=condition_info['condition_id'],
                         value=condition_info['value'],
                         version=version
                     )
                     for condition_info in param_info
                 )
-            print('Adding ' + repr(condition_info) + ' to DB')
 
 
 def list_steps():
