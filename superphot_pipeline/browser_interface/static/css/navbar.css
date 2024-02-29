@@ -61,3 +61,7 @@ body {
 .dropdown:hover .dropdown-content {
   display: block;
 }
+
+.dropdown-right {
+  float: right;
+}

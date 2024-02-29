@@ -7,6 +7,8 @@
         <link rel="icon" href="img/logo.png">
         <link rel="stylesheet" 
               href="{% static 'configuration/css/jquery.orgchart.css' %}">
+        <link rel="stylesheet" 
+              href="{% static 'configuration/css/config_tree.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" 
               href="{% static 'css/navbar.css' %}">
@@ -23,29 +25,44 @@
                 </button>
                 <div class="dropdown-content">
                     {% for step_name in pipeline_steps %}
-                    <a href="/configuration/{{step_name}}/{{selected_version}}">
+                    <a href="{% url 'configuration:config_tree' step=step_name version=selected_version %}">
                         {{ step_name }}
                     </a>
                     {% endfor %}
                 </div>
             </div> 
-            <button type="button" 
-                    onclick="theTree.save()"
-                    style="font-size:24px">
-                Save
-            </button>
+
+            "{% url 'configuration:save_config' version=selected_version as saveURL%}"
             <div class="dropdown">
                 <button class="dropbtn">Version: {{ selected_version }} 
                     <i class="fa fa-caret-down"></i>
                 </button>
                 <div class="dropdown-content">
                     {% for version in config_versions %}
-                    <a href="/configuration/{{selected_step}}/{{version}}">
-                        {{ version }}
+                    <a href="{% url 'configuration:config_tree' step=selected_step version=version %}">
+                        v{{ version }}
                     </a>
                     {% endfor %}
+                    {% with config_versions|last|add:"1" as new_version %}
+                    <a href="{% url 'configuration:config_tree' step=selected_step version=new_version %}">
+                        Create new v{{ new_version }}
+                    </a>
+                    {% endwith %}
                 </div>
             </div> 
+            <div class="dropdown">
+                <button class="dropbtn" onclick="displayHelp()">
+                    Help
+                </button>
+            </div>
+            <div class="dropdown dropdown-right" >
+                <button class="dropbtn" 
+                        onclick="theTree.save('{{saveURL}}')"
+                        style="background-color:green">
+                    Save
+                </button>
+            </div>
+
         </div>
         <div id="edit-panel">
             <table style="width: 100%">
@@ -65,7 +82,13 @@
             </table>
         </div>
 
-        <div id="chart-container"></div>
+        <div class="popup" style='width:100%; height=0px'>
+            <span class="popuptext" id="param-help">Editing:</span>
+        </div>
+
+
+        <div id="chart-container" tabindex="0">
+        </div>
 
         <script type="text/javascript" 
                 src="{% static 'js/jquery.min.js' %}">
@@ -90,10 +113,14 @@
 
             let theTree = new configTree(
                 {% autoescape off %}
-                {{ config_json }},
+                {{ config_json }}
                 {% endautoescape %}
-                "{% url 'configuration:save_config' version=1%}"
             );
+
+            function displayHelp() {
+                var popup = document.getElementById("param-help");
+                popup.classList.toggle("show");
+            }
 
         </script>
     </body>

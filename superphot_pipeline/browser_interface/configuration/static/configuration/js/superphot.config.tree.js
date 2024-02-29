@@ -1,12 +1,14 @@
-function startEditNodeText() 
+function startEditNodeText(event) 
 {
     let $this = $(this);
-    let nodeType = $this.find('.content').text()
+    let nodeType = $this.find('.content').text();
+    let nodeId = theTree.getEventNode(event).id;
     $('#edit-node').val($this.find('.title').text());
     document.getElementById('edit-node').disabled = 
         (nodeType != 'value' &&  nodeType != 'condition');
     document.getElementById("node-type").innerHTML = 
-        nodeType + ":"
+        nodeType + ":";
+    theTree.displayHelp(nodeId);
 }
 
 
@@ -26,26 +28,40 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
 class configTree {
-    constructor(data, saveURL)
+    constructor(data)
     {
-        this.addFlags(data)
-        this.data = data
-        this.saveURL = saveURL
+        this.setIdsAndFlags('', data);
+        this.data = data;
         this.createDiagram(false);
 
         this.treeDiagram.$chartContainer.on('click', 
                                             '.node',
                                             startEditNodeText);
 
-        this.treeDiagram.$chartContainer.on('click', 
-                                            '.bottomEdge',
-                                            this.addCondition.bind(this));
-        this.treeDiagram.$chartContainer.on('click', 
-                                            '.rightEdge',
-                                            this.splitCondition.bind(this));
+        this.treeDiagram.$chartContainer.on(
+            'click', 
+            '.bottomEdge',
+            function(event) {this.addCondition(event, '>');}.bind(this)
+        );
+        this.treeDiagram.$chartContainer.on(
+            'click', 
+            '.topEdge',
+            function(event) {this.addCondition(event, '<');}.bind(this)
+        );
+        this.treeDiagram.$chartContainer.on(
+             'click', 
+             '.rightEdge',
+             function(event) {this.splitCondition(event, 'v');}.bind(this)
+        );
+        this.treeDiagram.$chartContainer.on(
+             'click', 
+             '.leftEdge',
+             function(event) {this.splitCondition(event, '^');}.bind(this)
+        );
 
+        this.treeDiagram.$chartContainer.on('keydown', 
+                                            this.handleKeyPress.bind(this));
 
     }
 
@@ -54,25 +70,31 @@ class configTree {
         alert(JSON.stringify(this.data, null, 4));
     }
 
-    addFlags(node)
+    setIdsAndFlags(nodeId, node)
     {
+        node.id = nodeId
         if( node.type === 'step' ) {
             node.relationship = '000';
+        } else if ( node.type === 'parameter' ) {
+            node.relationship = '001'
         } else if ( node.type === 'value' ) {
-            node.relationship = '000';
+            node.relationship = '110';
         } else {
-            node.relationship = '001';
+            node.relationship = '111';
         } 
-        node.children.forEach(this.addFlags.bind(this));
-        let num_children = node.children.length
-        if ( num_children > 0 ) {
-            let last_child = node.children[num_children - 1]
-            if ( last_child['type'] == 'condition' ) {
-                last_child.relationship = '011';
-            } else if ( last_child['type'] == 'value' ) {
-                last_child.relationship = '010';
-            }
+
+        let firstChildId;
+        if ( nodeId ) {
+            firstChildId = nodeId + '.0'
+        } else {
+            firstChildId = '0'
         }
+        node.children.reduce(this.setIdsAndFlags.bind(this), firstChildId);
+
+        let subIdFrom = nodeId.lastIndexOf(".") + 1
+        return nodeId.slice(0, subIdFrom) 
+            + 
+            (Number(nodeId.slice(subIdFrom)) + 1); 
     }
 
     getNodeById(nodeId)
@@ -85,10 +107,52 @@ class configTree {
         );
     }
 
+    getParentNode(dataNode)
+    {
+        return this.getNodeById(
+            dataNode.id.slice(0, dataNode.id.lastIndexOf('.'))
+        );
+    }
+
+    getEventNode(event)
+    {
+        return this.getNodeById($(event.target).parent()[0].id);
+    }
+
+    getIndexInParent(nodeId)
+    {
+        return Number(nodeId.slice(nodeId.lastIndexOf('.') + 1));
+    }
+
+    focusOnNode(nodeId)
+    {
+        let $chartContainer = $('#chart-container');
+
+        let digger = new JSONDigger(datasource, 
+                                    this.$chart.data('options').nodeId, 
+                                    'children');
+        digger.findNodeById(nodeId).addClass('focused');
+    }
+
+    displayHelp(helpParamId)
+    {
+        if ( helpParamId == undefined ) {
+            helpParamId = $('#chart-container').find('.node.focused')[0].id;
+        }
+        if ( typeof helpParamId == 'string' )
+            helpParamId = Number(helpParamId.split('.', 1))
+        let paramNode = this.data.children[helpParamId]
+        document.getElementById("param-help").innerHTML = 
+            "Editing: <h3 style='color:orange'>" + paramNode.name + "</h3>"
+            +
+            paramNode.description;
+    }
+
     createDiagram(deleteFirst)
     {
 
         let $chartContainer = $('#chart-container');
+
         if ( deleteFirst ) {
             this.treeDiagram.removeNodes($chartContainer.find('.node:first'));
         }
@@ -100,48 +164,54 @@ class configTree {
         });
     }
 
-    splitCondition(event)
+    splitCondition(event, direction)
     {
-        let dataNode = this.getNodeById($(event.target).parent()[0].id);
+        let dataNode = this.getEventNode(event);
         dataNode.relationship = '001';
-        let parentNode = this.getNodeById(
-            dataNode.id.slice(0, dataNode.id.lastIndexOf('.'))
-        );
-        let newNodeId = parentNode.id + '.' + parentNode.children.length;
-        parentNode.children.push(
+        let parentNode = this.getParentNode(dataNode);
+        let insertPosition = this.getIndexInParent(dataNode.id);
+        if ( direction === 'v' ) {
+            insertPosition += 1
+        }
+        parentNode.children.splice(
+            insertPosition,
+            0,
             {
                 'name': 'False',
                 'type': 'condition',
-                'id': newNodeId,
                 'relationship': '011',
                 'children': [
                     {
                         'name': '',
                         'type': 'value',
-                        'id': newNodeId + '.0',
                         'relationship': '000',
                         'children': []
                     }
                 ]
             }
         );
+        this.setIdsAndFlags(parentNode.id, parentNode);
         this.createDiagram(true);
     }
 
-    addCondition(event)
+    addCondition(event, side)
     {
-        let dataNode = this.getNodeById($(event.target).parent()[0].id);
+        let dataNode = this.getEventNode(event);
         let newNode = {
             'name': 'True',
-            'type': 'condition',
-            'id': dataNode.id + '.0',
-            'relationship': '011',
-            'children': dataNode.children
+            'type': 'condition'
         }
-        newNode.children.forEach(function (child) {
-            child.id = newNode.id + child.id.slice(dataNode.id.length);
-        });
-        dataNode.children = [newNode];
+        if ( side === '<' ) {
+            newNode.children = [dataNode];
+            this.getParentNode(dataNode).children[
+                this.getIndexInParent(dataNode.id)
+            ] = newNode;
+            this.setIdsAndFlags(dataNode.id, newNode);
+        } else {
+            newNode.children = dataNode.children
+            dataNode.children = [newNode];
+            this.setIdsAndFlags(dataNode.id + '.0', newNode)
+        }
         this.createDiagram(true);
     }
 
@@ -155,19 +225,49 @@ class configTree {
         );
     }
 
-    save()
+    deleteHighlightedNode()
+    {
+        let $node = $('#chart-container').find('.node.focused');
+        let dataNode = this.getNodeById($node[0].id);
+        if ( dataNode.type != 'condition' ) {
+            alert('Only conditions can be deleted!') 
+            return;
+        }
+        if ( dataNode.children[0].type == 'value' ) {
+            dataNode.children = [];
+        }
+        let parentNode = this.getParentNode(dataNode);
+        let indexInParent = this.getIndexInParent(dataNode.id);
+        parentNode.children = parentNode.children.slice(
+            0, 
+            indexInParent
+        ).concat(
+             dataNode.children,
+             parentNode.children.slice(indexInParent + 1)
+        );
+        this.setIdsAndFlags(parentNode.id, parentNode);
+        this.createDiagram(true);
+    }
+
+    handleKeyPress(event)
+    {
+        if ( event.key == 'Delete' ) {
+            this.deleteHighlightedNode();
+        }
+    }
+
+    async save(saveURL)
     {
         let csrftoken = getCookie('csrftoken');
         let headers = new Headers();
         headers.append('X-CSRFToken', csrftoken);
         headers.append("Content-type", "application/json; charset=UTF-8")
-        fetch(this.saveURL, {
+        const response = await fetch(saveURL, {
             method: "POST",
             body: JSON.stringify(this.data),
             headers: headers,
             credentials: 'include'
-        })
-            .then((response) => response.body)
-
+        });
+        location.reload();
     }
 }
