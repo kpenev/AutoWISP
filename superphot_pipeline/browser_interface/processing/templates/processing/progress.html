@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SuperPhot Pipeline Reductions Progress</title>
+        {% if refresh_seconds %}
+        <meta http-equiv="refresh" content="{{refresh_seconds}}">
+        {% endif %}
+        <link rel="icon" href="img/logo.png">
+        <link rel="stylesheet" 
+              href="{% static 'processing/css/jquery.orgchart.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+        <style type="text/css">
+            #chart-container { text-align: left; }
+        </style>
+
+    </head>
+    <body>
+        <div class="navbar" id="navbar">
+            <div class="dropdown">
+                <button class="dropbtn">Add New Images
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <a href="{% url 'processing:add_raw_images' files_or_dir="files" %}">
+                        Individual Files
+                    </a>
+                    <a href="{% url 'processing:add_raw_images' files_or_dir="dir" %}">
+                        Everything in Folder
+                    </a>
+                </div>
+            </div>
+            {% if not running %}
+            <div class="dropdown">
+                <a class="dropbtn" 
+                    href="{% url 'processing:start_processing' %}">
+                    Start Processing
+                </a>
+            </div>
+            {% endif %}
+            <div class="dropdown">
+                <a class="dropbtn" 
+                    href="{% url 'configuration:config_tree' %}">
+                    Edit Configuration
+                </a>
+            </div>
+        </div>
+        {% if messages %}
+        <hr>
+        {% for msg in messages %}
+        <pre>
+            {{msg}}
+        </pre>
+        <hr>
+        {% endfor %}
+        {% endif %}
+
+        <div id="progress-table">
+            <table>
+                <tr>
+                    <th>Step</th>
+                    <th>Image Type</th>
+                    {% for channel in channels %}
+                    <th>{{ channel }}</th>
+                    {% endfor %}
+                </tr>
+                {% for step, imtype, by_channel in progress %}
+                <tr>
+                    <td>
+                        <a href="{% url 'configuration:config_tree' step=step version=0 %}">
+                            {{ step }}
+                        </a>
+                    </td>
+                    <td>{{ imtype }}</td>
+                    {% for final, pending, by_status in by_channel %}
+                    {% with total=final|add:pending %}
+                    <td>
+                        <table>
+                            <tr>
+                                <td colspan=2>
+                                    <div id="progress-with-label" 
+                                         style="width: 100%">
+                                        <span style="width: {% widthratio final total 100 %}%">
+                                            {{final}}/{{total}}
+                                        </span>
+                                        <progress value="{{ final }}" 
+                                                  max="{{ total }}" 
+                                                  style="foreground-color:black">
+                                        </progress>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% for status, count in by_status %}
+                            <tr>
+                                <td>Status {{ status }}</td>
+                                <td>
+                                    <div id="progress-with-label" 
+                                         style="width: 100%">
+                                        <span style="width:{% widthratio count total 100 %}%">
+                                            {{count}}/{{total}}
+                                        </span>
+                                        <progress value="{{ count }}" 
+                                                  max="{{ total }}" 
+                                                  style="foreground-color:black">
+                                        </progress>
+                                    </div>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                    {% endwith %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

@@ -233,10 +233,14 @@ class configTree {
             alert('Only conditions can be deleted!') 
             return;
         }
-        if ( dataNode.children[0].type == 'value' ) {
+        let parentNode = this.getParentNode(dataNode);
+        if ( 
+            dataNode.children[0].type == 'value' 
+            &&
+            parentNode.children.length > 1
+        ) {
             dataNode.children = [];
         }
-        let parentNode = this.getParentNode(dataNode);
         let indexInParent = this.getIndexInParent(dataNode.id);
         parentNode.children = parentNode.children.slice(
             0, 

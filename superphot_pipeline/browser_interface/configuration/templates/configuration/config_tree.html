@@ -10,8 +10,7 @@
         <link rel="stylesheet" 
               href="{% static 'configuration/css/config_tree.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" 
-              href="{% static 'css/navbar.css' %}">
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <style type="text/css">
             #chart-container { text-align: left; }
         </style>
@@ -59,8 +58,12 @@
                 <button class="dropbtn" 
                         onclick="theTree.save('{{saveURL}}')"
                         style="background-color:green">
-                    Save
+                    Save Configuration
                 </button>
+                <a class="dropbtn" href="{% url 'processing:progress' %}">
+                    Processing
+                </a>
+
             </div>
 
         </div>

@@ -1106,6 +1106,25 @@ class ProcessingManager:
                                    len(batch))
 
 
+    def add_raw_images(self, image_collection):
+        """Add the given RAW images to the database for processing."""
+
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            default_expression_id = db_session.scalar(
+                select(
+                    ConditionExpression.id
+                ).where(
+                    ConditionExpression.notes == 'Default expression'
+                )
+            )
+        configuration = self._get_config({default_expression_id},
+                                  step_name='add_images_to_db')[0]
+        processing_steps.add_images_to_db.add_images_to_db(image_collection,
+                                                           configuration)
+
+
     def create_config_file(self, example_header, outf, steps=None):
         """
         Save configuration for processing given header to given output file.
