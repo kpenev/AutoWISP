@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SuperPhot Pipeline Configuration</title>
+        <link rel="stylesheet" href="{% static 'processing/css/select_images.css' %}">
+    </head>
+    <body>
+        <form method="get"
+              action="{% url 'processing:select_raw_images' %}"
+              id="update_img_selector">
+            <div>
+                <nav class="pathnav">
+                    {% for dpath, dname in parent_dir_list %}
+                    »
+                    <a href="{% url 'processing:select_raw_images' dirname=dpath %}">
+                        {{dname}} 
+                    </a>
+
+                    {% if forloop.last %}
+                    <input type="hidden" name="currentdir" value="{{dpath}}"/>
+                    {% endif %}
+                    {% endfor %}
+                </nav>
+            </div>
+            <div>
+                <label for="filename_filter"> File Filter: </label>
+                <input type="text" 
+                       id="filename_filter" 
+                       name="filename_filter"
+                       value="{{filename_filter}}"
+                       onchange="getElementById('update_img_selector').submit()"/>
+                <input type="button" 
+                       id="filefilter_type_button" 
+                       value="{{filename_filter_type}}"
+                       onclick="swapFilterType('file');"/>
+                <input type="hidden" 
+                       id="filefilter_type" 
+                       name="filefilter_type"
+                       value="{{filename_filter_type}}"/>
+            </div>
+            <div>
+                <label for="dirname_filter"> Directory Filter: </label>
+                <input type="text" 
+                       id="dirname_filter" 
+                       name="dirname_filter"
+                       value="{{dirname_filter}}"
+                       onchange="getElementById('update_img_selector').submit()"/>
+                <input type="button" 
+                       id="dirfilter_type_button" 
+                       value="{{dirname_filter_type}}"
+                       onclick="swapFilterType('dir');"/>
+                <input type="hidden" 
+                       id="dirfilter_type" 
+                       name="dirfilter_type"
+                       value="{{dirname_filter_type}}"/>
+            </div>
+        </form>
+
+
+        <form method="post">
+            {% csrf_token %}
+            {% with num_files=file_list|length %}
+            <select multiple 
+                    name="selected"
+                    size="{{dir_list|length|add:num_files}}" 
+                    onDblClick="enterDirectory(this.value)">
+                {% for dname in dir_list %}
+                <option value="{{dname}}" class="selectdir">{{dname}}</option>
+                {% endfor %}
+                {% for fname in file_list %}
+                <option value="{{fname}}" class="selectfile">{{fname}}</option>
+                {% endfor %}
+            </select>
+            <input type="hidden" 
+                   name="currentdir"
+                   value="{{parent_dir_list|last|first}}">
+            {% endwith %}
+            <div>
+                <input type="submit" value="Add Images" class="submit">
+            </div>
+        </form>
+        <script type="text/javascript" 
+                src="{% static 'js/superphot.util.js' %}">
+        </script>
+        <script type="text/javascript" 
+                src="{% static 'processing/js/select.images.js' %}">
+        </script>
+    </body>
+</html>

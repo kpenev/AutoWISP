@@ -20,17 +20,10 @@
     <body>
         <div class="navbar" id="navbar">
             <div class="dropdown">
-                <button class="dropbtn">Add New Images
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content">
-                    <a href="{% url 'processing:add_raw_images' files_or_dir="files" %}">
-                        Individual Files
-                    </a>
-                    <a href="{% url 'processing:add_raw_images' files_or_dir="dir" %}">
-                        Everything in Folder
-                    </a>
-                </div>
+                <a class="dropbtn" 
+                    href="{% url 'processing:select_raw_images' %}">
+                    Add New Images
+                </a>
             </div>
             {% if not running %}
             <div class="dropdown">

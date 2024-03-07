@@ -41,8 +41,8 @@ class Evaluator(asteval.Interpreter):
                     with DataReductionFile(data_entry, 'r') as dr_file:
                         self.__init__(dr_file.get_frame_header())
                 else:
-                    assert path.splitext(data_entry)[-1] in ['.fits', '.fz']
-                    self.__init__(get_primary_header(data_entry))
+                    with fits.open(data_entry, 'readonly') as opened_fits:
+                        self.__init__(get_primary_header(opened_fits))
             elif isinstance(data_entry, fits.HDUList):
                 self.__init__(get_primary_header(data_entry))
             else:

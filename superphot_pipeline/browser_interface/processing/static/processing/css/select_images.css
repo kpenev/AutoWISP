@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.pathnav {
+    background-color: #333;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 150%;
+}
+
+.pathnav a {
+    color: #81d4fa;
+}
+
+.pathnav-right {
+    float: right;
+}
+
+.selectdir {
+    color: blue;
+    font-weight: bold;
+}
+
+.submit {
+    font-size: 200%;
+    background-color: #388e3c;
+}
