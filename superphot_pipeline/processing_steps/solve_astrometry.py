@@ -31,7 +31,8 @@ fail_reasons = {
     'few matched': -2,
     'high rms': -3,
     'solve-field failed': -4,
-    'other': -5
+    'web solve failed': -5,
+    'other': -6
 }
 
 
@@ -469,7 +470,7 @@ def solve_image(dr_fname,
             'saved': False
         }
 
-        fov_estimate = max(*configuration['frame_fov_estimate'])
+        fov_estimate = max(*configuration['frame_fov_estimate']).to_value('deg')
 
         xy_extracted = get_xy_extracted(dr_file,
                                         configuration['srcextract_version'])

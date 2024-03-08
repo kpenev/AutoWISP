@@ -306,7 +306,6 @@ class StepCreator:
                     param not in ['h',
                                   'config-file',
                                   'extra-config-file',
-                                  'num-parallel-processes',
                                   'epd-datasets',
                                   'tfa-datasets',
                                   'split-channels']

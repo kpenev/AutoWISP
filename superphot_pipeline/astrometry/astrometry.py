@@ -6,6 +6,9 @@ from tempfile import mkstemp
 import subprocess
 import os
 from traceback import format_exc
+import time
+from urllib.request import urlopen
+import shutil
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -19,6 +22,8 @@ from astropy.io import fits
 from superphot_pipeline.astrometry.map_projections import\
     gnomonic_projection,\
     inverse_gnomonic_projection
+from superphot_pipeline.astrometry.astrometry_net_client import Client as \
+    AstrometryNetClient
 
 _logger = logging.getLogger(__name__)
 
@@ -187,10 +192,10 @@ def estimate_transformation_from_corr(initial_corr,
 class TempAstrometryFiles:
     """Context manager for the temporary files needed for astrometry."""
 
-    def __init__(self):
+    def __init__(self, file_types = ('sources', 'corr', 'axy')):
         """Create all required temporary files."""
 
-        self._file_types = ['sources', 'corr', 'axy']
+        self._file_types = file_types
         for file_type in self._file_types:
             handle, fname = mkstemp()
             setattr(self, '_' + file_type, handle)
@@ -227,19 +232,12 @@ def create_sources_file(xy_extracted, sources_fname):
     return xy_extracted
 
 
-def estimate_transformation(*,
-                            dr_file,
-                            xy_extracted,
-                            astrometry_order,
-                            tweak_order_range,
-                            fov_range,
-                            ra_cent,
-                            dec_cent,
-                            header=None):
-    """Attempt to estimate the sky-to-frame transformation for given DR file."""
+def get_initial_corr_local(header,
+                           xy_extracted,
+                           tweak_order_range,
+                           fov_range):
+    """Get inital extracted to catalog source match using ``solve-field``."""
 
-    if header is None:
-        header = dr_file.get_frame_header()
     with TempAstrometryFiles() as (sources_fname,
                                    corr_fname,
                                    axy_fname):
@@ -263,6 +261,8 @@ def estimate_transformation(*,
                 '--scale-high', repr(fov_range[1]),
                 '--overwrite'
             ]
+            _logger.debug('Starting solve-field command:\n\t%s',
+                          '\n\t\t'.join(solve_field_command))
             try:
                 subprocess.run(solve_field_command, check=True)
             except subprocess.SubprocessError:
@@ -273,35 +273,150 @@ def estimate_transformation(*,
             if not os.path.isfile(corr_fname):
                 _logger.critical("Correspondence file %s not created.",
                                  repr(corr_fname))
-                return None, None, 'solve-field failed'
+                return 'solve-field failed', 0
 
             with fits.open(corr_fname, mode='readonly') as corr:
-                field_corr = corr[1].data[:]
+                result = corr[1].data[:]
+                if result.size > ((tweak+1)*(tweak+2))//2:
+                    return result, tweak
 
-            if field_corr.size > ((tweak+1)*(tweak+2))//2:
+    return 'solve-field failed', 0
 
-                initial_corr = numpy.zeros(
-                    (field_corr['field_x'].shape),
-                    dtype=[('x', '>f8'),
-                           ('y', '>f8'),
-                           ('RA', '>f8'),
-                           ('Dec', '>f8')]
-                )
 
-                initial_corr['x'] = field_corr['field_x']
-                initial_corr['y'] = field_corr['field_y']
-                initial_corr['RA'] = field_corr['index_ra']
-                initial_corr['Dec'] = field_corr['index_dec']
+def get_initial_corr_web(header,
+                         xy_extracted,
+                         tweak_order_range,
+                         fov_range):
+    """Get inital extracted to catalog source match using web astrometry.net."""
 
-                return estimate_transformation_from_corr(
-                    initial_corr=initial_corr,
-                    tweak_order=tweak,
-                    astrometry_order=astrometry_order,
-                    ra_cent=ra_cent,
-                    dec_cent=dec_cent
-                ) + ('success',)
-    return None, None, 'solve-field failed'
+    config = {
+        'allow_commercial_use': 'n',
+        'allow_modifications': 'n',
+        'publicly_visible': 'n',
+        'scale_lower': fov_range[0],
+        'scale_upper': fov_range[1],
+        'scale_type': 'ul',
+        'scale_units': 'degwidth',
+        'image_width': header['NAXIS1'],
+        'image_height': header['NAXIS2'],
+#        'center_ra',
+#        'center_dec',
+#        'radius',
+#        'downsample_factor',
+#        'positional_error',
+        'x': xy_extracted['x'],
+        'y': xy_extracted['y'],
+    }
+    client = AstrometryNetClient()
+    client.login('kqrzybsrrzomydyc')
+    for tweak_order in range(*tweak_order_range):
+        config['tweak_order'] = tweak_order
+        upload_result = client.upload(**config)
 
+        if upload_result['status'] != 'success':
+            return upload_result['status'], 0
+
+        assert 'subid' in upload_result
+        solved_job_id = None
+        while solved_job_id is None:
+            time.sleep(5)
+            submission_status = client.sub_status(upload_result['subid'],
+                                           justdict=True)
+            _logger.debug('Astrometry.net submission status: %s',
+                          submission_status)
+            jobs = submission_status.get('jobs', [])
+            job_id = None
+            if len(jobs):
+                for job_id in jobs:
+                    if job_id is not None:
+                        break
+                if job_id is not None:
+                    _logger.debug('Selecting job id %s', job_id)
+                    solved_job_id = job_id
+
+        while True:
+            job_status = client.job_status(
+                solved_job_id,
+                justdict=True
+            ).get(
+                'status',
+                ''
+            )
+            _logger.debug('Got job status: %s', job_status)
+            if job_status in ['success', 'failure']:
+                break
+            time.sleep(5)
+
+        if job_status == 'failure':
+            return 'web solve failed', 0
+        corr_url = client.apiurl.replace('/api/',
+                                         f'/corr_file/{solved_job_id:d}')
+
+        with TempAstrometryFiles(('corr',)) as (corr_fname,):
+            _logger.debug("Retrieving file from '%s' to '%s'",
+                          corr_url,
+                          corr_fname)
+            with (
+                urlopen(corr_url) as remote_corr,
+                open(corr_fname, 'wb') as local_corr
+            ):
+                shutil.copyfileobj(remote_corr, local_corr)
+            _logger.debug("Correspnodence file '%s' successfully created.",
+                          corr_fname)
+            with fits.open(corr_fname, mode='readonly') as corr:
+                result = corr[1].data[:]
+                if (
+                    result.size
+                    >
+                    (tweak_order + 1) * (tweak_order + 2) // 2
+                ):
+                    return result, tweak_order
+
+        return 'web solve failed', 0
+
+
+def estimate_transformation(*,
+                            dr_file,
+                            xy_extracted,
+                            astrometry_order,
+                            tweak_order_range,
+                            fov_range,
+                            ra_cent,
+                            dec_cent,
+                            header=None):
+    """Attempt to estimate the sky-to-frame transformation for given DR file."""
+
+    if header is None:
+        header = dr_file.get_frame_header()
+    field_corr, tweak_order = get_initial_corr_web(
+        header,
+        xy_extracted,
+        tweak_order_range,
+        fov_range
+    )
+
+    initial_corr = numpy.zeros(
+        (field_corr['field_x'].shape),
+        dtype=[('x', '>f8'),
+               ('y', '>f8'),
+               ('RA', '>f8'),
+               ('Dec', '>f8')]
+    )
+
+    initial_corr['x'] = field_corr['field_x']
+    initial_corr['y'] = field_corr['field_y']
+    initial_corr['RA'] = field_corr['index_ra']
+    initial_corr['Dec'] = field_corr['index_dec']
+
+    if tweak_order > 0:
+        return estimate_transformation_from_corr(
+            initial_corr=initial_corr,
+            tweak_order=tweak_order,
+            astrometry_order=astrometry_order,
+            ra_cent=ra_cent,
+            dec_cent=dec_cent
+        ) + ('success',)
+    return None, None, initial_corr
 
 
 def refine_transformation(*,

@@ -4,22 +4,39 @@
     <head>
         <meta charset="utf-8">
         <title>SuperPhot Pipeline Configuration</title>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <link rel="stylesheet" href="{% static 'processing/css/select_images.css' %}">
     </head>
     <body>
+        <div class="navbar" id="navbar">
+            <div class="dropdown">
+                <label class="dropbtn" for="add-selected-img"
+                              style="display:block; background-color:green">
+                    Add Selected Images
+                </label>
+            </div>
+            <div class="dropdown">
+                <a class="dropbtn" 
+                    href="{% url 'processing:progress' %}">
+                    Cancel
+                </a>
+            </div>
+        </div>
+
         <form method="get"
               action="{% url 'processing:select_raw_images' %}"
               id="update_img_selector">
             <div>
                 <nav class="pathnav">
                     {% for dpath, dname in parent_dir_list %}
-                    »
                     <a href="{% url 'processing:select_raw_images' dirname=dpath %}">
                         {{dname}} 
                     </a>
-
                     {% if forloop.last %}
                     <input type="hidden" name="currentdir" value="{{dpath}}"/>
+                    {% else %}
+                    »
                     {% endif %}
                     {% endfor %}
                 </nav>
@@ -77,9 +94,10 @@
                    name="currentdir"
                    value="{{parent_dir_list|last|first}}">
             {% endwith %}
-            <div>
-                <input type="submit" value="Add Images" class="submit">
-            </div>
+            <input type="submit" 
+                   id="add-selected-img" 
+                   value="Add Images" 
+                   style="visibility:hidden"/>
         </form>
         <script type="text/javascript" 
                 src="{% static 'js/superphot.util.js' %}">
