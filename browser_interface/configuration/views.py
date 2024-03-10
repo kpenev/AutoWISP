@@ -3,7 +3,7 @@
 from sqlalchemy import select, func
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from superphot_pipeline.database.user_interface import\
@@ -11,10 +11,15 @@ from superphot_pipeline.database.user_interface import\
     save_json_config,\
     list_steps
 from superphot_pipeline.database.interface import Session
-from superphot_pipeline.database.data_model import Configuration
+#False positive
+#pylint: disable=no-name-in-module
+from superphot_pipeline.database.data_model import \
+    Configuration,\
+    ImageProcessingProgress
+#pylint: enable=no-name-in-module
 
 
-def config_tree(request, version=0, step='All'):
+def config_tree(request, version=0, step='All', force_unlock=False):
     """Landing page for the configuration interface."""
 
     #False positive:
@@ -28,8 +33,12 @@ def config_tree(request, version=0, step='All'):
                 )
             ).all()
         )
+        max_used_version = db_session.scalar(
+            select(
+                func.max(ImageProcessingProgress.configuration_version)
+            )
+        )
 
-    print(f'Getting config tree for {step} v {version}')
     return render(
         request,
         'configuration/config_tree.html',
@@ -38,7 +47,9 @@ def config_tree(request, version=0, step='All'):
             'selected_version': version,
             'config_json': get_json_config(version, step=step, indent=4),
             'pipeline_steps': ['All'] + list_steps(),
-            'config_versions': defined_versions
+            'config_versions': defined_versions,
+            'max_locked_version': max_used_version,
+            'locked': (not force_unlock) and version <= max_used_version
         }
     )
 

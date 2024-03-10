@@ -5,6 +5,8 @@ function startEditNodeText(event)
     let nodeId = theTree.getEventNode(event).id;
     $('#edit-node').val($this.find('.title').text());
     document.getElementById('edit-node').disabled = 
+        !theTree.canEdit
+        ||
         (nodeType != 'value' &&  nodeType != 'condition');
     document.getElementById("node-type").innerHTML = 
         nodeType + ":";
@@ -13,39 +15,42 @@ function startEditNodeText(event)
 
 
 class configTree {
-    constructor(data)
+    constructor(data, canEdit)
     {
         this.setIdsAndFlags('', data);
         this.data = data;
         this.createDiagram(false);
+        this.canEdit = canEdit
 
         this.treeDiagram.$chartContainer.on('click', 
                                             '.node',
                                             startEditNodeText);
 
-        this.treeDiagram.$chartContainer.on(
-            'click', 
-            '.bottomEdge',
-            function(event) {this.addCondition(event, '>');}.bind(this)
-        );
-        this.treeDiagram.$chartContainer.on(
-            'click', 
-            '.topEdge',
-            function(event) {this.addCondition(event, '<');}.bind(this)
-        );
-        this.treeDiagram.$chartContainer.on(
-             'click', 
-             '.rightEdge',
-             function(event) {this.splitCondition(event, 'v');}.bind(this)
-        );
-        this.treeDiagram.$chartContainer.on(
-             'click', 
-             '.leftEdge',
-             function(event) {this.splitCondition(event, '^');}.bind(this)
-        );
+        if( canEdit ) {
+            this.treeDiagram.$chartContainer.on(
+                'click', 
+                '.bottomEdge',
+                function(event) {this.addCondition(event, '>');}.bind(this)
+            );
+            this.treeDiagram.$chartContainer.on(
+                'click', 
+                '.topEdge',
+                function(event) {this.addCondition(event, '<');}.bind(this)
+            );
+            this.treeDiagram.$chartContainer.on(
+                 'click', 
+                 '.rightEdge',
+                 function(event) {this.splitCondition(event, 'v');}.bind(this)
+            );
+            this.treeDiagram.$chartContainer.on(
+                 'click', 
+                 '.leftEdge',
+                 function(event) {this.splitCondition(event, '^');}.bind(this)
+            );
 
-        this.treeDiagram.$chartContainer.on('keydown', 
-                                            this.handleKeyPress.bind(this));
+            this.treeDiagram.$chartContainer.on('keydown', 
+                                                this.handleKeyPress.bind(this));
+        }
 
     }
 

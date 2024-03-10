@@ -30,20 +30,36 @@
                     {% endfor %}
                 </div>
             </div> 
-
             "{% url 'configuration:save_config' version=selected_version as saveURL%}"
             <div class="dropdown">
                 <button class="dropbtn">Version: {{ selected_version }} 
                     <i class="fa fa-caret-down"></i>
                 </button>
+
                 <div class="dropdown-content">
                     {% for version in config_versions %}
                     <a href="{% url 'configuration:config_tree' step=selected_step version=version %}">
-                        v{{ version }}
+                        <img height="20"
+                             {% if version <= max_locked_version %}
+                             src="{% static 'img/closed_lock_icon.jpg' %}"
+                             alt="locked"
+                             style="background-color:#ff0000"
+                             {% else %}
+                             src="{% static 'img/open_lock_icon.jpg' %}"
+                             alt="can edit"
+                             style="background-color:#00ff00"
+                             {% endif %}
+                             />
+                        v{{ version }} 
                     </a>
                     {% endfor %}
                     {% with config_versions|last|add:"1" as new_version %}
                     <a href="{% url 'configuration:config_tree' step=selected_step version=new_version %}">
+                        <img src="{% static 'img/open_lock_icon.jpg' %}"
+                             alt="locked"
+                             width="20"
+                             style="background-color:#00ff00"/>
+
                         Create new v{{ new_version }}
                     </a>
                     {% endwith %}
@@ -54,16 +70,29 @@
                     Help
                 </button>
             </div>
+
             <div class="dropdown dropdown-right" >
+                <a class="dropbtn" href="{% url 'processing:progress' %}">
+                    Processing
+                </a>
+            </div>
+
+            <div class="dropdown dropdown-right" >
+                {% if locked %}
+                <a class="dropbtn" href="{% url 'configuration:config_tree' step=selected_step version=selected_version force_unlock=1%}">
+                    <img height="20"
+                         src="{% static 'img/closed_lock_icon.jpg' %}"
+                         alt="locked"
+                         style="background-color:#ff0000"/>
+
+                </a>
+                {% else %}
                 <button class="dropbtn" 
                         onclick="theTree.save('{{saveURL}}')"
                         style="background-color:green">
                     Save Configuration
                 </button>
-                <a class="dropbtn" href="{% url 'processing:progress' %}">
-                    Processing
-                </a>
-
+                {% endif %}
             </div>
 
         </div>
@@ -120,8 +149,13 @@
 
             let theTree = new configTree(
                 {% autoescape off %}
-                {{ config_json }}
+                {{ config_json }},
                 {% endautoescape %}
+                {% if locked %}
+                false
+                {% else %}
+                true
+                {% endif %}
             );
 
             function displayHelp() {
