@@ -4,6 +4,7 @@ from typing import List
 
 from sqlalchemy import\
     Column,\
+    Index,\
     Integer,\
     String,\
     TIMESTAMP,\
@@ -44,6 +45,19 @@ class MasterType(DataModelBase):
         'match between an image and a master for a master to be useable for '
         'calibrating that image.'
     )
+    maker_step_id = Column(
+        Integer,
+        ForeignKey('step.id'),
+        nullable=True,
+        doc='The step which produces this type of master frames.'
+    )
+    maker_image_type_id = Column(
+        Integer,
+        ForeignKey('image_type.id'),
+        nullable=True,
+        doc='The image type to which the maker step is applied when creating '
+        'masters of this type.'
+    )
     description = Column(
         String(1000),
         doc='A description of the master file type.'
@@ -53,6 +67,9 @@ class MasterType(DataModelBase):
         nullable=False,
         doc='When was this record last changed.'
     )
+
+    Index("maker", "maker_step_id", "maker_image_type_id")
+
     master_files = relationship('MasterFile', back_populates='master_type')
     match_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,

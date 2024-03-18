@@ -123,8 +123,8 @@ def create_result(image_list,
 
         result_fname:    See Calibrator.__call__.
 
-        compress:    Should the created image be compressed? If value other than
-            False or None is used, compression is enabled and this parameter
+        compress:    Should the created image be compressed? If the value
+            converts to True, compression is enabled and this parameter
             specifies the quantization level of the compression.
 
         allow_overwrite:    If a file named **result_fname** already exists,
@@ -178,7 +178,7 @@ def create_result(image_list,
             hdu.update_header()
 
         logger.debug('Compression level: %s', repr(compress))
-        if compress is not False and compress is not None:
+        if compress:
             logger.debug('Creating compressed HDU')
             hdu_list = fits.HDUList(
                 [fits.PrimaryHDU()]

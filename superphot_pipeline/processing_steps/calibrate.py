@@ -219,7 +219,7 @@ def parse_command_line(*args):
         '--utc-expression',
         default='DATE_OBS',
         help='An expression involving header keywords that evaluates to a valid'
-        ' input for constructing astropy Time objects in UTC scale.the JD '
+        ' input for constructing astropy Time objects in UTC scale '
         'of the middle of the exposure in a frame. For keywords that invlove '
         '``-`` replace it with ``_``. This argument takes precedence over '
         '--jd-expression. Set to empty string  to use --jd-expression instead.'

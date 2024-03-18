@@ -48,15 +48,7 @@ class MasterMaker(Processor):
         >>> )
     """
 
-    default_exclude_mask = (mask_flags['FAULT']
-                            | mask_flags['HOT']
-                            | mask_flags['COSMIC']
-                            | mask_flags['OUTER']
-                            | mask_flags['OVERSATURATED']
-                            | mask_flags['LEAKED']
-                            | mask_flags['SATURATED']
-                            | mask_flags['BAD']
-                            | mask_flags['NAN'])
+    default_exclude_mask = mask_flags['BAD']
 
     @staticmethod
     def _update_stack_header(master_header,
@@ -139,12 +131,18 @@ class MasterMaker(Processor):
                  min_valid_frames=10,
                  min_valid_values=5,
                  max_iter=numpy.inf,
-                 exclude_mask=default_exclude_mask):
+                 exclude_mask=default_exclude_mask,
+                 compress=16,
+                 add_averaged_keywords=()):
         """
         Create a master maker with the given default stacking configuration.
 
         Keyword Args:
-            ():    See the keyword only arguments to the :meth:`stack`
+            compress:    If None or False, the final result is not
+                compressed. Otherwise, this is the quantization level used for
+                compressing the image (see `astropy.io.fits` documentation).
+
+            all oothers:    See the keyword only arguments to the :meth:`stack`
                 method.
 
         Returns:
@@ -158,8 +156,10 @@ class MasterMaker(Processor):
             'min_valid_frames': min_valid_frames,
             'min_valid_values': min_valid_values,
             'max_iter': max_iter,
-            'exclude_mask': exclude_mask
+            'exclude_mask': exclude_mask,
+            'add_averaged_keywords': add_averaged_keywords
         }
+        self.compress = compress
 
     def prepare_for_stacking(self, image):
         """
@@ -187,6 +187,7 @@ class MasterMaker(Processor):
               min_valid_values,
               max_iter,
               exclude_mask,
+              add_averaged_keywords,
               custom_header=None):
         #No way to avoid
         #pylint: disable=line-too-long
@@ -222,6 +223,10 @@ class MasterMaker(Processor):
                 the corresponding pixels being excluded from the averaging.
                 Other mask flags in the input frames are ignored, treated
                 as clean.
+
+            add_averaged_keywords:    Any keywords listed will be added to the
+                master header with a value calculated using the same averaging
+                procedure as the image pixels.
 
             custom_header:    See same name argument to __call__().
 
@@ -320,6 +325,7 @@ class MasterMaker(Processor):
             return None, None, None, None, []
 
         pixel_values = None
+        header_values = None
         master_header = fits.Header(custom_header.items())
         frame_index = 0
         discarded_frames = []
@@ -344,11 +350,20 @@ class MasterMaker(Processor):
 
                 if pixel_values is None:
                     pixel_values = numpy.empty((len(frame_list),) + image.shape)
+                if header_values is None:
+                    header_values = numpy.empty(
+                        (len(frame_list), len(add_averaged_keywords))
+                    )
 
                 pixel_values[frame_index] = stack_image
                 pixel_values[frame_index][
                     numpy.bitwise_and(mask, exclude_mask).astype(bool)
                 ] = numpy.nan
+                for kw_index, keyword in enumerate(add_averaged_keywords):
+                    #False positive
+                    #pylint: disable=unsubscriptable-object
+                    header_values[frame_index, kw_index] = header[keyword]
+                    #pylint: enable=unsubscriptable-object
                 frame_index += 1
 
         if frame_index < min_valid_frames:
@@ -365,6 +380,15 @@ class MasterMaker(Processor):
                                         mangle_input=True,
                                         keepdims=False)
         )
+        averaged_header, _, _ = iterative_rejection_average(
+            header_values,
+            outlier_threshold=outlier_threshold,
+            average_func=average_func,
+            max_iter=max_iter,
+            axis=0,
+            mangle_input=True,
+            keepdims=False
+        )
 
         master_mask = numpy.full(pixel_values[0].shape,
                                  mask_flags['CLEAR'],
@@ -372,6 +396,9 @@ class MasterMaker(Processor):
         master_mask[master_num_averaged < min_valid_values] = mask_flags['BAD']
 
         document_in_header(master_header)
+        for keyword, value in zip(add_averaged_keywords, averaged_header):
+            assert keyword not in master_header
+            master_header[keyword] = value
 
         return (master_values,
                 master_stdev,
@@ -385,9 +412,9 @@ class MasterMaker(Processor):
                  frame_list,
                  output_fname,
                  *,
-                 compress=16,
                  allow_overwrite=False,
                  custom_header=None,
+                 compress=None,
                  **stacking_options):
         """
         Create a master by stacking the given frames.
@@ -399,11 +426,10 @@ class MasterMaker(Processor):
         Args:
             frame_list:    A list of the frames to stack (FITS filenames).
 
-            output_fname:    The name of the output file to create.
+            output_fname:    The name of the output file to create. Can involve
+                substitutions of any header keywords of the generated file.
 
-            compress:    If None or False, the final result is not
-                compressed. Otherwise, this is the quantization level used for
-                compressing the image (see `astropy.io.fits` documentation).
+            compress:    See :meth:`__init__`
 
             allow_overwrite:    See same name argument
                 to superphot_pipeline.image_calibration.fits_util.create_result.
@@ -440,7 +466,7 @@ class MasterMaker(Processor):
             create_result(image_list=[values, stdev, mask],
                           header=header,
                           result_fname=output_fname,
-                          compress=compress,
+                          compress=compress or self.compress,
                           allow_overwrite=allow_overwrite)
 
         return discarded_frames

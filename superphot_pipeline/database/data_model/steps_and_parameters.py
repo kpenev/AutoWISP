@@ -6,6 +6,7 @@ from typing import List
 from sqlalchemy import\
     Column,\
     String,\
+    Integer,\
     TIMESTAMP,\
     Table,\
     ForeignKey

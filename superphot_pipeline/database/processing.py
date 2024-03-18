@@ -266,49 +266,32 @@ class ProcessingManager:
         return result
 
 
-    def _get_image_config(self, image, channel, step, db_session):
-        """Return the configuration for processing image/channel with step."""
+    def _split_by_master(self,
+                         batch,
+                         required_master_type,
+                         db_session):
+        """Split the given list of images by the best master of given type."""
 
-        config, config_key = self._get_config(
-            self._evaluated_expressions[image.id][channel]['matched'],
-            db_step=step
+        result = {}
+        candidate_masters = self._get_candidate_masters(
+            self._evaluate_expressions_image(*batch[0],
+                                             True),
+            required_master_type,
+            db_session
         )
-        key_extra = set()
-        if step.name == 'calibrate':
-            config['split_channels'] = self._get_split_channels(image)
-            key_extra.add((
-                'split_channels',
-                ''.join(
-                    repr(c)
-                    for c in image.observing_session.camera.channels
-                )
-            ))
-        config['processing_step'] = step.name
-
-        for required_master_type in db_session.scalars(
-                select(RequiredMasterTypes).filter_by(
-                    step_id=step.id,
-                    image_type_id=image.image_type_id
-                )
-        ).all():
-            image_eval = self._evaluate_expressions_image(image,
-                                                          channel,
-                                                          True)
-
-            candidate_masters = self._get_candidate_masters(
-                image_eval,
-                required_master_type,
-                db_session
+        if not candidate_masters:
+            raise ValueError(
+                f'No master {required_master_type.master_type.name} '
+                f'found for image {batch[0][0].raw_fname} channel '
+                f'{batch[0][1]}.'
             )
-            if not candidate_masters:
-                raise ValueError(
-                    f'No master {required_master_type.master_type.name} found '
-                    f'for {step.name} step of {image.image_type.name} image '
-                    f'{image.raw_fname} channel {channel}.'
-                )
-            if len(candidate_masters) == 1:
-                best_master_fname = candidate_masters[0].filename
-            else:
+        if len(candidate_masters) == 1:
+            result[candidate_masters[0].filename] = batch
+        else:
+            for image, channel in batch:
+                image_eval = self._evaluate_expressions_image(image,
+                                                              channel,
+                                                              True)
                 best_master_value = numpy.inf
                 best_master_fname = None
                 for master in candidate_masters:
@@ -318,16 +301,99 @@ class ProcessingManager:
                         best_master_value = master_value
                         best_master_fname = master.filename
                 assert best_master_fname
+                if best_master_fname in result:
+                    result[best_master_fname].extend((image, channel))
+                else:
+                    result[best_master_fname] = [(image, channel)]
+        return result
 
-            config[
-                required_master_type.config_name.replace('-', '_')
-            ] = best_master_fname
-            key_extra.add((required_master_type.config_name, best_master_fname))
 
-        if key_extra:
+    def _get_batch_config(self,
+                          batch,
+                          master_expression_values,
+                          step,
+                          db_session):
+        """
+        Split given batch of images by configuration for given step.
+
+        The batch must already be split by all relevant condition expressions.
+        Only splits batches by the best master for each image.
+
+        Args:
+            batch([Image, channel]):    List of database image instances and for
+                channels which to find the configuration(s). The channel should
+                be ``None`` for the ``calibrate`` step
+
+            master_expression_values(tuple):    The values the expressions
+                required to select input masters or to guarantee a unique output
+                master. Should be provided in consistent order for all batches
+                processed by the same step.
+
+            step(Step):    The database step instance to configure.
+
+            db_session:    Database session to use for queries.
+
+        Returns:
+            dict:
+                keys:    guaranteed to match iff configuration, output master
+                    conditions, and all best input master(s) match. In other
+                    words, if this function is called separately on multiple
+                    batches, it is safe to combine and process together those
+                    that end up with the same key.
+
+                values:
+                    dict:    The configuration to use for the given (sub-)batch.
+
+                    [Image]:     The (sub-)batch of images to process with given
+                        configuration.
+        """
+
+        config, config_key = self._get_config(
+            self._evaluated_expressions[batch[0][0].id][batch[0][1]]['matched'],
+            db_step=step
+        )
+        config_key |= {master_expression_values}
+        if step.name == 'calibrate':
+            config['split_channels'] = self._get_split_channels(batch[0][0])
+            key_extra = {
+                (
+                    'split_channels',
+                    ''.join(
+                        repr(c)
+                        for c in batch[0].observing_session.camera.channels
+                    )
+                )
+            }
             config_key |= key_extra
+        config['processing_step'] = step.name
 
-        return config, config_key
+        result = {
+            config_key: (config, batch)
+        }
+        for required_master_type in db_session.scalars(
+            select(RequiredMasterTypes).filter_by(
+                step_id=step.id,
+                image_type_id=batch[0][0].image_type_id
+            )
+        ).all():
+            for config_key, sub_batch in list(result.items()):
+                splits = self._split_by_master(sub_batch,
+                                               required_master_type,
+                                               db_session)
+
+
+                del result[config_key]
+                for best_master_fname, sub_batch in splits:
+                    new_config = dict(config)
+                    new_config[
+                        required_master_type.config_name.replace('-', '_')
+                    ] = best_master_fname
+                    key_extra = {
+                        (required_master_type.config_name, best_master_fname)
+                    }
+                    result[config_key | key_extra] = (new_config, sub_batch)
+
+        return result
 
 
     def _get_split_channels(self, image):
@@ -392,10 +458,24 @@ class ProcessingManager:
         """
         Return evaluator for header expressions for given image.
 
-        If channel_name is given, the evaluator will involve all keywords that
-        can be expected of the calibrated header. Otherwise, only raw and
-        required header keywords will be available.
+        Args:
+            image(Image):     Instance of database Image for which to evaluate
+                the condition expressions. The image header is augmented by
+                ``IMAGE_TYPE`` keyword set to the name of the image type of the
+                given image.
 
+            eval_channel(str or None):    If given, the evaluator will involve
+                all keywords that can be expected of the calibrated header.
+                Otherwise, only raw and required header keywords will be
+                available.
+
+            return_evaluator(bool):    Should an evaluator setup per the image
+                header be returned for further use?
+
+        Returns:
+            Evaluator or None:
+                Evaluator ready to evaluate additional expressions involving
+                FITS headers. Only returned if ``return_evaluator`` is True.
         """
 
 
@@ -415,6 +495,7 @@ class ProcessingManager:
                            repr(image))
         result = asteval.Interpreter()
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
+        evaluate.symtable['IMAGE_TYPE'] = image.image_type.name
         self._logger.debug('Matched expressions: %s',
                            repr(self._get_matched_expressions(evaluate)))
         calib_config = self._get_config(
@@ -532,15 +613,21 @@ class ProcessingManager:
             self._pending[(step.id, image_type.id)] = db_session.execute(
                 select_image_channel.outerjoin(
                     processed_subquery,
+                    #False positive
+                    #pylint: disable=no-member
                     and_(Image.id == processed_subquery.c.image_id,
                          CameraChannel.name == processed_subquery.c.channel),
+                    #pylint: enable=no-member
                 ).where(
                     #This is how NULL comparison is done in SQLAlchemy
                     #pylint: disable=singleton-comparison
                     processed_subquery.c.image_id == None
                     #pylint: enable=singleton-comparison
                 ).where(
+                    #False positive
+                    #pylint: disable=no-member
                     Image.image_type_id == image_type.id
+                    #pylint: enable=no-member
                 )
             ).all()
             self._logger.debug(
@@ -596,12 +683,12 @@ class ProcessingManager:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
-            config, config_key = self._get_image_config(
-                image,
+            (config_key, (config, _)), = self._get_batch_config(
+                [image],
                 processed.channel,
                 step,
                 db_session
-            )
+            ).items()
             if config_key not in interrupted:
                 interrupted[config_key] = [[], config]
 
@@ -750,13 +837,46 @@ class ProcessingManager:
 
         step_module = getattr(processing_steps, step_name)
 
-        getattr(step_module, step_name)(
+        new_master = getattr(step_module, step_name)(
             batch,
             start_status,
             config,
             self._start_processing,
             self._end_processing
         )
+        if not new_master:
+            return
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+
+            master_id = db_session.scalar(
+                #False positive
+                #pylint: disable=not-callable
+                select(sql.func.max(MasterFile.id))
+                #pylint: enable=not-callable
+            ) + 1
+
+            master_type_id = db_session.scalar(
+                select(
+                    MasterType.id
+                ).where(
+                    MasterType.name == new_master['type']
+                )
+            )
+            db_session.add(
+                MasterFile(
+                    id=master_id,
+                    type_id=master_type_id,
+                    progress_id=db_session.merge(
+                        self._current_processing,
+                        load=False
+                    ).id,
+                    filename=new_master['filename'],
+                    use_smallest=new_master['preference_order']
+                )
+            )
 
 
     def _start_processing(self, input_fname):
@@ -834,30 +954,49 @@ class ProcessingManager:
     def _group_pending_by_conditions(self, pending_images, db_session):
         """Group pendig_images grouped by condition expressions they satisfy."""
 
+        image_type_id = pending_images[0][0].image_type_id
         result = []
-        master_expression_ids = db_session.scalars(
-            select(
-                ConditionExpression.id
-            ).select_from(
-                RequiredMasterTypes
-            ).join(
-                MasterType
-            ).join(
-                Condition
-            ).join(
-                ConditionExpression
-            ).where(
-                RequiredMasterTypes.step_id
-                ==
-                self.current_step.id
-            ).where(
-                RequiredMasterTypes.image_type_id
-                ==
-                pending_images[0][0].image_type_id
-            ).group_by(
-                ConditionExpression.id
-            )
-        ).all()
+        master_expression_ids = (
+            db_session.scalars(
+                select(
+                    ConditionExpression.id
+                ).select_from(
+                    RequiredMasterTypes
+                ).join(
+                    MasterType
+                ).join(
+                    Condition
+                ).join(
+                    ConditionExpression
+                ).where(
+                    RequiredMasterTypes.step_id
+                    ==
+                    self.current_step.id
+                ).where(
+                    RequiredMasterTypes.image_type_id
+                    ==
+                    image_type_id
+                ).group_by(
+                    ConditionExpression.id
+                )
+            ).all()
+            +
+            db_session.scalars(
+                select(
+                    ConditionExpression.id
+                ).select_from(
+                    MasterType
+                ).join(
+                    Condition
+                ).join(
+                    ConditionExpression
+                ).where(
+                    MasterType.maker_step_id == self.current_step.id
+                ).where(
+                    MasterType.maker_image_type_id == image_type_id
+                )
+            ).all()
+        )
         while pending_images:
 #            pending_images = [
 #                (db_session.merge(image, load=False), channel)
@@ -922,7 +1061,7 @@ class ProcessingManager:
                     )
                 else:
                     self._logger.debug('Not a match')
-            result.append(batch)
+            result.append((batch, target_master_expression_values))
         return result
 
 
@@ -930,48 +1069,52 @@ class ProcessingManager:
         """Return the batches of images to process with identical config."""
 
         result = {}
-        for batch in self._group_pending_by_conditions(
+        for (
+            by_condition,
+            master_expression_values
+        ) in self._group_pending_by_conditions(
             pending_images,
             db_session
         ):
-            config, config_key = self._get_image_config(
-                *batch[0],
+            for config_key, (config, batch) in self._get_batch_config(
+                by_condition,
+                master_expression_values,
                 self.current_step,
                 db_session
-            )
-            setup_process(task='main', **config)
+            ).items():
+                setup_process(task='main', **config)
 
-            batch_status = None
-            for image, channel in batch:
-                status = db_session.execute(
-                    select(
-                        ProcessedImages.status
-                    ).where(
-                        ProcessedImages.image_id == image.id
-                    ).where(
-                        ProcessedImages.channel == channel
-                    ).where(
-                        ProcessedImages.progress_id
-                        ==
-                        self._current_processing.id
-                    )
-                ).scalar_one_or_none()
+                batch_status = None
+                for image, channel in batch:
+                    status = db_session.execute(
+                        select(
+                            ProcessedImages.status
+                        ).where(
+                            ProcessedImages.image_id == image.id
+                        ).where(
+                            ProcessedImages.channel == channel
+                        ).where(
+                            ProcessedImages.progress_id
+                            ==
+                            self._current_processing.id
+                        )
+                    ).scalar_one_or_none()
 
-                if status is not None:
-                    if batch_status is None:
-                        batch_status = status
-                    else:
-                        assert batch_status == status
+                    if status is not None:
+                        if batch_status is None:
+                            batch_status = status
+                        else:
+                            assert batch_status == status
 
-            input_batch = [
-                self._get_step_input(*image_channel, step_input_type)
-                for image_channel in batch
-            ]
+                input_batch = [
+                    self._get_step_input(*image_channel, step_input_type)
+                    for image_channel in batch
+                ]
 
-            if (config_key, batch_status) in result:
-                result[config_key, batch_status][1].extend(input_batch)
-            else:
-                result[config_key, batch_status] = (config, input_batch)
+                if (config_key, batch_status) in result:
+                    result[config_key, batch_status][1].extend(input_batch)
+                else:
+                    result[config_key, batch_status] = (config, input_batch)
 
         return result
 
