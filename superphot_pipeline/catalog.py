@@ -40,8 +40,12 @@ class SuperPhotGaia(GaiaClass):
         _logger.debug('Gaia query result columns: %s', repr(result.colnames))
         if result.colnames == ['num_obj']:
             return result['num_obj'][0]
-        result.rename_column('ra', 'RA_orig')
-        result.rename_column('dec', 'Dec_orig')
+        result.rename_column('ra', 'ra_orig')
+        result.rename_column('dec', 'dec_orig')
+        for colname in result.colnames:
+            new_colname = colname.lower()
+            if colname != new_colname:
+                result.rename_column(colname, colname.lower())
 
         if add_propagated:
             propagated = {coord: numpy.empty(len(result))
