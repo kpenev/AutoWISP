@@ -36,6 +36,11 @@ class SuperPhotGaia(GaiaClass):
         result.rename_column('ra', 'RA_orig')
         result.rename_column('dec', 'Dec_orig')
 
+        for colname in result.colnames:
+            new_colname = colname.lower()
+            if colname != new_colname:
+                result.rename_column(colname, colname.lower())
+
         if add_propagated:
             propagated = {coord: numpy.empty(len(result))
                           for coord in ['RA', 'Dec']}
