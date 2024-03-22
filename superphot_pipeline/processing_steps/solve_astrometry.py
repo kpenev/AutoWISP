@@ -757,12 +757,13 @@ def find_final_transformation(header,
                               configuration):
     """Find the final transformation for a given image."""
 
-    _logger.debug('Using transformation estimate: %s',
-                  repr(transformation_estimate))
-
 
     frame_is_covered = False
     while not frame_is_covered:
+
+        _logger.debug('Using transformation estimate: %s',
+                      repr(transformation_estimate))
+
         catalog, catalog_header = ensure_catalog(transformation_estimate,
                                                  header,
                                                  configuration,
@@ -896,7 +897,7 @@ def solve_image(dr_fname,
                 header=header
             )
             if status != 'success':
-                result['fail_reason'] = status
+                result['fail_reason'] = fail_reasons[status]
                 return result
 
         else:
@@ -980,7 +981,7 @@ def solve_image(dr_fname,
             return result
         #pylint: enable=bare-except
 
-    result['fail_reason'] = 'solve-field failed'
+    result['fail_reason'] = fail_reasons['solve-field failed']
     _logger.error(
         'No Astrometry.net solution found in tweak range [%d, %d]',
         *configuration['tweak_order']
@@ -1086,8 +1087,7 @@ def manage_astrometry(pending, task_queue, result_queue, mark_progress):
             _logger.critical(
                 'Failed astrometry for DR file %s: %s',
                 dr_fname,
-                [fail_key for fail_key, fail_reason in fail_reasons.items()
-                 if fail_reason == reason][0]
+                reason
             )
 #pylint: enable=too-many-branches
 
