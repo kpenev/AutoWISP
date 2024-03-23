@@ -461,10 +461,13 @@ def get_catalog_info(transformation_estimate, header, configuration):
     frame_fov_estimate = tuple(
         numpy.round(
             (
-                max(
-                    2.0 * trans_fov[i] * units.deg,
-                    configuration['frame_fov_estimate'][i]
-                ) + pointing_precision
+                min(
+                    max(
+                        2.0 * trans_fov[i] * units.deg,
+                        configuration['frame_fov_estimate'][i]
+                    ),
+                    configuration['frame_fov_estimate'][i] * configuration['image_scale_factor']
+                    )+ pointing_precision
             )
             /
             (configuration['catalog_fov_precision'] * units.deg)
@@ -545,7 +548,7 @@ def ensure_catalog(transformation_estimate,
                     len(catalog_info['magnitude_limit']) == 2
                     and
                     (
-                        catalog_header['MAGMIN']
+                        catalog_header['MAGMIN'] * (1.0 + 1e-6)
                         >
                         catalog_info['magnitude_limit'][0]
                     )
@@ -560,7 +563,7 @@ def ensure_catalog(transformation_estimate,
                     catalog_header.get('MAGMAX') is not None
                     and
                     (
-                        catalog_header['MAGMAX']
+                        catalog_header['MAGMAX'] * (1.0 + 1e-6)
                         <
                         catalog_info['magnitude_limit'][-1]
                     )
@@ -572,24 +575,24 @@ def ensure_catalog(transformation_estimate,
                     )
 
                 if (
-                    catalog_header['WIDTH']
+                    catalog_header['WIDTH'] * (1.0 + 1e-6)
                     <
                     catalog_info['width'].to_value(units.deg)
                 ):
                     raise RuntimeError(
                         f'Catalog {catalog_info["catalog_fname"]} width '
                         f'{catalog_header["WIDTH"]!r} is less than the required '
-                        f'{catalog_info["width"]!r}'
+                        f'{catalog_info["width"].to_value(units.deg)!r}'
                     )
                 if (
-                    catalog_header['HEIGHT']
+                    catalog_header['HEIGHT'] * (1.0 + 1e-6)
                     <
                     catalog_info['height'].to_value(units.deg)
                 ):
                     raise RuntimeError(
                         f'Catalog {catalog_info["catalog_fname"]} height '
                         f'{catalog_header["HEIGHT"]!r} is less than the required '
-                        f'{catalog_info["height"]!r}'
+                        f'{catalog_info["height"].to_value(units.deg)!r}'
                     )
 
                 if (
