@@ -33,10 +33,15 @@
                 </a>
             </div>
             {% endif %}
-            <div class="dropdown">
+            <div class="dropdown dropdown-right" >
+                <a class="dropbtn" href="{% url 'configuration:survey' %}">
+                    Survey Configuration
+                </a>
+            </div>
+            <div class="dropdown dropdown-right">
                 <a class="dropbtn" 
                     href="{% url 'configuration:config_tree' %}">
-                    Edit Configuration
+                    Processing Configuration
                 </a>
             </div>
         </div>

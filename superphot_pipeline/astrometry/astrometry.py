@@ -395,6 +395,9 @@ def estimate_transformation(*,
         fov_range
     )
 
+    if tweak_order == 0:
+        return None, None, field_corr
+
     initial_corr = numpy.zeros(
         (field_corr['field_x'].shape),
         dtype=[('x', '>f8'),
@@ -408,15 +411,13 @@ def estimate_transformation(*,
     initial_corr['RA'] = field_corr['index_ra']
     initial_corr['Dec'] = field_corr['index_dec']
 
-    if tweak_order > 0:
-        return estimate_transformation_from_corr(
-            initial_corr=initial_corr,
-            tweak_order=tweak_order,
-            astrometry_order=astrometry_order,
-            ra_cent=ra_cent,
-            dec_cent=dec_cent
-        ) + ('success',)
-    return None, None, initial_corr
+    return estimate_transformation_from_corr(
+        initial_corr=initial_corr,
+        tweak_order=tweak_order,
+        astrometry_order=astrometry_order,
+        ra_cent=ra_cent,
+        dec_cent=dec_cent
+    ) + ('success',)
 
 
 def refine_transformation(*,

@@ -1,3 +1,5 @@
+"""Configure the URLs for the interface for editing the configuration."""
+
 from django.urls import path
 
 from . import views
@@ -16,5 +18,11 @@ urlpatterns = [
          name="config_tree"),
     path("<str:step>/<int:version>/<int:force_unlock>",
          views.config_tree,
-         name="config_tree")
+         name="config_tree"),
+    path("survey",
+         views.edit_survey,
+         name='survey'),
+    path("survey/<slug:selected_type>/<int:selected_id>",
+         views.edit_survey,
+         name='survey')
 ]

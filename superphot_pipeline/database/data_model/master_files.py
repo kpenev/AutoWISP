@@ -58,6 +58,14 @@ class MasterType(DataModelBase):
         doc='The image type to which the maker step is applied when creating '
         'masters of this type.'
     )
+    maker_image_split_condition_id = Column(
+        Integer,
+        ForeignKey('condition.id'),
+        nullable=True,
+        doc='The collection of expression involving header keywords that must '
+        'match between all images that are combined into a master in addition '
+        'to the expressions specified by ``condition_id``.'
+    )
     description = Column(
         String(1000),
         doc='A description of the master file type.'
@@ -73,6 +81,7 @@ class MasterType(DataModelBase):
     master_files = relationship('MasterFile', back_populates='master_type')
     match_expressions: Mapped[List[ConditionExpression]] = relationship(
         secondary=Condition.__table__,
+        primaryjoin="MasterType.condition_id == Condition.id",
         viewonly=True
     )
 

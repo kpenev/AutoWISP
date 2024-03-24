@@ -96,10 +96,10 @@ def parse_command_line(*args):
         '`astropy.io.fits` documentation).'
     )
     parser.add_argument(
-        '--add-averaged-keywords',
+        '--averaged-keywords',
         nargs='+',
         default=['JD-OBS'],
-        help='Specify any numeric-values header keywords that should be '
+        help='Specify any numeric-valued header keywords that should be '
         'generated for the master by averaging the corresponding values from '
         'the input frames using the same averaging as pixel values. By default '
         'the outlier rejected average JD of the input frames is added.'

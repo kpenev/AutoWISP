@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 import logging
 from os import path
 
-from sqlalchemy import sql, select, update, and_
+from sqlalchemy import sql, select, update, and_, or_
 from asteval import asteval
 import numpy
 
@@ -360,7 +360,7 @@ class ProcessingManager:
                     'split_channels',
                     ''.join(
                         repr(c)
-                        for c in batch[0].observing_session.camera.channels
+                        for c in batch[0][0].observing_session.camera.channels
                     )
                 )
             }
@@ -965,7 +965,8 @@ class ProcessingManager:
                 ).join(
                     MasterType
                 ).join(
-                    Condition
+                    Condition,
+                    MasterType.condition_id == Condition.id
                 ).join(
                     ConditionExpression
                 ).where(
@@ -987,7 +988,15 @@ class ProcessingManager:
                 ).select_from(
                     MasterType
                 ).join(
-                    Condition
+                    Condition,
+                    or_(
+                        MasterType.condition_id == Condition.id,
+                        (
+                            MasterType.maker_image_split_condition_id
+                            ==
+                            Condition.id
+                        )
+                    )
                 ).join(
                     ConditionExpression
                 ).where(

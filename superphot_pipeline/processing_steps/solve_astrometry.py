@@ -499,7 +499,10 @@ def solve_image(dr_fname,
                 header=header
             )
             if status != 'success':
-                result['fail_reason'] = fail_reasons[status]
+                result['fail_reason'] = fail_reasons.get(
+                    status,
+                    fail_reasons['other']
+                )
                 return result
 
         else:

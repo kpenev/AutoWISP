@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Photometric Survey Configuration</title>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+        <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
+
+    </head>
+    <body>
+        {% csrf_token %}
+        <div class="navbar" id="navbar">
+            <div class="dropdown dropdown-right" >
+                <a class="dropbtn" href="{% url 'processing:progress' %}">
+                    Processing Status
+                </a>
+            </div>
+            <div class="dropdown dropdown-right" >
+                <a class="dropbtn" href="{% url 'configuration:config_tree' %}">
+                    Processing Configuration
+                </a>
+            </div>
+        </div>
+        <div id="survey" 
+             class="grid-container" 
+             style="grid-template-columns: auto auto">
+            <div class="grid-item">
+                <h2>Observers</h2>
+            </div>
+            <div class="grid-item"><h2>Observatories</h2></div>
+        </div>
+        <div id="survey" class="grid-container" style="grid-template-columns: auto auto auto">
+            {% with 'cameras telescopes mounts' as equipment_types %}
+            {% for type in equipment_types.split %}
+            <div class="grid-item">
+                <h2>{{type.title}}</h2>
+                <ul>
+                    {% cycle cameras telescopes mounts as equipment_list silent %}
+                    {% for equipment in equipment_list %}
+                    <li>
+                        {{equipment.make}} 
+                        {{equipment.model}} 
+                        (S/N {{equipment.serial}})
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+            {% endwith %}
+        </div>
+    </body>
+</html>
