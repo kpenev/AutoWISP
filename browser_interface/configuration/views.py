@@ -113,6 +113,25 @@ def edit_survey(request, selected_type=None, selected_id=None):
                     )
                 ).all()
             ]
+        context['observers'] = [
+            namedtuple(
+                'observer',
+                ['id', 'name', 'email', 'phone', 'notes']
+            )(
+                obs.id, obs.name, obs.email, obs.phone, obs.notes
+            )
+            for obs in db_session.scalars(select(provenance.Observer)).all()
+        ]
+        context['observatories'] = [
+            namedtuple(
+                'observatory',
+                ['id', 'name', 'latitude', 'longitude', 'altitude']
+            )(
+                obs.id, obs.name, obs.latitude, obs.longitude, obs.altitude
+            )
+            for obs in db_session.scalars(select(provenance.Observatory)).all()
+        ]
+        print(repr(context))
 
     return render(
         request,
