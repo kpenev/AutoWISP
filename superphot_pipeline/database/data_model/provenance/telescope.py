@@ -59,3 +59,12 @@ class Telescope(DataModelBase):
                              back_populates="telescopes")
     telescope_type = relationship("TelescopeType",
                                   back_populates="telescopes")
+
+    def __str__(self):
+        """Human readable identifier for the telescope."""
+
+        return (
+            f'{self.telescope_type.make} {self.telescope_type.model} '
+            f'({self.serial_number})'
+        )
+

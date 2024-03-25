@@ -81,7 +81,21 @@ def edit_survey(request, selected_type=None, selected_id=None):
     """
 
 
-    context = {}
+    context = {
+        'selected_type': selected_type,
+        'attributes': {
+            'camera': ['type', 'serial'],
+            'telescope': ['type', 'serial'],
+            'mount': ['type', 'serial'],
+            'observer': ['name', 'email', 'phone', 'notes'],
+            'observatory': ['name',
+                            'latitude',
+                            'longitude',
+                            'altitude',
+                            'notes']
+        }
+    }
+    selected = None
     #False positive:
     #pylint: disable=no-member
     with Session.begin() as db_session:
@@ -100,12 +114,15 @@ def edit_survey(request, selected_type=None, selected_id=None):
             context[component_type + 's'] = [
                 namedtuple(
                     component_type,
-                    ['id', 'serial', 'make', 'model']
+                    ['id', 'str', 'serial', 'make', 'model', 'access', 'type']
                 )(
                     equipment.id,
+                    str(equipment),
                     equipment.serial_number,
                     getattr(equipment, component_type + '_type').make,
-                    getattr(equipment, component_type + '_type').model
+                    getattr(equipment, component_type + '_type').model,
+                    equipment in getattr(selected, component_type + 's', []),
+                    component_type
                 )
                 for equipment in db_session.scalars(
                     select(
@@ -116,18 +133,48 @@ def edit_survey(request, selected_type=None, selected_id=None):
         context['observers'] = [
             namedtuple(
                 'observer',
-                ['id', 'name', 'email', 'phone', 'notes']
+                [
+                    'id',
+                    'str',
+                    'name',
+                    'email',
+                    'phone',
+                    'notes',
+                    'access',
+                    'type',
+                ]
             )(
-                obs.id, obs.name, obs.email, obs.phone, obs.notes
+                obs.id,
+                str(obs),
+                obs.name,
+                obs.email,
+                obs.phone,
+                obs.notes,
+                obs in getattr(selected, 'observers', []),
+                'observer',
             )
             for obs in db_session.scalars(select(provenance.Observer)).all()
         ]
         context['observatories'] = [
             namedtuple(
                 'observatory',
-                ['id', 'name', 'latitude', 'longitude', 'altitude']
+                [
+                    'id',
+                    'str',
+                    'name',
+                    'latitude',
+                    'longitude',
+                    'altitude',
+                    'type'
+                ]
             )(
-                obs.id, obs.name, obs.latitude, obs.longitude, obs.altitude
+                obs.id,
+                str(obs),
+                obs.name,
+                obs.latitude,
+                obs.longitude,
+                obs.altitude,
+                'observatory'
             )
             for obs in db_session.scalars(select(provenance.Observatory)).all()
         ]

@@ -56,3 +56,8 @@ class Observatory(DataModelBase):
 
     observing_sessions = relationship("ObservingSession",
                                       back_populates="observatory")
+
+    def __str__(self):
+        """Human readable identifier for the observatory."""
+
+        return f'{self.name} (lat={self.latitude}, lon={self.longitude})'

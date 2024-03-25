@@ -1,0 +1,17 @@
+<tr>
+    <td>
+        <button type="button"
+                {% if item.access %}
+                style="width:100%; background-color:green"> 
+            YES 
+            {% else %}
+            style="width:100%; background-color:red"> 
+            NO 
+            {% endif %}
+        </button>
+    </td>
+    <td>
+        {% include "./survey_item_entry.html" %}
+    </td>
+</tr>
+

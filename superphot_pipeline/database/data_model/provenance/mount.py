@@ -60,10 +60,16 @@ class Mount(DataModelBase):
     observing_sessions = relationship("ObservingSession",
                                       back_populates="mount")
 
+    def __str__(self):
+        """Human readable info for the mount."""
+
+        return (
+            f'{self.mount_type.make} {self.mount_type.model} '
+            f'({self.serial_number})'
+        )
+
+
     #not sure how to use these
     # __table_args__ = (
     #     Index('description_index', 'description', unique=True),
     # )
-    #
-    # def __str__(self):
-    #     return '%d: %s' % (self.id, self.description)

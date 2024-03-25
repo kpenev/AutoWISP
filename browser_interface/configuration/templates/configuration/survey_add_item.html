@@ -1,0 +1,16 @@
+<tr>
+    <td rowspan={{properties|length}}>
+        <button type="button" 
+                class="survey-add-button">Add:</button>
+    </td>
+    {% for attr in attributes %}
+    {% if forloop.counter0 %}
+</tr>
+<tr>
+    {% endif %}
+    <td>
+        <label for="{{type}}-{{attr}}">{{attr}}:</label>
+        <input type="text" name="{{type}}-{{attr}}">
+    </td>
+    {% endfor %}
+</tr>

@@ -7,7 +7,6 @@
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
-
     </head>
     <body>
         {% csrf_token %}
@@ -23,68 +22,71 @@
                 </a>
             </div>
         </div>
+        {% with 'camera telescope mount' as equipment_types_str %}
+        {% with equipment_types_str.split as equipment_types %}
         <div id="survey" 
              class="survey-container" 
              style="grid-template-columns: auto auto">
             <div class="survey-item">
-                <h2>Observers</h2>
-                <ul>
-                    {% for obs in observers %}
-                    <li>
-                        <a href={% url 'configuration:survey' selected_type='observer' selected_id=obs.id%}>
-                            {{obs.name}}
-                        </a>
-                        (<a href="mailto:{{obs.email}}"> {{obs.email}} </a>)
-                    </li>
+                <table>
+                    <tr>
+                        {% if selected_type in equipment_types %}
+                        <th>Access to <br/>{{selected_type}}</th>
+                        <th>Observers</th>
+                        {% else %}
+                        <th colspan=2>Observers</th>
+                        {% endif %}
+                    </tr>
+                    {% for item in observers %}
+                    {% if selected_type in equipment_types %}
+                    {% include "./survey_item_access.html" %}
+                    {% else %}
+                    {% include "./survey_item_noaccess.html" %}
+                    {% endif %}
                     {% endfor %}
-                    <li>
-                        <label for="new_observer">Add:</label>
-                        <input type="text" class="survey-item" name="new_observer">
-                    </li>
-                </ul>
+                    {% include "./survey_add_item.html" with type='observer' attributes=attributes.observer%}
+                </table>
             </div>
             <div class="survey-item">
-                <h2>Observatories</h2>
-                <ul>
+                <table>
+                    <tr>
+                        <th colspan=2>Observatories</th>
+                    </tr>
                     {% for obs in observatories %}
-                    <li>
-                        <a href={% url 'configuration:survey' selected_type='observatory' selected_id=obs.id%}>
-                            {{obs.name}} 
-                            (lat={{obs.latitude}}, lon={{obs.longitude}})
-                        </a>
-                    </li>
+                    {% include "./survey_item_noaccess.html" with item=obs%}
                     {% endfor %}
-                    <li>
-                        <label for="new_observatory">Add:</label>
-                        <input type="text" class="survey-item" name="new_observatory">
-                    </li>
-                </ul>
+                    {% include "./survey_add_item.html" with type='observatory' attributes=attributes.observatory%}
+                </table>
             </div>
         </div>
         <div id="survey" class="survey-container" style="grid-template-columns: auto auto auto">
-            {% with 'camera telescope mount' as equipment_types %}
-            {% for type in equipment_types.split %}
+            {% for type in equipment_types %}
             <div class="survey-item">
-                <h2>{{type.title}}s</h2>
-                <ul>
+                <table>
+                    <tr>
+                        {% if selected_type == 'observer' %}
+                        <th>Observer has<br/>Access</th>
+                        <th>{{type.title}}s</th>
+                        {% else %}
+                        <th colspan=2>{{type.title}}s</th>
+                        {% endif %}
+                    </tr>
                     {% cycle cameras telescopes mounts as equipment_list silent %}
-                    {% for equipment in equipment_list %}
-                    <li>
-                        <a href={% url 'configuration:survey' selected_type=type selected_id=equipment.id%}>
-                            {{equipment.make}} 
-                            {{equipment.model}} 
-                            (S/N {{equipment.serial}})
-                        </a>
-                    </li>
+                    {% cycle attributes.camera attributes.telescope attributes.mount as type_attributes silent %}
+                    {% for item in equipment_list %}
+                    {% if selected_type == 'observer' %}
+                    {% include "./survey_item_access.html" %}
+                    {% else %}
+                    {% include "./survey_item_noaccess.html" %}
+                    {% endif %}
                     {% endfor %}
-                    <li>
-                        <label for="new_{{type}}">Add:</label>
-                        <input type="text" class="survey-item" name="new_{{type}">
-                    </li>
-                </ul>
+                    {% include "./survey_add_item.html" with attributes=type_attributes %}
+                </table>
             </div>
             {% endfor %}
-            {% endwith %}
         </div>
+        {% endwith %}
+        {% endwith %}
+
     </body>
 </html>

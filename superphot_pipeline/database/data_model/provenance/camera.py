@@ -61,4 +61,12 @@ class Camera(DataModelBase):
     channels = relationship('CameraChannel',
                             secondary='camera_type',
                             viewonly=True)
+
+    def __str__(self):
+        """Human readable info for the camera."""
+
+        return (
+            f'{self.camera_type.make} {self.camera_type.model} '
+            f'({self.serial_number})'
+        )
 #pylint: enable=too-few-public-methods

@@ -66,3 +66,8 @@ class Observer(DataModelBase):
                               back_populates="observers")
     observing_sessions = relationship("ObservingSession",
                                       back_populates="observer")
+
+    def __str__(self):
+        """Human readable string identifying the observer."""
+
+        return self.name

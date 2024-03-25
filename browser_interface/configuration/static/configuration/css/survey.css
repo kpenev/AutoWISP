@@ -12,3 +12,9 @@
     font-size: 20px;
     text-align: center;
 }
+
+.survey-add-button {
+    width:100%;
+    height:60px;
+    /*background-color:green;*/
+}
