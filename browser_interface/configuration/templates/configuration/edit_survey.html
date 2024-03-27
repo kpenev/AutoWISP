@@ -9,7 +9,6 @@
         <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
     </head>
     <body>
-        {% csrf_token %}
         <div class="navbar" id="navbar">
             <div class="dropdown dropdown-right" >
                 <a class="dropbtn" href="{% url 'processing:progress' %}">
@@ -30,13 +29,14 @@
             <div class="survey-item">
                 <table>
                     <tr>
-                        {% if selected_component in equipment_componentss %}
+                        {% if selected_component in equipment_components %}
                         <th>Access to <br/>{{selected_component}}</th>
                         <th>Observers</th>
                         {% else %}
                         <th colspan=2>Observers</th>
                         {% endif %}
                     </tr>
+                    {% with component='observer' %}
                     {% for item in observers %}
                     {% if selected_component in equipment_components %}
                     {% include "./survey_item_access.html" %}
@@ -44,7 +44,8 @@
                     {% include "./survey_item_noaccess.html" %}
                     {% endif %}
                     {% endfor %}
-                    {% include "./survey_add_item.html" with component='observer' attributes=attributes.observer%}
+                    {% include "./survey_add_item.html" with attributes=attributes.observer %}
+                    {% endwith %}
                 </table>
             </div>
             <div class="survey-item">
@@ -53,7 +54,7 @@
                         <th colspan=2>Observatories</th>
                     </tr>
                     {% for obs in observatories %}
-                    {% include "./survey_item_noaccess.html" with item=obs%}
+                    {% include "./survey_item_noaccess.html" with item=obs component='observatory'%}
                     {% endfor %}
                     {% include "./survey_add_item.html" with component='observatory' attributes=attributes.observatory%}
                 </table>

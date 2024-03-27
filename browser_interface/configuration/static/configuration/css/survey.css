@@ -19,3 +19,7 @@
     height:60px;
     /*background-color:green;*/
 }
+
+.selected-item {
+    background-color: Gold;
+}

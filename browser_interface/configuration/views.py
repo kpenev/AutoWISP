@@ -2,7 +2,7 @@
 
 from collections import namedtuple
 
-from sqlalchemy import select, func, inspect
+from sqlalchemy import select, func, inspect, delete
 from sqlalchemy.orm import ColumnProperty
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -66,6 +66,36 @@ def save_config(request, version):
     return HttpResponseRedirect(reverse("configuration:config_tree"))
 
 
+def get_human_name(column_name):
+    """Return human friendly name for the given column."""
+
+    if column_name == 'serial_number':
+        return 'serial no'
+    if column_name == 'f_ratio':
+        return 'focal ratio'
+    if column_name.endswith('_type_id'):
+        return 'type'
+    return column_name.replace('_', ' ')
+
+
+def get_editable_attributes(db_class):
+    """List the user-editable attributes for the given component DB class."""
+
+    columns = [
+        str(a).split('.', 1)[1]
+        for a in inspect(db_class).attrs
+        if isinstance(a, ColumnProperty)
+    ]
+    result = [
+        'type' if col_name.endswith('_type_id') else col_name
+        for col_name in columns if col_name not in ['id', 'timestamp']
+    ]
+    if 'type' in result:
+        result.remove('type')
+        result.append('type')
+    return result
+
+
 def edit_survey(request,
                 selected_component_type=None,
                 selected_id=None,
@@ -89,29 +119,33 @@ def edit_survey(request,
 
     create_new_types = create_new_types.strip().split()
 
-    context = {
-        'selected_component': selected_component_type,
-        'selected_id': selected_id,
-        'attributes': {
-            'camera': ['serial', 'notes', 'type'],
-            'telescope': ['serial', 'notes', 'type'],
-            'mount': ['serial', 'notes', 'type'],
-            'observer': ['name', 'email', 'phone', 'notes'],
-            'observatory': ['name',
-                            'latitude',
-                            'longitude',
-                            'altitude',
-                            'notes']
-        },
-        'types': {},
-        'type_attributes': {},
-        'create_new_types': create_new_types or []
-    }
     selected = None
     #False positive:
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
+
+        context = {
+            'selected_component': selected_component_type,
+            'selected_id': selected_id,
+            'attributes': {
+                component: [
+                    get_human_name(col_name)
+                    for col_name in get_editable_attributes(
+                        getattr(provenance, component.title())
+                    )
+                ]
+                for component in ['camera',
+                                  'telescope',
+                                  'mount',
+                                  'observatory',
+                                  'observer']
+            },
+            'types': {},
+            'type_attributes': {},
+            'create_new_types': create_new_types or []
+        }
+
         if selected_component_type is not None:
             assert selected_id is not None
             selected_component_type = getattr(provenance,
@@ -144,23 +178,20 @@ def edit_survey(request,
                 ).all()
             ]
             db_type_class = getattr(provenance, component_type.title() + 'Type')
+            type_attributes = get_editable_attributes(db_type_class)
             context['type_attributes'][component_type] = [
-                str(a).split('.', 1)[1]
-                for a in inspect(db_type_class).attrs
-                if (
-                    isinstance(a, ColumnProperty)
-                    and
-                    not str(a).endswith('.timestamp')
-                )
+                get_human_name(col_name)
+                for col_name in type_attributes
             ]
+            type_attributes.append('id')
             context['types'][component_type] = [
                 namedtuple(
                     component_type + '_type',
-                    context['type_attributes'][component_type]
+                    type_attributes
                 )(
                     *[
                         getattr(db_type, attr)
-                        for attr in context['type_attributes'][component_type]
+                        for attr in type_attributes
                     ]
                 )
                 for db_type in db_session.scalars(select(db_type_class)).all()
@@ -221,3 +252,93 @@ def edit_survey(request,
         context
     )
 
+def add_survey_component(request, component_type):
+    """Add a new component to the survey network."""
+
+    component_title = component_type.title()
+    print(repr(request.POST))
+    #False positive:
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        db_class = getattr(provenance, component_title)
+        attribute_names = get_editable_attributes(db_class)
+        component_values = {
+            attr: request.POST[component_type + '-' + get_human_name(attr)]
+            for attr in attribute_names if attr != 'type'
+        }
+        if 'type' in attribute_names:
+            type_id = request.POST.get(component_type + '-type-id')
+            if type_id is None:
+                type_db_class = getattr(provenance, component_title + 'Type')
+                type_attr_names = get_editable_attributes(type_db_class)
+                new_type = type_db_class(**{
+                    attr: request.POST[
+                        component_type + '-type-' + get_human_name(attr)
+                    ]
+                    for attr in type_attr_names
+                })
+                db_session.add(new_type)
+                db_session.flush()
+                db_session.refresh(new_type, ['id'])
+                type_id = new_type.id
+
+            component_values[component_type + '_type_id'] = type_id
+
+        print(f'Component_values: {component_values!r}')
+        new_component = db_class(**component_values)
+        db_session.add(new_component)
+        db_session.flush()
+        db_session.refresh(new_component, ['id'])
+
+        return HttpResponseRedirect(reverse(
+            "configuration:survey",
+            kwargs={'selected_component_type': component_type,
+                    'selected_id': new_component.id}
+        ))
+
+
+def change_access(request,
+                  new_access,
+                  selected_component,
+                  selected_id,
+                  target_component,
+                  target_id):
+    """Change an observer's access to something."""
+
+    if selected_component == 'observer':
+        observer_id = selected_id
+        equipment_id = target_id
+        equipment_column = target_component
+        access_class = getattr(provenance, target_component.title() + 'Access')
+    else:
+        observer_id = target_id
+        equipment_id = selected_id
+        equipment_column = selected_component
+        access_class = getattr(provenance,
+                               selected_component.title() + 'Access')
+    equipment_column += '_id'
+
+    #False positive:
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        if new_access:
+            db_session.add(
+                access_class(observer_id=observer_id,
+                             **{equipment_column: equipment_id})
+            )
+        else:
+            db_session.execute(
+                delete(access_class).where(
+                    access_class.observer_id == observer_id
+                ).where(
+                    getattr(access_class, equipment_column) == equipment_id
+                )
+            )
+
+    return HttpResponseRedirect(reverse(
+            "configuration:survey",
+            kwargs={'selected_component_type': selected_component,
+                    'selected_id': selected_id}
+    ))

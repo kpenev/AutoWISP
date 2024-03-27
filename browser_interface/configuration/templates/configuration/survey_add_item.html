@@ -1,14 +1,16 @@
-<tr>
-    <td rowspan=0>
-        <button type="button" class="survey-add-button">Add:</button>
-    </td>
-</tr>
-{% for attr in attributes %}
-{% if forloop.counter0 %}
-<tr>
-    {% endif %}
-    <td>
-        {% if attr == 'type' %}
+<form action="{% url 'configuration:add_survey_component' component %}" method="post">
+    {% csrf_token %}
+    <tr>
+        <td rowspan=0>
+            <input type="submit" class="survey-add-button" value="Add"/>
+        </td>
+    </tr>
+    {% for attr in attributes %}
+    {% if forloop.counter0 %}
+    <tr>
+        {% endif %}
+        <td>
+            {% if attr == 'type' %}
             {% if component in create_new_types %}
             {% url 'configuration:survey' selected_component_type=selected_component selected_id=selected_id create_new_types=create_new_types|join:' '|add:' '|cut:component as cancel_new_type_url %}
 
@@ -16,19 +18,19 @@
                 Cancel new type
             </button>
 
-                {% for type_attr in type_attributes %}
-    </td>
-</tr>
-<tr>
-    <td>
-                <label for="{{component}}-type-{{type_attr}}">
-                    {{type_attr}}:
-                </label>
-                <input type="text" name="{{component}}-type-{{type_attr}}">
-                {% endfor %}
+            {% for type_attr in type_attributes %}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="{{component}}-type-{{type_attr}}">
+                {{type_attr}}:
+            </label>
+            <input type="text" name="{{component}}-type-{{type_attr}}">
+            {% endfor %}
             {% else %}
             <label for="{{component}}-{{attr}}">{{attr}}:</label>
-            <select name="{{component}}-{{attr}}" id="{{component}}-{{attr}}">
+            <select name="{{component}}-{{attr}}-id" id="{{component}}-{{attr}}">
                 {% for type_entry in types %}
                 <option value="{{type_entry.id}}">
                 {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
@@ -43,10 +45,11 @@
                 </option>
             </select>
             {% endif %}
-        {% else %}
-        <label for="{{component}}-{{attr}}">{{attr}}:</label>
-        <input type="text" name="{{type}}-{{attr}}">
-        {% endif %}
-    </td>
-    {% endfor %}
-</tr>
+            {% else %}
+            <label for="{{component}}-{{attr}}">{{attr}}:</label>
+            <input type="text" name="{{component}}-{{attr}}">
+            {% endif %}
+        </td>
+        {% endfor %}
+    </tr>
+</form>

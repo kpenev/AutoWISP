@@ -1,16 +1,25 @@
 <tr>
     <td>
         <button type="button"
-                {% if item.access %}
+            {% if item.access %}
+                {% url 'configuration:change_access' new_access=0 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+                onclick="window.location.href='{{access_url}}';"
                 style="width:100%; background-color:green"> 
             YES 
             {% else %}
-            style="width:100%; background-color:red"> 
+                {% url 'configuration:change_access' new_access=1 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+
+                onclick="window.location.href='{{access_url}}';"
+                style="width:100%; background-color:red"> 
             NO 
             {% endif %}
         </button>
     </td>
+    {% if component == selected_component and item.id == selected_id %}
+    <td class="selected-item">
+    {% else %}
     <td>
+    {% endif %}
         {% include "./survey_item_entry.html" %}
     </td>
 </tr>

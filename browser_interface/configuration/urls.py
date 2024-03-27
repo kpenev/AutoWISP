@@ -28,6 +28,12 @@ urlpatterns = [
     path("survey/<slug:selected_component_type>/<int:selected_id>/"
          "<create_new_types>",
          views.edit_survey,
-         name='survey')
-
+         name='survey'),
+    path("add_survey_component/<slug:component_type>",
+         views.add_survey_component,
+         name='add_survey_component'),
+    path('change_access/<int:new_access>/<slug:selected_component>'
+         '/<int:selected_id>/<slug:target_component>/<int:target_id>',
+         views.change_access,
+         name='change_access')
 ]
