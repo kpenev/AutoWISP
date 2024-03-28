@@ -96,8 +96,104 @@ def get_editable_attributes(db_class):
     return result
 
 
+def add_survey_items_to_context(context, selected, db_session):
+    """Add the current survey configuration to the given context."""
+
+    for component_type in ['camera', 'mount', 'telescope']:
+        tuple_type = namedtuple(
+            component_type,
+            ['id', 'str', 'serial', 'make', 'model', 'access', 'type']
+        )
+        context[component_type + 's'] = [
+            tuple_type(
+                equipment.id,
+                str(equipment),
+                equipment.serial_number,
+                getattr(equipment, component_type + '_type').make,
+                getattr(equipment, component_type + '_type').model,
+                equipment in getattr(selected, component_type + 's', []),
+                component_type
+            )
+            for equipment in db_session.scalars(
+                select(
+                    getattr(provenance, component_type.title())
+                )
+            ).all()
+        ]
+        context[component_type + 's'].append(
+            tuple_type(
+                -1,
+                'Add new ' + component_type,
+                *(4 * ('',)),
+                component_type
+            )
+        )
+
+        db_type_class = getattr(provenance, component_type.title() + 'Type')
+        type_attributes = get_editable_attributes(db_type_class)
+        context['type_attributes'][component_type] = [
+            get_human_name(col_name)
+            for col_name in type_attributes
+        ]
+        type_attributes.append('id')
+        context['types'][component_type] = [
+            namedtuple(
+                component_type + '_type',
+                type_attributes
+            )(
+                *[
+                    getattr(db_type, attr)
+                    for attr in type_attributes
+                ]
+            )
+            for db_type in db_session.scalars(select(db_type_class)).all()
+        ]
+
+    tuple_type = namedtuple(
+        'observer',
+        ['id', 'str', 'name', 'email', 'phone', 'notes', 'access', 'type']
+    )
+    context['observers'] = [
+        tuple_type(
+            obs.id,
+            str(obs),
+            obs.name,
+            obs.email,
+            obs.phone,
+            obs.notes,
+            obs in getattr(selected, 'observers', []),
+            'observer',
+        )
+        for obs in db_session.scalars(select(provenance.Observer)).all()
+    ]
+    context['observers'].append(
+        tuple_type(-1, 'Add new observer', *(5 * ('',)), 'observer')
+    )
+
+    tuple_type = namedtuple(
+        'observatory',
+        ['id', 'str', 'name', 'latitude', 'longitude', 'altitude', 'type']
+    )
+    context['observatories'] = [
+        tuple_type(
+            obs.id,
+            str(obs),
+            obs.name,
+            obs.latitude,
+            obs.longitude,
+            obs.altitude,
+            'observatory'
+        )
+        for obs in db_session.scalars(select(provenance.Observatory)).all()
+    ]
+    context['observatories'].append(
+        tuple_type(-1, 'Add new observatory', *(4 * ('',)), 'observatory')
+    )
+
+
 def edit_survey(request,
-                selected_component_type=None,
+                *,
+                selected_component=None,
                 selected_id=None,
                 create_new_types=''):
     """
@@ -106,18 +202,19 @@ def edit_survey(request,
     Args:
         request:    See django.
 
-        selected_component_type(str):    What type of survey component is
+        selected_component(str):    What type of survey component is
             currently selected. One of ``'observer'``, ``'observatory'``,
             ``'camera'``, ``'mount'``, ``'telescope'``
 
-        selected_id(int):    The ID of the selected component within the
-            corresponding database table.
+        selected_id(str):    The ID of the selected component within the
+            corresponding database table (should be convertable to int).
 
         create_new_types([str]):    Which of the equipment types (camera,
         telesceope, mount) do we want to create a new type for.
     """
 
     create_new_types = create_new_types.strip().split()
+    selected_id = int(selected_id)
 
     selected = None
     #False positive:
@@ -125,12 +222,37 @@ def edit_survey(request,
     with Session.begin() as db_session:
     #pylint: enable=no-member
 
+        if selected_component is not None:
+            assert selected_id is not None
+            selected_component_type = getattr(provenance,
+                                              selected_component.title())
+            selected = db_session.scalar(
+                select(
+                    selected_component_type
+                ).where(
+                    selected_component_type.id == selected_id
+                )
+            )
+
         context = {
-            'selected_component': selected_component_type,
+            'selected_component': selected_component,
             'selected_id': selected_id,
             'attributes': {
                 component: [
-                    get_human_name(col_name)
+                    (
+                        get_human_name(col_name),
+                        (
+                            getattr(selected, col_name)
+                            if (
+                                selected_component == component
+                                and
+                                col_name != 'type'
+                                and
+                                selected_id >= 0
+                            )
+                            else ''
+                        )
+                    )
                     for col_name in get_editable_attributes(
                         getattr(provenance, component.title())
                     )
@@ -143,107 +265,10 @@ def edit_survey(request,
             },
             'types': {},
             'type_attributes': {},
-            'create_new_types': create_new_types or []
+            'create_new_types': create_new_types or [],
         }
 
-        if selected_component_type is not None:
-            assert selected_id is not None
-            selected_component_type = getattr(provenance,
-                                              selected_component_type.title())
-            selected = db_session.scalar(
-                select(
-                    selected_component_type
-                ).where(
-                    selected_component_type.id == selected_id
-                )
-            )
-        for component_type in ['camera', 'mount', 'telescope']:
-            context[component_type + 's'] = [
-                namedtuple(
-                    component_type,
-                    ['id', 'str', 'serial', 'make', 'model', 'access', 'type']
-                )(
-                    equipment.id,
-                    str(equipment),
-                    equipment.serial_number,
-                    getattr(equipment, component_type + '_type').make,
-                    getattr(equipment, component_type + '_type').model,
-                    equipment in getattr(selected, component_type + 's', []),
-                    component_type
-                )
-                for equipment in db_session.scalars(
-                    select(
-                        getattr(provenance, component_type.title())
-                    )
-                ).all()
-            ]
-            db_type_class = getattr(provenance, component_type.title() + 'Type')
-            type_attributes = get_editable_attributes(db_type_class)
-            context['type_attributes'][component_type] = [
-                get_human_name(col_name)
-                for col_name in type_attributes
-            ]
-            type_attributes.append('id')
-            context['types'][component_type] = [
-                namedtuple(
-                    component_type + '_type',
-                    type_attributes
-                )(
-                    *[
-                        getattr(db_type, attr)
-                        for attr in type_attributes
-                    ]
-                )
-                for db_type in db_session.scalars(select(db_type_class)).all()
-            ]
-        context['observers'] = [
-            namedtuple(
-                'observer',
-                [
-                    'id',
-                    'str',
-                    'name',
-                    'email',
-                    'phone',
-                    'notes',
-                    'access',
-                    'type',
-                ]
-            )(
-                obs.id,
-                str(obs),
-                obs.name,
-                obs.email,
-                obs.phone,
-                obs.notes,
-                obs in getattr(selected, 'observers', []),
-                'observer',
-            )
-            for obs in db_session.scalars(select(provenance.Observer)).all()
-        ]
-        context['observatories'] = [
-            namedtuple(
-                'observatory',
-                [
-                    'id',
-                    'str',
-                    'name',
-                    'latitude',
-                    'longitude',
-                    'altitude',
-                    'type'
-                ]
-            )(
-                obs.id,
-                str(obs),
-                obs.name,
-                obs.latitude,
-                obs.longitude,
-                obs.altitude,
-                'observatory'
-            )
-            for obs in db_session.scalars(select(provenance.Observatory)).all()
-        ]
+        add_survey_items_to_context(context, selected, db_session)
         print(repr(context))
 
     return render(
@@ -339,6 +364,6 @@ def change_access(request,
 
     return HttpResponseRedirect(reverse(
             "configuration:survey",
-            kwargs={'selected_component_type': selected_component,
+            kwargs={'selected_component': selected_component,
                     'selected_id': selected_id}
     ))

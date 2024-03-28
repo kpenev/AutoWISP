@@ -1,0 +1,68 @@
+<form action="{% url 'configuration:add_survey_component' component %}" method="post">
+    <table style="padding-left:20px">
+        {% csrf_token %}
+        <tr>
+            <td></td>
+            <td rowspan=0>
+                <input type="submit" 
+                       class="survey-add-button" 
+                       {% if item.id == -1 %}
+                       value="Add"
+                       {% else %}
+                       value="Update"
+                       {% endif %}
+                       />
+            </td>
+        </tr>
+        {% for attr in attributes %}
+        <tr>
+            <td style="text-align:left;">
+                {% if attr.0 == 'type' %}
+                {% if component in create_new_types %}
+                {% url 'configuration:survey' selected_component=selected_component selected_id=selected_id create_new_types=create_new_types|join:' '|add:' '|cut:component as cancel_new_type_url %}
+
+                <button type="button" onclick="window.location.href='{{cancel_new_type_url}}'">
+                    Cancel new type
+                </button>
+
+                {% for type_attr in type_attributes %}
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:left;">
+                <label for="{{component}}-type-{{type_attr}}">
+                    {{type_attr}}:
+                </label>
+                <input type="text" name="{{component}}-type-{{type_attr}}">
+                {% endfor %}
+                {% else %}
+                <label for="{{component}}-{{attr.0}}">{{attr.0}}:</label>
+                <select name="{{component}}-{{attr.0}}-id"
+                        id="{{component}}-{{attr.0}}">
+                    {% for type_entry in types %}
+                    <option value="{{type_entry.id}}">
+                    {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
+                    </option>
+                    {% endfor %}
+                    {% with joined_new_types=create_new_types|join:' '|add:' '|add:component %}
+                    {% url 'configuration:survey' selected_component=selected_component selected_id=selected_id create_new_types=joined_new_types as add_new_type_url%}
+                    <option value="create-new" 
+                            onclick="window.location.href='{{add_new_type_url}}'">
+                    Create new {{component}} type
+                    {% endwith %}
+                    </option>
+                </select>
+                {% endif %}
+                {% else %}
+                <label for="{{component}}-{{attr.0}}">{{attr.0}}:</label>
+                <input type="text" 
+                       name="{{component}}-{{attr.0}}"
+                       {% if item.id == selected_id and component == selected_component %}
+                       value="{{attr.1}}"
+                       {% endif %}>
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+</form>

@@ -24,51 +24,55 @@
         {% with 'camera telescope mount' as equipment_components_str %}
         {% with equipment_components_str.split as equipment_components %}
         <div id="survey" 
-             class="survey-container" 
+             class="survey-container"
              style="grid-template-columns: auto auto">
-            <div class="survey-item">
-                <table>
+            <div class="survey-component">
+                <table class='survey-component-table'>
                     <tr>
                         {% if selected_component in equipment_components %}
-                        <th>Access to <br/>{{selected_component}}</th>
                         <th>Observers</th>
+                        <th>Access to <br/>{{selected_component}}</th>
                         {% else %}
                         <th colspan=2>Observers</th>
                         {% endif %}
                     </tr>
                     {% with component='observer' %}
                     {% for item in observers %}
-                    {% if selected_component in equipment_components %}
+                    {% if selected_component in equipment_components and selected_id >= 0 and item.id >= 0 %}
                     {% include "./survey_item_access.html" %}
                     {% else %}
-                    {% include "./survey_item_noaccess.html" %}
+                    {% include "./survey_item_noaccess.html" with attributes=attributes.observer %}
                     {% endif %}
                     {% endfor %}
-                    {% include "./survey_add_item.html" with attributes=attributes.observer %}
                     {% endwith %}
                 </table>
             </div>
-            <div class="survey-item">
+            <div class="survey-component">
                 <table>
                     <tr>
                         <th colspan=2>Observatories</th>
                     </tr>
-                    {% for obs in observatories %}
-                    {% include "./survey_item_noaccess.html" with item=obs component='observatory'%}
+                    {% with component='observatory' %}
+                    {% for item in observatories %}
+                    {% if item.id >= 0 %}
+                    {% include "./survey_item_noaccess.html" with attributes=attributes.observatory %}
+                    {% else %}
+                    {% include "./survey_item_noaccess.html" with attributes=attributes.observatory %}
+                    {% endif %}
                     {% endfor %}
-                    {% include "./survey_add_item.html" with component='observatory' attributes=attributes.observatory%}
+                    {% endwith %}
                 </table>
             </div>
-        </div>
+        </div> 
         <br/>
-        <div id="survey" class="survey-container" style="grid-template-columns: auto auto auto">
+        <div id="survey" class="survey-container" style="grid-template-columns: 33% 33% 33%"> 
             {% for component in equipment_components %}
-            <div class="survey-item">
+            <div class="survey-component">
                 <table>
                     <tr>
                         {% if selected_component == 'observer' %}
-                        <th>Observer has<br/>Access</th>
                         <th>{{component.title}}s</th>
+                        <th>Observer has<br/>Access</th>
                         {% else %}
                         <th colspan=2>{{component.title}}s</th>
                         {% endif %}
@@ -80,13 +84,12 @@
 
 
                     {% for item in equipment_list %}
-                    {% if selected_component == 'observer' %}
+                    {% if selected_component == 'observer' and item.id >= 0%}
                     {% include "./survey_item_access.html" %}
                     {% else %}
-                    {% include "./survey_item_noaccess.html" %}
+                    {% include "./survey_item_noaccess.html" with attributes=component_attributes types=component_types type_attributes=component_type_attrs %}
                     {% endif %}
                     {% endfor %}
-                    {% include "./survey_add_item.html" with attributes=component_attributes types=component_types type_attributes=component_type_attrs%}
                 </table>
             </div>
             {% endfor %}

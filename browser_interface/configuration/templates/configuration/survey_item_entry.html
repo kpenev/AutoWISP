@@ -1,7 +1,17 @@
-<a href={% url 'configuration:survey' selected_component_type=item.type selected_id=item.id %}> 
-    {{item.str}}
-</a> 
-{% if item.email %}
-(<a href="mailto:{{obs.email}}"> {{item.email}} </a>)
-{% endif %}
-
+{% url 'configuration:survey' selected_component=item.type selected_id=item.id as select_url %}
+<div>
+    <div {% if component == selected_component and item.id == selected_id %}
+         class="survey-item selected"
+         {% else %}
+         class="survey-item"
+         onclick="window.location.href='{{select_url}}';"
+         {% endif %}>
+        {{item.str}}
+        {% if item.email %}
+        (<a href="mailto:{{obs.email}}"> {{item.email}} </a>)
+        {% endif %}
+    </div>
+    {% if component == selected_component and item.id == selected_id %}
+    {% include "./survey_edit_item.html" %}
+    {% endif %}
+</div> 
