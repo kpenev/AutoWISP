@@ -6,6 +6,7 @@ a {
     display: grid;
     background-color: #2196F3;
     padding: 10px;
+    column-gap: 30px;
 }
 
 .survey-component {
@@ -14,6 +15,11 @@ a {
     padding: 10px;
     text-align: center;
     vertical-align: top;
+    margin: 0 auto;
+    width: 100%
+}
+
+.survey-component-table {
     margin: 0 auto
 }
 
@@ -36,6 +42,10 @@ a {
 .survey-add-button {
     width:100%;
     height:60px;
+}
+
+.survey-del-button {
+    background-color: orange
 }
 
 .survey-component-table {

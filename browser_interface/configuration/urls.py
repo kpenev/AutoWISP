@@ -22,16 +22,16 @@ urlpatterns = [
     path("survey",
          views.edit_survey,
          name='survey'),
-    path("survey/<slug:selected_component>/<str:selected_id>",
+    path("survey/<slug:selected_component>/<slug:selected_id>",
          views.edit_survey,
          name='survey'),
-    path("survey/<slug:selected_component>/<str:selected_id>/"
+    path("survey/<slug:selected_component>/<slug:selected_id>/"
          "<create_new_types>",
          views.edit_survey,
          name='survey'),
-    path("add_survey_component/<slug:component_type>",
-         views.add_survey_component,
-         name='add_survey_component'),
+    path("update_survey_component/<slug:component_type>/<slug:component_id>",
+         views.update_survey_component,
+         name='update_survey_component'),
     path('change_access/<int:new_access>/<slug:selected_component>'
          '/<int:selected_id>/<slug:target_component>/<int:target_id>',
          views.change_access,

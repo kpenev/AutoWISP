@@ -1,4 +1,5 @@
-<form action="{% url 'configuration:add_survey_component' component %}" method="post">
+{% url 'configuration:update_survey_component' component_type=component component_id=item.id as update_url %}
+<form action="{{update_url}}" method="post">
     <table style="padding-left:20px">
         {% csrf_token %}
         <tr>
@@ -6,12 +7,25 @@
             <td rowspan=0>
                 <input type="submit" 
                        class="survey-add-button" 
-                       {% if item.id == -1 %}
+                       name="todo"
+                       {% if item.id < 0 %}
                        value="Add"
                        {% else %}
                        value="Update"
                        {% endif %}
                        />
+                {% if item.id >= 0 %}
+                {% if item.can_delete %}
+                <input type="submit" 
+                       class="survey-del-button" 
+                       name="todo"
+                       value="Delete"
+                       />
+                {% else %}
+                Cannot delete<br>has images
+                {% endif %}
+                {% endif %}
+
             </td>
         </tr>
         {% for attr in attributes %}
@@ -40,7 +54,10 @@
                 <select name="{{component}}-{{attr.0}}-id"
                         id="{{component}}-{{attr.0}}">
                     {% for type_entry in types %}
-                    <option value="{{type_entry.id}}">
+                    <option value="{{type_entry.id}}"
+                            {% if item.type_id == type_entry.id %}
+                            selected
+                            {% endif %}>
                     {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
                     </option>
                     {% endfor %}

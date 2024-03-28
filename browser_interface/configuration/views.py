@@ -17,7 +17,8 @@ from superphot_pipeline.database.interface import Session
 #pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import\
     Configuration,\
-    ImageProcessingProgress
+    ImageProcessingProgress,\
+    ObservingSession
 from superphot_pipeline.database.data_model import provenance
 #pylint: enable=no-name-in-module
 
@@ -99,10 +100,26 @@ def get_editable_attributes(db_class):
 def add_survey_items_to_context(context, selected, db_session):
     """Add the current survey configuration to the given context."""
 
+    def get_data(db_class):
+        """Return the necessary information for the given survey component."""
+
+        return db_session.execute(
+            select(
+                db_class,
+                func.count(ObservingSession.id)
+            ).join(
+                ObservingSession,
+                isouter=True
+            ).group_by(
+                db_class.id
+            )
+        ).all()
+
     for component_type in ['camera', 'mount', 'telescope']:
         tuple_type = namedtuple(
             component_type,
-            ['id', 'str', 'serial', 'make', 'model', 'access', 'type']
+            ['id', 'str', 'serial', 'make', 'model', 'access', 'type_id',
+             'type', 'can_delete']
         )
         context[component_type + 's'] = [
             tuple_type(
@@ -112,20 +129,22 @@ def add_survey_items_to_context(context, selected, db_session):
                 getattr(equipment, component_type + '_type').make,
                 getattr(equipment, component_type + '_type').model,
                 equipment in getattr(selected, component_type + 's', []),
-                component_type
+                getattr(equipment, component_type + '_type_id'),
+                component_type,
+                not has_data
             )
-            for equipment in db_session.scalars(
-                select(
-                    getattr(provenance, component_type.title())
-                )
-            ).all()
+            for equipment, has_data in get_data(
+                getattr(provenance, component_type.title())
+            )
         ]
         context[component_type + 's'].append(
             tuple_type(
                 -1,
                 'Add new ' + component_type,
                 *(4 * ('',)),
-                component_type
+                1,
+                component_type,
+                True
             )
         )
 
@@ -151,7 +170,8 @@ def add_survey_items_to_context(context, selected, db_session):
 
     tuple_type = namedtuple(
         'observer',
-        ['id', 'str', 'name', 'email', 'phone', 'notes', 'access', 'type']
+        ['id', 'str', 'name', 'email', 'phone', 'notes', 'access', 'type',
+         'can_delete']
     )
     context['observers'] = [
         tuple_type(
@@ -163,16 +183,18 @@ def add_survey_items_to_context(context, selected, db_session):
             obs.notes,
             obs in getattr(selected, 'observers', []),
             'observer',
+            not has_data
         )
-        for obs in db_session.scalars(select(provenance.Observer)).all()
+        for obs, has_data in get_data(provenance.Observer)
     ]
     context['observers'].append(
-        tuple_type(-1, 'Add new observer', *(5 * ('',)), 'observer')
+        tuple_type(-1, 'Add new observer', *(5 * ('',)), 'observer', True)
     )
 
     tuple_type = namedtuple(
         'observatory',
-        ['id', 'str', 'name', 'latitude', 'longitude', 'altitude', 'type']
+        ['id', 'str', 'name', 'latitude', 'longitude', 'altitude', 'type',
+         'can_delete']
     )
     context['observatories'] = [
         tuple_type(
@@ -182,12 +204,13 @@ def add_survey_items_to_context(context, selected, db_session):
             obs.latitude,
             obs.longitude,
             obs.altitude,
-            'observatory'
+            'observatory',
+            not has_data
         )
-        for obs in db_session.scalars(select(provenance.Observatory)).all()
+        for obs, has_data in get_data(provenance.Observatory)
     ]
     context['observatories'].append(
-        tuple_type(-1, 'Add new observatory', *(4 * ('',)), 'observatory')
+        tuple_type(-1, 'Add new observatory', *(4 * ('',)), 'observatory', True)
     )
 
 
@@ -214,7 +237,10 @@ def edit_survey(request,
     """
 
     create_new_types = create_new_types.strip().split()
-    selected_id = int(selected_id)
+    if selected_id:
+        selected_id = int(selected_id)
+    else:
+        selected_id = None
 
     selected = None
     #False positive:
@@ -277,21 +303,41 @@ def edit_survey(request,
         context
     )
 
-def add_survey_component(request, component_type):
+def update_survey_component(request, component_type, component_id):
     """Add a new component to the survey network."""
 
     component_title = component_type.title()
+    component_id = int(component_id)
     print(repr(request.POST))
     #False positive:
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
         db_class = getattr(provenance, component_title)
+        if request.POST['todo'] == 'Add':
+            assert component_id < 0
+            db_item = db_class()
+        elif request.POST['todo'] == 'Delete':
+            assert component_id >= 0
+            db_session.execute(
+                delete(db_class).where(db_class.id == component_id)
+            )
+            return HttpResponseRedirect(reverse("configuration:survey"))
+        else:
+            assert component_id >= 0
+            db_item = db_session.scalar(
+                select(db_class).where(db_class.id == component_id)
+            )
+
         attribute_names = get_editable_attributes(db_class)
-        component_values = {
-            attr: request.POST[component_type + '-' + get_human_name(attr)]
-            for attr in attribute_names if attr != 'type'
-        }
+        for attr in attribute_names:
+            if attr != 'type':
+                setattr(
+                    db_item,
+                    attr,
+                    request.POST[component_type + '-' + get_human_name(attr)]
+                )
+
         if 'type' in attribute_names:
             type_id = request.POST.get(component_type + '-type-id')
             if type_id is None:
@@ -308,18 +354,17 @@ def add_survey_component(request, component_type):
                 db_session.refresh(new_type, ['id'])
                 type_id = new_type.id
 
-            component_values[component_type + '_type_id'] = type_id
+            setattr(db_item, component_type + '_type_id', type_id)
 
-        print(f'Component_values: {component_values!r}')
-        new_component = db_class(**component_values)
-        db_session.add(new_component)
-        db_session.flush()
-        db_session.refresh(new_component, ['id'])
+        if component_id < 0:
+            db_session.add(db_item)
+            db_session.flush()
+            db_session.refresh(db_item, ['id'])
 
         return HttpResponseRedirect(reverse(
             "configuration:survey",
-            kwargs={'selected_component_type': component_type,
-                    'selected_id': new_component.id}
+            kwargs={'selected_component': component_type,
+                    'selected_id': db_item.id}
         ))
 
 

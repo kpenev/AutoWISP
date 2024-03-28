@@ -48,7 +48,7 @@
                 </table>
             </div>
             <div class="survey-component">
-                <table>
+                <table class='survey-component-table'>
                     <tr>
                         <th colspan=2>Observatories</th>
                     </tr>
@@ -68,7 +68,7 @@
         <div id="survey" class="survey-container" style="grid-template-columns: 33% 33% 33%"> 
             {% for component in equipment_components %}
             <div class="survey-component">
-                <table>
+                <table class='survey-component-table'>
                     <tr>
                         {% if selected_component == 'observer' %}
                         <th>{{component.title}}s</th>
