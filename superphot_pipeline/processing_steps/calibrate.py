@@ -68,6 +68,29 @@ class ParseChannelsAction(Action):
         setattr(namespace, self.dest, result)
 
 
+class ParseChannelDependentAction(Action):
+    """Parse command line arguments with channel dependent values."""
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Parse a channel dependent option."""
+
+        setattr(
+            namespace,
+            self.dest,
+            {}
+        )
+        dest = getattr(namespace, self.dest)
+        for entry in values:
+            channel_name, channel_value = entry.split(':')
+            if channel_name in dest:
+                if isinstance(dest['channel_name'], list):
+                    dest['channel_name'].append(channel_value)
+                else:
+                    dest['channel_name'] = [dest['channel_name'], channel_value]
+            else:
+                dest['channel_name'] = channel_value
+
+
 def parse_overscan(overscan_str):
     """Parse the --overscans argument to dict as required by Calibrator."""
 
@@ -188,16 +211,27 @@ def parse_command_line(*args):
     for master in ['bias', 'dark', 'flat']:
         parser.add_argument(
             '--master-' + master,
+            nargs='+',
             default=None,
+            action=ParseChannelDependentAction,
             help='The master ' + master + ' to apply. No ' + master +
-            ' correction is applied of not specified.'
+            ' correction is applied of not specified. If multiple channel '
+            'images are being processed each master filename should be '
+            'preceeded by ``<channel name>:`` identifying which channel it '
+            'applies to. All channels must have a masters specified and no '
+            'channel should have multpiple.'
         )
     parser.add_argument(
         '--master-mask',
         default=None,
         nargs='+',
+        action=ParseChannelDependentAction,
         help='Mask(s) to apply, indicating pixel quality. All pixels are '
-        'considered "good" if no mask is specified.'
+        'considered "good" if no mask is specified. If multiple channel images '
+        'are being processed each master filename should be preceeded by '
+        '``<channel name>:`` identifying which channel it applies to. Unlike '
+        'other masters, channels without mask are allowed and multiple masks '
+        'may be used for each channel.'
     )
     parser.add_argument(
         '--calibrated-fname',
