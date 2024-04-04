@@ -6,6 +6,7 @@
 from tempfile import NamedTemporaryFile
 import logging
 from os import path
+from sys import argv
 
 from sqlalchemy import sql, select, update, and_, or_
 from asteval import asteval
@@ -43,6 +44,62 @@ from superphot_pipeline.database.data_model.provenance import\
     CameraChannel,\
     CameraType
 #pylint: enable=no-name-in-module
+
+
+class ExpressionMatcher:
+    """
+    Compare condition expressions for an image/channel to a target.
+
+    Usually check if matched expressions and master expression values are
+    identical, but also handles special case of calibrate step.
+    """
+
+    def __init__(self,
+                 evaluated_expressions,
+                 ref_image_id,
+                 ref_channel,
+                 master_expression_ids):
+        """
+        Set up comparison to the given evaluated expressions.
+
+        """
+
+        reference_evaluated = evaluated_expressions[ref_image_id][ref_channel]
+        self._ref_matched = reference_evaluated['matched']
+        self._ref_master_values = tuple(
+            reference_evaluated['values'][expression_id]
+            for expression_id in master_expression_ids
+        )
+        self._logger.debug(
+            'Finding images matching expressions %s and values %s',
+            repr(self._ref_matched),
+            repr(self._ref_master_values)
+        )
+        <++> HANDLE CALIBRATE <++>
+
+    def __call__(self, image_id, channel):
+        """True iff the expressions for the given image/channel match."""
+
+        image_evaluated = self._evaluated_expressions[image_id][channel]
+        image_master_values = tuple(
+            image_evaluated['values'][expression_id]
+            for expression_id in master_expression_ids
+        )
+
+        self._logger.debug(
+            'Comparing %s to %s and %s to %s',
+            repr(image_evaluated['matched']),
+            repr(self._ref_matched),
+            repr(image_master_values),
+            repr(self._ref_master_values)
+        )
+        return (
+            image_evaluated['matched'] == target_matched_expressions
+            and
+            image_master_expression_values
+            ==
+            target_master_expression_values
+        )
 
 
 #pylint: disable=too-many-instance-attributes
@@ -966,7 +1023,7 @@ class ProcessingManager:
 
 
     def _group_pending_by_conditions(self, pending_images, db_session):
-        """Group pendig_images grouped by condition expressions they satisfy."""
+        """Group pendig_images grouped by condition expression values."""
 
         image_type_id = pending_images[0][0].image_type_id
         result = []
@@ -1020,17 +1077,22 @@ class ProcessingManager:
                 )
             ).all()
         )
+
+        if self.current_step.name == 'calibrate':
+            return group_calibrate_pending(pending_images,
+                                           master_expression_ids)
+
         while pending_images:
-#            pending_images = [
-#                (db_session.merge(image, load=False), channel)
-#                for image, channel in pending_images
-#            ]
-#            self.current_step = db_session.merge(self.current_step,
-#                                                 load=False)
-#            self._current_processing = db_session.merge(
-#                self._current_processing,
-#                load=False
-#            )
+            #pending_images = [
+            #    (db_session.merge(image, load=False), channel)
+            #    for image, channel in pending_images
+            #]
+            #self.current_step = db_session.merge(self.current_step,
+            #                                     load=False)
+            #self._current_processing = db_session.merge(
+            #    self._current_processing,
+            #    load=False
+            #)
 
             self._logger.debug(
                 'Finding images matching the same expressions as image id %d, '
@@ -1039,46 +1101,17 @@ class ProcessingManager:
                 pending_images[-1][1]
             )
             batch = []
-            last_evaluated = self._evaluated_expressions[
-                pending_images[-1][0].id
-            ][
-                pending_images[-1][1]
-            ]
-            target_matched_expressions = last_evaluated['matched']
-            target_master_expression_values = tuple(
-                last_evaluated['values'][expression_id]
-                for expression_id in master_expression_ids
-            )
-            self._logger.debug(
-                'Finding images matching expressions %s and values %s',
-                repr(target_matched_expressions),
-                repr(target_master_expression_values)
+            match_expressions = ExpressionMatcher(
+                self._evaluated_expressions,
+                pending_images[-1][0].id,
+                pending_images[-1][1],
+                master_expression_ids
             )
 
             for i in range(len(pending_images) - 1, -1, -1):
-                image_evaluated = self._evaluated_expressions[
-                    pending_images[i][0].id
-                ][
+                if match_expressions(
+                    pending_images[i][0].id,
                     pending_images[i][1]
-                ]
-                image_master_expression_values = tuple(
-                    image_evaluated['values'][expression_id]
-                    for expression_id in master_expression_ids
-                )
-
-                self._logger.debug(
-                    'Comparing %s to %s and %s to %s',
-                    repr(image_evaluated['matched']),
-                    repr(target_matched_expressions),
-                    repr(image_master_expression_values),
-                    repr(target_master_expression_values)
-                )
-                if(
-                    image_evaluated['matched'] == target_matched_expressions
-                    and
-                    image_master_expression_values
-                    ==
-                    target_master_expression_values
                 ):
                     batch.append(pending_images.pop(i))
                     self._logger.debug(
@@ -1337,5 +1370,7 @@ class ProcessingManager:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-
     ProcessingManager()()
+    exit(1)
+
+    ProcessingManager().create_config_file(argv[1], 'test.cfg', ['calibrate'])
