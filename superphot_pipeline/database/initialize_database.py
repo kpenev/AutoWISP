@@ -40,25 +40,25 @@ master_info =  {
         )),
         'config_name': 'master-mask',
         'required_by': [
-            ('calibrate', 'bias'),
+            ('calibrate', 'zero'),
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
             ('calibrate', 'object')
         ],
         'description': 'A bit mask indicating hot/dead/... bad pixels.'
     },
-    'bias': {
+    'zero': {
         'must_match': frozenset((
             'CAMSN',
             'CLRCHNL'
         )),
-        'config_name': 'master-bias',
+        'config_name': 'master-zero',
         'required_by': [
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
             ('calibrate', 'object')
         ],
-        'description': 'An estimate of the bias level of a camera.'
+        'description': 'An estimate of the zero level of a camera.'
     },
     'dark': {
         'must_match': frozenset((
@@ -109,26 +109,26 @@ step_dependencies = [
         []
     ),
     (
-        'calibrate', 'bias',
+        'calibrate', 'zero',
         []
     ),
     (
         'calibrate', 'dark',
         [
-            ('calibrate', 'bias')
+            ('calibrate', 'zero')
         ]
     ),
     (
         'calibrate', 'flat',
         [
-            ('calibrate', 'bias'),
+            ('calibrate', 'zero'),
             ('calibrate', 'dark')
         ]
     ),
     (
         'calibrate', 'object',
         [
-            ('calibrate', 'bias'),
+            ('calibrate', 'zero'),
             ('calibrate', 'dark'),
             ('calibrate', 'flat')
         ]
@@ -415,7 +415,7 @@ def add_master_dependencies(db_session):
 def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
-    image_type_list = ['bias', 'dark', 'flat', 'object']
+    image_type_list = ['zero', 'dark', 'flat', 'object']
 
     add_processing_step = StepCreator()
 

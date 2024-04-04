@@ -5,6 +5,7 @@ import numpy
 
 from superphot_pipeline.pipeline_exceptions import ConvergenceError
 from superphot_pipeline import Processor
+from superphot_pipeline.image_calibration.fits_util import assemble_channels
 
 git_id = '$Id$'
 
@@ -21,17 +22,31 @@ class Base(ABC, Processor):
     #Intentional
     #pylint: disable=arguments-differ
     @abstractmethod
-    def __call__(self, raw_image, overscans, image_area, gain):
+    def __call__(self,
+                 *,
+                 raw_fname,
+                 raw_hdu,
+                 overscans,
+                 image_area,
+                 gain,
+                 split_channels=None):
         """
         Return the overscan correction and its variance for the given image.
 
         Args:
-            raw_image:    The raw image for which to find the
-                overscan correction.
+            raw_fname:    The raw image(s) for which to find the
+                overscan correction. Should be dictionary of filenames if
+                processing multi-channel dataset that is split in different
+                files.
+
+            raw_hdu:    The HDU to read from the raw file. Int or dict indexed
+                by channel name.
 
             overscans:    A list of the areas on the image to use when
                 determining the overscan correction. Each area is specified as
                 ``dict(xmin = <int>, xmax = <int>, ymin = <int>, ymax = <int>)``
+                For multi-channel data the coordinates are for the un-split
+                image.
 
             image_area:    The area in raw_image for which to calculate the
                 overscan correction. The format is the same as a single
@@ -39,6 +54,8 @@ class Base(ABC, Processor):
 
             gain:    The value of the gain to assume for the raw image
                 (electrons/ADU).
+
+            split_channels:    See :class:`Calibrator`.
 
         Returns:
             dict: Dictionary with items:
@@ -172,10 +189,20 @@ class Median(Base):
         header['OVSCCONV'] = (self._last_converged,
                               'Did the last overscan correction converge')
 
-    def __call__(self, raw_image, overscans, image_area, gain):
+    def __call__(self,
+                 *,
+                 raw_fname,
+                 raw_hdu,
+                 overscans,
+                 image_area,
+                 gain,
+                 split_channels=None):
         """
         See Base.__call__
         """
+
+        if split_channels is None:
+            split_channels = {None: slice(None)}
 
         def get_overscan_pixel_values():
             """
@@ -191,16 +218,42 @@ class Median(Base):
                     single copy of each pixel is included.
             """
 
+            need_area = {'xmin': numpy.inf,
+                         'ymin': numpy.inf,
+                         'xmax': 0,
+                         'ymax': 0}
+            num_overscan_pixels = 0
+            for overscan_area in overscans:
+                for coord in 'xy':
+                    need_area[coord + 'min'] = min(
+                        need_area[coord + 'min'],
+                        overscan_area[coord + 'min']
+                    )
+                    need_area[coord + 'max'] = max(
+                        need_area[coord + 'max'],
+                        overscan_area[coord + 'max']
+                    )
+                    num_overscan_pixels += (
+                        (overscan_area['ymax'] - overscan_area['ymin'])
+                        *
+                        (overscan_area['xmax'] - overscan_area['xmin'])
+                    )
+
+            raw_image = assemble_channels(raw_fname,
+                                          raw_hdu,
+                                          need_area,
+                                          split_channels)
+
             not_included = numpy.full(raw_image.shape, True)
 
-            num_overscan_pixels = sum(
-                (area['ymax'] - area['ymin']) * (area['xmax'] - area['xmin'])
-                for area in overscans
-            )
             overscan_values = numpy.empty(num_overscan_pixels)
             new_value_start = 0
 
-            for overscan_area in overscans:
+            for area in overscans:
+                overscan_area = {
+                    key: area[key] - need_area[key[0] + 'min']
+                    for key in area.keys()
+                }
                 new_pixels = raw_image[
                     overscan_area['ymin'] : overscan_area['ymax'],
                     overscan_area['xmin'] : overscan_area['xmax'],

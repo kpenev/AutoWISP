@@ -212,7 +212,8 @@ class ProcessingManager:
             )
             for param, value in step_config.items():
                 if value is not None:
-                    outf.write(f'    {param} = {value}\n')
+                    outf.write(f'    {param} = {value!r}\n')
+                    print(f'    {param} = {value!r}\n')
                     result.add((param, value))
 
             outf.write('\n')
@@ -465,9 +466,9 @@ class ProcessingManager:
                 given image.
 
             eval_channel(str or None):    If given, the evaluator will involve
-                all keywords that can be expected of the calibrated header.
-                Otherwise, only raw and required header keywords will be
-                available.
+                all keywords that can be expected of the calibrated header for
+                the given channel. Otherwise, an arbitatry channel header
+                keywords will be available.
 
             return_evaluator(bool):    Should an evaluator setup per the image
                 header be returned for further use?
@@ -493,28 +494,31 @@ class ProcessingManager:
 
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
-        result = asteval.Interpreter()
+        result = None
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable['IMAGE_TYPE'] = image.image_type.name
         self._logger.debug('Matched expressions: %s',
                            repr(self._get_matched_expressions(evaluate)))
-        calib_config = self._get_config(
-            self._get_matched_expressions(evaluate),
-            step_name='calibrate',
-        )[0]
-        self._logger.debug('Calibration config: %s', repr(calib_config))
-        add_required_keywords(evaluate.symtable, calib_config)
-        if return_evaluator and eval_channel is None:
-            result.symtable.update(evaluate.symtable)
-
         self._evaluated_expressions[image.id] = {}
-        all_channel_matched = None
+        all_channel={'matched': None, 'values': None}
         for channel_name, channel_slice in self._get_split_channels(
                 image
         ).items():
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
+
+            calib_config = self._get_config(
+                self._get_matched_expressions(evaluate),
+                step_name='calibrate',
+            )[0]
+            self._logger.debug('Calibration config: %s', repr(calib_config))
+            add_required_keywords(evaluate.symtable, calib_config)
+            if result is None:
+                result = asteval.Interpreter()
+                if return_evaluator and eval_channel is None:
+                    result.symtable.update(evaluate.symtable)
+
             if return_evaluator and eval_channel == channel_name:
                 result.symtable.update(evaluate.symtable)
             evaluated_expressions = {
@@ -531,12 +535,21 @@ class ProcessingManager:
                 if value
             )
 
-            if all_channel_matched is None:
-                all_channel_matched = evaluated_expressions['matched']
+            if all_channel['matched'] is None:
+                all_channel['matched'] = evaluated_expressions['matched']
+                all_channel['values'] = evaluated_expressions['values']
             else:
-                all_channel_matched = (all_channel_matched
-                                       &
-                                       evaluated_expressions['matched'])
+                all_channel['matched'] = (all_channel['matched']
+                                          &
+                                          evaluated_expressions['matched'])
+                for expr_id in list(all_channel['values'].keys()):
+                    if (
+                        all_channel['values'][expr_id]
+                        !=
+                        evaluated_expressions['values'][expr_id]
+                    ):
+                        del all_channel['values'][expr_id]
+
 
             for required_expressions, value in self.configuration[
                     'data-reduction-fname'
@@ -555,7 +568,8 @@ class ProcessingManager:
             )
 
         self._evaluated_expressions[image.id][None] = {
-            'matched': all_channel_matched
+            'matched': all_channel['matched'],
+            'values': all_channel['values'],
         }
         self._logger.debug('Evaluated expressions for image %s: %s',
                            image,
@@ -1018,6 +1032,12 @@ class ProcessingManager:
 #                load=False
 #            )
 
+            self._logger.debug(
+                'Finding images matching the same expressions as image id %d, '
+                'channel %s',
+                pending_images[-1][0].id,
+                pending_images[-1][1]
+            )
             batch = []
             last_evaluated = self._evaluated_expressions[
                 pending_images[-1][0].id
@@ -1272,7 +1292,7 @@ class ProcessingManager:
                 )
             )
         configuration = self._get_config({default_expression_id},
-                                  step_name='add_images_to_db')[0]
+                                         step_name='add_images_to_db')[0]
         processing_steps.add_images_to_db.add_images_to_db(image_collection,
                                                            configuration)
 

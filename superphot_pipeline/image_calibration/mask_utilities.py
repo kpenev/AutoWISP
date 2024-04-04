@@ -27,13 +27,15 @@ def combine_masks(mask_filenames):
     Args:
         mask_filenames:    A list of FITS filenames from which to read mask
             images (identified by the IMAGETYP header keyword matching
-            [a-z\_]*mask).
+            [a-z\_]*mask). Or a single filename.
 
     Returns:
         numpy.array(dtype=uint8):
             A bitwise or of the mask extensions of all input FITS files.
     """
 
+    if isinstance(mask_filenames, str):
+        mask_filenames = [mask_filenames]
     mask = None
     for mask_index, mask_fname in enumerate(mask_filenames):
         mask_image = read_image_components(mask_fname)[2]

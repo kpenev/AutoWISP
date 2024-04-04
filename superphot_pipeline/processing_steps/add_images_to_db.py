@@ -41,7 +41,8 @@ def parse_command_line(*args):
         inputtype = 'raw'
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type=inputtype)
+                                      input_type=inputtype,
+                                      add_exposure_timing=True)
     parser.add_argument(
         '--observer',
         default='ORIGIN',
@@ -115,26 +116,6 @@ def parse_command_line(*args):
         'table it is automatically added.'
     )
     parser.add_argument(
-        '--exposure-start-utc',
-        '--start-time-utc',
-        default='DATE_OBS',
-        help='The UTC time at which the exposure started. Can be arbitrary '
-        'expression involving header keywords.'
-    )
-    parser.add_argument(
-        '--exposure-start-jd',
-        '--start-time-jd',
-        default=None,
-        help='The JD at which the exposure started. Can be arbitrary '
-        'expression involving header keywords.'
-    )
-    parser.add_argument(
-        '--exposure-seconds',
-        default='EXPTIME',
-        help='The length of the exposure in seconds. Can be arbitrary '
-        'expression involving header keywords.'
-    )
-    parser.add_argument(
         '--observing-session-label', '--session-label', '--session',
         default='SEQID',
         help='Unique label for the observing session. Can be arbitrary '
@@ -147,6 +128,13 @@ def parse_command_line(*args):
         help='Header expression that evaluates to the image type. If it is not '
         'one of the image types listed in the database, the image is ignored. '
         'If not specified, the individual checks below are used instead.'
+    )
+    parser.add_argument(
+        '--ignore-unknown-image-types',
+        action='store_true',
+        default=False,
+        help='If this option is passed and an image of an unknown type is '
+        'encountered it will not be added tot he database.'
     )
     #False positivie
     #pylint: disable=no-member
@@ -166,7 +154,8 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def get_or_create_target(header_eval,
+def get_or_create_target(image_type,
+                         header_eval,
                          configuration,
                          db_session,
                          field_of_view):
@@ -176,8 +165,12 @@ def get_or_create_target(header_eval,
     db_target = db_session.query(Target).filter_by(
         name = target_name
     ).one_or_none()
-    image_target = {'ra': header_eval(configuration['target_ra']),
-                    'dec': header_eval(configuration['target_dec'])}
+    no_pointing_imtypes = ['zero', 'dark', 'flat']
+    if image_type in no_pointing_imtypes:
+        image_target = {'ra': None, 'dec': None}
+    else:
+        image_target = {'ra': header_eval(configuration['target_ra']),
+                        'dec': header_eval(configuration['target_dec'])}
 
     if db_target is None:
         #False positive
@@ -186,9 +179,11 @@ def get_or_create_target(header_eval,
                            name=header_eval(configuration['target_name']))
         #pylint: enable=not-callable
         db_session.add(db_target)
-    else:
+    elif image_type not in no_pointing_imtypes:
         image_target = SkyCoord(image_target['ra'] * units.deg,
                                 image_target['dec'] * units.deg)
+        print(f'Checking target {target_name} for {image_type!r} image. '
+              f'From DB: {db_target!r} vs image: {image_target!r}')
         assert (
             image_target.separation(
                 SkyCoord(ra=db_target.ra * units.deg,
@@ -247,7 +242,10 @@ def get_observatory(header_eval, configuration, db_session):
     return observatory
 
 
-def get_or_create_observing_session(header_eval, configuration, db_session):
+def get_or_create_observing_session(image_type,
+                                    header_eval,
+                                    configuration,
+                                    db_session):
     """Return the observing session the image is part of (create if needed)."""
 
     observer = db_session.query(Observer).filter_by(
@@ -275,7 +273,8 @@ def get_or_create_observing_session(header_eval, configuration, db_session):
         /
         (telescope.telescope_type.focal_length * units.mm)
     ) * units.rad
-    target = get_or_create_target(header_eval,
+    target = get_or_create_target(image_type,
+                                  header_eval,
                                   configuration,
                                   db_session,
                                   field_of_view)
@@ -332,6 +331,8 @@ def create_image(image_fname, header_eval, configuration, db_session):
     if configuration['image_type']:
         image_type = header_eval(configuration['image_type']).lower()
         if image_type not in recognized_image_types:
+            if configuration['ignore_unknown_image_types']:
+                return None, None
             raise ValueError(
                 f'Unrecognized image type {image_type!r} '
                 f'(expected one of {recognized_image_types})'
@@ -350,7 +351,7 @@ def create_image(image_fname, header_eval, configuration, db_session):
 
     #False positive
     #pylint: disable=not-callable
-    return Image(raw_fname=image_fname, image_type_id=image_type_id)
+    return Image(raw_fname=image_fname, image_type_id=image_type_id), image_type
     #pylint: enable=not-callable
 
 
@@ -360,20 +361,24 @@ def add_images_to_db(image_collection, configuration):
     for image_fname in image_collection:
         logging.debug('Adding image %s to database', image_fname)
         header_eval = Evaluator(image_fname)
+        header_eval.symtable['FULLPATH'] = image_fname
         _logger.debug('Defining evaluator with keys: %s',
                       repr(header_eval.symtable.keys()))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            image = create_image(image_fname,
-                                 header_eval,
-                                 configuration,
-                                 db_session)
+            image, image_type = create_image(image_fname,
+                                             header_eval,
+                                             configuration,
+                                             db_session)
+            if image is None:
+                continue
             existing_image = db_session.query(Image).filter_by(
                 raw_fname = image.raw_fname
             ).one_or_none()
             image.observing_session = get_or_create_observing_session(
+                image_type,
                 header_eval,
                 configuration,
                 db_session

@@ -190,6 +190,32 @@ class ManualStepArgumentParser(ArgumentParser):
         )
 
 
+    def _add_exposure_timing(self):
+        """Add command line arguments to determine exposure start & duration."""
+
+        self.add_argument(
+            '--exposure-start-utc',
+            '--start-time-utc',
+            default='DATE_OBS + "T" + TIME_OBS',
+            help='The UTC time at which the exposure started. Can be arbitrary '
+            'expression involving header keywords.'
+        )
+        self.add_argument(
+            '--exposure-start-jd',
+            '--start-time-jd',
+            default=None,
+            help='The JD at which the exposure started. Can be arbitrary '
+            'expression involving header keywords.'
+        )
+        self.add_argument(
+            '--exposure-seconds',
+            default='EXPTIME',
+            help='The length of the exposure in seconds. Can be arbitrary '
+            'expression involving header keywords.'
+        )
+
+
+
     def __init__(self,
                  *,
                  input_type,
@@ -199,7 +225,8 @@ class ManualStepArgumentParser(ArgumentParser):
                  inputs_help_extra='',
                  allow_parallel_processing=False,
                  convert_to_dict=True,
-                 add_lc_fname_arg=False):
+                 add_lc_fname_arg=False,
+                 add_exposure_timing=False):
         """
         Initialize the praser with options common to all manual steps.
 
@@ -352,6 +379,9 @@ class ManualStepArgumentParser(ArgumentParser):
         )
         if add_catalog:
             self._add_catalog_args(add_catalog)
+
+        if add_exposure_timing:
+            self._add_exposure_timing()
 
 
     def add_argument(self, *args, **kwargs):

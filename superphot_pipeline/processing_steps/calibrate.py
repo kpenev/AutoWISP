@@ -95,7 +95,8 @@ def parse_command_line(*args):
     """Return the parsed command line arguments."""
 
     parser = ManualStepArgumentParser(description=__doc__,
-                                      input_type='' if args else input_type)
+                                      input_type='' if args else input_type,
+                                      add_exposure_timing=True)
 
     parser.add_argument(
         '--calibrate-only-if',
@@ -207,22 +208,6 @@ def parse_command_line(*args):
         'channel splitting is done, and {RAWFNAME} - the name of the '
         'corresponding input FITS file without directories or `.fits` and '
         '`.fits.fz` extension).'
-    )
-    parser.add_argument(
-        '--jd-expression',
-        default='JD + 2.4e6',
-        help='An expression involving header keywords that evaluates to the JD '
-        'of the middle of the exposure in a frame. For keywords that invlove '
-        '``-`` replace it with ``_``.'
-    )
-    parser.add_argument(
-        '--utc-expression',
-        default='DATE_OBS',
-        help='An expression involving header keywords that evaluates to a valid'
-        ' input for constructing astropy Time objects in UTC scale '
-        'of the middle of the exposure in a frame. For keywords that invlove '
-        '``-`` replace it with ``_``. This argument takes precedence over '
-        '--jd-expression. Set to empty string  to use --jd-expression instead.'
     )
 
     return parser.parse_args(*args)

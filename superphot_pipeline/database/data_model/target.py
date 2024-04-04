@@ -33,12 +33,12 @@ class Target(DataModelBase):
     )
     ra = Column(
         Float,
-        nullable=False,
+        nullable=True,
         doc='The ra of the target'
     )
     dec = Column(
         Float,
-        nullable=False,
+        nullable=True,
         doc='The dec of the target'
     )
     name = Column(
@@ -59,3 +59,10 @@ class Target(DataModelBase):
 
     observing_sessions = relationship("ObservingSession",
                                       back_populates="target")
+
+    def __repr__(self):
+        return (
+            f'{self.name} (id: {self.id}): ra={self.ra!r}, dec={self.dec!r} '
+            f'({self.notes})'
+        )
+
