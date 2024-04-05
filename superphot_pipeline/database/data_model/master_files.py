@@ -84,6 +84,12 @@ class MasterType(DataModelBase):
         primaryjoin="MasterType.condition_id == Condition.id",
         viewonly=True
     )
+    split_expressions: Mapped[List[ConditionExpression]] = relationship(
+        secondary=Condition.__table__,
+        primaryjoin="MasterType.maker_image_split_condition_id == Condition.id",
+        viewonly=True
+    )
+
 
 
 class MasterFile(DataModelBase):

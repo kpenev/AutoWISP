@@ -66,6 +66,13 @@ class ExpressionMatcher:
                     filter(None, self._evaluated_expressions[image_id].keys())
                 )
             )
+        self._logger.debug(
+            'Getting master expression values for expression ids %s, '
+            'image %d, channel %s',
+            repr(self._master_expression_ids),
+            image_id,
+            channel
+        )
         return tuple(
             self._evaluated_expressions[
                 image_id
@@ -107,10 +114,7 @@ class ExpressionMatcher:
         """True iff the expressions for the given image/channel match."""
 
         image_evaluated = self._evaluated_expressions[image_id][channel]
-        image_master_values = tuple(
-            image_evaluated['values'][expression_id]
-            for expression_id in self._master_expression_ids
-        )
+        image_master_values = self._get_master_values(image_id, channel)
 
         self._logger.debug(
             'Comparing %s to %s and %s to %s',
@@ -619,7 +623,7 @@ class ProcessingManager:
 
             if all_channel['matched'] is None:
                 all_channel['matched'] = evaluated_expressions['matched']
-                all_channel['values'] = evaluated_expressions['values']
+                all_channel['values'] = dict(evaluated_expressions['values'])
             else:
                 all_channel['matched'] = (all_channel['matched']
                                           &
@@ -1261,10 +1265,16 @@ class ProcessingManager:
                         )
 
             for master_type in db_session.scalars(select(MasterType)).all():
-                for expression in master_type.match_expressions:
+                for expression in (
+                    master_type.match_expressions
+                    +
+                    master_type.split_expressions
+                ):
                     self.condition_expressions[expression.id] = (
                         expression.expression
                     )
+            self._logger.debug('Condition expressions to evaluate: %s',
+                               repr(self.condition_expressions))
 
             self.step_version = {
                 step.name: max(
