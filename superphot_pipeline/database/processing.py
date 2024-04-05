@@ -46,6 +46,8 @@ from superphot_pipeline.database.data_model.provenance import\
 #pylint: enable=no-name-in-module
 
 
+#Intended to be used as simple callable
+#pylint: disable=too-few-public-methods
 class ExpressionMatcher:
     """
     Compare condition expressions for an image/channel to a target.
@@ -53,6 +55,30 @@ class ExpressionMatcher:
     Usually check if matched expressions and master expression values are
     identical, but also handles special case of calibrate step.
     """
+
+    def _get_master_values(self, image_id, channel):
+        """Return ready to compare masster expression values."""
+
+        if channel is None:
+            return tuple(
+                self._get_master_values(image_id, channel)
+                for channel in sorted(
+                    filter(None, self._evaluated_expressions[image_id].keys())
+                )
+            )
+        return tuple(
+            self._evaluated_expressions[
+                image_id
+            ][
+                channel
+            ][
+                'values'
+            ][
+                expression_id
+            ]
+            for expression_id in self._master_expression_ids
+        )
+
 
     def __init__(self,
                  evaluated_expressions,
@@ -64,18 +90,18 @@ class ExpressionMatcher:
 
         """
 
+        self._logger = logging.getLogger(__name__)
+        self._evaluated_expressions = evaluated_expressions
+        self._master_expression_ids = master_expression_ids
         reference_evaluated = evaluated_expressions[ref_image_id][ref_channel]
         self._ref_matched = reference_evaluated['matched']
-        self._ref_master_values = tuple(
-            reference_evaluated['values'][expression_id]
-            for expression_id in master_expression_ids
-        )
+        self._ref_master_values = self._get_master_values(ref_image_id,
+                                                          ref_channel)
         self._logger.debug(
             'Finding images matching expressions %s and values %s',
             repr(self._ref_matched),
             repr(self._ref_master_values)
         )
-        <++> HANDLE CALIBRATE <++>
 
     def __call__(self, image_id, channel):
         """True iff the expressions for the given image/channel match."""
@@ -83,7 +109,7 @@ class ExpressionMatcher:
         image_evaluated = self._evaluated_expressions[image_id][channel]
         image_master_values = tuple(
             image_evaluated['values'][expression_id]
-            for expression_id in master_expression_ids
+            for expression_id in self._master_expression_ids
         )
 
         self._logger.debug(
@@ -94,12 +120,11 @@ class ExpressionMatcher:
             repr(self._ref_master_values)
         )
         return (
-            image_evaluated['matched'] == target_matched_expressions
+            image_evaluated['matched'] == self._ref_matched
             and
-            image_master_expression_values
-            ==
-            target_master_expression_values
+            image_master_values == self._ref_master_values
         )
+#pylint: enable=too-few-public-methods
 
 
 #pylint: disable=too-many-instance-attributes
@@ -1077,10 +1102,6 @@ class ProcessingManager:
                 )
             ).all()
         )
-
-        if self.current_step.name == 'calibrate':
-            return group_calibrate_pending(pending_images,
-                                           master_expression_ids)
 
         while pending_images:
             #pending_images = [
