@@ -268,6 +268,7 @@ def calibrate(image_collection,
 def cleanup_interrupted(interrupted, configuration):
     """Cleanup file system after partially calibrated images."""
 
+    _logger.info('Cleaning up: %s', repr(interrupted))
     for raw_fname, status in interrupted:
         assert status == 0
         header = get_raw_header(raw_fname, configuration)

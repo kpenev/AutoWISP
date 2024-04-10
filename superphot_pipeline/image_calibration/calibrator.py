@@ -272,7 +272,10 @@ class Calibrator(Processor):
                 None
             """
 
-            for channel_name, channel_slice in calib_params['split_channels']:
+            for (
+                    channel_name,
+                    channel_slice
+            ) in calib_params['split_channels'].items():
                 expected_master_shape = (
                     (
                         calib_params['image_area']['ymax']
@@ -476,10 +479,13 @@ class Calibrator(Processor):
                         area_pattern % overscan_area,
                         'Overscan area #' + str(overscan_id)
                     )
-
-            calibration_params['overscans']['method'].document_in_fits_header(
-                channel_header
-            )
+                calibration_params[
+                    'overscans'
+                ][
+                    'method'
+                ].document_in_fits_header(
+                    channel_header
+                )
 
             channel_header['IMAGAREA'] = (
                 area_pattern % calibration_params['image_area'],
@@ -526,7 +532,7 @@ class Calibrator(Processor):
                     calibration_params['correction'],
                     calibration_params['variance'],
                     calibration_params['mask']
-                ) = self._assemble_channels(
+                ) = assemble_channels(
                     calibration_params[master_type],
                     'components',
                     calibration_params['image_area'],
@@ -545,7 +551,7 @@ class Calibrator(Processor):
         if 'masks' in calibration_params:
             calibration_params['masks'] = {
                 'filenames': calibration_params['masks'],
-                'image': self._assemble_channels(
+                'image': assemble_channels(
                     calibration_params['masks'],
                     'masks',
                     calibration_params['image_area'],
@@ -607,7 +613,7 @@ class Calibrator(Processor):
         if masks is not None:
             self.masks = {
                 'filenames': masks,
-                'image': self._assemble_channels(
+                'image': assemble_channels(
                     masks,
                     'masks',
                     self.configuration['image_area'],
@@ -633,7 +639,7 @@ class Calibrator(Processor):
                     master_attr['correction'],
                     master_attr['variance'],
                     master_attr['mask']
-                ) = self._assemble_channels(
+                ) = assemble_channels(
                     master_fname,
                     'components',
                     self.configuration['image_area'],
@@ -724,7 +730,7 @@ class Calibrator(Processor):
                 calibration_params
             )
 
-        trimmed_image = self._assemble_channels(
+        trimmed_image = assemble_channels(
             raw,
             calibration_params['raw_hdu'],
             calibration_params['image_area'],

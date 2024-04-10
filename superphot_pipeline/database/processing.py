@@ -102,12 +102,12 @@ class ExpressionMatcher:
         self._master_expression_ids = master_expression_ids
         reference_evaluated = evaluated_expressions[ref_image_id][ref_channel]
         self._ref_matched = reference_evaluated['matched']
-        self._ref_master_values = self._get_master_values(ref_image_id,
+        self.ref_master_values = self._get_master_values(ref_image_id,
                                                           ref_channel)
         self._logger.debug(
             'Finding images matching expressions %s and values %s',
             repr(self._ref_matched),
-            repr(self._ref_master_values)
+            repr(self.ref_master_values)
         )
 
     def __call__(self, image_id, channel):
@@ -121,12 +121,12 @@ class ExpressionMatcher:
             repr(image_evaluated['matched']),
             repr(self._ref_matched),
             repr(image_master_values),
-            repr(self._ref_master_values)
+            repr(self.ref_master_values)
         )
         return (
             image_evaluated['matched'] == self._ref_matched
             and
-            image_master_values == self._ref_master_values
+            image_master_values == self.ref_master_values
         )
 #pylint: enable=too-few-public-methods
 
@@ -435,6 +435,8 @@ class ProcessingManager:
                         configuration.
         """
 
+        self._logger.debug('Finding configuration for batch: %s',
+                           repr(batch))
         config, config_key = self._get_config(
             self._evaluated_expressions[batch[0][0].id][batch[0][1]]['matched'],
             db_step=step
@@ -463,7 +465,7 @@ class ProcessingManager:
                 image_type_id=batch[0][0].image_type_id
             )
         ).all():
-            for config_key, sub_batch in list(result.items()):
+            for config_key, (config, sub_batch) in list(result.items()):
                 splits = self._split_by_master(sub_batch,
                                                required_master_type,
                                                db_session)
@@ -575,7 +577,11 @@ class ProcessingManager:
                 eval_channel
             ]
             for product in ['dr', 'calibrated']:
-                if path.exists(image_expressions[product]):
+                if (
+                        product in image_expressions
+                        and
+                        path.exists(image_expressions[product])
+                ):
                     return Evaluator(image_expressions[product])
 
         self._logger.debug('Evaluating expressions for: %s',
@@ -773,30 +779,31 @@ class ProcessingManager:
     def _get_interrupted(self, need_cleanup, db_session):
         """Return list of interrupted files and configuration for cleanup."""
 
-        interrupted = {}
-        cleanup_step = need_cleanup[0][2]
-        input_type = getattr(processing_steps, cleanup_step.name).input_type
-        for image, processed, step in need_cleanup:
 
-            assert step == cleanup_step
+        self.current_step = need_cleanup[0][2]
+        self._current_processing = db_session.scalar(
+            select(ImageProcessingProgress).where(
+                ImageProcessingProgress.id == need_cleanup[0][1].progress_id
+            )
+        )
+        input_type = getattr(processing_steps,
+                             self.current_step.name).input_type
 
+        for entry in need_cleanup:
+            assert entry[2] == self.current_step
+
+        pending = [(image, processed.channel)
+                   for image, processed, _ in need_cleanup]
+
+        for image, _, __ in need_cleanup:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
-            (config_key, (config, _)), = self._get_batch_config(
-                [image],
-                processed.channel,
-                step,
-                db_session
-            ).items()
-            if config_key not in interrupted:
-                interrupted[config_key] = [[], config]
-
-            interrupted[config_key][0].append((
-                self._get_step_input(image, processed.channel, input_type),
-                processed.status
-            ))
-        return interrupted.values()
+        cleanup_batches = self._get_batches(pending, input_type, db_session)
+        return [
+            (config, [(fname, status) for fname in batch])
+            for (_, status), (config, batch) in cleanup_batches.items()
+        ]
 
 
     def _cleanup_interrupted(self, db_session):
@@ -825,7 +832,7 @@ class ProcessingManager:
 
         step_module = getattr(processing_steps, need_cleanup[0][2].name)
 
-        for interrupted, config in self._get_interrupted(need_cleanup,
+        for config, interrupted in self._get_interrupted(need_cleanup,
                                                          db_session):
             self._logger.warning(
                 'Cleaning up interrupted %s processing of %d images:\n'
@@ -1148,7 +1155,7 @@ class ProcessingManager:
                     )
                 else:
                     self._logger.debug('Not a match')
-            result.append((batch, target_master_expression_values))
+            result.append((batch, match_expressions.ref_master_values))
         return result
 
 
