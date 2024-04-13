@@ -5,100 +5,157 @@
         <meta charset="utf-8">
         <title>SuperPhot Pipeline Configuration</title>
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
         <link rel="stylesheet" href="{% static 'processing/css/select_images.css' %}">
     </head>
     <body>
-        <div class="navbar" id="navbar">
-            <div class="dropdown">
-                <label class="dropbtn" for="add-selected-img"
-                              style="display:block; background-color:green">
+        <div class="lcars-app-container">
+
+            <!-- HEADER -->
+            <div id="header" class="lcars-row header">
+
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-bar horizontal">
+                    <div class="lcars-title right">ADDING RAW IMAGES</div>
+                </div>
+                <!-- ROUNDED EDGE DECORATED -->
+                <div class="lcars-bar horizontal right-end decorated"></div>
+
+
+            </div>
+
+            <!-- LEFT MENU -->
+            <div id="left-menu" 
+                 class="lcars-column start-space lcars-u-1" 
+                 style="text-transform: uppercase;">
+                <label class="lcars-element button lcars-pale-canary-bg lcars-u-1-2" 
+                       for="add-selected-img">
                     Add Selected Images
                 </label>
-            </div>
-            <div class="dropdown">
-                <a class="dropbtn" 
-                    href="{% url 'processing:progress' %}">
-                    Cancel
+                <a href="{% url 'processing:progress' %}">
+                    <div class="lcars-element button lcars-red-alert-bg">Cancel</div>
                 </a>
+                <div class="lcars-bar lcars-u-1"></div>
+            </div>
+
+            <!-- FOOTER -->
+            <div id="footer" class="lcars-row ">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"></div>
+                <!-- BAR -->
+                <div class="lcars-bar horizontal both-divider bottom"></div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar horizontal right-end left-divider bottom"></div>
+            </div>
+
+            <!-- MAIN CONTAINER -->
+            <div id="container">
+                <div class="lcars-column">
+                    <form method="get"
+                          action="{% url 'processing:select_raw_images' %}"
+                          id="update_img_selector">
+                          <div class="lcars-column">
+                              <nav class="lcars-row">
+                                  {% for dpath, dname in parent_dir_list %}
+                                  <a href={% url 'processing:select_raw_images' dirname=dpath %}>
+                                      <div class="lcars-element button lcars-u-2 
+                                                  lcars-melrose-bg left-rounded">
+                                          {{dname}} 
+                                      </div>
+                                  </a>
+                                  {% if forloop.last %}
+                                  <input type="hidden" name="currentdir" value="{{dpath}}"/>
+                                  {% endif %}
+                                  {% endfor %}
+                              </nav>
+
+                              <div class="lcars-row left-centered">
+                                  <label for="filename_filter" class="lcars-u-1 right"> 
+                                      File Filter: 
+                                  </label>
+                                  <input type="text" 
+                                         id="filename_filter" 
+                                         name="filename_filter"
+                                         value="{{filename_filter}}"
+                                         class="lcars-text-input 
+                                                decorated 
+                                                rounded
+                                                lcars-lilac-color 
+                                                lcars-u-2-1"
+                                         onchange="getElementById('update_img_selector').submit()"/>
+                                  <input type="button" 
+                                         id="filefilter_type_button" 
+                                         value="{{filename_filter_type}}"
+                                         class="lcars-element rounded button lcars-u-2"
+                                         onclick="swapFilterType('file');"/>
+                                  <input type="hidden" 
+                                         id="filefilter_type" 
+                                         name="filefilter_type"
+                                         value="{{filename_filter_type}}"/>
+                              </div>
+                              <div class="lcars-row left-centered">
+                                  <label class="lcars-u-1" for="dirname_filter"> 
+                                      Directory Filter: 
+                                  </label>
+                                  <input type="text" 
+                                         id="dirname_filter" 
+                                         name="dirname_filter"
+                                         value="{{dirname_filter}}"
+                                         class="lcars-text-input 
+                                                decorated 
+                                                rounded
+                                                lcars-lilac-color 
+                                                lcars-u-2-1"
+                                         onchange="getElementById('update_img_selector').submit()"/>
+                                  <input type="button" 
+                                         id="dirfilter_type_button" 
+                                         value="{{dirname_filter_type}}"
+                                         class="lcars-element button rounded lcars-u-2"
+                                         onclick="swapFilterType('dir');"/>
+                                  <input type="hidden" 
+                                         id="dirfilter_type" 
+                                         name="dirfilter_type"
+                                         value="{{dirname_filter_type}}"/>
+                              </div>
+                          </div>
+                    </form>
+
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% with num_files=file_list|length %}
+                        <div class="lcars-row">
+
+                            <div class="lcars-bracket left hollow"></div>
+                            <select multiple 
+                                    name="selected"
+                                    class="lcars-text-input decorated rounded"
+                                    size="{{dir_list|length|add:num_files}}" 
+                                    onDblClick="enterDirectory(this.value)">
+                                {% for dname in dir_list %}
+                                <option value="{{dname}}" class="selectdir">{{dname}}</option>
+                                {% endfor %}
+                                {% for fname in file_list %}
+                                <option value="{{fname}}" class="selectfile">{{fname}}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="lcars-bracket right hollow"></div>
+
+                        </div>
+                        <input type="hidden" 
+                               name="currentdir"
+                               value="{{parent_dir_list|last|first}}">
+                        {% endwith %}
+                        <input type="submit" 
+                               id="add-selected-img" 
+                               value="Add Images" 
+                               style="visibility:hidden"/>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <form method="get"
-              action="{% url 'processing:select_raw_images' %}"
-              id="update_img_selector">
-            <div>
-                <nav class="pathnav">
-                    {% for dpath, dname in parent_dir_list %}
-                    <a href="{% url 'processing:select_raw_images' dirname=dpath %}">
-                        {{dname}} 
-                    </a>
-                    {% if forloop.last %}
-                    <input type="hidden" name="currentdir" value="{{dpath}}"/>
-                    {% else %}
-                    »
-                    {% endif %}
-                    {% endfor %}
-                </nav>
-            </div>
-            <div>
-                <label for="filename_filter"> File Filter: </label>
-                <input type="text" 
-                       id="filename_filter" 
-                       name="filename_filter"
-                       value="{{filename_filter}}"
-                       onchange="getElementById('update_img_selector').submit()"/>
-                <input type="button" 
-                       id="filefilter_type_button" 
-                       value="{{filename_filter_type}}"
-                       onclick="swapFilterType('file');"/>
-                <input type="hidden" 
-                       id="filefilter_type" 
-                       name="filefilter_type"
-                       value="{{filename_filter_type}}"/>
-            </div>
-            <div>
-                <label for="dirname_filter"> Directory Filter: </label>
-                <input type="text" 
-                       id="dirname_filter" 
-                       name="dirname_filter"
-                       value="{{dirname_filter}}"
-                       onchange="getElementById('update_img_selector').submit()"/>
-                <input type="button" 
-                       id="dirfilter_type_button" 
-                       value="{{dirname_filter_type}}"
-                       onclick="swapFilterType('dir');"/>
-                <input type="hidden" 
-                       id="dirfilter_type" 
-                       name="dirfilter_type"
-                       value="{{dirname_filter_type}}"/>
-            </div>
-        </form>
-
-
-        <form method="post">
-            {% csrf_token %}
-            {% with num_files=file_list|length %}
-            <select multiple 
-                    name="selected"
-                    size="{{dir_list|length|add:num_files}}" 
-                    onDblClick="enterDirectory(this.value)">
-                {% for dname in dir_list %}
-                <option value="{{dname}}" class="selectdir">{{dname}}</option>
-                {% endfor %}
-                {% for fname in file_list %}
-                <option value="{{fname}}" class="selectfile">{{fname}}</option>
-                {% endfor %}
-            </select>
-            <input type="hidden" 
-                   name="currentdir"
-                   value="{{parent_dir_list|last|first}}">
-            {% endwith %}
-            <input type="submit" 
-                   id="add-selected-img" 
-                   value="Add Images" 
-                   style="visibility:hidden"/>
-        </form>
         <script type="text/javascript" 
                 src="{% static 'js/superphot.util.js' %}">
         </script>

@@ -18,8 +18,8 @@ body {
 }
 
 .selectdir {
-    color: blue;
     font-weight: bold;
+    color: #59f;
 }
 
 .submit {
