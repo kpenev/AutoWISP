@@ -384,7 +384,7 @@ body {
   display: flex;
   width: calc(100% - 1rem);
   height: calc(100% - 1rem);
-  overflow: hidden;
+  overflow: auto;
   margin: 0.5rem;
 }
 .lcars-app-container #left-menu {
@@ -392,6 +392,7 @@ body {
   padding-top: 4.5rem;
   height: 100%;
   left: 0.5rem;
+  z-index: 1;
 }
 .lcars-app-container #header {
   position: fixed;
@@ -420,7 +421,7 @@ body {
   padding-bottom: 4.5rem;
   width: 100%;
   height: calc(100%-0em);
-  overflow: auto;
+  overflow:auto;
 }
 .lcars-row {
   display: inline-flex;
