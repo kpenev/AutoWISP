@@ -154,7 +154,7 @@ if __name__ == '__main__':
             cmdline_config['calibrated_images'],
             cmdline_config['srcextract_only_if']
         ),
-        0,
+        None,
         cmdline_config,
         ignore_progress,
         ignore_progress

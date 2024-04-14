@@ -83,11 +83,6 @@ class Calibrator(Processor):
                 Only useful when estimating errors and could be used by the
                 overscan_method.
 
-            fnum:    Expression involving header keywords (with "-" replaced by
-                "_") or `RAWFNAME` which takes the raw frame name without
-                extension or path and returning an integer to use as a frame
-                number (should be unique for each image).
-
             calibrated_fname:    The filename under which to save the craeted
                 image. Treated as a format string that may involve replacement
                 fields from the resulting header, including {CLRCHNL}, which
@@ -131,6 +126,8 @@ class Calibrator(Processor):
         module_git_ids:    A collection of Git Id values (sha1 checksums of the
             git blobs) for each module used by the calibration. Those get added
             to the header to ensure reprobducability.
+
+        extra_header:    Additional keywords to add to the header.
 
     Examples:
 
@@ -786,6 +783,7 @@ class Calibrator(Processor):
                                   calibrated_images)
 
         raw_header = get_raw_header(raw_image, calibration_params)
+        raw_header.update(calibration_params.get('extra_header', {}))
 
         calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 

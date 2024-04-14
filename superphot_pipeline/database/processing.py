@@ -444,6 +444,9 @@ class ProcessingManager:
         config_key |= {master_expression_values}
         if step.name == 'calibrate':
             config['split_channels'] = self._get_split_channels(batch[0][0])
+            config['extra_header'] = {
+                'OBS-SESN': batch[0][0].observing_session.label
+            }
             key_extra = {
                 (
                     'split_channels',
@@ -451,10 +454,15 @@ class ProcessingManager:
                         repr(c)
                         for c in batch[0][0].observing_session.camera.channels
                     )
+                ),
+                (
+                    'observing_session',
+                    config['extra_header']['OBS-SESN']
                 )
             }
             config_key |= key_extra
         config['processing_step'] = step.name
+        config['image_type'] = batch[0][0].image_type.name
 
         result = {
             config_key: (config, batch)
@@ -634,6 +642,9 @@ class ProcessingManager:
                 all_channel['matched'] = (all_channel['matched']
                                           &
                                           evaluated_expressions['matched'])
+                #False positive
+                #pylint: disable=unsubscriptable-object
+                #pylint: disable=unsupported-delete-operation
                 for expr_id in list(all_channel['values'].keys()):
                     if (
                         all_channel['values'][expr_id]
@@ -641,7 +652,8 @@ class ProcessingManager:
                         evaluated_expressions['values'][expr_id]
                     ):
                         del all_channel['values'][expr_id]
-
+                #pylint: enable=unsupported-delete-operation
+                #pylint: enable=unsubscriptable-object
 
             for required_expressions, value in self.configuration[
                     'data-reduction-fname'
@@ -1058,7 +1070,10 @@ class ProcessingManager:
             )
 
 
-    def _group_pending_by_conditions(self, pending_images, db_session):
+    def _group_pending_by_conditions(self,
+                                     pending_images,
+                                     db_session,
+                                     match_observing_session=False):
         """Group pendig_images grouped by condition expression values."""
 
         image_type_id = pending_images[0][0].image_type_id
@@ -1139,11 +1154,22 @@ class ProcessingManager:
                 pending_images[-1][1],
                 master_expression_ids
             )
+            observing_session_id = pending_images[-1][0].observing_session_id
 
             for i in range(len(pending_images) - 1, -1, -1):
-                if match_expressions(
-                    pending_images[i][0].id,
-                    pending_images[i][1]
+                if (
+                    (
+                        not match_observing_session
+                        or
+                        pending_images[i][0].observing_session_id
+                        ==
+                        observing_session_id
+                    )
+                    and
+                    match_expressions(
+                        pending_images[i][0].id,
+                        pending_images[i][1]
+                    )
                 ):
                     batch.append(pending_images.pop(i))
                     self._logger.debug(
@@ -1159,16 +1185,20 @@ class ProcessingManager:
         return result
 
 
+    #No good way to simplify
+    #pylint: disable=too-many-locals
     def _get_batches(self, pending_images, step_input_type, db_session):
         """Return the batches of images to process with identical config."""
 
         result = {}
+        check_image_type_id = pending_images[0][0].image_type_id
         for (
             by_condition,
             master_expression_values
         ) in self._group_pending_by_conditions(
             pending_images,
-            db_session
+            db_session,
+            self.current_step.name == 'calibrate'
         ):
             for config_key, (config, batch) in self._get_batch_config(
                 by_condition,
@@ -1176,10 +1206,9 @@ class ProcessingManager:
                 self.current_step,
                 db_session
             ).items():
-                setup_process(task='main', **config)
-
                 batch_status = None
                 for image, channel in batch:
+                    assert image.image_type_id == check_image_type_id
                     status = db_session.execute(
                         select(
                             ProcessedImages.status
@@ -1211,6 +1240,7 @@ class ProcessingManager:
                     result[config_key, batch_status] = (config, input_batch)
 
         return result
+    #pylint: enable=too-many-locals
 
 
     def __init__(self, version=None):
@@ -1257,7 +1287,6 @@ class ProcessingManager:
                         'version': config_entry.version,
                         'value': {}
                     }
-                print(repr(config_entry.conditions))
                 self.configuration[config_entry.parameter.name]['value'][
                     frozenset(
                         cond.expression_id
@@ -1270,6 +1299,18 @@ class ProcessingManager:
                         self.condition_expressions[cond.expression_id] = (
                             cond.expression.expression
                         )
+
+            self._processing_config = self._get_config(
+                self._get_matched_expressions(Evaluator()),
+                step_name='calibrate',
+            )[0]
+            del self._processing_config['processing_step']
+
+            setup_process(task='main',
+                          parent_pid='',
+                          processing_step='init_processing',
+                          image_type='none',
+                          **self._processing_config)
 
             for master_type in db_session.scalars(select(MasterType)).all():
                 for expression in (
@@ -1312,6 +1353,12 @@ class ProcessingManager:
                 step = db_session.merge(step)
                 step_name = step.name
                 image_type = db_session.merge(image_type)
+                setup_process(task='main',
+                              parent_pid='',
+                              processing_step=step_name,
+                              image_type=image_type.name,
+                              **self._processing_config)
+
                 if limit_to_steps is not None and step not in limit_to_steps:
                     self._logger.debug('Skipping disabled %s for %s frames',
                                        step.name,
@@ -1409,6 +1456,3 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
     ProcessingManager()()
-    exit(1)
-
-    ProcessingManager().create_config_file(argv[1], 'test.cfg', ['calibrate'])

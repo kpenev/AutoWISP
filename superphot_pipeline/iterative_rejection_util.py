@@ -1,5 +1,7 @@
 """A collection of general purpose statistical manipulations of scipy arrays."""
 
+import logging
+
 import scipy
 import scipy.linalg
 from scipy.interpolate import UnivariateSpline
@@ -73,6 +75,7 @@ def iterative_rejection_average(array,
 
     """
 
+    logger = logging.getLogger(__name__)
     working_array = (array if mangle_input else scipy.copy(array))
 
     if isinstance(outlier_threshold, (float, int)):
@@ -89,7 +92,7 @@ def iterative_rejection_average(array,
     iteration = 0
     found_outliers = True
     while found_outliers and iteration < max_iter:
-        print('Average iteration: ' + repr(iteration))
+        logger.debug('Average iteration: %s', repr(iteration))
         average = average_func(working_array, axis=axis, keepdims=True)
         difference = working_array - average
         rms = scipy.sqrt(
@@ -106,9 +109,9 @@ def iterative_rejection_average(array,
 
         if found_outliers:
             working_array[outliers] = scipy.nan
-        print('Found %d outliers.', found_outliers.sum())
+        logger.debug('Found %d outliers.', found_outliers.sum())
         iteration = iteration + 1
-    print("Exited found_outliers while loop")
+    logger.debug("Exited found_outliers while loop")
     if found_outliers and require_convergence:
         raise ConvergenceError(
             'Computing '
@@ -125,7 +128,7 @@ def iterative_rejection_average(array,
     num_averaged = scipy.sum(scipy.logical_not(scipy.isnan(working_array)),
                              axis=axis,
                              keepdims=keepdims)
-    print("num_averaged computed", num_averaged)
+    logger.debug("num_averaged computed: %s", num_averaged)
     stdev = (
         scipy.sqrt(
             scipy.nanmean(scipy.square(working_array - average),
@@ -136,12 +139,12 @@ def iterative_rejection_average(array,
         )
     )
 
-    print("stdev nanmean and sqrt stuff computed")
+    logger.debug("stdev nanmean and sqrt stuff computed")
 
     if not keepdims:
         average = scipy.squeeze(average, axis)
 
-    print("Finished average function!!!!")
+    logger.debug("Finished average function!!!!")
     return average, stdev, num_averaged
 #pylint: enable=too-many-arguments
 #pylint: enable=too-many-locals
@@ -274,6 +277,8 @@ def iterative_rejection_smoothing_spline(x,
             max_iterations was reached.
     """
 
+    logger = logging.getLogger(__name__)
+
     found_outliers = True
     iteration = 0
     fit_points = scipy.logical_and(scipy.isfinite(x), scipy.isfinite(y))
@@ -288,13 +293,16 @@ def iterative_rejection_smoothing_spline(x,
         smooth_func = UnivariateSpline(fit_x, fit_y, w=fit_w, **spline_args)
 
         square_residuals = scipy.square(smooth_func(fit_x) - fit_y)
-        print('Square res:\n' + repr(square_residuals))
+        logger.debug('Square res:\n%s', repr(square_residuals))
         non_outliers = (square_residuals
                         <
                         outlier_threshold**2 * scipy.mean(square_residuals))
-        print('Non outliers: ' + repr(non_outliers))
-        print(f'Rejecting {len(non_outliers) - non_outliers.sum():d} / '
-              f'{len(non_outliers):d} points.')
+        logger.debug('Non outliers: %s', repr(non_outliers))
+        logger.debug(
+            'Rejecting %d / %d points.',
+            len(non_outliers) - non_outliers.sum(),
+            len(non_outliers)
+        )
 
         fit_x = fit_x[non_outliers]
         fit_y = fit_y[non_outliers]

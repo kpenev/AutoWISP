@@ -1,5 +1,8 @@
 """Define classes for creating master calibration frames."""
 
+from functools import reduce
+import logging
+
 import numpy
 
 from astropy.io import fits
@@ -48,10 +51,12 @@ class MasterMaker(Processor):
         >>> )
     """
 
+    _logger  = logging.getLogger(__name__)
+
     default_exclude_mask = mask_flags['BAD']
 
-    @staticmethod
-    def _update_stack_header(master_header,
+    def _update_stack_header(self,
+                             master_header,
                              frame_header,
                              filename,
                              first_time):
@@ -93,7 +98,7 @@ class MasterMaker(Processor):
                     f'Image {filename:s} does not define IMAGETYP'
                 )
         else:
-            print('Checking master header against ' + filename)
+            self._logger.debug('Checking master header against %s', filename)
 
             delete_indices = []
             for card_index, master_card in enumerate(master_header.cards):
@@ -114,15 +119,17 @@ class MasterMaker(Processor):
                             'into a master!'
                         )
                     delete_indices.insert(0, card_index)
-            print('Deleting:\n'
-                  +
-                  '\n'.join([
-                      repr(master_header.cards[i][0]) for i in delete_indices
-                  ]))
-            print(f'Starting with {len(master_header.cards):d} cards')
+            self._logger.debug(
+                'Deleting:\n%s',
+                '\n'.join([
+                    repr(master_header.cards[i][0]) for i in delete_indices
+                ])
+            )
+            self._logger.debug('Starting with %d cards',
+                               len(master_header.cards))
             for index in delete_indices:
                 del master_header[index]
-            print(f'{len(master_header.cards):d} cards remain')
+            self._logger.debug('%d cards remain', len(master_header.cards))
 
     def __init__(self,
                  *,
@@ -312,7 +319,7 @@ class MasterMaker(Processor):
                 'Max number of rejection/averaging iterations'
             )
             header['XCLUDMSK'] = (
-                exclude_mask,
+                ','.join(exclude_mask),
                 'Pixels matching any of this mask were excluded'
             )
             header['IMAGETYP'] = 'master' + header['IMAGETYP']
@@ -330,6 +337,14 @@ class MasterMaker(Processor):
         frame_index = 0
         discarded_frames = []
         first_frame = True
+        exclude_mask_bits = reduce(
+            lambda bits, pix_condition: numpy.bitwise_or(
+                bits,
+                mask_flags[pix_condition]
+            ),
+            exclude_mask,
+            0
+        )
         for frame_fname in frame_list:
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
@@ -342,10 +357,10 @@ class MasterMaker(Processor):
             if stack_image is None:
                 discarded_frames.append(frame_fname)
             else:
-                MasterMaker._update_stack_header(master_header,
-                                                 header,
-                                                 frame_fname,
-                                                 first_frame)
+                self._update_stack_header(master_header,
+                                          header,
+                                          frame_fname,
+                                          first_frame)
                 first_frame = False
 
                 if pixel_values is None:
@@ -357,7 +372,7 @@ class MasterMaker(Processor):
 
                 pixel_values[frame_index] = stack_image
                 pixel_values[frame_index][
-                    numpy.bitwise_and(mask, exclude_mask).astype(bool)
+                    numpy.bitwise_and(mask, exclude_mask_bits).astype(bool)
                 ] = numpy.nan
                 for kw_index, keyword in enumerate(add_averaged_keywords):
                     #False positive

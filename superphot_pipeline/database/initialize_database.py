@@ -39,6 +39,7 @@ master_info =  {
             'CLRCHNL'
         )),
         'config_name': 'master-mask',
+        'created_by': None,
         'required_by': [
             ('calibrate', 'zero'),
             ('calibrate', 'dark'),
@@ -53,6 +54,7 @@ master_info =  {
             'CLRCHNL'
         )),
         'config_name': 'master-zero',
+        'created_by': ('stack_to_master', 'zero'),
         'required_by': [
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
@@ -66,6 +68,7 @@ master_info =  {
             'CLRCHNL'
         )),
         'config_name': 'master-dark',
+        'created_by': ('stack_to_master', 'dark'),
         'required_by': [
             ('calibrate', 'flat'),
             ('calibrate', 'object')
@@ -80,6 +83,7 @@ master_info =  {
             'INTSN'
         )),
         'config_name': 'master-flat',
+        'created_by': ('stack_to_master_flat', 'flat'),
         'required_by': [
             ('calibrate', 'object')
         ],
@@ -93,6 +97,7 @@ master_info =  {
             'EXPTIME'
         )),
         'config_name': 'single-photref-dr-fname',
+        'created_by': None,
         'required_by': [
             ('fit_magnitudes', 'object')
         ],
@@ -113,24 +118,35 @@ step_dependencies = [
         []
     ),
     (
-        'calibrate', 'dark',
+        'stack_to_master', 'zero',
         [
             ('calibrate', 'zero')
         ]
     ),
     (
+        'calibrate', 'dark',
+        [
+            ('stack_to_master', 'zero')
+        ]
+    ),
+    (
+        'stack_to_master', 'dark',
+        [
+            ('calibrate', 'dark')
+        ]
+    ),
+    (
         'calibrate', 'flat',
         [
-            ('calibrate', 'zero'),
-            ('calibrate', 'dark')
+            ('stack_to_master', 'zero'),
+            ('stack_to_master', 'dark')
         ]
     ),
     (
         'calibrate', 'object',
         [
-            ('calibrate', 'zero'),
-            ('calibrate', 'dark'),
-            ('calibrate', 'flat')
+            ('stack_to_master', 'zero'),
+            ('stack_to_master', 'dark'),
         ]
     ),
     (
@@ -256,7 +272,10 @@ class StepCreator:
     def __init__(self):
         """Get ready to add steps to the database."""
 
+        #False positivie
+        #pylint: disable=no-member
         with Session.begin() as db_session:
+        #pylint: enable=no-member
             self._step_id = 1
             self._db_parameters = {}
 
@@ -354,6 +373,28 @@ class StepCreator:
 def add_master_dependencies(db_session):
     """Fill the master_types table."""
 
+    def get_imtype_id(imtype_name):
+        """Return the ID of the image type with the given name."""
+
+        return db_session.scalar(
+            select(
+                ImageType.id
+            ).where(
+                ImageType.name == imtype_name
+            )
+        )
+
+    def get_step_id(step_name):
+        """Return the ID of the step with the given name."""
+
+        return db_session.scalar(
+            select(
+                Step.id
+            ).where(
+                Step.name == step_name
+            )
+        )
+
     expressions = set()
     for master_config in master_info.values():
         expressions.update(master_config['must_match'])
@@ -384,26 +425,22 @@ def add_master_dependencies(db_session):
         db_master_type = MasterType(
             name=master_type,
             condition_id=condition_ids[master_config['must_match']],
+            maker_step_id=(
+                None if master_config['created_by'] is None
+                else get_step_id(master_config['created_by'][0])
+            ),
+            maker_image_type_id=(
+                None if master_config['created_by'] is None
+                else get_imtype_id(master_config['created_by'][1])
+            ),
             description=master_config['description']
         )
         db_session.add(db_master_type)
         for step, image_type in master_config['required_by']:
             db_session.add(
                 RequiredMasterTypes(
-                    step_id=db_session.scalar(
-                        select(
-                            Step.id
-                        ).where(
-                            Step.name == step
-                        )
-                    ),
-                    image_type_id=db_session.scalar(
-                        select(
-                            ImageType.id
-                        ).where(
-                            ImageType.name == image_type
-                        )
-                    ),
+                    step_id=get_step_id(step),
+                    image_type_id=get_imtype_id(image_type),
                     master_type_id=db_master_type.id,
                     config_name=master_config['config_name']
                 )

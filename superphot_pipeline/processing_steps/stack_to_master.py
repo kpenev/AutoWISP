@@ -2,10 +2,17 @@
 
 """Stack a collection of images to a master frame."""
 from functools import partial
+from os.path import exists
+from os import remove
+import logging
 
 import numpy
+from astropy.io import fits
 
 from configargparse import Action
+
+from general_purpose_python_modules.multiprocessing_util import \
+    setup_process
 
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.image_calibration.master_maker import MasterMaker
@@ -16,6 +23,8 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.fits_utilities import get_primary_header
 
 input_type = 'calibrated'
+_logger = logging.getLogger(__name__)
+
 
 class ParseAverageAction(Action):
     """Parse the specification of the averaging function on the command line."""
@@ -31,8 +40,9 @@ class ParseAverageAction(Action):
             result = partial(getattr(numpy, 'nan' + func), q=float(level))
         setattr(namespace, self.dest, result)
 
-def parse_command_line(*args):
-    """Return the parsed command line arguments."""
+
+def get_command_line_parser(*args):
+    """Return a command line parser with all arguments added."""
 
     parser = ManualStepArgumentParser(description=__doc__,
                                       input_type='' if args else input_type)
@@ -40,6 +50,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--average-func',
         default='median',
+        type=lambda f: getattr(numpy, 'nan' + f),
         help='The function to use for calculating the average of pixel values '
         'accross images. For quantile and percentile, the desired level is '
         'specified by adding ``:<q>`` at the end of the function name(e.g.'
@@ -96,7 +107,7 @@ def parse_command_line(*args):
         '`astropy.io.fits` documentation).'
     )
     parser.add_argument(
-        '--averaged-keywords',
+        '--add-averaged-keywords',
         nargs='+',
         default=['JD-OBS'],
         help='Specify any numeric-valued header keywords that should be '
@@ -105,20 +116,87 @@ def parse_command_line(*args):
         'the outlier rejected average JD of the input frames is added.'
     )
     parser.add_argument(
-        '--master-fname',
-        default='MASTERS/{IMAGE_TYPE}_JD{JD-OBS}.fits.fz',
+        '--stacked-master-fname',
+        default='MASTERS/{IMAGE_TYPE}_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
         help='Filename for the master to generate if successful.'
     )
-    return parser.parse_args(*args)
+    return parser
 
-def stack_frames_to_master(image_collection,
-                           configuration,
-                           mark_start,
-                           mark_end):
+
+def parse_command_line(*args):
+    """Return the parsed command line arguments."""
+
+    return get_command_line_parser(*args).parse_args(*args)
+
+
+def get_master_fname(image_fname, configuration):
+    """Return the name of the master the given image should contribute to."""
+
+    with fits.open(image_fname, 'readonly') as first_image:
+        substitutions = dict(get_primary_header(first_image))
+    for arg in configuration:
+        if arg.upper() not in substitutions:
+            substitutions[arg.upper()] = configuration[arg]
+    return configuration['stacked_master_fname'].format_map(
+        substitutions
+    )
+
+
+
+def stack_to_master(image_collection,
+                    start_status,
+                    configuration,
+                    mark_start,
+                    mark_end):
     """Stack the given frames to produce a single master frame."""
+
+    assert start_status is None
 
     for image_fname in image_collection:
         mark_start(image_fname)
-    MasterMaker(**configuration)(image_collection)
+    MasterMaker(
+        **{
+            arg: configuration[arg] for arg in ['outlier_threshold',
+                                                'average_func',
+                                                'min_valid_frames',
+                                                'min_valid_values',
+                                                'max_iter',
+                                                'exclude_mask',
+                                                'compress',
+                                                'add_averaged_keywords']
+        }
+    )(
+        image_collection,
+        get_master_fname(image_collection[0], configuration)
+    )
     for image_fname in image_collection:
         mark_end(image_fname)
+
+
+def cleanup_interrupted(interrupted, configuration):
+    """Cleanup file system after partially creating stacked image(s)."""
+
+    master_fname = get_master_fname(interrupted[0][0], configuration)
+    _logger.info('Cleaning up partially created stack %s (%s)',
+                 repr(master_fname),
+                 repr(interrupted))
+
+    for image_fname, _ in interrupted:
+        assert master_fname == get_master_fname(image_fname, configuration)
+
+    if exists(master_fname):
+        remove(master_fname)
+
+    return -1
+
+
+if __name__ == '__main__':
+    cmdline_config = parse_command_line()
+    setup_process(task='main', **cmdline_config)
+    stack_to_master(
+        find_fits_fnames(cmdline_config['calibrated_images']),
+        None,
+        cmdline_config,
+        ignore_progress,
+        ignore_progress
+    )

@@ -120,7 +120,8 @@ def parse_command_line(*args):
         default='SEQID',
         help='Unique label for the observing session. Can be arbitrary '
         'expression involving header keywords. If not already in the '
-        'observing_session table it is automatically added.'
+        'observing_session table it is automatically added. It will also be '
+        'added as ``OBS-SESN`` keyword to the calibrated images.'
     )
     parser.add_argument(
         '--image-type',
@@ -284,7 +285,15 @@ def get_or_create_observing_session(image_type,
             exposure_start = Time(
                 header_eval(configuration[f'exposure_start_{time_format}']),
                 format=None if time_format == 'utc' else time_format,
-            ).utc.to_value('datetime')
+            )
+            header_eval.symtable['JD-OBS'] = (
+                exposure_start.jd
+                +
+                header_eval(configuration['exposure_seconds'])
+                /
+                (2.0 * 24.0 * 3600.0)
+            )
+            exposure_start = exposure_start.utc.to_value('datetime')
     assert exposure_start is not None
     exposure_end = exposure_start + timedelta(
         seconds=header_eval(configuration['exposure_seconds'])

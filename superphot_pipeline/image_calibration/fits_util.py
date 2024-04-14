@@ -277,7 +277,11 @@ def create_result(image_list,
     assert (image_list[1] > 0).all()
 
     for channel_name, channel_slice in split_channels.items():
-        header_list = [header[channel_name], fits.Header(), fits.Header()]
+        header_list = [
+            header if channel_name is None else header[channel_name],
+            fits.Header(),
+            fits.Header()
+        ]
         header_list[1]['IMAGETYP'] = 'error'
         header_list[2]['IMAGETYP'] = 'mask'
 
