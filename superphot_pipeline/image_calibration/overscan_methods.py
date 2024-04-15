@@ -191,8 +191,7 @@ class Median(Base):
 
     def __call__(self,
                  *,
-                 raw_fname,
-                 raw_hdu,
+                 raw_image,
                  overscans,
                  image_area,
                  gain,
@@ -239,10 +238,6 @@ class Median(Base):
                         (overscan_area['xmax'] - overscan_area['xmin'])
                     )
 
-            raw_image = assemble_channels(raw_fname,
-                                          raw_hdu,
-                                          need_area,
-                                          split_channels)
 
             not_included = numpy.full(raw_image.shape, True)
 

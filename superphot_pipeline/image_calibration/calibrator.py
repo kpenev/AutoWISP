@@ -510,6 +510,14 @@ class Calibrator(Processor):
         calibration_params['combine_headers'] = (
             calibration_params['raw_hdu'] is not None
         )
+        raw_hdu = (
+            None if calibration_params['raw_hdu'] is None
+            else (
+                calibration_params['raw_hdu']
+                if isinstance(calibration_params['raw_hdu'], int) else
+                min(calibration_params['raw_hdu'].values())
+            )
+        )
         if calibration_params['raw_hdu'] is None:
             calibration_params['raw_hdu'] = (
                 1 if raw_image[0].header['NAXIS'] == 0 else 0
@@ -517,7 +525,7 @@ class Calibrator(Processor):
 
         if calibration_params['gain'] is None:
             calibration_params['gain'] = float(
-                raw_image[calibration_params['raw_hdu']].header['GAIN']
+                raw_image[raw_hdu].header['GAIN']
             )
 
         for master_type in ['bias', 'dark', 'flat']:
@@ -532,7 +540,6 @@ class Calibrator(Processor):
                 ) = assemble_channels(
                     calibration_params[master_type],
                     'components',
-                    calibration_params['image_area'],
                     calibration_params['split_channels']
                 )
                 self._calib_mask_from_master(
@@ -551,7 +558,6 @@ class Calibrator(Processor):
                 'image': assemble_channels(
                     calibration_params['masks'],
                     'masks',
-                    calibration_params['image_area'],
                     calibration_params['split_channels']
                 )
             }
@@ -613,7 +619,6 @@ class Calibrator(Processor):
                 'image': assemble_channels(
                     masks,
                     'masks',
-                    self.configuration['image_area'],
                     self.configuration['split_channels']
                 )
             }
@@ -639,7 +644,6 @@ class Calibrator(Processor):
                 ) = assemble_channels(
                     master_fname,
                     'components',
-                    self.configuration['image_area'],
                     self.configuration['split_channels']
                 )
                 master_attr['variance'] **= 2
@@ -722,17 +726,25 @@ class Calibrator(Processor):
                 calibration_params,
                 raw_image
             )
-            self.check_calib_params(
-                raw_image[calibration_params['raw_hdu']].data,
-                calibration_params
+            raw_pixels = assemble_channels(
+                raw,
+                calibration_params['raw_hdu'],
+                calibration_params['split_channels']
             )
+            self.check_calib_params(raw_pixels, calibration_params)
 
-        trimmed_image = assemble_channels(
-            raw,
-            calibration_params['raw_hdu'],
-            calibration_params['image_area'],
-            calibration_params['split_channels']
-        ) - calibration_params['bias_level_adu']
+        trimmed_image = (
+            raw_pixels[
+                calibration_params['image_area']['ymin']
+                :
+                calibration_params['image_area']['ymax'],
+                calibration_params['image_area']['xmin']
+                :
+                calibration_params['image_area']['xmax']
+            ]
+            -
+            calibration_params['bias_level_adu']
+        )
         calibrated_images = [
             trimmed_image,
             numpy.zeros(shape=trimmed_image.shape),
@@ -782,15 +794,16 @@ class Calibrator(Processor):
             apply_flat_correction(calibration_params['flat'],
                                   calibrated_images)
 
-        raw_header = get_raw_header(raw_image, calibration_params)
-        raw_header.update(calibration_params.get('extra_header', {}))
+        with fits.open(raw, 'readonly') as raw_image:
+            raw_header = get_raw_header(raw_image, calibration_params)
+            raw_header.update(calibration_params.get('extra_header', {}))
 
-        calibrated_images[1] = numpy.sqrt(calibrated_images[1])
+            calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
-        create_result(image_list=calibrated_images,
-                      header=self._document_in_header(calibration_params,
-                                                      raw_header),
-                      result_fname=calibration_params['calibrated_fname'],
-                      split_channels=calibration_params['split_channels'],
-                      compress=calibration_params['compress_calibrated'],
-                      allow_overwrite=calibration_params['allow_overwrite'])
+            create_result(image_list=calibrated_images,
+                          header=self._document_in_header(calibration_params,
+                                                          raw_header),
+                          result_fname=calibration_params['calibrated_fname'],
+                          split_channels=calibration_params['split_channels'],
+                          compress=calibration_params['compress_calibrated'],
+                          allow_overwrite=calibration_params['allow_overwrite'])

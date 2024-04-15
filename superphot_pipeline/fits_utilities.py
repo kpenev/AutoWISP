@@ -123,5 +123,4 @@ def get_primary_header(fits_image, add_filename_keywords=False):
 
                 result['RAWFNAME'] = base_fname
             return result
-    assert False
-    return None
+    raise IOError(f'No valid HDU found in {fits_image!r}!')

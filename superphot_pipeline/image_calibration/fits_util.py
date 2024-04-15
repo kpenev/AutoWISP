@@ -47,7 +47,7 @@ class TimeISOTNoSep(TimeISO):
     }
 
 
-def assemble_channels(filename, hdu, image_area, split_channels):
+def assemble_channels(filename, hdu, split_channels):
     """
     Assemble the channels in the pattern they have in raw frames.
 
@@ -68,10 +68,8 @@ def assemble_channels(filename, hdu, image_area, split_channels):
             * The string ``'components'`` if assembling a assembling files
               with image, error, and mask HDUs
 
-        image_area(dict):    The area from raw images that should be
-            calibarted (should have xmin, xmax, ymin, ymax as keys).
-
-        split_channels(dict):    See same name attribute.
+        split_channels(dict):    See same name attribute of
+            :class:`Calibrator`_.
 
     Returns:
         One or three numpy arrays constructed by staggering the individual
@@ -79,11 +77,14 @@ def assemble_channels(filename, hdu, image_area, split_channels):
         the input image is assumed already to be trimmed to the image area.
     """
 
-    if (
+    logger = getLogger(__name__)
+
+    if len(split_channels) == 1:
+        assert (
             isinstance(filename, str)
             and
             (isinstance(hdu, int) or hdu == 'components')
-    ):
+        )
         if hdu == 'components':
             return read_image_components(filename, read_header=False)
         if hdu == 'masks':
@@ -92,20 +93,49 @@ def assemble_channels(filename, hdu, image_area, split_channels):
                                          read_error=False,
                                          read_header=False)[0]
         with fits.open(filename, 'readonly') as image:
-            return image[hdu].data[
-                image_area['ymin'] : image_area['ymax'],
-                image_area['xmin'] : image_area['xmax']
-            ].astype('float64')
-    elif hdu == 'masks':
-        if len(split_channels) == 1:
-            assert not isinstance(filename, dict)
-            return combine_masks(filename)
+            return image[hdu].astype('float64')
+
+    assert len(split_channels) > 1
+
+    logger.debug(
+        'Assumbling multi-channel image from %s with HDUs: %s, split_channels: '
+        '%s.',
+        repr(filename),
+        repr(hdu),
+        repr(split_channels)
+    )
+
+    shape = (0, 0)
+    for channel_name, channel_slice in split_channels.items():
+        with fits.open(
+            (
+                filename[channel_name] if isinstance(filename, dict)
+                else filename
+            ),
+            'readonly'
+        ) as image:
+            if hdu in ['components', 'masks']:
+                data_hdu = 1
+            elif isinstance(hdu, dict):
+                data_hdu = hdu[channel_name]
+            else:
+                data_hdu = hdu
+            shape = tuple(
+                max(
+                    shape[i],
+                    (channel_slice[i].start or 0)
+                    +
+                    (image[data_hdu].shape[i] - 1) * channel_slice[i].step
+                    +
+                    1
+                )
+                for i in range(2)
+            )
+
+    if hdu == 'masks':
         assert isinstance(filename, dict)
         result = numpy.empty(
-            shape=(
-                image_area['ymax'] - image_area['ymin'],
-                image_area['xmax'] - image_area['xmin']
-            ),
+            shape=shape,
             dtype=numpy.uint8
         )
         for channel_name, channel_slice in split_channels:
@@ -114,11 +144,6 @@ def assemble_channels(filename, hdu, image_area, split_channels):
             )
         return result
 
-    assert len(split_channels) > 1
-    shape = (
-        image_area['ymax'] - image_area['ymin'],
-        image_area['xmax'] - image_area['xmin']
-    )
 
     if hdu == 'components':
         assert isinstance(filename, dict)
@@ -130,7 +155,7 @@ def assemble_channels(filename, hdu, image_area, split_channels):
     else:
         result = numpy.empty(shape, dtype=numpy.float64)
 
-    for channel_name, channel_slice in split_channels:
+    for channel_name, channel_slice in split_channels.items():
         if hdu == 'components':
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
@@ -151,15 +176,7 @@ def assemble_channels(filename, hdu, image_area, split_channels):
             ) as image:
                 result[channel_slice] = image[
                     hdu[channel_name] if isinstance(hdu, dict) else hdu
-                ].data[
-                    image_area['ymin'] // channel_slice[0].step
-                    :
-                    image_area['ymax'] // channel_slice[0].step
-                    ,
-                    image_area['xmin'] // channel_slice[1].step
-                    :
-                    image_area['xmax'] // channel_slice[1].step
-                ]
+                ].data
     return result
 
 
@@ -195,7 +212,12 @@ def get_raw_header(raw_image, calibration_params):
         add_filename_keywords=True
     )
     if calibration_params.get('combine_headers'):
-        result.update(raw_image[calibration_params['raw_hdu']].header)
+        for raw_hdu in (
+                calibration_params['raw_hdu'].values()
+                if isinstance(calibration_params['raw_hdu'], dict) else
+                [calibration_params['raw_hdu']]
+        ):
+            result.update(raw_image[raw_hdu].header)
     add_required_keywords(result, calibration_params)
     return result
 

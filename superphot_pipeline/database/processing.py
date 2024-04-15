@@ -285,7 +285,7 @@ class ProcessingManager:
 
         result = set()
 
-        added_params = set()
+        added_params = {'raw-hdu'}
         for step in db_steps:
             outf.write(f'[{step.name}]\n')
             step_config = self._get_param_values(
@@ -437,8 +437,9 @@ class ProcessingManager:
 
         self._logger.debug('Finding configuration for batch: %s',
                            repr(batch))
+        first_image_expressions = self._evaluated_expressions[batch[0][0].id]
         config, config_key = self._get_config(
-            self._evaluated_expressions[batch[0][0].id][batch[0][1]]['matched'],
+            first_image_expressions[batch[0][1]]['matched'],
             db_step=step
         )
         config_key |= {master_expression_values}
@@ -447,6 +448,20 @@ class ProcessingManager:
             config['extra_header'] = {
                 'OBS-SESN': batch[0][0].observing_session.label
             }
+            config['raw_hdu'] = {
+                channel: int(
+                    self._get_param_values(
+                        first_image_expressions[channel]['matched'],
+                        ['raw-hdu'],
+                        db_session
+                    )['raw-hdu']
+                )
+                for channel in filter(None, first_image_expressions.keys())
+            }
+            self._logger.debug('Calibration step configuration:\n%s',
+                               '\n\t'.join(
+                                   (f'{k}: {v!r}' for k, v in config.items())
+                               ))
             key_extra = {
                 (
                     'split_channels',
@@ -458,6 +473,9 @@ class ProcessingManager:
                 (
                     'observing_session',
                     config['extra_header']['OBS-SESN']
+                ),
+                tuple(
+                    sorted(config['raw_hdu'].items())
                 )
             }
             config_key |= key_extra
@@ -1302,9 +1320,10 @@ class ProcessingManager:
 
             self._processing_config = self._get_config(
                 self._get_matched_expressions(Evaluator()),
-                step_name='calibrate',
+                step_name='add_images_to_db',
             )[0]
             del self._processing_config['processing_step']
+            del self._processing_config['image_type']
 
             setup_process(task='main',
                           parent_pid='',
