@@ -16,6 +16,24 @@
 
                 <!-- ELBOW -->
                 <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                {% for dpath, dname in parent_dir_list %}
+                <div class="lcars-bar horizontal left-end lcars-melrose-bg"></div>
+                <a href={% url 'processing:select_raw_images' dirname=dpath %}>
+                    <div class="lcars-bar 
+                                horizontal 
+                                lcars-u-2 
+                                lcars-melrose-bg">
+                        {{dname}} 
+                    </div>
+                </a>
+                {% if forloop.last %}
+                <input type="hidden" 
+                       form="update_img_selector" 
+                       name="currentdir" 
+                       value="{{dpath}}"/>
+                {% endif %}
+                {% endfor %}
+
                 <div class="lcars-bar horizontal">
                     <div class="lcars-title right">ADDING RAW IMAGES</div>
                 </div>
@@ -56,20 +74,6 @@
                           action="{% url 'processing:select_raw_images' %}"
                           id="update_img_selector">
                           <div class="lcars-column">
-                              <nav class="lcars-row">
-                                  {% for dpath, dname in parent_dir_list %}
-                                  <a href={% url 'processing:select_raw_images' dirname=dpath %}>
-                                      <div class="lcars-element button lcars-u-2 
-                                                  lcars-melrose-bg left-rounded">
-                                          {{dname}} 
-                                      </div>
-                                  </a>
-                                  {% if forloop.last %}
-                                  <input type="hidden" name="currentdir" value="{{dpath}}"/>
-                                  {% endif %}
-                                  {% endfor %}
-                              </nav>
-
                               <div class="lcars-row left-centered">
                                   <label for="filename_filter" class="lcars-u-1 right"> 
                                       File Filter: 
