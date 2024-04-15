@@ -11,6 +11,7 @@
         <link rel="stylesheet" 
               href="{% static 'processing/css/jquery.orgchart.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
         <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <style type="text/css">
             #chart-container { text-align: left; }
@@ -18,33 +19,149 @@
 
     </head>
     <body>
-        <div class="navbar" id="navbar">
-            <div class="dropdown">
-                <a class="dropbtn" 
-                    href="{% url 'processing:select_raw_images' %}">
-                    Add New Images
-                </a>
+        <div class="lcars-app-container">
+            <!-- HEADER -->
+            <div id="header" class="lcars-row header">
+
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-bar horizontal">
+                    <div class="lcars-title right">PROCESSING PROGRESS</div>
+                </div>
+                <!-- ROUNDED EDGE DECORATED -->
+                <div class="lcars-bar horizontal right-end decorated"></div>
+
+
             </div>
-            {% if not running %}
-            <div class="dropdown">
-                <a class="dropbtn" 
-                    href="{% url 'processing:start_processing' %}">
-                    Start Processing
+            <!-- LEFT MENU -->
+            <div id="left-menu" 
+                 class="lcars-column start-space lcars-u-1" 
+                 style="text-transform: uppercase;">
+
+                <a href="{% url 'processing:start_processing' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-melrose-bg
+                                  lcars-u-1">
+                        Start Processing
+                    </div>
                 </a>
-            </div>
-            {% endif %}
-            <div class="dropdown dropdown-right" >
-                <a class="dropbtn" href="{% url 'configuration:survey' %}">
-                    Survey Configuration
+
+                <a href="{% url 'processing:select_raw_images' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-husk-bg
+                                  lcars-u-1">
+                        Add New Images
+                    </div>
                 </a>
-            </div>
-            <div class="dropdown dropdown-right">
-                <a class="dropbtn" 
-                    href="{% url 'configuration:config_tree' %}">
-                    Processing Configuration
+                <a href="{% url 'configuration:survey' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-chestnut-rose-bg
+                                  lcars-u-1-2">
+                        Edit Survey
+                    </div>
                 </a>
+                <a href="{% url 'configuration:config_tree' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-chestnut-rose-bg
+                                  lcars-u-1-2">
+                        Configure Processing
+                    </div>
+                </a>
+
+                <div class="lcars-bar lcars-u-1"></div>
+
             </div>
+
+            <!-- FOOTER -->
+            <div id="footer" class="lcars-row ">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"></div>
+                <!-- BAR -->
+                <div class="lcars-bar horizontal both-divider bottom"></div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar horizontal right-end left-divider bottom"></div>
+            </div>
+
+            <div id="container">
+                <table class="lcars-table standard-header">
+                    <thead>
+                    <tr>
+                        <th>Step</th>
+                        <th>Image Type</th>
+                        {% for channel in channels %}
+                        <th style="justify-content: center;">{{ channel }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    {% for step, imtype, by_channel in progress %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
+                                <div class="lcars-element 
+                                            button 
+                                            rounded 
+                                            lcars-chestnut-rose-bg
+                                            lcars-u-2"
+                                     style="align-items: center;">
+                                    {{ step|join:" " }}
+                                </div>
+                            </a>
+                        </td>
+                        <td>{{ imtype }}</td>
+                        {% for final, pending, by_status in by_channel %}
+                        {% with total=final|add:pending %}
+                        <td>
+                            <table>
+                                <tr>
+                                    <td colspan=2>
+                                        <div id="progress-with-label" 
+                                             style="width: 100%">
+                                            <span style="width: {% widthratio final total 100 %}%">
+                                                {{final}}/{{total}}
+                                            </span>
+                                            <progress value="{{ final }}" 
+                                                      max="{{ total }}" 
+                                                      class="lcars-u-2 lcars-rust-bg"
+                                                      style="foreground-color:black">
+                                            </progress>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% for status, count in by_status %}
+                                <tr>
+                                    <td class="lcars-u-1">Status {{ status }}</td>
+                                    <td>
+                                        <div id="progress-with-label" 
+                                             style="width: 100%">
+                                            <span style="width:{% widthratio count total 100 %}%">
+                                                {{count}}/{{total}}
+                                            </span>
+                                            <progress value="{{ count }}" 
+                                                      max="{{ total }}" 
+                                                      class="lcars-u-1 lcars-rust-bg"
+                                                      style="foreground-color:black">
+                                            </progress>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </td>
+                        {% endwith %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+
         </div>
+
         {% if messages %}
         <hr>
         {% for msg in messages %}
@@ -55,66 +172,5 @@
         {% endfor %}
         {% endif %}
 
-        <div id="progress-table">
-            <table>
-                <tr>
-                    <th>Step</th>
-                    <th>Image Type</th>
-                    {% for channel in channels %}
-                    <th>{{ channel }}</th>
-                    {% endfor %}
-                </tr>
-                {% for step, imtype, by_channel in progress %}
-                <tr>
-                    <td>
-                        <a href="{% url 'configuration:config_tree' step=step version=0 %}">
-                            {{ step }}
-                        </a>
-                    </td>
-                    <td>{{ imtype }}</td>
-                    {% for final, pending, by_status in by_channel %}
-                    {% with total=final|add:pending %}
-                    <td>
-                        <table>
-                            <tr>
-                                <td colspan=2>
-                                    <div id="progress-with-label" 
-                                         style="width: 100%">
-                                        <span style="width: {% widthratio final total 100 %}%">
-                                            {{final}}/{{total}}
-                                        </span>
-                                        <progress value="{{ final }}" 
-                                                  max="{{ total }}" 
-                                                  style="foreground-color:black">
-                                        </progress>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% for status, count in by_status %}
-                            <tr>
-                                <td>Status {{ status }}</td>
-                                <td>
-                                    <div id="progress-with-label" 
-                                         style="width: 100%">
-                                        <span style="width:{% widthratio count total 100 %}%">
-                                            {{count}}/{{total}}
-                                        </span>
-                                        <progress value="{{ count }}" 
-                                                  max="{{ total }}" 
-                                                  style="foreground-color:black">
-                                        </progress>
-                                    </div>
-                                </td>
-
-                            </tr>
-                            {% endfor %}
-                        </table>
-                    </td>
-                    {% endwith %}
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
     </body>
 </html>

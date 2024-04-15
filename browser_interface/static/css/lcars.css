@@ -463,6 +463,7 @@ body {
   flex-direction: column;
 }
 .lcars-column.fill {
+  display: flex;
   flex: 1;
 }
 .lcars-column.centered {
@@ -499,6 +500,7 @@ body {
   margin-top: 0.25rem;
 }
 .lcars-elbow {
+  display: flex;
   position: relative;
   width: 9.5rem;
   min-width: 9.5rem;
@@ -524,6 +526,8 @@ body {
 }
 .lcars-elbow.left-bottom {
   border-top-left-radius: 3.75rem;
+  justify-content: center; 
+  align-items: flex-end;
 }
 .lcars-elbow.left-bottom a {
   right: 2.25rem;
@@ -4280,7 +4284,7 @@ table {
 table td,
 th {
   text-align: left;
-  vertical-align: top;
+  vertical-align: center;
 }
 table th {
   font-weight: bolder;
@@ -4590,4 +4594,8 @@ table.lcars-table.scanning-fast tr:nth-child(12) td {
   100% {
     filter: brightness(1);
   }
+}
+.center-text {
+    display: flex; 
+    justify-content: center;
 }

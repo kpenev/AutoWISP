@@ -35,7 +35,7 @@ def progress(request):
         processing_sequence = get_processing_sequence(db_session)
 
         formatted = [
-            [step.name, imtype.name, [[0, 0, []] for _ in channels]]
+            [step.name.split('_'), imtype.name, [[0, 0, []] for _ in channels]]
             for step, imtype in processing_sequence
         ]
         for (step, imtype), destination in zip(processing_sequence, formatted):
@@ -144,6 +144,9 @@ class SelectRawImages(View):
                         result['dir_list'].append(entry.name)
                 elif filename_check.match(entry.name):
                     result['file_list'].append(entry.name)
+
+        result['file_list'].sort()
+        result['dir_list'].sort()
 
         head = path.abspath(search_dir)
         parent_dir_list = [('/', 'Computer')]
