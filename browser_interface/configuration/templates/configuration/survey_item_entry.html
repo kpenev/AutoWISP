@@ -1,16 +1,15 @@
 {% url 'configuration:survey' selected_component=item.type selected_id=item.id as select_url %}
-<div>
-    <div {% if component == selected_component and item.id == selected_id %}
-         class="survey-item selected"
-         {% else %}
-         class="survey-item"
-         onclick="window.location.href='{{select_url}}';"
-         {% endif %}>
-        {{item.str}}
-        {% if item.email %}
-        (<a href="mailto:{{obs.email}}"> {{item.email}} </a>)
+<div class="lcars-row">
+    {% if component != selected_component or item.id != selected_id %}
+    <a href="{{select_url}}">
         {% endif %}
-    </div>
+        <div class="lcars-element lcars-u-2">{{item.str}}</div>
+    {% if component != selected_component or item.id == selected_id %}
+    </a>
+    {% endif %}
+    {% if item.email %}
+    (<a href="mailto:{{obs.email}}"> {{item.email}} </a>)
+    {% endif %}
     {% if component == selected_component and item.id == selected_id %}
     {% include "./survey_edit_item.html" %}
     {% endif %}

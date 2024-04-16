@@ -1,69 +1,61 @@
+{% extends 'core/lcars_app.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Photometric Survey Configuration</title>
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-        <link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
-    </head>
-    <body>
-        <div class="navbar" id="navbar">
-            <div class="dropdown dropdown-right" >
-                <a class="dropbtn" href="{% url 'processing:progress' %}">
-                    Processing Status
-                </a>
-            </div>
-            <div class="dropdown dropdown-right" >
-                <a class="dropbtn" href="{% url 'configuration:config_tree' %}">
-                    Processing Configuration
-                </a>
-            </div>
-        </div>
+
+{% block header_title %}{% block app_title %}
+The Survey
+{% endblock %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'configuration/css/survey.css' %}">
+{% endblock %}
+
+{% block edit_survey_link %}{% endblock %}
+
+{% block main %}
+{% with 'camera telescope mount' as equipment_components_str %}
+{% with equipment_components_str.split as equipment_components %}
+<div class="lcars-row">
+    <div class="lcars-column centered" style="width:100%">
+        {% with component="observer" item_list=observers attribute_list=attributes.observer %}
+        {% if selected_component in equipment_components %}
+        {% include "./survey_class.html" with track_access=1%}
+        {% else %}
+        {% include "./survey_class.html" with track_access=0%}
+        {% endif %}
+        <div class="lcars-bar double-spacer"></div>
+        <div class="lcars-bar double-spacer"></div>
+
+        {% endwith %}
+
+        {% include "./survey_class.html" with component="observatory" item_list=observatories attribute_list=attributes.observatory%}
+    </div>
+    <div class="lcars-column" style="width: 100%">
+        {% for component in equipment_components %}
+        {% cycle cameras telescopes mounts as item_list silent %}
+        {% cycle attributes.camera attributes.telescope attributes.mount as attribute_list silent %}
+        {% cycle types.camera types.telescope types.mount as component_types silent %}
+
+        {% if selected_component == "observer" %}
+        {% include "./survey_class.html" with track_access=1 types=component_types %}
+        {% else %}
+        {% include "./survey_class.html" with track_access=0 types=component_types %}
+        {% endif %}
+        {% if not forloop.last %}
+        <div class="lcars-bar double-spacer"></div>
+        <div class="lcars-bar double-spacer"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endwith %}
+{% endwith %}
+
+
+
         {% with 'camera telescope mount' as equipment_components_str %}
         {% with equipment_components_str.split as equipment_components %}
-        <div id="survey" 
-             class="survey-container"
-             style="grid-template-columns: auto auto">
-            <div class="survey-component">
-                <table class='survey-component-table'>
-                    <tr>
-                        {% if selected_component in equipment_components %}
-                        <th>Observers</th>
-                        <th>Access to <br/>{{selected_component}}</th>
-                        {% else %}
-                        <th colspan=2>Observers</th>
-                        {% endif %}
-                    </tr>
-                    {% with component='observer' %}
-                    {% for item in observers %}
-                    {% if selected_component in equipment_components and selected_id >= 0 and item.id >= 0 %}
-                    {% include "./survey_item_access.html" %}
-                    {% else %}
-                    {% include "./survey_item_noaccess.html" with attributes=attributes.observer %}
-                    {% endif %}
-                    {% endfor %}
-                    {% endwith %}
-                </table>
-            </div>
-            <div class="survey-component">
-                <table class='survey-component-table'>
-                    <tr>
-                        <th colspan=2>Observatories</th>
-                    </tr>
-                    {% with component='observatory' %}
-                    {% for item in observatories %}
-                    {% if item.id >= 0 %}
-                    {% include "./survey_item_noaccess.html" with attributes=attributes.observatory %}
-                    {% else %}
-                    {% include "./survey_item_noaccess.html" with attributes=attributes.observatory %}
-                    {% endif %}
-                    {% endfor %}
-                    {% endwith %}
-                </table>
-            </div>
-        </div> 
         <br/>
         <div id="survey" class="survey-container" style="grid-template-columns: 33% 33% 33%"> 
             {% for component in equipment_components %}
@@ -97,5 +89,4 @@
         {% endwith %}
         {% endwith %}
 
-    </body>
-</html>
+{% endblock %}

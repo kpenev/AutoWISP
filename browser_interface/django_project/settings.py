@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['localhost', 'kartof', 'kartof.utdallas.edu']
 INSTALLED_APPS = [
     'processing.apps.ProcessingConfig',
     'configuration.apps.ConfigurationConfig',
+    'core.apps.CoreConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

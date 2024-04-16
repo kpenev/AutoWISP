@@ -793,9 +793,19 @@ a.lcars-text-box.full-centered {
   justify-content: center;
   align-items: center;
 }
+.lcars-element.full-centered,
+a.lcars-element.full-centered {
+  justify-content: center;
+  align-items: center;
+}
 .lcars-text-box.centered-right,
 a.lcars-text-box.centered-right {
   justify-content: flex-end;
+  align-items: center;
+}
+.lcars-text-box.centered-left,
+a.lcars-text-box.centered-left {
+  justify-content: left;
   align-items: center;
 }
 .lcars-text-box.bottom,
@@ -867,6 +877,18 @@ a.lcars-text-box.blink {
   background-color: #000;
   border-style: solid;
   border-color: #fc6;
+}
+.lcars-u--1 {
+  height: 3rem;
+  min-height: 3rem;
+}
+.lcars-u--2 {
+  height: 3rem;
+  min-height: 3rem;
+}
+.lcars-u--3 {
+  height: 3rem;
+  min-height: 3rem;
 }
 .lcars-u-1-1 {
   width: 7.5rem;
