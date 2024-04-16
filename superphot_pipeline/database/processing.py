@@ -32,6 +32,7 @@ from superphot_pipeline.database.data_model import\
     ProcessedImages,\
     Configuration,\
     Step,\
+    ImageType,\
     Image,\
     ObservingSession,\
     MasterFile,\
@@ -498,7 +499,7 @@ class ProcessingManager:
 
 
                 del result[config_key]
-                for best_master_fname, sub_batch in splits:
+                for best_master_fname, sub_batch in splits.items():
                     new_config = dict(config)
                     new_config[
                         required_master_type.config_name.replace('-', '_')
@@ -969,7 +970,13 @@ class ProcessingManager:
         return pending_images, step_input_type
 
 
-    def _process_batch(self, batch, start_status, config, step_name):
+    def _process_batch(self,
+                       batch,
+                       *,
+                       start_status,
+                       config,
+                       step_name,
+                       image_type_name):
         """Run the current step for a batch of images given configuration."""
 
         step_module = getattr(processing_steps, step_name)
@@ -988,18 +995,25 @@ class ProcessingManager:
         with Session.begin() as db_session:
         #pylint: enable=no-member
 
-            master_id = db_session.scalar(
-                #False positive
-                #pylint: disable=not-callable
-                select(sql.func.max(MasterFile.id))
-                #pylint: enable=not-callable
+            master_id = (
+                db_session.scalar(
+                    #False positive
+                    #pylint: disable=not-callable
+                    select(sql.func.max(MasterFile.id))
+                    #pylint: enable=not-callable
+                ) or 0
             ) + 1
 
             master_type_id = db_session.scalar(
                 select(
                     MasterType.id
+                ).join(
+                    ImageType
+                ).join(
+                    Step
                 ).where(
-                    MasterType.name == new_master['type']
+                    Step.name == step_name,
+                    ImageType.name == image_type_name
                 )
             )
             db_session.add(
@@ -1372,6 +1386,7 @@ class ProcessingManager:
                 step = db_session.merge(step)
                 step_name = step.name
                 image_type = db_session.merge(image_type)
+                image_type_name = image_type.name
                 setup_process(task='main',
                               parent_pid='',
                               processing_step=step_name,
@@ -1409,7 +1424,11 @@ class ProcessingManager:
                                    step_name,
                                    len(batch))
 
-                self._process_batch(batch, start_status, config, step_name)
+                self._process_batch(batch,
+                                    start_status=start_status,
+                                    config=config,
+                                    step_name=step_name,
+                                    image_type_name=image_type_name)
                 self._logger.debug('Processed %s batch of %d images.',
                                    step_name,
                                    len(batch))

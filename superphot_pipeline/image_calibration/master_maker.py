@@ -2,6 +2,7 @@
 
 from functools import reduce
 import logging
+from os.path import exists
 
 import numpy
 
@@ -53,7 +54,7 @@ class MasterMaker(Processor):
 
     _logger  = logging.getLogger(__name__)
 
-    default_exclude_mask = mask_flags['BAD']
+    default_exclude_mask = ['BAD']
 
     def _update_stack_header(self,
                              master_header,
@@ -457,6 +458,9 @@ class MasterMaker(Processor):
                 stack only.
 
         Returns:
+            bool:
+                Whether creating the master succeeded.
+
             [<FITS filenames>]:
                 Frames which were discarded during stacking.
         """
@@ -477,14 +481,19 @@ class MasterMaker(Processor):
         )
         #pylint: enable=missing-kwoa
 
-        if values is not None:
+        if values is None:
+            self._logger.error('Failed to create master %s!',
+                               repr(output_fname))
+        else:
             create_result(image_list=[values, stdev, mask],
                           header=header,
                           result_fname=output_fname,
                           compress=compress or self.compress,
                           allow_overwrite=allow_overwrite)
+            assert exists(output_fname)
 
-        return discarded_frames
+
+        return values is not None, discarded_frames
 #pylint: enable=too-few-public-methods
 
 if __name__ == '__main__':

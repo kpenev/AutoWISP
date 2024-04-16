@@ -82,12 +82,17 @@ def iterative_rejection_average(array,
         threshold_plus = outlier_threshold
         threshold_minus = -outlier_threshold
     else:
-        assert len(outlier_threshold) == 2
-        assert outlier_threshold[0] * outlier_threshold[1] < 0
-        if outlier_threshold[0] > 0:
-            threshold_plus, threshold_minus = outlier_threshold
+        if len(outlier_threshold) == 1:
+            assert outlier_threshold[0] > 0
+            threshold_plus = outlier_threshold[0]
+            threshold_minus = -outlier_threshold[0]
         else:
-            threshold_minus, threshold_plus = outlier_threshold
+            assert len(outlier_threshold) == 2
+            assert outlier_threshold[0] * outlier_threshold[1] < 0
+            if outlier_threshold[0] > 0:
+                threshold_plus, threshold_minus = outlier_threshold
+            else:
+                threshold_minus, threshold_plus = outlier_threshold
 
     iteration = 0
     found_outliers = True

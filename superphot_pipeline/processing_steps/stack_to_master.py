@@ -41,7 +41,11 @@ class ParseAverageAction(Action):
         setattr(namespace, self.dest, result)
 
 
-def get_command_line_parser(*args):
+def get_command_line_parser(*args,
+                            default_threshold=5.0,
+                            min_frames_arg=True,
+                            default_min_valid_values=5,
+                            default_max_iter=20):
     """Return a command line parser with all arguments added."""
 
     parser = ManualStepArgumentParser(description=__doc__,
@@ -59,24 +63,26 @@ def get_command_line_parser(*args):
     parser.add_argument(
         '--outlier-threshold',
         type=float,
-        default=5.0,
+        nargs='+',
+        default=default_threshold,
         help='When averaging the values of a given pixel among the input '
         'images, values that are further than this value times the root mean '
         'square devitaion from the average are rejected and the average is '
         'recomputed iteratively until convergence or maximum number of '
         'iterations.'
     )
-    parser.add_argument(
-        '--min-valid-frames',
-        type=int,
-        default=10,
-        help='If there are fewer than this number of suitable frames to stack '
-        'in a given master, that master is not generated.'
-    )
+    if min_frames_arg:
+        parser.add_argument(
+            '--min-valid-frames',
+            type=int,
+            default=10,
+            help='If there are fewer than this number of suitable frames to '
+            'stack in a given master, that master is not generated.'
+        )
     parser.add_argument(
         '--min-valid-values',
         type=int,
-        default=5,
+        default=default_min_valid_values,
         help='If rejecting outlier pixels results in fewer than this many '
         'surviving pixels, the corresponding pixel gets a bad pixel mask in the'
         'master.'
@@ -84,7 +90,7 @@ def get_command_line_parser(*args):
     parser.add_argument(
         '--max-iter',
         type=int,
-        default=20,
+        default=default_max_iter,
         help='The maximum number of outlier rejection/averaging iterations to '
         'allow. If not converged before then, a warning is issued and the '
         'average if the last iteration is used.'
@@ -93,10 +99,11 @@ def get_command_line_parser(*args):
         '--exclude-mask',
         choices=mask_flags.keys(),
         nargs='+',
-        default='BAD',
+        default=MasterMaker.default_exclude_mask,
         help='A list of mask flags, any of which result in the corresponding '
         'pixels being excluded from the averaging. Any mask flags not specified'
-        'are ignored, treated as clean.'
+        'are ignored, treated as clean. Note that ``\'BAD\'`` means any kind of'
+        ' problem (e.g. saturated, hot/cold pixel, leaked etc.).'
     )
     parser.add_argument(
         '--compress',
@@ -154,7 +161,8 @@ def stack_to_master(image_collection,
 
     for image_fname in image_collection:
         mark_start(image_fname)
-    MasterMaker(
+    master_fname = get_master_fname(image_collection[0], configuration)
+    success, discarded_frames = MasterMaker(
         **{
             arg: configuration[arg] for arg in ['outlier_threshold',
                                                 'average_func',
@@ -167,10 +175,21 @@ def stack_to_master(image_collection,
         }
     )(
         image_collection,
-        get_master_fname(image_collection[0], configuration)
+        master_fname
     )
     for image_fname in image_collection:
-        mark_end(image_fname)
+        mark_end(image_fname,
+                 -1 if image_fname in discarded_frames else 1)
+
+    if success:
+        assert exists(master_fname)
+        header = get_primary_header(master_fname)
+        return {
+            'filename': master_fname,
+            'preference_order': f'JD_OBS - {header["JD-OBS"]}'
+        }
+
+    return None
 
 
 def cleanup_interrupted(interrupted, configuration):
