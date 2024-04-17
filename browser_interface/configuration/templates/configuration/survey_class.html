@@ -1,0 +1,267 @@
+{% load custom_filters %}
+{% if component == selected_component %}
+{% url 'configuration:update_survey_component' component_type=component component_id=selected_id as update_url %}
+<form action="{{update_url}}" method="post">
+    {% csrf_token %}
+    {% endif %}
+    <div class="lcars-column" style="width:100%">
+        <div class="lcars-row">
+            <div class="lcars-column">
+                <div class="lcars-elbow left-bottom lcars-red-damask-bg"></div>
+                <div class="lcars-bar spacer"></div>
+                {% for item in item_list %}
+                {% if component == selected_component and item.id == selected_id %}
+                {% if item.id >= 0 %}
+                <input type="submit" 
+                       name="todo" 
+                       {% if item.id < 0 %}
+                       value="Add"
+                       {% else %}
+                       value="Update"
+                       {% endif %}
+
+                       class="lcars-element button lcars-husk-bg"/>
+                {% endif %}
+                {% else %}
+                {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+                <a href="{{select_url}}">
+                    <div class="lcars-element button lcars-chestnut-rose-bg">
+                        {% if item.id >= 0 %}
+                        {{item.str}}
+                        {% else %}
+                        New {{component}}
+                        {% endif %}
+                    </div>
+                </a>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+
+            {% for attribute in attribute_list %}
+            <div class="lcars-column" style="width: 100%">
+                {% if forloop.last and not track_access %}
+                <div class="lcars-row">
+                    <div class="lcars-bar horizontal lcars-red-damask-bg">
+                        {{attribute.0}}
+                    </div>
+
+                    <div class="lcars-bar horizontal lcars-red-damask-bg">
+                        <div class="lcars-title right">
+                            {% if component == "observatory" %}
+                            Observatories
+                            {% else %}
+                            {{ component }}s
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- ROUNDED EDGE DECORATED -->
+                    <div class="lcars-bar 
+                                horizontal 
+                                right-end 
+                                lcars-red-damask-bg">
+                    </div>
+                </div>
+                {% else %}
+                <div class="lcars-row">
+                    <div class="lcars-bar horizontal lcars-red-damask-bg">
+                        {{attribute.0}}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="lcars-text-box">  </div>
+                {% for item in item_list %}
+                {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+                {% if component == selected_component and item.id == selected_id %}
+                {% if attribute.0 == 'type' %}
+                <select name="{{component}}-{{attr.0}}-id"
+                        class="lcars-text-box 
+                               lcars-gray-bg
+                               lcars-husk-color"
+                        style="width: 100%"
+                        id="{{component}}-{{attr.0}}">
+                    {% for type_entry in types %}
+                    <option value="{{type_entry.id}}"
+                            {% if item.type_id == type_entry.id %}
+                            selected
+                            {% endif %}>
+                    {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
+                    </option>
+                    {% endfor %}
+                    {% with joined_new_types=create_new_types|join:' '|add:' '|add:component %}
+                    {% url 'configuration:survey' selected_component=selected_component selected_id=selected_id create_new_types=joined_new_types as add_new_type_url%}
+                    <option value="create-new" 
+                            onclick="window.location.href='{{add_new_type_url}}'">
+                    Create new {{component}} type
+                    {% endwith %}
+                    </option>
+                </select>
+
+                {% else %}
+                <input type="text"
+                       name="{{component}}-{{attribute.0}}"
+                       class="lcars-text-input 
+                              decorated 
+                              lcars-husk-color 
+                              lcars-gray-bg
+                              rounded 
+                              lcars-u--1"
+                       value="{{item|get_key:attribute.1}}"> 
+                </input>
+                {% endif %}
+                {% else %}
+                <a href="{{select_url}}">
+                    <div class="lcars-text-box centered-left" style="width:100%"> 
+                        {{item|get_key:attribute.1}} 
+                    </div>
+                </a>
+                {% endif %}
+
+                {% endfor %}
+
+            </div>
+            {% endfor %}
+
+
+            {% if track_access %}
+            <div class="lcars-column" style="width: 100%">
+                <div class='lcars-row'>
+                    <div class="lcars-bar horizontal lcars-red-damask-bg">
+                        <div class="lcars-title right">
+                            {% if component == "observatory" %}
+                            Observatories
+                            {% else %}
+                            {{ component }}s
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- ROUNDED EDGE DECORATED -->
+                    <div class="lcars-bar 
+                                horizontal 
+                                right-end 
+                                lcars-red-damask-bg">
+                    </div>
+                </div>
+
+                <div class="lcars-text-box">  </div>
+                {% for item in item_list %}
+                {% if item.id >= 0 %}
+                {% if item.access %}
+                {% url 'configuration:change_access' new_access=0 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+                {% else %}
+                {% url 'configuration:change_access' new_access=1 selected_component=selected_component selected_id=selected_id target_component=component target_id=item.id as access_url %}
+                {% endif %}
+
+                <a href="{{access_url}}">
+                    <div class="lcars-element 
+                                button 
+                                full-centered
+                                {% if item.access %}
+                                lcars-melrose-bg
+                                {% else %}
+                                lcars-red-damask-bg
+                                {% endif %}
+                                rounded" style="width:100%"> 
+                        {% if component == 'observer' %}
+                        {% if not item.access %}
+                        no
+                        {% endif %}
+                        {{selected_component}} access
+                        {% else %}
+                        observer has
+                        {% if not item.access %}
+                        no
+                        {% endif %}
+                        access
+                        {% endif %}
+                    </div>
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+
+        </div>
+
+        <div class="lcars-row" style="width:100%">
+            <div class="lcars-column"> 
+                {% if type_attributes|get_key:component %}
+                <div class="lcars-bar horizontal top lcars-red-damask-bg">
+                </div>
+                {% for type_entry in types %}
+                <div class="lcars-element button lcars-chestnut-rose-bg">
+                    {{type_entry.make}} {{type_entry.model}}
+                </div>
+                {% endfor %}
+                <div class="lcars-element button lcars-chestnut-rose-bg">
+                    New Type
+                </div>
+                {% endif %}
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-top lcars-red-damask-bg"></div>
+            </div>
+
+
+            <div class="lcars-column" style="width: 100%; position: relative"> 
+                
+                {% if type_attributes|get_key:component %}
+                <div class="lcars-row" style="width: 100%">
+                    {% for type_attr in type_attributes|get_key:component %}
+                    <div class="lcars-column" style="width: 100%">
+                        <div class="lcars-bar horizontal top lcars-red-damask-bg">
+                            {{type_attr.0}}
+                        </div>
+                        {% for type_entry in types %}
+                        <div class="lcars-text-box centered-left">
+                            {{type_entry|get_key:type_attr.1}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="lcars-bar horizontal top lcars-red-damask-bg">
+                        <div class="lcars-title right">
+                            types
+                        </div>
+                    </div>
+
+                    <div class="lcars-bar 
+                                horizontal 
+                                right-end 
+                                left-divider 
+                                top
+                                lcars-red-damask-bg">
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="lcars-row" style="position: absolute; bottom:0">
+                    <!-- BAR -->
+                    <div class="lcars-bar 
+                                horizontal 
+                                both-divider 
+                                bottom 
+                                lcars-red-damask-bg">
+                    </div>
+                    <!-- ROUNDED EDGE -->
+                    <div class="lcars-bar 
+                                horizontal 
+                                right-end 
+                                left-divider 
+                                bottom
+                                lcars-red-damask-bg">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <!-- FOOTER -->
+    </div>
+    {% if component == selected_component %}
+</form>
+{% endif %}
+

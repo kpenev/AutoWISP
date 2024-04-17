@@ -188,7 +188,7 @@ def add_survey_items_to_context(context, selected, db_session):
         db_type_class = getattr(provenance, component_class.title() + 'Type')
         type_attributes = get_editable_attributes(db_type_class)
         context['type_attributes'][component_class] = [
-            get_human_name(col_name)
+            (get_human_name(col_name), col_name)
             for col_name in type_attributes
         ]
         type_attributes.append('id')
