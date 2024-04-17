@@ -192,18 +192,31 @@ def add_survey_items_to_context(context, selected, db_session):
             for col_name in type_attributes
         ]
         type_attributes.append('id')
-        context['types'][component_class] = [
+        type_attributes.append('can_delete')
+
+        context['types'][component_class] = []
+        for db_type in db_session.scalars(select(db_type_class)).all():
+            can_delete = not getattr(db_type, component_class + 's')
+            context['types'][component_class].append(
+                namedtuple(
+                    component_class + '_type',
+                    type_attributes
+                )(
+                    *[
+                        getattr(db_type, attr, can_delete)
+                        for attr in type_attributes
+                    ]
+                )
+
+            )
+        context['types'][component_class].append(
             namedtuple(
                 component_class + '_type',
                 type_attributes
             )(
-                *[
-                    getattr(db_type, attr)
-                    for attr in type_attributes
-                ]
+                *[-1 if attr == 'id' else '' for attr in type_attributes]
             )
-            for db_type in db_session.scalars(select(db_type_class)).all()
-        ]
+        )
 
     tuple_type = namedtuple(
         'observer',
@@ -255,6 +268,7 @@ def edit_survey(request,
                 *,
                 selected_component=None,
                 selected_id=None,
+                selected_type_id=None,
                 create_new_types=''):
     """
     Add/delete instruments/observers to the currently configured survey.
@@ -276,6 +290,7 @@ def edit_survey(request,
     create_new_types = create_new_types.strip().split()
     if selected_id:
         selected_id = int(selected_id)
+        assert selected_type_id is None
     else:
         selected_id = None
 
@@ -285,7 +300,7 @@ def edit_survey(request,
     with Session.begin() as db_session:
     #pylint: enable=no-member
 
-        if selected_component is not None:
+        if selected_component is not None and selected_type_id is None:
             assert selected_id is not None
             selected_component_type = getattr(provenance,
                                               selected_component.title())
@@ -300,6 +315,8 @@ def edit_survey(request,
         context = {
             'selected_component': selected_component,
             'selected_id': selected_id,
+            'selected_type_id': (int(selected_type_id) if selected_type_id
+                                 else None),
             'attributes': {
                 component: [
                     (
@@ -330,30 +347,48 @@ def edit_survey(request,
         context
     )
 
-def update_survey_component(request, component_type, component_id):
-    """Add a new component to the survey network."""
 
-    component_title = component_type.title()
-    component_id = int(component_id)
-    print(repr(request.POST))
+def delete_from_survey(request,
+                       component_type,
+                       component_id=None,
+                       component_type_id=None):
+    """Deleta a component of the survey network."""
+
+    assert component_id or component_type_id
+    assert component_id is None or component_type_id is None
+    db_class = getattr(
+        provenance,
+        component_type.title() + ('Type' if component_id is None else '')
+    )
     #False positive:
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        db_class = getattr(provenance, component_title)
-        if request.POST['todo'] == 'Add':
-            assert component_id < 0
-            db_item = db_class()
-        elif request.POST['todo'] == 'Delete':
-            assert component_id >= 0
-            db_session.execute(
-                delete(db_class).where(db_class.id == component_id)
+        db_session.execute(
+            delete(db_class).where(
+                db_class.id == (component_id or component_type_id)
             )
-            return HttpResponseRedirect(reverse("configuration:survey"))
+        )
+    return HttpResponseRedirect(reverse("configuration:survey"))
+
+
+def update_db_entry(request, db_class, entry_id, component_type=None):
+    """Add or update a component of the survey networ or a component type."""
+
+    print(80*'*')
+    print(repr(request.POST))
+    print(80*'*')
+
+    entry_id = int(entry_id)
+    #False positive:
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        if entry_id < 0:
+            db_item = db_class()
         else:
-            assert component_id >= 0
             db_item = db_session.scalar(
-                select(db_class).where(db_class.id == component_id)
+                select(db_class).where(db_class.id == entry_id)
             )
 
         attribute_names = get_editable_attributes(db_class)
@@ -362,37 +397,38 @@ def update_survey_component(request, component_type, component_id):
                 setattr(
                     db_item,
                     attr,
-                    request.POST[component_type + '-' + get_human_name(attr)]
+                    request.POST[get_human_name(attr)]
                 )
 
         if 'type' in attribute_names:
-            type_id = request.POST.get(component_type + '-type-id')
-            if type_id is None:
-                type_db_class = getattr(provenance, component_title + 'Type')
-                type_attr_names = get_editable_attributes(type_db_class)
-                new_type = type_db_class(**{
-                    attr: request.POST[
-                        component_type + '-type-' + get_human_name(attr)
-                    ]
-                    for attr in type_attr_names
-                })
-                db_session.add(new_type)
-                db_session.flush()
-                db_session.refresh(new_type, ['id'])
-                type_id = new_type.id
+            type_id = int(request.POST.get('type-id'))
+            assert type_id >= 0
+            setattr(db_item,
+                    component_type + '_type_id',
+                    type_id)
 
-            setattr(db_item, component_type + '_type_id', type_id)
-
-        if component_id < 0:
+        if entry_id < 0:
             db_session.add(db_item)
-            db_session.flush()
-            db_session.refresh(db_item, ['id'])
 
-        return HttpResponseRedirect(reverse(
-            "configuration:survey",
-            kwargs={'selected_component': component_type,
-                    'selected_id': db_item.id}
-        ))
+
+def update_survey_component_type(request, component_type, type_id):
+    """Add or update a survey component type."""
+
+    update_db_entry(request,
+                    getattr(provenance, component_type.title() + 'Type'),
+                    type_id)
+
+    return HttpResponseRedirect(reverse("configuration:survey"))
+
+
+def update_survey_component(request, component_type, component_id):
+    """Add new or edit a component of the survey network."""
+
+    update_db_entry(request,
+                    getattr(provenance, component_type.title()),
+                    component_id,
+                    component_type)
+    return HttpResponseRedirect(reverse("configuration:survey"))
 
 
 def change_access(request,

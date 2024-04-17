@@ -631,9 +631,9 @@ body {
   background-color: #000;
 }
 .lcars-bar.right-end {
-  width: 1.5rem;
-  max-width: 1.5rem;
-  min-width: 1.5rem;
+  width: 2.0rem;
+  max-width: 2.0rem;
+  min-width: 2.0rem;
   border-top-right-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
 }

@@ -1,0 +1,82 @@
+{% load custom_filters %}
+{% for attribute in attribute_list %}
+<div class="lcars-column" style="width: 100%">
+    {% if forloop.last and not track_access %}
+    <div class="lcars-row">
+        <div class="lcars-bar horizontal lcars-red-damask-bg">
+            {{attribute.0}}
+        </div>
+
+        <div class="lcars-bar horizontal lcars-red-damask-bg">
+            <div class="lcars-title right">
+                {{title}}
+            </div>
+        </div>
+        <!-- ROUNDED EDGE DECORATED -->
+        <div class="lcars-bar 
+                              horizontal 
+                              right-end 
+                              lcars-red-damask-bg">
+        </div>
+    </div>
+    {% else %}
+    <div class="lcars-row">
+        <div class="lcars-bar horizontal lcars-red-damask-bg">
+            {{attribute.0}}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not is_type %}
+    <div class="lcars-text-box">  </div>
+    {% endif %}
+    {% for item in item_list %}
+
+    {% if is_type %}
+    {% url 'configuration:survey' selected_component=component selected_type_id=item.id as select_url %}
+    {% else %}
+    {% url 'configuration:survey' selected_component=component selected_id=item.id as select_url %}
+    {% endif %}
+
+    {% if component == selected_component and item.id == selected_id %}
+    {% if attribute.0 == 'type' %}
+    <select name="type-id"
+            class="lcars-text-box lcars-gray-bg lcars-husk-color"
+            style="width: 100%"
+            id="type">
+        {% for type_entry in types %}
+        {% if type_entry.id >= 0 %}
+        <option value="{{type_entry.id}}"
+                {% if item.type_id == type_entry.id %}
+                selected
+                {% endif %}>
+        {{type_entry.make}} {{type_entry.model}} v({{type_entry.version}})
+        </option>
+        {% endif %}
+        {% endfor %}
+    </select>
+
+    {% else %}
+    <input type="text"
+           name="{{attribute.0}}"
+           class="lcars-text-input 
+                               decorated 
+                               lcars-husk-color 
+                               lcars-gray-bg
+                               rounded 
+                               lcars-u--1"
+           value="{{item|get_key:attribute.1}}"> 
+    </input>
+    {% endif %}
+    {% else %}
+    <a href="{{select_url}}">
+        <div class="lcars-text-box centered-left" style="width:100%"> 
+            {{item|get_key:attribute.1}} 
+        </div>
+    </a>
+    {% endif %}
+
+    {% endfor %}
+
+</div>
+{% endfor %}

@@ -52,41 +52,4 @@ The Survey
 {% endwith %}
 {% endwith %}
 
-
-
-        {% with 'camera telescope mount' as equipment_components_str %}
-        {% with equipment_components_str.split as equipment_components %}
-        <br/>
-        <div id="survey" class="survey-container" style="grid-template-columns: 33% 33% 33%"> 
-            {% for component in equipment_components %}
-            <div class="survey-component">
-                <table class='survey-component-table'>
-                    <tr>
-                        {% if selected_component == 'observer' %}
-                        <th>{{component.title}}s</th>
-                        <th>Observer has<br/>Access</th>
-                        {% else %}
-                        <th colspan=2>{{component.title}}s</th>
-                        {% endif %}
-                    </tr>
-                    {% cycle cameras telescopes mounts as equipment_list silent %}
-                    {% cycle attributes.camera attributes.telescope attributes.mount as component_attributes silent %}
-                    {% cycle types.camera types.telescope types.mount as component_types silent %}
-                    {% cycle type_attributes.camera type_attributes.telescope type_attributes.mount as component_type_attrs silent %}
-
-
-                    {% for item in equipment_list %}
-                    {% if selected_component == 'observer' and item.id >= 0%}
-                    {% include "./survey_item_access.html" %}
-                    {% else %}
-                    {% include "./survey_item_noaccess.html" with attributes=component_attributes types=component_types type_attributes=component_type_attrs %}
-                    {% endif %}
-                    {% endfor %}
-                </table>
-            </div>
-            {% endfor %}
-        </div>
-        {% endwith %}
-        {% endwith %}
-
 {% endblock %}
