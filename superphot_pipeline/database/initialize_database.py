@@ -76,19 +76,33 @@ master_info =  {
         'description': 'An estimate of the dark current of a camera.'
 
     },
-    'flat': {
+    'highflat': {
         'must_match': frozenset((
             'CAMSN',
             'CLRCHNL',
             'INTSN'
         )),
-        'config_name': 'master-flat',
+        'config_name': 'high-flat-master-fname',
         'created_by': ('stack_to_master_flat', 'flat'),
         'required_by': [
             ('calibrate', 'object')
         ],
         'description': 'An estimate of the relative sensitivity of image '
-        'pixels to light from infinity entering the telescope.'
+        'pixels to light from infinity entering the telescope. Constructed from'
+        ' flat frames with high (but not saturated) light.'
+    },
+    'lowflat': {
+        'must_match': frozenset((
+            'CAMSN',
+            'CLRCHNL',
+            'INTSN'
+        )),
+        'config_name': 'low-flat-master-fname',
+        'created_by': ('stack_to_master_flat', 'flat'),
+        'required_by': [],
+        'description': 'An estimate of the relative sensitivity of image '
+        'pixels to light from infinity entering the telescope. Constructed from'
+        ' flat frames with low light.'
     },
     'single_photref': {
         'must_match': frozenset((
@@ -140,6 +154,12 @@ step_dependencies = [
         [
             ('stack_to_master', 'zero'),
             ('stack_to_master', 'dark')
+        ]
+    ),
+    (
+        'stack_to_master_flat', 'flat',
+        [
+            ('calibrate', 'flat')
         ]
     ),
     (

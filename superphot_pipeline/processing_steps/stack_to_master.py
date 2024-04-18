@@ -42,7 +42,7 @@ class ParseAverageAction(Action):
 
 
 def get_command_line_parser(*args,
-                            default_threshold=5.0,
+                            default_threshold=[5.0],
                             single_master=True,
                             default_min_valid_values=5,
                             default_max_iter=20):

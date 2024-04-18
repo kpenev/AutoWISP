@@ -183,8 +183,9 @@ def parse_command_line(*args):
         'spline. The x spline uses this many internal nodes.'
     )
     parser.add_argument(
-        '--large-scale-smoothing-spline-outlier_threshold',
+        '--large-scale-smoothing-spline-outlier-threshold',
         type=float,
+        default=5.0,
         help='Spline smoothing discards pixels deviating by more than this '
         'number times the fit residual and iterates.'
     )
@@ -307,7 +308,7 @@ def parse_command_line(*args):
         ' problem (e.g. saturated, hot/cold pixel, leaked etc.).'
     )
     parser.add_argument(
-        '--high-master-fname',
+        '--high-flat-master-fname',
         default='MASTERS/flat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
         help='Filename for the high illumination master flat to generate if '
         'successful. Can involve header substitutions, but should produce the '
@@ -315,7 +316,7 @@ def parse_command_line(*args):
 
     )
     parser.add_argument(
-        '--low-master-fname',
+        '--low-flat-master-fname',
         default='MASTERS/lowflat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
         help='Filename for the low illumination master flat to generate if '
         'successful. Can involve header substitutions, but should produce the '
@@ -329,9 +330,11 @@ def get_master_fnames(image_fname, configuration):
     """Return the filenames of the high and low master flats to generate."""
 
     return {
-        illumination: get_single_master_fname(image_fname,
-                                              configuration,
-                                              illumination + '_master_fname')
+        illumination: get_single_master_fname(
+            image_fname,
+            configuration,
+            illumination + '_flat_master_fname'
+        )
         for illumination in ['high', 'low']
     }
 
