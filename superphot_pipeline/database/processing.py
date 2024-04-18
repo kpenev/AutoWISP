@@ -981,14 +981,14 @@ class ProcessingManager:
 
         step_module = getattr(processing_steps, step_name)
 
-        new_master = getattr(step_module, step_name)(
+        new_masters = getattr(step_module, step_name)(
             batch,
             start_status,
             config,
             self._start_processing,
             self._end_processing
         )
-        if not new_master:
+        if not new_masters:
             return
         #False positivie
         #pylint: disable=no-member
@@ -1004,30 +1004,37 @@ class ProcessingManager:
                 ) or 0
             ) + 1
 
-            master_type_id = db_session.scalar(
-                select(
-                    MasterType.id
-                ).join(
-                    ImageType
-                ).join(
-                    Step
-                ).where(
-                    Step.name == step_name,
-                    ImageType.name == image_type_name
-                )
+            type_id_select = select(
+                MasterType.id
+            ).join(
+                ImageType
+            ).join(
+                Step
+            ).where(
+                Step.name == step_name,
+                ImageType.name == image_type_name
             )
-            db_session.add(
-                MasterFile(
-                    id=master_id,
-                    type_id=master_type_id,
-                    progress_id=db_session.merge(
-                        self._current_processing,
-                        load=False
-                    ).id,
-                    filename=new_master['filename'],
-                    use_smallest=new_master['preference_order']
+            if isinstance(new_masters, dict):
+                new_masters=(new_masters,)
+
+            for master in new_masters:
+                if len(new_masters) > 1:
+                    type_id_select = type_id_select.where(
+                        MasterType.name == new_masters['type']
+                    )
+                master_type_id = db_session.scalar(type_id_select)
+                db_session.add(
+                    MasterFile(
+                        id=master_id,
+                        type_id=master_type_id,
+                        progress_id=db_session.merge(
+                            self._current_processing,
+                            load=False
+                        ).id,
+                        filename=new_master['filename'],
+                        use_smallest=new_master['preference_order']
+                    )
                 )
-            )
 
 
     def _start_processing(self, input_fname):

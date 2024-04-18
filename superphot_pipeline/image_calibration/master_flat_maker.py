@@ -528,7 +528,6 @@ class MasterFlatMaker(MasterMaker):
             self.stamp_statistics_config['smoother'] = smoother
 
         if outlier_threshold is not None:
-            assert isinstance(outlier_threshold, (int, float))
             self.stamp_statistics_config['outlier_threshold'] = (
                 outlier_threshold
             )
@@ -773,6 +772,7 @@ class MasterFlatMaker(MasterMaker):
             )
         }
 
+        success = {'high': False, 'low': False}
         if len(frames['high']) >= min_combine['high']:
             self._master_large_scale = {}
             (
@@ -792,7 +792,7 @@ class MasterFlatMaker(MasterMaker):
             )
             assert not discarded_frames
 
-            more_cloudy_frames = super().__call__(
+            success['high'], more_cloudy_frames = super().__call__(
                 frames['high'],
                 high_master_fname,
                 min_valid_frames=min_combine['high'],
@@ -807,7 +807,7 @@ class MasterFlatMaker(MasterMaker):
                 frames['high'].remove(frame)
 
             if len(frames['low']) > min_combine['low']:
-                more_cloudy_frames = super().__call__(
+                success['low'], more_cloudy_frames = super().__call__(
                     frames['low'],
                     low_master_fname,
                     min_valid_frames=min_combine['low'],
@@ -830,5 +830,5 @@ class MasterFlatMaker(MasterMaker):
             print(f'\t{key:s} ({len(filenames):d}):\n\t\t'
                   +
                   '\n\t\t'.join(filenames))
-        return frames
+        return success, frames
     #pylint: disable=arguments-differ

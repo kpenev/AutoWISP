@@ -3,18 +3,39 @@
 """Stack calibrated flat frames to a master flat."""
 
 import logging
+from os import remove
+from os.path import exists
 
 import numpy
 from scipy import ndimage
 
+from general_purpose_python_modules.multiprocessing_util import \
+    setup_process
+
 from superphot_pipeline.image_calibration.mask_utilities import mask_flags
 from superphot_pipeline.processing_steps.manual_util import ignore_progress
 from superphot_pipeline.processing_steps.stack_to_master import \
-    get_command_line_parser
-from superphot_pipeline.image_calibration.master_maker import MasterMaker
+    get_command_line_parser,\
+    get_master_fname as get_single_master_fname
+from superphot_pipeline.image_calibration import \
+    MasterMaker,\
+    MasterFlatMaker
+from superphot_pipeline.file_utilities import find_fits_fnames
+from superphot_pipeline.fits_utilities import get_primary_header
+from superphot_pipeline.image_smoothing import\
+    PolynomialImageSmoother,\
+    SplineImageSmoother,\
+    ChainSmoother,\
+    WrapFilterAsSmoother
+
 
 input_type = 'calibrated'
 _logger = logging.getLogger(__name__)
+fail_reasons = {
+    'medium': -1,
+    'cloudy': -2,
+    'colocated': -3
+}
 
 
 def parse_command_line(*args):
@@ -22,7 +43,7 @@ def parse_command_line(*args):
 
     parser = get_command_line_parser(*args,
                                      default_threshold=(2.0, -3.0),
-                                     min_frames_arg=False,
+                                     single_master=False,
                                      default_min_valid_values=3,
                                      default_max_iter=3)
     parser.add_argument(
@@ -132,7 +153,7 @@ def parse_command_line(*args):
         'included in a low master flat. Default: %(default)s'
     )
     parser.add_argument(
-        '--large-scale-smoothing-filter-name',
+        '--large-scale-smoothing-filter',
         type=lambda f: getattr(ndimage, f),
         default='median_filter',
         help='For each frame, the large scale struture is corrected by taking '
@@ -148,14 +169,14 @@ def parse_command_line(*args):
         help='The size of the box filter to apply.'
     )
     parser.add_argument(
-        '--large-scale-smoothing-spline-x-nodes',
+        '--large-scale-smoothing-spline-num-x-nodes',
         type=int,
         default=4,
         help='The second smoothing filter applied fits a separable x and y '
         'spline. The x spline uses this many internal nodes.'
     )
     parser.add_argument(
-        '--large-scale-smoothing-spline-y-nodes',
+        '--large-scale-smoothing-spline-num-y-nodes',
         type=int,
         default=4,
         help='The second smoothing filter applied fits a separable x and y '
@@ -188,7 +209,7 @@ def parse_command_line(*args):
         'size using this order interpolation.'
     )
     parser.add_argument(
-        '--cloud-check-smoothing-filter-name',
+        '--cloud-check-smoothing-filter',
         type=lambda f: getattr(ndimage, f),
         default='median_filter',
         help='When stacking, images with matched large scale flat, any '
@@ -258,7 +279,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--large-scale-stack-average-func',
         type=lambda f: getattr(numpy, 'nan' + f),
-        default='nanmedian',
+        default='median',
         help='The function used to average individual large scale flats.'
     )
     parser.add_argument(
@@ -285,7 +306,162 @@ def parse_command_line(*args):
         'are ignored, treated as clean. Note that ``\'BAD\'`` means any kind of'
         ' problem (e.g. saturated, hot/cold pixel, leaked etc.).'
     )
+    parser.add_argument(
+        '--high-master-fname',
+        default='MASTERS/flat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
+        help='Filename for the high illumination master flat to generate if '
+        'successful. Can involve header substitutions, but should produce the '
+        'same filename for all input frames. If not, the behavior is undefined.'
+
+    )
+    parser.add_argument(
+        '--low-master-fname',
+        default='MASTERS/lowflat_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
+        help='Filename for the low illumination master flat to generate if '
+        'successful. Can involve header substitutions, but should produce the '
+        'same filename for all input frames. If not, the behavior is undefined.'
+    )
+
     return parser.parse_args(*args)
+
+
+def get_master_fnames(image_fname, configuration):
+    """Return the filenames of the high and low master flats to generate."""
+
+    return {
+        illumination: get_single_master_fname(image_fname,
+                                              configuration,
+                                              illumination + '_master_fname')
+        for illumination in ['high', 'low']
+    }
+
+
+#pylint: disable=too-many-locals
+def stack_to_master_flat(image_collection,
+                         start_status,
+                         configuration,
+                         mark_start,
+                         mark_end):
+    """Stack the given frames to produce single high and/or low master flat."""
+
+    def key_translate(k):
+        return 'size' if k == 'filter_size' else k
+
+    assert start_status is None
+
+    split_config = {}
+    for prefix in ['stamp_smoothing',
+                   'stamp_pixel',
+                   'stamp_select',
+                   'large_scale_smoothing_spline',
+                   'cloud_check_smoothing',
+                   'large_scale_stack']:
+        split_config[prefix] = {
+            key_translate(key[len(prefix):].strip('_')): configuration.pop(key)
+            for key in list(configuration.keys()) if key.startswith(prefix)
+        }
+
+    split_config['stamp_pixel']['fraction'] = configuration.pop(
+        'stamp_fraction'
+    )
+    split_config['stamp_pixel']['smoother'] = PolynomialImageSmoother(
+        **split_config.pop('stamp_smoothing')
+    )
+
+    large_scale_smoother = ChainSmoother(
+        WrapFilterAsSmoother(
+            configuration.pop('large_scale_smoothing_filter'),
+            size=configuration.pop('large_scale_smoothing_filter_size')
+        ),
+        SplineImageSmoother(**split_config.pop('large_scale_smoothing_spline')),
+        bin_factor=configuration.pop('large_scale_smoothing_bin_factor'),
+        zoom_interp_order=(
+            configuration.pop('large_scale_smoothing_zoom_interp_order')
+        )
+    )
+    cloud_check_smoother = WrapFilterAsSmoother(
+        split_config['cloud_check_smoothing'].pop('filter'),
+        **split_config.pop('cloud_check_smoothing')
+    )
+
+    master_stack_config = {
+        key: configuration.pop(key) for key in [
+            'min_pointing_separation',
+            'large_scale_deviation_threshold',
+            'min_high_combine',
+            'min_low_combine'
+        ]
+    }
+    master_stack_config['large_scale_stack_options'] = split_config.pop(
+        'large_scale_stack'
+    )
+    master_stack_config['master_stack_options'] = {
+        key: configuration.pop(key) for key in ['outlier_threshold',
+                                                'average_func',
+                                                'min_valid_values',
+                                                'max_iter',
+                                                'exclude_mask',
+                                                'compress']
+    }
+
+    create_master = MasterFlatMaker(
+        stamp_statistics_config=split_config.pop('stamp_pixel'),
+        stamp_select_config=split_config.pop('stamp_select'),
+        large_scale_smoother=large_scale_smoother,
+        cloud_check_smoother=cloud_check_smoother,
+        master_stack_config=master_stack_config
+    )
+
+    fnames = get_master_fnames(image_collection[0], configuration)
+
+    for image_fname in image_collection:
+        mark_start(image_fname)
+
+    success, classified_images = create_master(
+        image_collection,
+        high_master_fname=fnames['high'],
+        low_master_fname=fnames['low']
+    )
+
+    for classification, images in classified_images.items():
+        if classification == 'high':
+            status = 2
+        elif classification == 'low':
+            status = 1
+        else:
+            status = fail_reasons[classification]
+        for image_fname in images:
+            mark_end(image_fname, status)
+
+    result = {}
+    for illumination in ['high', 'low']:
+        if success[illumination]:
+            assert exists(fnames[illumination])
+            header = get_primary_header(fnames[illumination])
+            result[illumination] = {
+                'filename': fnames[illumination],
+                'preference_order': f'JD_OBS - {header["JD-OBS"]}',
+                'type': illumination + 'flat',
+            }
+    return tuple(result.values())
+#pylint: enable=too-many-locals
+
+
+def cleanup_interrupted(interrupted, configuration):
+    """Cleanup file system after partially creating stacked image(s)."""
+
+    master_fnames = get_master_fnames(interrupted[0][0], configuration)
+    _logger.info('Cleaning up partially created stacks %s (%s)',
+                 repr(master_fnames),
+                 repr(interrupted))
+
+    for image_fname, _ in interrupted:
+        assert master_fnames == get_master_fnames(image_fname, configuration)
+        for fname in master_fnames.values():
+            if exists(fname):
+                remove(fname)
+
+    return -1
 
 
 if __name__ == '__main__':
@@ -298,4 +474,3 @@ if __name__ == '__main__':
         ignore_progress,
         ignore_progress
     )
-

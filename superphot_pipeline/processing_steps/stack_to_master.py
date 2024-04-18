@@ -43,7 +43,7 @@ class ParseAverageAction(Action):
 
 def get_command_line_parser(*args,
                             default_threshold=5.0,
-                            min_frames_arg=True,
+                            single_master=True,
                             default_min_valid_values=5,
                             default_max_iter=20):
     """Return a command line parser with all arguments added."""
@@ -71,14 +71,6 @@ def get_command_line_parser(*args,
         'recomputed iteratively until convergence or maximum number of '
         'iterations.'
     )
-    if min_frames_arg:
-        parser.add_argument(
-            '--min-valid-frames',
-            type=int,
-            default=10,
-            help='If there are fewer than this number of suitable frames to '
-            'stack in a given master, that master is not generated.'
-        )
     parser.add_argument(
         '--min-valid-values',
         type=int,
@@ -122,11 +114,22 @@ def get_command_line_parser(*args,
         'the input frames using the same averaging as pixel values. By default '
         'the outlier rejected average JD of the input frames is added.'
     )
-    parser.add_argument(
-        '--stacked-master-fname',
-        default='MASTERS/{IMAGE_TYPE}_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
-        help='Filename for the master to generate if successful.'
-    )
+    if single_master:
+        parser.add_argument(
+            '--min-valid-frames',
+            type=int,
+            default=10,
+            help='If there are fewer than this number of suitable frames to '
+            'stack in a given master, that master is not generated.'
+        )
+        parser.add_argument(
+            '--stacked-master-fname',
+            default='MASTERS/{IMAGE_TYPE}_{CAMSN}_{CLRCHNL}_{OBS-SESN}.fits.fz',
+            help='Filename for the master to generate if successful. Can '
+            'involve header substitutions, but should produce the same filename'
+            ' for all input frames. If not, the behavior is undefined.'
+        )
+
     return parser
 
 
@@ -136,7 +139,9 @@ def parse_command_line(*args):
     return get_command_line_parser(*args).parse_args(*args)
 
 
-def get_master_fname(image_fname, configuration):
+def get_master_fname(image_fname,
+                     configuration,
+                     fname_key='stacked_master_fname'):
     """Return the name of the master the given image should contribute to."""
 
     with fits.open(image_fname, 'readonly') as first_image:
@@ -144,7 +149,7 @@ def get_master_fname(image_fname, configuration):
     for arg in configuration:
         if arg.upper() not in substitutions:
             substitutions[arg.upper()] = configuration[arg]
-    return configuration['stacked_master_fname'].format_map(
+    return configuration[fname_key].format_map(
         substitutions
     )
 
