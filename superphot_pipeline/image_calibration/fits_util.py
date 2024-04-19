@@ -180,22 +180,23 @@ def assemble_channels(filename, hdu, split_channels):
     return result
 
 
-def add_required_keywords(header, calibration_params):
+def add_required_keywords(header, calibration_params, for_eval=False):
     """Add keywords required by the pipeline to the given header."""
 
+    jd_keyword = 'JD_OBS' if for_eval else 'JD-OBS'
     header_eval = Evaluator(header)
     if calibration_params.get('exposure_start_utc'):
-        header['JD-OBS'] = Time(
+        header[jd_keyword] = Time(
             header_eval(calibration_params['exposure_start_utc'])
         ).jd
     else:
         assert calibration_params.get('exposure_start_jd')
-        header['JD-OBS'] = Time(
+        header[jd_keyword] = Time(
             header_eval(calibration_params['exposure_start_jd']),
             format='jd'
         ).jd
 
-    header['JD-OBS'] += (
+    header[jd_keyword] += (
         header_eval(calibration_params['exposure_seconds'])
         /
         (2.0 * 24.0 * 3600.0)

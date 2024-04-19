@@ -1,8 +1,9 @@
 """Define a class (Calibrator) for low-level image calibration."""
 
 from hashlib import sha1
-from astropy.io import fits
+import logging
 
+from astropy.io import fits
 import numpy
 
 from superphot_pipeline.image_calibration.mask_utilities import\
@@ -278,12 +279,12 @@ class Calibrator(Processor):
                         calib_params['image_area']['ymax']
                         -
                         calib_params['image_area']['ymin']
-                    ) // channel_slice[0].step,
+                    ),
                     (
                         calib_params['image_area']['xmax']
                         -
                         calib_params['image_area']['xmin']
-                    ) // channel_slice[1].step
+                    )
                 )
                 for master_type in ['bias', 'dark', 'flat']:
                     if calib_params[master_type] is None:
@@ -293,8 +294,6 @@ class Calibrator(Processor):
                             master_type
                         ][
                             master_component
-                        ][
-                            channel_name
                         ].shape
 
                         if master_shape != expected_master_shape:
@@ -447,9 +446,9 @@ class Calibrator(Processor):
                     master_fname = calibration_params[
                         master_type
                     ][
-                        channel_name
-                    ][
                         'filename'
+                    ][
+                        channel_name
                     ]
                     channel_header['M' + master_type.upper() + 'FNM'] = (
                         master_fname,
@@ -583,12 +582,13 @@ class Calibrator(Processor):
             None
         """
 
+        self._logger = logging.getLogger(__name__)
+        configuration['saturation_threshold'] = saturation_threshold
+        super().__init__(**configuration)
         self.set_masters(
             **{master_type: configuration.pop('master_' + master_type, None)
                for master_type in ['bias', 'dark', 'flat']}
         )
-        configuration['saturation_threshold'] = saturation_threshold
-        super().__init__(**configuration)
 
 
     def set_masters(self, *, bias=None, dark=None, flat=None, masks=None):
@@ -613,6 +613,13 @@ class Calibrator(Processor):
             None
         """
 
+        self._logger.debug(
+            'Setting masters: bias(%s), dark(%s), flat(%s), masks(%s).',
+            repr(bias),
+            repr(dark),
+            repr(flat),
+            repr(masks)
+        )
         if masks is not None:
             self.masks = {
                 'filenames': masks,
@@ -732,6 +739,12 @@ class Calibrator(Processor):
                 calibration_params['split_channels']
             )
             self.check_calib_params(raw_pixels, calibration_params)
+
+        self._logger.debug(
+            'Calibrating raw image %s with configuration:\n%s',
+            repr(raw),
+            repr(calibration_params)
+        )
 
         trimmed_image = (
             raw_pixels[

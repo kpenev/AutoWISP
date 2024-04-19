@@ -6,11 +6,11 @@
 from tempfile import NamedTemporaryFile
 import logging
 from os import path
-from sys import argv
 
 from sqlalchemy import sql, select, update, and_, or_
 from asteval import asteval
 import numpy
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
@@ -20,6 +20,7 @@ from superphot_pipeline.fits_utilities import get_primary_header
 from superphot_pipeline.image_calibration.fits_util import\
     add_required_keywords,\
     add_channel_keywords
+from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline import processing_steps
 from superphot_pipeline.database.user_interface import\
     get_db_configuration,\
@@ -354,45 +355,81 @@ class ProcessingManager:
         return result
 
 
-    def _split_by_master(self,
-                         batch,
-                         required_master_type,
-                         db_session):
+    def _get_best_master(self, candidate_masters, image, channel):
+        """Find the best master from given list for given image/channel."""
+
+        if channel is None:
+            return tuple(
+                (
+                    channel,
+                    self._get_best_master(candidate_masters[channel],
+                                          image,
+                                          channel)
+                )
+                for channel in sorted(
+                    filter(None, self._evaluated_expressions[image.id].keys())
+                )
+            )
+
+        self._logger.debug('Selecting best master for %s, channel %s from %s',
+                           repr(image),
+                           repr(channel),
+                           repr(candidate_masters))
+        image_eval = self._evaluate_expressions_image(image,
+                                                      channel,
+                                                      True)
+        best_master_value = numpy.inf
+        best_master_fname = None
+        for master in candidate_masters:
+            assert master.use_smallest is not None
+            master_value = image_eval(master.use_smallest)
+            if master_value < best_master_value:
+                best_master_value = master_value
+                best_master_fname = master.filename
+        assert best_master_fname
+        return best_master_fname
+
+
+    def _split_by_master(self, batch, required_master_type, db_session):
         """Split the given list of images by the best master of given type."""
 
         result = {}
-        candidate_masters = self._get_candidate_masters(
-            self._evaluate_expressions_image(*batch[0],
-                                             True),
-            required_master_type,
-            db_session
-        )
-        if not candidate_masters:
-            raise ValueError(
-                f'No master {required_master_type.master_type.name} '
-                f'found for image {batch[0][0].raw_fname} channel '
-                f'{batch[0][1]}.'
+
+        candidate_masters = {}
+        if self.current_step.name == 'calibrate':
+            channel_list = self._evaluated_expressions[batch[0][0].id].keys()
+        else:
+            assert batch[0][1] is not None
+            channel_list = [batch[0][1]]
+
+        for channel in channel_list:
+            candidate_masters[channel] = self._get_candidate_masters(
+                self._evaluate_expressions_image(batch[0][0],
+                                                 channel,
+                                                 True),
+                required_master_type,
+                db_session
             )
-        if len(candidate_masters) == 1:
-            result[candidate_masters[0].filename] = batch
+            if not candidate_masters:
+                raise ValueError(
+                    f'No master {required_master_type.master_type.name} '
+                    f'found for image {batch[0][0].raw_fname} channel '
+                    f'{channel}.'
+                )
+        if len(channel_list) == 1:
+            candidate_masters = candidate_masters[channel_list[0]]
+
+        if len(channel_list) == 1 and len(candidate_masters) == 1:
+            result[candidate_masters[channel_list[0]][0].filename] = batch
         else:
             for image, channel in batch:
-                image_eval = self._evaluate_expressions_image(image,
-                                                              channel,
-                                                              True)
-                best_master_value = numpy.inf
-                best_master_fname = None
-                for master in candidate_masters:
-                    assert master.use_smallest is not None
-                    master_value = image_eval(master.use_smallest)
-                    if master_value < best_master_value:
-                        best_master_value = master_value
-                        best_master_fname = master.filename
-                assert best_master_fname
-                if best_master_fname in result:
-                    result[best_master_fname].extend((image, channel))
+                best_master = self._get_best_master(candidate_masters,
+                                                    image,
+                                                    channel)
+                if best_master in result:
+                    result[best_master].append((image, channel))
                 else:
-                    result[best_master_fname] = [(image, channel)]
+                    result[best_master] = [(image, channel)]
         return result
 
 
@@ -499,13 +536,13 @@ class ProcessingManager:
 
 
                 del result[config_key]
-                for best_master_fname, sub_batch in splits.items():
+                for best_master, sub_batch in splits.items():
                     new_config = dict(config)
                     new_config[
                         required_master_type.config_name.replace('-', '_')
-                    ] = best_master_fname
+                    ] = dict(best_master)
                     key_extra = {
-                        (required_master_type.config_name, best_master_fname)
+                        (required_master_type.config_name, best_master)
                     }
                     result[config_key | key_extra] = (new_config, sub_batch)
 
@@ -567,6 +604,9 @@ class ProcessingManager:
         raise ValueError(f'Invalid step input type {step_input_type}')
 
 
+    #TODO: see if can be simplified
+    #pylint: disable=too-many-locals
+    #pylint: disable=too-many-branches
     def _evaluate_expressions_image(self,
                                     image,
                                     eval_channel=None,
@@ -632,8 +672,8 @@ class ProcessingManager:
                 step_name='calibrate',
             )[0]
             self._logger.debug('Calibration config: %s', repr(calib_config))
-            add_required_keywords(evaluate.symtable, calib_config)
-            if result is None:
+            add_required_keywords(evaluate.symtable, calib_config, True)
+            if result is None and return_evaluator:
                 result = asteval.Interpreter()
                 if return_evaluator and eval_channel is None:
                     result.symtable.update(evaluate.symtable)
@@ -697,7 +737,10 @@ class ProcessingManager:
         self._logger.debug('Evaluated expressions for image %s: %s',
                            image,
                            repr(self._evaluated_expressions[image.id]))
+
         return result if return_evaluator else None
+    #pylint: enable=too-many-locals
+    #pylint: enable=too-many-branches
 
 
     def _fill_pending(self, db_session):
@@ -823,7 +866,7 @@ class ProcessingManager:
         for entry in need_cleanup:
             assert entry[2] == self.current_step
 
-        pending = [(image, processed.channel)
+        pending = [(image, None if input_type == 'raw' else processed.channel)
                    for image, processed, _ in need_cleanup]
 
         for image, _, __ in need_cleanup:
@@ -1020,7 +1063,7 @@ class ProcessingManager:
             for master in new_masters:
                 if len(new_masters) > 1:
                     type_id_select = type_id_select.where(
-                        MasterType.name == new_masters['type']
+                        MasterType.name == master['type']
                     )
                 master_type_id = db_session.scalar(type_id_select)
                 db_session.add(
@@ -1031,8 +1074,8 @@ class ProcessingManager:
                             self._current_processing,
                             load=False
                         ).id,
-                        filename=new_master['filename'],
-                        use_smallest=new_master['preference_order']
+                        filename=master['filename'],
+                        use_smallest=master['preference_order']
                     )
                 )
 
@@ -1248,18 +1291,20 @@ class ProcessingManager:
                 batch_status = None
                 for image, channel in batch:
                     assert image.image_type_id == check_image_type_id
-                    status = db_session.execute(
-                        select(
-                            ProcessedImages.status
-                        ).where(
-                            ProcessedImages.image_id == image.id
-                        ).where(
+                    status_select = select(
+                        ProcessedImages.status
+                    ).where(
+                        ProcessedImages.image_id == image.id,
+                        ProcessedImages.progress_id
+                        ==
+                        self._current_processing.id
+                    )
+                    if channel is not None:
+                        status_select = status_select.where(
                             ProcessedImages.channel == channel
-                        ).where(
-                            ProcessedImages.progress_id
-                            ==
-                            self._current_processing.id
                         )
+                    status = db_session.execute(
+                        status_select.group_by(ProcessedImages.status)
                     ).scalar_one_or_none()
 
                     if status is not None:
@@ -1497,7 +1542,43 @@ class ProcessingManager:
 #pylint: enable=too-many-instance-attributes
 
 
-if __name__ == '__main__':
+def parse_command_line():
+    """Return the command line configuration."""
+
+    parser = ArgumentParser(
+        description='Manually invoke the fully automated processing',
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=False
+    )
+    parser.add_argument(
+        '--add-raw-images', '-i',
+        nargs='+',
+        default=None,
+        help='Before processing add new raw images for processing. Can be '
+        'specified as a combination of image files and directories which will'
+        'be searched for FITS files.'
+    )
+    parser.add_argument(
+        '--steps',
+        nargs='+',
+        default=None,
+        help='Process using only the specified steps. Leave empty for full '
+        'processing.'
+    )
+    return parser.parse_args()
+
+
+def main(config):
+    """Avoid global variables."""
+
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-    ProcessingManager()()
+    processing = ProcessingManager()
+    if config.add_raw_images:
+        processing.add_raw_images(find_fits_fnames(config.add_raw_images))
+    processing(limit_to_steps=config.steps)
+
+
+if __name__ == '__main__':
+    main(parse_command_line())

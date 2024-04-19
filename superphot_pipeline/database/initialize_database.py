@@ -53,7 +53,7 @@ master_info =  {
             'CAMSN',
             'CLRCHNL'
         )),
-        'config_name': 'master-zero',
+        'config_name': 'master-bias',
         'created_by': ('stack_to_master', 'zero'),
         'required_by': [
             ('calibrate', 'dark'),
