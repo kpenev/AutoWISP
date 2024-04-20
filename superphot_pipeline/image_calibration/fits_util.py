@@ -297,7 +297,7 @@ def create_result(image_list,
     for check_image in image_list:
         assert numpy.isfinite(check_image).all()
 
-    assert (image_list[1] > 0).all()
+    assert (image_list[1] >= 0).all()
 
     for channel_name, channel_slice in split_channels.items():
         header_list = [

@@ -184,7 +184,6 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         processed_select.where(
             ProcessedImages.final
         ).group_by(
-            ProcessedImages.status,
             ProcessedImages.channel
         )
     ).all()

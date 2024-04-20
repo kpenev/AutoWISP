@@ -135,11 +135,11 @@
                                     <td>
                                         <div id="progress-with-label" 
                                              style="width: 100%">
-                                            <span style="width:{% widthratio count total 100 %}%">
-                                                {{count}}/{{total}}
+                                            <span style="width:{% widthratio count pending 100 %}%">
+                                                {{count}}/{{pending}}
                                             </span>
                                             <progress value="{{ count }}" 
-                                                      max="{{ total }}" 
+                                                      max="{{ pending }}" 
                                                       class="lcars-u-1 lcars-rust-bg"
                                                       style="foreground-color:black">
                                             </progress>

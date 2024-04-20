@@ -32,9 +32,9 @@ from superphot_pipeline.image_smoothing import\
 input_type = 'calibrated'
 _logger = logging.getLogger(__name__)
 fail_reasons = {
-    'medium': -1,
-    'cloudy': -2,
-    'colocated': -3
+    'medium': -3,
+    'cloudy': -4,
+    'colocated': -5
 }
 
 
@@ -67,8 +67,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--stamp-smoothing-outlier-threshold',
         type=float,
-        nargs='+',
-        default=[3.0],
+        default=3.0,
         help='Pixels deviating by more than this many standard deviations form '
         'the best fit smoothing function are discarded after each smoothnig '
         'fit iteration. One or two numbers should be specified. If two, one '
@@ -93,8 +92,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--stamp-pixel-outlier-threshold',
         type=float,
-        nargs='+',
-        default=[3.0],
+        default=3.0,
         help='The threshold in deviation around mean units to use for '
         'discarding stamp pixels during averaging of the smoothed stamps. One '
         'or two numbers should be specified. If two, one '
@@ -119,6 +117,14 @@ def parse_command_line(*args):
         '--stamp-select-var-mean-fit-threshold',
         type=float,
         default=2.0,
+        help='Variance vs mean fit for stamps is iteratively repeated after '
+        'discarding from each iteration stamps that deviater from the fit by '
+        'more than this number times the fit residual.'
+    )
+    parser.add_argument(
+        '--stamp-select-var-mean-fit-iterations',
+        type=int,
+        default=2,
         help='Variance vs mean fit for stamps is iteratively repeated after '
         'discarding from each iteration stamps that deviater from the fit by '
         'more than this number times the fit residual.'
@@ -392,12 +398,18 @@ def stack_to_master_flat(image_collection,
             'min_pointing_separation',
             'large_scale_deviation_threshold',
             'min_high_combine',
-            'min_low_combine'
+            'min_low_combine',
+            'add_averaged_keywords'
         ]
     }
     master_stack_config['large_scale_stack_options'] = split_config.pop(
         'large_scale_stack'
     )
+    master_stack_config[
+        'large_scale_stack_options'
+    ][
+        'add_averaged_keywords'
+    ] = []
     master_stack_config['master_stack_options'] = {
         key: configuration.pop(key) for key in ['outlier_threshold',
                                                 'average_func',
@@ -418,6 +430,7 @@ def stack_to_master_flat(image_collection,
     fnames = get_master_fnames(image_collection[0], configuration)
 
     for image_fname in image_collection:
+        assert get_master_fnames(image_fname, configuration) == fnames
         mark_start(image_fname)
 
     success, classified_images = create_master(
@@ -428,9 +441,9 @@ def stack_to_master_flat(image_collection,
 
     for classification, images in classified_images.items():
         if classification == 'high':
-            status = 2
+            status = 2 if success['high'] else -1
         elif classification == 'low':
-            status = 1
+            status = 1 if success['high'] and success['low'] else -2
         else:
             status = fail_reasons[classification]
         for image_fname in images:
@@ -459,7 +472,13 @@ def cleanup_interrupted(interrupted, configuration):
                  repr(interrupted))
 
     for image_fname, _ in interrupted:
-        assert master_fnames == get_master_fnames(image_fname, configuration)
+        test_master_fnames = get_master_fnames(image_fname, configuration)
+        if master_fnames != test_master_fnames:
+            raise RuntimeError(
+                'Attempting to clean up frames with mismatched master '
+                f'filenames! Example: {image_fname!r} -> {test_master_fnames!r}'
+                f' vs {interrupted[0][0]!r} -> {master_fnames!r}'
+            )
         for fname in master_fnames.values():
             if exists(fname):
                 remove(fname)

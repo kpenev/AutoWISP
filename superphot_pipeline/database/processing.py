@@ -656,6 +656,7 @@ class ProcessingManager:
         result = None
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable['IMAGE_TYPE'] = image.image_type.name
+        evaluate.symtable['OBS_SESN'] = image.observing_session.label
         self._logger.debug('Matched expressions: %s',
                            repr(self._get_matched_expressions(evaluate)))
         self._evaluated_expressions[image.id] = {}
@@ -1554,7 +1555,7 @@ def parse_command_line():
     parser.add_argument(
         '--add-raw-images', '-i',
         nargs='+',
-        default=None,
+        default=[],
         help='Before processing add new raw images for processing. Can be '
         'specified as a combination of image files and directories which will'
         'be searched for FITS files.'
@@ -1575,8 +1576,8 @@ def main(config):
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
     processing = ProcessingManager()
-    if config.add_raw_images:
-        processing.add_raw_images(find_fits_fnames(config.add_raw_images))
+    for img_to_add in config.add_raw_images:
+        processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
     processing(limit_to_steps=config.steps)
 
 

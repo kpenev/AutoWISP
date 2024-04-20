@@ -40,6 +40,7 @@ master_info =  {
         )),
         'config_name': 'master-mask',
         'created_by': None,
+        'split_by': frozenset(),
         'required_by': [
             ('calibrate', 'zero'),
             ('calibrate', 'dark'),
@@ -55,6 +56,7 @@ master_info =  {
         )),
         'config_name': 'master-bias',
         'created_by': ('stack_to_master', 'zero'),
+        'split_by': frozenset(('OBS_SESN',)),
         'required_by': [
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
@@ -69,6 +71,7 @@ master_info =  {
         )),
         'config_name': 'master-dark',
         'created_by': ('stack_to_master', 'dark'),
+        'split_by': frozenset(('OBS_SESN',)),
         'required_by': [
             ('calibrate', 'flat'),
             ('calibrate', 'object')
@@ -84,6 +87,7 @@ master_info =  {
         )),
         'config_name': 'high-flat-master-fname',
         'created_by': ('stack_to_master_flat', 'flat'),
+        'split_by': frozenset(('OBS_SESN',)),
         'required_by': [
             ('calibrate', 'object')
         ],
@@ -99,6 +103,7 @@ master_info =  {
         )),
         'config_name': 'low-flat-master-fname',
         'created_by': ('stack_to_master_flat', 'flat'),
+        'split_by': frozenset(('OBS_SESN',)),
         'required_by': [],
         'description': 'An estimate of the relative sensitivity of image '
         'pixels to light from infinity entering the telescope. Constructed from'
@@ -112,6 +117,7 @@ master_info =  {
         )),
         'config_name': 'single-photref-dr-fname',
         'created_by': None,
+        'split_by': frozenset(),
         'required_by': [
             ('fit_magnitudes', 'object')
         ],
@@ -417,7 +423,8 @@ def add_master_dependencies(db_session):
 
     expressions = set()
     for master_config in master_info.values():
-        expressions.update(master_config['must_match'])
+        expressions.update(master_config['must_match'],
+                           master_config['split_by'])
 
     db_expressions = {
         expr: ConditionExpression(expression=expr)
@@ -432,16 +439,18 @@ def add_master_dependencies(db_session):
     condition_ids = {}
     for master_type, master_config in master_info.items():
         print(f'Master {master_type} config: {master_config!r}')
-        if master_config['must_match'] not in condition_ids:
-            db_session.add_all([
-                Condition(
-                    id=next_condition_id,
-                    expression_id=db_expressions[expr].id,
-                )
-                for expr in master_config['must_match']
-            ])
-            condition_ids[master_config['must_match']] = next_condition_id
-            next_condition_id += 1
+        for condition in [master_config['must_match'],
+                          master_config['split_by']]:
+            if condition and condition not in condition_ids:
+                db_session.add_all([
+                    Condition(
+                        id=next_condition_id,
+                        expression_id=db_expressions[expr].id,
+                    )
+                    for expr in condition
+                ])
+                condition_ids[condition] = next_condition_id
+                next_condition_id += 1
         db_master_type = MasterType(
             name=master_type,
             condition_id=condition_ids[master_config['must_match']],
@@ -452,6 +461,9 @@ def add_master_dependencies(db_session):
             maker_image_type_id=(
                 None if master_config['created_by'] is None
                 else get_imtype_id(master_config['created_by'][1])
+            ),
+            maker_image_split_condition_id=(
+                condition_ids.get(master_config['split_by'])
             ),
             description=master_config['description']
         )

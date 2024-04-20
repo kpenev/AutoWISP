@@ -209,8 +209,8 @@ class MasterFlatMaker(MasterMaker):
 
         stamp_statistics = numpy.empty(
             len(frame_list),
-            dtype=[('mean', numpy.float),
-                   ('variance', numpy.float),
+            dtype=[('mean', numpy.float64),
+                   ('variance', numpy.float64),
                    ('num_averaged', numpy.uint)]
         )
         for frame_index, fname in enumerate(frame_list):

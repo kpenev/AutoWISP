@@ -76,7 +76,7 @@ def progress(request):
             else:
                 messages.info(
                     request,
-                    f'Processing finished.'
+                    'Processing finished.'
                 )
                 messages.info(request, 'Stdout:\n' + stdout)
                 messages.info(request, 'Stderr:\n' + stderr)
@@ -189,12 +189,12 @@ class SelectRawImages(View):
                 assert path.isfile(full_path)
                 image_list.append(full_path)
 
-        try:
-            ProcessingManager().add_raw_images(image_list)
-        except OSError:
-            return HttpResponseRedirect(
-                reverse('processing:select_raw_images')
-            )
+            try:
+                ProcessingManager().add_raw_images(image_list)
+            except OSError:
+                return HttpResponseRedirect(
+                    reverse('processing:select_raw_images')
+                )
 
 
         return HttpResponseRedirect(
