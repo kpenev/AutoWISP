@@ -1,5 +1,7 @@
 """Define classes for creating master flat frames."""
 
+import logging
+
 import numpy
 
 from superphot_pipeline.image_calibration.master_maker import MasterMaker
@@ -193,6 +195,8 @@ class MasterFlatMaker(MasterMaker):
         >>> )
     """
 
+    _logger = logging.getLogger(__name__)
+
     def _get_stamp_statistics(self, frame_list, **stamp_statistics_config):
         """
         Get relevant information from the stamp of a single input flat frame.
@@ -330,17 +334,25 @@ class MasterFlatMaker(MasterMaker):
                 return_predicted=True
             )
 
-            print('Flat stamp pixel statistics:\n'
-                  f'\t{"frame":50s}|{"mean":10s}|{"std":10s}|{"fitstd":10s}')
-            print("\t" + 92 * '_')
+            stat_msg = (
+                f'\t{"frame":50s}|{"mean":10s}|{"std":10s}|{"fitstd":10s}\n'
+                +
+                '\t' + 92 * '_' + '\n'
+            )
             for fname, stat, fitvar in zip(frame_list,
                                            stamp_statistics,
                                            best_fit_variance):
-                print(f"\t{fname:50s}|{stat['mean']:10g}|"
-                      f"{stat['variance']**0.5:10g}|{fitvar**0.5:10g}")
-            print('Best fit quadratic: '
-                  f'{fit_coef[0]:f} + {fit_coef[1]:f}*m + {fit_coef[2]:f}*m^2; '
-                  f'residual={residual:f}')
+                stat_msg += (
+                    f"\t{fname:50s}|{stat['mean']:10g}|"
+                    f"{stat['variance']**0.5:10g}|{fitvar**0.5:10g}\n"
+                )
+            self._logger.debug('Flat stamp pixel statistics:\n')
+
+            self._logger.debug('Best fit quadratic: '
+                               '%f + %f*m + %f*m^2; residual=%f',
+                               *fit_coef,
+                               residual)
+
 
             if(
                     (
@@ -741,25 +753,61 @@ class MasterFlatMaker(MasterMaker):
         if custom_header is None:
             custom_header = {}
 
+        stamp_statistics_config = {**self.stamp_statistics_config,
+                                   **stamp_statistics_config}
+        stamp_select_config = {**self.stamp_select_config,
+                               **stamp_select_config}
+        master_stack_config['large_scale_stack_options'] = {
+            **self.master_stack_config['large_scale_stack_options'],
+            'custom_header': custom_header,
+            **master_stack_config.get('large_scale_stack_options', {})
+        }
+        master_stack_config['master_stack_options'] = {
+            **self.master_stack_config['master_stack_options'],
+            'custom_header': custom_header,
+            **master_stack_config.get('master_stack_options', {})
+        }
+
+        self._logger.debug(
+            'Creating master flats (high:%s, low:%s) with:\n'
+            '\n\tstamp statistics config:\n\t\t%s'
+            '\n\tstamp selection config:\n\t\t%s'
+            '\n\tmaster stacking config:\n\t\t%s',
+            high_master_fname,
+            low_master_fname,
+            '\n\t\t'.join(
+                f'{k}: {v!r}' for k, v in stamp_statistics_config.items()
+            ),
+            '\n\t\t'.join(
+                f'{k}: {v!r}' for k, v in stamp_select_config.items()
+            ),
+            '\n\t\t'.join(
+                f'{k}: {v!r}' for k, v in master_stack_config.items()
+            )
+        )
+
         frames = {}
         isolated_frames, frames['colocated'] = self._find_colocated(frame_list)
 
-        print('Isolated:\n\t' + '\n\t'.join(isolated_frames))
-        print('Colocated:\n\t' + '\n\t'.join(frames['colocated']))
+        self._logger.debug('Isolated flats:\n\t%s',
+                           '\n\t'.join(isolated_frames))
+        self._logger.debug('Colocated flats:\n\t%s'
+                          '\n\t'.join(frames['colocated']))
 
         frames['high'], frames['low'], frames['medium'], frames['cloudy'] = (
             self._classify_from_stamps(
                 isolated_frames,
-                {**self.stamp_statistics_config, **stamp_statistics_config},
-                {**self.stamp_select_config, **stamp_select_config}
+                stamp_statistics_config,
+                stamp_select_config
             )
         )
 
-        print('Stamp frame classification:')
+        log_msg = 'Stamp frame classification:\n'
         for key, filenames in frames.items():
-            print(f'\t{key:s} ({len(filenames):d}):\n\t\t'
-                  +
-                  '\n\t\t'.join(filenames))
+            log_msg += (f'\t{key:s} ({len(filenames):d}):\n\t\t'
+                        +
+                        '\n\t\t'.join(filenames))
+        self._logger.debug(log_msg)
 
         min_combine = {
             'high': master_stack_config.get(
@@ -775,6 +823,8 @@ class MasterFlatMaker(MasterMaker):
         success = {'high': False, 'low': False}
         if len(frames['high']) >= min_combine['high']:
             self._master_large_scale = {}
+            #False positive
+            #pylint: disable=missing-kwoa
             (
                 self._master_large_scale['values'],
                 self._master_large_scale['stdev'],
@@ -784,23 +834,16 @@ class MasterFlatMaker(MasterMaker):
             ) = self.stack(
                 frames['high'],
                 min_valid_frames=min_combine['high'],
-                **{
-                    **self.master_stack_config['large_scale_stack_options'],
-                    'custom_header': custom_header,
-                    **master_stack_config.get('large_scale_stack_options', {})
-                }
+                **master_stack_config['large_scale_stack_options']
             )
+            #pylint: enable=missing-kwoa
             assert not discarded_frames
 
             success['high'], more_cloudy_frames = super().__call__(
                 frames['high'],
                 high_master_fname,
                 min_valid_frames=min_combine['high'],
-                **{
-                    **self.master_stack_config['master_stack_options'],
-                    'custom_header': custom_header,
-                    **master_stack_config.get('master_stack_options', {})
-                }
+                **master_stack_config['master_stack_options']
             )
             frames['cloudy'].extend(more_cloudy_frames)
             for frame in more_cloudy_frames:
@@ -811,24 +854,24 @@ class MasterFlatMaker(MasterMaker):
                     frames['low'],
                     low_master_fname,
                     min_valid_frames=min_combine['low'],
-                    **{
-                        **self.master_stack_config['master_stack_options'],
-                        'custom_header': custom_header,
-                        **master_stack_config.get('master_stack_options', {})
-                    }
+                    **master_stack_config['master_stack_options']
                 )
                 frames['cloudy'].extend(more_cloudy_frames)
                 for frame in more_cloudy_frames:
                     frames['low'].remove(frame)
             else:
-                print('Skipping low master flat since only '
-                      f"{len(frames['low']):d} frames remain, "
-                      f"but {min_combine['low']:d} are required")
+                self._logger.warning(
+                    'Skipping low master flat since only %d frames remain, '
+                    'but %d are required',
+                    len(frames['low']),
+                    min_combine['low']
+                )
 
-        print('Final frame classification:')
+        log_msg = 'Final frame classification:\n'
         for key, filenames in frames.items():
-            print(f'\t{key:s} ({len(filenames):d}):\n\t\t'
-                  +
-                  '\n\t\t'.join(filenames))
+            log_msg += (f'\t{key:s} ({len(filenames):d}):\n\t\t'
+                        +
+                        '\n\t\t'.join(filenames))
+        self._logger.info(log_msg)
         return success, frames
     #pylint: disable=arguments-differ

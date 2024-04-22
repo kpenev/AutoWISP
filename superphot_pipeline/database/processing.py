@@ -47,6 +47,8 @@ from superphot_pipeline.database.data_model.provenance import\
     CameraType
 #pylint: enable=no-name-in-module
 
+class NoMasterError(ValueError):
+    """Raised when no suitable master can be found for a batch of frames."""
 
 #Intended to be used as simple callable
 #pylint: disable=too-few-public-methods
@@ -410,8 +412,8 @@ class ProcessingManager:
                 required_master_type,
                 db_session
             )
-            if not candidate_masters:
-                raise ValueError(
+            if not candidate_masters[channel]:
+                raise NoMasterError(
                     f'No master {required_master_type.master_type.name} '
                     f'found for image {batch[0][0].raw_fname} channel '
                     f'{channel}.'
@@ -433,6 +435,8 @@ class ProcessingManager:
         return result
 
 
+    #Could not find good way to simplify
+    #pylint: disable=too-many-locals
     def _get_batch_config(self,
                           batch,
                           master_expression_values,
@@ -530,12 +534,15 @@ class ProcessingManager:
             )
         ).all():
             for config_key, (config, sub_batch) in list(result.items()):
-                splits = self._split_by_master(sub_batch,
-                                               required_master_type,
-                                               db_session)
-
-
                 del result[config_key]
+                try:
+                    splits = self._split_by_master(sub_batch,
+                                                   required_master_type,
+                                                   db_session)
+                except NoMasterError as no_master:
+                    self._logger.error(str(no_master))
+                    continue
+
                 for best_master, sub_batch in splits.items():
                     new_config = dict(config)
                     new_config[
@@ -547,6 +554,7 @@ class ProcessingManager:
                     result[config_key | key_extra] = (new_config, sub_batch)
 
         return result
+    #pylint: enable=too-many-locals
 
 
     def _get_split_channels(self, image):
@@ -1575,10 +1583,11 @@ def main(config):
 
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-    processing = ProcessingManager()
     for img_to_add in config.add_raw_images:
-        processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
-    processing(limit_to_steps=config.steps)
+        ProcessingManager().add_raw_images(
+            find_fits_fnames(path.abspath(img_to_add))
+        )
+    ProcessingManager()(limit_to_steps=config.steps)
 
 
 if __name__ == '__main__':

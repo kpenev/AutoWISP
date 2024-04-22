@@ -5,6 +5,7 @@
 from multiprocessing import Pool
 import logging
 from functools import partial
+from os import getpid
 
 import numpy
 import pandas
@@ -721,6 +722,7 @@ def fit_star_shape(image_collection,
         for frame_set in fit_arguments:
             fit_frame_set(frame_set, configuration, mark_start, mark_end)
     else:
+        configuration['parent_pid'] = getpid()
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,

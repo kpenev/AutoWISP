@@ -4,7 +4,7 @@
 
 from functools import partial
 from multiprocessing import Pool
-from os import path
+from os import path, getpid
 
 from general_purpose_python_modules.multiprocessing_util import \
     setup_process,\
@@ -111,6 +111,7 @@ def find_stars(image_collection,
                               mark_start,
                               mark_end)
     else:
+        configuration['parent_pid'] = getpid()
         with Pool(
                 configuration['num_parallel_processes'],
                 initializer=setup_process_map,

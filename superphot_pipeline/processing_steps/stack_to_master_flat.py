@@ -399,7 +399,6 @@ def stack_to_master_flat(image_collection,
             'large_scale_deviation_threshold',
             'min_high_combine',
             'min_low_combine',
-            'add_averaged_keywords'
         ]
     }
     master_stack_config['large_scale_stack_options'] = split_config.pop(
@@ -416,7 +415,9 @@ def stack_to_master_flat(image_collection,
                                                 'min_valid_values',
                                                 'max_iter',
                                                 'exclude_mask',
-                                                'compress']
+                                                'compress',
+                                                'add_averaged_keywords']
+
     }
 
     create_master = MasterFlatMaker(

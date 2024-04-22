@@ -5,6 +5,7 @@
 from ctypes import c_char, c_double
 from functools import partial
 from multiprocessing import Pool
+from os import getpid
 
 import numpy
 
@@ -164,6 +165,7 @@ def measure_aperture_photometry(image_collection,
         for frame_fname in image_collection:
             photometer_one(frame_fname)
     else:
+        configuration['parent_pid'] = getpid()
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,

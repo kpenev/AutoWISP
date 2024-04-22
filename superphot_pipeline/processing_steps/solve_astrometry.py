@@ -6,6 +6,7 @@
 import logging
 from multiprocessing import Queue, Process, Lock
 from traceback import format_exc
+from os import getpid
 
 import numpy
 from general_purpose_python_modules.multiprocessing_util import setup_process
@@ -734,6 +735,7 @@ def solve_astrometry(dr_collection,
     result_queue = Queue()
 
     catalog_lock=Lock()
+    configuration['parent_pid'] = getpid()
     workers = [
         Process(
             target=astrometry_process,
