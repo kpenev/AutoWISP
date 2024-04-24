@@ -7,7 +7,7 @@ from sqlalchemy.pool import NullPool
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
     #'SuperPhotPipeline',
-    'mysql+pymysql://kpenev:shakakaa@localhost.utdallas.edu/sandbox',
+    'mysql+pymysql://kpenev:shakakaa@localhost.utdallas.edu/sandbox_automation',
     #'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
     echo=True,
     pool_pre_ping=True,

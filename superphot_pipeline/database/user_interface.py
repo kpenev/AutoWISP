@@ -141,11 +141,12 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         """Return the given select joined and filtered to given processed."""
 
         return _select.join(
-            ImageProcessingProgress
+            ImageProcessingProgress,
+            ProcessedImages.progress_id == ImageProcessingProgress.id,
         ).where(
-            ImageProcessingProgress.step_id == step_id
-        ).where(
-            ImageProcessingProgress.configuration_version == step_version
+            ImageProcessingProgress.step_id == step_id,
+            ImageProcessingProgress.configuration_version == step_version,
+            ImageProcessingProgress.image_type_id == image_type_id
         )
 
     select_image_channel = select(

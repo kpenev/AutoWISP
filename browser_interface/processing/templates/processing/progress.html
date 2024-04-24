@@ -10,6 +10,7 @@
         <link rel="stylesheet" 
               href="{% static 'processing/css/jquery.orgchart.css' %}">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
         <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
         <style type="text/css">
             #chart-container { text-align: left; }
@@ -36,6 +37,7 @@
                  class="lcars-column start-space lcars-u-1" 
                  style="text-transform: uppercase;">
 
+                {% if not running %}
                 <a href="{% url 'processing:start_processing' %}">
                     <div class="lcars-element 
                                   button 
@@ -44,6 +46,7 @@
                         Start Processing
                     </div>
                 </a>
+                {% endif %}
 
                 <a href="{% url 'processing:select_raw_images' %}">
                     <div class="lcars-element 
@@ -95,7 +98,7 @@
                         {% endfor %}
                     </tr>
                     </thead>
-                    {% for step, imtype, by_channel in progress %}
+                    {% for step, imtype, by_channel, runs in progress %}
                     <tr>
                         <td>
                             <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
@@ -152,6 +155,24 @@
                         </td>
                         {% endwith %}
                         {% endfor %}
+                        <td class="dropdown">
+                            {% if runs %}
+                            <div class="dropbtn
+                                        lcars-element 
+                                        button 
+                                        rounded 
+                                        lcars-husk-bg"
+                                 style="align-items: center;">
+                                Logs
+                            </div>
+                            <div class="dropdown-content">
+                                {% for run_id, started, finished in runs %}
+                                <a>{{started}} -- {{finished}}</a>
+                                <a>{{started}} -- {{finished}}</a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>

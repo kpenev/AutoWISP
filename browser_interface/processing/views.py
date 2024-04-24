@@ -4,13 +4,16 @@ from subprocess import run, Popen, PIPE, TimeoutExpired
 import fnmatch
 import re
 import json
+from socket import getfqdn
 
+from sqlalchemy import select
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib import messages
 from django.views import View
 from django.template import loader
+from psutil import pid_exists
 
 from superphot_pipeline.database.interface import Session
 from superphot_pipeline.database import processing
@@ -20,8 +23,7 @@ from superphot_pipeline.database.user_interface import\
     list_channels
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.database.processing import ProcessingManager
-
-_running_pipeline = None
+from superphot_pipeline.database.data_model import ImageProcessingProgress
 
 def progress(request):
     """Display the current processing progress."""
@@ -35,7 +37,12 @@ def progress(request):
         processing_sequence = get_processing_sequence(db_session)
 
         formatted = [
-            [step.name.split('_'), imtype.name, [[0, 0, []] for _ in channels]]
+            [
+                step.name.split('_'),
+                imtype.name,
+                [[0, 0, []] for _ in channels],
+                []
+            ]
             for step, imtype in processing_sequence
         ]
         for (step, imtype), destination in zip(processing_sequence, formatted):
@@ -54,38 +61,34 @@ def progress(request):
                 destination[2][channel_index[channel]][2].append(
                     (status, (count or 0))
                 )
+            destination[3] = db_session.execute(
+                select(
+                    ImageProcessingProgress.id,
+                    ImageProcessingProgress.started,
+                    ImageProcessingProgress.finished
+                ).where(
+                    ImageProcessingProgress.step_id == step.id,
+                    ImageProcessingProgress.image_type_id == imtype.id
+                )
+            ).all()
 
-    global _running_pipeline
-    if _running_pipeline is None:
-        running=False
-        refresh_seconds=0
-    else:
-        try:
-            stdout, stderr = _running_pipeline.communicate(timeout=1)
-            if _running_pipeline.returncode:
-                messages.error(
-                    request,
-                    'Processing failed (return code '
-                    f'{_running_pipeline.returncode}).'
-                )
-                messages.error(request, 'Stdout:\n' + stdout)
-                messages.error(request, 'Stderr:\n' + stderr)
-                refresh_seconds = 0
-                running=False
-                _running_pipeline = None
-            else:
-                messages.info(
-                    request,
-                    'Processing finished.'
-                )
-                messages.info(request, 'Stdout:\n' + stdout)
-                messages.info(request, 'Stderr:\n' + stderr)
-                refresh_seconds = 0
-                running=False
-                _running_pipeline = None
-        except TimeoutExpired:
-            running=True
-            refresh_seconds=10
+    running=False
+    refresh_seconds=0
+    for check_pid in db_session.scalars(
+        select(
+            ImageProcessingProgress.process_id
+        ).where(
+            #pylint: disable=singleton-comparison
+            ImageProcessingProgress.finished == None,
+            #pylint: enable=singleton-comparison
+            ImageProcessingProgress.host == getfqdn()
+        ).group_by(
+            ImageProcessingProgress.process_id
+        )
+    ):
+        if pid_exists(check_pid):
+            running = True
+            refresh_seconds=5
 
     return render(
         request,
