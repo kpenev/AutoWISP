@@ -85,7 +85,7 @@ master_info =  {
             'CLRCHNL',
             'INTSN'
         )),
-        'config_name': 'high-flat-master-fname',
+        'config_name': 'master-flat',
         'created_by': ('stack_to_master_flat', 'flat'),
         'split_by': frozenset(('OBS_SESN',)),
         'required_by': [

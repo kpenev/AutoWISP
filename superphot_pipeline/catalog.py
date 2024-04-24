@@ -713,9 +713,9 @@ def get_catalog_info(*,
                   'frame_fov_estimate=%s, '
                   'image_scale_factor=%s',
                   repr(frame_fov_estimate),
-                  repr(1.0 + configuration['fov_safety_margin']))
+                  repr(1.0 + 2.0 * configuration['fov_safety_margin']))
     catalog_info['width'], catalog_info['height'] = (
-        fov_size * (1.0 + configuration['fov_safety_margin'])
+        fov_size * (1.0 + 2.0 * configuration['fov_safety_margin'])
         for fov_size in frame_fov_estimate
     )
 
@@ -974,6 +974,11 @@ def check_catalog_coverage(header,
     factor = 2.0 * (1.0 + safety_margin)
     width *= factor
     height *= factor
+    _logger.debug(
+        'Coverage with safety requires FOV (width: %s deg, height: %s def)',
+        repr(width),
+        repr(height)
+    )
     return width < catalog_header['WIDTH'] and height < catalog_header['HEIGHT']
 
 

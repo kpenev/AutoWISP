@@ -206,9 +206,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             column_substitution_name,
             **path_substitutions
         )
-        self[parent].visit(
-            partial(self.delete_columns, parent, name_head, name_tail)
-        )
+        if parent not in self:
+            return
+        to_delete = []
+        self[parent].visit(to_delete.append)
+        for dset_name in to_delete:
+            self.delete_columns(self[parent], name_head, name_tail, dset_name)
 
 
     def get_sources(self,

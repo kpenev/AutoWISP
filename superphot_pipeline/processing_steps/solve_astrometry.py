@@ -123,7 +123,8 @@ def parse_command_line(*args):
         '--image-scale-factor',
         type=float,
         default=1.3,
-        help='The image scale factor to add to the given frames'
+        help='Astrometry.net solution is searched with scale ranging from '
+        'fov/image_scale_factor to fov * image_scale_factor.'
     )
     parser.add_argument(
         '--min-match-fraction',
@@ -339,6 +340,7 @@ def find_final_transformation(header,
 
     frame_is_covered = False
     project_to_frame = construct_transformation(transformation_estimate)
+    iteration = 0
     while not frame_is_covered:
         catalog, catalog_header = ensure_catalog(
             transformation=project_to_frame,
@@ -376,6 +378,12 @@ def find_final_transformation(header,
             catalog_header,
             configuration['astrometry_catalog_fov_safety_margin']
         )
+        iteration += 1
+        if iteration > 10:
+            raise RuntimeError(
+                'Attempting to ensure catalog coverage seems to be in an '
+                'infinite loop!'
+            )
 
     return (
         transformation_estimate,
@@ -647,7 +655,7 @@ def prepare_configuration(configuration, dr_header):
 
 #Could not think of good way to split
 #pylint: disable=too-many-branches
-def manage_astrometry(pending, task_queue, result_queue, mark_end):
+def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
     """Manege solving all frames until they solve or fail hopelessly."""
 
     num_queued = 0
@@ -699,6 +707,7 @@ def manage_astrometry(pending, task_queue, result_queue, mark_end):
 
     for failed_set in failed.values():
         for dr_fname, reason in failed_set:
+            mark_start(dr_fname)
             mark_end(dr_fname, reason)
             _logger.critical(
                 'Failed astrometry for DR file %s: %s',
@@ -717,7 +726,9 @@ def solve_astrometry(dr_collection,
 
     assert start_status is None
 
-    _logger.debug('Solving astrometry for %d DR files', len(dr_collection))
+    _logger.debug('Solving astrometry for %d DR files with configuration %s',
+                  len(dr_collection),
+                  repr(configuration))
     #create_catalogs(configuration, dr_collection)
     pending = {}
     for dr_fname in dr_collection:
@@ -750,11 +761,12 @@ def solve_astrometry(dr_collection,
         for _ in range(configuration['num_parallel_processes'])
     ]
 
+    _logger.debug('Starting %d astrometry processes', len(workers))
     for process in workers:
         process.start()
     _logger.debug('Starting astrometry on %d pending frame sets', len(pending))
 
-    manage_astrometry(pending, task_queue, result_queue, mark_end)
+    manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end)
 
     _logger.debug('Stopping astrometry solving processes.')
     for process in workers:
@@ -768,7 +780,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Delete any astrometry datasets left over from prior interrupted run."""
 
     for dr_fname, status in interrupted:
-        assert status is None
+        assert status == 0
 
         path_substitutions = {
             substitution: configuration[substitution]
@@ -777,7 +789,7 @@ def cleanup_interrupted(interrupted, configuration):
                                  'skytoframe_version']
         }
         with DataReductionFile(dr_fname, 'r+') as dr_file:
-            dr_file.delete_columns(
+            dr_file.delete_sources(
                 'catalogue.columns',
                 'catalogue_column_name',
                 **path_substitutions

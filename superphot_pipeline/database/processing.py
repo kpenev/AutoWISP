@@ -5,12 +5,14 @@
 
 from tempfile import NamedTemporaryFile
 import logging
-from os import path
+from os import path, getpid
+from socket import getfqdn
 
 from sqlalchemy import sql, select, update, and_, or_
 from asteval import asteval
 import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
+from psutil import pid_exists
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
@@ -49,6 +51,15 @@ from superphot_pipeline.database.data_model.provenance import\
 
 class NoMasterError(ValueError):
     """Raised when no suitable master can be found for a batch of frames."""
+
+class ProcessingInProgress(Exception):
+    """Raised when a particular step is running in a different process/host."""
+
+    def __init__(self, step, image_type, host, process_id):
+        self.step = step
+        self.image_type = image_type
+        self.host = host
+        self.process_id = process_id
 
 #Intended to be used as simple callable
 #pylint: disable=too-few-public-methods
@@ -974,23 +985,68 @@ class ProcessingManager:
 
         step = db_session.merge(step, load=False)
         image_type = db_session.merge(image_type, load=False)
+        this_host  = getfqdn()
+        process_id = getpid()
 
         self.current_step = step
         self._current_processing = db_session.execute(
             select(
                 ImageProcessingProgress
-            ).filter_by(
-                step_id=self.current_step.id,
-                configuration_version=self.step_version[step.name]
+            ).where(
+                (
+                    ImageProcessingProgress.step_id
+                    ==
+                    self.current_step.id
+                ),
+                (
+                    ImageProcessingProgress.image_type_id
+                    ==
+                    image_type.id
+                ),
+                (
+                    ImageProcessingProgress.configuration_version
+                    ==
+                    self.step_version[step.name]
+                ),
+                (
+                    #This is how to check for NULL in sqlalchemy
+                    #pylint: disable=singleton-comparison
+                    ImageProcessingProgress.finished
+                    ==
+                    None
+                    #pylint: enable=singleton-comparison
+                )
             )
         ).scalar_one_or_none()
 
-        if self._current_processing is None:
-            self._current_processing = ImageProcessingProgress(
-                step_id=step.id,
-                configuration_version=self.step_version[step.name]
+        if self._current_processing is not None:
+            if (
+                    self._current_processing.host != this_host
+                    or
+                    pid_exists(self._current_processing.process_id)
+            ):
+                raise ProcessingInProgress(step.name,
+                                           image_type,
+                                           self._current_processing.host,
+                                           self._current_processing.process_id)
+            self._logger.warning(
+                'Processing progress %s appears to have crashed.',
+                self._current_processing
             )
-            db_session.add(self._current_processing)
+            self._current_processing.finished = sql.func.now()
+            db_session.flush()
+
+        self._current_processing = ImageProcessingProgress(
+            step_id=step.id,
+            image_type_id=image_type.id,
+            configuration_version=self.step_version[step.name],
+            host=this_host,
+            process_id=process_id,
+            started=sql.func.now(),
+            finished=None
+        )
+        db_session.add(self._current_processing)
+        db_session.flush()
 
         pending_images = [
             (db_session.merge(image, load=False), channel)

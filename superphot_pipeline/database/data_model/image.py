@@ -18,21 +18,6 @@ from superphot_pipeline.database.data_model.base import DataModelBase
 
 __all__ = ['Image', 'ImageProcessingProgress', 'ProcessedImages']
 
-_processing_input = Table(
-    'processing_input',
-    DataModelBase.metadata,
-    Column('completed_progress_id',
-           ForeignKey('image_processing_progress.id'),
-           primary_key=True),
-    Column('input_progress_id',
-           ForeignKey('image_processing_progress.id'),
-           primary_key=True),
-    Column('timestamp',
-           TIMESTAMP,
-           nullable=False,
-           doc='When was this record last changed.')
-)
-
 class ProcessedImages(DataModelBase):
     """The table describing the processed images/channels by each step."""
 
@@ -81,7 +66,7 @@ class ProcessedImages(DataModelBase):
         doc='When was this record last changed.'
     )
 
-    def __repr__(self):
+    def __str__(self):
         return (
             f'({self.image_id}) {self.channel} {self.progress_id} '
             f'{self.timestamp}'
@@ -168,12 +153,42 @@ class ImageProcessingProgress(DataModelBase):
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         nullable=False,
-        doc = 'Id of the step that was applied'
+        doc='Id of the step that was applied'
+    )
+    image_type_id = Column(
+        Integer,
+        ForeignKey('image_type.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
+        nullable=False,
+        doc='The id of the image type being processed'
     )
     configuration_version = Column(
         Integer,
         nullable=False,
         doc='config version of image'
+    )
+    host = Column(
+        String(1000),
+        nullable=False,
+        doc='Hostname or other identifier of the computer where processing '
+        'is/was done'
+    )
+    process_id = Column(
+        Integer,
+        nullable=False,
+        doc='Identifier of the process performing this calibration step'
+    )
+    started = Column(
+        TIMESTAMP,
+        nullable = False,
+        doc='The time processing started'
+    )
+    finished = Column(
+        TIMESTAMP,
+        nullable = True,
+        doc='The time processing is known to have ended (NULL if possibly still'
+        ' on-going)'
     )
     notes = Column(
         String(1000),
@@ -182,24 +197,24 @@ class ImageProcessingProgress(DataModelBase):
     )
     timestamp = Column(
         TIMESTAMP,
-        nullable= False,
-        doc = 'When record was last changed'
+        nullable=False,
+        doc='When record was last changed'
     )
 
     def __str__(self):
         return (
-            f'({self.id}) {self.step} v{self.configuration_version}'
-            f'{self.timestamp}: {self.notes}'
+            f'({self.id}) {self.step} v{self.configuration_version} started '
+            f'{self.started} on {self.host} '
+            +
+            (
+                'in progress' if self.finished is None
+                else f'finished {self.finished}'
+            )
+            +
+            f' timestamp: {self.timestamp}: {self.notes}'
         )
 
     step = relationship('Step')
-
-    inputs: Mapped[List[ImageProcessingProgress]] = relationship(
-        secondary=_processing_input,
-        primaryjoin=(id == _processing_input.c.completed_progress_id),
-        secondaryjoin=(id == _processing_input.c.input_progress_id),
-        backref='consumers'
-    )
 
     applied_to: Mapped[List[ProcessedImages]] = relationship(
         back_populates='processing'

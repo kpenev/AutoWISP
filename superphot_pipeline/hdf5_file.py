@@ -9,6 +9,7 @@ import os.path
 from sys import exc_info
 #from ast import literal_eval
 from traceback import format_exception
+import logging
 
 from lxml import etree
 import h5py
@@ -783,18 +784,23 @@ class HDF5File(ABC, h5py.File):
         if repack_attribute_config.parent not in self:
             self.create_group(repack_attribute_config.parent)
         repack_parent = self[repack_attribute_config.parent]
+        self._logger.debug(
+            'Adding %s to repack datasets (dtype: %s) of %s.',
+            repr(dataset_path.encode('ascii')),
+            repr(self.get_dtype('repack')),
+            self.filename
+        )
         if repack_attribute_config.name in repack_parent.attrs:
             repack_parent.attrs[repack_attribute_config.name] = (
-                self.attrs[repack_attribute_config.name]
+                repack_parent.attrs[repack_attribute_config.name]
                 +
                 ','
                 +
                 dataset_path
-            )
+            ).encode('ascii')
         else:
             repack_parent.attrs.create(repack_attribute_config.name,
-                                       dataset_path,
-                                       dtype=self.get_dtype('repack'))
+                                       dataset_path.encode('ascii'))
 
 
     def delete_dataset(self, dataset_key, **substitutions):
@@ -1221,6 +1227,7 @@ class HDF5File(ABC, h5py.File):
             None
         """
 
+        self._logger = logging.getLogger(__name__)
         if fname is None:
             assert mode is None
             super().__init__('memory_only',
@@ -1345,6 +1352,10 @@ class HDF5File(ABC, h5py.File):
                 len(parent[dset_name].shape) == 1
         ):
             if dset_name in parent:
+                self._logger.debug('Deleting %s from %s in %s',
+                                   repr(dset_name),
+                                   repr(parent.name),
+                                   repr(self.filename))
                 self._add_repack_dataset(parent[dset_name].name)
                 del parent[dset_name]
 #pylint: enable=too-many-ancestors
