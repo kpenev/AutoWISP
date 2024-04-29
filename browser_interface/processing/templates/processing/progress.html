@@ -167,8 +167,10 @@
                             </div>
                             <div class="dropdown-content">
                                 {% for run_id, started, finished in runs %}
-                                <a>{{started}} -- {{finished}}</a>
-                                <a>{{started}} -- {{finished}}</a>
+                                <a href="{% url 'processing:review' run_id 'INFO' %}"
+                                   class="dropdown-content">
+                                    Started {{started}}
+                                </a>
                                 {% endfor %}
                             </div>
                             {% endif %}

@@ -1,3 +1,4 @@
+"""Define the URL paths used by the processing BUI app."""
 from django.urls import path
 
 from . import views
@@ -13,4 +14,8 @@ urlpatterns = [
     path('select_raw_images/',
          views.SelectRawImages.as_view(),
          name='select_raw_images'),
+    path('review/<int:selected_processing_id>', views.review, name='review'),
+    path('review/<int:selected_processing_id>/<slug:min_log_level>',
+         views.review,
+         name='review')
 ]

@@ -14,7 +14,9 @@ import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
 from psutil import pid_exists
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
+from general_purpose_python_modules.multiprocessing_util import\
+    setup_process,\
+    get_log_outerr_filenames
 
 from superphot_pipeline import Evaluator
 from superphot_pipeline.database.interface import Session
@@ -1392,7 +1394,7 @@ class ProcessingManager:
     #pylint: enable=too-many-locals
 
 
-    def __init__(self, version=None):
+    def __init__(self, version=None, dummy=False):
         """
         Set the public class attributes per the given configuartion version.
 
@@ -1402,10 +1404,16 @@ class ProcessingManager:
                 value with the largest version not exceeding ``version``. By
                 default us the latest configuration version in the database.
 
+            dummy(bool):    If set to true, all logging is suppressed and no
+                processing can be performed. Useful for reviewing the results
+                of past processing.
+
         Returns:
             None
         """
 
+        if dummy:
+            logging.disable()
         self._logger = logging.getLogger(__name__)
         self.current_step = None
         self._current_processing = None
@@ -1456,11 +1464,12 @@ class ProcessingManager:
             del self._processing_config['processing_step']
             del self._processing_config['image_type']
 
-            setup_process(task='main',
-                          parent_pid='',
-                          processing_step='init_processing',
-                          image_type='none',
-                          **self._processing_config)
+            if not dummy:
+                setup_process(task='main',
+                              parent_pid='',
+                              processing_step='init_processing',
+                              image_type='none',
+                              **self._processing_config)
 
             for master_type in db_session.scalars(select(MasterType)).all():
                 for expression in (
@@ -1482,8 +1491,58 @@ class ProcessingManager:
                 for step in db_session.scalars(select(Step)).all()
             }
 
-            self._cleanup_interrupted(db_session)
-            self._fill_pending(db_session)
+            if not dummy:
+                self._cleanup_interrupted(db_session)
+                self._fill_pending(db_session)
+
+
+    def find_processing_outputs(self, processing_progress, db_session=None):
+        """Return all logging and output filenames for given processing ID."""
+
+        if db_session is None:
+            #False positivie
+            #pylint: disable=no-member
+            #pylint: disable=redefined-argument-from-local
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
+            #pylint: enable=redefined-argument-from-local
+                return self.find_processing_outputs(processing_progress,
+                                                  db_session)
+
+        if not isinstance(processing_progress, ImageProcessingProgress):
+            return self.find_processing_outputs(
+                db_session.scalar(
+                    select(
+                        ImageProcessingProgress
+                    ).filter_by(
+                        id=processing_progress
+                    )
+                ),
+                db_session
+            )
+
+        main_fnames = get_log_outerr_filenames(
+            existing_pid=processing_progress.process_id,
+            task='*',
+            parent_pid='',
+            processing_step=processing_progress.step.name,
+            image_type=processing_progress.image_type.name,
+            **self._processing_config
+        )
+        print('Main fnames: ' + repr(main_fnames))
+        assert len(main_fnames[0]) == len(main_fnames[1]) == 1
+
+        return (
+            tuple(fname[0] for fname in main_fnames),
+            get_log_outerr_filenames(
+                existing_pid='*',
+                task='*',
+                parent_pid=processing_progress.process_id,
+                processing_step=processing_progress.step.name,
+                image_type=processing_progress.image_type.name,
+                **self._processing_config
+            )
+        )
 
 
     def __call__(self, limit_to_steps=None):

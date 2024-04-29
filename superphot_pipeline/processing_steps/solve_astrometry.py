@@ -709,7 +709,7 @@ def manage_astrometry(pending, task_queue, result_queue, mark_start, mark_end):
         for dr_fname, reason in failed_set:
             mark_start(dr_fname)
             mark_end(dr_fname, reason)
-            _logger.critical(
+            _logger.error(
                 'Failed astrometry for DR file %s: %s',
                 dr_fname,
                 [fail_key for fail_key, fail_reason in fail_reasons.items()

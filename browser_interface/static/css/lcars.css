@@ -1807,7 +1807,7 @@ a {
   display: inline;
 }
 a:link {
-  color: #000;
+  /*color: #000;*/
   font-weight: 400;
 }
 a:visited {

@@ -1,18 +1,18 @@
 """The views showing the status of the processing."""
 from os import path, scandir
-from subprocess import run, Popen, PIPE, TimeoutExpired
+from subprocess import Popen, PIPE
 import fnmatch
 import re
-import json
 from socket import getfqdn
+import logging
 
 from sqlalchemy import select
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.contrib import messages
+#from django.contrib import messages
 from django.views import View
-from django.template import loader
+#from django.template import loader
 from psutil import pid_exists
 
 from superphot_pipeline.database.interface import Session
@@ -23,34 +23,44 @@ from superphot_pipeline.database.user_interface import\
     list_channels
 from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.database.processing import ProcessingManager
+#False positive
+#pylint: disable=no-name-in-module
 from superphot_pipeline.database.data_model import ImageProcessingProgress
+#pylint: enable=no-name-in-module
+
 
 def progress(request):
     """Display the current processing progress."""
 
+    context = {
+        'running': False,
+        'refresh_seconds': 0
+    }
     #False positivie
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        channels = sorted(list_channels(db_session))
-        channel_index = {channel: i for i, channel in enumerate(channels)}
+        context['channels'] = sorted(list_channels(db_session))
+        channel_index = {channel: i
+                         for i, channel in enumerate(context['channels'])}
         processing_sequence = get_processing_sequence(db_session)
 
-        formatted = [
+        context['progress'] = [
             [
                 step.name.split('_'),
                 imtype.name,
-                [[0, 0, []] for _ in channels],
+                [[0, 0, []] for _ in context['channels']],
                 []
             ]
             for step, imtype in processing_sequence
         ]
-        for (step, imtype), destination in zip(processing_sequence, formatted):
+        for (step, imtype), destination in zip(processing_sequence,
+                                               context['progress']):
             final, pending, by_status = get_progress(step.id,
                                                      imtype.id,
                                                      0,
                                                      db_session)
-            assert len(final) <= len(channels)
+            assert len(final) <= len(context['channels'])
             for channel, _, count in final:
                 destination[2][channel_index[channel]][0] = (count or 0)
 
@@ -72,8 +82,6 @@ def progress(request):
                 )
             ).all()
 
-    running=False
-    refresh_seconds=0
     for check_pid in db_session.scalars(
         select(
             ImageProcessingProgress.process_id
@@ -87,19 +95,10 @@ def progress(request):
         )
     ):
         if pid_exists(check_pid):
-            running = True
-            refresh_seconds=5
+            context['running'] = True
+            context['refresh_seconds'] = 5
 
-    return render(
-        request,
-        'processing/progress.html',
-        {
-            'channels': channels,
-            'progress': formatted,
-            'refresh_seconds': refresh_seconds,
-            'running': running
-        }
-    )
+    return render(request, 'processing/progress.html', context)
 
 
 class SelectRawImages(View):
@@ -205,13 +204,63 @@ class SelectRawImages(View):
         )
 
 
-def start_processing(request):
+def start_processing(_request):
     """Run the pipeline to complete any pending processing tasks."""
 
-    global _running_pipeline
-    _running_pipeline = Popen([processing.__file__],
-                              stdout=PIPE,
-                              stderr=PIPE,
-                              encoding='ascii')
+    #We don't want processing to stop when this goes out of scope.
+    #pylint: disable=consider-using-with
+    Popen([processing.__file__],
+          stdout=PIPE,
+          stderr=PIPE,
+          start_new_session=True,
+          encoding='ascii')
+    #pylint: enable=consider-using-with
     return HttpResponseRedirect(reverse('processing:progress'))
+
+
+def review(request,
+           selected_processing_id,
+           min_log_level='NOTSET'):
+    """
+    A view for going through pipeline logs and diagnostics.
+
+    Args:
+        progress_id(int):    The progress ID for which to display logs and/or
+            diagnostics.
+    """
+
+    min_log_level = getattr(logging, min_log_level)
+
+    log_output_fnames = ProcessingManager(dummy=True).find_processing_outputs(
+        selected_processing_id
+    )
+    with open(log_output_fnames[0][1], 'r', encoding='utf8') as output_f:
+        context = {
+            'file_contents': output_f.read(),
+            'log_messages': []
+        }
+
+    log_msg_start_rex = re.compile('(DEBUG|INFO|WARNING|ERROR|CRITICAL) ')
+    with open(log_output_fnames[0][0], 'r', encoding='utf-8') as log_f:
+        skip=True
+        for line in log_f:
+            if log_msg_start_rex.match(line):
+                level, message = line.split(maxsplit=1)
+                skip = getattr(logging, level) < min_log_level
+                if not skip:
+                    context['log_messages'].append([level, message])
+            else:
+                if not skip:
+                    context['log_messages'][-1][1] += line
+
+    return render(request, 'processing/review.html', context)
+
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        selected_processing = db_session.scalar(
+            select(ImageProcessingProgress).filter_by(id=selected_processing_id)
+       )
+
 # Create your views here.

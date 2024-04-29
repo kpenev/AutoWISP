@@ -215,6 +215,7 @@ class ImageProcessingProgress(DataModelBase):
         )
 
     step = relationship('Step')
+    image_type = relationship('ImageType')
 
     applied_to: Mapped[List[ProcessedImages]] = relationship(
         back_populates='processing'

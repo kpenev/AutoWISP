@@ -1,0 +1,23 @@
+.log-msg {
+    font-weight: bold;
+}
+
+.DEBUG {
+    color: #888;
+}
+
+.INFO {
+    color: #ba5;
+}
+
+.WARNING {
+    color: #f93;
+}
+
+.ERROR {
+    color: #b41;
+}
+
+.CRITICAL {
+    color: #e10;
+}
