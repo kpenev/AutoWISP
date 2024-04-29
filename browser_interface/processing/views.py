@@ -6,7 +6,7 @@ import re
 from socket import getfqdn
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import select, func, and_
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -25,8 +25,15 @@ from superphot_pipeline.file_utilities import find_fits_fnames
 from superphot_pipeline.database.processing import ProcessingManager
 #False positive
 #pylint: disable=no-name-in-module
-from superphot_pipeline.database.data_model import ImageProcessingProgress
+from superphot_pipeline.database.data_model import\
+    ImageProcessingProgress,\
+    ProcessingSequence,\
+    ImageType,\
+    Step
 #pylint: enable=no-name-in-module
+
+
+_datetime_fmt = '%Y%m%d %H:%i:%s'
 
 
 def progress(request):
@@ -74,8 +81,10 @@ def progress(request):
             destination[3] = db_session.execute(
                 select(
                     ImageProcessingProgress.id,
-                    ImageProcessingProgress.started,
-                    ImageProcessingProgress.finished
+                    func.date_format(ImageProcessingProgress.started,
+                                     _datetime_fmt),
+                    func.date_format(ImageProcessingProgress.finished,
+                                     _datetime_fmt)
                 ).where(
                     ImageProcessingProgress.step_id == step.id,
                     ImageProcessingProgress.image_type_id == imtype.id
@@ -220,7 +229,7 @@ def start_processing(_request):
 
 def review(request,
            selected_processing_id,
-           min_log_level='NOTSET'):
+           min_log_level='WARNING'):
     """
     A view for going through pipeline logs and diagnostics.
 
@@ -229,38 +238,124 @@ def review(request,
             diagnostics.
     """
 
-    min_log_level = getattr(logging, min_log_level)
-
-    log_output_fnames = ProcessingManager(dummy=True).find_processing_outputs(
-        selected_processing_id
-    )
-    with open(log_output_fnames[0][1], 'r', encoding='utf8') as output_f:
-        context = {
-            'file_contents': output_f.read(),
-            'log_messages': []
-        }
-
-    log_msg_start_rex = re.compile('(DEBUG|INFO|WARNING|ERROR|CRITICAL) ')
-    with open(log_output_fnames[0][0], 'r', encoding='utf-8') as log_f:
-        skip=True
-        for line in log_f:
-            if log_msg_start_rex.match(line):
-                level, message = line.split(maxsplit=1)
-                skip = getattr(logging, level) < min_log_level
-                if not skip:
-                    context['log_messages'].append([level, message])
-            else:
-                if not skip:
-                    context['log_messages'][-1][1] += line
-
-    return render(request, 'processing/review.html', context)
-
+    context = {'selected_processing_id': selected_processing_id,
+               'min_log_level': min_log_level}
     #False positivie
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        selected_processing = db_session.scalar(
-            select(ImageProcessingProgress).filter_by(id=selected_processing_id)
-       )
+        selected_progress = db_session.execute(
+            select(
+                ImageProcessingProgress.id,
+                ImageProcessingProgress.step_id,
+                ImageProcessingProgress.image_type_id,
+                func.date_format(ImageProcessingProgress.started,
+                                 _datetime_fmt),
+                func.date_format(ImageProcessingProgress.finished,
+                                 _datetime_fmt),
+            ).where(
+                ImageProcessingProgress.id == selected_processing_id,
+            )
+        ).one()
 
-# Create your views here.
+        context['reviewable'] = db_session.execute(
+            select(
+                ImageProcessingProgress.id,
+                func.date_format(ImageProcessingProgress.started,
+                                 _datetime_fmt),
+                func.date_format(ImageProcessingProgress.finished,
+                                 _datetime_fmt)
+            ).where(
+                (
+                    ImageProcessingProgress.step_id
+                    ==
+                    selected_progress[1]
+                ),
+                (
+                    ImageProcessingProgress.image_type_id
+                    ==
+                    selected_progress[2]
+                )
+            )
+        ).all()
+        context['selected_info'] = selected_progress
+        context['pipeline_steps'] = db_session.execute(
+            select(
+                Step.id,
+                func.replace(Step.name, '_', ' '),
+                ImageProcessingProgress.id
+            ).join(
+                ImageProcessingProgress
+            ).group_by(
+                Step.id,
+                Step.name,
+            )
+        ).all()
+        context['image_types'] = db_session.execute(
+            select(
+                ProcessingSequence.image_type_id,
+                ImageType.name,
+                ImageProcessingProgress.id
+            ).select_from(
+                ProcessingSequence
+            ).join(
+                ImageType
+            ).join(
+                ImageProcessingProgress,
+                and_(
+                    (
+                        ImageProcessingProgress.step_id
+                        ==
+                        ProcessingSequence.step_id
+                    ),
+                    (
+                        ImageProcessingProgress.image_type_id
+                        ==
+                        ProcessingSequence.image_type_id
+                    )
+                )
+            ).where(
+                ProcessingSequence.step_id == selected_progress[1]
+            ).group_by(
+                ProcessingSequence.image_type_id,
+                ImageType.name
+            )
+        ).all()
+
+    return render(request, 'processing/review.html', context)
+
+
+def review_single(request, selected_processing_id, what, min_log_level=None):
+    """A view that shows only one type of output from a processing step."""
+
+    context = {'selected_processing_id': selected_processing_id,
+               'min_log_level': min_log_level}
+
+    log_output_fnames = ProcessingManager(dummy=True).find_processing_outputs(
+        selected_processing_id
+    )
+
+    if what == 'out':
+        context['reviewing'] = 'standard output/error'
+        if 'out' in what:
+            with open(log_output_fnames[0][1], 'r', encoding='utf8') as outfile:
+                context['messages'] = [['debug', outfile.read()]]
+
+    if what == 'log':
+        min_log_level = getattr(logging, min_log_level.upper())
+        context['reviewing'] = 'log'
+        context['messages'] = []
+        log_msg_start_rex = re.compile('(DEBUG|INFO|WARNING|ERROR|CRITICAL) ')
+        with open(log_output_fnames[0][0], 'r', encoding='utf-8') as log_f:
+            skip=True
+            for line in log_f:
+                if log_msg_start_rex.match(line):
+                    level, message = line.split(maxsplit=1)
+                    skip = getattr(logging, level.upper()) < min_log_level
+                    if not skip:
+                        context['messages'].append([level, message])
+                else:
+                    if not skip:
+                        context['messages'][-1][1] += line
+
+    return render(request, 'processing/review_single.html', context)

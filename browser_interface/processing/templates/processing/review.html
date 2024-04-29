@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" style="height:100%;">
+    <head>
+        <meta charset="utf-8">
+        <title>Review Processing</title>
+        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
+        <style>
+            html, body, container {
+                margin: 0px;
+                padding: 0px;
+                height: 100%;             /* need for iframe height 100% to work */
+            }
+            iframe {
+                margin: 0px;
+                padding: 0px;
+                box-sizing: border-box;   /* make the border size be included in the height */
+                border:none;
+                display: inline-flex;           /* make them block to fix white space margin */
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="lcars-app-container">
+            <div id="header" class="lcars-row header">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-bar horizontal spacer"></div>
+                {% for step in pipeline_steps %}
+                <a href="{% url 'processing:review' selected_processing_id=step.2 min_log_level='warning' %}">
+                    <div class="lcars-bar
+                                button
+                                horizontal
+                                {% if step.0 == selected_info.1 %}
+                                lcars-neon-carrot-bg
+                                {% else %}
+                                lcars-rust-bg
+                                {% endif %}"
+                         >
+                         <div style="white-space: nowrap; margin-left: 0.5em; margin-right:2em">
+                             {{step.1}}
+                         </div>
+                    </div>
+                </a>
+                {% endfor %}
+                <div class="lcars-bar horizontal">
+                    <div class="lcars-title right">
+                        Reviewing processing started {{selected_info.3}}
+                    </div>
+                </div>
+                <!-- ROUNDED EDGE DECORATED -->
+                <div class="lcars-bar horizontal right-end decorated"></div>
+            </div>
+
+            <!-- LEFT MENU -->
+            <div id="left-menu" 
+                 class="lcars-column" 
+                 style="text-transform: uppercase">
+                <div class="lcars-bar spacer">
+                </div>
+                {% for processing in reviewable %}
+                <a class="lcars-u-1-1"
+                   href="{% url 'processing:review' selected_processing_id=processing.0 min_log_level=min_log_level %}">
+                    <div class="lcars-element 
+                                button 
+                                {% if processing.0 == selected_info.0 %}
+                                lcars-neon-carrot-bg
+                                {% else %}
+                                lcars-rust-bg
+                                {% endif %}
+                                lcars-u-1-1">
+                        {{processing.1}}
+                    </div>
+                </a>
+                {% endfor %}
+                <div class="lcars-bar lcars-u-1"></div>
+            </div>
+
+            <!-- FOOTER -->
+            <div id="footer" class="lcars-row ">
+                <!-- ELBOW -->
+                <div class="lcars-elbow left-top lcars-golden-tanoi-bg">
+                </div>
+                <div class="lcars-bar horizontal spacer"></div>
+                {% for imtype in image_types %}
+                {% if imtype.0 == selected_info.2 %}
+                {% url 'processing:review' selected_processing_id=selected_processing_id min_log_level='info' as change_imtype_url %}
+                {% else %}
+                {% url 'processing:review' selected_processing_id=imtype.2 min_log_level='warning' as change_imtype_url %}
+                {% endif %}
+                <a class="lcars-bar horizontal bottom" 
+                   style="width: auto"
+                   href="{{change_imtype_url}}">
+                    <div class="lcars-bar
+                                horizontal
+                                bottom
+                                {% if imtype.0 == selected_info.2 %}
+                                lcars-neon-carrot-bg
+                                {% else %}
+                                lcars-rust-bg
+                                {% endif %}"
+                                style="width: auto">
+                        <div style="white-space: nowrap; margin-left: 0.5em; margin-right:2em">
+                         {{imtype.1}}
+                        </div>
+                    </div>
+                </a>
+                <div class="lcars-bar horizontal spacer"></div>
+                {% endfor %}
+                <!-- BAR -->
+                <div class="lcars-bar horizontal bottom">
+                </div>
+                <!-- ROUNDED EDGE -->
+                <div class="lcars-bar horizontal right-end left-divider bottom">
+                </div>
+            </div>
+
+            <div id="container"> 
+                <iframe src="{% url 'processing:review_log' selected_processing_id=selected_processing_id min_log_level=min_log_level %}" 
+                        style="height: 50%;"
+                        title="Logs for precessing ID {{selected_processing_id}}"> 
+                </iframe>
+                <iframe src="{% url 'processing:review_out' selected_processing_id=selected_processing_id %}" 
+                        style="height: 50%;"
+                        title="Standard output and error for precessing ID {{selected_processing_id}}"> 
+                </iframe>
+            </div>
+    </body>
+</html>
+

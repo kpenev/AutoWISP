@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', 'kartof', 'kartof.utdallas.edu']
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 
 # Application definition
 

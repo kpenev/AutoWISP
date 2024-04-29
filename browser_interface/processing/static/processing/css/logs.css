@@ -21,3 +21,23 @@
 .CRITICAL {
     color: #e10;
 }
+
+.DEBUG-bg {
+    background-color: #888;
+}
+
+.INFO-bg {
+    background-color: #ba5;
+}
+
+.WARNING-bg {
+    background-color: #f93;
+}
+
+.ERROR-bg {
+    background-color: #b41;
+}
+
+.CRITICAL-bg {
+    background-color: #e10;
+}

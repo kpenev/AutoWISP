@@ -402,7 +402,7 @@ body {
   left: 0.5rem;
   padding-top: 0.5rem;
   margin-bottom: 0.25rem;
-  z-index: 1;
+  z-index: 2;
 }
 .lcars-app-container #footer {
   position: fixed;
@@ -411,7 +411,7 @@ body {
   left: 0.5rem;
   padding-bottom: 0.5rem;
   width: calc(100% - 1rem);
-  z-index: 1;
+  z-index: 2;
 }
 .lcars-app-container #container {
   margin-top: 0.25rem;
