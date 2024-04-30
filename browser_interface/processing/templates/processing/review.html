@@ -59,6 +59,30 @@
                  style="text-transform: uppercase">
                 <div class="lcars-bar spacer">
                 </div>
+                <a href="{% url 'processing:progress' %}">
+                    <div class="lcars-element 
+                                   button 
+                                   lcars-chestnut-rose-bg
+                                   lcars-u-1-1">
+                        Processing Status
+                    </div>
+                </a>
+                <a href="{% url 'configuration:survey' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-chestnut-rose-bg
+                                  lcars-u-1-1">
+                        Edit Survey
+                    </div>
+                </a>
+                <a href="{% url 'configuration:config_tree' %}">
+                    <div class="lcars-element 
+                                  button 
+                                  lcars-chestnut-rose-bg
+                                  lcars-u-1-1">
+                        Configure Processing
+                    </div>
+                </a>
                 {% for processing in reviewable %}
                 <a class="lcars-u-1-1"
                    href="{% url 'processing:review' selected_processing_id=processing.0 min_log_level=min_log_level %}">
