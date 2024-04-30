@@ -13,7 +13,12 @@
             <!-- HEADER -->
             <div id="header" class="lcars-row header">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
+                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"
+                     id="scroll-up"
+                     style="justify-content: center; 
+                            align-content: flex-end; 
+                            color: #000">
+                </div>
                 {% if reviewing == 'log' %}
                     <div class="lcars-bar horizontal spacer"></div>
                     {% with 'DEBUG INFO WARNING ERROR CRITICAL' as log_levels %}
@@ -55,7 +60,9 @@
                     </div>
                 </a>
                 {% for subp in sub_processes %}
-                <a href="{% url 'processing:review' what=what selected_processing_id=selected_processing_id min_log_level=min_log_level sub_process=subp %}">
+                <a href="{% url 'processing:review' what=what selected_processing_id=selected_processing_id min_log_level=min_log_level sub_process=subp %}"
+                   class="subp-select"
+                   id="Sub{{forloop.counter0}}">
                     <div class="lcars-bar 
                                 button 
                                 lcars-u-1-1
@@ -74,7 +81,11 @@
             <!-- FOOTER -->
             <div id="footer" class="lcars-row ">
                 <!-- ELBOW -->
-                <div class="lcars-elbow left-top lcars-golden-tanoi-bg">
+                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"
+                     id="scroll-down"
+                     style="justify-content: center; 
+                            align-content: flex-start; 
+                            color: #000">
                 </div>
                 <!-- BAR -->
                 <div class="lcars-bar horizontal both-divider bottom">
@@ -91,5 +102,7 @@
             </div>
 
         </div>
+
+         <script src="{% static 'processing/js/review_output.js' %}"></script>
     </body>
 </html>
