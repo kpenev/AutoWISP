@@ -325,20 +325,34 @@ def review(request,
     return render(request, 'processing/review.html', context)
 
 
-def review_single(request, selected_processing_id, what, min_log_level=None):
+def review_single(request,
+                  selected_processing_id,
+                  what,
+                  sub_process=0,
+                  min_log_level=None):
     """A view that shows only one type of output from a processing step."""
 
     context = {'selected_processing_id': selected_processing_id,
-               'min_log_level': min_log_level}
+               'what': what,
+               'min_log_level': min_log_level,
+               'selected_subp': sub_process}
 
     log_output_fnames = ProcessingManager(dummy=True).find_processing_outputs(
         selected_processing_id
     )
+    context['sub_processes'] = range(1, len(log_output_fnames[1][0]) + 1)
+    assert len(log_output_fnames[1][0]) == len(log_output_fnames[1][1])
+
+    if sub_process == 0:
+        log_output_fnames = log_output_fnames[0]
+    else:
+        log_output_fnames = tuple(flist[sub_process - 1]
+                                  for flist in log_output_fnames[1])
 
     if what == 'out':
         context['reviewing'] = 'standard output/error'
         if 'out' in what:
-            with open(log_output_fnames[0][1], 'r', encoding='utf8') as outfile:
+            with open(log_output_fnames[1], 'r', encoding='utf8') as outfile:
                 context['messages'] = [['debug', outfile.read()]]
 
     if what == 'log':
@@ -346,7 +360,7 @@ def review_single(request, selected_processing_id, what, min_log_level=None):
         context['reviewing'] = 'log'
         context['messages'] = []
         log_msg_start_rex = re.compile('(DEBUG|INFO|WARNING|ERROR|CRITICAL) ')
-        with open(log_output_fnames[0][0], 'r', encoding='utf-8') as log_f:
+        with open(log_output_fnames[0], 'r', encoding='utf-8') as log_f:
             skip=True
             for line in log_f:
                 if log_msg_start_rex.match(line):

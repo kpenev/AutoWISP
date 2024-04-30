@@ -18,7 +18,7 @@
                     <div class="lcars-bar horizontal spacer"></div>
                     {% with 'DEBUG INFO WARNING ERROR CRITICAL' as log_levels %}
                         {% for level in log_levels.split %}
-                        <a href="{% url 'processing:review_log' selected_processing_id=selected_processing_id min_log_level=level %}">
+                        <a href="{% url 'processing:review' what=what selected_processing_id=selected_processing_id min_log_level=level sub_process=selected_subp %}">
                             <div class="lcars-bar
                                         button
                                         horizontal
@@ -41,6 +41,33 @@
             <div id="left-menu" 
                  class="lcars-column" 
                  style="text-transform: uppercase">
+                <div class="lcars-bar spacer"></div>
+                <a href="{% url 'processing:review' what=what selected_processing_id=selected_processing_id min_log_level=min_log_level %}">
+                    <div class="lcars-bar 
+                                button 
+                                lcars-u-1-1
+                                {% if not selected_subp %}
+                                lcars-neon-carrot-bg
+                                {% else %}
+                                lcars-rust-bg
+                                {% endif %}">
+                        Main
+                    </div>
+                </a>
+                {% for subp in sub_processes %}
+                <a href="{% url 'processing:review' what=what selected_processing_id=selected_processing_id min_log_level=min_log_level sub_process=subp %}">
+                    <div class="lcars-bar 
+                                button 
+                                lcars-u-1-1
+                                {% if selected_subp == subp %}
+                                lcars-neon-carrot-bg
+                                {% else %}
+                                lcars-rust-bg
+                                {% endif %}">
+                        Sub {{subp}}
+                    </div>
+                </a>
+                {% endfor %}
                 <div class="lcars-bar lcars-u-1"></div>
             </div>
 

@@ -46,7 +46,7 @@
                 {% endfor %}
                 <div class="lcars-bar horizontal">
                     <div class="lcars-title right">
-                        Reviewing processing started {{selected_info.3}}
+                        Processing started {{selected_info.3}}
                     </div>
                 </div>
                 <!-- ROUNDED EDGE DECORATED -->
@@ -117,11 +117,11 @@
             </div>
 
             <div id="container"> 
-                <iframe src="{% url 'processing:review_log' selected_processing_id=selected_processing_id min_log_level=min_log_level %}" 
+                <iframe src="{% url 'processing:review' what='log' selected_processing_id=selected_processing_id min_log_level=min_log_level %}" 
                         style="height: 50%;"
                         title="Logs for precessing ID {{selected_processing_id}}"> 
                 </iframe>
-                <iframe src="{% url 'processing:review_out' selected_processing_id=selected_processing_id %}" 
+                <iframe src="{% url 'processing:review' what='out' min_log_level='critical' selected_processing_id=selected_processing_id %}" 
                         style="height: 50%;"
                         title="Standard output and error for precessing ID {{selected_processing_id}}"> 
                 </iframe>
