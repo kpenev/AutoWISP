@@ -741,8 +741,9 @@ def fit_star_shape(image_collection,
 def cleanup_interrupted(interrupted, configuration):
     """Remove star shape fit datasets from the DR file of the given image."""
 
+    DataReductionFile.fname_template = configuration['data_reduction_fname']
     for image_fname, status in interrupted:
-        assert status is None
+        assert status == 0
 
         fits_header = get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode='r+') as dr_file:

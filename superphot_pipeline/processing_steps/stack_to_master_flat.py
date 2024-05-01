@@ -32,9 +32,11 @@ from superphot_pipeline.image_smoothing import\
 input_type = 'calibrated'
 _logger = logging.getLogger(__name__)
 fail_reasons = {
-    'medium': -3,
-    'cloudy': -4,
-    'colocated': -5
+    'stacking_failed_high': -2,
+    'stacking_failed_low': -3,
+    'medium': -4,
+    'cloudy': -5,
+    'colocated': -6
 }
 
 
@@ -442,9 +444,14 @@ def stack_to_master_flat(image_collection,
 
     for classification, images in classified_images.items():
         if classification == 'high':
-            status = 2 if success['high'] else -1
+            status = (
+                2 if success['high'] else fail_reasons['stacking_failed_high']
+            )
         elif classification == 'low':
-            status = 1 if success['high'] and success['low'] else -2
+            status = (
+                1 if success['high'] and success['low']
+                else fail_reasons['stacking_failed_low']
+            )
         else:
             status = fail_reasons[classification]
         for image_fname in images:

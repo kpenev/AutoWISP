@@ -28,12 +28,12 @@ _logger = logging.getLogger(__name__)
 
 input_type = 'dr'
 fail_reasons = {
-    'failed to converge': -1,
-    'few matched': -2,
-    'high rms': -3,
-    'solve-field failed': -4,
-    'web solve failed': -5,
-    'other': -6
+    'failed to converge': -2,
+    'few matched': -3,
+    'high rms': -4,
+    'solve-field failed': -5,
+    'web solve failed': -6,
+    'other': -7
 }
 
 

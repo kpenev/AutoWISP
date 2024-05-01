@@ -4,13 +4,13 @@ from __future__ import annotations
 from typing import List
 
 from sqlalchemy import\
+    text,\
     Column,\
     Integer,\
     Boolean,\
     String,\
     TIMESTAMP,\
-    ForeignKey,\
-    Table
+    ForeignKey
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -181,7 +181,7 @@ class ImageProcessingProgress(DataModelBase):
     )
     started = Column(
         TIMESTAMP,
-        nullable = False,
+        nullable = True,
         doc='The time processing started'
     )
     finished = Column(
@@ -198,6 +198,7 @@ class ImageProcessingProgress(DataModelBase):
     timestamp = Column(
         TIMESTAMP,
         nullable=False,
+        server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
         doc='When record was last changed'
     )
 

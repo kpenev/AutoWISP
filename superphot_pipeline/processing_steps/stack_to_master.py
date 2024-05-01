@@ -25,6 +25,10 @@ from superphot_pipeline.fits_utilities import get_primary_header
 input_type = 'calibrated'
 _logger = logging.getLogger(__name__)
 
+fail_reasons = {
+    'discarded': -2
+}
+
 
 class ParseAverageAction(Action):
     """Parse the specification of the averaging function on the command line."""
@@ -183,8 +187,10 @@ def stack_to_master(image_collection,
         master_fname
     )
     for image_fname in image_collection:
-        mark_end(image_fname,
-                 -1 if image_fname in discarded_frames else 1)
+        mark_end(
+            image_fname,
+            fail_reasons['discarded'] if image_fname in discarded_frames else 1
+        )
 
     if success:
         assert exists(master_fname)

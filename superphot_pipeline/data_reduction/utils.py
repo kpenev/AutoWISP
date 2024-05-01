@@ -337,7 +337,7 @@ def delete_star_shape_fit(dr_file, **path_substitutions):
 
     dr_file.delete_attribute(
         'shapefit.cfg.psf.ignore_dropped',
-        **dr_path_substitutions
+        **path_substitutions
     )
     _auto_delete_tree_quantities(
         dr_file,

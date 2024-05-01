@@ -841,6 +841,77 @@ class ProcessingManager:
         self._logger.debug('Pending: %s', repr(self._pending))
 
 
+    def _clean_pending_per_dependencies(self,
+                                        db_session,
+                                        from_step_id=None,
+                                        from_image_type_id=None):
+        """Remove pending images from steps if they failed a required step."""
+
+        dropped = {}
+        for (step_id, image_type_id), pending in self._pending.items():
+            if (
+                from_image_type_id is not None
+                and
+                image_type_id != from_image_type_id
+            ):
+                continue
+            for prereq_step_id in db_session.scalars(
+                select(
+                    StepDependencies.blocking_step_id
+                ).where(
+                    StepDependencies.blocked_step_id == step_id,
+                    StepDependencies.blocked_image_type_id == image_type_id,
+                    StepDependencies.blocking_image_type_id == image_type_id
+                )
+            ):
+                if from_step_id is not None and prereq_step_id != from_step_id:
+                    continue
+                prereq_statuses = [
+                    db_session.execute(
+                        select(
+                            ProcessedImages.status
+                        ).outerjoin(
+                            ImageProcessingProgress
+                        ).where(
+                            ProcessedImages.image_id == image.id,
+                            ProcessedImages.channel == channel,
+                            ImageProcessingProgress.step_id == prereq_step_id,
+                            (
+                                ImageProcessingProgress.image_type_id
+                                ==
+                                image_type_id
+                            )
+                        )
+                    ).scalar_one_or_none()
+                    for image, channel in pending
+                ]
+                for i in range(len(pending) - 1, -1, -1):
+                    if prereq_statuses[i] and prereq_statuses[i] < 0:
+                        self._logger.info(
+                            'Image %s, channel %s failed %s. Excluding from %s',
+                            *pending[i],
+                            db_session.scalar(
+                                select(
+                                    Step.name
+                                ).filter_by(
+                                    id=prereq_step_id
+                                )
+                            ),
+                            db_session.scalar(
+                                select(
+                                    Step.name
+                                ).filter_by(
+                                    id=step_id
+                                )
+                            )
+                        )
+
+                        if (step_id, image_type_id) not in dropped:
+                            dropped[(step_id, image_type_id)] = []
+                        dropped[(step_id, image_type_id)].append(pending.pop(i))
+        return dropped
+
+
     def _check_ready(self, step, image_type, db_session):
         """
         Check if the given type of images is ready to process with given step.
@@ -970,23 +1041,9 @@ class ProcessingManager:
             )
 
 
-    def _start_step(self, step, image_type, db_session):
-        """
-        Record the start of a processing step and return the images to process.
+    def _create_current_processing(self, step, image_type, db_session):
+        """Add a new ImageProcessingProgress at start of given step."""
 
-        Args:
-            step_name(str):    The name of the step to start.
-
-        Returns:
-            [(Image, str)]:
-                The list of images and channels to process.
-
-            str:
-                The type of input expected by the current step.
-        """
-
-        step = db_session.merge(step, load=False)
-        image_type = db_session.merge(image_type, load=False)
         this_host  = getfqdn()
         process_id = getpid()
 
@@ -1035,7 +1092,10 @@ class ProcessingManager:
                 'Processing progress %s appears to have crashed.',
                 self._current_processing
             )
+            #False positive
+            #pylint: disable=not-callable
             self._current_processing.finished = sql.func.now()
+            #pylint: enable=not-callable
             db_session.flush()
 
         self._current_processing = ImageProcessingProgress(
@@ -1044,16 +1104,53 @@ class ProcessingManager:
             configuration_version=self.step_version[step.name],
             host=this_host,
             process_id=process_id,
+            #False positive
+            #pylint: disable=not-callable
             started=sql.func.now(),
+            #pylint: enable=not-callable
             finished=None
         )
         db_session.add(self._current_processing)
         db_session.flush()
 
+
+    def _start_step(self, step, image_type, db_session):
+        """
+        Record the start of a processing step and return the images to process.
+
+        Args:
+            step_name(str):    The name of the step to start.
+
+        Returns:
+            [(Image, str)]:
+                The list of images and channels to process.
+
+            str:
+                The type of input expected by the current step.
+        """
+
+        step = db_session.merge(step, load=False)
+        image_type = db_session.merge(image_type, load=False)
+        self._create_current_processing(step, image_type, db_session)
+
         pending_images = [
             (db_session.merge(image, load=False), channel)
             for image, channel in self._pending[(step.id, image_type.id)]
         ]
+        for image, channel in self._failed_dependencies.get(
+            (step.id, image_type.id),
+            []
+        ):
+            db_session.add(
+                ProcessedImages(
+                    image_id=db_session.merge(image, load=False).id,
+                    channel=channel,
+                    progress_id=self._current_processing.id,
+                    status=-1,
+                    final=True
+                )
+            )
+            self._some_failed = True
 
         self._processed_ids = {}
         step_input_type = getattr(processing_steps, step.name).input_type
@@ -1195,6 +1292,10 @@ class ProcessingManager:
 
         assert self.current_step is not None
         assert self._current_processing is not None
+        assert status != -1
+
+        if status < 0:
+            self._some_failed = True
         self._logger.debug('Finished processing %s',
                            repr(self._processed_ids[input_fname]))
         #False positivie
@@ -1422,6 +1523,7 @@ class ProcessingManager:
         self._evaluated_expressions = {}
         self._processed_ids = {}
         self._pending = {}
+        self._some_failed = False
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
@@ -1494,6 +1596,9 @@ class ProcessingManager:
             if not dummy:
                 self._cleanup_interrupted(db_session)
                 self._fill_pending(db_session)
+                self._failed_dependencies = (
+                    self._clean_pending_per_dependencies(db_session)
+                )
 
 
     def find_processing_outputs(self, processing_progress, db_session=None):
@@ -1583,6 +1688,7 @@ class ProcessingManager:
                         image_type.name
                     )
 
+                self._some_failed = False
                 pending_images, step_input_type = self._start_step(step,
                                                                    image_type,
                                                                    db_session)
@@ -1608,6 +1714,21 @@ class ProcessingManager:
                 self._logger.debug('Processed %s batch of %d images.',
                                    step_name,
                                    len(batch))
+            #pylint: disable=no-member
+            with Session.begin() as db_session:
+            #pylint: enable=no-member
+                db_session.merge(self._current_processing).finished = (
+                    #False positive
+                    #pylint: disable=not-callable
+                    sql.func.now()
+                    #pylint: enable=not-callable
+                )
+                if self._some_failed:
+                    self._clean_pending_per_dependencies(
+                        db_session,
+                        self._current_processing.step_id,
+                        self._current_processing.image_type_id
+                    )
 
 
     def add_raw_images(self, image_collection):
