@@ -873,7 +873,11 @@ class ProcessingManager:
                         ).outerjoin(
                             ImageProcessingProgress
                         ).where(
-                            ProcessedImages.image_id == image.id,
+                            (
+                                ProcessedImages.image_id
+                                ==
+                                db_session.merge(image).id
+                            ),
                             ProcessedImages.channel == channel,
                             ImageProcessingProgress.step_id == prereq_step_id,
                             (
@@ -1141,9 +1145,13 @@ class ProcessingManager:
             (step.id, image_type.id),
             []
         ):
+            image = db_session.merge(image, load=False)
+            self._logger.info('Prerequisite failed for %s of %s',
+                              step.name,
+                              image)
             db_session.add(
                 ProcessedImages(
-                    image_id=db_session.merge(image, load=False).id,
+                    image_id=image.id,
                     channel=channel,
                     progress_id=self._current_processing.id,
                     status=-1,
@@ -1599,6 +1607,15 @@ class ProcessingManager:
                 self._failed_dependencies = (
                     self._clean_pending_per_dependencies(db_session)
                 )
+                self._logger.debug(
+                    'Unsuccessful dependencies prevent:\n\t%s',
+                    '\n\t'.join(
+                        f'Step {step} for {len(failed)} image type {image_type}'
+                        ' images'
+                        for (step, image_type), failed in
+                        self._failed_dependencies.items()
+                    )
+                )
 
 
     def find_processing_outputs(self, processing_progress, db_session=None):
@@ -1717,18 +1734,32 @@ class ProcessingManager:
             #pylint: disable=no-member
             with Session.begin() as db_session:
             #pylint: enable=no-member
-                db_session.merge(self._current_processing).finished = (
+                self._current_processing = db_session.merge(
+                    self._current_processing
+                )
+                self._current_processing.finished = (
                     #False positive
                     #pylint: disable=not-callable
                     sql.func.now()
                     #pylint: enable=not-callable
                 )
                 if self._some_failed:
-                    self._clean_pending_per_dependencies(
+                    dropped = self._clean_pending_per_dependencies(
                         db_session,
                         self._current_processing.step_id,
                         self._current_processing.image_type_id
                     )
+                    for step_imtype, dropped_images in dropped.items():
+                        if step_imtype in self._failed_dependencies:
+                            self._failed_dependencies[
+                                step_imtype
+                            ].extend(
+                                dropped_images
+                            )
+                        else:
+                            self._failed_dependencies[step_imtype] = (
+                                dropped_images
+                            )
 
 
     def add_raw_images(self, image_collection):

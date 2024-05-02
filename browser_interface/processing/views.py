@@ -219,8 +219,6 @@ def start_processing(_request):
     #We don't want processing to stop when this goes out of scope.
     #pylint: disable=consider-using-with
     Popen([processing.__file__],
-          stdout=PIPE,
-          stderr=PIPE,
           start_new_session=True,
           encoding='ascii')
     #pylint: enable=consider-using-with
