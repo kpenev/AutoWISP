@@ -448,6 +448,51 @@ class ProcessingManager:
         return result
 
 
+    def _set_calibration_config(self, config, batch, db_session):
+        """Retrun the specially formatted argument for the calibration step."""
+
+        config['split_channels'] = self._get_split_channels(batch[0][0])
+        config['extra_header'] = {
+            'OBS-SESN': batch[0][0].observing_session.label
+        }
+        config['raw_hdu'] = {
+            channel: self._get_param_values(
+                first_image_expressions[channel]['matched'],
+                ['raw-hdu'],
+                db_session
+            )['raw-hdu']
+            for channel in filter(None, first_image_expressions.keys())
+        }
+        hdu_set = set(config['raw_hdu'].values())
+        if len(hdu_set) == 1:
+            config['raw_hdu'] = hdu_set.pop()
+        else:
+            assert len(hdu_set) == len(config['raw_hdu'])
+            for channel, hdu in config['raw_hdu'].items():
+                if hdu is not None:
+                    config['raw_hdu'] = int(hdu)
+        self._logger.debug('Calibration step configuration:\n%s',
+                           '\n\t'.join(
+                               (f'{k}: {v!r}' for k, v in config.items())
+                           ))
+        return {
+            (
+                'split_channels',
+                ''.join(
+                    repr(c)
+                    for c in batch[0][0].observing_session.camera.channels
+                )
+            ),
+            (
+                'observing_session',
+                config['extra_header']['OBS-SESN']
+            ),
+            tuple(
+                sorted(config['raw_hdu'].items())
+            )
+        }
+
+
     #Could not find good way to simplify
     #pylint: disable=too-many-locals
     def _get_batch_config(self,
@@ -499,41 +544,9 @@ class ProcessingManager:
         )
         config_key |= {master_expression_values}
         if step.name == 'calibrate':
-            config['split_channels'] = self._get_split_channels(batch[0][0])
-            config['extra_header'] = {
-                'OBS-SESN': batch[0][0].observing_session.label
-            }
-            config['raw_hdu'] = {
-                channel: int(
-                    self._get_param_values(
-                        first_image_expressions[channel]['matched'],
-                        ['raw-hdu'],
-                        db_session
-                    )['raw-hdu']
-                )
-                for channel in filter(None, first_image_expressions.keys())
-            }
-            self._logger.debug('Calibration step configuration:\n%s',
-                               '\n\t'.join(
-                                   (f'{k}: {v!r}' for k, v in config.items())
-                               ))
-            key_extra = {
-                (
-                    'split_channels',
-                    ''.join(
-                        repr(c)
-                        for c in batch[0][0].observing_session.camera.channels
-                    )
-                ),
-                (
-                    'observing_session',
-                    config['extra_header']['OBS-SESN']
-                ),
-                tuple(
-                    sorted(config['raw_hdu'].items())
-                )
-            }
-            config_key |= key_extra
+            config_key |= self._set_calibration_config(config,
+                                                       batch,
+                                                       db_session)
         config['processing_step'] = step.name
         config['image_type'] = batch[0][0].image_type.name
 
