@@ -79,12 +79,15 @@ def assemble_channels(filename, hdu, split_channels):
 
     logger = getLogger(__name__)
 
-    if len(split_channels) == 1:
-        assert (
+    if (
+        len(split_channels) == 1
+        or
+        (
             isinstance(filename, str)
             and
-            (isinstance(hdu, int) or hdu == 'components')
+            isinstance(hdu, int)
         )
+    ):
         if hdu == 'components':
             return read_image_components(filename, read_header=False)
         if hdu == 'masks':
@@ -93,7 +96,7 @@ def assemble_channels(filename, hdu, split_channels):
                                          read_error=False,
                                          read_header=False)[0]
         with fits.open(filename, 'readonly') as image:
-            return image[hdu].astype('float64')
+            return image[hdu].data.astype('float64')
 
     assert len(split_channels) > 1
 
