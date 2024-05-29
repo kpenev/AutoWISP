@@ -4,6 +4,7 @@
 
 from functools import partial
 from os import path
+from itertools import cycle
 
 from matplotlib import pyplot
 from matplotlib.backends.backend_pdf import PdfPages
@@ -47,13 +48,15 @@ def parse_command_line():
     parser.add_argument(
         'lightcurves',
         nargs='+',
-        help='The filenames of the lightcurves to plot. If exactly 4 LCs are '
-        'specified and only one binning mode, the assumption is that they are '
-        'red, green, green, and blue LC of the same source, and hence plotted '
-        'with corresponding colors (light and dark greed for the two green '
-        'chanels). Alternatively, specify a format string and use the '
-        '`--from-catalog` option to plot any LCs in the catalog for which the.'
-        'pattern produces a filename that exists.'
+        help='The filenames of the lightcurves to plot. Each filename can be '
+        'followed by ``:<key>=value>[:<key>=value[:...]]`` to specify '
+        'substitutions for dataset paths that differ between lightcurves. If '
+        'exactly 4 LCs are specified and only one binning mode, the assumption '
+        'is that they are red, green, green, and blue LC of the same source, '
+        'and hence plotted with corresponding colors (light and dark greed for '
+        'the two green chanels). Alternatively, specify a format string and use'
+        'the `--from-catalog` option to plot any LCs in the catalog for which '
+        'the pattern produces a filename that exists.'
     )
     parser.add_argument(
         '--config-file', '-c',
@@ -611,6 +614,12 @@ def add_lc_to_plot(select_photometry,
 
         configuration:    The parsed command line configuration.
 
+        transit_model:    If a transit is expected in this lightcurev, this
+            argument should provide a model for the expected transit.
+
+        transit_parameters:    A 2-tuple specifying positional and keyword
+            arguments required to evaluate the transit model.
+
     Returns:
         array:    The times at which lightcurve entries are available, measured
             from the last integer BJD before the first observation. These are
@@ -633,6 +642,7 @@ def add_lc_to_plot(select_photometry,
     ):
         plot_colors = ['red', 'green', 'lime', 'blue']
     else:
+#        pyplot.rcParams["axes.prop_cycle"] = pyplot.cycler("color", pyplot.cm.tab20c.colors)
         plot_colors = pyplot.rcParams['axes.prop_cycle'].by_key()['color']
 
     if configuration.pages:
@@ -656,14 +666,14 @@ def add_lc_to_plot(select_photometry,
 
     else:
         print('Plot colors: ' + repr(plot_colors))
-        assert (
-            len(plot_colors)
-            >=
-            (1 if configuration.pages else len(configuration.lightcurves))
-            *
-            len(configuration.detrending_mode)
-        )
-    colors = iter(plot_colors)
+#        assert (
+#            len(plot_colors)
+#            >=
+#            (1 if configuration.pages else len(configuration.lightcurves))
+#            *
+#            len(configuration.detrending_mode)
+#        )
+    colors = cycle(plot_colors)
 
     skip_gap_axes, figure = [pyplot.gca()], pyplot.gcf()
     bjd_offset = None
@@ -680,7 +690,7 @@ def add_lc_to_plot(select_photometry,
             [[lc_fname] for lc_fname in configuration.lightcurves]
         ):
             if configuration.pages:
-                colors = iter(plot_colors)
+                colors = cycle(plot_colors)
             #False positive
             #pylint: disable=unbalanced-tuple-unpacking
             scatter, _, _, bjd, magnitudes = select_photometry(
@@ -758,9 +768,8 @@ def add_lc_to_plot(select_photometry,
                 )
                 print('Skip gap axes generated!')
             else:
-                print('Skip gap axes not generated for %d LCs'
-                      %
-                      len(configuration.lightcurves))
+                print('Skip gap axes not generated for '
+                      f'{len(configuration.lightcurves)} LCs')
 
 
             if (
@@ -768,6 +777,8 @@ def add_lc_to_plot(select_photometry,
                 or
                 configuration.binning is None
             ):
+                if not bjd.any():
+                    continue
                 print(f'Plotting individual LCs: {magnitudes!r}')
                 lc_color = next(colors)
                 for plot_axes in skip_gap_axes:
@@ -787,7 +798,7 @@ def add_lc_to_plot(select_photometry,
             combined_bjd = combined_bjd.flatten()
             combined_magnitudes = combined_magnitudes.flatten()
             if configuration.pages:
-                colors = iter(plot_colors)
+                colors = cycle(plot_colors)
 
             if configuration.binning is None:
                 magnitudes = magnitudes.mean(axis=1).to_numpy(dtype=float)
@@ -850,7 +861,7 @@ def main(configuration):
               'catalog')
 
     scatter_config = get_scatter_config(configuration)
-    print('Scatter config: %s' % repr(scatter_config))
+    print(f'Scatter config: {scatter_config!r}')
     if configuration.aperture_index is not None:
         del scatter_config['min_lc_length']
         select_photometry = partial(
@@ -941,7 +952,7 @@ def main(configuration):
 
     if configuration.fold_period:
         pyplot.xlabel(
-            'Phase (P={:.6f} d)'.format(configuration.fold_period)
+            f'Phase (P={configuration.fold_period:.6f} d)'
         )
     else:
         pyplot.xlabel('Days')

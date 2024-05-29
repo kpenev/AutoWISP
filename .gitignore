@@ -1,3 +1,6 @@
+#Manual
+*.outerr
+
 # Ignore vim swap files
 .*.swp
 .*.swo

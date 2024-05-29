@@ -6,6 +6,7 @@ from os import path
 from functools import partial
 from itertools import count
 import logging
+import argparse
 
 from matplotlib import pyplot, patheffects
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -28,8 +29,29 @@ from superphot_pipeline.processing_steps.lc_detrending import\
     get_transit_parameters
 
 
+def try_converting(value_str):
+    """Try converting the given value to int or float, leave str if not."""
+
+    try:
+        return int(value_str)
+    except ValueError:
+        try:
+            return float(value_str)
+        except ValueError:
+            return value_str
+
+
 def add_scatter_arguments(parser, multi_mode=True):
     """Add arguments to cmdline parser determining how scatter is calculated."""
+
+    class ParseKwargs(argparse.Action):
+        """Parse arguments in the form of key=value [key=value [...]]."""
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, self.dest, {})
+            for value in values:
+                key, value = value.split('=')
+                getattr(namespace, self.dest)[key] = try_converting(value)
 
     parser.add_argument(
         '--detrending-mode',
@@ -41,10 +63,12 @@ def add_scatter_arguments(parser, multi_mode=True):
         '--distance-splits).'
     )
     parser.add_argument(
-        '--magfit-iteration',
-        type=int,
-        default=0,
-        help='Which iteration of magnitude fitting to use.'
+        '--lc-substitutions',
+        default='magfit_iteration=0',
+        action=ParseKwargs,
+        nargs='*',
+        help='Substitutions needed to resolve the datasets in the lightcurve to'
+        ' plot. For example, which iteration of magnitude fitting to use.'
     )
     parser.add_argument(
         '--average',
@@ -230,7 +254,7 @@ def get_scatter_config(cmdline_args):
     """Return the configuration to use for extracting scatter from LC."""
 
     return {
-        'magfit_iteration': cmdline_args.magfit_iteration,
+        'common_lc_substitutions': cmdline_args.lc_substitutions,
         'min_lc_length': cmdline_args.min_lc_length,
         'calculate_average': cmdline_args.average,
         'calculate_scatter': cmdline_args.statistic,
@@ -272,7 +296,7 @@ def get_specified_photometry(lightcurve_filenames,
                              *,
                              aperture_index,
                              detrending_mode,
-                             magfit_iteration,
+                             lc_substitutions,
                              stat_only=False,
                              **scatter_config):
     """Same as get_minimum_scatter, except return specified aperture."""
@@ -284,13 +308,13 @@ def get_specified_photometry(lightcurve_filenames,
             if aperture_index >= 0:
                 magnitudes = lightcurve.get_dataset(
                     'apphot.' + detrending_mode + '.magnitude',
-                    magfit_iteration=magfit_iteration,
-                    aperture_index=aperture_index
+                    aperture_index=aperture_index,
+                    **lc_substitutions
                 )
             else:
                 magnitudes = lightcurve.get_dataset(
                     'shapefit.' + detrending_mode + '.magnitude',
-                    magfit_iteration=magfit_iteration
+                    **lc_substitutions
                 )
 
     min_scatter, selected_lc_length = (
@@ -307,7 +331,7 @@ def get_specified_photometry(lightcurve_filenames,
 
 def get_lc_minimum_scatter(lc_fname,
                            detrending_mode,
-                           magfit_iteration,
+                           lc_substitutions,
                            min_lc_length,
                            *,
                            stat_only=False,
@@ -318,12 +342,14 @@ def get_lc_minimum_scatter(lc_fname,
     Find the photometry with the smallest scatter in given LC.
 
     Args:
-        lightcurve_filenames([str]):    The filenames of all the lightcurve for
-            a single object which will be combined before finding the smallest
-            scatter.
+        lc_fname(str):    The filename of the lightcurve for which to find the
+            smallest scatter.
 
         detrending_mode(str):    Which version of detrending to extract the
             scatter for. Should be one of `'magfit'`, `'epd'`, or `'tfa'`.
+
+        lc_substitutions(dict):    Arguments that should be substituted in the
+                dataset paths within the lighcurve (e.g. magfit_iteration.
 
         min_lc_length(int):    Only allow photometries which contain at least
             this many non-rejected points.
@@ -375,7 +401,7 @@ def get_lc_minimum_scatter(lc_fname,
                 best_mags, scatter_mags = get_magnitudes(
                     lightcurve,
                     'shapefit.' + detrending_mode + '.magnitude',
-                    magfit_iteration=magfit_iteration
+                    **lc_substitutions
                 )
 
                 min_scatter, selected_lc_length = (
@@ -397,7 +423,7 @@ def get_lc_minimum_scatter(lc_fname,
                     lightcurve,
                     'apphot.' + detrending_mode + '.magnitude',
                     aperture_index=aperture_index,
-                    magfit_iteration=magfit_iteration
+                    **lc_substitutions
                 )
 
                 scatter, lc_length = calculate_iterative_rejection_scatter(
@@ -421,7 +447,7 @@ def get_lc_minimum_scatter(lc_fname,
 #pylint: disable=too-many-locals
 def get_minimum_scatter(lightcurve_filenames,
                         detrending_mode,
-                        magfit_iteration,
+                        common_lc_substitutions,
                         min_lc_length,
                         *,
                         stat_only=False,
@@ -434,7 +460,9 @@ def get_minimum_scatter(lightcurve_filenames,
     Args:
         lightcurve_filenames([str]):    The filenames of all the lightcurve for
             a single object which will be combined before finding the smallest
-            scatter.
+            scatter. Each LC filename can optionally followed by
+            ``:<key>=value>[:<key>=value[:...]]`` to specify substitutions for '
+            'dataset paths that differ between lightcurves.
 
         For all other arguments see get_lc_minimum_scatter().
 
@@ -442,23 +470,39 @@ def get_minimum_scatter(lightcurve_filenames,
         Same as get_lc_minimum_scatter().
     """
 
+    def get_lc_substitutions(lc_fname):
+        """Return combined (common + individual) substitution for given LC."""
+
+        if ':' not in lc_fname:
+            return common_lc_substitutions
+
+        lc_substitutions = dict(common_lc_substitutions)
+        for key_value in lc_fname.split(':')[1:]:
+            key, value = key_value.split('=')
+            lc_substitutions[key] = try_converting(value)
+        return lc_substitutions
+
+
     def get_lc_data(lc_fname, lc_index):
 
         return pandas.DataFrame(
             dict(
                 zip(
                     ('image_id', 'bjd', f'mag_{lc_index:03d}'),
-                    get_lc_minimum_scatter(lc_fname,
-                                           detrending_mode=detrending_mode,
-                                           magfit_iteration=magfit_iteration,
-                                           min_lc_length=min_lc_length,
-                                           stat_only=False,
-                                           get_magnitudes=get_magnitudes,
-                                           match_by=match_by,
-                                           **scatter_config)[-3:]
+                    get_lc_minimum_scatter(
+                        lc_fname.split(':')[0],
+                        detrending_mode=detrending_mode,
+                        lc_substitutions=get_lc_substitutions(lc_fname),
+                        min_lc_length=min_lc_length,
+                        stat_only=False,
+                        get_magnitudes=get_magnitudes,
+                        match_by=match_by,
+                        **scatter_config
+                    )[-3:]
                 )
             )
         ).set_index('image_id')
+
 
     def get_scatter_no_fail(array):
         """Return the scatter of the given array or NaN on any failure."""
@@ -505,14 +549,16 @@ def get_minimum_scatter(lightcurve_filenames,
             return scatter, lc_length
         return scatter, lc_length, None, bjd, matched
 
-    return get_lc_minimum_scatter(lightcurve_filenames[0],
-                                  detrending_mode=detrending_mode,
-                                  magfit_iteration=magfit_iteration,
-                                  min_lc_length=min_lc_length,
-                                  stat_only=stat_only,
-                                  get_magnitudes=get_magnitudes,
-                                  match_by=match_by,
-                                  **scatter_config)
+    return get_lc_minimum_scatter(
+        lightcurve_filenames[0].split(':')[0],
+        detrending_mode=detrending_mode,
+        lc_substitutions=get_lc_substitutions(lightcurve_filenames[0]),
+        min_lc_length=min_lc_length,
+        stat_only=stat_only,
+        get_magnitudes=get_magnitudes,
+        match_by=match_by,
+        **scatter_config
+    )
 #pylint: enable=too-many-locals
 
 
