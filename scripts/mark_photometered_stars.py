@@ -5,7 +5,7 @@
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 
-from superphot_pipeline import DataReductionFile
+from autowisp import DataReductionFile
 
 from plot_detrending_stat import detect_stat_columns
 

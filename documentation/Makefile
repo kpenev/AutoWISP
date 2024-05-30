@@ -5,9 +5,9 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXAPIDOC  = sphinx-apidoc
-SPHINXPROJ    = SuperPhotPipeline
+SPHINXPROJ    = AutoWISP
 SOURCEDIR     = source
-MODULEDIR     = ../superphot_pipeline
+MODULEDIR     = ../autowisp
 BUILDDIR      = build
 APIDOCOPTS    = --force -M --separate -o "$(SOURCEDIR)/implementation" 
 

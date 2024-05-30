@@ -24,7 +24,7 @@ import inspect
 
 # -- Project information -----------------------------------------------------
 
-project = 'SuperPhotPipeline'
+project = 'AutoWISP'
 #pylint: disable=redefined-builtin
 copyright = '2018, Kaloyan Penev'
 #pylint: enable=redefined-builtin
@@ -118,7 +118,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SuperPhotPipelinedoc'
+htmlhelp_basename = 'AutoWISPlinedoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -145,7 +145,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'SuperPhotPipeline.tex', 'SuperPhotPipeline Documentation',
+    (master_doc, 'AutoWISP.tex', 'AutoWISP Documentation',
      'Kaloyan Penev', 'manual'),
 ]
 
@@ -155,7 +155,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'superphotpipeline', 'SuperPhotPipeline Documentation',
+    (master_doc, 'autowisp', 'AutoWISP Documentation',
      [author], 1)
 ]
 
@@ -166,8 +166,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'SuperPhotPipeline', 'SuperPhotPipeline Documentation',
-     author, 'SuperPhotPipeline', 'One line description of project.',
+    (master_doc, 'AutoWISP', 'AutoWISP Documentation',
+     author, 'AutoWISP', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -190,8 +190,8 @@ autodoc_default_flags = ['members',
                          'undoc-members',
                          'show-inheritance']
 
-autodoc_mock_imports = ['superphot_pipeline.database.DbSource',
-                        'superphot_pipeline.Dump2hdf5']
+autodoc_mock_imports = ['autowisp.database.DbSource',
+                        'autowisp.Dump2hdf5']
 
 #Napolean extension defined names.
 #pylint: disable=invalid-name

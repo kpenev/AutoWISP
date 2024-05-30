@@ -8,18 +8,18 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-from superphot_pipeline.database.user_interface import\
+from autowisp.database.user_interface import\
     get_json_config,\
     save_json_config,\
     list_steps
-from superphot_pipeline.database.interface import Session
+from autowisp.database.interface import Session
 #False positive
 #pylint: disable=no-name-in-module
-from superphot_pipeline.database.data_model import\
+from autowisp.database.data_model import\
     Configuration,\
     ImageProcessingProgress,\
     ObservingSession
-from superphot_pipeline.database.data_model import provenance
+from autowisp.database.data_model import provenance
 #pylint: enable=no-name-in-module
 
 

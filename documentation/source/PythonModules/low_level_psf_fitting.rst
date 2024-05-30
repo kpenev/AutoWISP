@@ -8,7 +8,7 @@ while the PRF gives the response of a detector pixel at some offset from the
 "center" of the source. That is the PRF is the PSF convolved with the
 sensitivity map of detector pixels.
 
-PSF/PRF fitting is done using SuperPhot, which models both the PSF and the PRF
+PSF/PRF fitting is done using AstroWISP, which models both the PSF and the PRF
 as follows: The area around the source location is split into a rectangular grid
 of cells (unrelated to pixels) with, in general, non-uniform sizes, organized in
 M rows and N columns. In each cell, the amount of light falling on the detector
@@ -54,7 +54,7 @@ the shape parameters. The former can be achieved by performing aperture
 photometry on the input sources, assuming a flat PSF model.
 
 Since modelling every single image pixel and fitting for the fluxes of all
-sources simultaneously is an overwhelming computational task, SuperPhot
+sources simultaneously is an overwhelming computational task, AstroWISP
 processes only pixels near known sources (i.e. ones that at least partially
 overlap with the PSF grid), discarding pixels to which multiple sources
 contribute flux from the shape fit but fitting for the fluxes of such sources
@@ -62,19 +62,19 @@ simultaneously during the amplitude fitting step.
 
 Given calibrated FITS frames of the night sky produced as described in
 :doc:`low_level_image_calibration` and an astrometric solution produced as
-described in :doc:`low_level_astrometry`, this module uses SuperPhot to carry
+described in :doc:`low_level_astrometry`, this module uses AstroWISP to carry
 out the PSF/PRF fitting decsribed above in four steps:
 
   1. Querying the catalogue for all sources in an area fully covering the image,
      filtering those sources by specified criteria and using the astrometric
      solution to project those sources on the frame, discarding sources which
      project to locations outside the frame. This is the list of sources passed
-     to SuperPhot for which PSF/PRF fitting is performed.
+     to AstroWISP for which PSF/PRF fitting is performed.
 
-  2. Invoke SuperPhot to measure the background for each source in the above
+  2. Invoke AstroWISP to measure the background for each source in the above
      list.
 
-  3. Invoke SuperPhot with the list of sources now each augmented by its
+  3. Invoke AstroWISP with the list of sources now each augmented by its
      background measurement to fir for the PSF or PRF.
 
   4. Add the results of the above 3 steps to the data reduction files for the

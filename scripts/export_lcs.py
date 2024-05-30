@@ -9,7 +9,7 @@ from astropy.table import Table
 from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 
-from superphot_pipeline.file_utilities import find_lc_fnames
+from autowisp.file_utilities import find_lc_fnames
 
 from plot_lc_scatter import get_lc_minimum_scatter
 

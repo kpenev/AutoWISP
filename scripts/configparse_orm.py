@@ -5,10 +5,10 @@ Usage in terminal:
 """
 from configargparse import ArgumentParser
 from sqlalchemy.orm import Session
-from superphot_pipeline.database.interface import Session
-from superphot_pipeline.database.processing import ProcessingManager
-from superphot_pipeline.database.data_model.configuration import Configuration
-from superphot_pipeline.database.data_model.steps_and_parameters import Parameter
+from autowisp.database.interface import Session
+from autowisp.database.processing import ProcessingManager
+from autowisp.database.data_model.configuration import Configuration
+from autowisp.database.data_model.steps_and_parameters import Parameter
 from datetime import datetime
 import configparser
 

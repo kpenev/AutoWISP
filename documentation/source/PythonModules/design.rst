@@ -8,8 +8,10 @@ maximum flexibility and extendability.
 Processors
 ==========
 
+NOT TRUE!!!
+
 All pipeline processing should be done through classes that inherit from a
-common base class: :class:`superphot_pipeline.processor`, which should provide a
+common base class: :class:`autowisp.processor`, which should provide a
 uniform interface for configuring things like :doc:`logging` and
 :doc:`crash_recovery`.  Operations which are shared among multiple processors,
 yet are so atomic that they could not issue useful logging messages or upon

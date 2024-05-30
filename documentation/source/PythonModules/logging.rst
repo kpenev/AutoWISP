@@ -41,9 +41,9 @@ Adding context information
 This is also handled by the python logging module. In fact there are `two
 mechanisms
 <https://docs.python.org/3/howto/logging-cookbook.html#context-info>`_ to choose
-from: LoggerAdapters and Filters. In the SuperPhot pipeline we will use Filters,
-since it results in easier handling of the extra contextual information by
-formatters and handlers.
+from: LoggerAdapters and Filters. In AutoWISP we will use Filters, since it
+results in easier handling of the extra contextual information by formatters and
+handlers.
 
 What remains to decide is what contextual information to add. Some possibilities
 include:

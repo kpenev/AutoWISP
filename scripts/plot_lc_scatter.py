@@ -16,16 +16,16 @@ import pandas
 from colormath.color_objects import sRGBColor, HSLColor
 from colormath.color_conversions import convert_color
 
-from superphot_pipeline import LightCurveFile, Evaluator
-from superphot_pipeline.catalog import read_catalog_file
-from superphot_pipeline.file_utilities import find_lc_fnames
-from superphot_pipeline.light_curves.apply_correction import\
+from autowisp import LightCurveFile, Evaluator
+from autowisp.catalog import read_catalog_file
+from autowisp.file_utilities import find_lc_fnames
+from autowisp.light_curves.apply_correction import\
     calculate_iterative_rejection_scatter
-from superphot_pipeline.light_curves.reconstructive_correction_transit import\
+from autowisp.light_curves.reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
-from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
+from autowisp.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
-from superphot_pipeline.processing_steps.lc_detrending import\
+from autowisp.processing_steps.lc_detrending import\
     get_transit_parameters
 
 

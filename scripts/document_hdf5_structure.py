@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 
 from lxml import etree
 
-from superphot_pipeline import DataReductionFile, LightCurveFile
+from autowisp import DataReductionFile, LightCurveFile
 
 #TODO: fix output of root attributes.
 

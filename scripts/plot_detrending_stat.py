@@ -33,8 +33,8 @@ import pandas
 
 from matplotlib import pyplot
 
-from superphot_pipeline.catalog import read_catalog_file
-from superphot_pipeline import Evaluator
+from autowisp.catalog import read_catalog_file
+from autowisp import Evaluator
 
 def parse_command_line():
     """Return the parsed command line arguments."""

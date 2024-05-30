@@ -1,5 +1,6 @@
 #Manual
 *.outerr
+*.py-e
 
 # Ignore vim swap files
 .*.swp

@@ -119,7 +119,7 @@
       <attribute description="The maximum number of shape/amplitude fitting iterations allowed during PSF/PRF fitting." dtype="numpy.float64" key="shapefit.cfg.psf.max_iterations" name="MaxIterations"/>
       <attribute description="The minimum rate of convergence required before stopping iterations." dtype="numpy.float64" key="shapefit.cfg.psf.min_convergence_rate" name="MinimumConvergenceRate"/>
       <attribute description="The model used to represent the PSF/PRF." dtype="numpy.float64" key="shapefit.cfg.psf.model" name="Model"/>
-      <attribute description="The terms the PSF/PRF is allowed to depend on. See SuperPhot documentation for full description." dtype="numpy.float64" key="shapefit.cfg.psf.terms" name="Terms"/>
+      <attribute description="The terms the PSF/PRF is allowed to depend on. See AstroWISP documentation for full description." dtype="numpy.float64" key="shapefit.cfg.psf.terms" name="Terms"/>
       <attribute description="For bicubic PSF fits, If true all pixels that at least partially overlap with the grid are assigned to the corresponding source." dtype="numpy.float64" key="shapefit.cfg.src.cover_bicubic_grid" name="CoverGridWithPixels"/>
       <attribute description="If this option has a positive value, pixels are assigned to sources in circular apertures (the smallest such that all pixels that pass the signal to noise cut are still assigned to the source)." dtype="numpy.float64" key="shapefit.cfg.src.max_aperture" name="SourceMaxAperture"/>
       <attribute description="The maximum number of sources to include in the fit for the PSF shape." dtype="numpy.float64" key="shapefit.cfg.src.max_count" name="MaxSources"/>

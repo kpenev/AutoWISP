@@ -10,14 +10,14 @@ from matplotlib import pyplot
 import numpy
 from astropy.io import fits
 
-from superphot.utils import explore_prf
+from astrowisp.utils import explore_prf
 
-from superphot_pipeline import PiecewiseBicubicPSFMap
-from superphot_pipeline.file_utilities import find_fits_fnames
-from superphot_pipeline.fits_utilities import\
+from autowisp import PiecewiseBicubicPSFMap
+from autowisp.file_utilities import find_fits_fnames
+from autowisp.fits_utilities import\
     get_primary_header,\
     read_image_components
-from superphot_pipeline.processing_steps.manual_util import\
+from autowisp.processing_steps.manual_util import\
     ManualStepArgumentParser
 
 def parse_command_line():

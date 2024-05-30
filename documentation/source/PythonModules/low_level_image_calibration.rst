@@ -10,9 +10,9 @@ is the calibrated image and the second extension are the error estimates for
 each pixel. While the input images can be either integer or floating point, the
 calibrated images are always floating point.
 
-The :mod:`image_calibration<superphot_pipeline.image_calibration>` module
+The :mod:`image_calibration<autowisp.image_calibration>` module
 defines a class
-(:class:`Calibrator<superphot_pipeline.image_calibration.Calibrator>`) that
+(:class:`Calibrator<autowisp.image_calibration.Calibrator>`) that
 provides the lowest level interface for performing calibrations. The calibration
 requires specifying overscan area(s) to use, overscan correction method(s),
 master bias/dark/flat, and gain to assume for the input raw frames (single

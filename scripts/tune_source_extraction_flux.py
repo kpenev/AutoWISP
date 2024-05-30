@@ -20,15 +20,17 @@ import PIL.ImageDraw
 import PIL.ImageTk
 import numpy
 
-from command_line_util import get_default_frame_processing_cmdline
-
-from superphot_pipeline.image_utilities import zscale_image
-from superphot_pipeline.file_utilities import find_fits_fnames
-from superphot_pipeline.fits_utilities import read_image_components
-from superphot_pipeline import SourceFinder, Evaluator
-from superphot.utils.file_utilities import\
+from astrowisp.utils.file_utilities import\
     get_fits_fname_root,\
     prepare_file_output
+
+
+from command_line_util import get_default_frame_processing_cmdline
+
+from autowisp.image_utilities import zscale_image
+from autowisp.file_utilities import find_fits_fnames
+from autowisp.fits_utilities import read_image_components
+from autowisp import SourceFinder, Evaluator
 #pylint: enable=wrong-import-position
 
 def parse_configuration(default_config_files=('find_sources.cfg',),
@@ -137,7 +139,7 @@ class SourceExtractionTuner(tkinter.Frame):
                                              0,
                                              image=self._image['photo'],
                                              anchor='nw')
-        self._widgets['nsources_label']['text'] = (str(sources.size))
+        self._widgets['nsources_label']['text'] = str(sources.size)
 
     def _update(self):
         """Re-extract sources and mark them on the image."""
@@ -147,16 +149,14 @@ class SourceExtractionTuner(tkinter.Frame):
             threshold = float(threshold)
         except ValueError:
             tkinter.messagebox.showinfo(
-                message='Threshold specified (%s) not a valid number.'
-                %
-                repr(threshold)
+                message=f'Threshold specified ({threshold!r}) '
+                'not a valid number.'
             )
             return
         if threshold <= 0:
             tkinter.messagebox.showinfo(
-                message='Invalid threshold specified: %s. Must be positive.'
-                %
-                repr(threshold)
+                message=f'Invalid threshold specified: {threshold!r}. '
+                'Must be positive.'
             )
 
         filter_expression = self._widgets['filter_entry'].get()
@@ -172,11 +172,11 @@ class SourceExtractionTuner(tkinter.Frame):
     def _create_active_widgets(self):
         """Return dictionary of all the widgets that will be udptade by app."""
 
-        result = dict(
-            xscroll=tkinter.ttk.Scrollbar(self, orient=tkinter.HORIZONTAL),
-            yscroll=tkinter.ttk.Scrollbar(self, orient=tkinter.VERTICAL),
-            controls_frame=tkinter.Frame(self)
-        )
+        result = {
+            'xscroll': tkinter.ttk.Scrollbar(self, orient=tkinter.HORIZONTAL),
+            'yscroll': tkinter.ttk.Scrollbar(self, orient=tkinter.VERTICAL),
+            'controls_frame': tkinter.Frame(self)
+        }
         result['canvas'] = tkinter.Canvas(
             self,
             scrollregion=(0,
@@ -283,15 +283,15 @@ class SourceExtractionTuner(tkinter.Frame):
         )
 
         self._fits_images = list(find_fits_fnames(configuration.images))
-        self._image = dict(
+        self._image = {
             #False positive
             #pylint: disable=no-member
-            data=read_image_components(self._fits_images[0],
-                                       read_error=False,
-                                       read_mask=False,
-                                       read_header=False)[0]
+            'data': read_image_components(self._fits_images[0],
+                                          read_error=False,
+                                          read_mask=False,
+                                          read_header=False)[0]
             #pylint: enable=no-member
-        )
+        }
 
         self._widgets = self._create_active_widgets()
 

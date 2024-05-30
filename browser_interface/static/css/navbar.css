@@ -63,10 +63,6 @@ body {
   display: block;
 }
 
-.dropdown:hover .dropbtn {
-  display: none;
-}
-
 .dropdown-right {
   float: right;
 }

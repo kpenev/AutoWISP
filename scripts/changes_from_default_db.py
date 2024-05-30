@@ -4,16 +4,16 @@
 
 from sqlalchemy.orm import contains_eager
 
-from superphot_pipeline.database.interface import Session
+from autowisp.database.interface import Session
 #Pylint false positive due to quirky imports.
 #pylint: disable=no-name-in-module
-from superphot_pipeline.database.data_model import\
+from autowisp.database.data_model import\
     HDF5Product,\
     HDF5StructureVersion
 #pylint: enable=no-name-in-module
-from superphot_pipeline.database.initialize_light_curve_structure import\
+from autowisp.database.initialize_light_curve_structure import\
     get_default_light_curve_structure
-from superphot_pipeline.database.initialize_data_reduction_structure import\
+from autowisp.database.initialize_data_reduction_structure import\
     get_default_data_reduction_structure
 
 def report_key_mismatch(default_key_set, config_key_set):

@@ -15,17 +15,17 @@ from django.views import View
 #from django.template import loader
 from psutil import pid_exists
 
-from superphot_pipeline.database.interface import Session
-from superphot_pipeline.database import processing
-from superphot_pipeline.database.user_interface import\
+from autowisp.database.interface import Session
+from autowisp.database import processing
+from autowisp.database.user_interface import\
     get_processing_sequence,\
     get_progress,\
     list_channels
-from superphot_pipeline.file_utilities import find_fits_fnames
-from superphot_pipeline.database.processing import ProcessingManager
+from autowisp.file_utilities import find_fits_fnames
+from autowisp.database.processing import ProcessingManager
 #False positive
 #pylint: disable=no-name-in-module
-from superphot_pipeline.database.data_model import\
+from autowisp.database.data_model import\
     ImageProcessingProgress,\
     ProcessingSequence,\
     ImageType,\

@@ -7,7 +7,7 @@ import sqlite3
 from configargparse import ArgumentParser
 import sys
 sys.path.append("..") #from parent directory import...
-from superphot_pipeline.processing_steps import __all__ as all_steps
+from autowisp.processing_steps import __all__ as all_steps
 
 
 """ Retrieves desired parameters from configuration files.

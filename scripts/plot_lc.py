@@ -15,14 +15,14 @@ from scipy import stats
 from configargparse import ArgumentParser, DefaultsFormatter
 from pytransit import QuadraticModel
 
-from superphot_pipeline.processing_steps.lc_detrending_argument_parser import\
+from autowisp.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
-from superphot_pipeline.light_curves.reconstructive_correction_transit import\
+from autowisp.light_curves.reconstructive_correction_transit import\
     ReconstructiveCorrectionTransit
-from superphot_pipeline.processing_steps.lc_detrending import\
+from autowisp.processing_steps.lc_detrending import\
     get_transit_parameters
-from superphot_pipeline.catalog import read_catalog_file
-from superphot_pipeline.tess_interface import get_tess_lightcurve
+from autowisp.catalog import read_catalog_file
+from autowisp.tess_interface import get_tess_lightcurve
 
 #This is not third party
 #pylint: disable=wrong-import-order

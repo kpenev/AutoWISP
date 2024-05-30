@@ -26,7 +26,7 @@ add up the flux over the same area around the source for each image. This
 automatically implies that photometry tools have to handle pixels which only
 partially overlap with the aperture.
 
-SuperPhot performs aperture photometry, properly accounting for the PSF and
+AstroWISP performs aperture photometry, properly accounting for the PSF and
 non-uniform pixel sensitivity for both pixels fully within the aperture and
 pixels straddling the aperture boundary. If no PSF information is available, the
 flux over each pixel is assumed uniformly distributed. If not pixel sensitivity

@@ -6,11 +6,11 @@ Usage in terminal:
                             --option (REQUIRED) [how to deal with duplicate parameters]
 """
 from configargparse import ArgumentParser
-from superphot_pipeline.database.interface import Session
-from superphot_pipeline.database.processing import ProcessingManager
+from autowisp.database.interface import Session
+from autowisp.database.processing import ProcessingManager
 from datetime import datetime
-from superphot_pipeline.database.data_model.steps_and_parameters import Parameter
-from superphot_pipeline.database.data_model.configuration import Configuration
+from autowisp.database.data_model.steps_and_parameters import Parameter
+from autowisp.database.data_model.configuration import Configuration
 from sqlalchemy import select, func
 import configparser
 

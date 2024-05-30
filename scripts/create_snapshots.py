@@ -6,8 +6,8 @@ import logging
 
 from command_line_util import get_default_frame_processing_cmdline
 
-from superphot_pipeline.file_utilities import find_fits_fnames
-from superphot_pipeline.image_utilities import create_snapshot
+from autowisp.file_utilities import find_fits_fnames
+from autowisp.image_utilities import create_snapshot
 
 def parse_configuration(default_config_files=('create_snapshots.cfg',),
                         default_snapshot_pattern='%(FITS_ROOT)s.jpg'):

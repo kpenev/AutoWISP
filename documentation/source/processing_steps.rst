@@ -211,9 +211,9 @@ To review the terms:
       PRF is the PSF convolved with the sub-pixel sensitiity map it is generally
       smoother than the PSF and thus easier to model.
 
-In this pipeline we use `SuperPhot <https://github.com/kpenev/SuperPhot>`_ to
+In this pipeline we use `AstroWISP <https://github.com/kpenev/AstroWISP>`_ to
 perform PSF and PRF fitting. For the gory details of how this is done, see the
-`SuperPhot documentation <https://kpenev.github.io/SuperPhot/>`_. Briefly, the
+`AstroWISP documentation <https://kpenev.github.io/AstroWISP/>`_. Briefly, the
 PSF and PRF are modeled as piecewise bi-cubic functions with a number of free
 parameters.  These parameters are in turn forced to vary smoothly as a function
 of source and image properties across sources and across images.
@@ -227,9 +227,9 @@ the inevitable pixels that are partiallly within an aperture, knowledge of the
 distribution of light accross these pixels as well as the sub-pixel sensitivy
 map is required.
 
-This taks is again carried out by `SuperPhot
-<https://github.com/kpenev/SuperPhot>`_. See the `documentation
-<https://kpenev.github.io/SuperPhot/>`_ for further details.
+This taks is again carried out by `AstroWISP
+<https://github.com/kpenev/AstroWISP>`_. See the `documentation
+<https://kpenev.github.io/AstroWISP/>`_ for further details.
 
 4. Magnitude fitting:
 =====================

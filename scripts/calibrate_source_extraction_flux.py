@@ -9,12 +9,12 @@ from matplotlib import pyplot
 import pandas
 import numpy
 
-from superphot_pipeline import DataReductionFile
-from superphot_pipeline import Evaluator
-from superphot_pipeline.file_utilities import find_dr_fnames
-from superphot_pipeline.processing_steps.manual_util import \
+from autowisp import DataReductionFile
+from autowisp import Evaluator
+from autowisp.file_utilities import find_dr_fnames
+from autowisp.processing_steps.manual_util import \
     ManualStepArgumentParser
-from superphot_pipeline.fit_expression import Interface as FitTermsInterface,\
+from autowisp.fit_expression import Interface as FitTermsInterface,\
     iterative_fit
 
 _logger = logging.getLogger(__name__)
