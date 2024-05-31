@@ -5,6 +5,7 @@
 import re
 import logging
 import os
+from argparse import _StoreAction
 
 from configargparse import Action
 from general_purpose_python_modules.multiprocessing_util import setup_process
@@ -68,27 +69,45 @@ class ParseChannelsAction(Action):
         setattr(namespace, self.dest, result)
 
 
-class ParseChannelDependentAction(Action):
+class ParseChannelDependentAction(_StoreAction):
     """Parse command line arguments with channel dependent values."""
+
+    @staticmethod
+    def _format_result(result, option_string):
+        """Format the parsed result per the option being parsed."""
+
+        if option_string == '--raw-hdu':
+            for channel, value in result.items():
+                result[channel] = int(value)
+            hdu_set = set(result.values())
+            if len(hdu_set) == 1:
+                return hdu_set.pop()
+
+        return result
 
     def __call__(self, parser, namespace, values, option_string=None):
         """Parse a channel dependent option."""
 
+        result = {}
+        for entry in values:
+            channel_name, channel_value = entry.split(':')
+            if channel_name in result:
+                if isinstance(result[channel_name], list):
+                    result[channel_name].append(channel_value)
+                else:
+                    result[channel_name] = [result[channel_name],
+                                            channel_value]
+            else:
+                result[channel_name] = channel_value
+        _logger.debug('Per channel %s(%s) = %s',
+                      self.dest,
+                      option_string,
+                      repr(result))
         setattr(
             namespace,
             self.dest,
-            {}
+            self._format_result(result, option_string)
         )
-        dest = getattr(namespace, self.dest)
-        for entry in values:
-            channel_name, channel_value = entry.split(':')
-            if channel_name in dest:
-                if isinstance(dest['channel_name'], list):
-                    dest['channel_name'].append(channel_value)
-                else:
-                    dest['channel_name'] = [dest['channel_name'], channel_value]
-            else:
-                dest['channel_name'] = channel_value
 
 
 def parse_overscan(overscan_str):
@@ -130,10 +149,17 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--raw-hdu',
-        type=int,
         default=None,
-        help='Which hdu of the raw frames contains the image to calibrate. If '
-        'not specified, the first HDU with non-zero NAXIS value is used.'
+        nargs='+',
+        action=ParseChannelDependentAction,
+        help='Which hdu(s) of the raw frames contains the (channels of the) '
+        'image to calibrate. If not specified, the first HDU with non-zero '
+        'NAXIS value is used. If channels are already split, define the HDU '
+        'containing the pixels of each channel by supplying multiple values '
+        'of the form CHANNEL_NAME:HDU. If the same hdu is specified for all '
+        'channels, or only a single integer is specified, that HDU is assumed '
+        'to contain the staggered pixels of all channels (see '
+        '--split-channels).'
     )
     parser.add_argument(
         '--split-channels',

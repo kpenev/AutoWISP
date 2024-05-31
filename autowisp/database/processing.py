@@ -302,7 +302,6 @@ class ProcessingManager:
 
         result = set()
 
-        added_params = {'raw-hdu'}
         for step in db_steps:
             outf.write(f'[{step.name}]\n')
             step_config = self._get_param_values(
@@ -310,7 +309,6 @@ class ProcessingManager:
                 [
                     param.name
                     for param in step.parameters
-                    if param.name not in added_params
                 ]
             )
             for param, value in step_config.items():
@@ -457,14 +455,6 @@ class ProcessingManager:
         config['extra_header'] = {
             'OBS-SESN': first_image.observing_session.label
         }
-        config['raw_hdu'] = {
-            channel: self._get_param_values(
-                first_image_expressions[channel]['matched'],
-                ['raw-hdu'],
-                db_session
-            )['raw-hdu']
-            for channel in filter(None, first_image_expressions.keys())
-        }
         result = {
             (
                 'split_channels',
@@ -476,19 +466,8 @@ class ProcessingManager:
             (
                 'observing_session',
                 config['extra_header']['OBS-SESN']
-            ),
-            tuple(
-                sorted(config['raw_hdu'].items())
             )
         }
-        hdu_set = set(config['raw_hdu'].values())
-        if len(hdu_set) == 1:
-            config['raw_hdu'] = hdu_set.pop()
-        else:
-            assert len(hdu_set) == len(config['raw_hdu'])
-            for channel, hdu in config['raw_hdu'].items():
-                if hdu is not None:
-                    config['raw_hdu'] = int(hdu)
         self._logger.debug('Calibration step configuration:\n%s',
                            '\n\t'.join(
                                (f'{k}: {v!r}' for k, v in config.items())
@@ -709,7 +688,11 @@ class ProcessingManager:
                 self._get_matched_expressions(evaluate),
                 step_name='calibrate',
             )[0]
-            self._logger.debug('Calibration config: %s', repr(calib_config))
+            self._logger.debug('Raw HDU for channel %s (%s) of %s: %s',
+                               channel_name,
+                               evaluate.symtable['CLRCHNL'],
+                               image.raw_fname,
+                               repr(calib_config['raw_hdu']))
             add_required_keywords(evaluate.symtable, calib_config, True)
             if result is None and return_evaluator:
                 result = asteval.Interpreter()
@@ -1525,6 +1508,82 @@ class ProcessingManager:
     #pylint: enable=too-many-locals
 
 
+    def _prepare_processing(self, step, image_type, limit_to_steps):
+        """Prepare for processing images of given type by a calibration step."""
+
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            step = db_session.merge(step)
+            image_type = db_session.merge(image_type)
+            setup_process(task='main',
+                          parent_pid='',
+                          processing_step=step.name,
+                          image_type=image_type.name,
+                          **self._processing_config)
+
+            if limit_to_steps is not None and step.name not in limit_to_steps:
+                self._logger.debug('Skipping disabled %s for %s frames',
+                                   step.name,
+                                   image_type.name)
+                return step.name, image_type.name, None
+
+            if not self._check_ready(step, image_type, db_session):
+                self._logger.debug(
+                    'Not ready for %s of %d %s frames',
+                    step.name,
+                    len(self._pending[(step.id, image_type.id)]),
+                    image_type.name
+                )
+
+            self._some_failed = False
+            pending_images, step_input_type = self._start_step(step,
+                                                               image_type,
+                                                               db_session)
+            if not pending_images:
+                return step.name, image_type.name, None
+
+            return (
+                step.name,
+                image_type.name,
+                self._get_batches(pending_images, step_input_type, db_session)
+            )
+
+
+    def _finalize_processing(self):
+        """Update database and instance after processing."""
+
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            self._current_processing = db_session.merge(
+                self._current_processing
+            )
+            self._current_processing.finished = (
+                #False positive
+                #pylint: disable=not-callable
+                sql.func.now()
+                #pylint: enable=not-callable
+            )
+            if self._some_failed:
+                dropped = self._clean_pending_per_dependencies(
+                    db_session,
+                    self._current_processing.step_id,
+                    self._current_processing.image_type_id
+                )
+                for step_imtype, dropped_images in dropped.items():
+                    if step_imtype in self._failed_dependencies:
+                        self._failed_dependencies[
+                            step_imtype
+                        ].extend(
+                            dropped_images
+                        )
+                    else:
+                        self._failed_dependencies[step_imtype] = (
+                            dropped_images
+                        )
+
+
     def __init__(self, version=None, dummy=False):
         """
         Set the public class attributes per the given configuartion version.
@@ -1700,87 +1759,30 @@ class ProcessingManager:
             processing_sequence = get_processing_sequence(db_session)
 
         for step, image_type in processing_sequence:
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-                step = db_session.merge(step)
-                image_type = db_session.merge(image_type)
-                setup_process(task='main',
-                              parent_pid='',
-                              processing_step=step.name,
-                              image_type=image_type.name,
-                              **self._processing_config)
-
-                if limit_to_steps is not None and step not in limit_to_steps:
-                    self._logger.debug('Skipping disabled %s for %s frames',
-                                       step.name,
-                                       image_type.name)
-                    continue
-
-                if not self._check_ready(step, image_type, db_session):
-                    self._logger.debug(
-                        'Not ready for %s of %d %s frames',
-                        step.name,
-                        len(self._pending[(step.id, image_type.id)]),
-                        image_type.name
-                    )
-
-                self._some_failed = False
-                pending_images, step_input_type = self._start_step(step,
-                                                                   image_type,
-                                                                   db_session)
-                if not pending_images:
-                    continue
-
-                processing_batches = self._get_batches(pending_images,
-                                                       step_input_type,
-                                                       db_session)
+            (
+                step_name,
+                image_type_name,
+                processing_batches
+            ) = self._prepare_processing(step,
+                                         image_type,
+                                         limit_to_steps)
             for (
                     (_, start_status),
                     (config, batch)
             ) in processing_batches.items():
                 self._logger.debug('Starting %s for a batch of %d images.',
-                                   step.name,
+                                   step_name,
                                    len(batch))
 
                 self._process_batch(batch,
                                     start_status=start_status,
                                     config=config,
-                                    step_name=step.name,
-                                    image_type_name=image_type.name)
+                                    step_name=step_name,
+                                    image_type_name=image_type_name)
                 self._logger.debug('Processed %s batch of %d images.',
-                                   step.name,
+                                   step_name,
                                    len(batch))
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-                self._current_processing = db_session.merge(
-                    self._current_processing
-                )
-                self._current_processing.finished = (
-                    #False positive
-                    #pylint: disable=not-callable
-                    sql.func.now()
-                    #pylint: enable=not-callable
-                )
-                if self._some_failed:
-                    dropped = self._clean_pending_per_dependencies(
-                        db_session,
-                        self._current_processing.step_id,
-                        self._current_processing.image_type_id
-                    )
-                    for step_imtype, dropped_images in dropped.items():
-                        if step_imtype in self._failed_dependencies:
-                            self._failed_dependencies[
-                                step_imtype
-                            ].extend(
-                                dropped_images
-                            )
-                        else:
-                            self._failed_dependencies[step_imtype] = (
-                                dropped_images
-                            )
-
+            self._finalize_processing()
 
     def add_raw_images(self, image_collection):
         """Add the given RAW images to the database for processing."""
