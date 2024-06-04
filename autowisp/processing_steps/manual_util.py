@@ -522,10 +522,13 @@ def read_subpixmap(fits_fname):
         #pylint: enable=no-member
 
 
-def ignore_progress(_input_fname, _status=0):
+#These must be acceptable as keyword arguments
+#pylint: disable=unused-argument
+def ignore_progress(input_fname, status=0):
     """Dummy function to replace progress tracking of auto processing."""
 
     return
+#pylint: enable=unused-argument
 
 
 def get_catalog_config(cmdline_args, prefix):
