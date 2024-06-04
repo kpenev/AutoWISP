@@ -1766,6 +1766,8 @@ class ProcessingManager:
             ) = self._prepare_processing(step,
                                          image_type,
                                          limit_to_steps)
+            if processing_batches is None:
+                continue
             for (
                     (_, start_status),
                     (config, batch)
