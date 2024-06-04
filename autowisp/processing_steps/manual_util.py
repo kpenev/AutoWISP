@@ -524,7 +524,7 @@ def read_subpixmap(fits_fname):
 
 #These must be acceptable as keyword arguments
 #pylint: disable=unused-argument
-def ignore_progress(input_fname, status=0):
+def ignore_progress(input_fname, status=1, final=True):
     """Dummy function to replace progress tracking of auto processing."""
 
     return
