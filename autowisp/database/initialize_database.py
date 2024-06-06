@@ -28,7 +28,7 @@ from autowisp.database.data_model import\
     ConditionExpression,\
     ProcessingSequence,\
     MasterType,\
-    RequiredMasterTypes
+    InputMasterTypes
 #pylint: enable=no-name-in-module
 
 
@@ -41,7 +41,7 @@ master_info =  {
         'config_name': 'master-mask',
         'created_by': None,
         'split_by': frozenset(),
-        'required_by': [
+        'used_by': [
             ('calibrate', 'zero'),
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
@@ -57,7 +57,7 @@ master_info =  {
         'config_name': 'master-bias',
         'created_by': ('stack_to_master', 'zero'),
         'split_by': frozenset(('OBS_SESN',)),
-        'required_by': [
+        'used_by': [
             ('calibrate', 'dark'),
             ('calibrate', 'flat'),
             ('calibrate', 'object')
@@ -72,7 +72,7 @@ master_info =  {
         'config_name': 'master-dark',
         'created_by': ('stack_to_master', 'dark'),
         'split_by': frozenset(('OBS_SESN',)),
-        'required_by': [
+        'used_by': [
             ('calibrate', 'flat'),
             ('calibrate', 'object')
         ],
@@ -88,7 +88,7 @@ master_info =  {
         'config_name': 'master-flat',
         'created_by': ('stack_to_master_flat', 'flat'),
         'split_by': frozenset(('OBS_SESN',)),
-        'required_by': [
+        'used_by': [
             ('calibrate', 'object')
         ],
         'description': 'An estimate of the relative sensitivity of image '
@@ -104,7 +104,7 @@ master_info =  {
         'config_name': 'low-flat-master-fname',
         'created_by': ('stack_to_master_flat', 'flat'),
         'split_by': frozenset(('OBS_SESN',)),
-        'required_by': [],
+        'used_by': [],
         'description': 'An estimate of the relative sensitivity of image '
         'pixels to light from infinity entering the telescope. Constructed from'
         ' flat frames with low light.'
@@ -118,13 +118,30 @@ master_info =  {
         'config_name': 'single-photref-dr-fname',
         'created_by': None,
         'split_by': frozenset(),
-        'required_by': [
+        'used_by': [
             ('fit_magnitudes', 'object')
         ],
         'description': 'The reference image to use to start magnitude '
         'fitting. Subsequently replaced by average of the corrected '
         'brightnes of each star.'
+    },
+    'master_photref': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'master-photref-fname',
+        'created_by': ('fit_magnitudes', 'object'),
+        'split_by': frozenset(),
+        'used_by': [
+            ('fit_magnitudes', 'object')
+        ],
+        'optional': True,
+        'description': 'The master photometric reference to use for magnitude '
+        'fitting if available.'
     }
+
 }
 
 
@@ -474,13 +491,14 @@ def add_master_dependencies(db_session):
             description=master_config['description']
         )
         db_session.add(db_master_type)
-        for step, image_type in master_config['required_by']:
+        for step, image_type in master_config['used_by']:
             db_session.add(
-                RequiredMasterTypes(
+                InputMasterTypes(
                     step_id=get_step_id(step),
                     image_type_id=get_imtype_id(image_type),
                     master_type_id=db_master_type.id,
-                    config_name=master_config['config_name']
+                    config_name=master_config['config_name'],
+                    optional=master_config.get('optional', False)
                 )
             )
 

@@ -7,6 +7,7 @@ from sqlalchemy import\
     Index,\
     Integer,\
     String,\
+    Boolean,\
     TIMESTAMP,\
     ForeignKey
 from sqlalchemy.orm import relationship, Mapped
@@ -120,6 +121,12 @@ class MasterFile(DataModelBase):
         String(1000),
         nullable=False,
         doc='The full path of the master file.'
+    )
+    enabled = Column(
+        Boolean,
+        nullable=False,
+        default=True,
+        doc='Can this master be used for calibrations?'
     )
     use_smallest = Column(
         String(1000),

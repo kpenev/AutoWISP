@@ -51,6 +51,13 @@ def parse_command_line(*args):
         'reference to use to start the magnitude fitting iterations.'
     )
     parser.add_argument(
+        '--master-photref-fname',
+        default=None,
+        help='The name of a master photometric reference to use. If specified, '
+        'the sintgle reference is ignored and magnitude fitting proceeds '
+        'without any iterations.'
+    )
+    parser.add_argument(
         '--master-photref-fname-format',
         default=(
             'MASTERS/mphotref_'
@@ -186,7 +193,7 @@ def fit_magnitudes(dr_collection,
         assert start_status % 2 == 1
 
     dr_fnames = sorted(dr_collection)
-    magnitude_fitting.iterative_refit(
+    master_photref_fname = magnitude_fitting.iterative_refit(
         fit_dr_filenames=dr_fnames,
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
         catalog_sources=ensure_catalog(
@@ -207,6 +214,10 @@ def fit_magnitudes(dr_collection,
         continue_from_iteration=(start_status + 1) // 2,
         **get_path_substitutions(configuration)
     )
+    return {
+        'filename': master_photref_fname,
+        'preference_order': None
+    }
 
 
 def cleanup_interrupted(interrupted, configuration):

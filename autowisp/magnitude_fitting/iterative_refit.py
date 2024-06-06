@@ -90,7 +90,7 @@ def iterative_refit(fit_dr_filenames,
             to identify components to use in the fit.
 
     Returns:
-        None
+        The filename of the last master photometric reference created.
     """
 
     def update_photref(magfit_stat_collector,
@@ -163,9 +163,9 @@ def iterative_refit(fit_dr_filenames,
         )
 
         if average_square_change.max() <= configuration.max_photref_change:
-            return None
+            return None, master_reference_fname
 
-        return new_reference
+        return new_reference, master_reference_fname
 
 
     path_substitutions['magfit_iteration'] = continue_from_iteration
@@ -192,6 +192,7 @@ def iterative_refit(fit_dr_filenames,
         '{0:d}'
     )
 
+    photref_fname = None
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
                 photref
@@ -199,6 +200,8 @@ def iterative_refit(fit_dr_filenames,
                 path_substitutions['magfit_iteration'] <= max_iterations
         ):
             assert next(iter(photref.values()))['mag'].size == num_photometries
+
+            result = photref_fname
 
             magfit_stat_collector = MasterPhotrefCollector(
                 magfit_stat_fname_format.format_map(fname_substitutions),
@@ -249,15 +252,18 @@ def iterative_refit(fit_dr_filenames,
                     map(pool_magfit, fit_dr_filenames)
                 )
 
-            photref = update_photref(magfit_stat_collector,
-                                     photref,
-                                     photref_dr.parse_hat_source_id,
-                                     num_photometries,
-                                     fname_substitutions)
+            photref, photref_fname = update_photref(
+                magfit_stat_collector,
+                photref,
+                photref_dr.parse_hat_source_id,
+                num_photometries,
+                fname_substitutions
+            )
             path_substitutions['magfit_iteration'] += 1
             fname_substitutions['magfit_iteration'] += 1
     for fit_dr_fname in fit_dr_filenames:
         mark_end(fit_dr_fname,
                  status=2 * path_substitutions['magfit_iteration'] - 1,
                  final=True)
+    return result
 #pylint: enable=too-many-locals

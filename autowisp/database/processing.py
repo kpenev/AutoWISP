@@ -42,7 +42,7 @@ from autowisp.database.data_model import\
     ObservingSession,\
     MasterFile,\
     MasterType,\
-    RequiredMasterTypes,\
+    InputMasterTypes,\
     Condition,\
     ConditionExpression
 from autowisp.database.data_model.provenance import\
@@ -352,6 +352,7 @@ class ProcessingManager:
                 MasterFile
             ).filter_by(
                 type_id=master_type.master_type_id,
+                enabled=True,
             )
         ).all()
         result = []
@@ -388,6 +389,8 @@ class ProcessingManager:
                            repr(image),
                            repr(channel),
                            repr(candidate_masters))
+        if not candidate_masters:
+            return None
         image_eval = self._evaluate_expressions_image(image,
                                                       channel,
                                                       True)
@@ -403,7 +406,7 @@ class ProcessingManager:
         return best_master_fname
 
 
-    def _split_by_master(self, batch, required_master_type, db_session):
+    def _split_by_master(self, batch, input_master_type, db_session):
         """Split the given list of images by the best master of given type."""
 
         result = {}
@@ -420,12 +423,16 @@ class ProcessingManager:
                 self._evaluate_expressions_image(batch[0][0],
                                                  channel,
                                                  True),
-                required_master_type,
+                input_master_type,
                 db_session
             )
-            if not candidate_masters[channel]:
+            if (
+                not candidate_masters[channel]
+                and
+                not input_master_type.optional
+            ):
                 raise NoMasterError(
-                    f'No master {required_master_type.master_type.name} '
+                    f'No master {input_master_type.master_type.name} '
                     f'found for image {batch[0][0].raw_fname} channel '
                     f'{channel}.'
                 )
@@ -446,10 +453,8 @@ class ProcessingManager:
         return result
 
 
-    def _set_calibration_config(self, config, first_image, db_session):
+    def _set_calibration_config(self, config, first_image):
         """Retrun the specially formatted argument for the calibration step."""
-
-        first_image_expressions = self._evaluated_expressions[first_image.id]
 
         config['split_channels'] = self._get_split_channels(first_image)
         config['extra_header'] = {
@@ -526,17 +531,15 @@ class ProcessingManager:
         )
         config_key |= {master_expression_values}
         if step.name == 'calibrate':
-            config_key |= self._set_calibration_config(config,
-                                                       batch[0][0],
-                                                       db_session)
+            config_key |= self._set_calibration_config(config, batch[0][0])
         config['processing_step'] = step.name
         config['image_type'] = batch[0][0].image_type.name
 
         result = {
             config_key: (config, batch)
         }
-        for required_master_type in db_session.scalars(
-            select(RequiredMasterTypes).filter_by(
+        for input_master_type in db_session.scalars(
+            select(InputMasterTypes).filter_by(
                 step_id=step.id,
                 image_type_id=batch[0][0].image_type_id
             )
@@ -545,7 +548,7 @@ class ProcessingManager:
                 del result[config_key]
                 try:
                     splits = self._split_by_master(sub_batch,
-                                                   required_master_type,
+                                                   input_master_type,
                                                    db_session)
                 except NoMasterError as no_master:
                     self._logger.error(str(no_master))
@@ -553,11 +556,12 @@ class ProcessingManager:
 
                 for best_master, sub_batch in splits.items():
                     new_config = dict(config)
-                    new_config[
-                        required_master_type.config_name.replace('-', '_')
-                    ] = dict(best_master)
+                    if best_master is not None:
+                        new_config[
+                            input_master_type.config_name.replace('-', '_')
+                        ] = dict(best_master)
                     key_extra = {
-                        (required_master_type.config_name, best_master)
+                        (input_master_type.config_name, best_master)
                     }
                     result[config_key | key_extra] = (new_config, sub_batch)
 
@@ -1340,7 +1344,7 @@ class ProcessingManager:
                 select(
                     ConditionExpression.id
                 ).select_from(
-                    RequiredMasterTypes
+                    InputMasterTypes
                 ).join(
                     MasterType
                 ).join(
@@ -1352,11 +1356,11 @@ class ProcessingManager:
                 ).join(
                     ConditionExpression
                 ).where(
-                    RequiredMasterTypes.step_id
+                    InputMasterTypes.step_id
                     ==
                     self.current_step.id
                 ).where(
-                    RequiredMasterTypes.image_type_id
+                    InputMasterTypes.image_type_id
                     ==
                     image_type_id
                 ).group_by(

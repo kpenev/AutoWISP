@@ -6,18 +6,19 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
+    Boolean,\
     TIMESTAMP,\
     ForeignKey
 from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
-__all__ = ['RequiredMasterTypes']
+__all__ = ['InputMasterTypes']
 
-class RequiredMasterTypes(DataModelBase):
+class InputMasterTypes(DataModelBase):
     """The table describing the prerequisites for a step to run"""
 
-    __tablename__ = 'required_master_types'
+    __tablename__ = 'input_master_types'
 
     step_id = Column(
         Integer,
@@ -36,6 +37,12 @@ class RequiredMasterTypes(DataModelBase):
         ForeignKey('master_type.id'),
         primary_key=True,
         doc='The master type required for the step to run.'
+    )
+    optional = Column(
+        Boolean,\
+        default=False,
+        doc='Can processing by the given step of the given types of images '
+        'can proceed if the given type of master is not found?'
     )
     config_name = Column(
         String(50),
