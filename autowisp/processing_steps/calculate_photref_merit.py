@@ -233,7 +233,7 @@ def get_frame_merit_info(dr_fname,
     return result
 
 
-def sort_by_photref_merit(dr_filenames, config):
+def calculate_photref_merit(dr_filenames, config):
     """Avoid pollutin global namespace."""
 
     dr_path_substitutions = {
@@ -267,13 +267,17 @@ def sort_by_photref_merit(dr_filenames, config):
     for column in frame_quantities:
         eval_merit.symtable['std_' + column] = merit_info[column].std()
     merit_info['merit'] = eval_merit(config['merit_function'])
-    _logger.info('Merit info:\n%s',
-                  repr(merit_info.sort_values(by='merit', ascending=False)))
+    return merit_info
 
 
 if __name__ == '__main__':
     cmdline_config = parse_command_line()
-    sort_by_photref_merit(
-        list(find_dr_fnames(cmdline_config.pop('dr_files'))),
-        cmdline_config
+    _logger.info(
+        'Merit info:\n%s',
+        repr(
+            calculate_photref_merit(
+                list(find_dr_fnames(cmdline_config.pop('dr_files'))),
+                cmdline_config
+            ).sort_values(by='merit', ascending=False)
+        )
     )
