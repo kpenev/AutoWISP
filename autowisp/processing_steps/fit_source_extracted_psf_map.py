@@ -53,7 +53,7 @@ def parse_command_line(*args):
         '--srcextract-psfmap-terms',
         default='O3{x, y}*O1{phot_g_mean_mag}',
         help='An expression involving source extraction and/or catalogue '
-        'variables for the weights to use for the smoothing fit.'
+        'variables for the terms to include in the smoothing fit.'
     )
     parser.add_argument(
         '--srcextract-psfmap-weights',
@@ -72,7 +72,7 @@ def parse_command_line(*args):
         type=float,
         default=5.0,
         help='How far away from the fit should a point be before it is rejected'
-        ' in utins of error_avg.'
+        ' in units of error_avg.'
     )
     parser.add_argument(
         '--srcextract-psfmap-max-rej-iter',

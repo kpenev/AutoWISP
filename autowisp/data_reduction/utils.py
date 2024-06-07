@@ -122,9 +122,9 @@ def _add_shapefit_map(dr_file,
                num_terms)
     )
     dr_file.add_dataset('shapefit.map_coef',
-                     coefficients,
-                     if_exists='error',
-                     **path_substitutions)
+                        coefficients,
+                        if_exists='error',
+                        **path_substitutions)
 
 
 def _auto_add_tree_quantities(dr_file,
