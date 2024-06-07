@@ -20,6 +20,7 @@ from autowisp.fit_expression import\
     iterative_fit
 from autowisp.processing_steps.manual_util import\
     ManualStepArgumentParser
+from autowisp import Evaluator
 
 _logger = logging.getLogger(__name__)
 input_type = 'dr'
@@ -65,6 +66,19 @@ def parse_command_line(*args):
         default=10,
         help='The maximum number of outlier rejection/refit iterations allowed '
         'when fitting for the smooth background of an image.'
+    )
+    parser.add_argument(
+        '--merit-function',
+        default='1.0 / ((1.0 - qnt_s)**2 + qnt_bg**2)',
+        help='The merit function to use. High values should indicate a better '
+        'candidate to serve as photometric reference. The function may use any '
+        'PSF parameter as well as the following frame properties:\n'
+        '\tz: the zenith distance of the frame center\n'
+        '\tbg: the background level at the center of the frame\n'
+        'In addition, for each property the standard deviation over all frames '
+        'can also be used as ``std_<param>`` (e.g. ``std_z``) as well as its '
+        'quantile as ``qnt_<param>`` (e.g. ``qnt_bg`` for the background '
+        'quantile).'
     )
 
     return parser.parse_args(*args)
@@ -175,10 +189,10 @@ def get_center_background(dr_file,
     return coef[0]
 
 
-def get_merit_info(dr_fname,
-                   typical_star,
-                   bg_fit_config,
-                   **dr_path_substitutions):
+def get_frame_merit_info(dr_fname,
+                         typical_star,
+                         bg_fit_config,
+                         **dr_path_substitutions):
     """Return the properties relevant for calculating the merit of given DR."""
 
     with DataReductionFile(dr_fname, 'r') as dr_file:
@@ -186,7 +200,8 @@ def get_merit_info(dr_fname,
         astrometry = Transformation()
         astrometry.read_transformation(dr_file, **dr_path_substitutions)
         result = {
-            'zenith_distance': get_center_zenith_distance(header, astrometry)
+            'dr': dr_fname,
+            'z': get_center_zenith_distance(header, astrometry)
         }
 
         typical_star['RA'] = astrometry.pre_projection_center[0]
@@ -210,15 +225,15 @@ def get_merit_info(dr_fname,
             result[psf_param.decode()] = float(
                 numpy.dot(map_coef, psf_map_predictors)
             )
-        result['background'] = get_center_background(dr_file,
-                                                     header,
-                                                     **bg_fit_config,
-                                                     **dr_path_substitutions)
+        result['bg'] = get_center_background(dr_file,
+                                             header,
+                                             **bg_fit_config,
+                                             **dr_path_substitutions)
 
     return result
 
 
-def main(config):
+def sort_by_photref_merit(dr_filenames, config):
     """Avoid pollutin global namespace."""
 
     dr_path_substitutions = {
@@ -234,16 +249,31 @@ def main(config):
         for argname, value in config.items()
         if argname.startswith('bg_map_')
     }
-    dr_filenames = list(find_dr_fnames(config.pop('dr_files')))
     typical_star = get_typical_star(dr_filenames, **dr_path_substitutions)
     _logger.debug('Typical star:\n%s', repr(typical_star))
-    for dr_fname in dr_filenames:
-        merit_info = get_merit_info(dr_fname,
-                                    typical_star,
-                                    bg_fit_config,
-                                    **dr_path_substitutions)
-        _logger.debug('Merit info for %s: %s', repr(dr_fname), repr(merit_info))
+    merit_info = pandas.DataFrame(
+        get_frame_merit_info(dr_fname,
+                             typical_star,
+                             bg_fit_config,
+                             **dr_path_substitutions)
+        for dr_fname in dr_filenames
+    )
+    frame_quantities = list(merit_info.columns)
+    frame_quantities.remove('dr')
+    for column in frame_quantities:
+        merit_info['qnt_' + column] = merit_info[column].rank(pct=True)
+
+    eval_merit = Evaluator(merit_info)
+    for column in frame_quantities:
+        eval_merit.symtable['std_' + column] = merit_info[column].std()
+    merit_info['merit'] = eval_merit(config['merit_function'])
+    _logger.info('Merit info:\n%s',
+                  repr(merit_info.sort_values(by='merit', ascending=False)))
 
 
 if __name__ == '__main__':
-    main(parse_command_line())
+    cmdline_config = parse_command_line()
+    sort_by_photref_merit(
+        list(find_dr_fnames(cmdline_config.pop('dr_files'))),
+        cmdline_config
+    )
