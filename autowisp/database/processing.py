@@ -858,6 +858,9 @@ class ProcessingManager:
                 image_type_id != from_image_type_id
             ):
                 continue
+            pending = [
+                (db_session.merge(image), channel) for image, channel in pending
+            ]
             for prereq_step_id in db_session.scalars(
                 select(
                     StepDependencies.blocking_step_id
@@ -879,7 +882,7 @@ class ProcessingManager:
                             (
                                 ProcessedImages.image_id
                                 ==
-                                db_session.merge(image).id
+                                image.id
                             ),
                             ProcessedImages.channel == channel,
                             ImageProcessingProgress.step_id == prereq_step_id,
