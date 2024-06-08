@@ -3,7 +3,8 @@
 from io import BytesIO
 from base64 import b64encode
 
-from matplotlib import pyplot
+import numpy
+from PIL import Image
 from django.shortcuts import render
 
 def select_photref(request):
@@ -11,11 +12,12 @@ def select_photref(request):
     A view for reviewing calibrated frames to select photometric rerference.
     """
 
-    pyplot.plot(range(10), range(10), 'ok')
     png_stream = BytesIO()
-    pyplot.savefig(png_stream, format='png')
+    Image.fromarray(
+        numpy.random.randint(0, 255, size=(500, 500), dtype='uint8')
+    ).save(png_stream, 'png')
     return render(
         request,
         'processing/select_photref.html',
-        {'image': b64encode(png_stream.getvalue())}
+        {'image': b64encode(png_stream.getvalue()).decode('utf-8')}
     )
