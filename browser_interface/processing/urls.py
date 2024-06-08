@@ -26,5 +26,6 @@ urlpatterns = [
          name='review'),
     path('review/<int:selected_processing_id>/<slug:min_log_level>',
          views.review,
-         name='review')
+         name='review'),
+    path('select_photref', views.select_photref, name='select_photref')
 ]

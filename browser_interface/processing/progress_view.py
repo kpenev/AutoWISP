@@ -1,0 +1,93 @@
+"""Define the view displaying the current processing progress."""
+
+from socket import getfqdn
+
+from sqlalchemy import select, func
+from psutil import pid_exists
+from django.shortcuts import render
+
+from autowisp.database.interface import Session
+from autowisp.database.user_interface import\
+    get_processing_sequence,\
+    get_progress,\
+    list_channels
+#False positive
+#pylint: disable=no-name-in-module
+from autowisp.database.data_model import ImageProcessingProgress
+#pylint: enable=no-name-in-module
+
+from .log_views import datetime_fmt
+
+
+def progress(request):
+    """Display the current processing progress."""
+
+    context = {
+        'running': False,
+        'refresh_seconds': 0
+    }
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        context['channels'] = sorted(list_channels(db_session))
+        channel_index = {channel: i
+                         for i, channel in enumerate(context['channels'])}
+        processing_sequence = get_processing_sequence(db_session)
+
+        context['progress'] = [
+            [
+                step.name.split('_'),
+                imtype.name,
+                [[0, 0, []] for _ in context['channels']],
+                []
+            ]
+            for step, imtype in processing_sequence
+        ]
+        for (step, imtype), destination in zip(processing_sequence,
+                                               context['progress']):
+            final, pending, by_status = get_progress(step.id,
+                                                     imtype.id,
+                                                     0,
+                                                     db_session)
+            assert len(final) <= len(context['channels'])
+            for channel, _, count in final:
+                destination[2][channel_index[channel]][0] = (count or 0)
+
+            for channel, count in pending:
+                destination[2][channel_index[channel]][1] = (count or 0)
+
+            for channel, status, count in by_status:
+                destination[2][channel_index[channel]][2].append(
+                    (status, (count or 0))
+                )
+            destination[3] = db_session.execute(
+                select(
+                    ImageProcessingProgress.id,
+                    func.date_format(ImageProcessingProgress.started,
+                                     datetime_fmt),
+                    func.date_format(ImageProcessingProgress.finished,
+                                     datetime_fmt)
+                ).where(
+                    ImageProcessingProgress.step_id == step.id,
+                    ImageProcessingProgress.image_type_id == imtype.id
+                )
+            ).all()
+
+    for check_pid in db_session.scalars(
+        select(
+            ImageProcessingProgress.process_id
+        ).where(
+            #pylint: disable=singleton-comparison
+            ImageProcessingProgress.finished == None,
+            #pylint: enable=singleton-comparison
+            ImageProcessingProgress.host == getfqdn()
+        ).group_by(
+            ImageProcessingProgress.process_id
+        )
+    ):
+        if pid_exists(check_pid):
+            context['running'] = True
+            context['refresh_seconds'] = 5
+
+    return render(request, 'processing/progress.html', context)
