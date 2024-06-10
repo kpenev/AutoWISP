@@ -1,20 +1,65 @@
+{% extends 'core/lcars_app.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Single Photometric Reference Selection</title>
-        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
-        <style type="text/css">
-            #chart-container { text-align: left; }
 
-            .dropdown:hover .dropbtn {
-              display: none;
-            }
-        </style>
+{% block header_title %}{% block app_title %}
+Select Photometric Reference
+{% endblock %}{% endblock %}
 
-    </head>
-    <body>
-        <img src="data:image/png;base64,{{image}}"></img>
-    </body>
-</html>
+{% block header_bar_extra %}
+<div class="lcars-bar horizontal spacer"></div>
+{% if range != "minmax" %}
+<a href="{% url 'processing:select_photref' values_range='minmax' values_transform=transform %}"
+   class="lcars-bar
+          button
+          horizontal
+          lcars-rust-bg
+          lcars-u-1"
+   >
+   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+       min/max
+   </div>
+</a>
+<div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+
+{% if range != "zscale" %}
+<a href="{% url 'processing:select_photref' values_range='zscale' values_transform=transform %}"
+   class="lcars-bar
+          button
+          horizontal
+          lcars-rust-bg
+          lcars-u-1">
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        zscale
+    </div>
+</a>
+<div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+
+{% endblock header_bar_extra %}
+<div class="lcars-bar
+            button
+            horizontal">
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        Transform pixel values:
+    </div>
+</div>
+{% block footer_bar_extra %}
+<div class="lcars-bar horizontal spacer"></div>
+<a href="{% url 'processing:select_photref' values_range=range values_transform='log' %}"
+   class="lcars-bar
+           horizontal
+           bottom
+           lcars-rust-bg
+           lcars-u-1"
+   >
+   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+       Log
+   </div>
+</a>
+<div class="lcars-bar horizontal spacer"></div>
+{% endblock footer_bar_extra %}
+
+{% block main %}
+<img src="data:image/png;base64,{{image}}"></img>
+{% endblock main %}
