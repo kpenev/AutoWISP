@@ -919,6 +919,7 @@ class ProcessingManager:
                         if (step_id, image_type_id) not in dropped:
                             dropped[(step_id, image_type_id)] = []
                         dropped[(step_id, image_type_id)].append(pending.pop(i))
+            self._pending[(step_id, image_type_id)] = pending
         return dropped
 
 
@@ -1780,11 +1781,11 @@ class ProcessingManager:
                     (config, batch)
             ) in processing_batches.items():
                 self._logger.debug(
-                    'Starting %s for a batch of %s %d images from status %s '
+                    'Starting %s for a batch of %d %s images from status %s '
                     'with config:\n%s',
                     step_name,
-                    image_type_name,
                     len(batch),
+                    image_type_name,
                     start_status,
                     repr(config)
                 )
