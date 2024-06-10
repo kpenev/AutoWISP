@@ -1779,9 +1779,15 @@ class ProcessingManager:
                     (_, start_status),
                     (config, batch)
             ) in processing_batches.items():
-                self._logger.debug('Starting %s for a batch of %d images.',
-                                   step_name,
-                                   len(batch))
+                self._logger.debug(
+                    'Starting %s for a batch of %s %d images from status %s '
+                    'with config:\n%s',
+                    step_name,
+                    image_type_name,
+                    len(batch),
+                    start_status,
+                    repr(config)
+                )
 
                 self._process_batch(batch,
                                     start_status=start_status,
