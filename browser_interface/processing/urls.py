@@ -27,11 +27,13 @@ urlpatterns = [
     path('review/<int:selected_processing_id>/<slug:min_log_level>',
          views.review,
          name='review'),
-    path('select_photref', views.select_photref, name='select_photref'),
+    path('select_photref',
+         views.SelectPhotRef.as_view(),
+         name='select_photref'),
     path('select_photref/<str:values_range>',
-         views.select_photref,
+         views.SelectPhotRef.as_view(),
          name='select_photref'),
     path('select_photref/<str:values_range>/<slug:values_transform>',
-         views.select_photref,
+         views.SelectPhotRef.as_view(),
          name='select_photref')
 ]

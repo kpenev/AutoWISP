@@ -6,6 +6,12 @@ Select Photometric Reference
 {% endblock %}{% endblock %}
 
 {% block header_bar_extra %}
+<div class="lcars-bar
+            horizontal
+            lcars-u-2">
+    Intensity range:
+</div>
+
 <div class="lcars-bar horizontal spacer"></div>
 {% if range != "minmax" %}
 <a href="{% url 'processing:select_photref' values_range='minmax' values_transform=transform %}"
@@ -37,16 +43,19 @@ Select Photometric Reference
 {% endif %}
 
 {% endblock header_bar_extra %}
-<div class="lcars-bar
-            button
-            horizontal">
-    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
-        Transform pixel values:
-    </div>
-</div>
+
+
 {% block footer_bar_extra %}
+<div class="lcars-bar
+            bottom
+            horizontal
+            lcars-u-2">
+    Transform intensity:
+</div>
+
+{% if transform %}
 <div class="lcars-bar horizontal spacer"></div>
-<a href="{% url 'processing:select_photref' values_range=range values_transform='log' %}"
+<a href="{% url 'processing:select_photref' values_range=range %}"
    class="lcars-bar
            horizontal
            bottom
@@ -54,11 +63,40 @@ Select Photometric Reference
            lcars-u-1"
    >
    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
-       Log
+       None
+   </div>
+</a>
+{% endif %}
+<div class="lcars-bar horizontal spacer"></div>
+{% for trans_choice in transform_list %}
+{% if trans_choice != transform %}
+<a href="{% url 'processing:select_photref' values_range=range values_transform=trans_choice %}"
+   class="lcars-bar
+           horizontal
+           bottom
+           lcars-rust-bg
+           lcars-u-1"
+   >
+   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+       {{trans_choice}}
    </div>
 </a>
 <div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+{% endfor %}
 {% endblock footer_bar_extra %}
+
+{% block left_menu %}
+<a href="{% url 'processing:progress' %}">
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-2">
+        Set This Image As Reference
+    </div>
+</a>
+{% endblock left_menu %}
+
 
 {% block main %}
 <img src="data:image/png;base64,{{image}}"></img>
