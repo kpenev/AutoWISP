@@ -13,6 +13,11 @@ from matplotlib import colors
 from astropy.io import fits
 from astropy.visualization import ZScaleInterval
 
+from autowisp.database.processing import ProcessingManager
+from autowisp.database.interface import Session
+from autowisp.database.user_interface import get_processing_sequence
+
+
 
 class SelectPhotRef(View):
     """
@@ -59,6 +64,30 @@ class SelectPhotRef(View):
         """The sinh transform of DS9."""
 
         return numpy.sinh(3.0 * pixel_values) / 10.0
+
+
+    @staticmethod
+    def _get_missing_photref(request):
+        """Add all frame sets missing photometric reference to the session."""
+
+        processing = ProcessingManager(dummy=True)
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            pending_photref = processing.get_pending(
+                db_session,
+                [entry for entry in get_processing_sequence(db_session)
+                 if entry[0].name == 'fit_magnitudes'],
+            )
+            for (step_id, imtype_id), pending_images in pending_photref.items():
+                by_photref = processing.group_pending_by_conditions(
+                    pending_images,
+                    db_session,
+                    match_observing_session=False,
+                    step_id=step_id,
+                    masters_only=False
+                )
 
 
     def get(self,

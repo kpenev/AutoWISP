@@ -108,7 +108,8 @@ class ExpressionMatcher:
                  evaluated_expressions,
                  ref_image_id,
                  ref_channel,
-                 master_expression_ids):
+                 master_expression_ids,
+                 masters_only=False):
         """
         Set up comparison to the given evaluated expressions.
 
@@ -120,7 +121,8 @@ class ExpressionMatcher:
         reference_evaluated = evaluated_expressions[ref_image_id][ref_channel]
         self._ref_matched = reference_evaluated['matched']
         self.ref_master_values = self._get_master_values(ref_image_id,
-                                                          ref_channel)
+                                                         ref_channel)
+        self._masters_only = masters_only
         self._logger.debug(
             'Finding images matching expressions %s and values %s',
             repr(self._ref_matched),
@@ -141,11 +143,91 @@ class ExpressionMatcher:
             repr(self.ref_master_values)
         )
         return (
-            image_evaluated['matched'] == self._ref_matched
+            (
+                self._masters_only
+                or
+                image_evaluated['matched'] == self._ref_matched
+            )
             and
             image_master_values == self.ref_master_values
         )
 #pylint: enable=too-few-public-methods
+
+
+def get_master_expression_ids(step_id, image_type_id, db_session):
+    """
+    List all condition expression IDs determining input or output masters.
+
+    Args:
+        step_id(int):    The ID of the step for which to return the master
+            expression IDs.
+
+        image_type_id(int):     The type of images being processed by the step
+            for which to return the master expression IDs.
+
+    Returns:
+        [int]:
+            The combined expression IDs reqired to determine which required
+            masters can be used for the given step or which masters will be
+            created by it.
+    """
+
+    return (
+        db_session.scalars(
+            select(
+                ConditionExpression.id
+            ).select_from(
+                InputMasterTypes
+            ).join(
+                MasterType
+            ).join(
+                Condition,
+                #False positive
+                #pylint: disable=no-member
+                MasterType.condition_id == Condition.id
+                #pylint: enable=no-member
+            ).join(
+                ConditionExpression
+            ).where(
+                InputMasterTypes.step_id
+                ==
+                step_id
+            ).where(
+                InputMasterTypes.image_type_id
+                ==
+                image_type_id
+            ).group_by(
+                ConditionExpression.id
+            )
+        ).all()
+        +
+        db_session.scalars(
+            select(
+                ConditionExpression.id
+            ).select_from(
+                MasterType
+            ).join(
+                Condition,
+                or_(
+                    #False positive
+                    #pylint: disable=no-member
+                    MasterType.condition_id == Condition.id,
+                    (
+                        MasterType.maker_image_split_condition_id
+                        ==
+                        Condition.id
+                    )
+                    #pylint: enable=no-member
+                )
+            ).join(
+                ConditionExpression
+            ).where(
+                MasterType.maker_step_id == step_id
+            ).where(
+                MasterType.maker_image_type_id == image_type_id
+            )
+        ).all()
+    )
 
 
 #pylint: disable=too-many-instance-attributes
@@ -343,32 +425,6 @@ class ProcessingManager:
             ), config_key
 
 
-    def _get_candidate_masters(self, image_eval, master_type, db_session):
-        """Return list of masters of given type that are applicable to image."""
-
-        print(f'Image keys: {image_eval.symtable.keys()!r}')
-        candidate_masters = db_session.scalars(
-            select(
-                MasterFile
-            ).filter_by(
-                type_id=master_type.master_type_id,
-                enabled=True,
-            )
-        ).all()
-        result = []
-        for master in candidate_masters:
-            master_eval = Evaluator(master.filename)
-            print(f'Master keys: {master_eval.symtable.keys()!r}')
-            all_match = True
-            for expr in master.master_type.match_expressions:
-                if master_eval(expr.expression) != image_eval(expr.expression):
-                    all_match = False
-                    break
-            if all_match:
-                result.append(master)
-        return result
-
-
     def _get_best_master(self, candidate_masters, image, channel):
         """Find the best master from given list for given image/channel."""
 
@@ -419,10 +475,9 @@ class ProcessingManager:
             channel_list = [batch[0][1]]
 
         for channel in channel_list:
-            candidate_masters[channel] = self._get_candidate_masters(
-                self._evaluate_expressions_image(batch[0][0],
-                                                 channel,
-                                                 True),
+            candidate_masters[channel] = self.get_candidate_masters(
+                batch[0][0],
+                channel,
                 input_master_type,
                 db_session
             )
@@ -766,82 +821,6 @@ class ProcessingManager:
         return result if return_evaluator else None
     #pylint: enable=too-many-locals
     #pylint: enable=too-many-branches
-
-
-    def _fill_pending(self, db_session):
-        """
-        Return the images and channels of a type not yet processed by a step.
-
-        Args:
-            step_id(Step):    The step to determine pending images for.
-
-            image_type(ImageType):    The type of images to check for pending
-                processing by the specified step.
-
-            db_session(Session):    The database session to use.
-
-        Returns:
-            (Image, [str]):
-                The images and channels of the specified type for which the
-                specified step has not applied with the current configuration.
-        """
-
-        select_image_channel = select(
-            Image,
-            CameraChannel.name
-        ).join(
-            ObservingSession,
-        ).join(
-            Camera
-        ).join(
-            CameraType
-        ).join(
-            CameraChannel
-        )
-
-        for step, image_type in get_processing_sequence(db_session):
-            processed_subquery = select(
-                ProcessedImages.image_id,
-                ProcessedImages.channel
-            ).join(
-                ImageProcessingProgress
-            ).where(
-                ImageProcessingProgress.step_id == step.id
-            ).where(
-                ImageProcessingProgress.configuration_version
-                ==
-                self.step_version[step.name]
-            ).where(
-                ProcessedImages.final
-            ).subquery()
-
-            self._pending[(step.id, image_type.id)] = db_session.execute(
-                select_image_channel.outerjoin(
-                    processed_subquery,
-                    #False positive
-                    #pylint: disable=no-member
-                    and_(Image.id == processed_subquery.c.image_id,
-                         CameraChannel.name == processed_subquery.c.channel),
-                    #pylint: enable=no-member
-                ).where(
-                    #This is how NULL comparison is done in SQLAlchemy
-                    #pylint: disable=singleton-comparison
-                    processed_subquery.c.image_id == None
-                    #pylint: enable=singleton-comparison
-                ).where(
-                    #False positive
-                    #pylint: disable=no-member
-                    Image.image_type_id == image_type.id
-                    #pylint: enable=no-member
-                )
-            ).all()
-            self._logger.debug(
-                'Identified %d %s images for which %s is pending',
-                len(self._pending[(step.id, image_type.id)]),
-                image_type.name,
-                step.name
-            )
-        self._logger.debug('Pending: %s', repr(self._pending))
 
 
     def _clean_pending_per_dependencies(self,
@@ -1335,127 +1314,6 @@ class ProcessingManager:
             )
 
 
-    def _group_pending_by_conditions(self,
-                                     pending_images,
-                                     db_session,
-                                     match_observing_session=False):
-        """Group pendig_images grouped by condition expression values."""
-
-        image_type_id = pending_images[0][0].image_type_id
-        result = []
-        master_expression_ids = (
-            db_session.scalars(
-                select(
-                    ConditionExpression.id
-                ).select_from(
-                    InputMasterTypes
-                ).join(
-                    MasterType
-                ).join(
-                    Condition,
-                    #False positive
-                    #pylint: disable=no-member
-                    MasterType.condition_id == Condition.id
-                    #pylint: enable=no-member
-                ).join(
-                    ConditionExpression
-                ).where(
-                    InputMasterTypes.step_id
-                    ==
-                    self.current_step.id
-                ).where(
-                    InputMasterTypes.image_type_id
-                    ==
-                    image_type_id
-                ).group_by(
-                    ConditionExpression.id
-                )
-            ).all()
-            +
-            db_session.scalars(
-                select(
-                    ConditionExpression.id
-                ).select_from(
-                    MasterType
-                ).join(
-                    Condition,
-                    or_(
-                        #False positive
-                        #pylint: disable=no-member
-                        MasterType.condition_id == Condition.id,
-                        (
-                            MasterType.maker_image_split_condition_id
-                            ==
-                            Condition.id
-                        )
-                        #pylint: enable=no-member
-                    )
-                ).join(
-                    ConditionExpression
-                ).where(
-                    MasterType.maker_step_id == self.current_step.id
-                ).where(
-                    MasterType.maker_image_type_id == image_type_id
-                )
-            ).all()
-        )
-
-        while pending_images:
-            #pending_images = [
-            #    (db_session.merge(image, load=False), channel)
-            #    for image, channel in pending_images
-            #]
-            #self.current_step = db_session.merge(self.current_step,
-            #                                     load=False)
-            #self._current_processing = db_session.merge(
-            #    self._current_processing,
-            #    load=False
-            #)
-
-            self._logger.debug(
-                'Finding images matching the same expressions as image id %d, '
-                'channel %s',
-                pending_images[-1][0].id,
-                pending_images[-1][1]
-            )
-            batch = []
-            match_expressions = ExpressionMatcher(
-                self._evaluated_expressions,
-                pending_images[-1][0].id,
-                pending_images[-1][1],
-                master_expression_ids
-            )
-            observing_session_id = pending_images[-1][0].observing_session_id
-
-            for i in range(len(pending_images) - 1, -1, -1):
-                if (
-                    (
-                        not match_observing_session
-                        or
-                        pending_images[i][0].observing_session_id
-                        ==
-                        observing_session_id
-                    )
-                    and
-                    match_expressions(
-                        pending_images[i][0].id,
-                        pending_images[i][1]
-                    )
-                ):
-                    batch.append(pending_images.pop(i))
-                    self._logger.debug(
-                        'Added image to batch, now:\n\t%s',
-                        '\n\t'.join(
-                            f'{image.raw_fname}: {channel}'
-                            for image, channel in batch
-                        )
-                    )
-                else:
-                    self._logger.debug('Not a match')
-            result.append((batch, match_expressions.ref_master_values))
-        return result
-
-
     #No good way to simplify
     #pylint: disable=too-many-locals
     def _get_batches(self, pending_images, step_input_type, db_session):
@@ -1466,10 +1324,10 @@ class ProcessingManager:
         for (
             by_condition,
             master_expression_values
-        ) in self._group_pending_by_conditions(
+        ) in self.group_pending_by_conditions(
             pending_images,
             db_session,
-            self.current_step.name == 'calibrate'
+            match_observing_session=self.current_step.name == 'calibrate'
         ):
             for config_key, (config, batch) in self._get_batch_config(
                 by_condition,
@@ -1692,7 +1550,7 @@ class ProcessingManager:
 
             if not dummy:
                 self._cleanup_interrupted(db_session)
-                self._fill_pending(db_session)
+                self._pending = self.get_pending(db_session)
                 self._failed_dependencies = (
                     self._clean_pending_per_dependencies(db_session)
                 )
@@ -1705,6 +1563,211 @@ class ProcessingManager:
                         self._failed_dependencies.items()
                     )
                 )
+
+
+    def get_candidate_masters(self, image, channel, master_type, db_session):
+        """Return list of masters of given type that are applicable to image."""
+
+        image_eval = self._evaluate_expressions_image(image,
+                                                      channel,
+                                                      True)
+        print(f'Image keys: {image_eval.symtable.keys()!r}')
+        candidate_masters = db_session.scalars(
+            select(
+                MasterFile
+            ).filter_by(
+                type_id=master_type.master_type_id,
+                enabled=True,
+            )
+        ).all()
+        result = []
+        for master in candidate_masters:
+            master_eval = Evaluator(master.filename)
+            print(f'Master keys: {master_eval.symtable.keys()!r}')
+            all_match = True
+            for expr in master.master_type.match_expressions:
+                if master_eval(expr.expression) != image_eval(expr.expression):
+                    all_match = False
+                    break
+            if all_match:
+                result.append(master)
+        return result
+
+
+    def get_pending(self, db_session, steps_imtypes=None):
+        """
+        Return the unprocessed images and channels split by step and image type.
+
+        Args:
+            step_id(Step):    The step to determine pending images for.
+
+            image_type(ImageType):    The type of images to check for pending
+                processing by the specified step.
+
+            db_session(Session):    The database session to use.
+
+        Returns:
+            (Image, [str]):
+                The images and channels of the specified type for which the
+                specified step has not applied with the current configuration.
+        """
+
+        select_image_channel = select(
+            Image,
+            CameraChannel.name
+        ).join(
+            ObservingSession,
+        ).join(
+            Camera
+        ).join(
+            CameraType
+        ).join(
+            CameraChannel
+        )
+
+        pending = {}
+        for step, image_type in (steps_imtypes
+                                 or
+                                 get_processing_sequence(db_session)):
+            processed_subquery = select(
+                ProcessedImages.image_id,
+                ProcessedImages.channel
+            ).join(
+                ImageProcessingProgress
+            ).where(
+                ImageProcessingProgress.step_id == step.id
+            ).where(
+                ImageProcessingProgress.configuration_version
+                ==
+                self.step_version[step.name]
+            ).where(
+                ProcessedImages.final
+            ).subquery()
+
+            pending[(step.id, image_type.id)] = db_session.execute(
+                select_image_channel.outerjoin(
+                    processed_subquery,
+                    #False positive
+                    #pylint: disable=no-member
+                    and_(Image.id == processed_subquery.c.image_id,
+                         CameraChannel.name == processed_subquery.c.channel),
+                    #pylint: enable=no-member
+                ).where(
+                    #This is how NULL comparison is done in SQLAlchemy
+                    #pylint: disable=singleton-comparison
+                    processed_subquery.c.image_id == None
+                    #pylint: enable=singleton-comparison
+                ).where(
+                    #False positive
+                    #pylint: disable=no-member
+                    Image.image_type_id == image_type.id
+                    #pylint: enable=no-member
+                )
+            ).all()
+            self._logger.debug(
+                'Identified %d %s images for which %s is pending',
+                len(pending[(step.id, image_type.id)]),
+                image_type.name,
+                step.name
+            )
+        self._logger.debug('Pending: %s', repr(pending))
+        return pending
+
+
+    def group_pending_by_conditions(self,
+                                    pending_images,
+                                    db_session,
+                                    *,
+                                    match_observing_session=False,
+                                    step_id=None,
+                                    masters_only=False):
+        """
+        Group pendig_images by condition expression values.
+
+        Args:
+            pending_images([Image, str]):    A list of the images (instance of
+                Image DB class) and channels to group.
+
+            db_session:    Database session to use for querries.
+
+            match_observing_session:    Whether each group of images needs to
+                be from the same observing session.
+
+            step_id(int):    The ID of the step for which to group the pending
+                images. If not specified, defaults to the current step.
+
+            masters_only:    If True, grouping is done only by the values
+                expressions required to determine the input or output masters
+                for the current step.
+
+        Returns:
+            [([Image, str], tuple)]:
+                Each entry is contains a list of the image/channel combinations
+                matching a unique set of conditions and the second entry is the
+                master expression values for all images in the list.
+        """
+
+        image_type_id = pending_images[0][0].image_type_id
+        result = []
+        master_expression_ids = get_master_expression_ids(
+            step_id or self.current_step.id,
+            image_type_id,
+            db_session
+        )
+        while pending_images:
+            #pending_images = [
+            #    (db_session.merge(image, load=False), channel)
+            #    for image, channel in pending_images
+            #]
+            #self.current_step = db_session.merge(self.current_step,
+            #                                     load=False)
+            #self._current_processing = db_session.merge(
+            #    self._current_processing,
+            #    load=False
+            #)
+
+            self._logger.debug(
+                'Finding images matching the same expressions as image id %d, '
+                'channel %s',
+                pending_images[-1][0].id,
+                pending_images[-1][1]
+            )
+            batch = []
+            match_expressions = ExpressionMatcher(
+                self._evaluated_expressions,
+                pending_images[-1][0].id,
+                pending_images[-1][1],
+                master_expression_ids
+            )
+            observing_session_id = pending_images[-1][0].observing_session_id
+
+            for i in range(len(pending_images) - 1, -1, -1):
+                if (
+                    (
+                        not match_observing_session
+                        or
+                        pending_images[i][0].observing_session_id
+                        ==
+                        observing_session_id
+                    )
+                    and
+                    match_expressions(
+                        pending_images[i][0].id,
+                        pending_images[i][1]
+                    )
+                ):
+                    batch.append(pending_images.pop(i))
+                    self._logger.debug(
+                        'Added image to batch, now:\n\t%s',
+                        '\n\t'.join(
+                            f'{image.raw_fname}: {channel}'
+                            for image, channel in batch
+                        )
+                    )
+                else:
+                    self._logger.debug('Not a match')
+            result.append((batch, match_expressions.ref_master_values))
+        return result
 
 
     def find_processing_outputs(self, processing_progress, db_session=None):
