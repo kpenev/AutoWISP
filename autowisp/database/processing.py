@@ -1114,8 +1114,7 @@ class ProcessingManager:
             pending_images = new_pending
 
         for image, channel_name in pending_images:
-            if image.id not in self._evaluated_expressions:
-                self._evaluate_expressions_image(image)
+            self._evaluate_expressions_image(image)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
         self._logger.info('Starting %s step for %d %s images',
@@ -1722,6 +1721,9 @@ class ProcessingManager:
                 matching a unique set of conditions and the second entry is the
                 master expression values for all images in the list.
         """
+
+        for image, _ in pending_images:
+            self._evaluate_expressions_image(image)
 
         image_type_id = pending_images[0][0].image_type_id
         result = []
