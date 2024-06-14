@@ -9,6 +9,7 @@ from PIL.ImageTransform import AffineTransform
 from django.views import View
 from django.shortcuts import render
 from matplotlib import colors
+from sqlalchemy import select
 
 from astropy.io import fits
 from astropy.visualization import ZScaleInterval
@@ -16,7 +17,12 @@ from astropy.visualization import ZScaleInterval
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import Session
 from autowisp.database.user_interface import get_processing_sequence
-
+from autowisp.processing_steps.calculate_photref_merit import\
+    calculate_photref_merit
+#False positive due to unusual importing
+#pylint: disable=no-name-in-module
+from autowisp.database.data_model import MasterType
+#pylint: enable=no-name-in-module
 
 
 class SelectPhotRef(View):
@@ -70,31 +76,74 @@ class SelectPhotRef(View):
     def _get_missing_photref(request):
         """Add all frame sets missing photometric reference to the session."""
 
+        assert 'need_photref' not in request.session
+        request.session['need_photref'] = {}
         processing = ProcessingManager(dummy=True)
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
+            master_type = db_session.scalar(
+                select(MasterType).filter_by(name='single_photref')
+            )
             pending_photref = processing.get_pending(
                 db_session,
                 [entry for entry in get_processing_sequence(db_session)
                  if entry[0].name == 'fit_magnitudes'],
             )
-            for (step_id, imtype_id), pending_images in pending_photref.items():
+            for (step_id, _), pending_images in pending_photref.items():
                 by_photref = processing.group_pending_by_conditions(
                     pending_images,
                     db_session,
                     match_observing_session=False,
                     step_id=step_id,
-                    masters_only=False
+                    masters_only=True
                 )
+                for by_master_values, master_values in by_photref:
+                    if not processing.get_candidate_masters(
+                        *by_master_values[0][0],
+                        master_type,
+                        db_session
+                    ):
+                        config = processing.get_config(
+                            matched_expressions=None,
+                            image_id=by_master_values[0][0].id,
+                            step_name='calculate_photref_merit'
+                        )
+                        request.session['need_photref'][master_values] = (
+                            config,
+                            [
+                                (
+                                    processing.get_step_input(image,
+                                                              channel,
+                                                              'calibrated'),
+                                    processing.get_step_input(image,
+                                                              channel,
+                                                              'dr'),
+                                    image.id,
+                                    channel
+                                )
+                                for image, channel in by_master_values
+                            ]
+                        )
 
 
-    def get(self,
-            request,
-            values_range='zscale',
-            values_transform=None,
-            zoom=1.0):
+    @staticmethod
+    def _get_merit_data(request, master_values):
+        """Add to the session the merit information for selecting single ref."""
+
+        config, batch = request.session['need_phdotref'][master_values]
+        request.session['merit_info'] = calculate_photref_merit(
+            [entry[1] for entry in batch],
+            config
+        )
+
+
+    def render_select_image(self,
+                            request,
+                            values_range='zscale',
+                            values_transform=None,
+                            zoom=1.0):
         """Display the interface for reviewing canditate reference frames."""
 
         png_stream = BytesIO()
@@ -137,7 +186,7 @@ class SelectPhotRef(View):
 
         return render(
             request,
-            'processing/select_photref.html',
+            'processing/select_photref_image.html',
             {
                 'image': b64encode(png_stream.getvalue()).decode('utf-8'),
                 'range': values_range,
@@ -153,3 +202,24 @@ class SelectPhotRef(View):
                 ]
             }
         )
+
+
+    def render_select_target(self, request):
+        """Display view to select which of the missing photrefs to define."""
+
+        if 'need_photref' not in request.session:
+            self._get_missing_photref(request)
+
+        return render(
+            request,
+            'processing/select_photref_target.html',
+            {}
+        )
+
+
+    def get(self, request, **kwargs):
+        """Respond to get requests for photometric reference selection."""
+
+        if 'merit_info' in request.session:
+            return self.render_select_image(request, **kwargs)
+        return self.render_select_target(request)

@@ -109,6 +109,7 @@ class ExpressionMatcher:
                  ref_image_id,
                  ref_channel,
                  master_expression_ids,
+                 *,
                  masters_only=False):
         """
         Set up comparison to the given evaluated expressions.
@@ -404,27 +405,6 @@ class ProcessingManager:
         return frozenset(result)
 
 
-    def _get_config(self, matched_expressions, db_step=None, step_name=None):
-        """Return the configuration for the given step for given expressions."""
-
-        assert db_step or step_name
-        with NamedTemporaryFile(mode='w') as config_file:
-            config_key = self._write_config_file(
-                matched_expressions,
-                config_file,
-                db_steps=[db_step] if db_step else None,
-                step_names=[step_name] if not db_step else None
-            )
-            config_file.flush()
-            self._logger.debug('Wrote config file %s', repr(config_file.name))
-            return getattr(
-                processing_steps,
-                db_step.name if db_step else step_name
-            ).parse_command_line(
-                ['-c', config_file.name]
-            ), config_key
-
-
     def _get_best_master(self, candidate_masters, image, channel):
         """Find the best master from given list for given image/channel."""
 
@@ -580,7 +560,7 @@ class ProcessingManager:
         self._logger.debug('Finding configuration for batch: %s',
                            repr(batch))
         first_image_expressions = self._evaluated_expressions[batch[0][0].id]
-        config, config_key = self._get_config(
+        config, config_key = self.get_config(
             first_image_expressions[batch[0][1]]['matched'],
             db_step=step
         )
@@ -652,33 +632,6 @@ class ProcessingManager:
         )
 
 
-    def _get_step_input(self, image, channel_name, step_input_type):
-        """Return the name of the file required by the current step."""
-
-        if step_input_type == 'raw':
-            return image.raw_fname
-
-        if step_input_type.startswith('calibrated'):
-            return self._evaluated_expressions[
-                image.id
-            ][
-                channel_name
-            ][
-                'calibrated'
-            ]
-
-        if step_input_type == 'dr':
-            return self._evaluated_expressions[
-                image.id
-            ][
-                channel_name
-            ][
-                'dr'
-            ]
-
-        raise ValueError(f'Invalid step input type {step_input_type}')
-
-
     #TODO: see if can be simplified
     #pylint: disable=too-many-locals
     #pylint: disable=too-many-branches
@@ -743,7 +696,7 @@ class ProcessingManager:
                                  channel_name,
                                  channel_slice)
 
-            calib_config = self._get_config(
+            calib_config = self.get_config(
                 self._get_matched_expressions(evaluate),
                 step_name='calibrate',
             )[0]
@@ -956,7 +909,9 @@ class ProcessingManager:
             if image.id not in self._evaluated_expressions:
                 self._evaluate_expressions_image(image)
 
-        cleanup_batches = self._get_batches(pending, input_type, db_session)
+        cleanup_batches = self._get_config_batches(pending,
+                                                   input_type,
+                                                   db_session)
         return [
             (config, [(fname, status) for fname in batch])
             for (_, status), (config, batch) in cleanup_batches.items()
@@ -1020,9 +975,9 @@ class ProcessingManager:
             if channel_name is None:
                 continue
 
-            step_input_fname = self._get_step_input(image,
-                                                    channel_name,
-                                                    step_input_type)
+            step_input_fname = self.get_step_input(image,
+                                                   channel_name,
+                                                   step_input_type)
 
             if step_input_fname not in self._processed_ids:
                 self._processed_ids[step_input_fname] = []
@@ -1316,7 +1271,7 @@ class ProcessingManager:
 
     #No good way to simplify
     #pylint: disable=too-many-locals
-    def _get_batches(self, pending_images, step_input_type, db_session):
+    def _get_config_batches(self, pending_images, step_input_type, db_session):
         """Return the batches of images to process with identical config."""
 
         result = {}
@@ -1361,7 +1316,7 @@ class ProcessingManager:
                             assert batch_status == status
 
                 input_batch = [
-                    self._get_step_input(*image_channel, step_input_type)
+                    self.get_step_input(*image_channel, step_input_type)
                     for image_channel in batch
                 ]
 
@@ -1412,7 +1367,9 @@ class ProcessingManager:
             return (
                 step.name,
                 image_type.name,
-                self._get_batches(pending_images, step_input_type, db_session)
+                self._get_config_batches(pending_images,
+                                         step_input_type,
+                                         db_session)
             )
 
 
@@ -1514,7 +1471,7 @@ class ProcessingManager:
                             cond.expression.expression
                         )
 
-            self._processing_config = self._get_config(
+            self._processing_config = self.get_config(
                 self._get_matched_expressions(Evaluator()),
                 step_name='add_images_to_db',
             )[0]
@@ -1563,6 +1520,65 @@ class ProcessingManager:
                         self._failed_dependencies.items()
                     )
                 )
+
+
+    def get_config(self,
+                   matched_expressions,
+                   db_step=None,
+                   step_name=None,
+                   image_id=None):
+        """Return the configuration for the given step for given expressions."""
+
+        assert db_step or step_name
+        if matched_expressions is None:
+            assert image_id is not None
+            matched_expressions = self._evaluated_expressions[
+                image_id
+            ][
+                'matched'
+            ]
+        with NamedTemporaryFile(mode='w') as config_file:
+            config_key = self._write_config_file(
+                matched_expressions,
+                config_file,
+                db_steps=[db_step] if db_step else None,
+                step_names=[step_name] if not db_step else None
+            )
+            config_file.flush()
+            self._logger.debug('Wrote config file %s', repr(config_file.name))
+            return getattr(
+                processing_steps,
+                db_step.name if db_step else step_name
+            ).parse_command_line(
+                ['-c', config_file.name]
+            ), config_key
+
+
+    def get_step_input(self, image, channel_name, step_input_type):
+        """Return the name of the file required by the current step."""
+
+        if step_input_type == 'raw':
+            return image.raw_fname
+
+        if step_input_type.startswith('calibrated'):
+            return self._evaluated_expressions[
+                image.id
+            ][
+                channel_name
+            ][
+                'calibrated'
+            ]
+
+        if step_input_type == 'dr':
+            return self._evaluated_expressions[
+                image.id
+            ][
+                channel_name
+            ][
+                'dr'
+            ]
+
+        raise ValueError(f'Invalid step input type {step_input_type}')
 
 
     def get_candidate_masters(self, image, channel, master_type, db_session):
@@ -1737,7 +1753,8 @@ class ProcessingManager:
                 self._evaluated_expressions,
                 pending_images[-1][0].id,
                 pending_images[-1][1],
-                master_expression_ids
+                master_expression_ids,
+                masters_only=masters_only
             )
             observing_session_id = pending_images[-1][0].observing_session_id
 
@@ -1876,8 +1893,8 @@ class ProcessingManager:
                     ConditionExpression.notes == 'Default expression'
                 )
             )
-        configuration = self._get_config({default_expression_id},
-                                         step_name='add_images_to_db')[0]
+        configuration = self.get_config({default_expression_id},
+                                        step_name='add_images_to_db')[0]
         processing_steps.add_images_to_db.add_images_to_db(image_collection,
                                                            configuration)
 

@@ -243,6 +243,10 @@ step_dependencies = [
             ('fit_magnitudes', 'object'),
             ('fit_source_extracted_psf_map', 'object')
         ]
+    ),
+    (
+        'calculate_photref_merit', 'object',
+        []
     )
 ]
 
