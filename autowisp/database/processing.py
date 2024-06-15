@@ -173,62 +173,101 @@ def get_master_expression_ids(step_id, image_type_id, db_session):
             created by it.
     """
 
-    return (
-        db_session.scalars(
-            select(
-                ConditionExpression.id
-            ).select_from(
-                InputMasterTypes
-            ).join(
-                MasterType
-            ).join(
-                Condition,
-                #False positive
-                #pylint: disable=no-member
-                MasterType.condition_id == Condition.id
-                #pylint: enable=no-member
-            ).join(
-                ConditionExpression
-            ).where(
-                InputMasterTypes.step_id
-                ==
-                step_id
-            ).where(
-                InputMasterTypes.image_type_id
-                ==
-                image_type_id
-            ).group_by(
-                ConditionExpression.id
-            )
-        ).all()
-        +
-        db_session.scalars(
-            select(
-                ConditionExpression.id
-            ).select_from(
-                MasterType
-            ).join(
-                Condition,
-                or_(
+    return sorted(
+        set(
+            db_session.scalars(
+                select(
+                    ConditionExpression.id
+                ).select_from(
+                    InputMasterTypes
+                ).join(
+                    MasterType
+                ).join(
+                    Condition,
                     #False positive
                     #pylint: disable=no-member
-                    MasterType.condition_id == Condition.id,
-                    (
-                        MasterType.maker_image_split_condition_id
-                        ==
-                        Condition.id
-                    )
+                    MasterType.condition_id == Condition.id
                     #pylint: enable=no-member
+                ).join(
+                    ConditionExpression
+                ).where(
+                    InputMasterTypes.step_id
+                    ==
+                    step_id
+                ).where(
+                    InputMasterTypes.image_type_id
+                    ==
+                    image_type_id
+                ).group_by(
+                    ConditionExpression.id
                 )
-            ).join(
-                ConditionExpression
-            ).where(
-                MasterType.maker_step_id == step_id
-            ).where(
-                MasterType.maker_image_type_id == image_type_id
-            )
-        ).all()
+            ).all()
+            +
+            db_session.scalars(
+                select(
+                    ConditionExpression.id
+                ).select_from(
+                    MasterType
+                ).join(
+                    Condition,
+                    or_(
+                        #False positive
+                        #pylint: disable=no-member
+                        MasterType.condition_id == Condition.id,
+                        (
+                            MasterType.maker_image_split_condition_id
+                            ==
+                            Condition.id
+                        )
+                        #pylint: enable=no-member
+                    )
+                ).join(
+                    ConditionExpression
+                ).where(
+                    MasterType.maker_step_id == step_id
+                ).where(
+                    MasterType.maker_image_type_id == image_type_id
+                )
+            ).all()
+        )
     )
+
+
+def remove_failed_prerequisite(pending,
+                               pending_image_type_id,
+                               prereq_step_id,
+                               db_session):
+    """Remove from pending any entries that failed the prerequisite step."""
+
+    prereq_statuses = [
+        db_session.execute(
+            select(
+                ProcessedImages.status
+            ).outerjoin(
+                ImageProcessingProgress
+            ).where(
+                (
+                    ProcessedImages.image_id
+                    ==
+                    image.id
+                ),
+                ProcessedImages.channel == channel,
+                ImageProcessingProgress.step_id == prereq_step_id,
+                (
+                    ImageProcessingProgress.image_type_id
+                    ==
+                    pending_image_type_id
+                )
+            )
+        ).scalar_one_or_none()
+        for image, channel in pending
+    ]
+    dropped = []
+    for i in range(len(pending) - 1, -1, -1):
+        if prereq_statuses[i] and prereq_statuses[i] < 0:
+            dropped.append(pending.pop(i))
+
+    return dropped
 
 
 #pylint: disable=too-many-instance-attributes
@@ -804,54 +843,39 @@ class ProcessingManager:
             ):
                 if from_step_id is not None and prereq_step_id != from_step_id:
                     continue
-                prereq_statuses = [
-                    db_session.execute(
-                        select(
-                            ProcessedImages.status
-                        ).outerjoin(
-                            ImageProcessingProgress
-                        ).where(
-                            (
-                                ProcessedImages.image_id
-                                ==
-                                image.id
-                            ),
-                            ProcessedImages.channel == channel,
-                            ImageProcessingProgress.step_id == prereq_step_id,
-                            (
-                                ImageProcessingProgress.image_type_id
-                                ==
-                                image_type_id
-                            )
-                        )
-                    ).scalar_one_or_none()
-                    for image, channel in pending
-                ]
-                for i in range(len(pending) - 1, -1, -1):
-                    if prereq_statuses[i] and prereq_statuses[i] < 0:
-                        self._logger.info(
-                            'Image %s, channel %s failed %s. Excluding from %s',
-                            *pending[i],
-                            db_session.scalar(
-                                select(
-                                    Step.name
-                                ).filter_by(
-                                    id=prereq_step_id
-                                )
-                            ),
-                            db_session.scalar(
-                                select(
-                                    Step.name
-                                ).filter_by(
-                                    id=step_id
-                                )
-                            )
-                        )
+                if (step_id, image_type_id) not in dropped:
+                    dropped[(step_id, image_type_id)] = []
 
-                        if (step_id, image_type_id) not in dropped:
-                            dropped[(step_id, image_type_id)] = []
-                        dropped[(step_id, image_type_id)].append(pending.pop(i))
-            self._pending[(step_id, image_type_id)] = pending
+                failed_prereq = remove_failed_prerequisite(pending,
+                                                           image_type_id,
+                                                           prereq_step_id,
+                                                           db_session)
+
+                dropped[(step_id, image_type_id)].extend(failed_prereq)
+
+                self._logger.info(
+                    'The following image/channel combinations failed %s. '
+                    'Excluding from %s:\n\t%s',
+                    db_session.scalar(
+                        select(
+                            Step.name
+                        ).filter_by(
+                            id=prereq_step_id
+                        )
+                    ),
+                    db_session.scalar(
+                        select(
+                            Step.name
+                        ).filter_by(
+                            id=step_id
+                        )
+                    ),
+                    '\n\t'.join(
+                        image.raw_fname + ':' + channel
+                        for image, channel in failed_prereq
+                    )
+                )
+
         return dropped
 
 
@@ -1525,14 +1549,17 @@ class ProcessingManager:
                    matched_expressions,
                    db_step=None,
                    step_name=None,
-                   image_id=None):
+                   image_id=None,
+                   channel=None):
         """Return the configuration for the given step for given expressions."""
 
         assert db_step or step_name
         if matched_expressions is None:
-            assert image_id is not None
+            assert image_id is not None and channel is not None
             matched_expressions = self._evaluated_expressions[
                 image_id
+            ][
+                channel
             ][
                 'matched'
             ]
@@ -1622,7 +1649,7 @@ class ProcessingManager:
             db_session(Session):    The database session to use.
 
         Returns:
-            (Image, [str]):
+            {(step.id, image_type.id): (Image, str)}:
                 The images and channels of the specified type for which the
                 specified step has not applied with the current configuration.
         """

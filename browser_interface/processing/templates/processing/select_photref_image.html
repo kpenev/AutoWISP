@@ -14,7 +14,7 @@ Select Photometric Reference
 
 <div class="lcars-bar horizontal spacer"></div>
 {% if range != "minmax" %}
-<a href="{% url 'processing:select_photref' values_range='minmax' values_transform=transform %}"
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='minmax' values_transform=transform %}"
    class="lcars-bar
           button
           horizontal
@@ -29,7 +29,7 @@ Select Photometric Reference
 {% endif %}
 
 {% if range != "zscale" %}
-<a href="{% url 'processing:select_photref' values_range='zscale' values_transform=transform %}"
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='zscale' values_transform=transform %}"
    class="lcars-bar
           button
           horizontal
@@ -55,7 +55,7 @@ Select Photometric Reference
 
 {% if transform %}
 <div class="lcars-bar horizontal spacer"></div>
-<a href="{% url 'processing:select_photref' values_range=range %}"
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range %}"
    class="lcars-bar
            horizontal
            bottom
@@ -70,7 +70,7 @@ Select Photometric Reference
 <div class="lcars-bar horizontal spacer"></div>
 {% for trans_choice in transform_list %}
 {% if trans_choice != transform %}
-<a href="{% url 'processing:select_photref' values_range=range values_transform=trans_choice %}"
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range values_transform=trans_choice %}"
    class="lcars-bar
            horizontal
            bottom

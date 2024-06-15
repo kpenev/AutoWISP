@@ -6,11 +6,6 @@ html,body {
   box-sizing: border-box;
 }
 
-body {
-  font-family: Arial;
-  color: #333333;
-}
-
 #chart-container {
   position: relative;
   height: 100%;
