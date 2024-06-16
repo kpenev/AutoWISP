@@ -18,7 +18,7 @@ Select Photometric Reference
    class="lcars-bar
           button
           horizontal
-          lcars-rust-bg
+          lcars-chestnut-rose-bg
           lcars-u-1"
    >
    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
@@ -33,7 +33,7 @@ Select Photometric Reference
    class="lcars-bar
           button
           horizontal
-          lcars-rust-bg
+          lcars-chestnut-rose-bg
           lcars-u-1">
     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
         zscale
@@ -41,6 +41,38 @@ Select Photometric Reference
 </a>
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
+
+{% if image_index > 0 %}
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"-1" values_range=range values_transform=transform %}"
+{% else %}
+<div
+{% endif %}
+   class="lcars-bar
+          button
+          horizontal
+          lcars-melrose-bg
+          lcars-u-2">
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        <<< prev. image
+    </div>
+{% if image_index > 0 %}
+</a>
+{% else %}
+</div>
+{% endif %}
+
+<div class="lcars-bar horizontal spacer"></div>
+
+<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"1" values_range=range values_transform=transform %}"
+   class="lcars-bar
+          button
+          horizontal
+          lcars-melrose-bg
+          lcars-u-2">
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        next image >>>
+    </div>
+</a>
 
 {% endblock header_bar_extra %}
 
@@ -59,7 +91,7 @@ Select Photometric Reference
    class="lcars-bar
            horizontal
            bottom
-           lcars-rust-bg
+           lcars-chestnut-rose-bg
            lcars-u-1"
    >
    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
@@ -74,7 +106,7 @@ Select Photometric Reference
    class="lcars-bar
            horizontal
            bottom
-           lcars-rust-bg
+           lcars-chestnut-rose-bg
            lcars-u-1"
    >
    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
@@ -100,4 +132,7 @@ Select Photometric Reference
 
 {% block main %}
 <img src="data:image/png;base64,{{image}}"></img>
+{% for hist in histograms %}
+{{hist|safe}}
+{% endfor %}
 {% endblock main %}

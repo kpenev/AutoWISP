@@ -1,6 +1,6 @@
 """Implement the view for selecting single photometric reference."""
 
-from io import BytesIO
+from io import BytesIO, StringIO
 from base64 import b64encode
 from time import sleep
 
@@ -8,8 +8,10 @@ import numpy
 from PIL import Image
 from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
-from matplotlib import colors
+import matplotlib
+from matplotlib import colors, pyplot
 from sqlalchemy import select
+import pandas
 
 from astropy.io import fits
 from astropy.visualization import ZScaleInterval
@@ -179,11 +181,44 @@ def _get_merit_data(request, target_index):
             calculate_photref_merit(
                 [entry[1] for entry in batch],
                 config
+            ).sort_values(
+                by='merit',
+                ascending=False
             ).to_json()
         )
 
 
+def _create_merit_histograms(merit_data, image_index):
+    """Create SVG histograms of various merit metrics showing image in each."""
+
+    matplotlib.use('svg')
+    pyplot.style.use('dark_background')
+    result = []
+    for column in merit_data.columns:
+        if column == 'dr' or column.startswith('qnt_'):
+            continue
+        with StringIO() as image_stream:
+            pyplot.hist(merit_data[column],
+                        bins='auto',
+                        linewidth=0,
+                        color='white')
+            pyplot.axvline(x=merit_data[column].iloc[image_index],
+                           linewidth=5,
+                           color='red')
+            if column == 'merit':
+                pyplot.yscale('log')
+                pyplot.suptitle('merit')
+            else:
+                quantile = merit_data['qnt_' + column].iloc[image_index]
+                pyplot.suptitle(column + f' ({quantile} quantile)')
+            pyplot.savefig(image_stream, format='svg')
+            result.append(image_stream.getvalue())
+            pyplot.clf()
+    return result
+
+
 def select_photref_image(request,
+                         *,
                          target_index,
                          image_index=0,
                          values_range='zscale',
@@ -192,6 +227,10 @@ def select_photref_image(request,
     """Display the interface for reviewing canditate reference frames."""
 
     _get_merit_data(request, target_index)
+    merit_data = pandas.read_json(
+        request.session['merit_info'][str(target_index)]
+    )
+    print('Merit data:\n' + repr(merit_data))
     png_stream = BytesIO()
     with fits.open(
         request.session[
@@ -203,7 +242,10 @@ def select_photref_image(request,
         ][
             2
         ][
-            image_index
+            #False positive
+            #pylint:disable=no-member
+            merit_data.index[image_index]
+            #pylint:enable=no-member
         ][
             0
         ],
@@ -246,7 +288,9 @@ def select_photref_image(request,
         {
             'target_index': target_index,
             'image_index': image_index,
+            'last_image': image_index < merit_data.shape[0] - 1,
             'image': b64encode(png_stream.getvalue()).decode('utf-8'),
+            'histograms': _create_merit_histograms(merit_data, image_index),
             'range': values_range,
             'transform': values_transform,
             'transform_list': [
