@@ -1,6 +1,10 @@
 {% extends 'core/lcars_app.html' %}
 {% load static %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'processing/css/select_photref.css' %}"/>
+{% endblock extra_head %}
+
 {% block header_title %}{% block app_title %}
 Select Photometric Reference
 {% endblock %}{% endblock %}
@@ -127,12 +131,24 @@ Select Photometric Reference
         Set This Image As Reference
     </div>
 </a>
+<a href="{% url 'processing:select_photref_image_recalc' target_index=target_index image_index=image_index values_range=range values_transform=transform %}">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-1">
+        Recalc. merit
+    </div>
+</a>
 {% endblock left_menu %}
 
 
 {% block main %}
-<img src="data:image/png;base64,{{image}}"></img>
+<div class="main-parent"> 
+    <img id="main-image" src="data:image/png;base64,{{image}}"></img>
+</div>
 {% for hist in histograms %}
 {{hist|safe}}
 {% endfor %}
+
+<script src="{% static 'processing/js/select.photref.js' %}"></script>
 {% endblock main %}

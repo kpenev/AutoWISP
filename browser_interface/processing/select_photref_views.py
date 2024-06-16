@@ -2,11 +2,10 @@
 
 from io import BytesIO, StringIO
 from base64 import b64encode
-from time import sleep
 
 import numpy
 from PIL import Image
-from PIL.ImageTransform import AffineTransform
+#from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
 import matplotlib
 from matplotlib import colors, pyplot
@@ -174,6 +173,7 @@ def _get_merit_data(request, target_index):
     if 'merit_info' not in request.session:
         request.session['merit_info'] = {}
     if target_index not in request.session['merit_info']:
+        print('Calculating merit for target ' + str(target_index))
         config, batch = (
             request.session['need_photref']['master_values'][target_index][1:]
         )
@@ -206,7 +206,6 @@ def _create_merit_histograms(merit_data, image_index):
                            linewidth=5,
                            color='red')
             if column == 'merit':
-                pyplot.yscale('log')
                 pyplot.suptitle('merit')
             else:
                 quantile = merit_data['qnt_' + column].iloc[image_index]
@@ -223,9 +222,18 @@ def select_photref_image(request,
                          image_index=0,
                          values_range='zscale',
                          values_transform=None,
-                         zoom=1.0):
+                         recalculate=False):
     """Display the interface for reviewing canditate reference frames."""
 
+    if recalculate:
+        print('Deleting merit info')
+        del request.session['merit_info']
+#        request.session.modified = True
+#        return redirect('/processing/select_photref_target',
+#                        target_index=target_index,
+#                        image_index=image_index,
+#                        values_range=values_range,
+#                        values_transform=values_transform)
     _get_merit_data(request, target_index)
     merit_data = pandas.read_json(
         request.session['merit_info'][str(target_index)]
@@ -273,14 +281,15 @@ def select_photref_image(request,
             255
         ).astype('uint8')
         image = Image.fromarray(scaled_pixels)
-        apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
-        image.transform(
-            size=(int(image.size[0] * zoom), int(image.size[1] * zoom)),
-            method=apply_zoom
-        ).save(
-            png_stream,
-            'png'
-        )
+        #apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
+        #image.transform(
+        #    size=(int(image.size[0] * zoom), int(image.size[1] * zoom)),
+        #    method=apply_zoom
+        #).save(
+        #    png_stream,
+        #    'png'
+        #)
+        image.save(png_stream, 'png')
 
     return render(
         request,
@@ -288,7 +297,10 @@ def select_photref_image(request,
         {
             'target_index': target_index,
             'image_index': image_index,
+            #False positive
+            #pylint: disable=no-member
             'last_image': image_index < merit_data.shape[0] - 1,
+            #pylint: enable=no-member
             'image': b64encode(png_stream.getvalue()).decode('utf-8'),
             'histograms': _create_merit_histograms(merit_data, image_index),
             'range': values_range,
@@ -306,10 +318,10 @@ def select_photref_image(request,
     )
 
 
-def select_photref_target(request, refresh=False):
+def select_photref_target(request, recalc=False):
     """Display view to select which of the missing photrefs to define."""
 
-    if refresh:
+    if recalc:
         request.session.flush()
         return redirect('/processing/select_photref_target')
     request.session.set_expiry(0)

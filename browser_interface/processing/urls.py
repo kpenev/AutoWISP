@@ -30,10 +30,10 @@ urlpatterns = [
     path('select_photref_target',
          views.select_photref_target,
          name='select_photref_target'),
-    path('select_photref_target/refresh',
+    path('select_photref_target/recalc',
          views.select_photref_target,
-         {'refresh': True},
-         name='select_photref_refresh'),
+         {'recalc': True},
+         name='select_photref_recalc'),
     path('select_photref_image/<int:target_index>',
          views.select_photref_image,
          name='select_photref_image'),
@@ -52,5 +52,16 @@ urlpatterns = [
                   '<slug:values_transform>']),
         views.select_photref_image,
         name='select_photref_image'
+    ),
+    path(
+        '/'.join(['select_photref_image',
+                  'recalc',
+                  '<int:target_index>',
+                  '<int:image_index>',
+                  '<str:values_range>',
+                  '<slug:values_transform>']),
+        views.select_photref_image,
+        {'recalculate': True},
+        name='select_photref_image_recalc'
     )
 ]
