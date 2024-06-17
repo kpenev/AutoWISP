@@ -1,201 +1,150 @@
+{% extends 'core/lcars_app.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>AutoWISP Reductions Progress</title>
-        {% if refresh_seconds %}
-        <meta http-equiv="refresh" content="{{refresh_seconds}}">
-        {% endif %}
-        <link rel="stylesheet" 
-              href="{% static 'processing/css/jquery.orgchart.css' %}">
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-        <link rel="stylesheet" href="{% static 'css/lcars.css' %}">
-        <style type="text/css">
-            #chart-container { text-align: left; }
 
-            .dropdown:hover .dropbtn {
-              display: none;
-            }
-        </style>
+{% block header_title %}
+AutoWISP Reductions Progress
+{% endblock header_title %}
 
-    </head>
-    <body>
-        <div class="lcars-app-container">
-            <!-- HEADER -->
-            <div id="header" class="lcars-row header">
+{% block extra_head %}
+{% if refresh_seconds %}
+<meta http-equiv="refresh" content="{{refresh_seconds}}">
+{% endif %}
+<link rel="stylesheet" 
+      href="{% static 'processing/css/jquery.orgchart.css' %}">
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+<style type="text/css">
+#chart-container { text-align: left; }
 
-                <!-- ELBOW -->
-                <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
-                <div class="lcars-bar horizontal">
-                    <div class="lcars-title right">PROCESSING PROGRESS</div>
+.dropdown:hover .dropbtn {
+    display: none;
+}
+</style>
+{% endblock extra_head %}
+
+{% block app_title %}
+Processing Progress
+{% endblock app_title %}
+
+{% block left_menu %}
+{% if not running %}
+<a href="{% url 'processing:start_processing' %}">
+    <div class="lcars-element 
+                              button 
+                              lcars-melrose-bg
+                              lcars-u-1">
+        Start Processing
+    </div>
+</a>
+{% endif %}
+
+<a href="{% url 'processing:select_raw_images' %}">
+    <div class="lcars-element 
+                              button 
+                              lcars-husk-bg
+                              lcars-u-1">
+        Add New Images
+    </div>
+</a>
+{% endblock left_menu %}
+
+{% block main %}
+<table class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>Step</th>
+            <th>Image Type</th>
+            {% for channel in channels %}
+            <th style="justify-content: center;">{{ channel }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    {% for step, imtype, by_channel, runs in progress %}
+    <tr>
+        <td>
+            <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
+                <div class="lcars-element 
+                                          button 
+                                          rounded 
+                                          lcars-chestnut-rose-bg
+                                          lcars-u-2"
+                     style="align-items: center;">
+                    {{ step|join:" " }}
                 </div>
-                <!-- ROUNDED EDGE DECORATED -->
-                <div class="lcars-bar horizontal right-end decorated"></div>
+            </a>
+        </td>
+        <td>{{ imtype }}</td>
+        {% url 'processing:select_photref_target' as photrefsel_url %}
+        {% for final, pending, by_status in by_channel %}
+        {% with total=final|add:pending %}
+        <td>
+            <table>
+                <tr>
+                    <td colspan=2>
+                        {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                        <a href="{{photrefsel_url}}">
+                        Click to select reference frames <br/>
+                        {% endif %}
+                        <div id="progress-with-label" 
+                             style="width: 100%">
+                            <span style="width: {% widthratio final total 100 %}%">
+                                {{final}}/{{total}}
+                            </span>
+                            <progress value="{{ final }}" 
+                                      max="{{ total }}" 
+                                      class="lcars-u-2 lcars-rust-bg"
+                                      style="foreground-color:black">
+                            </progress>
+                        </div>
+                        {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                        </a">
+                        {% endif %}
+                    </td>
+                </tr>
+                {% for status, count in by_status %}
+                <tr>
+                    <td class="lcars-u-1">Status {{ status }}</td>
+                    <td>
+                        <div id="progress-with-label" 
+                             style="width: 100%">
+                            <span style="width:{% widthratio count pending 100 %}%">
+                                {{count}}/{{pending}}
+                            </span>
+                            <progress value="{{ count }}" 
+                                      max="{{ pending }}" 
+                                      class="lcars-u-1 lcars-rust-bg"
+                                      style="foreground-color:black">
+                            </progress>
+                        </div>
+                    </td>
 
-
-            </div>
-            <!-- LEFT MENU -->
-            <div id="left-menu" 
-                 class="lcars-column start-space lcars-u-1" 
-                 style="text-transform: uppercase;">
-
-                {% if not running %}
-                <a href="{% url 'processing:start_processing' %}">
-                    <div class="lcars-element 
-                                button 
-                                lcars-melrose-bg
-                                lcars-u-1">
-                        Start Processing
-                    </div>
-                </a>
-                {% endif %}
-
-                <a href="{% url 'processing:select_raw_images' %}">
-                    <div class="lcars-element 
-                                  button 
-                                  lcars-husk-bg
-                                  lcars-u-1">
-                        Add New Images
-                    </div>
-                </a>
-                <a href="{% url 'configuration:survey' %}">
-                    <div class="lcars-element 
-                                  button 
-                                  lcars-chestnut-rose-bg
-                                  lcars-u-1-2">
-                        Edit Survey
-                    </div>
-                </a>
-                <a href="{% url 'configuration:config_tree' %}">
-                    <div class="lcars-element 
-                                  button 
-                                  lcars-chestnut-rose-bg
-                                  lcars-u-1-2">
-                        Configure Processing
-                    </div>
-                </a>
-
-                <div class="lcars-bar lcars-u-1"></div>
-
-            </div>
-
-            <!-- FOOTER -->
-            <div id="footer" class="lcars-row ">
-                <!-- ELBOW -->
-                <div class="lcars-elbow left-top lcars-golden-tanoi-bg"></div>
-                <!-- BAR -->
-                <div class="lcars-bar horizontal both-divider bottom"></div>
-                <!-- ROUNDED EDGE -->
-                <div class="lcars-bar horizontal right-end left-divider bottom"></div>
-            </div>
-
-            <div id="container">
-                <table class="lcars-table standard-header">
-                    <thead>
-                    <tr>
-                        <th>Step</th>
-                        <th>Image Type</th>
-                        {% for channel in channels %}
-                        <th style="justify-content: center;">{{ channel }}</th>
-                        {% endfor %}
-                    </tr>
-                    </thead>
-                    {% for step, imtype, by_channel, runs in progress %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
-                                <div class="lcars-element 
-                                            button 
-                                            rounded 
-                                            lcars-chestnut-rose-bg
-                                            lcars-u-2"
-                                     style="align-items: center;">
-                                    {{ step|join:" " }}
-                                </div>
-                            </a>
-                        </td>
-                        <td>{{ imtype }}</td>
-                        {% for final, pending, by_status in by_channel %}
-                        {% with total=final|add:pending %}
-                        <td>
-                            <table>
-                                <tr>
-                                    <td colspan=2>
-                                        <div id="progress-with-label" 
-                                             style="width: 100%">
-                                            <span style="width: {% widthratio final total 100 %}%">
-                                                {{final}}/{{total}}
-                                            </span>
-                                            <progress value="{{ final }}" 
-                                                      max="{{ total }}" 
-                                                      class="lcars-u-2 lcars-rust-bg"
-                                                      style="foreground-color:black">
-                                            </progress>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% for status, count in by_status %}
-                                <tr>
-                                    <td class="lcars-u-1">Status {{ status }}</td>
-                                    <td>
-                                        <div id="progress-with-label" 
-                                             style="width: 100%">
-                                            <span style="width:{% widthratio count pending 100 %}%">
-                                                {{count}}/{{pending}}
-                                            </span>
-                                            <progress value="{{ count }}" 
-                                                      max="{{ pending }}" 
-                                                      class="lcars-u-1 lcars-rust-bg"
-                                                      style="foreground-color:black">
-                                            </progress>
-                                        </div>
-                                    </td>
-
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </td>
-                        {% endwith %}
-                        {% endfor %}
-                        <td class="dropdown">
-                            {% if runs %}
-                            <div class="dropbtn
-                                        lcars-element 
-                                        button 
-                                        rounded 
-                                        lcars-husk-bg"
-                                 style="align-items: center;">
-                                Logs
-                            </div>
-                            <div class="dropdown-content">
-                                {% for run_id, started, finished in runs %}
-                                <a href="{% url 'processing:review' run_id 'INFO' %}"
-                                   class="dropdown-content">
-                                    Started {{started}}
-                                </a>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-
-
-        </div>
-
-        {% if messages %}
-        <hr>
-        {% for msg in messages %}
-        <pre>
-            {{msg}}
-        </pre>
-        <hr>
+                </tr>
+                {% endfor %}
+            </table>
+        </td>
+        {% endwith %}
         {% endfor %}
-        {% endif %}
+        <td class="dropdown">
+            {% if runs %}
+            <div class="dropbtn
+                               lcars-element 
+                               button 
+                               rounded 
+                               lcars-husk-bg"
+                 style="align-items: center;">
+                Logs
+            </div>
+            <div class="dropdown-content">
+                {% for run_id, started, finished in runs %}
+                <a href="{% url 'processing:review' run_id 'INFO' %}"
+                   class="dropdown-content">
+                    Started {{started}}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock main %}
 
-    </body>
-</html>

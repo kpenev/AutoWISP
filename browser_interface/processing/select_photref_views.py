@@ -206,10 +206,11 @@ def _create_merit_histograms(merit_data, image_index):
                            linewidth=5,
                            color='red')
             if column == 'merit':
-                pyplot.suptitle('merit')
+                pyplot.suptitle('merit', fontsize=32)
             else:
                 quantile = merit_data['qnt_' + column].iloc[image_index]
-                pyplot.suptitle(column + f' ({quantile} quantile)')
+                pyplot.suptitle(column + f' ({quantile:.3f} quantile)',
+                                fontsize=32)
             pyplot.savefig(image_stream, format='svg')
             result.append(image_stream.getvalue())
             pyplot.clf()

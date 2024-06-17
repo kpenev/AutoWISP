@@ -143,12 +143,29 @@ Select Photometric Reference
 
 
 {% block main %}
-<div class="main-parent"> 
-    <img id="main-image" src="data:image/png;base64,{{image}}"></img>
+<div id="full-view" class="lcars-row">
+    <div class="main-parent"> 
+        <img id="main-image" src="data:image/png;base64,{{image}}"></img>
+    </div>
+    <div class="lcars-row lcars-u-2" style="overflow: hidden;">
+        <div id="vert-hist-sep" class="lcars-column">
+            <div id="hist-scroll-up" 
+                 class="lcars-bracket top lcars-melrose-bg" 
+                 style="height:30%">
+            </div>
+            <div id="resize-hist" class="lcars-bar" style="height:40%"></div>
+            <div id="hist-scroll-down"
+                 class="lcars-bracket bottom lcars-melrose-bg" 
+                 style="height:30%">
+            </div>
+        </div>
+        <div id="hist-parent" class="lcars-col">
+            {% for hist in histograms %}
+            {{hist|safe}}
+            {% endfor %}
+        </div>
+    </div>
 </div>
-{% for hist in histograms %}
-{{hist|safe}}
-{% endfor %}
 
 <script src="{% static 'processing/js/select.photref.js' %}"></script>
 {% endblock main %}
