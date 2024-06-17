@@ -1,3 +1,4 @@
+//Place the main image relative to its parent per its posX and posY attributes
 function placeImage()
 {
     let boundingRect = document.getElementsByClassName(
@@ -16,6 +17,7 @@ function placeImage()
     ) + "px";
 }
 
+//Change the zoom level of the main image.
 function adjustZoom(event)
 {
     event.preventDefault();
@@ -47,6 +49,7 @@ function adjustZoom(event)
     placeImage();
 }
 
+//Change the displayed portion of the main image in response to dragging.
 function pan(event)
 {
     event.preventDefault();
@@ -58,6 +61,7 @@ function pan(event)
     placeImage();
 }
 
+//Prepare to respond to the user dragging the main image. 
 function panStart(event)
 {
     event.preventDefault();
@@ -68,12 +72,14 @@ function panStart(event)
     image.addEventListener("mousemove", pan);
 }
 
+//The user has released the main image after dragging it.
 function panStop(event)
 {
     event.preventDefault();
     image.removeEventListener("mousemove", pan); 
 }
 
+//Change the displayed histogrames up by one.
 function histScrollUp(event)
 {
     if ( histParent.firstVisible == histParent.children.length - 1 ) {
@@ -101,6 +107,7 @@ function histScrollUp(event)
     }
 }
 
+//Change the displayed histogrames down by one.
 function histScrollDown(event)
 {
     if ( histParent.firstVisible == 0 ) {
@@ -128,6 +135,7 @@ function histScrollDown(event)
     }
 }
 
+//Prepare to respond to user dragging a histogram.
 function histDragStart(event)
 {
     event.preventDefault();
@@ -138,6 +146,7 @@ function histDragStart(event)
     histParent.addEventListener("mouseup", histDragEnd);
 }
 
+//Update the histogram order after a user has dragged and dropped one.
 function histDragEnd(event)
 {
     event.preventDefault();
@@ -149,12 +158,47 @@ function histDragEnd(event)
             i < histParent.children.length) {
         i+= 1;
     }
-    alert("Inserting " + histDragEnd.target + " before histogram " + i);
     histParent.insertBefore(histDragEnd.target, histParent.children[i]);
 
     histParent.removeEventListener("mouseup", histDragEnd);
 }
 
+//Prepare to respond to user dragging histogram/image separator.
+function resizeHistStart(event)
+{
+    event.preventDefault();
+    document.getElementById("full-view").addEventListener("mousemove",
+                                                          resizeHist);
+    document.getElementById("full-view").addEventListener("mouseup",
+                                                          resizeHistEnd);
+}
+
+//Adjust the size of the histograms in response to user dragging separator
+function resizeHist(event)
+{
+    event.preventDefault();
+    let full_rect = document.getElementById("full-view").getBoundingClientRect();
+    let side_bar = document.getElementById("side-bar")
+    side_bar.style.width = Math.max(
+        document.getElementById("vert-hist-sep").getBoundingClientRect().width,
+        (full_rect.right 
+         - 
+         Math.max(full_rect.left + 100, event.clientX))
+    ) + "px";
+    side_bar.style.minWidth = side_bar.style.width
+}
+
+//The user has released the image/histogram separator.
+function resizeHistEnd(event)
+{
+    event.preventDefault();
+    document.getElementById("full-view").removeEventListener("mousemove",
+                                                             resizeHist);
+    document.getElementById("full-view").removeEventListener("mouseup",
+                                                             resizeHistEnd);
+}
+
+//Prepare to respond to user interacting with the photref selection view.
 function init()
 {
     image.addEventListener("wheel", adjustZoom);
@@ -174,8 +218,34 @@ function init()
     );
     for( let i = 0; i < histParent.children.length; i++) {
         histParent.children[i].addEventListener("mousedown", histDragStart);
+        histParent.children[i].origPosition = i;
     }
+    document.getElementById("resize-hist").addEventListener("mousedown",
+                                                            resizeHistStart);
 }
+
+//Submit the currently configured view when changing scale, range or image
+async function update(updateURL)
+{
+    view_config = {
+        "image": {
+            "posX": image.posX, 
+            "posY": image.posY, 
+            "width": image.width,
+            "height": image.height
+        },
+        "histograms": {
+            "firstVisible": histParent.firstVisible,
+            "width": document.getElementById("side-bar").style.width,
+        }
+    };
+
+    for( let i = 0; i < histParent.children.length; i++) {
+        view_config.histograms.order.push(histParent.children[i].origPosition);
+    }
+    postJson(updateURL, view_config);
+}
+
 var image = document.getElementById("main-image")
 var histParent = document.getElementById("hist-parent");
 init();
