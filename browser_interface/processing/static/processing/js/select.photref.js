@@ -230,10 +230,17 @@ function initView(viewConfig)
                               image.naturalWidth);
     placeImage();
 
+    for( let i = 0; i < histParent.children.length; i++) {
+        histParent.children[i].addEventListener("mousedown", histDragStart);
+        histParent.children[i].origPosition = i;
+    }
     let histOrder = viewConfig.histograms.order;
+    let originalOrder = Array.from(histParent.children);
     for( let i = 0; i < histParent.children.length; ++i ) {
-        histParent.insertBefore(histParent.children[histOrder[i]],
-                                histParent.children[i]);
+        if ( i != histOrder[i] ) {
+            histParent.insertBefore(originalOrder[histOrder[i]],
+                                    histParent.children[i]);
+        }
     }
     histParent.firstVisible = viewConfig.histograms.firstVisible;
 
@@ -256,10 +263,6 @@ function initView(viewConfig)
         "click",
         histScrollDown
     );
-    for( let i = 0; i < histParent.children.length; i++) {
-        histParent.children[i].addEventListener("mousedown", histDragStart);
-        histParent.children[i].origPosition = i;
-    }
     document.getElementById("resize-hist").addEventListener("mousedown",
                                                             resizeHistStart);
 }
