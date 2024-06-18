@@ -18,65 +18,66 @@ Select Photometric Reference
 
 <div class="lcars-bar horizontal spacer"></div>
 {% if range != "minmax" %}
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='minmax' values_transform=transform %}"
-   class="lcars-bar
-          button
-          horizontal
-          lcars-chestnut-rose-bg
-          lcars-u-1"
-   >
-   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
-       min/max
-   </div>
-</a>
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='minmax' values_transform=transform as updateURL %}
+<div onclick="updateView('{{updateURL}}')"
+     class="lcars-bar
+             button
+             horizontal
+             lcars-chestnut-rose-bg
+             lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         min/max
+     </div>
+</div>
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
 
 {% if range != "zscale" %}
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='zscale' values_transform=transform %}"
-   class="lcars-bar
-          button
-          horizontal
-          lcars-chestnut-rose-bg
-          lcars-u-1">
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range='zscale' values_transform=transform as updateURL %}
+<div onclick="updateView('{{updateURL}}')"
+     class="lcars-bar
+            button
+            horizontal
+            lcars-chestnut-rose-bg
+            lcars-u-1">
     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
         zscale
     </div>
-</a>
+</div>
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
 
-{% if image_index > 0 %}
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"-1" values_range=range values_transform=transform %}"
-{% else %}
-<div
-{% endif %}
-   class="lcars-bar
-          button
-          horizontal
-          lcars-melrose-bg
-          lcars-u-2">
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"-1" values_range=range values_transform=transform as updateURL %}
+<div class="lcars-bar
+            {% if image_index > 0 %}
+            button
+            {% endif %}
+            horizontal
+            lcars-melrose-bg
+            lcars-u-2"
+     {% if image_index > 0 %}
+     onclick="updateView('{{updateURL}}')"
+     {% endif %}
+     >
     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
         <<< prev. image
     </div>
-{% if image_index > 0 %}
-</a>
-{% else %}
 </div>
-{% endif %}
 
 <div class="lcars-bar horizontal spacer"></div>
 
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"1" values_range=range values_transform=transform %}"
-   class="lcars-bar
-          button
-          horizontal
-          lcars-melrose-bg
-          lcars-u-2">
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index|add:"1" values_range=range values_transform=transform as updateURL %}
+<div onclick="updateView('{{updateURL}}')"
+     class="lcars-bar
+            button
+            horizontal
+            lcars-melrose-bg
+            lcars-u-2">
     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
         next image >>>
     </div>
-</a>
+</div>
 
 {% endblock header_bar_extra %}
 
@@ -91,32 +92,36 @@ Select Photometric Reference
 
 {% if transform %}
 <div class="lcars-bar horizontal spacer"></div>
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range %}"
-   class="lcars-bar
-           horizontal
-           bottom
-           lcars-chestnut-rose-bg
-           lcars-u-1"
-   >
-   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
-       None
-   </div>
-</a>
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range as updateURL %}
+<div onclick="updateView('{{updateURL}}')"
+     class="lcars-bar
+            horizontal
+            button
+            bottom
+            lcars-chestnut-rose-bg
+            lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         None
+     </div>
+</div>
 {% endif %}
 <div class="lcars-bar horizontal spacer"></div>
 {% for trans_choice in transform_list %}
 {% if trans_choice != transform %}
-<a href="{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range values_transform=trans_choice %}"
-   class="lcars-bar
-           horizontal
-           bottom
-           lcars-chestnut-rose-bg
-           lcars-u-1"
-   >
-   <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
-       {{trans_choice}}
+{% url 'processing:select_photref_image' target_index=target_index image_index=image_index values_range=range values_transform=trans_choice as updateURL %}
+<div onclick="updateView('{{updateURL}}')"
+     class="lcars-bar
+            button
+            horizontal
+            bottom
+            lcars-chestnut-rose-bg
+            lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         {{trans_choice}}
    </div>
-</a>
+</div>
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
 {% endfor %}
@@ -131,14 +136,15 @@ Select Photometric Reference
         Set This Image As Reference
     </div>
 </a>
-<a href="{% url 'processing:select_photref_image_recalc' target_index=target_index image_index=image_index values_range=range values_transform=transform %}">
+{% url 'processing:select_photref_image_recalc' target_index=target_index image_index=image_index values_range=range values_transform=transform as updateURL %}
+<div onclick="updateView('{{updateURL}}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
                 lcars-u-1-1">
         Recalc. merit
     </div>
-</a>
+</div>
 {% endblock left_menu %}
 
 
@@ -167,5 +173,11 @@ Select Photometric Reference
     </div>
 </div>
 
+<script src="{% static 'js/autowisp.util.js' %}"></script>
+
 <script src="{% static 'processing/js/select.photref.js' %}"></script>
+
+<script type="text/javascript">
+    initView({{ view_config|safe }});
+</script> 
 {% endblock main %}

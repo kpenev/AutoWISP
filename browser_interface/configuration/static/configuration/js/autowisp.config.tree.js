@@ -251,6 +251,6 @@ class configTree {
 
     async save(saveURL)
     {
-        postJson(saveURL, this.data);
+        postJson(saveURL, this.data).then(function() {location.reload();});
     }
 }

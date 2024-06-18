@@ -13,7 +13,9 @@ from autowisp.database import processing
 from .log_views import review, review_single
 from .select_raw_view import SelectRawImages
 from .progress_view import progress
-from .select_photref_views import select_photref_target, select_photref_image
+from .select_photref_views import\
+    select_photref_target,\
+    select_photref_image
 #pylint: enable=unused-import
 
 

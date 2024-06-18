@@ -22,25 +22,25 @@ function adjustZoom(event)
 {
     event.preventDefault();
     let image = document.getElementById("main-image");
-    let parent_width = document.getElementsByClassName("main-parent")[0].getBoundingClientRect().width;
+    let parentWidth = document.getElementsByClassName("main-parent")[0].getBoundingClientRect().width;
     let step = Math.round(image.width / 100);
-    new_width = Math.max(
+    newWidth = Math.max(
         100,
         image.width + event.deltaY * step
     );
-    new_width = Math.min(new_width, 100 * image.naturalWidth)
-    if ( image.width > image.naturalWidth && new_width < image.naturalWidth ) {
-        new_width = image.naturalWidth;
-    } else if ( image.width > parent_width 
+    newWidth = Math.min(newWidth, 100 * image.naturalWidth)
+    if ( image.width > image.naturalWidth && newWidth < image.naturalWidth ) {
+        newWidth = image.naturalWidth;
+    } else if ( image.width > parentWidth 
                 && 
-                new_width < parent_width ) {
-        new_width = parent_width;
+                newWidth < parentWidth ) {
+        newWidth = parentWidth;
     } 
 
-    let scale = new_width / image.width
+    let scale = newWidth / image.width
     image.posX = image.posX * scale;
     image.posY = image.posY * scale;
-    image.width = new_width;
+    image.width = newWidth;
     image.height = Math.round(image.naturalHeight 
                               * 
                               image.width 
@@ -177,15 +177,15 @@ function resizeHistStart(event)
 function resizeHist(event)
 {
     event.preventDefault();
-    let full_rect = document.getElementById("full-view").getBoundingClientRect();
-    let side_bar = document.getElementById("side-bar")
-    side_bar.style.width = Math.max(
+    let fullRect = document.getElementById("full-view").getBoundingClientRect();
+    let sideBar = document.getElementById("side-bar")
+    sideBar.style.width = Math.max(
         document.getElementById("vert-hist-sep").getBoundingClientRect().width,
-        (full_rect.right 
+        (fullRect.right 
          - 
-         Math.max(full_rect.left + 100, event.clientX))
+         Math.max(fullRect.left + 100, event.clientX))
     ) + "px";
-    side_bar.style.minWidth = side_bar.style.width
+    sideBar.style.minWidth = sideBar.style.width
 }
 
 //The user has released the image/histogram separator.
@@ -199,17 +199,57 @@ function resizeHistEnd(event)
 }
 
 //Prepare to respond to user interacting with the photref selection view.
-function init()
+function initView(viewConfig)
 {
+    if ( viewConfig === undefined ) {
+        viewConfig = {
+            "image": {
+                "posX": 0, 
+                "posY": 0, 
+                "width": image.width,
+                "height": image.height
+            },
+            "histograms": {
+                "firstVisible": 0,
+                "width": document.getElementById("side-bar").style.width,
+                "order": [...Array(histParent.children.length).keys()]
+            }
+        };
+
+    }
     image.addEventListener("wheel", adjustZoom);
     image.addEventListener("mousedown", panStart);
     image.addEventListener("mouseup", panStop);
-    image.posX = 0;
-    image.posY = 0;
+    image.posX = viewConfig.image.posX;
+    image.posY = viewConfig.image.posY;
+    image.width = viewConfig.image.width;
+    image.height = Math.round(image.naturalHeight 
+                              * 
+                              image.width 
+                              / 
+                              image.naturalWidth);
     placeImage();
 
-    histParent.firstVisible = 0;
+    let histOrder = viewConfig.histograms.order;
+    for( let i = 0; i < histParent.children.length; ++i ) {
+        histParent.insertBefore(histParent.children[histOrder[i]],
+                                histParent.children[i]);
+    }
+    histParent.firstVisible = viewConfig.histograms.firstVisible;
+
     histParent.shift = 0;
+    for( let i = 0; i < histParent.firstVisible; ++i ) {
+        histParent.shift = (
+            histParent.shift 
+            + 
+            histParent.children[i].getBoundingClientRect().height
+        );
+    }
+
+    let sideBar = document.getElementById("side-bar")
+    sideBar.style.width = viewConfig.histograms.width;
+    sideBar.style.minWidth = sideBar.style.width
+
     document.getElementById(
         "hist-scroll-down"
     ).addEventListener(
@@ -225,9 +265,9 @@ function init()
 }
 
 //Submit the currently configured view when changing scale, range or image
-async function update(updateURL)
+async function updateView(updateURL)
 {
-    view_config = {
+    viewConfig = {
         "image": {
             "posX": image.posX, 
             "posY": image.posY, 
@@ -237,15 +277,19 @@ async function update(updateURL)
         "histograms": {
             "firstVisible": histParent.firstVisible,
             "width": document.getElementById("side-bar").style.width,
+            "order": []
         }
     };
 
     for( let i = 0; i < histParent.children.length; i++) {
-        view_config.histograms.order.push(histParent.children[i].origPosition);
+        viewConfig.histograms.order.push(histParent.children[i].origPosition);
     }
-    postJson(updateURL, view_config);
+    postJson(updateURL, viewConfig).then(
+        function() {
+            document.location = updateURL;
+        }
+    );
 }
 
 var image = document.getElementById("main-image")
 var histParent = document.getElementById("hist-parent");
-init();

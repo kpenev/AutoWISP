@@ -27,5 +27,5 @@ async function postJson(targetURL, data)
         headers: headers,
         credentials: 'include'
     });
-    location.reload();
+    console.log(response);
 }

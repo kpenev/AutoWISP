@@ -7,6 +7,7 @@ import numpy
 from PIL import Image
 #from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 import matplotlib
 from matplotlib import colors, pyplot
 from sqlalchemy import select
@@ -226,6 +227,7 @@ def select_photref_image(request,
                          recalculate=False):
     """Display the interface for reviewing canditate reference frames."""
 
+    print('Image view with request: ' + repr(request))
     if recalculate:
         print('Deleting merit info')
         del request.session['merit_info']
@@ -239,7 +241,13 @@ def select_photref_image(request,
     merit_data = pandas.read_json(
         request.session['merit_info'][str(target_index)]
     )
+    if request.method == 'POST':
+        request.session['view_config'] = request.body.decode()
+        print('Redirecting with new range: ' + repr(values_range))
+        return JsonResponse({'ok': True})
+    print('Rendering with values range: ' + repr(values_range))
     print('Merit data:\n' + repr(merit_data))
+    print('View config:\n' + repr(request.session.get('view_config')))
     png_stream = BytesIO()
     with fits.open(
         request.session[
@@ -292,6 +300,7 @@ def select_photref_image(request,
         #)
         image.save(png_stream, 'png')
 
+    print('Rendering')
     return render(
         request,
         'processing/select_photref_image.html',
@@ -314,7 +323,8 @@ def select_photref_image(request,
                     and
                     entry.endswith('_transform')
                 )
-            ]
+            ],
+            'view_config': request.session.get('view_config', 'undefined')
         }
     )
 
@@ -350,6 +360,7 @@ def select_photref_target(request, recalc=False):
                 ]
                 for target_ind in
                 range(len(request.session['need_photref']['master_values']))
-            ]
+            ],
+            'view_config': request.body
         }
     )
