@@ -128,7 +128,7 @@ Select Photometric Reference
 {% endblock footer_bar_extra %}
 
 {% block left_menu %}
-<a href="{% url 'processing:progress' %}">
+<a href="{% url 'processing:record_photref_selection' target_index=target_index image_index=image_index %}">
     <div class="lcars-element 
                 button 
                 lcars-melrose-bg

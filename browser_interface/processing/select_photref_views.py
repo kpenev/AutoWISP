@@ -118,7 +118,7 @@ def _get_missing_photref(request):
                                                              image_type_id,
                                                              db_session)
                 ],
-                'master_values': {}
+                'master_values': []
             }
 
             by_photref = processing.group_pending_by_conditions(
@@ -128,14 +128,19 @@ def _get_missing_photref(request):
                 step_id=step_id,
                 masters_only=True
             )
-            for target_ind, (by_master_values, master_values) in enumerate(
-                by_photref
-            ):
-                if not processing.get_candidate_masters(
+            for by_master_values, master_values in by_photref:
+                candidate_masters = processing.get_candidate_masters(
                     *by_master_values[0],
                     input_master_type,
                     db_session
-                ):
+                )
+                print(
+                    f'Candidate masters for target {master_values!r}: '
+                    +
+                    repr(candidate_masters)
+                )
+
+                if not candidate_masters:
                     config = processing.get_config(
                         matched_expressions=None,
                         image_id=by_master_values[0][0].id,
@@ -146,39 +151,39 @@ def _get_missing_photref(request):
                         'need_photref'
                     ][
                         'master_values'
-                    ][
-                        str(target_ind)
-                    ] = (
-                        master_values,
-                        config,
-                        [
-                            (
-                                processing.get_step_input(image,
-                                                          channel,
-                                                          'calibrated'),
-                                processing.get_step_input(image,
-                                                          channel,
-                                                          'dr'),
-                                image.id,
-                                channel
-                            )
-                            for image, channel in by_master_values
-                        ]
+                    ].append(
+                        (
+                            master_values,
+                            config,
+                            [
+                                (
+                                    processing.get_step_input(image,
+                                                              channel,
+                                                              'calibrated'),
+                                    processing.get_step_input(image,
+                                                              channel,
+                                                              'dr'),
+                                    image.id,
+                                    channel
+                                )
+                                for image, channel in by_master_values
+                            ]
+                        )
                     )
+    request.session.modified = True
 
 
 def _get_merit_data(request, target_index):
     """Add to the session the merit information for selecting single ref."""
 
-    target_index = str(target_index)
     if 'merit_info' not in request.session:
         request.session['merit_info'] = {}
-    if target_index not in request.session['merit_info']:
+    if str(target_index) not in request.session['merit_info']:
         print('Calculating merit for target ' + str(target_index))
         config, batch = (
             request.session['need_photref']['master_values'][target_index][1:]
         )
-        request.session['merit_info'][target_index] = (
+        request.session['merit_info'][str(target_index)] = (
             calculate_photref_merit(
                 [entry[1] for entry in batch],
                 config
@@ -187,6 +192,7 @@ def _get_merit_data(request, target_index):
                 ascending=False
             ).to_json()
         )
+    request.session.modified = True
 
 
 def _create_merit_histograms(merit_data, image_index):
@@ -238,6 +244,8 @@ def select_photref_image(request,
 #                        values_range=values_range,
 #                        values_transform=values_transform)
     _get_merit_data(request, target_index)
+    print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
+
     merit_data = pandas.read_json(
         request.session['merit_info'][str(target_index)]
     )
@@ -255,7 +263,7 @@ def select_photref_image(request,
         ][
             'master_values'
         ][
-            str(target_index)
+            target_index
         ][
             2
         ][
@@ -335,7 +343,6 @@ def select_photref_target(request, recalc=False):
     if recalc:
         request.session.flush()
         return redirect('/processing/select_photref_target')
-    request.session.set_expiry(0)
     if 'need_photref' not in request.session:
         _get_missing_photref(request)
 
@@ -354,7 +361,7 @@ def select_photref_target(request, recalc=False):
                 ][
                     'master_values'
                 ][
-                    str(target_ind)
+                    target_ind
                 ][
                     0
                 ]
@@ -364,3 +371,57 @@ def select_photref_target(request, recalc=False):
             'view_config': request.body
         }
     )
+
+
+def record_photref_selection(request, target_index, image_index):
+    """Record a single photometric reference frame selected by the user."""
+
+    print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
+    merit_data = pandas.read_json(
+        request.session['merit_info'][str(target_index)]
+    )
+    dr_fname = request.session[
+        'need_photref'
+    ][
+        'master_values'
+    ][
+        target_index
+    ][
+        2
+    ][
+        #False positive
+        #pylint:disable=no-member
+        merit_data.index[image_index]
+        #pylint:enable=no-member
+    ][
+        1
+    ]
+    del request.session[
+        'need_photref'
+    ][
+        'master_values'
+    ][
+        target_index
+    ]
+    del request.session['merit_info'][str(target_index)]
+    for target_index in range(target_index + 1,
+                              len(request.session[
+                                  'need_photref'
+                              ][
+                                  'master_values'
+                              ])):
+        if str(target_index) in request.session['merit_info']:
+            request.session['merit_info'][str(target_index - 1)] =\
+                request.session['merit_info'].pop(str(target_index))
+
+    request.session.modified = True
+
+    ProcessingManager(dummy=True).add_masters(
+        {
+            'type': 'single_photref',
+            'filename': dr_fname,
+            'preference_order': None,
+            'disable': False
+        }
+    )
+    return redirect('/processing/select_photref_target')

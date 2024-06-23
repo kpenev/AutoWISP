@@ -15,7 +15,8 @@ from .select_raw_view import SelectRawImages
 from .progress_view import progress
 from .select_photref_views import\
     select_photref_target,\
-    select_photref_image
+    select_photref_image,\
+    record_photref_selection
 #pylint: enable=unused-import
 
 

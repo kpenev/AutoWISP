@@ -1167,53 +1167,8 @@ class ProcessingManager:
             self._start_processing,
             self._end_processing
         )
-        if not new_masters:
-            return
-        #False positivie
-        #pylint: disable=no-member
-        with Session.begin() as db_session:
-        #pylint: enable=no-member
-
-            master_id = (
-                db_session.scalar(
-                    #False positive
-                    #pylint: disable=not-callable
-                    select(sql.func.max(MasterFile.id))
-                    #pylint: enable=not-callable
-                ) or 0
-            ) + 1
-
-            type_id_select = select(
-                MasterType.id
-            ).join(
-                ImageType
-            ).join(
-                Step
-            ).where(
-                Step.name == step_name,
-                ImageType.name == image_type_name
-            )
-            if isinstance(new_masters, dict):
-                new_masters=(new_masters,)
-
-            for master in new_masters:
-                if len(new_masters) > 1:
-                    type_id_select = type_id_select.where(
-                        MasterType.name == master['type']
-                    )
-                master_type_id = db_session.scalar(type_id_select)
-                db_session.add(
-                    MasterFile(
-                        id=master_id,
-                        type_id=master_type_id,
-                        progress_id=db_session.merge(
-                            self._current_processing,
-                            load=False
-                        ).id,
-                        filename=master['filename'],
-                        use_smallest=master['preference_order']
-                    )
-                )
+        if new_masters:
+            self.add_masters(new_masters, step_name, image_type_name)
 
 
     def _start_processing(self, input_fname):
@@ -1547,6 +1502,7 @@ class ProcessingManager:
 
     def get_config(self,
                    matched_expressions,
+                   *,
                    db_step=None,
                    step_name=None,
                    image_id=None,
@@ -1926,6 +1882,89 @@ class ProcessingManager:
                                         step_name='add_images_to_db')[0]
         processing_steps.add_images_to_db.add_images_to_db(image_collection,
                                                            configuration)
+
+
+    def add_masters(self, new_masters, step_name=None, image_type_name=None):
+        """
+        Add new master files to the database.
+
+        Args:
+            new_masters(dict or iterable of dicts):    Information about the new
+                mbaster(s) to add. Each dictionary should include:
+
+                * type: The type of master being added.
+
+                * filename: The full path to the new master file.
+
+                * preference_order: Expression to select among multiple possible
+                  masters. For each frame the expression for each candidate
+                  master is evaluateed using the frame header and the master
+                  with the smallest resulting value is used.
+
+                * disable(bool): Optional. If set to True the masters are
+                  recorded in the database, but not flagged enabled.
+
+            step_name(str):    The name of the step that generated the
+                masters.
+
+            image_type_name(str):    The name of the type of images whose
+                processing created the masters.
+        """
+
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+
+            master_id = (
+                db_session.scalar(
+                    #False positive
+                    #pylint: disable=not-callable
+                    select(sql.func.max(MasterFile.id))
+                    #pylint: enable=not-callable
+                ) or 0
+            ) + 1
+
+            type_id_select = select(
+                MasterType.id
+            )
+            if step_name is not None:
+                assert image_type_name is None
+                type_id_select = type_id_select.join(
+                    ImageType
+                ).join(
+                    Step
+                ).where(
+                    Step.name == step_name,
+                    ImageType.name == image_type_name
+                )
+            if isinstance(new_masters, dict):
+                new_masters=(new_masters,)
+
+            if self._current_processing is not None:
+                self._current_processing = db_session.merge(
+                    self._current_processing,
+                    load=False
+                ).id
+
+            for master in new_masters:
+                if len(new_masters) > 1 or step_name is None:
+                    type_id_select = type_id_select.where(
+                        MasterType.name == master['type']
+                    )
+                print(f'Master type select statement: {type_id_select}')
+                master_type_id = db_session.scalar(type_id_select)
+                db_session.add(
+                    MasterFile(
+                        id=master_id,
+                        type_id=master_type_id,
+                        progress_id=self._current_processing,
+                        filename=master['filename'],
+                        use_smallest=master['preference_order'],
+                        enabled=not master.get('disable', False)
+                    )
+                )
+
 
 
     def create_config_file(self, example_header, outf, steps=None):

@@ -1,7 +1,7 @@
 """Define a function doing iterative re-fitting of terms from an expression."""
 
 import logging
-import scipy
+import numpy
 import scipy.linalg
 
 #pylint: disable=too-many-locals
@@ -55,7 +55,7 @@ def iterative_fit_qr(weighted_predictors,
         logger.debug('Weigths: %s', repr(weights))
 
         assert weights is None or (weights > 0).all()
-        assert scipy.isfinite(weighted_fit_diff).all()
+        assert numpy.isfinite(weighted_fit_diff).all()
 
         fit_diff2 = pow(
             weighted_fit_diff/(1.0 if weights is None else weights),
@@ -63,11 +63,11 @@ def iterative_fit_qr(weighted_predictors,
         )
         logger.debug('Square difference: %s', repr(fit_diff2))
         if error_avg == 'weightedmean':
-            res2 = scipy.mean(pow(weighted_fit_diff, 2))
+            res2 = numpy.mean(pow(weighted_fit_diff, 2))
             if weights is not None:
-                res2 /= scipy.mean(pow(weights, 2))
+                res2 /= numpy.mean(pow(weights, 2))
         else:
-            res2 = getattr(scipy, error_avg)(fit_diff2)
+            res2 = getattr(numpy, error_avg)(fit_diff2)
         max_diff2 = rej_level**2*res2
         logger.debug('max square difference: %s', repr(max_diff2))
         if res2 < 0:
@@ -106,23 +106,23 @@ def iterative_fit_qr(weighted_predictors,
     num_free_coef = len(weighted_predictors)
 
     if 0.0 <= max_downdates < 1:
-        max_downdates = int(scipy.around(max_downdates * weighted_target.size))
+        max_downdates = int(numpy.around(max_downdates * weighted_target.size))
 
-    bad_ind = scipy.logical_not(scipy.isfinite(weighted_target))
+    bad_ind = numpy.logical_not(numpy.isfinite(weighted_target))
     if weights is not None:
-        bad_ind = scipy.logical_or(bad_ind, weights <= 0)
+        bad_ind = numpy.logical_or(bad_ind, weights <= 0)
     bad_ind = bad_ind.nonzero()[0]
 
-    permutation = scipy.argsort(weighted_qrp[2])
+    permutation = numpy.argsort(weighted_qrp[2])
 
     for rej_iter in range(-1 if pre_reject else 0, max_rej_iter + 1):
-        weighted_target = scipy.delete(weighted_target, bad_ind)
+        weighted_target = numpy.delete(weighted_target, bad_ind)
         if len(weighted_target) < num_free_coef:
             return None, None, 0
 
-        weighted_predictors = scipy.delete(weighted_predictors, bad_ind, 1)
+        weighted_predictors = numpy.delete(weighted_predictors, bad_ind, 1)
         if weights is not None:
-            weights = scipy.delete(weights, bad_ind)
+            weights = numpy.delete(weights, bad_ind)
         logger.debug('Iteration %d, %d sources, %d coefficients\n',
                      rej_iter,
                      len(weighted_target),
@@ -134,11 +134,11 @@ def iterative_fit_qr(weighted_predictors,
             weighted_qrp = scipy.linalg.qr(weighted_predictors.T,
                                            mode='economic',
                                            pivoting=True)
-            permutation = scipy.argsort(weighted_qrp[2])
+            permutation = numpy.argsort(weighted_qrp[2])
             #pylint: enable=unexpected-keyword-arg
         else:
             logger.debug('Downdating QR-Decomposition')
-            for i in scipy.flip(bad_ind):
+            for i in numpy.flip(bad_ind):
                 weighted_qrp = (
                     #False positive
                     #pylint: disable=no-member
@@ -149,20 +149,20 @@ def iterative_fit_qr(weighted_predictors,
 
 
         if rej_iter < 0:
-            best_fit_coef = scipy.zeros(num_free_coef)
+            best_fit_coef = numpy.zeros(num_free_coef)
         else:
             try:
                 #False positive
                 #pylint: disable=no-member
                 best_fit_coef = scipy.linalg.solve_triangular(
                     weighted_qrp[1],
-                    scipy.dot(weighted_qrp[0].T, weighted_target)
+                    numpy.dot(weighted_qrp[0].T, weighted_target)
                 )[permutation]
                 #pylint: enable=no-member
             except scipy.linalg.LinAlgError:
                 return None, None, 0
         bad_ind, fit_res2 = rejected_indices(
-            scipy.dot(best_fit_coef, weighted_predictors) - weighted_target,
+            numpy.dot(best_fit_coef, weighted_predictors) - weighted_target,
             weights
         )
         logger.debug('Fit: coef = %s, square residual = %s, %d rejected',
@@ -228,7 +228,7 @@ def iterative_fit(predictors,
             fit).
 
     Returns:
-        scipy.array:
+        numpy.array:
             The best fit coefficients.
 
         float:
@@ -239,8 +239,8 @@ def iterative_fit(predictors,
     """
 
     if weights is not None:
-        predictors = scipy.multiply(predictors, weights)
-        target_values = scipy.multiply(target_values, weights)
+        predictors = numpy.multiply(predictors, weights)
+        target_values = numpy.multiply(target_values, weights)
 
     logging.getLogger(__name__).debug(
         'Performing QR decomposition for predictors of shape: %s',
