@@ -168,7 +168,7 @@ def iterative_fit_qr(weighted_predictors,
         logger.debug('Fit: coef = %s, square residual = %s, %d rejected',
                      repr(best_fit_coef), repr(fit_res2), bad_ind.size)
 
-        if bad_ind.size == 0:
+        if bad_ind.size == 0 and rej_iter >= 0:
             return best_fit_coef, fit_res2, len(weighted_target)
 
     return best_fit_coef, fit_res2, len(weighted_target)
