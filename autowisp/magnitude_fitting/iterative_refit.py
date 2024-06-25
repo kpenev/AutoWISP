@@ -4,13 +4,16 @@ from tempfile import TemporaryDirectory
 from multiprocessing import Pool
 import logging
 from functools import partial
+from os import getpid
 
 import numpy
+from astropy.io import fits
 
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process_map
 
 from autowisp import DataReductionFile
+from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import\
     LinearMagnitudeFit,\
     MasterPhotrefCollector
@@ -18,6 +21,21 @@ from autowisp.magnitude_fitting.util import\
     get_single_photref,\
     get_master_photref,\
     format_master_catalog
+
+def _get_common_header(fit_dr_filenames):
+    """Return header containing all keywords common to all input frames."""
+
+    result = fits.Header()
+    first = True
+    for dr_fname in fit_dr_filenames:
+        with DataReductionFile(dr_fname) as data_reduction:
+            update_stack_header(result,
+                                data_reduction.get_frame_header(),
+                                dr_fname,
+                                first)
+            first = False
+    return result
+
 
 #Could not come up with a sensible way to simplify
 #pylint: disable=too-many-locals
@@ -93,11 +111,13 @@ def iterative_refit(fit_dr_filenames,
         The filename of the last master photometric reference created.
     """
 
-    def update_photref(magfit_stat_collector,
+    def update_photref(*,
+                       magfit_stat_collector,
                        old_reference,
                        source_id_parser,
                        num_photometries,
-                       fname_substitutions):
+                       fname_substitutions,
+                       common_header):
         """
         Return the next iteration photometric reference or None if converged.
 
@@ -124,7 +144,8 @@ def iterative_refit(fit_dr_filenames,
             master_reference_fname=master_reference_fname,
             catalogue=catalog,
             fit_terms_expression=master_scatter_fit_terms,
-            parse_source_id=source_id_parser
+            parse_source_id=source_id_parser,
+            extra_header=common_header
         )
         new_reference = get_master_photref(master_reference_fname)
 
@@ -193,6 +214,7 @@ def iterative_refit(fit_dr_filenames,
     )
 
     photref_fname = None
+    common_header = _get_common_header(fit_dr_filenames)
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
                 photref
@@ -236,6 +258,7 @@ def iterative_refit(fit_dr_filenames,
             )
 
             if configuration.num_parallel_processes > 1:
+                configuration.parent_pid = getpid()
                 with Pool(
                         configuration.num_parallel_processes,
                         initializer=setup_process_map,
@@ -253,11 +276,12 @@ def iterative_refit(fit_dr_filenames,
                 )
 
             photref, photref_fname = update_photref(
-                magfit_stat_collector,
-                photref,
-                photref_dr.parse_hat_source_id,
-                num_photometries,
-                fname_substitutions
+                magfit_stat_collector=magfit_stat_collector,
+                old_reference=photref,
+                source_id_parser=photref_dr.parse_hat_source_id,
+                num_photometries=num_photometries,
+                fname_substitutions=fname_substitutions,
+                common_header=common_header
             )
             path_substitutions['magfit_iteration'] += 1
             fname_substitutions['magfit_iteration'] += 1
