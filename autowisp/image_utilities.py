@@ -7,7 +7,7 @@ from astropy.io import fits
 from astropy.coordinates import SkyCoord
 from astropy.visualization import ZScaleInterval
 from PIL import Image
-import scipy
+import numpy
 import scipy.interpolate
 
 from astrowisp.utils.file_utilities import\
@@ -72,13 +72,13 @@ def zoom_image(image, zoom, interp_order):
     y_res, x_res = image.shape
     #False positive
     #pylint: disable=no-member
-    cumulative_image = scipy.empty((y_res + 1, x_res + 1))
+    cumulative_image = numpy.empty((y_res + 1, x_res + 1))
     #pylint: enable=no-member
     cumulative_image[0, :] = 0
     cumulative_image[:, 0] = 0
     #False positive
     #pylint: disable=no-member
-    cumulative_image[1:, 1:] = scipy.cumsum(scipy.cumsum(image, axis=0), axis=1)
+    cumulative_image[1:, 1:] = numpy.cumsum(numpy.cumsum(image, axis=0), axis=1)
     #pylint: enable=no-member
 
     try:
@@ -89,8 +89,8 @@ def zoom_image(image, zoom, interp_order):
     cumulative_flux = scipy.interpolate.RectBivariateSpline(
         #False positive
         #pylint: disable=no-member
-        scipy.arange(y_res + 1),
-        scipy.arange(x_res + 1),
+        numpy.arange(y_res + 1),
+        numpy.arange(x_res + 1),
         #pylint: enable=no-member
         cumulative_image,
         kx=spline_kx,
@@ -100,15 +100,15 @@ def zoom_image(image, zoom, interp_order):
     cumulative_image = cumulative_flux(
         #False positive
         #pylint: disable=no-member
-        scipy.arange(y_res * y_zoom + 1) / y_zoom,
-        scipy.arange(x_res * x_zoom + 1) / x_zoom,
+        numpy.arange(y_res * y_zoom + 1) / y_zoom,
+        numpy.arange(x_res * x_zoom + 1) / x_zoom,
         #pylint: enable=no-member
         grid=True
     )
 
     #False positive
     #pylint: disable=no-member
-    return scipy.diff(scipy.diff(cumulative_image, axis=0), axis=1)
+    return numpy.diff(numpy.diff(cumulative_image, axis=0), axis=1)
     #pylint: enable=no-member
 #pylint: enable=anomalous-backslash-in-string
 
@@ -208,7 +208,7 @@ def zscale_image(image_data):
         (
             #False positive
             #pylint: disable=no-member
-            scipy.minimum(scipy.maximum(zscale_min, image_data), zscale_max)
+            numpy.minimum(numpy.maximum(zscale_min, image_data), zscale_max)
             #pylint: enable=no-member
             -
             zscale_min
@@ -220,7 +220,7 @@ def zscale_image(image_data):
     ).astype(
         #False positive
         #pylint: disable=no-member
-        scipy.uint8
+        numpy.uint8
         #pylint: enable=no-member
     )
 

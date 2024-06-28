@@ -500,20 +500,23 @@ class ProcessingManager:
                 input_master_type,
                 db_session
             )
-            if (
-                not candidate_masters[channel]
-                and
-                not input_master_type.optional
-            ):
+            if not candidate_masters[channel]:
+                if input_master_type.optional:
+                    return {None: batch}
                 raise NoMasterError(
                     f'No master {input_master_type.master_type.name} '
                     f'found for image {batch[0][0].raw_fname} channel '
                     f'{channel}.'
                 )
-        if len(channel_list) == 1:
-            candidate_masters = candidate_masters[channel_list[0]]
 
-        if len(channel_list) == 1 and len(candidate_masters) == 1:
+        if (
+            len(channel_list) == 1
+            and
+            len(candidate_masters[channel_list[0]]) == 1
+        ):
+            print('Result: ' + repr(result))
+            print('Candidate masters: ' + repr(candidate_masters))
+            print('Channel list: ' + repr(channel_list))
             result[candidate_masters[channel_list[0]][0].filename] = batch
         else:
             for image, channel in batch:
@@ -629,15 +632,21 @@ class ProcessingManager:
                     continue
 
                 for best_master, sub_batch in splits.items():
-                    new_config = dict(config)
                     if best_master is not None:
+                        new_config = dict(config)
                         new_config[
                             input_master_type.config_name.replace('-', '_')
-                        ] = dict(best_master)
-                    key_extra = {
-                        (input_master_type.config_name, best_master)
-                    }
-                    result[config_key | key_extra] = (new_config, sub_batch)
+                        ] = (
+                            best_master if isinstance(best_master, str)
+                            else dict(best_master)
+                        )
+                        key_extra = {
+                            (input_master_type.config_name, best_master)
+                        }
+                        result[config_key | key_extra] = (new_config, sub_batch)
+                    else:
+                        assert config_key not in result
+                        result[config_key] = (config, sub_batch)
 
         return result
     #pylint: enable=too-many-locals
@@ -829,9 +838,6 @@ class ProcessingManager:
                 image_type_id != from_image_type_id
             ):
                 continue
-            pending = [
-                (db_session.merge(image), channel) for image, channel in pending
-            ]
             for prereq_step_id in db_session.scalars(
                 select(
                     StepDependencies.blocking_step_id
@@ -846,10 +852,14 @@ class ProcessingManager:
                 if (step_id, image_type_id) not in dropped:
                     dropped[(step_id, image_type_id)] = []
 
+                pending = [(db_session.merge(image), channel)
+                           for image, channel in pending]
+
                 failed_prereq = remove_failed_prerequisite(pending,
                                                            image_type_id,
                                                            prereq_step_id,
                                                            db_session)
+                self._pending[(step_id, image_type_id)] = pending
 
                 dropped[(step_id, image_type_id)].extend(failed_prereq)
 
@@ -1929,7 +1939,7 @@ class ProcessingManager:
                 MasterType.id
             )
             if step_name is not None:
-                assert image_type_name is None
+                assert image_type_name is not None
                 type_id_select = type_id_select.join(
                     ImageType
                 ).join(
@@ -1945,7 +1955,7 @@ class ProcessingManager:
                 self._current_processing = db_session.merge(
                     self._current_processing,
                     load=False
-                ).id
+                )
 
             for master in new_masters:
                 if len(new_masters) > 1 or step_name is None:
@@ -1958,7 +1968,8 @@ class ProcessingManager:
                     MasterFile(
                         id=master_id,
                         type_id=master_type_id,
-                        progress_id=self._current_processing,
+                        progress_id=(None if self._current_processing is None
+                                     else self._current_processing.id),
                         filename=master['filename'],
                         use_smallest=master['preference_order'],
                         enabled=not master.get('disable', False)

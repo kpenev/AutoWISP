@@ -1,12 +1,18 @@
 """General use convenience functions for working with FITS images."""
 
 from os import path
+import logging
 
 from astropy.io import fits
 
-from autowisp.pipeline_exceptions import BadImageError
+from autowisp.pipeline_exceptions import\
+    BadImageError,\
+    ImageMismatchError
 from autowisp.data_reduction.data_reduction_file import\
     DataReductionFile
+
+_logger  = logging.getLogger(__name__)
+
 
 def read_image_components(fits_fname,
                           *,
@@ -124,3 +130,79 @@ def get_primary_header(fits_image, add_filename_keywords=False):
                 result['RAWFNAME'] = base_fname
             return result
     raise IOError(f'No valid HDU found in {fits_image!r}!')
+
+
+def update_stack_header(master_header,
+                        frame_header,
+                        filename,
+                        first_time):
+    """
+    Update the master header per header from one of the individual frames.
+
+    Should be called once for each frame participating in the stack with the
+    second argument being the header of that frame. The first argument
+    should initially be an empty FITS header, which will get updated each
+    time.
+
+    Args:
+        master_header:    The header to use for the stacked master frame,
+            describing the frames being stacked. On exit contains only
+            keywords shared with frame header and only if their
+            corresponding values match.
+
+        frame_header:    The header of an individual frame being added to
+            the stack.
+
+        filename:    The filename where the header was read from. Only used
+            for reporting errors.
+
+        first_time:    Is this the first time this function is called for
+            the current stack? Subsequent calls remove keywords that are
+            discrepant between current header and the new frame being
+            stacked.
+
+    Returns:
+        None
+    """
+
+    if first_time:
+        master_header.extend(
+            filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
+        )
+        if 'IMAGETYP' not in master_header:
+            raise BadImageError(
+                f'Image {filename:s} does not define IMAGETYP'
+            )
+    else:
+        _logger.debug('Checking master header against %s', filename)
+
+        delete_indices = []
+        for card_index, master_card in enumerate(master_header.cards):
+            delete = False
+            for frame_card in frame_header.cards:
+                if(
+                        frame_card[0] == master_card[0]
+                        and
+                        frame_card[1] != master_card[1]
+                ):
+                    delete = True
+            if delete:
+                if master_card[0] == 'IMAGETYP':
+                    raise ImageMismatchError(
+                        'Attempting to combine images with '
+                        f'IMAGETYP = {master_card[1]} and '
+                        f"IMAGETYP={frame_header['IMAGETYP']} "
+                        'into a master!'
+                    )
+                delete_indices.insert(0, card_index)
+        _logger.debug(
+            'Deleting:\n%s',
+            '\n'.join([
+                repr(master_header.cards[i][0]) for i in delete_indices
+            ])
+        )
+        _logger.debug('Starting with %d cards',
+                           len(master_header.cards))
+        for index in delete_indices:
+            del master_header[index]
+        _logger.debug('%d cards remain', len(master_header.cards))

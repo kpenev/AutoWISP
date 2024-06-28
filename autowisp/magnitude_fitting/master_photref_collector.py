@@ -268,7 +268,8 @@ class MasterPhotrefCollector:
                           min_counts,
                           outlier_average,
                           outlier_threshold,
-                          reference_fname):
+                          reference_fname,
+                          primary_header):
         """
         Create the master photometric reference.
 
@@ -288,6 +289,9 @@ class MasterPhotrefCollector:
 
             reference_fname(str):    The name to use for the generated master
                 photometric reference file.
+
+            primary_header(fits.Header):    The header to use for the primary
+                (non-table) HDU of the resulting master FITS file.
 
         Returns:
             None
@@ -364,9 +368,10 @@ class MasterPhotrefCollector:
             return reference_data
 
         num_photometries = statistics['full_count'][0].size
+        primary_hdu = fits.PrimaryHDU(header=primary_header)
         master_hdus = [fits.BinTableHDU(get_phot_reference_data(phot_ind))
                        for phot_ind in range(num_photometries)]
-        fits.HDUList([fits.PrimaryHDU()] + master_hdus).writeto(reference_fname)
+        fits.HDUList([primary_hdu] + master_hdus).writeto(reference_fname)
 
     #Could not refactor to simply.
     #pylint: disable=too-many-locals
@@ -531,7 +536,8 @@ class MasterPhotrefCollector:
                         min_nobs_median_fraction=0.5,
                         fit_outlier_average='median',
                         fit_outlier_threshold=3.0,
-                        fit_max_rej_iter=20):
+                        fit_max_rej_iter=20,
+                        extra_header=None):
         """
         Finish the work of the object and generate a master.
 
@@ -565,6 +571,10 @@ class MasterPhotrefCollector:
                 for fitting/rejecting outliers. If this number is reached, the
                 last result is accepted.
 
+            extra_header(None or dict-like):    Header keywords to add to the
+                generated FITS header in addition to the ones describing the
+                master fit.
+
         Returns:
             None
         """
@@ -583,9 +593,18 @@ class MasterPhotrefCollector:
             outlier_threshold=fit_outlier_threshold,
             max_rej_iter=fit_max_rej_iter
         )
+        primary_header = fits.Header()
+        if extra_header is not None:
+            primary_header.update(extra_header)
+        primary_header['FITTERMS'] = fit_terms_expression
+        primary_header['MINOBSFR'] = min_nobs_median_fraction
+        primary_header['OUTL_AVG'] = fit_outlier_average
+        primary_header['OUTL_THR'] = fit_outlier_threshold
+        primary_header['MAXREJIT'] = fit_max_rej_iter
         self._create_reference(statistics=statistics,
                                residual_scatter=residual_scatter,
                                min_counts=min_counts,
                                outlier_average=fit_outlier_average,
                                outlier_threshold=fit_outlier_threshold,
-                               reference_fname=master_reference_fname)
+                               reference_fname=master_reference_fname,
+                               primary_header=primary_header)

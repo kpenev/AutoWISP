@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-import scipy
+import numpy
 import scipy.linalg
 import scipy.interpolate
 
@@ -102,11 +102,11 @@ class ImageSmoother(ABC):
         y_res, x_res = image.shape
 
         if x_res % bin_factor != 0 or y_res % bin_factor != 0:
-            y_padding = int(scipy.ceil(y_res / bin_factor)) * bin_factor - y_res
-            x_padding = int(scipy.ceil(x_res / bin_factor)) * bin_factor - x_res
+            y_padding = int(numpy.ceil(y_res / bin_factor)) * bin_factor - y_res
+            x_padding = int(numpy.ceil(x_res / bin_factor)) * bin_factor - x_res
             left_padding = x_padding // 2
             bottom_padding = y_padding // 2
-            image = scipy.pad(image,
+            image = numpy.pad(image,
                               ((bottom_padding, y_padding - bottom_padding),
                                (left_padding, x_padding - left_padding)),
                               mode=(padding_mode or self.padding_mode))
@@ -130,7 +130,7 @@ class ImageSmoother(ABC):
         """De-trend the input image by its smooth version (see smooth)."""
 
         smooth_image = self.smooth(image, **kwargs)
-        return image / smooth_image * scipy.mean(smooth_image)
+        return image / smooth_image * numpy.mean(smooth_image)
 
 class SeparableLinearImageSmoother(ImageSmoother):
     """
@@ -197,7 +197,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
                 each image pixel per the smoothing function.
         """
 
-        matrix = scipy.empty((x_resolution * y_resolution,
+        matrix = numpy.empty((x_resolution * y_resolution,
                               num_x_terms * num_y_terms))
         for x_term_index in range(num_x_terms):
             x_integrals = self.get_x_pixel_integrals(x_term_index, x_resolution)
@@ -207,7 +207,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
                 matrix[
                     :,
                     x_term_index + y_term_index * num_x_terms
-                ] = scipy.outer(y_integrals, x_integrals).flatten()
+                ] = numpy.outer(y_integrals, x_integrals).flatten()
 
         return matrix
 
@@ -340,7 +340,7 @@ class PolynomialImageSmoother(SeparableLinearImageSmoother):
                 coordinate to the given power over each pixel.
         """
 
-        pix_left = scipy.arange(resolution)
+        pix_left = numpy.arange(resolution)
         return (
             (2.0 * (pix_left + 1) / resolution - 1)**(power + 1)
             -
@@ -384,14 +384,14 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
                 over the i-th pixel.
         """
 
-        interp_y = scipy.zeros(num_nodes)
+        interp_y = numpy.zeros(num_nodes)
         interp_y[node_index] = 1.0
         integrate = scipy.interpolate.InterpolatedUnivariateSpline(
-            scipy.arange(num_nodes),
+            numpy.arange(num_nodes),
             interp_y,
             k=spline_degree
         ).antiderivative()
-        cumulative_integrals = integrate(scipy.arange(resolution + 1)
+        cumulative_integrals = integrate(numpy.arange(resolution + 1)
                                          *
                                          ((num_nodes  - 1) / resolution))
         return cumulative_integrals[1:] - cumulative_integrals[:-1]
@@ -493,7 +493,7 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
     #pylint: enable=arguments-differ
 
 class WrapFilterAsSmoother(ImageSmoother):
-    """Wrap one of the scipy or astropy image filters in a smoother."""
+    """Wrap one of the numpy or astropy image filters in a smoother."""
 
     def __init__(self,
                  smoothing_filter,

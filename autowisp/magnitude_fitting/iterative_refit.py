@@ -28,7 +28,7 @@ def _get_common_header(fit_dr_filenames):
     result = fits.Header()
     first = True
     for dr_fname in fit_dr_filenames:
-        with DataReductionFile(dr_fname) as data_reduction:
+        with DataReductionFile(dr_fname, 'r') as data_reduction:
             update_stack_header(result,
                                 data_reduction.get_frame_header(),
                                 dr_fname,

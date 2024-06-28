@@ -1,6 +1,7 @@
 """Define the view displaying the current processing progress."""
 
 from socket import getfqdn
+from datetime import datetime
 
 from sqlalchemy import select, func
 from psutil import pid_exists
@@ -74,20 +75,21 @@ def progress(request):
                 )
             ).all()
 
-    for check_pid in db_session.scalars(
-        select(
-            ImageProcessingProgress.process_id
-        ).where(
-            #pylint: disable=singleton-comparison
-            ImageProcessingProgress.finished == None,
-            #pylint: enable=singleton-comparison
-            ImageProcessingProgress.host == getfqdn()
-        ).group_by(
-            ImageProcessingProgress.process_id
-        )
-    ):
-        if pid_exists(check_pid):
-            context['running'] = True
-            context['refresh_seconds'] = 5
+        for check_running in db_session.scalars(
+            select(
+                ImageProcessingProgress
+            ).where(
+                #pylint: disable=singleton-comparison
+                ImageProcessingProgress.finished == None,
+                #pylint: enable=singleton-comparison
+                ImageProcessingProgress.host == getfqdn()
+            )
+        ):
+            if pid_exists(check_running.process_id):
+                context['running'] = True
+                context['refresh_seconds'] = 5
+            else:
+                print('Marking {check_running} as finished')
+                check_running.finished = datetime.now()
 
     return render(request, 'processing/progress.html', context)

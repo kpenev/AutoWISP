@@ -8,15 +8,12 @@ import numpy
 
 from astropy.io import fits
 
-from autowisp.fits_utilities import read_image_components
+from autowisp.fits_utilities import read_image_components, update_stack_header
 from autowisp.iterative_rejection_util import\
     iterative_rejection_average
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.fits_util import create_result
 
-from autowisp.pipeline_exceptions import\
-    ImageMismatchError,\
-    BadImageError
 from autowisp import Processor
 
 #pylint does not count __call__ but should.
@@ -56,81 +53,6 @@ class MasterMaker(Processor):
 
     default_exclude_mask = ('BAD',)
 
-    def _update_stack_header(self,
-                             master_header,
-                             frame_header,
-                             filename,
-                             first_time):
-        """
-        Update the master header per header from one of the individual frames.
-
-        Should be called once for each frame participating in the stack with the
-        second argument being the header of that frame. The first argument
-        should initially be an empty FITS header, which will get updated each
-        time.
-
-        Args:
-            master_header:    The header to use for the stacked master frame,
-                describing the frames being stacked. On exit contains only
-                keywords shared with frame header and only if their
-                corresponding values match.
-
-            frame_header:    The header of an individual frame being added to
-                the stack.
-
-            filename:    The filename where the header was read from. Only used
-                for reporting errors.
-
-            first_time:    Is this the first time this function is called for
-                the current stack? Subsequent calls remove keywords that are
-                discrepant between current header and the new frame being
-                stacked.
-
-        Returns:
-            None
-        """
-
-        if first_time:
-            master_header.extend(
-                filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
-            )
-            if 'IMAGETYP' not in master_header:
-                raise BadImageError(
-                    f'Image {filename:s} does not define IMAGETYP'
-                )
-        else:
-            self._logger.debug('Checking master header against %s', filename)
-
-            delete_indices = []
-            for card_index, master_card in enumerate(master_header.cards):
-                delete = False
-                for frame_card in frame_header.cards:
-                    if(
-                            frame_card[0] == master_card[0]
-                            and
-                            frame_card[1] != master_card[1]
-                    ):
-                        delete = True
-                if delete:
-                    if master_card[0] == 'IMAGETYP':
-                        raise ImageMismatchError(
-                            'Attempting to combine images with '
-                            f'IMAGETYP = {master_card[1]} and '
-                            f"IMAGETYP={frame_header['IMAGETYP']} "
-                            'into a master!'
-                        )
-                    delete_indices.insert(0, card_index)
-            self._logger.debug(
-                'Deleting:\n%s',
-                '\n'.join([
-                    repr(master_header.cards[i][0]) for i in delete_indices
-                ])
-            )
-            self._logger.debug('Starting with %d cards',
-                               len(master_header.cards))
-            for index in delete_indices:
-                del master_header[index]
-            self._logger.debug('%d cards remain', len(master_header.cards))
 
     def __init__(self,
                  *,
@@ -358,10 +280,10 @@ class MasterMaker(Processor):
             if stack_image is None:
                 discarded_frames.append(frame_fname)
             else:
-                self._update_stack_header(master_header,
-                                          header,
-                                          frame_fname,
-                                          first_frame)
+                update_stack_header(master_header,
+                                    header,
+                                    frame_fname,
+                                    first_frame)
                 first_frame = False
 
                 if pixel_values is None:

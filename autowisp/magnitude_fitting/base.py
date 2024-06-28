@@ -6,7 +6,6 @@ from multiprocessing import current_process
 from traceback import format_exception
 from abc import ABC, abstractmethod
 
-import scipy
 from numpy.lib import recfunctions
 import numpy
 
@@ -188,7 +187,7 @@ class MagnitudeFit(ABC):
         self.logger.debug('Grouping expression: %s', repr(self.config.grouping))
         conditions = evaluator(self.config.grouping)
         self.logger.debug('Grouping conditions: %s', repr(conditions))
-        groups = scipy.unique(conditions)
+        groups = numpy.unique(conditions)
         self.logger.debug('Groups: %s', repr(groups))
         for group_id, group_condition in enumerate(groups):
             in_group = conditions == group_condition
@@ -232,7 +231,7 @@ class MagnitudeFit(ABC):
 
         num_skipped = len(phot['source_id']) - result.size
         if num_skipped:
-            first_skipped = scipy.logical_not(include_flag).nonzero()[0][0]
+            first_skipped = numpy.logical_not(include_flag).nonzero()[0][0]
             skipped_example = phot['source_id'][first_skipped]
         else:
             skipped_example = None
@@ -267,14 +266,14 @@ class MagnitudeFit(ABC):
             dtype = [(field[0], field[1][0])
                      for field in phot.dtype.fields.items()]
             if self.config.reference_subpix:
-                dtype.extend([('x_ref', scipy.float64),
-                              ('y_ref', scipy.float64)])
+                dtype.extend([('x_ref', numpy.float64),
+                              ('y_ref', numpy.float64)])
             dtype.extend([
-                ('ref_mag', scipy.float64, phot['mag'][0].shape),
-                ('ref_mag_err', scipy.float64, phot['mag_err'][0].shape)
+                ('ref_mag', numpy.float64, phot['mag'][0].shape),
+                ('ref_mag_err', numpy.float64, phot['mag_err'][0].shape)
             ])
             print('Result dtype: ' + repr(dtype))
-            return scipy.empty(phot.shape, dtype=dtype)
+            return numpy.empty(phot.shape, dtype=dtype)
 
         result = initialize_result()
         not_in_ref = [0, None]
@@ -405,17 +404,17 @@ class MagnitudeFit(ABC):
 
         num_photometries = len(fit_results)
         result = {
-            'residual': scipy.empty(num_photometries, scipy.float64),
-            'initial_src_count': scipy.zeros(num_photometries, scipy.int_),
-            'final_src_count': scipy.zeros(num_photometries, scipy.int_),
+            'residual': numpy.empty(num_photometries, numpy.float64),
+            'initial_src_count': numpy.zeros(num_photometries, numpy.int_),
+            'final_src_count': numpy.zeros(num_photometries, numpy.int_),
         }
 
         for phot_ind, phot_result in enumerate(fit_results):
             for group_result in phot_result:
                 for key in ['initial_src_count', 'final_src_count']:
                     result[key][phot_ind] += group_result[key]
-            result['residual'][phot_ind] = scipy.nanmedian([
-                group_result['residual'] or scipy.nan
+            result['residual'][phot_ind] = numpy.nanmedian([
+                group_result['residual'] or numpy.nan
                 for group_result in phot_result
             ])
 

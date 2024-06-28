@@ -515,6 +515,8 @@ def parse_command_line():
     return parser.parse_args()
 
 
+#TODO: Maybe simplify later
+#pylint: disable=too-many-locals
 def get_max_abs_corner_xi_eta(header,
                               *,
                               transformation=None,
@@ -592,12 +594,18 @@ def get_max_abs_corner_xi_eta(header,
                 corner_ind += 1
 
     if center is None and transformation is None and len(dr_files) > 1:
-        center = {
-            coord: 0.5 * (numpy.min(center_ra_dec[coord])
-                          +
-                          numpy.max(center_ra_dec[coord]))
-            for coord in ['RA', 'Dec']
-        }
+        center = {}
+        coord_scale = 1.0
+        for coord in ['Dec', 'RA']:
+            min_coord = numpy.min(center_ra_dec[coord])
+            max_coord = numpy.max(center_ra_dec[coord])
+            if max_coord - min_coord > 10.0 * coord_scale:
+                raise RuntimeError(
+                    'Not all data reduction files appear to be monitoring the '
+                    'same location on the sky'
+                )
+            center[coord] = 0.5 * (min_coord + max_coord)
+            coord_scale = numpy.cos(center[coord] * numpy.pi / 180.0)
         return_center = True
     else:
         return_center = False
@@ -609,10 +617,19 @@ def get_max_abs_corner_xi_eta(header,
     else:
         xi_eta = corner_coords
 
-    return (
+    result = (
         max(abs(xi_eta['xi'].min()), abs(xi_eta['xi'].max())),
         max(abs(xi_eta['eta'].min()), abs(xi_eta['eta'].max()))
-    ) + ((center,) if return_center else ())
+    )
+
+    if max(result) > 40.0:
+        raise RuntimeError(
+            'Observations with field of view exceeding 40 degrees are not '
+            'supported.'
+        )
+
+    return result + ((center,) if return_center else ())
+#pylint: enable=too-many-locals
 
 
 def get_catalog_info(*,
