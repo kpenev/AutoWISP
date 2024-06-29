@@ -599,7 +599,7 @@ def get_max_abs_corner_xi_eta(header,
         for coord in ['Dec', 'RA']:
             min_coord = numpy.min(center_ra_dec[coord])
             max_coord = numpy.max(center_ra_dec[coord])
-            if max_coord - min_coord > 10.0 * coord_scale:
+            if (max_coord - min_coord) * coord_scale > 10.0:
                 raise RuntimeError(
                     'Not all data reduction files appear to be monitoring the '
                     'same location on the sky'

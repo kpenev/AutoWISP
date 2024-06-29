@@ -42,10 +42,10 @@ master_info =  {
         'created_by': None,
         'split_by': frozenset(),
         'used_by': [
-            ('calibrate', 'zero'),
-            ('calibrate', 'dark'),
-            ('calibrate', 'flat'),
-            ('calibrate', 'object')
+            ('calibrate', 'zero', False),
+            ('calibrate', 'dark', False),
+            ('calibrate', 'flat', False),
+            ('calibrate', 'object', False)
         ],
         'description': 'A bit mask indicating hot/dead/... bad pixels.'
     },
@@ -58,9 +58,9 @@ master_info =  {
         'created_by': ('stack_to_master', 'zero'),
         'split_by': frozenset(('OBS_SESN',)),
         'used_by': [
-            ('calibrate', 'dark'),
-            ('calibrate', 'flat'),
-            ('calibrate', 'object')
+            ('calibrate', 'dark', False),
+            ('calibrate', 'flat', False),
+            ('calibrate', 'object', False)
         ],
         'description': 'An estimate of the zero level of a camera.'
     },
@@ -73,8 +73,8 @@ master_info =  {
         'created_by': ('stack_to_master', 'dark'),
         'split_by': frozenset(('OBS_SESN',)),
         'used_by': [
-            ('calibrate', 'flat'),
-            ('calibrate', 'object')
+            ('calibrate', 'flat', False),
+            ('calibrate', 'object', False)
         ],
         'description': 'An estimate of the dark current of a camera.'
 
@@ -89,7 +89,7 @@ master_info =  {
         'created_by': ('stack_to_master_flat', 'flat'),
         'split_by': frozenset(('OBS_SESN',)),
         'used_by': [
-            ('calibrate', 'object')
+            ('calibrate', 'object', False)
         ],
         'description': 'An estimate of the relative sensitivity of image '
         'pixels to light from infinity entering the telescope. Constructed from'
@@ -119,7 +119,7 @@ master_info =  {
         'created_by': None,
         'split_by': frozenset(),
         'used_by': [
-            ('fit_magnitudes', 'object')
+            ('fit_magnitudes', 'object', False)
         ],
         'description': 'The reference image to use to start magnitude '
         'fitting. Subsequently replaced by average of the corrected '
@@ -135,9 +135,9 @@ master_info =  {
         'created_by': ('fit_magnitudes', 'object'),
         'split_by': frozenset(),
         'used_by': [
-            ('fit_magnitudes', 'object')
+            ('fit_magnitudes', 'object', True),
+            ('create_lightcurves', 'object', False)
         ],
-        'optional': True,
         'description': 'The master photometric reference to use for magnitude '
         'fitting if available.'
     }
@@ -495,14 +495,14 @@ def add_master_dependencies(db_session):
             description=master_config['description']
         )
         db_session.add(db_master_type)
-        for step, image_type in master_config['used_by']:
+        for step, image_type, optional in master_config['used_by']:
             db_session.add(
                 InputMasterTypes(
                     step_id=get_step_id(step),
                     image_type_id=get_imtype_id(image_type),
                     master_type_id=db_master_type.id,
                     config_name=master_config['config_name'],
-                    optional=master_config.get('optional', False)
+                    optional=optional
                 )
             )
 

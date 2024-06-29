@@ -23,7 +23,7 @@ from autowisp.miscellaneous import get_hat_source_id_str
 from autowisp.data_reduction.utils import get_source_extracted_psf_map
 
 from .light_curve_file import LightCurveFile, _config_dset_key_rex
-from .lc_data_slice import LCDataSlice
+from .lc_data_slice import create_lc_data_slice_type
 from .hashable_array import HashableArray
 
 #TODO: Add catalogue information as top-level attributes.
@@ -357,7 +357,10 @@ class LCDataIO:
 
         cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
-        cls.max_dimension_size['frame'] = LCDataSlice.configure(
+        (
+            LCDataSlice,
+            cls.max_dimension_size['frame']
+        ) = create_lc_data_slice_type(
             get_dtype=no_light_curve.get_dtype,
             dataset_dimensions=cls.dataset_dimensions,
             max_dimension_size=cls.max_dimension_size,
@@ -1289,7 +1292,6 @@ class LCDataIO:
                     config_to_add,
                     config_ids,
                     **cls._get_substitutions(index_pipeline_key, dim_values),
-                    resolve_size=resolve_lc_size
                 )
 
     @classmethod

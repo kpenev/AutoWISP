@@ -1,7 +1,7 @@
 """Define callable class representing PSF maps from source extraction."""
 
 import pandas
-import scipy
+import numpy
 
 from autowisp.fit_expression import Interface as FitTermsInterface
 
@@ -53,14 +53,14 @@ class SourceExtractedPSFMap:
             or
             len(source_data.shape) == 1
         )
-        result = scipy.empty(len(source_data),
-                             dtype=[(param_name, scipy.float64)
+        result = numpy.empty(len(source_data),
+                             dtype=[(param_name, numpy.float64)
                                     for param_name in self._psf_parameters])
 
         predictors = self._get_predictors(source_data)
         for coefficients, param_name in zip(self._coefficients,
                                             self._psf_parameters):
-            result[param_name] = scipy.dot(coefficients, predictors)
+            result[param_name] = numpy.dot(coefficients, predictors)
 
         return result
 #pylint: enable=too-few-public-methods

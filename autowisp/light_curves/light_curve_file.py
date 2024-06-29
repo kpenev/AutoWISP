@@ -271,7 +271,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                            configurations,
                            config_indices,
                            *,
-                           resolve_size=None,
                            config_index_selection=None,
                            **substitutions):
         """
@@ -428,7 +427,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             else:
                 self.extend_dataset(pipeline_key,
                                     new_data,
-                                    resolve_size=resolve_size,
+                                    resolve_size='actual',
                                     **substitutions)
 
     def extend_dataset(self,
@@ -450,8 +449,8 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             new_data:    The additional values that should be written, a numpy
                 array with an appropriate data type and shape.
 
-            resolve_size:    Should be either 'actual' or 'confirmed'. In the
-                first case, indicating which dataset length to accept when
+            resolve_size:    Should be either 'actual' or 'confirmed'.
+                Indicating which dataset length to accept when
                 adding new data. If left as `None`, an error is rasied if the
                 confirmed length does not match the actual length of the
                 dataset.

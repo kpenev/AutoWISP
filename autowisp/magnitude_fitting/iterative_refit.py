@@ -215,6 +215,7 @@ def iterative_refit(fit_dr_filenames,
 
     photref_fname = None
     common_header = _get_common_header(fit_dr_filenames)
+    common_header['IMAGETYP'] = 'mphotref'
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
                 photref

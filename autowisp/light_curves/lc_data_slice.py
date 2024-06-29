@@ -12,7 +12,8 @@ import numpy
 
 _logger = logging.getLogger(__name__)
 
-class LCDataSlice(Structure):
+#pylint: disable=too-few-public-methods
+class LCDataSliceBase(Structure):
     """A time-slice of LC data to be shared between LC dumping processes."""
 
     #The point is to deal with the many branches
@@ -66,75 +67,82 @@ class LCDataSlice(Structure):
     #pylint: enable=too-many-return-statements
     #pylint: enable=too-many-branches
 
-    @classmethod
-    def configure(cls,
-                  get_dtype,
-                  dataset_dimensions,
-                  max_dimension_size,
-                  max_mem):
-        """
-        Configure the class to hold as much LC data as possible.
+def create_lc_data_slice_type(get_dtype,
+                              dataset_dimensions,
+                              max_dimension_size,
+                              max_mem):
+    """
+    Return LCDataSliceBase sub-class configured to hold max LC data possible.
 
-        Args:
-            get_dtype(callable):    A function which should return the datatype
-                to use for the dataset corresponding to a given pipeline key.
+    Args:
+        get_dtype(callable):    A function which should return the datatype
+            to use for the dataset corresponding to a given pipeline key.
 
-            dataset_dimensions:    See :attr:`LCDataReader.dataset_dimensions`
+        dataset_dimensions:    See :attr:`LCDataReader.dataset_dimensions`
 
-            max_dimension_size:    See :attr:`LCDataReader.max_dimension_size`
+        max_dimension_size:    See :attr:`LCDataReader.max_dimension_size`
 
-            max_mem:    The maximum amount of memory instances are allowed to
-                consume in bytes.
+        max_mem:    The maximum amount of memory instances are allowed to
+            consume in bytes.
 
-        Returns:
-            int:
-                The number of frames that will fit into the structure.
-        """
+    Returns:
+        LCDataSliceBase sub-class:
+            The class of a variable to use for lightcurve dumping
 
-        atomic_ctypes = {}
+        int:
+            The number of frames that will fit into the structure.
+    """
 
-        dset_size = {}
-        perframe_bytes = 0
-        for dset_name, dset_dimensions in dataset_dimensions.items():
-            if 'frame' in dset_dimensions or 'source' in dset_dimensions:
-                if dset_name == 'source_in_frame':
-                    atomic_ctypes[dset_name] = c_bool
-                else:
-                    atomic_ctypes[dset_name] = cls.get_ctype(
-                        get_dtype(dset_name)
-                    )
+    atomic_ctypes = {}
 
-                dset_size[dset_name] = 1
-                for dimension in dset_dimensions:
-                    if dimension != 'frame':
-                        dset_size[dset_name] *= max_dimension_size[dimension]
-                atomic_size = sizeof(atomic_ctypes[dset_name])
-                if atomic_size == 0:
-                    assert dset_name.startswith('fitsheader.')
-                    atomic_size = 70
-                perframe_bytes += (atomic_size * dset_size[dset_name])
-
-                #Too complicated to make lazy
-                #pylint: disable=logging-not-lazy
-                _logger.debug(
-                    f'Dset: {dset_name} size = {dset_size[dset_name]:d} ('
-                    +
-                    ' x '.join(
-                        f'({max_dimension_size[dimension]:d} {dimension!s})'
-                        for dimension in filter(lambda d: d != 'frame',
-                                                dset_dimensions)
-                    )
+    dset_size = {}
+    perframe_bytes = 0
+    for dset_name, dset_dimensions in dataset_dimensions.items():
+        if 'frame' in dset_dimensions or 'source' in dset_dimensions:
+            if dset_name == 'source_in_frame':
+                atomic_ctypes[dset_name] = c_bool
+            else:
+                atomic_ctypes[dset_name] = LCDataSliceBase.get_ctype(
+                    get_dtype(dset_name)
                 )
-                #pylint: enable=logging-not-lazy
 
-        num_frames = min(int(max_mem / perframe_bytes), 1000)
+            dset_size[dset_name] = 1
+            for dimension in dset_dimensions:
+                if dimension != 'frame':
+                    dset_size[dset_name] *= max_dimension_size[dimension]
+            atomic_size = sizeof(atomic_ctypes[dset_name])
+            if atomic_size == 0:
+                assert dset_name.startswith('fitsheader.')
+                atomic_size = 70
+            perframe_bytes += (atomic_size * dset_size[dset_name])
 
-        cls._fields_ = [
+            #Too complicated to make lazy
+            #pylint: disable=logging-not-lazy
+            _logger.debug(
+                f'Dset: {dset_name} size = {dset_size[dset_name]:d} ('
+                +
+                ' x '.join(
+                    f'({max_dimension_size[dimension]:d} {dimension!s})'
+                    for dimension in filter(lambda d: d != 'frame',
+                                            dset_dimensions)
+                )
+            )
+            #pylint: enable=logging-not-lazy
+
+    num_frames = min(int(max_mem / perframe_bytes), 1000)
+
+    #That's per the intended use
+    #pylint: disable=missing-class-docstring
+    class LCDataSlice(LCDataSliceBase):
+        _fields_ = [
             (
                 dset_name.replace('.', '_'),
                 num_frames * num_entries * atomic_ctypes[dset_name]
             )
             for dset_name, num_entries in dset_size.items()
         ]
+    #pylint: enable=missing-class-docstring
 
-        return num_frames
+    return LCDataSlice, num_frames
+
+#pylint: enable=too-few-public-methods

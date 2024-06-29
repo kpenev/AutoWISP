@@ -118,7 +118,11 @@ def get_primary_header(fits_image, add_filename_keywords=False):
             with DataReductionFile(fits_image, 'r') as dr_file:
                 return dr_file.get_frame_header()
     for hdu in fits_image:
-        if hdu.header['NAXIS'] != 0:
+        if (
+            hdu.header['NAXIS'] != 0
+            or
+            hdu.header.get('IMAGETYP') == 'mphotref'
+        ):
             result = hdu.header
             if add_filename_keywords:
                 result = result.copy()
