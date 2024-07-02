@@ -4,7 +4,6 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
     ForeignKey
 
 from sqlalchemy.orm import relationship
@@ -23,11 +22,6 @@ class Mount(DataModelBase):
 
     __tablename__ = 'mount'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each mount'
-    )
     mount_type_id = Column(
         Integer,
         ForeignKey('mount_type.id',
@@ -45,11 +39,6 @@ class Mount(DataModelBase):
         String(1000),
         nullable=False,
         doc='The notes provided for the mount'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     mount_type = relationship("MountType",

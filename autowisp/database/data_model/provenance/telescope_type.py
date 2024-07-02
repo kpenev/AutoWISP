@@ -2,10 +2,8 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
     String,\
-    Float,\
-    TIMESTAMP
+    Float
 
 from sqlalchemy.orm import relationship
 
@@ -23,11 +21,6 @@ class TelescopeType(DataModelBase):
 
     __tablename__ = 'telescope_type'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each telescope type'
-    )
     make = Column(
         String(100),
         nullable=False,
@@ -57,11 +50,6 @@ class TelescopeType(DataModelBase):
         String(1000),
         nullable=True,
         doc='The notes provided for the telescope type'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     telescopes = relationship("Telescope", back_populates="telescope_type")

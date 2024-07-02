@@ -2,9 +2,7 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
-    String,\
-    TIMESTAMP
+    String
 
 from sqlalchemy.orm import relationship
 
@@ -29,11 +27,6 @@ class ImageType(DataModelBase):
 
     __tablename__ = 'image_type'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each image type'
-    )
     name = Column(
         String(100),
         nullable=False,
@@ -43,11 +36,6 @@ class ImageType(DataModelBase):
         String(1000),
         nullable=True,
         doc='The description of the image type'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     def __repr__(self):

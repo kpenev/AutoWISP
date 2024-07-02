@@ -3,7 +3,6 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    TIMESTAMP,\
     ForeignKey,\
     Index
 from sqlalchemy.orm import relationship
@@ -19,14 +18,9 @@ class HDF5StructureVersion(DataModelBase):
 
     __tablename__ = 'hdf5_structure_versions'
 
-    hdf5_structure_version_id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for the given product/version combination.'
-    )
     hdf5_product_id = Column(
         Integer,
-        ForeignKey('hdf5_products.hdf5_product_id',
+        ForeignKey('hdf5_products.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         doc='The type of pipeline product this structure configuration version '
@@ -37,11 +31,6 @@ class HDF5StructureVersion(DataModelBase):
         nullable=False,
         doc='An identifier for distinguishing the separate configuration '
         'versions of a single pipeline product type.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     __table_args__ = (

@@ -4,7 +4,6 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
     ForeignKey
 
 from sqlalchemy.orm import relationship
@@ -20,11 +19,6 @@ class Camera(DataModelBase):
 
     __tablename__ = 'camera'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each camera'
-    )
     camera_type_id = Column(
         Integer,
         ForeignKey('camera_type.id',
@@ -44,11 +38,6 @@ class Camera(DataModelBase):
         String(1000),
         nullable=False,
         doc='The notes provided for the camera'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     observing_sessions = relationship("ObservingSession",

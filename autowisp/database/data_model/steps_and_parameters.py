@@ -6,10 +6,10 @@ from typing import List
 from sqlalchemy import\
     Column,\
     String,\
-    TIMESTAMP,\
     Table,\
-    ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+    ForeignKey,\
+    Index
+from sqlalchemy.orm import Mapped, relationship
 
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model.step_dependencies import \
@@ -20,12 +20,9 @@ __all__= ['Step', 'Parameter']
 step_param_association = Table(
     'step_parameters',
     DataModelBase.metadata,
-    Column('step_id', ForeignKey('step.id'), primary_key=True),
-    Column('param_id', ForeignKey('parameter.id'), primary_key=True),
-    Column('timestamp',
-           TIMESTAMP,
-           nullable=False,
-           doc='When was this record last changed.')
+    Column('step_id', ForeignKey('step.id')),
+    Column('param_id', ForeignKey('parameter.id')),
+    Index('step_param_key2', 'step_id', 'param_id', unique=True)
 )
 
 
@@ -33,8 +30,6 @@ class Step(DataModelBase):
     """The table describing the processing steps constituting the pipeline"""
 
     __tablename__ = 'step'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
 
     name = Column(
         String(100),
@@ -47,11 +42,6 @@ class Step(DataModelBase):
         unique=True,
         doc='Description of what the step does.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
-    )
 
     def __repr__(self):
         return f"({self.id}) {self.name}: {self.description} ({self.timestamp})"
@@ -62,7 +52,10 @@ class Step(DataModelBase):
     )
     prerequisites: Mapped[List[StepDependencies]] = relationship(
         StepDependencies,
-        primaryjoin=(id == StepDependencies.blocked_step_id),
+        #False positive
+        #pylint: disable=comparison-with-callable
+        primaryjoin=("Step.id == StepDependencies.blocked_step_id"),
+        #pylint: enable=comparison-with-callable
     )
 
 
@@ -70,8 +63,6 @@ class Parameter(DataModelBase):
     """Table describing the configuration parameters needed by the pipeline."""
 
     __tablename__ = 'parameter'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
 
     name = Column(
         String(100),
@@ -82,11 +73,6 @@ class Parameter(DataModelBase):
         String(1000),
         nullable=False,
         doc='Description of what the step does.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     def __str__(self):

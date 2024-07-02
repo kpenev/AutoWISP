@@ -4,7 +4,7 @@ from sqlalchemy import \
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
+    PrimaryKeyConstraint,\
     ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -23,11 +23,6 @@ class Condition(DataModelBase):
 
     __tablename__ = 'condition'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each condition.'
-    )
     expression_id = Column(
         Integer,
         ForeignKey('condition_expression.id',
@@ -41,10 +36,9 @@ class Condition(DataModelBase):
         nullable=True,
         doc='Any user supplied notes describing the condition.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When record was last changed'
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'expression_id'),
     )
 
     expression = relationship("ConditionExpression")

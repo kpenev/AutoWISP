@@ -3,8 +3,8 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    TIMESTAMP,\
-    ForeignKey
+    ForeignKey,\
+    Index
 
 from sqlalchemy.orm import relationship
 
@@ -22,32 +22,29 @@ class StepDependencies(DataModelBase):
     blocked_step_id = Column(
         Integer,
         ForeignKey('step.id'),
-        primary_key=True,
         doc='The step for which this prerequisite applies.'
     )
     blocked_image_type_id = Column(
         Integer,
         ForeignKey('image_type.id'),
-        primary_key=True,
         doc='The image type for which this prerequisite applies.'
     )
     blocking_step_id = Column(
         Integer,
         ForeignKey('step.id'),
-        primary_key=True,
         doc='The step which must be completed before the blocked step can '
         'begin.'
     )
     blocking_image_type_id = Column(
         Integer,
         ForeignKey('image_type.id'),
-        primary_key=True,
         doc='The image type for which the prerequisite step must be completed.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index('dependency_key2',
+              'blocked_step_id', 'blocked_image_type_id',
+              'blocking_step_id', 'blocking_image_type_id'),
     )
 
     blocked_step = relationship(

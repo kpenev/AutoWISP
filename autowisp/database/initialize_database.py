@@ -512,7 +512,14 @@ def add_master_dependencies(db_session):
 def init_processing():
     """Initialize the tables controlling how processing is to be done."""
 
-    image_type_list = ['zero', 'dark', 'flat', 'object']
+    image_type_list = []
+    for processing_order in step_dependencies:
+        if (
+            processing_order[1] is not None
+            and
+            processing_order[1] not in image_type_list
+        ):
+            image_type_list.append(processing_order[1])
 
     add_processing_step = StepCreator()
 

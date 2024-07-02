@@ -7,8 +7,8 @@ from sqlalchemy import\
     Integer,\
     String,\
     Boolean,\
-    TIMESTAMP,\
-    ForeignKey
+    ForeignKey,\
+    Index
 from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
@@ -23,19 +23,16 @@ class InputMasterTypes(DataModelBase):
     step_id = Column(
         Integer,
         ForeignKey('step.id'),
-        primary_key=True,
         doc='The step for which this prerequisite applies.'
     )
     image_type_id = Column(
         Integer,
         ForeignKey('image_type.id'),
-        primary_key=True,
         doc='The image type for which this prerequisite applies.'
     )
     master_type_id = Column(
         Integer,
         ForeignKey('master_type.id'),
-        primary_key=True,
         doc='The master type required for the step to run.'
     )
     optional = Column(
@@ -50,10 +47,10 @@ class InputMasterTypes(DataModelBase):
         doc='The name of the configuration parameter that specifies the '
         'master when running the specified step.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index('input_master_key2',
+              'step_id', 'image_type_id', 'master_type_id'),
     )
 
     step = relationship('Step')

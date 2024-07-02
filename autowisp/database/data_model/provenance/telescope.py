@@ -4,7 +4,6 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
     ForeignKey
 
 from sqlalchemy.orm import relationship
@@ -23,11 +22,6 @@ class Telescope(DataModelBase):
 
     __tablename__ = 'telescope'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each telescope type'
-    )
     telescope_type_id = Column(
         Integer,
         ForeignKey('telescope_type.id',
@@ -45,11 +39,6 @@ class Telescope(DataModelBase):
         String(1000),
         nullable=False,
         doc='The notes provided for the telescope'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     observing_sessions = relationship("ObservingSession",

@@ -4,15 +4,15 @@ from __future__ import annotations
 from typing import List
 
 from sqlalchemy import\
-    text,\
     Column,\
     Integer,\
     Boolean,\
     String,\
+    Index,\
     TIMESTAMP,\
     ForeignKey
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
@@ -28,12 +28,10 @@ class ProcessedImages(DataModelBase):
         ForeignKey('image.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='The image that was processed.'
     )
     channel = Column(
         String(3),
-        primary_key=True,
         doc='The channel of the image that was processed.'
     )
     progress_id = Column(
@@ -41,7 +39,6 @@ class ProcessedImages(DataModelBase):
         ForeignKey('image_processing_progress.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='The id of the processing progress'
     )
     status = Column(
@@ -60,10 +57,9 @@ class ProcessedImages(DataModelBase):
         '`status`=1 is not final is for magnitude fitting, where there may be '
         'additional iterations needed.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index('processed_images_key2', 'image_id', 'channel', 'progress_id'),
     )
 
     def __str__(self):
@@ -83,11 +79,6 @@ class Image(DataModelBase):
 
     __tablename__ = 'image'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each image'
-    )
     raw_fname = Column(
         String(1000),
         nullable=False,
@@ -115,11 +106,6 @@ class Image(DataModelBase):
         nullable=True,
         doc='The notes provided for the image'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
-    )
 
     def __repr__(self):
         return (
@@ -140,12 +126,6 @@ class ImageProcessingProgress(DataModelBase):
     """The table describing the Image Processing Progress"""
 
     __tablename__ = 'image_processing_progress'
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each image_proc_processing'
-    )
 
     step_id = Column(
         Integer,
@@ -194,12 +174,6 @@ class ImageProcessingProgress(DataModelBase):
         String(1000),
         nullable=True,
         doc='Any user supplied notes about the processing.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-        doc='When record was last changed'
     )
 
     def __str__(self):

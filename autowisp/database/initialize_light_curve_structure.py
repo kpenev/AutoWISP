@@ -32,9 +32,9 @@ _default_nonfinite=repr(numpy.finfo('f4').min/2)
 
 def _get_structure_version_id(db_session, product='data_reduction'):
     return db_session.query(
-        HDF5StructureVersion.hdf5_structure_version_id
+        HDF5StructureVersion.id
     ).filter(
-        HDF5StructureVersion.hdf5_product_id == HDF5Product.hdf5_product_id
+        HDF5StructureVersion.hdf5_product_id == HDF5Product.id
     ).filter(
         HDF5Product.pipeline_key == product
     ).one()[0]

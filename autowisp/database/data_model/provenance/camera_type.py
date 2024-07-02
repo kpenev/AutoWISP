@@ -4,8 +4,7 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    Float,\
-    TIMESTAMP
+    Float
 
 from sqlalchemy.orm import relationship
 
@@ -23,11 +22,6 @@ class CameraType(DataModelBase):
 
     __tablename__ = 'camera_type'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each camera type'
-    )
     make = Column(
         String(100),
         nullable=False,
@@ -67,11 +61,6 @@ class CameraType(DataModelBase):
         String(1000),
         nullable=True,
         doc='The notes provided for the camera type'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
     cameras = relationship("Camera", back_populates="camera_type")
     channels = relationship("CameraChannel")

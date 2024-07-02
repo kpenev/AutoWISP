@@ -6,6 +6,8 @@ from os.path import dirname, join, basename
 from importlib import import_module
 from inspect import isclass
 
+from sqlalchemy import event, DDL
+
 from autowisp.database.data_model.base import DataModelBase
 from autowisp.database.data_model.steps_and_parameters import\
     step_param_association
@@ -49,10 +51,47 @@ def import_table_definitions():
         )
         print(f'({module_name!r}) Table class names: {table_class_names!r}')
 
+        update_timestamp_mysql = (
+            """
+            CREATE TRIGGER update_{table}_timestamp
+            BEFORE UPDATE
+            ON %(table)s
+            FOR EACH ROW
+                SET NEW.timestamp = CURRENT_TIMESTAMP
+            """
+        )
+
+        update_timestamp_sqlite = (
+            """
+            CREATE TRIGGER update_{table}_timestamp
+            AFTER UPDATE
+            ON %(table)s
+            FOR EACH ROW
+            BEGIN
+                UPDATE %(table)s SET timestamp = CURRENT_TIMESTAMP
+                WHERE id = NEW.id;
+            END
+            """
+        )
+
         for class_name in table_class_names:
-            setattr(this_module,
-                    class_name,
-                    getattr(module, class_name))
+            table_class = getattr(module, class_name)
+            setattr(this_module, class_name, table_class)
+            event.listen(
+                table_class.__table__,
+                'after_create',
+                DDL(
+                    update_timestamp_mysql.format(table=table_class.__table__)
+                ).execute_if(dialect='mysql')
+            )
+            event.listen(
+                table_class.__table__,
+                'after_create',
+                DDL(
+                    update_timestamp_sqlite.format(table=table_class.__table__)
+                ).execute_if(dialect='sqlite')
+            )
+
             __all__.append(class_name)
 
 import_table_definitions()

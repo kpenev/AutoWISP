@@ -2,9 +2,7 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
-    String,\
-    TIMESTAMP
+    String
 
 from sqlalchemy.orm import relationship
 
@@ -22,11 +20,6 @@ class MountType(DataModelBase):
 
     __tablename__ = 'mount_type'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each mount type'
-    )
     make = Column(
         String(100),
         nullable=False,
@@ -46,11 +39,6 @@ class MountType(DataModelBase):
         String(1000),
         nullable=True,
         doc='The notes provided for the mount type'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     mounts = relationship("Mount", back_populates="mount_type")

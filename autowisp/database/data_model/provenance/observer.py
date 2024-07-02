@@ -2,9 +2,7 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
-    String,\
-    TIMESTAMP
+    String
 
 from sqlalchemy.orm import relationship
 
@@ -22,11 +20,6 @@ class Observer(DataModelBase):
 
     __tablename__ = 'observer'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each observer'
-    )
     name = Column(
         String(100),
         nullable=False,
@@ -48,11 +41,6 @@ class Observer(DataModelBase):
         String(1000),
         nullable=True,
         doc='Any user supplied notes describing the observer.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     cameras = relationship("Camera",

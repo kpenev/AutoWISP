@@ -6,7 +6,6 @@ from sqlalchemy import\
     String,\
     Boolean,\
     Float,\
-    TIMESTAMP,\
     ForeignKey,\
     Index,\
     text
@@ -23,14 +22,9 @@ class HDF5DataSet(DataModelBase):
 
     __tablename__ = 'hdf5_datasets'
 
-    hdf5_dataset_id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier of each dataset.'
-    )
     hdf5_structure_version_id = Column(
         Integer,
-        ForeignKey('hdf5_structure_versions.hdf5_structure_version_id',
+        ForeignKey('hdf5_structure_versions.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         doc='Which structure version of which pipeline product is this '
@@ -91,11 +85,6 @@ class HDF5DataSet(DataModelBase):
         nullable=False,
         doc='A brief description of what this attribute tracks.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
-    )
 
     __table_args__ = (
         Index('version_dataset',
@@ -111,7 +100,7 @@ class HDF5DataSet(DataModelBase):
         """Human readable description."""
 
         return (
-            str(self.hdf5_dataset_id) + ':\n\t'
+            str(self.id) + ':\n\t'
             +
             '\n\t'.join([
                 'structure version ID = ' + str(self.hdf5_structure_version_id),

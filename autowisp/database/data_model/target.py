@@ -3,10 +3,8 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
     String,\
-    Float,\
-    TIMESTAMP
+    Float
 
 from sqlalchemy.orm import relationship
 
@@ -26,11 +24,6 @@ class Target(DataModelBase):
 
     __tablename__ = 'target'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each target'
-    )
     ra = Column(
         Float,
         nullable=True,
@@ -50,11 +43,6 @@ class Target(DataModelBase):
         String(1000),
         nullable=True,
         doc='The notes about the target'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     observing_sessions = relationship("ObservingSession",

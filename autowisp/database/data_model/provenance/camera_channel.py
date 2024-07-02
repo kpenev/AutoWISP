@@ -4,7 +4,7 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
+    Index,\
     ForeignKey
 
 from autowisp.database.data_model.base import DataModelBase
@@ -21,12 +21,10 @@ class CameraChannel(DataModelBase):
     camera_type_id = Column(
         Integer,
         ForeignKey('camera_type.id'),
-        primary_key=True,
         doc='The camera type to which this channel belongs.'
     )
     name = Column(
         String(10),
-        primary_key=True,
         doc='A label to assign to the channel.'
     )
     x_offset = Column(
@@ -53,10 +51,11 @@ class CameraChannel(DataModelBase):
         doc='The step in the y direction between consecutive pixels of the '
         'channel.'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index('cam_channel_key2',
+              'camera_type_id', 'name',
+              unique=True),
     )
 
     def __repr__(self):

@@ -3,7 +3,7 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    TIMESTAMP,\
+    Index,\
     ForeignKey
 
 from autowisp.database.data_model.base import DataModelBase
@@ -25,7 +25,6 @@ class MountAccess(DataModelBase):
         ForeignKey('observer.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='A unique identifier for the observer'
     )
     mount_id = Column(
@@ -33,11 +32,13 @@ class MountAccess(DataModelBase):
         ForeignKey('mount.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='A unique identifier of the mount'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index(
+            'mount_access_key2',
+            'observer_id', 'mount_id',
+            unique=True
+        ),
     )

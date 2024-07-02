@@ -7,12 +7,13 @@ from sqlalchemy.pool import NullPool
 db_engine = create_engine(
     #'mysql+pymysql://superphotuser:pipeline@kartof.utdallas.edu/'
     #'SuperPhotPipeline',
-    'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox_automation',
+    #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox_automation',
     #'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
+    'sqlite:///EWDemo.db',
     echo=True,
     pool_pre_ping=True,
     pool_recycle=3600,
-    connect_args={'connect_timeout': 600},
+    #connect_args={'connect_timeout': 600},
     poolclass=NullPool
 )
 

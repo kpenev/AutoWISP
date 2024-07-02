@@ -2,9 +2,7 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
-    String,\
-    TIMESTAMP\
+    String
 
 #Comment for database testing
 from autowisp.database.data_model.base import DataModelBase
@@ -19,11 +17,6 @@ class ConditionExpression(DataModelBase):
 
     __tablename__ = 'condition_expression'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each condition_expression.'
-    )
     expression = Column(
         String(1000),
         nullable=False,
@@ -36,11 +29,6 @@ class ConditionExpression(DataModelBase):
         String(1000),
         nullable=True,
         doc='Any user supplied notes describing the condition expression.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc = 'When record was last changed'
     )
 
     def __str__(self):

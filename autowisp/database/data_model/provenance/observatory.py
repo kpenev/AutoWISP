@@ -2,10 +2,8 @@
 
 from sqlalchemy import\
     Column,\
-    Integer,\
     String,\
-    Float,\
-    TIMESTAMP
+    Float
 
 from sqlalchemy.orm import relationship
 
@@ -23,11 +21,6 @@ class Observatory(DataModelBase):
 
     __tablename__ = 'observatory'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each observatory'
-    )
     latitude = Column(
         Float,
         nullable=False,
@@ -47,11 +40,6 @@ class Observatory(DataModelBase):
         String(100),
         nullable=False,
         doc='The name of the observatory'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     observing_sessions = relationship("ObservingSession",

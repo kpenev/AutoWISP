@@ -3,7 +3,7 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    TIMESTAMP,\
+    Index,\
     ForeignKey
 
 from autowisp.database.data_model.base import DataModelBase
@@ -26,7 +26,6 @@ class CameraAccess(DataModelBase):
         ForeignKey('observer.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='A unique identifier for the observer'
     )
     camera_id = Column(
@@ -34,11 +33,9 @@ class CameraAccess(DataModelBase):
         ForeignKey('camera.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        primary_key=True,
         doc='A unique identifier of the camera'
     )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
+
+    __table_args__ = (
+        Index('cam_access_key2', 'observer_id', 'camera_id', unique=True),
     )

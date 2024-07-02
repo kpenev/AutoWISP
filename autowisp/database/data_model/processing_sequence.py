@@ -3,7 +3,6 @@
 from sqlalchemy import\
     Column,\
     Integer,\
-    TIMESTAMP,\
     ForeignKey
 
 from sqlalchemy.orm import relationship
@@ -17,12 +16,6 @@ class ProcessingSequence(DataModelBase):
 
     __tablename__ = 'processing_sequence'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='The index of this processing within the sequence to be followed '
-        'by the pipeline.'
-    )
     step_id = Column(
         Integer,
         ForeignKey('step.id'),
@@ -34,11 +27,6 @@ class ProcessingSequence(DataModelBase):
         ForeignKey('image_type.id'),
         nullable=True,
         doc='The image type to be processed by the step.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     step = relationship('Step')

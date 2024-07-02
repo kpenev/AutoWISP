@@ -4,7 +4,6 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
     ForeignKey,\
     Index
 from sqlalchemy.orm import relationship
@@ -20,14 +19,9 @@ class HDF5Link(DataModelBase):
 
     __tablename__ = 'hdf5_links'
 
-    hdf5_link_id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each link.'
-    )
     hdf5_structure_version_id = Column(
         Integer,
-        ForeignKey('hdf5_structure_versions.hdf5_structure_version_id',
+        ForeignKey('hdf5_structure_versions.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
         doc='Which structure version of which pipeline product is this '
@@ -53,11 +47,6 @@ class HDF5Link(DataModelBase):
         String(1000),
         nullable=False,
         doc='A brief description of what this attribute tracks.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     __table_args__ = (

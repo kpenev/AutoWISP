@@ -8,7 +8,6 @@ from sqlalchemy import\
     Integer,\
     String,\
     Boolean,\
-    TIMESTAMP,\
     ForeignKey
 from sqlalchemy.orm import relationship, Mapped
 
@@ -27,11 +26,6 @@ class MasterType(DataModelBase):
 
     __tablename__ = 'master_type'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for the master file type.'
-    )
     name = Column(
         String(50),
         unique=True,
@@ -40,7 +34,9 @@ class MasterType(DataModelBase):
     )
     condition_id = Column(
         Integer,
-        ForeignKey('condition.id'),
+        ForeignKey('condition.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=False,
         doc='The collection of expression involving header keywords that must '
         'match between an image and a master for a master to be useable for '
@@ -48,20 +44,26 @@ class MasterType(DataModelBase):
     )
     maker_step_id = Column(
         Integer,
-        ForeignKey('step.id'),
+        ForeignKey('step.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=True,
         doc='The step which produces this type of master frames.'
     )
     maker_image_type_id = Column(
         Integer,
-        ForeignKey('image_type.id'),
+        ForeignKey('image_type.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=True,
         doc='The image type to which the maker step is applied when creating '
         'masters of this type.'
     )
     maker_image_split_condition_id = Column(
         Integer,
-        ForeignKey('condition.id'),
+        ForeignKey('condition.id',
+                   onupdate='CASCADE',
+                   ondelete='RESTRICT'),
         nullable=True,
         doc='The collection of expression involving header keywords that must '
         'match between all images that are combined into a master in addition '
@@ -70,11 +72,6 @@ class MasterType(DataModelBase):
     description = Column(
         String(1000),
         doc='A description of the master file type.'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     Index("maker", "maker_step_id", "maker_image_type_id")
@@ -100,11 +97,6 @@ class MasterFile(DataModelBase):
 
     __tablename__ = 'master_file'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for the master file.'
-    )
     type_id = Column(
         Integer,
         ForeignKey('master_type.id'),
@@ -133,11 +125,6 @@ class MasterFile(DataModelBase):
         nullable=True,
         doc='Use the master of this type for which this expression evaluated '
         'against image header gives the smallest value'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
     master_type = relationship('MasterType', back_populates='master_files')
 

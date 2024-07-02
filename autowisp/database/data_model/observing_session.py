@@ -5,7 +5,6 @@ from sqlalchemy import\
     Column,\
     Integer,\
     String,\
-    TIMESTAMP,\
     DateTime,\
     ForeignKey
 
@@ -27,11 +26,6 @@ class ObservingSession(DataModelBase):
 
     __tablename__ = 'observing_session'
 
-    id = Column(
-        Integer,
-        primary_key=True,
-        doc='A unique identifier for each observing session'
-    )
     observer_id = Column(
         Integer,
         ForeignKey('observer.id',
@@ -101,11 +95,6 @@ class ObservingSession(DataModelBase):
         String(1000),
         nullable=True,
         doc='The notes provided for the observing session'
-    )
-    timestamp = Column(
-        TIMESTAMP,
-        nullable=False,
-        doc='When was this record last changed.'
     )
 
     def __repr__(self):
