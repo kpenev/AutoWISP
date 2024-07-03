@@ -62,18 +62,23 @@ def progress(request):
                 destination[2][channel_index[channel]][2].append(
                     (status, (count or 0))
                 )
-            destination[3] = db_session.execute(
-                select(
-                    ImageProcessingProgress.id,
-                    func.date_format(ImageProcessingProgress.started,
-                                     datetime_fmt),
-                    func.date_format(ImageProcessingProgress.finished,
-                                     datetime_fmt)
-                ).where(
-                    ImageProcessingProgress.step_id == step.id,
-                    ImageProcessingProgress.image_type_id == imtype.id
+            destination[3] = [
+                (
+                    record[0],
+                    record[1].strftime(datetime_fmt) if record[1] else '-',
+                    record[2].strftime(datetime_fmt) if record[2] else '-'
                 )
-            ).all()
+                for record in db_session.execute(
+                    select(
+                        ImageProcessingProgress.id,
+                        ImageProcessingProgress.started,
+                        ImageProcessingProgress.finished,
+                    ).where(
+                        ImageProcessingProgress.step_id == step.id,
+                        ImageProcessingProgress.image_type_id == imtype.id
+                    )
+                ).all()
+            ]
 
         for check_running in db_session.scalars(
             select(

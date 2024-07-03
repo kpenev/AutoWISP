@@ -354,19 +354,10 @@ def select_photref_target(request, recalc=False):
                 'need_photref'
             ][
                 'master_expressions'
-            ],
+            ] + ['Num. Images'],
             'master_values': [
-                request.session[
-                    'need_photref'
-                ][
-                    'master_values'
-                ][
-                    target_ind
-                ][
-                    0
-                ]
-                for target_ind in
-                range(len(request.session['need_photref']['master_values']))
+                target[0] + [len(target[2])]
+                for target in request.session['need_photref']['master_values']
             ],
             'view_config': request.body
         }
