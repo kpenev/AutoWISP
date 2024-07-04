@@ -384,10 +384,13 @@ def get_lc_minimum_scatter(lc_fname,
 
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         bjd = lightcurve.get_dataset('skypos.BJD')
-        image_ids = [
-            img_id.rsplit(b'_', 1)[1]
-            for img_id in lightcurve.get_dataset('fitsheader.' + match_by)
-        ]
+        if match_by == 'fnum':
+            image_ids = lightcurve.get_dataset('fitsheader.' + match_by)
+        else:
+            image_ids = [
+                img_id.rsplit(b'_', 1)[1]
+                for img_id in lightcurve.get_dataset('fitsheader.' + match_by)
+            ]
 
         selected_lc_length = 0
         if (
