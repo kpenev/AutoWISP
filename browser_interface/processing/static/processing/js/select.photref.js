@@ -1,84 +1,3 @@
-//Place the main image relative to its parent per its posX and posY attributes
-function placeImage()
-{
-    let boundingRect = document.getElementsByClassName(
-        "main-parent"
-    )[0].getBoundingClientRect();
-
-    image.style.left = (
-        image.posX 
-        + 
-        Math.round((boundingRect.width - image.width) / 2)
-    ) + "px";
-    image.style.top = (
-        image.posY 
-        + 
-        Math.round((boundingRect.height - image.height) / 2)
-    ) + "px";
-}
-
-//Change the zoom level of the main image.
-function adjustZoom(event)
-{
-    event.preventDefault();
-    let image = document.getElementById("main-image");
-    let parentWidth = document.getElementsByClassName("main-parent")[0].getBoundingClientRect().width;
-    let step = Math.round(image.width / 100);
-    newWidth = Math.max(
-        100,
-        image.width + event.deltaY * step
-    );
-    newWidth = Math.min(newWidth, 100 * image.naturalWidth)
-    if ( image.width > image.naturalWidth && newWidth < image.naturalWidth ) {
-        newWidth = image.naturalWidth;
-    } else if ( image.width > parentWidth 
-                && 
-                newWidth < parentWidth ) {
-        newWidth = parentWidth;
-    } 
-
-    let scale = newWidth / image.width
-    image.posX = image.posX * scale;
-    image.posY = image.posY * scale;
-    image.width = newWidth;
-    image.height = Math.round(image.naturalHeight 
-                              * 
-                              image.width 
-                              / 
-                              image.naturalWidth);
-    placeImage();
-}
-
-//Change the displayed portion of the main image in response to dragging.
-function pan(event)
-{
-    event.preventDefault();
-    let shiftX = event.clientX - pan.startX;
-    let shiftY = event.clientY - pan.startY;
-
-    image.posX = pan.imageStartX + shiftX;
-    image.posY = pan.imageStartY + shiftY;
-    placeImage();
-}
-
-//Prepare to respond to the user dragging the main image. 
-function panStart(event)
-{
-    event.preventDefault();
-    pan.startX = event.clientX;
-    pan.startY = event.clientY;
-    pan.imageStartX = image.posX;
-    pan.imageStartY = image.posY;
-    image.addEventListener("mousemove", pan);
-}
-
-//The user has released the main image after dragging it.
-function panStop(event)
-{
-    event.preventDefault();
-    image.removeEventListener("mousemove", pan); 
-}
-
 //Change the displayed histogrames up by one.
 function histScrollUp(event)
 {
@@ -202,33 +121,18 @@ function resizeHistEnd(event)
 function initView(viewConfig)
 {
     if ( viewConfig === undefined ) {
+        initFITS();
         viewConfig = {
-            "image": {
-                "posX": 0, 
-                "posY": 0, 
-                "width": image.width,
-                "height": image.height
-            },
+            "image": getFITSConfig(),
             "histograms": {
                 "firstVisible": 0,
                 "width": document.getElementById("side-bar").style.width,
                 "order": [...Array(histParent.children.length).keys()]
             }
         };
-
+    } else {
+        initFITS(viewConfig["image"]);
     }
-    image.addEventListener("wheel", adjustZoom);
-    image.addEventListener("mousedown", panStart);
-    image.addEventListener("mouseup", panStop);
-    image.posX = viewConfig.image.posX;
-    image.posY = viewConfig.image.posY;
-    image.width = viewConfig.image.width;
-    image.height = Math.round(image.naturalHeight 
-                              * 
-                              image.width 
-                              / 
-                              image.naturalWidth);
-    placeImage();
 
     for( let i = 0; i < histParent.children.length; i++) {
         histParent.children[i].addEventListener("mousedown", histDragStart);
@@ -268,15 +172,11 @@ function initView(viewConfig)
 }
 
 //Submit the currently configured view when changing scale, range or image
-async function updateView(updateURL)
+async function updateView(change)
 {
     viewConfig = {
-        "image": {
-            "posX": image.posX, 
-            "posY": image.posY, 
-            "width": image.width,
-            "height": image.height
-        },
+        "change": change,
+        "image": getFITSConfig(),
         "histograms": {
             "firstVisible": histParent.firstVisible,
             "width": document.getElementById("side-bar").style.width,
@@ -287,12 +187,11 @@ async function updateView(updateURL)
     for( let i = 0; i < histParent.children.length; i++) {
         viewConfig.histograms.order.push(histParent.children[i].origPosition);
     }
-    postJson(updateURL, viewConfig).then(
+    postJson(updateView.URL, viewConfig).then(
         function() {
-            document.location = updateURL;
+            location.reload();
         }
     );
 }
 
-var image = document.getElementById("main-image")
 var histParent = document.getElementById("hist-parent");

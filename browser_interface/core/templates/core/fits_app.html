@@ -1,0 +1,117 @@
+{% extends 'core/lcars_app.html' %}
+
+{% block header_bar_extra %}
+<div class="lcars-bar
+            horizontal
+            lcars-u-2">
+    Intensity range:
+</div>
+
+<div class="lcars-bar horizontal spacer"></div>
+{% if range != "minmax" %}
+<div onclick="updateView({'range': 'minmax'})"
+     class="lcars-bar
+             button
+             horizontal
+             lcars-chestnut-rose-bg
+             lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         min/max
+     </div>
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+
+{% if range != "zscale" %}
+<div onclick="updateView({'range': 'zscale'})"
+     class="lcars-bar
+            button
+            horizontal
+            lcars-chestnut-rose-bg
+            lcars-u-1">
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        zscale
+    </div>
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+
+<div class="lcars-bar
+            {% if image_index > 0 %}
+            button
+            {% endif %}
+            horizontal
+            lcars-melrose-bg
+            lcars-u-2"
+     {% if image_index > 0 %}
+     onclick="updateView('previous image')"
+     {% endif %}
+     >
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        <<< prev. image
+    </div>
+</div>
+
+<div class="lcars-bar horizontal spacer"></div>
+
+<div class="lcars-bar
+            {% if not last_image %}
+            button
+            {% endif %}
+            horizontal
+            lcars-melrose-bg
+            lcars-u-2"
+     {% if not last_image %}
+     onclick="updateView('next image')"
+     {% endif %}
+     >
+    <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+        next image >>>
+    </div>
+</div>
+
+{% endblock header_bar_extra %}
+
+{% block footer_bar_extra %}
+<div class="lcars-bar
+            bottom
+            horizontal
+            lcars-u-3">
+    Transform intensity:
+</div>
+
+{% if transform %}
+<div class="lcars-bar horizontal spacer"></div>
+<div onclick="updateView({'transform': null})"
+     class="lcars-bar
+            horizontal
+            button
+            bottom
+            lcars-chestnut-rose-bg
+            lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         None
+     </div>
+</div>
+{% endif %}
+<div class="lcars-bar horizontal spacer"></div>
+{% for trans_choice in transform_list %}
+{% if trans_choice != transform %}
+<div onclick="updateView({'transform': '{{trans_choice}}'})"
+     class="lcars-bar
+            button
+            horizontal
+            bottom
+            lcars-chestnut-rose-bg
+            lcars-u-1"
+     >
+     <div style="white-space: nowrap; margin-left: 1em; margin-right:1em">
+         {{trans_choice}}
+   </div>
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+{% endif %}
+{% endfor %}
+{% endblock footer_bar_extra %}
