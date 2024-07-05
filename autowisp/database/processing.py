@@ -735,7 +735,10 @@ class ProcessingManager:
         evaluate.symtable['OBS_SESN'] = image.observing_session.label
         self._logger.debug('Matched expressions: %s',
                            repr(self._get_matched_expressions(evaluate)))
-        self._evaluated_expressions[image.id] = {}
+        skip_evaluate = image.id in self._evaluated_expressions
+        if not skip_evaluate:
+            self._evaluated_expressions[image.id] = {}
+
         all_channel={'matched': None, 'values': None}
         for channel_name, channel_slice in self._get_split_channels(
                 image
@@ -761,6 +764,8 @@ class ProcessingManager:
 
             if return_evaluator and eval_channel == channel_name:
                 result.symtable.update(evaluate.symtable)
+            if skip_evaluate:
+                continue
             evaluated_expressions = {
                 'values': {expr_id: evaluate(expression)
                            for expr_id, expression in
@@ -811,6 +816,9 @@ class ProcessingManager:
                 evaluated_expressions
             )
 
+        if skip_evaluate:
+            assert return_evaluator
+            return result
         self._evaluated_expressions[image.id][None] = {
             'matched': all_channel['matched'],
             'values': all_channel['values'],
@@ -1239,22 +1247,20 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            db_session.execute(
-                update(ProcessedImages),
-                [
-                    {
-                        'image_id': finished_id['image_id'],
-                        'channel': finished_id['channel'],
-                        'progress_id': db_session.merge(
-                            self._current_processing,
-                            load=False
-                        ).id,
-                        'status': status,
-                        'final': final
-                    }
-                    for finished_id in self._processed_ids[input_fname]
-                ]
-            )
+            for finished_id in self._processed_ids[input_fname]:
+                db_session.execute(
+                    update(ProcessedImages).
+                    where(ProcessedImages.image_id == finished_id['image_id']).
+                    where(ProcessedImages.channel == finished_id['channel']).
+                    where(
+                        ProcessedImages.progress_id
+                        ==
+                        db_session.merge(self._current_processing, load=False).id
+                    ).values(
+                        status=status,
+                        final=final
+                    )
+                )
 
 
     #No good way to simplify

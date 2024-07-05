@@ -294,9 +294,15 @@ class MasterMaker(Processor):
                     )
 
                 pixel_values[frame_index] = stack_image
-                pixel_values[frame_index][
-                    numpy.bitwise_and(mask, exclude_mask_bits).astype(bool)
-                ] = numpy.nan
+                exclude_pix = numpy.bitwise_and(
+                    mask,
+                    exclude_mask_bits
+                ).astype(bool)
+                if exclude_pix.any():
+                    pixel_values[frame_index][exclude_pix] = numpy.nan
+                    self._logger.warning('Excluding %d masked pixels from %s',
+                                         exclude_pix.sum(),
+                                         frame_fname)
                 for kw_index, keyword in enumerate(add_averaged_keywords):
                     #False positive
                     #pylint: disable=unsubscriptable-object

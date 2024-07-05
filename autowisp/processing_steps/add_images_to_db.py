@@ -315,12 +315,34 @@ def get_or_create_observing_session(image_type,
             end_time_utc=exposure_end
         )
     else:
-        assert result.observer_id == observer.id
-        assert result.camera_id == camera.id
-        assert result.telescope_id == telescope.id
-        assert result.mount_id == mount.id
-        assert result.observatory_id == observatory.id
-        assert result.target_id == target.id
+        if (
+            result.observer_id != observer.id
+            or
+            result.camera_id != camera.id
+            or
+            result.telescope_id != telescope.id
+            or
+            result.mount_id != mount.id
+            or
+            result.observatory_id != observatory.id
+            or
+            result.target_id != target.id
+        ):
+            raise RuntimeError(
+                'Mismatch between observing session and other header '
+                'information:\n\t'
+                +
+                '\n\t'.join([
+                    f'{what} ID: header = {getattr(result, what + "_id")} '
+                    f'session = {locals()[what]}'
+                    for what in ['observer',
+                                 'camera',
+                                 'telescope',
+                                 'mount',
+                                 'observatory',
+                                 'target']
+                ])
+            )
 
         if exposure_start < result.start_time_utc:
             result.start_time_utc = exposure_start

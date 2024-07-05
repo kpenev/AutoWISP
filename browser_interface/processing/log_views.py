@@ -17,7 +17,7 @@ from autowisp.database.data_model import\
     ProcessingSequence
 #pylint: enable=no-name-in-module
 
-datetime_fmt = '%Y%m%d %H:%i:%s'
+datetime_fmt = '%Y%m%d %H:%M:%S'
 
 
 def review(request,
@@ -40,40 +40,49 @@ def review(request,
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        selected_progress = db_session.execute(
+        selected_progress = db_session.scalar(
             select(
-                ImageProcessingProgress.id,
-                ImageProcessingProgress.step_id,
-                ImageProcessingProgress.image_type_id,
-                func.date_format(ImageProcessingProgress.started,
-                                 datetime_fmt),
-                func.date_format(ImageProcessingProgress.finished,
-                                 datetime_fmt),
+                ImageProcessingProgress
             ).where(
                 ImageProcessingProgress.id == selected_processing_id,
             )
-        ).one()
-
-        context['reviewable'] = db_session.execute(
-            select(
-                ImageProcessingProgress.id,
-                func.date_format(ImageProcessingProgress.started,
-                                 datetime_fmt),
-                func.date_format(ImageProcessingProgress.finished,
-                                 datetime_fmt)
-            ).where(
-                (
-                    ImageProcessingProgress.step_id
-                    ==
-                    selected_progress[1]
-                ),
-                (
-                    ImageProcessingProgress.image_type_id
-                    ==
-                    selected_progress[2]
-                )
+        )
+        selected_progress = (
+            selected_progress.id,
+            selected_progress.step_id,
+            selected_progress.image_type_id,
+            selected_progress.started.strftime(datetime_fmt),
+            (
+                '-' if selected_progress.finished is None
+                else selected_progress.finished.strftime(datetime_fmt)
             )
-        ).all()
+        )
+
+        context['reviewable'] = [
+            (
+                record[0],
+                record[1].strftime(datetime_fmt),
+                '-' if record[2] is None else record[2].strftime(datetime_fmt)
+            )
+            for record in db_session.execute(
+                select(
+                    ImageProcessingProgress.id,
+                    ImageProcessingProgress.started,
+                    ImageProcessingProgress.finished,
+                ).where(
+                    (
+                        ImageProcessingProgress.step_id
+                        ==
+                        selected_progress[1]
+                    ),
+                    (
+                        ImageProcessingProgress.image_type_id
+                        ==
+                        selected_progress[2]
+                    )
+                )
+            ).all()
+        ]
         context['selected_info'] = selected_progress
         context['pipeline_steps'] = db_session.execute(
             select(
