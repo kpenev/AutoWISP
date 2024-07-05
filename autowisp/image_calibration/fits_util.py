@@ -299,18 +299,10 @@ def create_result(image_list,
 
     logger = getLogger(__name__)
 
-    for im_index, check_image in enumerate(image_list):
-        if not numpy.isfinite(check_image[image_list[2]]).all():
-            raise RuntimeError(
-                'Found '
-                +
-                str(numpy.logical_not(numpy.isfinite(check_image)).sum())
-                +
-                f' out of {check_image.size:d} non-finite un-masked pixel '
-                f'values in image {im_index:d}'
-            )
+    for check_image in image_list:
+        assert numpy.isfinite(check_image).all()
 
-    assert (image_list[1][image_list[2]] >= 0).all()
+    assert (image_list[1] >= 0).all()
 
     for channel_name, channel_slice in split_channels.items():
         header_list = [
@@ -365,3 +357,4 @@ def create_result(image_list,
         if not path.exists(path.dirname(output_fname)):
             makedirs(path.dirname(output_fname))
         hdu_list.writeto(output_fname, overwrite=allow_overwrite)
+
