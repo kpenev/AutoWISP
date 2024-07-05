@@ -37,29 +37,10 @@ urlpatterns = [
     path('select_photref_image/<int:target_index>',
          views.select_photref_image,
          name='select_photref_image'),
-    path('select_photref_image/<int:target_index>/<int:image_index>',
-         views.select_photref_image,
-         name='select_photref_image'),
-    path('select_photref_image/<int:target_index>/<int:image_index>'
-         '/<str:values_range>',
-         views.select_photref_image,
-         name='select_photref_image'),
-    path(
-        '/'.join(['select_photref_image',
-                  '<int:target_index>',
-                  '<int:image_index>',
-                  '<str:values_range>',
-                  '<slug:values_transform>']),
-        views.select_photref_image,
-        name='select_photref_image'
-    ),
     path(
         '/'.join(['select_photref_image',
                   'recalc',
-                  '<int:target_index>',
-                  '<int:image_index>',
-                  '<str:values_range>',
-                  '<slug:values_transform>']),
+                  '<int:target_index>']),
         views.select_photref_image,
         {'recalculate': True},
         name='select_photref_image_recalc'
@@ -68,5 +49,10 @@ urlpatterns = [
         'record_photref_selection/<int:target_index>/<int:image_index>',
         views.record_photref_selection,
         name='record_photref_selection'
+    ),
+    path(
+        'update_fits_display',
+        views.update_fits_display,
+        name='update_fits_display'
     )
 ]

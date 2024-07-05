@@ -16,6 +16,7 @@ from .progress_view import progress
 from .select_photref_views import\
     select_photref_target,\
     select_photref_image,\
+    update_fits_display,\
     record_photref_selection
 #pylint: enable=unused-import
 
