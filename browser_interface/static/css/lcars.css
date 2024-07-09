@@ -4327,7 +4327,7 @@ table.standard-header tbody:before {
 /* bacground color */
   display: block;
 }
-table.lcars-table.select-row tr:hover {
+tbody.lcars-table.select-row tr:hover {
   background-color: #99f;
   fill: #99f;
   cursor: pointer;

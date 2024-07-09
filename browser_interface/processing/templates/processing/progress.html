@@ -74,6 +74,7 @@ Processing Progress
         </td>
         <td>{{ imtype }}</td>
         {% url 'processing:select_photref_target' as photrefsel_url %}
+        {% url 'processing:select_starfind_batch' as tune_starfind_url %}
         {% for final, pending, by_status in by_channel %}
         {% with total=final|add:pending %}
         <td>
@@ -82,7 +83,11 @@ Processing Progress
                     <td colspan=2>
                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
                         <a href="{{photrefsel_url}}">
-                        Click to select reference frames <br/>
+                        Click to select reference frames<br/>
+                        {% endif %}
+                        {% if step.0 == 'find' and step.1 == 'stars' %}
+                        <a href="{{tune_starfind_url}}">
+                        Click to tune source extraction<br/>
                         {% endif %}
                         <div id="progress-with-label" 
                              style="width: 100%">

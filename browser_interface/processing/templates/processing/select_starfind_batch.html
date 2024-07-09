@@ -2,11 +2,11 @@
 {% load static %}
 
 {% block header_title %}{% block app_title %}
-Select Photometric Reference
+Tune Source Extraction
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-<a href="{% url 'processing:select_photref_recalc' %}">
+<a href="{% url 'processing:select_starfind_batch_refresh' %}">
     <div class="lcars-element 
                 button 
                 lcars-melrose-bg
@@ -17,23 +17,26 @@ Select Photometric Reference
 {% endblock left_menu %}
 
 {% block main %}
+
+{% for imtype_entry in batches %}
+
+<h3>{{imtype_entry.0}} Images</h3>
 <table class="lcars-table standard-header">
     <thead>
         <tr>
-            {% for expr in master_expressions %}
-            <th>{{expr}}</th>
-            {% endfor %}
+            <th>Batch</th>
+            <th>Num. Images</th>
         </tr>
     </thead>
     <tbody class="lcars-table select-row">
-    {% for target in master_values %}
-    {% url 'processing:select_photref_image' target_index=forloop.counter0 as target_url %}
+    {% for batch_info in imtype_entry.1 %}
+    {% url 'processing:tune_starfind' imtype=imtype_entry.0 batch_index=forloop.counter0 as target_url %}
     <tr onclick="window.location='{{target_url}}'">
-        {% for val in target %}
-        <td> {{val}} </td>
-        {% endfor %}
+        <td> {{batch_info.0}} </td>
+        <td> {{batch_info.1}} </td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
+{% endfor %}
 {% endblock main %}

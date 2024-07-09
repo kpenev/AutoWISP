@@ -1,4 +1,10 @@
 {% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/fits_app.css' %}"/>
+{% endblock extra_head %}
+
 
 {% block header_bar_extra %}
 <div class="lcars-bar
@@ -38,13 +44,13 @@
 {% endif %}
 
 <div class="lcars-bar
-            {% if image_index > 0 %}
+            {% if image_index1 > 1 %}
             button
             {% endif %}
             horizontal
             lcars-melrose-bg
             lcars-u-2"
-     {% if image_index > 0 %}
+     {% if image_index1 > 1 %}
      onclick="updateView('previous image')"
      {% endif %}
      >
@@ -53,16 +59,27 @@
     </div>
 </div>
 
-<div class="lcars-bar horizontal spacer"></div>
+<input type="text" 
+       class="lcars-text-input
+              decorated
+              lcars-melrose-color
+              lcars-black-bg
+              rounded
+              lcars-bar horizontal
+              lcars-u-1"
+       value="{{image_index1}}/{{num_images}}"
+       autocomplete="off"
+       onchange="updateView({'image_index': this.value.split('/', 1)[0]});">
+</input>
 
 <div class="lcars-bar
-            {% if not last_image %}
+            {% if image_index1 < num_images %}
             button
             {% endif %}
             horizontal
             lcars-melrose-bg
             lcars-u-2"
-     {% if not last_image %}
+     {% if image_index1 < num_images %}
      onclick="updateView('next image')"
      {% endif %}
      >
@@ -115,3 +132,24 @@
 {% endif %}
 {% endfor %}
 {% endblock footer_bar_extra %}
+
+{% block main %}
+<div id="full-view" class="lcars-row">
+    {% block full_view %}
+    <div class="main-parent"> 
+        <img id="main-image" src="data:image/png;base64,{{image}}"></img>
+    </div>
+    {% endblock full_view %}
+</div>
+
+<script src="{% static 'js/autowisp.util.js' %}"></script>
+<script src="{% static 'js/display.fits.js' %}"></script>
+{% block add_js %}
+{% endblock add_js %}
+
+{% url 'processing:update_fits_display' as updateURL %}
+<script type="text/javascript">
+    updateView.URL = "{{updateURL}}";
+    initView({{ view_config|safe }});
+</script> 
+{% endblock main %}

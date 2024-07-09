@@ -54,5 +54,21 @@ urlpatterns = [
         'update_fits_display',
         views.update_fits_display,
         name='update_fits_display'
+    ),
+    path(
+        'select_starfind_batch',
+        views.select_starfind_batch,
+        name='select_starfind_batch'
+    ),
+    path(
+        'select_starfind_batch/refresh',
+        views.select_starfind_batch,
+        {'refresh': True},
+        name='select_starfind_batch_refresh'
+    ),
+    path(
+        'tune_starfind/<slug:imtype>/<int:batch_index>',
+        views.tune_starfind,
+        name='tune_starfind'
     )
 ]

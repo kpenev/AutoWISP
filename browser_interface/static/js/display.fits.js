@@ -114,4 +114,32 @@ function getFITSConfig()
     }
 }
 
+//Prepare to respond to user interacting with the displayed image.
+function initView(viewConfig)
+{
+    if ( viewConfig === undefined ) {
+        initFITS();
+        viewConfig = {
+            "image": getFITSConfig()
+        };
+    } else {
+        initFITS(viewConfig["image"]);
+    }
+}
+
+//Submit the currently configured view when changing scale, range or image
+async function updateView(change)
+{
+    viewConfig = {
+        "change": change,
+        "image": getFITSConfig(),
+    };
+
+    postJson(updateView.URL, viewConfig).then(
+        function() {
+            location.reload();
+        }
+    );
+}
+
 var image = document.getElementById("main-image")

@@ -1,11 +1,8 @@
 """Implement the view for selecting single photometric reference."""
 
 from io import StringIO
-import json
-
 #from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 import matplotlib
 from matplotlib import pyplot
 from sqlalchemy import select
@@ -28,6 +25,7 @@ from autowisp.database.data_model import\
     Step
 #pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
+from .display_fits_util import update_fits_display
 
 
 def _get_missing_photref(request):
@@ -113,7 +111,7 @@ def _get_missing_photref(request):
                         'master_values'
                     ].append(
                         (
-                            master_values,
+                            list(master_values),
                             config,
                             [
                                 (
@@ -184,30 +182,6 @@ def _create_merit_histograms(merit_data, image_index):
     return result
 
 
-def update_fits_display(request):
-    """Updatet the displayed FITS image per user interaction."""
-
-    assert request.method == 'POST'
-    request_data = json.loads(request.body.decode())
-    print(f'Request data: {request_data!r}')
-    change = request_data.pop('change')
-    if change == 'next image':
-        request.session['fits_display']['image_index'] += 1
-    elif change == 'previous image':
-        request.session['fits_display']['image_index'] -= 1
-    else:
-        assert len(change) == 1
-        for param, value in change.items():
-            request.session['fits_display'][param] = value
-    request.session['view_config'] = json.dumps(request_data)
-    print('Request session:\n\t'
-          +
-          '\n\t'.join(f'{k!r}: {v!r}' for k, v in request.session.items()))
-    request.session.modified = True
-
-    return JsonResponse({'ok': True})
-
-
 def select_photref_image(request,
                          *,
                          target_index,
@@ -216,12 +190,7 @@ def select_photref_image(request,
 
     assert request.method == 'GET'
     print('Image view with request: ' + repr(request))
-    if 'fits_display' not in request.session:
-        request.session['fits_display'] = {
-            'image_index': 0,
-            'range': 'zscale',
-            'transform': None,
-        }
+    update_fits_display(request)
     image_index = request.session['fits_display']['image_index']
     if recalculate:
         print('Deleting merit info')
@@ -252,7 +221,7 @@ def select_photref_image(request,
         'target_index': target_index,
         #False positive
         #pylint: disable=no-member
-        'last_image': image_index == merit_data.shape[0] - 1,
+        'num_images': merit_data.shape[0],
         #pylint: enable=no-member
         'histograms': _create_merit_histograms(merit_data, image_index),
         'view_config': request.session.get('view_config', 'undefined')
@@ -281,6 +250,9 @@ def select_photref_target(request, recalc=False):
     if 'need_photref' not in request.session:
         _get_missing_photref(request)
 
+    print('Request master values: '
+          +
+          repr(request.session['need_photref']['master_values']))
     return render(
         request,
         'processing/select_photref_target.html',

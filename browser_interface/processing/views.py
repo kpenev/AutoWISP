@@ -16,8 +16,9 @@ from .progress_view import progress
 from .select_photref_views import\
     select_photref_target,\
     select_photref_image,\
-    update_fits_display,\
     record_photref_selection
+from .tune_starfind_views import select_starfind_batch, tune_starfind
+from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
 
 

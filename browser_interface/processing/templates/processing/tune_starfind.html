@@ -1,0 +1,25 @@
+{% extends 'core/fits_app.html' %}
+{% load static %}
+
+{% block header_title %}{% block app_title %}
+Tune Source Extraction
+{% endblock %}{% endblock %}
+
+{% block left_menu %}
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-2">
+        Save Current
+    </div>
+</a>
+<div onclick="updateView('{{updateURL}}')">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-1">
+        Update
+    </div>
+</div>
+{% endblock left_menu %}
+

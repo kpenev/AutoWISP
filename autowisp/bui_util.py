@@ -2,6 +2,7 @@
 
 from io import BytesIO, StringIO
 from base64 import b64encode
+from os.path import exists
 
 from PIL import Image
 from matplotlib import colors
@@ -51,6 +52,10 @@ def encode_fits(fits_fname,
                 values_transform):
     """Display transformed & scaled FITS image to user."""
 
+    if not exists(fits_fname):
+        raise RuntimeError(
+            f'Requested FITS file ({fits_fname}) does not exist!'
+        )
     png_stream = BytesIO()
     with fits.open(fits_fname, 'readonly') as frame:
         if values_range == 'zscale':

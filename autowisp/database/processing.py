@@ -466,9 +466,9 @@ class ProcessingManager:
                            repr(candidate_masters))
         if not candidate_masters:
             return None
-        image_eval = self._evaluate_expressions_image(image,
-                                                      channel,
-                                                      True)
+        image_eval = self.evaluate_expressions_image(image,
+                                                     channel,
+                                                     True)
         best_master_value = numpy.inf
         best_master_fname = None
         for master in candidate_masters:
@@ -683,10 +683,10 @@ class ProcessingManager:
     #TODO: see if can be simplified
     #pylint: disable=too-many-locals
     #pylint: disable=too-many-branches
-    def _evaluate_expressions_image(self,
-                                    image,
-                                    eval_channel=None,
-                                    return_evaluator=False):
+    def evaluate_expressions_image(self,
+                                   image,
+                                   eval_channel=None,
+                                   return_evaluator=False):
         """
         Return evaluator for header expressions for given image.
 
@@ -949,7 +949,7 @@ class ProcessingManager:
 
         for image, _, __ in need_cleanup:
             if image.id not in self._evaluated_expressions:
-                self._evaluate_expressions_image(image)
+                self.evaluate_expressions_image(image)
 
         cleanup_batches = self._get_config_batches(pending,
                                                    input_type,
@@ -1156,7 +1156,7 @@ class ProcessingManager:
             pending_images = new_pending
 
         for image, channel_name in pending_images:
-            self._evaluate_expressions_image(image)
+            self.evaluate_expressions_image(image)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
         self._logger.info('Starting %s step for %d %s images',
@@ -1582,9 +1582,9 @@ class ProcessingManager:
     def get_candidate_masters(self, image, channel, master_type, db_session):
         """Return list of masters of given type that are applicable to image."""
 
-        image_eval = self._evaluate_expressions_image(image,
-                                                      channel,
-                                                      True)
+        image_eval = self.evaluate_expressions_image(image,
+                                                     channel,
+                                                     True)
         print(f'Image keys: {image_eval.symtable.keys()!r}')
         candidate_masters = db_session.scalars(
             select(
@@ -1613,12 +1613,11 @@ class ProcessingManager:
         Return the unprocessed images and channels split by step and image type.
 
         Args:
-            step_id(Step):    The step to determine pending images for.
-
-            image_type(ImageType):    The type of images to check for pending
-                processing by the specified step.
-
             db_session(Session):    The database session to use.
+
+            steps_imtypes(Step, ImageType):    The step image type combinations
+                to determine pending images for. If unspecified, the full
+                processing sequence defined in the database is used.
 
         Returns:
             {(step.id, image_type.id): (Image, str)}:
@@ -1722,7 +1721,7 @@ class ProcessingManager:
         """
 
         for image, _ in pending_images:
-            self._evaluate_expressions_image(image)
+            self.evaluate_expressions_image(image)
 
         image_type_id = pending_images[0][0].image_type_id
         result = []
