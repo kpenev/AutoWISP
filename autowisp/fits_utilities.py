@@ -173,10 +173,6 @@ def update_stack_header(master_header,
         master_header.extend(
             filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
         )
-        if 'IMAGETYP' not in master_header:
-            raise BadImageError(
-                f'Image {filename:s} does not define IMAGETYP'
-            )
     else:
         _logger.debug('Checking master header against %s', filename)
 
