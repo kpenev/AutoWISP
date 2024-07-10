@@ -1,0 +1,29 @@
+label {
+    width: 7.5rem;
+    height: 3rem;
+    text-align: left;
+    vertical-align: bottom;
+}
+
+input.param {
+    color: #fc6;
+    border-left: 0.8rem solid #fc6;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-right: 0.8rem solid #fc6;
+    border-radius: 0.5em;
+    background-color: #234;
+    width: 7.5rem;
+    min-width: 7.5rem;
+    height: 3rem;
+    min-height: 3rem;
+}
+
+.param-parent {
+    width: 10rem; 
+    position: absolute
+}
+
+div.param {
+    background-color: #000
+}

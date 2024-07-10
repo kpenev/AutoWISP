@@ -1,6 +1,12 @@
 {% extends 'core/fits_app.html' %}
 {% load static %}
 
+{% block extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'processing/css/tune_starfind.css' %}"/>
+{% endblock extra_head %}
+
+
 {% block header_title %}{% block app_title %}
 Tune Source Extraction
 {% endblock %}{% endblock %}
@@ -13,7 +19,7 @@ Tune Source Extraction
         Save Current
     </div>
 </a>
-<div onclick="updateView('{{updateURL}}')">
+<div onclick="addRegions()">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -23,3 +29,39 @@ Tune Source Extraction
 </div>
 {% endblock left_menu %}
 
+{% block full_view %}
+{{ block.super }}
+
+<div class="param-parent">
+    <div class="param">
+        <label for="brightness-threshold">Brightness threshold:</label>
+        <input class="param"
+               id="brightness-threshold"
+               type="text"
+               value="1000"
+               autocomplete="off">
+    </div>
+    <br/>
+    <div class="param">
+        <label for="filter-sources">Filter sources:</label>
+        <input class="param"
+               id="filter-sources"
+               type="text"
+               value="True"
+               autocomplete="off">
+    </div>
+    <br/>
+    <div class="param">
+        <label for="filter-sources">Max sources:</label>
+        <input class="param"
+               id="filter-sources"
+               type="text"
+               value=""
+               autocomplete="off">
+    </div>
+</div>
+{% endblock full_view %}
+
+{% block add_js %}
+<script src="{% static 'processing/js/tune.starfind.js' %}'"></script>
+{% endblock add_js %}
