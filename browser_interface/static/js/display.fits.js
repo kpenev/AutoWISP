@@ -156,15 +156,16 @@ function initView(viewConfig)
 //Transform given regions from pixel to fractional coordinates.
 function scaleRegions(regions)
 {
-    let x_scale = image.naturalWidth;
-    let y_scale = image.naturalHeight;
-    let r_scale = max(x_scale, y_scale);
+    let x_scale = image.naturalWidth / 100.0;
+    let y_scale = image.naturalHeight / 100.0;
+    let r_scale = Math.max(x_scale, y_scale);
+    alert("Scales: x=" + x_scale + ", y=" + y_scale + ", r=" + r_scale);
     const result = regions.slice();
     for( let i = 0; i < regions.length; i++) {
         for(let param in regions[i]) {
-            if ( param == "x" || param == "width" ) {
+            if ( param == "x" || param == "width" || param == "rx" ) {
                 result[i][param] = regions[i][param] / x_scale;
-            } else if ( param == "x" || param == "width" ) {
+            } else if ( param == "y" || param == "height" || param == "ry" ) {
                 result[i][param] = regions[i][param] / y_scale;
             } else if ( param == "r" ) {
                 result[i][param] = regions[i][param] / r_scale;
@@ -183,7 +184,6 @@ function getRegionsElement()
     let mainParent = document.getElementById("img-parent");
     let boundingRect = mainParent.getBoundingClientRect();
     if ( regionsElement == null ) {
-        alert("creating new regions element");
         regionsElement = document.createElementNS(svgNS, 'svg');
         regionsElement.id = "regions"
         regionsElement.style.position = "absolute";
@@ -203,7 +203,7 @@ function addRegions(
                     //  "shape": <the name of the shape to mark with>
                     //  "x": <shape center x coordinate>
                     //  "y": <shape center y coordinate>
-                    //  ... <other shape parameters e.g. width, height> ...
+                    //  ... <other shape parameters e.g. r, width, height> ...
                     //  "color": <color>    
                     //  "linewidth": <linewidth to draw shape with>
                     //}
@@ -219,17 +219,68 @@ function addRegions(
                     //"frac"
                     units)
 {
+    let regionsElement = getRegionsElement();
+
     if ( units == "px" ) {
         addRegions(scaleRegions(regions));
     }
-    let regionsElement = getRegionsElement();
-    let circ = document.createElementNS(svgNS, 'circle');
-    circ.setAttribute("cx", "50%");
-    circ.setAttribute("cy", "50%");
-    circ.setAttribute("r", "10%");
-    circ.setAttribute("stroke-width", "5");
-    circ.setAttribute("fill", "yellow");
-    regionsElement.appendChild(circ);
+
+    for ( let reg_ind = 0; reg_ind < regions.length; reg_ind++ ) {
+        let reg = regions[reg_ind];
+        const elements = [];
+        if ( reg.shape == "x" || reg.shape == "+" ) {
+            for ( let i = 0; i < 2; i++) {
+                elements.push(document.createElementNS(svgNS, "line"));
+            }
+            let minx = reg.x - reg.width / 2;
+            let miny = reg.y - reg.height / 2;
+            elements[0].setAttribute("x1", minx + "%");
+            elements[0].setAttribute("x2", (minx + reg.width) + "%");
+            elements[1].setAttribute("y1", miny + "%");
+            elements[1].setAttribute("y2", (miny + reg.height) + "%");
+
+            if ( reg.shape == "x" ) {
+                elements[0].setAttribute("y1", miny + "%");
+                elements[0].setAttribute("y2", (miny + reg.height) + "%");
+                elements[1].setAttribute("x1", (minx + reg.width) + "%");
+                elements[1].setAttribute("x2", minx + "%");
+            } else {
+                elements[0].setAttribute("y1", reg.y + "%");
+                elements[0].setAttribute("y2", reg.y + "%");
+                elements[1].setAttribute("x1", reg.x + "%");
+                elements[1].setAttribute("x2", reg.x + "%");
+            }
+        } else {
+            elements.push(document.createElementNS(svgNS, reg.shape));
+            if ( reg.shape == "rect" ) {
+                elements[0].setAttribute("x", (reg.x - reg.width / 2) + "%");
+                elements[0].setAttribute("y", (reg.y - reg.height / 2) + "%");
+                elements[0].setAttribute("width", reg.width + "%");
+                elements[0].setAttribute("height", reg.height + "%");
+            } else {
+                elements[0].setAttribute("cx", reg.x + "%");
+                elements[0].setAttribute("cy", reg.y + "%");
+                if ( reg.shape == "circle" ) {
+                    elements[0].setAttribute("r", reg.r + "%");
+                } else if ( reg.shape == "ellipse" ) {
+                    elements[0].setAttribute("rx", reg.rx + "%");
+                    elements[0].setAttribute("ry", reg.ry + "%");
+                }
+            }
+        }
+        for ( let i = 0; i < elements.length; i++ ) {
+            if ( reg.linewidth !== undefined ) {
+                elements[i].setAttribute("stroke-width", reg.linewidth);
+            }
+            if ( reg.color === undefined ) {
+                elements[i].setAttribute("stroke", "#0f0");
+            } else {
+                elements[i].setAttribute("stroke", reg.color);
+            }
+            elements[i].setAttribute("fill-opacity", "0.0");
+            regionsElement.appendChild(elements[i]);
+        }
+    }
 }
 
 //Submit the currently c{
