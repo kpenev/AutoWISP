@@ -159,7 +159,6 @@ function scaleRegions(regions)
     let x_scale = image.naturalWidth / 100.0;
     let y_scale = image.naturalHeight / 100.0;
     let r_scale = Math.max(x_scale, y_scale);
-    alert("Scales: x=" + x_scale + ", y=" + y_scale + ", r=" + r_scale);
     const result = regions.slice();
     for( let i = 0; i < regions.length; i++) {
         for(let param in regions[i]) {
@@ -217,7 +216,10 @@ function addRegions(
                     //pixels) or "frac" (coordinates are specified as fraction
                     //of the image width for x and height for y). Default is
                     //"frac"
-                    units)
+                    units,
+                   
+                    //delete previous regions before adding the new ones.
+                    replace)
 {
     let regionsElement = getRegionsElement();
 
@@ -225,6 +227,8 @@ function addRegions(
         addRegions(scaleRegions(regions));
     }
 
+    if ( replace )
+        regionsElement.replaceChildren();
     for ( let reg_ind = 0; reg_ind < regions.length; reg_ind++ ) {
         let reg = regions[reg_ind];
         const elements = [];
@@ -278,7 +282,8 @@ function addRegions(
                 elements[i].setAttribute("stroke", reg.color);
             }
             elements[i].setAttribute("fill-opacity", "0.0");
-            regionsElement.appendChild(elements[i]);
+            if ( reg_ind > 0 )
+                regionsElement.appendChild(elements[i]);
         }
     }
 }

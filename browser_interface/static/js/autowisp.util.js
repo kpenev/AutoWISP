@@ -27,5 +27,4 @@ async function postJson(targetURL, data)
         headers: headers,
         credentials: 'include'
     });
-    console.log(response);
 }

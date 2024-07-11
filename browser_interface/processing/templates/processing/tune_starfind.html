@@ -19,7 +19,9 @@ Tune Source Extraction
         Save Current
     </div>
 </a>
-<div onclick="showExtracted()">
+
+{% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
+<div onclick="showExtractedSources('{{ starfindURL }}')">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
@@ -34,12 +36,19 @@ Tune Source Extraction
 
 <div class="param-parent">
     <div class="param">
+        <label for="srcfind-tool">Tool:</label>
+        <input class="param"
+               id="srcfind-tool"
+               type="text"
+               value="fistar">
+    </div>
+    <br/>
+    <div class="param">
         <label for="brightness-threshold">Brightness threshold:</label>
         <input class="param"
                id="brightness-threshold"
                type="text"
-               value="1000"
-               autocomplete="off">
+               value="1000">
     </div>
     <br/>
     <div class="param">
@@ -47,17 +56,15 @@ Tune Source Extraction
         <input class="param"
                id="filter-sources"
                type="text"
-               value="True"
-               autocomplete="off">
+               value="True">
     </div>
     <br/>
     <div class="param">
-        <label for="filter-sources">Max sources:</label>
+        <label for="max-sources">Max sources:</label>
         <input class="param"
-               id="filter-sources"
+               id="max-sources"
                type="text"
-               value=""
-               autocomplete="off">
+               value="">
     </div>
 </div>
 {% endblock full_view %}

@@ -18,14 +18,16 @@ def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
 def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
     """Find sources in the given frame using fistar."""
 
+    command = [
+        'fistar', unpacked_fits_fname,
+        '--sort', 'flux',
+        '--format', ','.join(get_srcextract_columns('fistar')),
+        '--algorithm', 'uplink',
+        '--flux-threshold', repr(threshold)
+    ]
+    print('Running: ' + repr(command))
     return Popen(
-        [
-            'fistar', unpacked_fits_fname,
-            '--sort', 'flux',
-            '--format', ','.join(get_srcextract_columns('fistar')),
-            '--algorithm', 'uplink',
-            '--flux-threshold', repr(threshold)
-        ],
+        command,
         stdout=stdout
     )
 

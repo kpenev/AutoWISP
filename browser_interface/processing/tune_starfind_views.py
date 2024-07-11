@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from sqlalchemy import select
 
+from autowisp import SourceFinder, Evaluator
 from autowisp.database.interface import Session
 from autowisp.database.processing import ProcessingManager
 #False positive
@@ -195,9 +196,31 @@ def tune_starfind(request, imtype, batch_index):
     context['num_images'] = len(batch[1])
     context.update(request.session['fits_display'])
     context['image_index1'] = context['image_index'] + 1
+    context['fits_fname'] = batch[1][image_index][2]
 
     return render(
         request,
         'processing/tune_starfind.html',
         context
     )
+
+
+def find_stars(request, fits_fname):
+    """Run source extraction and respond with the results."""
+
+    request_data = json.loads(request.body.decode())
+    print(f'Request data: {request_data!r}')
+
+    stars = SourceFinder(
+        tool=request_data['srcfind-tool'],
+        brightness_threshold=float(request_data['brightness-threshold']),
+        filter_sources=request_data['filter-sources'],
+        max_sources=int(request_data['max-sources'] or '0'),
+        allow_overwrite=True,
+        allow_dir_creation=True
+    )(
+        fits_fname
+    )
+    print('Found stars:\n' + repr(stars))
+
+    return JsonResponse({'stars': [{'x': s['x'], 'y': s['y']} for s in stars]})
