@@ -143,8 +143,9 @@ def collect_light_curves(dr_filenames,
             mark_end(dr_fname, status=1, final=False)
 
         for _, lc_fname in sources_lc_fnames:
-            with LightCurveFile(lc_fname, 'a') as lc_file:
-                lc_file.confirm_lc_length()
+            if os.path.exists(lc_fname):
+                with LightCurveFile(lc_fname, 'a') as lc_file:
+                    lc_file.confirm_lc_length()
 
         for dr_fname in dr_filenames[num_processed: stop_processing]:
             mark_end(dr_fname, status=1, final=True)
