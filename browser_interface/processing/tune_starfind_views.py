@@ -4,9 +4,9 @@ import json
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from sqlalchemy import select
+from sqlalchemy import select, sql
 
-from autowisp import SourceFinder, Evaluator
+from autowisp import SourceFinder
 from autowisp.database.interface import Session
 from autowisp.database.processing import ProcessingManager
 #False positive
@@ -14,7 +14,11 @@ from autowisp.database.processing import ProcessingManager
 from autowisp.database.data_model import\
     Step,\
     ImageType,\
-    ProcessingSequence
+    ProcessingSequence,\
+    ConditionExpression,\
+    Condition,\
+    Configuration,\
+    Parameter
 from autowisp.database.data_model import provenance
 #pylint: enable=no-name-in-module
 from autowisp.bui_util import encode_fits
@@ -139,6 +143,17 @@ def _get_pending(request):
                 reverse=True,
             )
 
+
+def _get_batch_description(grouping_values, grouping_expressions):
+    """Return as human readable as possible discription of a batch."""
+
+    return ', '.join(
+        expr[1].format(value=value)
+        for value, expr in zip(grouping_values, grouping_expressions)
+        if not isinstance(value, bool) or value
+    )
+
+
 def select_starfind_batch(request, refresh=False):
     """Allow the user to select batch of images to tune star finding for."""
 
@@ -151,6 +166,20 @@ def select_starfind_batch(request, refresh=False):
     if 'fits_display' in request.session:
         del request.session['fits_display']
 
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        configured = set(
+            notes.split(':', 1)[1].strip()
+            for notes in db_session.scalars(
+                select(Condition.notes).where(
+                    Condition.notes.like('BUI tuned source extraction for: %')
+                )
+            ).all()
+        )
+        print('Found configured: ' + repr(configured))
+
     context = {
         'batches': []
     }
@@ -160,19 +189,13 @@ def select_starfind_batch(request, refresh=False):
     ) in request.session['starfind']['pending'].items():
         batch_info = []
         for grouping_values, batch in imtype_batches:
-            batch_info.append(
-                (
-                    ', '.join(
-                        expr[1].format(value=value)
-                        for value, expr in zip(
-                            json.loads(grouping_values),
-                            request.session['starfind']['grouping_expressions']
-                        )
-                        if not isinstance(value, bool) or value
-                    ),
-                    len(batch),
-                )
+            batch_description = _get_batch_description(
+                json.loads(grouping_values),
+                request.session['starfind']['grouping_expressions']
             )
+            batch_info.append((batch_description,
+                               len(batch),
+                               batch_description.strip() in configured))
 
         context['batches'].append((imtype_name, batch_info))
     return render(
@@ -197,6 +220,8 @@ def tune_starfind(request, imtype, batch_index):
     context.update(request.session['fits_display'])
     context['image_index1'] = context['image_index'] + 1
     context['fits_fname'] = batch[1][image_index][2]
+    context['imtype'] = imtype
+    context['batch_index'] = batch_index
 
     return render(
         request,
@@ -208,14 +233,13 @@ def tune_starfind(request, imtype, batch_index):
 def find_stars(request, fits_fname):
     """Run source extraction and respond with the results."""
 
-    request_data = json.loads(request.body.decode())
-    print(f'Request data: {request_data!r}')
+    starfind_config = json.loads(request.body.decode())
 
     stars = SourceFinder(
-        tool=request_data['srcfind-tool'],
-        brightness_threshold=float(request_data['brightness-threshold']),
-        filter_sources=request_data['filter-sources'],
-        max_sources=int(request_data['max-sources'] or '0'),
+        tool=starfind_config['srcfind-tool'],
+        brightness_threshold=float(starfind_config['brightness-threshold']),
+        filter_sources=starfind_config['filter-sources'],
+        max_sources=int(starfind_config['max-sources'] or '0'),
         allow_overwrite=True,
         allow_dir_creation=True
     )(
@@ -224,3 +248,78 @@ def find_stars(request, fits_fname):
     print('Found stars:\n' + repr(stars))
 
     return JsonResponse({'stars': [{'x': s['x'], 'y': s['y']} for s in stars]})
+
+
+def save_starfind_config(request, imtype, batch_index):
+    """Save the currently set extraction configuration to the database."""
+
+    starfind_config = {
+        param: request.POST[param]
+        for param in request.POST if not param.endswith('token')
+    }
+
+
+    condition_values = json.loads(
+        request.session['starfind']['pending'][imtype][batch_index][0]
+    )
+    grouping_expressions = request.session['starfind']['grouping_expressions']
+    assert len(condition_values) == len(grouping_expressions)
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        param_ids = {
+            param: db_session.scalar(
+                select(
+                    Parameter.id
+                ).filter_by(
+                    name=param
+                )
+            )
+            for param in starfind_config
+        }
+        condition_id = db_session.scalar(
+            select(sql.functions.max(Condition.id) + 1)
+        )
+
+        for expression, value in zip(grouping_expressions, condition_values):
+            if isinstance(value, bool):
+                if not value:
+                    continue
+                match_expression = expression[0]
+            else:
+                match_expression = f'{expression[0]} == {value!r}'
+            db_expression = db_session.execute(
+                select(
+                    ConditionExpression
+                ).filter_by(
+                    expression=match_expression
+                )
+            ).scalar_one_or_none()
+            if db_expression is None:
+                db_expression = ConditionExpression(
+                    expression=match_expression,
+                    notes=expression[1].format(value=value)
+                )
+                db_session.add(db_expression)
+                db_session.flush()
+            db_session.add(
+                Condition(id=condition_id,
+                          expression_id=db_expression.id,
+                          notes=(
+                              'BUI tuned source extraction for: '
+                              +
+                              _get_batch_description(condition_values,
+                                                     grouping_expressions)
+                          ))
+            )
+        for param in starfind_config:
+            db_session.add(
+                Configuration(
+                    parameter_id=param_ids[param],
+                    condition_id=condition_id,
+                    version=0,
+                    value=starfind_config[param]
+                )
+            )
+    return redirect('/processing/select_starfind_batch')

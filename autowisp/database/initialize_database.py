@@ -3,10 +3,10 @@
 """Create all datbase tables and define default configuration."""
 
 import re
+import logging
 
 from configargparse import ArgumentParser, DefaultsFormatter
-from sqlalchemy import MetaData
-from sqlalchemy import sql, select
+from sqlalchemy import sql, select, delete, MetaData, update
 
 from autowisp.database.interface import db_engine, Session
 from autowisp.database.data_model.base import DataModelBase
@@ -31,6 +31,7 @@ from autowisp.database.data_model import\
     InputMasterTypes
 #pylint: enable=no-name-in-module
 
+_logger = logging.getLogger(__name__)
 
 master_info =  {
     'mask': {
@@ -583,7 +584,93 @@ def drop_tables_matching(pattern):
         )
 
 
-def initialize_database(cmdline_args):
+def _overwrite_defaults(new_defaults):
+    """Overwrite default values from what is defined in the steps."""
+
+    db_conditions = {}
+    db_expressions = {}
+    #False positivie
+    #pylint: disable=no-member
+    with Session.begin() as db_session:
+    #pylint: enable=no-member
+        for param, all_values in new_defaults.items():
+            param_id = db_session.scalar(
+                select(Parameter.id).filter_by(name=param)
+            )
+            delete_default = True
+            for condition_expressions, value in all_values:
+                if condition_expressions is None:
+                    assert db_session.execute(
+                        update(
+                            Configuration
+                        ).where(
+                            Configuration.parameter_id == param_id
+                        ).values(
+                            value=value
+                        )
+                    ).rowcount == 1
+                    delete_default = False
+                else:
+                    for expression in condition_expressions:
+                        if expression not in db_expressions:
+                            db_session.add(
+                                ConditionExpression(
+                                    expression=expression
+                                )
+                            )
+                            db_expressions[expression] = db_session.scalar(
+                                select(ConditionExpression).filter_by(
+                                    expression=expression
+                                )
+                            )
+
+                    expression_set = frozenset(
+                        db_expressions[expr].id
+                        for expr in condition_expressions
+                    )
+                    _logger.debug('Expression set: %s', repr(expression_set))
+                    condition_id = db_conditions.get(expression_set)
+                    _logger.debug('Corresponding condition id: %s',
+                                  condition_id)
+
+                    if condition_id is None:
+                        condition_id = db_session.scalar(
+                            select(sql.functions.max(Condition.id) + 1)
+                        )
+                        _logger.debug('New condition id: %d',
+                                      condition_id)
+
+                        for expression_id in expression_set:
+                            db_session.add(
+                                Condition(
+                                    id=condition_id,
+                                    expression_id=expression_id
+                                )
+                            )
+                            db_session.flush()
+                        db_conditions[expression_set] = condition_id
+                    db_session.add(
+                        Configuration(
+                            parameter_id=param_id,
+                            condition_id=condition_id,
+                            version=0,
+                            value=value
+                        )
+                    )
+            if delete_default:
+                assert db_session.execute(
+                    delete(
+                        Configuration
+                    ).where(
+                        Configuration.parameter_id == param_id,
+                        Configuration.condition_id == 1,
+                        Configuration.version == 0
+                    )
+                ).rowcount == 1
+
+
+
+def initialize_database(cmdline_args, overwrite_defaults=None):
     """Initialize the database as specified on the command line."""
 
     if cmdline_args.drop_hdf5_structure_tables:
@@ -593,6 +680,9 @@ def initialize_database(cmdline_args):
     DataModelBase.metadata.create_all(db_engine)
     init_processing()
     add_default_hdf5_structures()
+    if overwrite_defaults is None:
+        overwrite_defaults = {'brightness-threshold': [(('False',), None)]}
+    _overwrite_defaults(overwrite_defaults)
 
 
 if __name__ == '__main__':

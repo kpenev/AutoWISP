@@ -20,7 +20,8 @@ from .select_photref_views import\
 from .tune_starfind_views import\
     select_starfind_batch,\
     tune_starfind,\
-    find_stars
+    find_stars,\
+    save_starfind_config
 from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
 

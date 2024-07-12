@@ -21,27 +21,32 @@ function markExtractedSources(sources, marker)
     addRegions(regions, "px", true);
 }
 
-//Ask the server for a new list of extracted sources and display them.
-async function showExtractedSources(starFindURL)
+function getExtractParams()
 {
-    let extract_params = { 
+    let extractParams = { 
         "srcfind-tool": null,
         "brightness-threshold": null, 
         "filter-sources": null, 
         "max-sources": null
     };
 
-    for ( param in extract_params ) {
-        extract_params[param] = document.getElementById(param).value
+    for ( param in extractParams ) {
+        extractParams[param] = document.getElementById(param).value
     }
+    return extractParams;
+}
 
+//Ask the server for a new list of extracted sources and display them.
+async function showExtractedSources(starFindURL)
+{
+    let extractParams = getExtractParams();
     let csrftoken = getCookie('csrftoken');
     let headers = new Headers();
     headers.append('X-CSRFToken', csrftoken);
     headers.append("Content-type", "application/json; charset=UTF-8")
     const response = await fetch(starFindURL, {
         method: "POST",
-        body: JSON.stringify(extract_params),
+        body: JSON.stringify(extractParams),
         headers: headers,
         credentials: 'include'
     })

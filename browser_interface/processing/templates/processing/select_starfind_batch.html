@@ -30,11 +30,13 @@ Tune Source Extraction
     </thead>
     <tbody class="lcars-table select-row">
     {% for batch_info in imtype_entry.1 %}
+    {% if not batch_info.2 %}
     {% url 'processing:tune_starfind' imtype=imtype_entry.0 batch_index=forloop.counter0 as target_url %}
     <tr onclick="window.location='{{target_url}}'">
         <td> {{batch_info.0}} </td>
         <td> {{batch_info.1}} </td>
     </tr>
+    {% endif %}
     {% endfor %}
     </tbody>
 </table>

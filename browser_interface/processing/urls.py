@@ -75,5 +75,10 @@ urlpatterns = [
         'find_stars/<path:fits_fname>',
         views.find_stars,
         name='find_stars'
+    ),
+    path(
+        'save_starfind_config/<slug:imtype>/<int:batch_index>',
+        views.save_starfind_config,
+        name='save_starfind_config'
     )
 ]

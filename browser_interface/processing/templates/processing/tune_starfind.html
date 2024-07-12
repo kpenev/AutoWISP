@@ -12,12 +12,14 @@ Tune Source Extraction
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-    <div class="lcars-element 
-                button 
-                lcars-melrose-bg
-                lcars-u-1-2">
-        Save Current
-    </div>
+    <input type="submit"
+           form="save_config"
+           class="lcars-element 
+                  button 
+                  lcars-melrose-bg
+                  lcars-u-1-2"
+           value="SAVE &#10; CURRENT">
+    </input>
 </a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
@@ -34,11 +36,18 @@ Tune Source Extraction
 {% block full_view %}
 {{ block.super }}
 
-<div class="param-parent">
+{% url 'processing:save_starfind_config' imtype=imtype batch_index=batch_index as save_url %}
+<form id="save_config" 
+      action="{{ save_url }}" 
+      method="post" 
+      class="param-parent">
+    {% csrf_token %}
+
     <div class="param">
         <label for="srcfind-tool">Tool:</label>
         <input class="param"
                id="srcfind-tool"
+               name="srcfind-tool"
                type="text"
                value="fistar">
     </div>
@@ -47,6 +56,7 @@ Tune Source Extraction
         <label for="brightness-threshold">Brightness threshold:</label>
         <input class="param"
                id="brightness-threshold"
+               name="brightness-threshold"
                type="text"
                value="1000">
     </div>
@@ -55,6 +65,7 @@ Tune Source Extraction
         <label for="filter-sources">Filter sources:</label>
         <input class="param"
                id="filter-sources"
+               name="filter-sources"
                type="text"
                value="True">
     </div>
@@ -63,10 +74,11 @@ Tune Source Extraction
         <label for="max-sources">Max sources:</label>
         <input class="param"
                id="max-sources"
+               name="srcextract-max-sources"
                type="text"
-               value="">
+               value="0">
     </div>
-</div>
+</form>
 {% endblock full_view %}
 
 {% block add_js %}
