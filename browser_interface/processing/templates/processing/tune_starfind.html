@@ -23,12 +23,24 @@ Tune Source Extraction
 </a>
 
 {% url 'processing:find_stars' fits_fname=fits_fname as starfindURL %}
-<div onclick="showExtractedSources('{{ starfindURL }}')">
+<div onclick="showSources('{{ starfindURL }}', true)">
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
                 lcars-u-1-1">
         Update
+    </div>
+</div>
+
+{% url 'processing:project_catalog' fits_fname=fits_fname as projectCatURL %}
+<div onclick="showSources('{{ projectCatURL }}', 
+                          false, 
+                          {'shape': 'circle', 'r': 8.0, 'color': '#f00'})">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-1">
+        Project Catalog
     </div>
 </div>
 {% endblock left_menu %}
@@ -40,7 +52,8 @@ Tune Source Extraction
 <form id="save_config" 
       action="{{ save_url }}" 
       method="post" 
-      class="param-parent">
+      class="param-parent"
+      onkeydown="return event.key != 'Enter';">
     {% csrf_token %}
 
     <div class="param">

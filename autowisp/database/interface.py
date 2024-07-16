@@ -9,11 +9,10 @@ db_engine = create_engine(
     #'SuperPhotPipeline',
     #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox_automation',
     #'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
-    'sqlite:///EWDemo.db',
+    'sqlite:///EWDemo.db?timeout=100&uri=true',
     echo=True,
     pool_pre_ping=True,
     pool_recycle=3600,
-    #connect_args={'connect_timeout': 600},
     poolclass=NullPool
 )
 

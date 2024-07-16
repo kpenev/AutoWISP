@@ -1,5 +1,5 @@
 //Display the given sources as markers on top of the FITS image.
-function markExtractedSources(sources, marker)
+function markExtractedSources(sources, replace, marker)
 {
     if ( marker === undefined ) {
         marker = {
@@ -18,7 +18,7 @@ function markExtractedSources(sources, marker)
             new_reg[property] = marker[property];
         regions.push(new_reg);
     }
-    addRegions(regions, "px", true);
+    addRegions(regions, "px", replace);
 }
 
 function getExtractParams()
@@ -37,7 +37,7 @@ function getExtractParams()
 }
 
 //Ask the server for a new list of extracted sources and display them.
-async function showExtractedSources(starFindURL)
+async function showSources(starFindURL, replace, marker)
 {
     let extractParams = getExtractParams();
     let csrftoken = getCookie('csrftoken');
@@ -51,13 +51,16 @@ async function showExtractedSources(starFindURL)
         credentials: 'include'
     })
         .then((response) => {
+            console.log(response);
             return response.json();
         })
         .then((data) => {
             console.log(data);
-            markExtractedSources(data.stars);
+            if ( data.stars.length == 0 )
+                alert(data.message);
+            markExtractedSources(data.stars, replace, marker);
         })
         .catch(function(error) {
-            alert("Source extraction failed:" + error);
+            alert("Adding sources failed:" + error);
         })
 }

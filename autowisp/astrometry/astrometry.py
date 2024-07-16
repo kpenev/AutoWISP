@@ -192,7 +192,7 @@ def estimate_transformation_from_corr(initial_corr,
 class TempAstrometryFiles:
     """Context manager for the temporary files needed for astrometry."""
 
-    def __init__(self, file_types = ('sources', 'corr', 'axy')):
+    def __init__(self, file_types = ('sources', 'corr', 'axy', 'config')):
         """Create all required temporary files."""
 
         self._file_types = file_types
@@ -232,20 +232,40 @@ def create_sources_file(xy_extracted, sources_fname):
     return xy_extracted
 
 
+def create_config_file(config_fname, fov_range, anet_indices):
+    """Create configuration file set up to solve imaves FOV in given range."""
+
+    with open(config_fname, 'w', encoding='utf-8') as config_file:
+        if min(fov_range) < 2.0:
+            config_file.write(f'add_path {anet_indices[0]}\n')
+        if max(fov_range) > 0.5:
+            config_file.write(f'add_path {anet_indices[1]}\n')
+
+        config_file.write('autoindex\n')
+
+    with  open(config_fname, 'r', encoding='utf-8') as config_file:
+        _logger.debug('Astrometry.net engine config:\n%s',
+                      config_file.read())
+
+
 def get_initial_corr_local(header,
                            xy_extracted,
                            tweak_order_range,
-                           fov_range):
+                           fov_range,
+                           anet_indices):
     """Get inital extracted to catalog source match using ``solve-field``."""
 
     with TempAstrometryFiles() as (sources_fname,
                                    corr_fname,
-                                   axy_fname):
+                                   axy_fname,
+                                   config_fname):
         xy_extracted = create_sources_file(xy_extracted, sources_fname)
-        for tweak in range(*tweak_order_range):
+        create_config_file(config_fname, fov_range, anet_indices)
+        for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
             solve_field_command = [
                 'solve-field',
                 sources_fname,
+                '--backend-config', config_fname,
                 '--corr', corr_fname,
                 '--width', str(header['NAXIS1']),
                 '--height', str(header['NAXIS2']),
@@ -381,6 +401,7 @@ def estimate_transformation(*,
                             fov_range,
                             ra_cent,
                             dec_cent,
+                            anet_indices,
                             header=None):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
 
@@ -390,7 +411,8 @@ def estimate_transformation(*,
         header,
         xy_extracted,
         tweak_order_range,
-        fov_range
+        fov_range,
+        anet_indices
     )
 
     if tweak_order == 0:

@@ -64,6 +64,12 @@ def parse_command_line(*args):
     )
 
     parser.add_argument(
+        '--anet-indices',
+        nargs=2,
+        default=('/data/anet_indices/narrow', '/data/anet_indices/wide'),
+        help='Full paths to the narrow and wide astometry.net index files.'
+    )
+    parser.add_argument(
         '--frame-center-estimate',
         nargs=2,
         type=str,
@@ -504,6 +510,7 @@ def solve_image(dr_fname,
                     fov_estimate / configuration['image_scale_factor'],
                     fov_estimate * configuration['image_scale_factor']
                 ),
+                anet_indices=configuration['anet_indices'],
                 **transformation_estimate,
                 header=header
             )

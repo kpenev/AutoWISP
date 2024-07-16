@@ -127,7 +127,7 @@ class Transformation:
         Return the projected positions of the given catalogue sources.
 
         Args:
-            sources(structure numpy array or pandas.DataFrame):    The
+            sources(structured numpy array or pandas.DataFrame):    The
                 catalogue sources to project.
 
             save_intermediate(bool):    If True, the result includes the

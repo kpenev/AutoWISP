@@ -1,14 +1,23 @@
 """Implement views for tuning source extraction."""
 
 import json
+import sys
+from traceback import print_exc
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from sqlalchemy import select, sql
 
-from autowisp import SourceFinder
+from autowisp import SourceFinder, Evaluator
 from autowisp.database.interface import Session
 from autowisp.database.processing import ProcessingManager
+from autowisp.astrometry import estimate_transformation
+from autowisp.fits_utilities import get_primary_header
+from autowisp.catalog import ensure_catalog
+from autowisp.processing_steps.solve_astrometry import \
+    construct_transformation,\
+    prepare_configuration
+from autowisp.processing_steps.manual_util import get_catalog_config
 #False positive
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
@@ -245,9 +254,76 @@ def find_stars(request, fits_fname):
     )(
         fits_fname
     )
-    print('Found stars:\n' + repr(stars))
+    request.session['extracted'] = {c: list(stars[c]) for c in 'xy'}
+    stars = {'stars': [{'x': s['x'], 'y': s['y']} for s in stars]}
+    return JsonResponse(stars)
 
-    return JsonResponse({'stars': [{'x': s['x'], 'y': s['y']} for s in stars]})
+
+def project_catalog(request, fits_fname):
+    """Solve for astrometry with current extracted stars and project catalog."""
+
+    try:
+        header = get_primary_header(fits_fname)
+        evaluate = Evaluator(header)
+        processing = ProcessingManager(dummy=True)
+        config = prepare_configuration(
+            processing.get_config(
+                matched_expressions=processing.get_matched_expressions(
+                    evaluate
+                ),
+                step_name='solve_astrometry'
+            )[0],
+            header
+        )
+        fov_estimate = max(config['frame_fov_estimate']).to_value('deg')
+        config['frame_center_estimate'] = [
+            evaluate(val).to_value('deg')
+            for val in config['frame_center_estimate']
+        ]
+
+        approx_trans = {
+            coord + '_cent': value
+            for coord, value in zip(['ra', 'dec'], config['frame_center_estimate'])
+        }
+
+        print('Extracted: ' + repr(request.session['extracted']))
+
+        (
+            approx_trans['trans_x'],
+            approx_trans['trans_y'],
+            status
+        ) = estimate_transformation(
+            dr_file=None,
+            xy_extracted=request.session['extracted'],
+            astrometry_order=config['tweak_order'][1],
+            tweak_order_range=(config['tweak_order'][0],
+                               config['tweak_order'][1] + 1),
+            fov_range=(fov_estimate / config['image_scale_factor'],
+                       fov_estimate * config['image_scale_factor']),
+            ra_cent=config['frame_center_estimate'][0],
+            dec_cent=config['frame_center_estimate'][1],
+            anet_indices=config['anet_indices'],
+            header=header
+        )
+        if status != 'success':
+            return JsonResponse({
+                'stars': [],
+                'message': 'Projecting catalog sources failed!'
+            })
+        approx_trans = construct_transformation(approx_trans)
+
+        catalog = ensure_catalog(
+            transformation=approx_trans,
+            header=header,
+            configuration=get_catalog_config(config, 'astrometry'),
+        )[0]
+        projected = approx_trans(catalog)
+        return JsonResponse({
+            'stars': [{'x': s['x'], 'y': s['y']} for s in projected]
+        })
+    except:
+        print_exc()
+        raise
 
 
 def save_starfind_config(request, imtype, batch_index):
@@ -257,7 +333,6 @@ def save_starfind_config(request, imtype, batch_index):
         param: request.POST[param]
         for param in request.POST if not param.endswith('token')
     }
-
 
     condition_values = json.loads(
         request.session['starfind']['pending'][imtype][batch_index][0]

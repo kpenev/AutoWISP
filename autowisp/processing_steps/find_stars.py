@@ -130,6 +130,7 @@ def find_stars(image_collection,
 def cleanup_interrupted(interrupted, configuration):
     """Remove the extracted stars from the DR of the given calibrated image."""
 
+    DataReductionFile.fname_template = configuration['data_reduction_fname']
     for image_fname, status in interrupted:
         assert status == 0
 

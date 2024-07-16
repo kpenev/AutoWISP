@@ -662,7 +662,7 @@ class ProcessingManager:
         }
 
 
-    def _get_matched_expressions(self, evaluate):
+    def get_matched_expressions(self, evaluate):
         """Return set of matching expressions given an evaluator for image."""
 
         def check(expr):
@@ -734,7 +734,7 @@ class ProcessingManager:
         evaluate.symtable['IMAGE_TYPE'] = image.image_type.name
         evaluate.symtable['OBS_SESN'] = image.observing_session.label
         self._logger.debug('Matched expressions: %s',
-                           repr(self._get_matched_expressions(evaluate)))
+                           repr(self.get_matched_expressions(evaluate)))
         skip_evaluate = image.id in self._evaluated_expressions
         if not skip_evaluate:
             self._evaluated_expressions[image.id] = {}
@@ -748,7 +748,7 @@ class ProcessingManager:
                                  channel_slice)
 
             calib_config = self.get_config(
-                self._get_matched_expressions(evaluate),
+                self.get_matched_expressions(evaluate),
                 step_name='calibrate',
             )[0]
             self._logger.debug('Raw HDU for channel %s (%s) of %s: %s',
@@ -1466,7 +1466,7 @@ class ProcessingManager:
                         )
 
             self._processing_config = self.get_config(
-                self._get_matched_expressions(Evaluator()),
+                self.get_matched_expressions(Evaluator()),
                 step_name='add_images_to_db',
             )[0]
             del self._processing_config['processing_step']
@@ -2005,7 +2005,7 @@ class ProcessingManager:
             None
         """
 
-        matched_expressions = self._get_matched_expressions(
+        matched_expressions = self.get_matched_expressions(
             Evaluator(example_header)
         )
         if isinstance(outf, str):

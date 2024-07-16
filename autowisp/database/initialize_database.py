@@ -681,7 +681,11 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
     init_processing()
     add_default_hdf5_structures()
     if overwrite_defaults is None:
-        overwrite_defaults = {'brightness-threshold': [(('False',), None)]}
+        overwrite_defaults = {param: [(('False',), None)]
+                              for param in ['srcfind-tool',
+                                            'brightness-threshold',
+                                            'filter-sources',
+                                            'srcextract-max-sources']}
     _overwrite_defaults(overwrite_defaults)
 
 

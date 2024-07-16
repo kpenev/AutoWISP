@@ -21,6 +21,7 @@ from .tune_starfind_views import\
     select_starfind_batch,\
     tune_starfind,\
     find_stars,\
+    project_catalog,\
     save_starfind_config
 from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
