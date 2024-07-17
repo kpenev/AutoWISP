@@ -11,7 +11,10 @@ AutoWISP Reductions Progress
 {% endif %}
 <link rel="stylesheet" 
       href="{% static 'processing/css/jquery.orgchart.css' %}">
+<link rel="stylesheet" 
+      href="{% static 'processing/css/progress_bar.css' %}">
 <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+
 <style type="text/css">
 #chart-container { text-align: left; }
 
@@ -75,7 +78,8 @@ Processing Progress
         <td>{{ imtype }}</td>
         {% url 'processing:select_photref_target' as photrefsel_url %}
         {% url 'processing:select_starfind_batch' as tune_starfind_url %}
-        {% for final, pending, by_status in by_channel %}
+        {% for success, failure, pending, by_status in by_channel %}
+        {% with final=success|add:failure %}
         {% with total=final|add:pending %}
         <td>
             <table>
@@ -89,16 +93,19 @@ Processing Progress
                         <a href="{{tune_starfind_url}}">
                         Click to tune source extraction<br/>
                         {% endif %}
-                        <div id="progress-with-label" 
-                             style="width: 100%">
-                            <span style="width: {% widthratio final total 100 %}%">
-                                {{final}}/{{total}}
+                        <div id="progress-with-label">
+                            <span style="width: {% widthratio final total 100 %}%;">
+                                {{success}}/{{total}}
+                                {% if failure > 0 %}
+                                | {{failure}}/{{total}}
+                                {% endif %}
                             </span>
-                            <progress value="{{ final }}" 
-                                      max="{{ total }}" 
-                                      class="lcars-u-2 lcars-rust-bg"
-                                      style="foreground-color:black">
-                            </progress>
+                            <div class="progress-success" 
+                                 style="width: {% widthratio success total 100 %}%">
+                            </div>
+                            <div class="progress-failure" 
+                                 style="width: {% widthratio failure total 100 %}%">
+                            </div>
                         </div>
                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
                         </a">
@@ -114,11 +121,9 @@ Processing Progress
                             <span style="width:{% widthratio count pending 100 %}%">
                                 {{count}}/{{pending}}
                             </span>
-                            <progress value="{{ count }}" 
-                                      max="{{ pending }}" 
-                                      class="lcars-u-1 lcars-rust-bg"
-                                      style="foreground-color:black">
-                            </progress>
+                            <div class="progress-success" 
+                                 style="width: {% widthratio count pending 100 %}%">
+                            </div>
                         </div>
                     </td>
 
@@ -126,6 +131,7 @@ Processing Progress
                 {% endfor %}
             </table>
         </td>
+        {% endwith %}
         {% endwith %}
         {% endfor %}
         <td class="dropdown">

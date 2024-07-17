@@ -40,7 +40,7 @@ def progress(request):
             [
                 step.name.split('_'),
                 imtype.name,
-                [[0, 0, []] for _ in context['channels']],
+                [[0, 0, 0, []] for _ in context['channels']],
                 []
             ]
             for step, imtype in processing_sequence
@@ -51,15 +51,14 @@ def progress(request):
                                                      imtype.id,
                                                      0,
                                                      db_session)
-            assert len(final) <= len(context['channels'])
-            for channel, _, count in final:
-                destination[2][channel_index[channel]][0] = (count or 0)
+            for channel, status, count in final:
+                destination[2][channel_index[channel]][0 if status > 0 else 1] = (count or 0)
 
             for channel, count in pending:
-                destination[2][channel_index[channel]][1] = (count or 0)
+                destination[2][channel_index[channel]][2] = (count or 0)
 
             for channel, status, count in by_status:
-                destination[2][channel_index[channel]][2].append(
+                destination[2][channel_index[channel]][3].append(
                     (status, (count or 0))
                 )
             destination[3] = [

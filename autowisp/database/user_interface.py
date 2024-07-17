@@ -120,8 +120,9 @@ def get_progress(step_id, image_type_id, config_version, db_session):
 
     Returns:
         [str, int, int]:    Information on the images in final state. The
-            entries are channel name, status, number of images of that channel
-            that have that status which is flagged final.
+            entries are channel name, example status (>0 indicates success <0
+            indicates falure), number of images of that channel
+            that have that status sign and are flagged final.
 
         [str, int]:    Information about the images not in final state. The
             entries are channel name, number of non-final images of that
@@ -187,7 +188,8 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         processed_select.where(
             ProcessedImages.final
         ).group_by(
-            ProcessedImages.channel
+            ProcessedImages.status > 0,
+            ProcessedImages.channel,
         )
     ).all()
     by_status = db_session.execute(

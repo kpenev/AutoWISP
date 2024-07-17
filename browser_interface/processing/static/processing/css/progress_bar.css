@@ -11,19 +11,28 @@ progress::-webkit-progress-bar {
     display: inline-block;
     color: #fff;
     text-align: center;
+    white-space:nowrap!important;
 }
 
 #progress-with-label {
-    display: block;
+    display: flex;
     position: relative;
-    width: 100%;
-    class="w3-grey";
+    width: 15.25rem;
+    min-width: 100%;
+    border: 1px solid white;
+    height: 1rem;
+    min-height: 1.2rem;
+    background-color: #000;
+}
+
+.progress-failure {
+    background-color: #b41;
+}
+
+.progress-success {
+    background-color: blue;
 }
 
 progress {
     width: 100%;
-}
-
-tr:nth-child(even) {
-  background-color: #D6EEEE;
 }
