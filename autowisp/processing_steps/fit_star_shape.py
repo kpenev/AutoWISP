@@ -2,7 +2,7 @@
 
 """Fit a model for the shape of stars (PSF or PRF) in images."""
 
-from multiprocessing import Pool, Lock
+from multiprocessing import Pool, Manager
 import logging
 from functools import partial
 from os import getpid
@@ -730,13 +730,13 @@ def fit_star_shape(image_collection,
             fit_frame_set(frame_set, configuration, mark_start, mark_end)
     else:
         configuration['parent_pid'] = getpid()
-        catalog_lock = Lock()
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,
                 initargs=(configuration,),
                 maxtasksperchild=1
-        ) as pool:
+        ) as pool, Manager() as manager:
+            catalog_lock = manager.Lock()
             pool.map(
                 partial(fit_frame_set,
                         configuration=configuration,
