@@ -105,6 +105,14 @@ def parse_command_line(*args):
         'frame coordinates is allowed to depend on.'
     )
     parser.add_argument(
+        '--min-source-safety-factor', '--src-safety-factor',
+        type=float,
+        default=5.0,
+        help='When solving for transformation coefficients the number of '
+        'matched stars must exceed the number of free parameters by at least '
+        'this factor.'
+    )
+    parser.add_argument(
         '--tweak-order',
         type=int,
         nargs=2,
@@ -375,6 +383,7 @@ def find_final_transformation(header,
             ],
             max_iterations=configuration['max_astrom_iter'],
             trans_threshold=configuration['trans_threshold'],
+            min_source_safety_factor=configuration['min_source_safety_factor'],
             **transformation_estimate,
         )
         project_to_frame = construct_transformation(transformation_estimate)

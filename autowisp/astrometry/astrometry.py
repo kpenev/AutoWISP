@@ -452,7 +452,8 @@ def refine_transformation(*,
                           x_frame,
                           y_frame,
                           xy_extracted,
-                          catalog):
+                          catalog,
+                          min_source_safety_factor=5.0):
     """
     Iterate the process until we get a transformation that
     its difference from the previous one is less than a threshold
@@ -649,7 +650,9 @@ def refine_transformation(*,
         )
         print(trans_matrix.shape)
 
-        if trans_matrix.shape[0] <= 5 * trans_matrix.shape[1]:
+        if trans_matrix.shape[0] <= (min_source_safety_factor
+                                     *
+                                     trans_matrix.shape[1]):
             raise ValueError('The number of equations is '
                              'insufficient to solve transformation '
                              'coefficients')
