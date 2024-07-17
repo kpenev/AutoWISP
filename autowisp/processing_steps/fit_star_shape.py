@@ -2,10 +2,11 @@
 
 """Fit a model for the shape of stars (PSF or PRF) in images."""
 
-from multiprocessing import Pool
+from multiprocessing import Pool, Lock
 import logging
 from functools import partial
 from os import getpid
+from contextlib import nullcontext
 
 import numpy
 import pandas
@@ -541,7 +542,7 @@ class SourceListCreator:
 #pylint: enable=too-many-instance-attributes
 
 
-def create_source_list_creator(dr_fnames, configuration):
+def create_source_list_creator(dr_fnames, configuration, catalog_lock):
     """Return a fully configured instance of SourceListCreator."""
 
     return SourceListCreator(
@@ -549,7 +550,8 @@ def create_source_list_creator(dr_fnames, configuration):
             dr_files=dr_fnames,
             configuration=get_catalog_config(configuration, 'photometry'),
             return_metadata=False,
-            skytoframe_version=configuration['skytoframe_version']
+            skytoframe_version=configuration['skytoframe_version'],
+            lock=catalog_lock
         ),
         fit_variables=configuration['map_variables'],
         grouping=SplitSources(
@@ -605,7 +607,11 @@ def get_shape_fitter_config(configuration):
     return result
 
 
-def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
+def fit_frame_set(frame_filenames,
+                  configuration,
+                  mark_start,
+                  mark_end,
+                  catalog_lock=nullcontext()):
     """
     Perform a simultaneous fit of all frames included in frame_filenames.
     Args:
@@ -643,7 +649,9 @@ def fit_frame_set(frame_filenames, configuration, mark_start, mark_end):
 
 
     dr_fnames = [get_dr_fname(f) for f in frame_filenames]
-    get_sources = create_source_list_creator(dr_fnames, configuration)
+    get_sources = create_source_list_creator(dr_fnames,
+                                             configuration,
+                                             catalog_lock)
     logger.debug('Created source getter')
 
     shape_fitter_config = get_shape_fitter_config(configuration)
@@ -722,6 +730,7 @@ def fit_star_shape(image_collection,
             fit_frame_set(frame_set, configuration, mark_start, mark_end)
     else:
         configuration['parent_pid'] = getpid()
+        catalog_lock = Lock()
         with Pool(
                 processes=configuration['num_parallel_processes'],
                 initializer=setup_process_map,
@@ -732,7 +741,8 @@ def fit_star_shape(image_collection,
                 partial(fit_frame_set,
                         configuration=configuration,
                         mark_start=mark_start,
-                        mark_end=mark_end),
+                        mark_end=mark_end,
+                        catalog_lock=catalog_lock),
                 fit_arguments
             )
 
