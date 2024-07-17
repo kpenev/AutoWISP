@@ -52,7 +52,13 @@ def progress(request):
                                                      0,
                                                      db_session)
             for channel, status, count in final:
-                destination[2][channel_index[channel]][0 if status > 0 else 1] = (count or 0)
+                destination[
+                    2
+                ][
+                    channel_index[channel]
+                ][
+                    0 if status > 0 else 1
+                ] = (count or 0)
 
             for channel, count in pending:
                 destination[2][channel_index[channel]][2] = (count or 0)
@@ -90,6 +96,8 @@ def progress(request):
             )
         ):
             if pid_exists(check_running.process_id):
+                print(f'Calibration process with ID {check_running.process_id}'
+                      'still exists.')
                 context['running'] = True
                 context['refresh_seconds'] = 5
             else:

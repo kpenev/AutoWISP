@@ -1012,6 +1012,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """Create the datasets and attributes holding the fit results."""
 
         psf_parameters = fit_results['coefficients'].keys()
+        logging.getLogger(__name__).debug(
+            'Writing the following data to srcextract.psf_map dataset: %s',
+            repr([
+                fit_results['coefficients'][param_name]
+                for param_name in psf_parameters
+            ])
+        )
         self.add_dataset('srcextract.psf_map',
                          numpy.stack(fit_results['coefficients'][param_name]
                                      for param_name in psf_parameters),

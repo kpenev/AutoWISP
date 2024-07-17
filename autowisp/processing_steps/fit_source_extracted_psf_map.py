@@ -228,6 +228,10 @@ def smooth_srcextract_psf(dr_fname,
                 max_rej_iter=configuration.max_rej_iter,
                 fit_identifier=f'Extracted sources PSF {param_name:s} map'
             )
+            if fit_results['coefficients'][param_name] is None:
+                mark_start(dr_fname)
+                mark_end(dr_fname, -2)
+                return
 
         mark_start(dr_fname)
         dr_file.save_source_extracted_psf_map(
@@ -289,7 +293,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove the source extracted PSF map from the given DR file."""
 
     for dr_fname, status in interrupted:
-        assert status is None
+        assert status == 0
 
         with DataReductionFile(dr_fname, 'r+') as dr_file:
             path_substitutions = {
