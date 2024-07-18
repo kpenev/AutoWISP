@@ -43,6 +43,7 @@
 <div class="lcars-bar horizontal spacer"></div>
 {% endif %}
 
+{% with image_index1=image_index|add:"1" %}
 <div class="lcars-bar
             {% if image_index1 > 1 %}
             button
@@ -87,7 +88,7 @@
         next image >>>
     </div>
 </div>
-
+{% endwith %}
 {% endblock header_bar_extra %}
 
 {% block footer_bar_extra %}

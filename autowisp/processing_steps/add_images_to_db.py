@@ -83,9 +83,9 @@ def parse_command_line(*args):
     )
     parser.add_argument(
         '--observatory-location',
-        metavar=('LATITUDE', 'LONGITUDE'),
-        default=['LAT_OBS', 'LONG_OBS'],
-        nargs=2,
+        metavar=('LATITUDE', 'LONGITUDE', 'ALTITUDE'),
+        default=['LAT_OBS', 'LONG_OBS', 'ALT_OBS'],
+        nargs=3,
         help='The latitude and longitude of the observatory from where the '
         'images were collected. Can be arbitrary expression involving header '
         'keywords. Must already have an entry in the ``observatory`` table '
@@ -202,7 +202,8 @@ def _match_observatory(db_observatory, image_location):
 
     db_location = EarthLocation(
         lat=db_observatory.latitude * units.deg,
-        lon=db_observatory.longitude * units.deg
+        lon=db_observatory.longitude * units.deg,
+        height=db_observatory.altitude * units.m
     )
     return (
         (image_location.x - db_location.x)**2
@@ -219,13 +220,14 @@ def get_observatory(header_eval, configuration, db_session):
 
     _logger.debug('Observatory location: %s',
                   repr(configuration['observatory_location']))
-    latitude, longitude = (
+    latitude, longitude, altitude = (
         header_eval(expression)
         for expression in configuration['observatory_location']
     )
     image_location = EarthLocation(
         lat=latitude * units.deg,
-        lon=longitude * units.deg
+        lon=longitude * units.deg,
+        height=altitude * units.m
     )
 
     if configuration['observatory'] is None:

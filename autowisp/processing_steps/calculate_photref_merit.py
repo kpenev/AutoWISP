@@ -41,6 +41,16 @@ def parse_command_line(*args):
                                 'srcproj')
     )
     parser.add_argument(
+        '--observatory-location',
+        metavar=('LATITUDE', 'LONGITUDE', 'ALTITUDE'),
+        default=['LAT_OBS', 'LONG_OBS', 'ALT_OBS'],
+        nargs=3,
+        help='The latitude, longitude and altitude of the observatory from '
+        'where the images were collected. Can be arbitrary expression involving'
+        ' header keywords.'
+    )
+
+    parser.add_argument(
         '--bg-map-fit-terms-expression', '--bg-map-terms',
         default='O3{x, y}',
         help='An expression involving the x and y source coordinates for the '
@@ -128,12 +138,18 @@ def get_typical_star(dr_fnames,
     return getattr(source_averaged, frame_average)()
 
 
-def get_center_zenith_distance(header, astrometry):
+def get_center_zenith_distance(header, astrometry, config):
     """Return the zenith distance of the center of the frame."""
 
-    location = EarthLocation(lat=header['SITELAT'] * units.deg,
-                             lon=header['SITELONG'] * units.deg,
-                             height=header['SITEALT'] * units.m)
+    header_eval = Evaluator(header)
+    latitude, longitude, altitude = (
+        header_eval(expression)
+        for expression in config['observatory_location']
+    )
+
+    location = EarthLocation(lat=latitude * units.deg,
+                             lon=longitude * units.deg,
+                             height=altitude * units.m)
     obs_time = Time(header['JD-OBS'], format='jd', location=location)
     source_coords = SkyCoord(
         ra=astrometry.pre_projection_center[0] * units.deg,
@@ -170,6 +186,8 @@ def get_center_background(dr_file,
     source_positions['x'] -= header['NAXIS1'] / 2
     source_positions['y'] -= header['NAXIS2'] / 2
 
+    print('Source positions: ' + repr(source_positions))
+
     fit_terms = FitTermsInterface(fit_terms_expression)(source_positions)
     measured_bg = dr_file.get_dataset('bg.value', **dr_path_substitutions)
     coef, square_residual, num_fit = iterative_fit(
@@ -192,6 +210,7 @@ def get_center_background(dr_file,
 def get_frame_merit_info(dr_fname,
                          typical_star,
                          bg_fit_config,
+                         config,
                          **dr_path_substitutions):
     """Return the properties relevant for calculating the merit of given DR."""
 
@@ -201,7 +220,7 @@ def get_frame_merit_info(dr_fname,
         astrometry.read_transformation(dr_file, **dr_path_substitutions)
         result = {
             'dr': dr_fname,
-            'z': get_center_zenith_distance(header, astrometry)
+            'z': get_center_zenith_distance(header, astrometry, config)
         }
 
         typical_star['RA'] = astrometry.pre_projection_center[0]
@@ -255,6 +274,7 @@ def calculate_photref_merit(dr_filenames, config):
         get_frame_merit_info(dr_fname,
                              typical_star,
                              bg_fit_config,
+                             config,
                              **dr_path_substitutions)
         for dr_fname in dr_filenames
     )
