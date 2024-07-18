@@ -247,7 +247,13 @@ step_dependencies = [
     ),
     (
         'calculate_photref_merit', 'object',
-        []
+        [
+            ('calibrate', 'object'),
+            ('find_stars', 'object'),
+            ('solve_astrometry', 'object'),
+            ('fit_star_shape', 'object'),
+            ('fit_source_extracted_psf_map', 'object'),
+        ]
     )
 ]
 
@@ -541,14 +547,15 @@ def init_processing():
         ):
             if step_name not in db_steps:
                 db_steps[step_name] = add_processing_step(step_name, db_session)
-            db_session.add(
-                ProcessingSequence(
-                    id = processing_id,
-                    step_id=db_steps[step_name].id,
-                    image_type_id=(None if image_type is None
-                                   else image_type_list.index(image_type) + 1)
+            if step_name not in ['add_images_to_db', 'calculate_photref_merit']:
+                db_session.add(
+                    ProcessingSequence(
+                        id = processing_id,
+                        step_id=db_steps[step_name].id,
+                        image_type_id=(None if image_type is None
+                                       else image_type_list.index(image_type) + 1)
+                    )
                 )
-            )
             for required_step, required_imtype in dependencies:
                 db_session.add(
                     StepDependencies(
