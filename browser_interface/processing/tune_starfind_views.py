@@ -3,6 +3,7 @@
 import json
 import sys
 from traceback import print_exc
+from functools import reduce
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -127,6 +128,8 @@ def _get_pending(request):
         ).all()
 
         pending = processing.get_pending(db_session, find_star_steps)
+        if not reduce(lambda x, y: bool(x) or bool(y), pending.values(), False):
+            pending = processing.get_pending(db_session, find_star_steps, True)
         for step, imtype in find_star_steps:
             grouping = {}
             for image, channel in pending[step.id, imtype.id]:

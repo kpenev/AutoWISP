@@ -1608,7 +1608,7 @@ class ProcessingManager:
         return result
 
 
-    def get_pending(self, db_session, steps_imtypes=None):
+    def get_pending(self, db_session, steps_imtypes=None, invert=False):
         """
         Return the unprocessed images and channels split by step and image type.
 
@@ -1618,6 +1618,8 @@ class ProcessingManager:
             steps_imtypes(Step, ImageType):    The step image type combinations
                 to determine pending images for. If unspecified, the full
                 processing sequence defined in the database is used.
+
+            invert(bool):    If True, returns completed instead of pending.
 
         Returns:
             {(step.id, image_type.id): (Image, str)}:
@@ -1657,26 +1659,27 @@ class ProcessingManager:
                 ProcessedImages.final
             ).subquery()
 
-            pending[(step.id, image_type.id)] = db_session.execute(
-                select_image_channel.outerjoin(
-                    processed_subquery,
-                    #False positive
-                    #pylint: disable=no-member
-                    and_(Image.id == processed_subquery.c.image_id,
-                         CameraChannel.name == processed_subquery.c.channel),
-                    #pylint: enable=no-member
-                ).where(
-                    #This is how NULL comparison is done in SQLAlchemy
-                    #pylint: disable=singleton-comparison
-                    processed_subquery.c.image_id == None
-                    #pylint: enable=singleton-comparison
-                ).where(
-                    #False positive
-                    #pylint: disable=no-member
-                    Image.image_type_id == image_type.id
-                    #pylint: enable=no-member
-                )
-            ).all()
+            query = select_image_channel.outerjoin(
+                processed_subquery,
+                #False positive
+                #pylint: disable=no-member
+                and_(Image.id == processed_subquery.c.image_id,
+                     CameraChannel.name == processed_subquery.c.channel),
+                #pylint: enable=no-member
+            ).where(
+                #False positive
+                #pylint: disable=no-member
+                Image.image_type_id == image_type.id
+                #pylint: enable=no-member
+            )
+            #This is how NULL comparison is done in SQLAlchemy
+            #pylint: disable=singleton-comparison
+            if invert:
+                query = query.where(processed_subquery.c.image_id != None)
+            else:
+                query = query.where(processed_subquery.c.image_id == None)
+            #pylint: enable=singleton-comparison
+            pending[(step.id, image_type.id)] = db_session.execute(query).all()
             self._logger.debug(
                 'Identified %d %s images for which %s is pending',
                 len(pending[(step.id, image_type.id)]),
