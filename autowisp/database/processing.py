@@ -520,7 +520,7 @@ class ProcessingManager:
             result[candidate_masters[channel_list[0]][0].filename] = batch
         else:
             for image, channel in batch:
-                best_master = self._get_best_master(candidate_masters,
+                best_master = self._get_best_master(candidate_masters[channel],
                                                     image,
                                                     channel)
                 if best_master in result:
