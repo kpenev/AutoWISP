@@ -231,6 +231,7 @@ class ManualStepArgumentParser(ArgumentParser):
                  description,
                  add_component_versions=(),
                  add_catalog=False,
+                 add_photref=False,
                  inputs_help_extra='',
                  allow_parallel_processing=False,
                  convert_to_dict=True,
@@ -391,6 +392,16 @@ class ManualStepArgumentParser(ArgumentParser):
 
         if add_exposure_timing:
             self._add_exposure_timing()
+
+        if add_photref:
+            self.add_argument(
+                '--single-photref-dr-fname',
+                default='single_photref.hdf5.0',
+                help='The name of the data reduction file of the single '
+                'photometric reference to use or used to start the magnitude '
+                'fitting iterations.'
+            )
+
 
 
     def add_argument(self, *args, **kwargs):
