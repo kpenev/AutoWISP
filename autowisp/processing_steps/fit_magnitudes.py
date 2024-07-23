@@ -36,6 +36,7 @@ def parse_command_line(*args):
                                 'shapefit',
                                 'apphot',
                                 'magfit'),
+        add_photref=True,
         allow_parallel_processing=True
     )
     parser.add_argument(
@@ -44,12 +45,6 @@ def parse_command_line(*args):
         help='Expression involving the header of the input images that '
         'evaluates to True/False if a particular image from the specified '
         'image collection should/should not be processed.'
-    )
-    parser.add_argument(
-        '--single-photref-dr-fname',
-        default='single_photref.hdf5.0',
-        help='The name of the data reduction file of the single photometric '
-        'reference to use to start the magnitude fitting iterations.'
     )
     parser.add_argument(
         '--master-photref-fname',

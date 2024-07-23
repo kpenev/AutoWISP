@@ -129,6 +129,14 @@ def _get_frame_datasets():
                     ' the light curve.'
                 ),
                 (
+                    'RAWFNAME',
+                    'RawFileName',
+                    'numpy.string_',
+                    None,
+                    'The filename of the RAW image that contributed this '
+                    'datapoint in the light curve.'
+                ),
+                (
                     'FOCUS',
                     'FocusSetting',
                     'numpy.float64',
@@ -457,6 +465,7 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('shapefit.cfg.psf.bicubic.initial_aperture', 3, True),
             ('shapefit.cfg.psf.bicubic.max_rel_amplitude_change', 3, True),
             ('shapefit.cfg.psf.bicubic.smoothing', 3, True),
+            ('shapefit.magfitcfg.single_photref', None, True),
             ('shapefit.magfitcfg.correction_type', None, True),
             ('shapefit.magfitcfg.correction', None, True),
             ('shapefit.magfitcfg.require', None, True),
@@ -470,6 +479,7 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.cfg.error_floor', 3, True),
             ('apphot.cfg.gain', 3, True),
             ('apphot.cfg.magnitude_1adu', 5, True),
+            ('apphot.magfitcfg.single_photref', None, True),
             ('apphot.magfitcfg.correction_type', None, True),
             ('apphot.magfitcfg.correction', None, True),
             ('apphot.magfitcfg.require', None, True),

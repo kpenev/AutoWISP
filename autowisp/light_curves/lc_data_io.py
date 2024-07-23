@@ -278,6 +278,9 @@ class LCDataIO:
                     - lcdump_catalogue: The filename of a catalogue file
                       containing at least RA and Dec.
 
+                    - single_photref_dr_fname: The filename of the single
+                      photometric reference used for magfit of input images.
+
                     - srcextract_psf_params: List of the parameters describing
                       PSF shapes of the extracted sources.
 
@@ -749,7 +752,9 @@ class LCDataIO:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    if dset_key in self.header_datasets:
+                    if dset_key == 'apphot.magfitcfg.single_photref':
+                        value = self._config['single_photref_dr_fname']
+                    elif dset_key in self.header_datasets:
                         value = frame_header[
                             self.header_datasets[dset_key].upper()
                         ]
