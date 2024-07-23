@@ -120,7 +120,8 @@ master_info =  {
         'created_by': None,
         'split_by': frozenset(),
         'used_by': [
-            ('fit_magnitudes', 'object', False)
+            ('fit_magnitudes', 'object', False),
+            ('create_lightcurves', 'object', False),
         ],
         'description': 'The reference image to use to start magnitude '
         'fitting. Subsequently replaced by average of the corrected '
