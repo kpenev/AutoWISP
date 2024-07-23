@@ -74,6 +74,7 @@ def collect_light_curves(dr_filenames,
             The sources for which new lightcurves were created.
     """
 
+    logger = logging.getLogger(__name__)
     srcid_formatter = DecodingStringFormatter()
     with DataReductionFile(dr_filenames[0], 'r') as first_dr:
         configuration['srcextract_psf_params'] = [
@@ -82,13 +83,21 @@ def collect_light_curves(dr_filenames,
                 **path_substitutions
             )
         ]
+        catalog_sources, outliers = ensure_catalog(
+            dr_files=dr_filenames,
+            configuration=get_catalog_config(configuration, 'lc'),
+            return_metadata=False,
+            skytoframe_version=configuration['skytoframe_version']
+        )
+        for outlier_ind in reversed(outliers):
+            outlier_dr = dr_filenames.pop(outlier_ind)
+            logger.warning(
+                'Data reduction file %s has outlier pointing. Discarding!',
+                outlier_dr
+            )
+            mark_end(outlier_dr, -2, final=True)
         data_io = LCDataIO.create(
-            catalog_sources=ensure_catalog(
-                dr_files=dr_filenames,
-                configuration=get_catalog_config(configuration, 'lc'),
-                return_metadata=False,
-                skytoframe_version=configuration['skytoframe_version']
-            ),
+            catalog_sources=catalog_sources,
             config=configuration,
             source_list=list(
                 get_combined_sources(dr_filenames, **path_substitutions)
@@ -100,8 +109,8 @@ def collect_light_curves(dr_filenames,
             **path_substitutions
         )
     frame_chunk = data_io.max_dimension_size['frame']
-    logging.getLogger(__name__).debug('Generating LC filenames per: %s',
-                                      repr(configuration['lc_fname']))
+    logger.debug('Generating LC filenames per: %s',
+                 repr(configuration['lc_fname']))
     sources_lc_fnames = [
         (
             source_id,

@@ -188,6 +188,15 @@ class ManualStepArgumentParser(ArgumentParser):
             'eta of the corners of the frame times this factor must be less '
             'than the half width and half height of the catalog respectively.'
         )
+        if prefix in ['lc', 'magfit']:
+            self.add_argument(
+                f'--{prefix}-catalog-max-pointing-offset',
+                type=float,
+                default=catalog_config.get('max_pointing_offset', 10.0),
+                help='The maximum difference in degrees between pointings of '
+                'individual frames in the RA or Dec directions before frames '
+                'are considered outliers.'
+            )
 
 
     def _add_exposure_timing(self):
@@ -242,7 +251,7 @@ class ManualStepArgumentParser(ArgumentParser):
                 numbers the step needs to know. For example ``('srcextract',)``.
 
             add_catalog(False or dict):    Whether to add an arguments to
-                specify a catalog query. If not False should specify defalts
+                specify a catalog query. If not False should specify defaults
                 for some or all of the option values and a prefix for the
                 option names.
 

@@ -18,6 +18,7 @@ from autowisp.processing_steps.manual_util import\
     get_catalog_config
 
 input_type = 'dr'
+_logger = logging.getLogger(__name__)
 
 
 def parse_command_line(*args):
@@ -193,15 +194,24 @@ def fit_magnitudes(dr_collection,
         assert start_status % 2 == 1
 
     dr_fnames = sorted(dr_collection)
+    catalog_sources, outliers = ensure_catalog(
+        dr_files=dr_fnames,
+        configuration=get_catalog_config(configuration, 'magfit'),
+        return_metadata=False,
+        skytoframe_version=configuration['skytoframe_version']
+    )
+    for outlier_ind in reversed(outliers):
+        outlier_dr = dr_fnames.pop(outlier_ind)
+        _logger.warning(
+            'Data reduction file %s has outlier pointing. Discarding!',
+            outlier_dr
+        )
+        mark_end(outlier_dr, -2, final=True)
+
     master_photref_fname = magnitude_fitting.iterative_refit(
         fit_dr_filenames=dr_fnames,
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
-        catalog_sources=ensure_catalog(
-            dr_files=dr_fnames,
-            configuration=get_catalog_config(configuration, 'magfit'),
-            return_metadata=False,
-            skytoframe_version=configuration['skytoframe_version']
-        ),
+        catalog_sources=catalog_sources,
         configuration=SimpleNamespace(**configuration),
         master_photref_fname_format=(
             configuration['master_photref_fname_format']
@@ -223,15 +233,13 @@ def fit_magnitudes(dr_collection,
 def cleanup_interrupted(interrupted, configuration):
     """Remove DR entries stats and magfit references for magfit_iteration."""
 
-    logger = logging.getLogger(__name__)
-
     dr_substitutions = get_path_substitutions(configuration)
 
     min_status = min(interrupted, key=lambda x: x[1])[1]
     max_status = max(interrupted, key=lambda x: x[1])[1]
-    logger.info('Cleaning up interrupted magfit with status %d to %d',
-                min_status,
-                max_status)
+    _logger.info('Cleaning up interrupted magfit with status %d to %d',
+                 min_status,
+                 max_status)
 
     if min_status < max_status - 1 - max_status % 2:
         raise ValueError(
@@ -253,9 +261,9 @@ def cleanup_interrupted(interrupted, configuration):
             fname_substitutions
         )
         if os.path.exists(to_delete):
-            logger.warning("Removing potentially partial %s file '%s'!",
-                           master_type,
-                           to_delete)
+            _logger.warning("Removing potentially partial %s file '%s'!",
+                            master_type,
+                            to_delete)
             os.remove(to_delete)
         for iteration in range(0, max_status // 2):
             fname_substitutions['magfit_iteration'] = iteration
@@ -280,9 +288,9 @@ def cleanup_interrupted(interrupted, configuration):
             continue
 
         dr_substitutions['magfit_iteration'] = from_status // 2
-        logger.warning("Deleting magfit iteration %d from '%s'!",
-                       dr_substitutions['magfit_iteration'],
-                       dr_fname)
+        _logger.warning("Deleting magfit iteration %d from '%s'!",
+                        dr_substitutions['magfit_iteration'],
+                        dr_fname)
         with DataReductionFile(dr_fname, 'r+') as dr_file:
             dr_file.delete_dataset('shapefit.magfit.magnitude',
                                    **dr_substitutions)

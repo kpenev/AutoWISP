@@ -515,13 +515,111 @@ def parse_command_line():
     return parser.parse_args()
 
 
+def _find_best_square(points, fov):
+    """Find square of a given size that fits the most points."""
+
+    max_count = 0
+    best_square = None, None
+
+    # Sort points by RA cos(Dec)-coordinate
+    points = numpy.sort(points, order='RAcosDec')
+
+    for i in range(points.size):
+        #No need to check further if peints beyond i are fewer than max found so
+        #far
+        if points.size - i <= max_count:
+            break
+
+        x, y = points[i]
+
+        # Use a more efficient x-mask by limiting the range of points we
+        # consider.
+        # Find the range in the sorted array where x is within
+        # [x, x + square_size]
+        x_end_index = numpy.searchsorted(points['RAcosDec'],
+                                         x + fov,
+                                         side='right')
+
+        # Create a y-mask for points within the range [y1, y1 + square_size]
+        in_range = (points[i:x_end_index]['Dec'] >= y
+                    &
+                    points[i:x_end_index]['Dec'] <= y + fov)
+
+        # Count points within the square
+        count = numpy.sum(in_range)
+
+        if count > max_count:
+            max_count = count
+            best_square = (x, y)
+
+        #No need to check further once right edge of window moves past last
+        #point
+        if x + fov > points['RAcosDec'][-1]:
+            break
+
+    return best_square, max_count
+
+
+def find_outliers(center_ra_dec, max_allowed_offset):
+    """
+    Find frames that are outliers in pointing.
+
+
+    Args:
+        center_ra_dec(numpy.array):    The center RA and Dec of all the frames
+            being considered. The data type should include columns named
+            ``'RA'`` and ``'Dec'``.
+
+        max_allowed_offset(float):    The maximum allowed offset in the RA and
+            Dec directions in degrees. The most outlier frames is iteratively
+            rejected until this criterion is satisfied.
+
+    Returns:
+        [int]:
+            List of the indices within ``center_ra_dec`` that were rejected as
+            outliers.
+    """
+
+    points = numpy.empty(center_ra_dec.shape,
+                         dtype=[('RAcosDec', numpy.float64),
+                                ('Dec', numpy.float64)])
+    points['RAcosDec'] = center_ra_dec['RA'] * numpy.cos(center_ra_dec['Dec']
+                                                         *
+                                                         numpy.pi / 180.0)
+    points['Dec'] = center_ra_dec['Dec']
+
+    (min_ra_cos_dec, min_dec), num_inside = _find_best_square(
+        points,
+        max_allowed_offset
+    )
+    if num_inside < 2 <= center_ra_dec.size:
+        raise ValueError(
+            'Attempting to determine field of view to cover frames with no '
+            'conssistent pointing.'
+        )
+
+
+    outside = (
+        points['RAcosDec'] < min_ra_cos_dec
+        |
+        points['RAcosDec'] > min_ra_cos_dec + max_allowed_offset
+        |
+        points['Dec'] < min_dec
+        |
+        points['Dec'] > min_dec + max_allowed_offset
+    )
+    return numpy.arange(points.size)[outside]
+
+
 #TODO: Maybe simplify later
 #pylint: disable=too-many-locals
+#pylint: disable=too-many-branches
 def get_max_abs_corner_xi_eta(header,
                               *,
                               transformation=None,
                               dr_files=None,
                               center=None,
+                              max_offset=10.0,
                               **dr_path_substitutions):
     """
     Return the max absolute values of the frame corners xi and eta.
@@ -542,6 +640,10 @@ def get_max_abs_corner_xi_eta(header,
             center is calculated as average of max and min RA and Dec for all
             DR files.
 
+        max_offset: The largest allowed offset in the RA or Dec directions
+            between the centers of frames. Outliers by more than this many
+            degrees are flagged and excluded from consideration.
+
         dr_path_substitutions: The substitutions to use when reading
             transformations from DR files.
 
@@ -555,6 +657,11 @@ def get_max_abs_corner_xi_eta(header,
         structured array:
             The center around which xi, eta are defined. Returned only if center
             was not specified and more than one DR file was specified.
+
+        array(int):
+            The indices within DR files that were dropped as outliers in the
+            pointing. Returned only if center was not specified and more than
+            one DR file was specified.
     """
 
     assert dr_files or transformation
@@ -595,17 +702,20 @@ def get_max_abs_corner_xi_eta(header,
 
     if center is None and transformation is None and len(dr_files) > 1:
         center = {}
-        coord_scale = 1.0
+        outliers = numpy.array(sorted(find_outliers(center_ra_dec, max_offset)))
+        if outliers:
+            keep = numpy.ones(center_ra_dec.size, dtype=bool)
+            keep[outliers] = False
+            center_ra_dec = center_ra_dec[keep]
+            keep = numpy.ones(corner_coords.size)
+            for i in range(4):
+                keep[outliers + i] = False
+            corner_coords = corner_coords[keep]
+
         for coord in ['Dec', 'RA']:
             min_coord = numpy.min(center_ra_dec[coord])
             max_coord = numpy.max(center_ra_dec[coord])
-            if (max_coord - min_coord) * coord_scale > 10.0:
-                raise RuntimeError(
-                    'Not all data reduction files appear to be monitoring the '
-                    'same location on the sky'
-                )
             center[coord] = 0.5 * (min_coord + max_coord)
-            coord_scale = numpy.cos(center[coord] * numpy.pi / 180.0)
         return_center = True
     else:
         return_center = False
@@ -628,8 +738,9 @@ def get_max_abs_corner_xi_eta(header,
             'supported.'
         )
 
-    return result + ((center,) if return_center else ())
+    return result + ((center, outliers) if return_center else ())
 #pylint: enable=too-many-locals
+#pylint: enable=too-many-branches
 
 
 def get_catalog_info(*,
@@ -651,10 +762,13 @@ def get_catalog_info(*,
             transformation = Transformation()
             transformation.read_transformation(dr_file, **dr_path_substitutions)
 
-    trans_fov = get_max_abs_corner_xi_eta(dr_files=dr_files,
-                                          transformation=transformation,
-                                          header=header,
-                                          **dr_path_substitutions)
+    trans_fov = get_max_abs_corner_xi_eta(
+        dr_files=dr_files,
+        transformation=transformation,
+        header=header,
+        max_offset=configuration['max_pointing_offset'],
+        **dr_path_substitutions
+    )
 
     if transformation is not None:
         trans_fov += (
@@ -664,6 +778,7 @@ def get_catalog_info(*,
                     transformation.pre_projection_center
                 )
             ),
+            numpy.array([])
         )
 
     _logger.debug('Catalog FOV info: %s', repr(trans_fov))
@@ -772,7 +887,7 @@ def get_catalog_info(*,
     )
     _logger.debug('Created catalog info: %s', repr(catalog_info))
 
-    return catalog_info, trans_fov[2]
+    return catalog_info, trans_fov[2], trans_fov[3]
 
 
 #No god way to simplify
@@ -789,7 +904,7 @@ def ensure_catalog(*,
 
     assert dr_files or transformation
 
-    catalog_info, query_center = get_catalog_info(
+    catalog_info, query_center, outliers = get_catalog_info(
         transformation=transformation,
         dr_files=dr_files,
         header=header,
@@ -939,19 +1054,25 @@ def ensure_catalog(*,
                     )
                 #pylint: enable=too-many-boolean-expressions
 
-                return read_catalog_file(
-                    cat_fits,
-                    filter_expr=(' and '.join(filter_expr) if filter_expr
-                                 else None),
-                    return_metadata=return_metadata
+                return (
+                    read_catalog_file(
+                        cat_fits,
+                        filter_expr=(' and '.join(filter_expr) if filter_expr
+                                     else None),
+                        return_metadata=return_metadata
+                    ),
+                    outliers
                 )
 
         del catalog_info['ra_ind']
         del catalog_info['dec_ind']
 
         create_catalog_file(**catalog_info, verbose=True)
-        return read_catalog_file(catalog_info['fname'],
-                                 return_metadata=return_metadata)
+        return (
+            read_catalog_file(catalog_info['fname'],
+                              return_metadata=return_metadata),
+            outliers
+        )
 #pylint: enable=too-many-branches
 
 

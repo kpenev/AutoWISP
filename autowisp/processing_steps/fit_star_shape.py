@@ -545,14 +545,19 @@ class SourceListCreator:
 def create_source_list_creator(dr_fnames, configuration, catalog_lock):
     """Return a fully configured instance of SourceListCreator."""
 
+    catalog_sources, outliers = ensure_catalog(
+        dr_files=dr_fnames,
+        configuration=get_catalog_config(configuration, 'photometry'),
+        return_metadata=False,
+        skytoframe_version=configuration['skytoframe_version'],
+        lock=catalog_lock
+    )
+    if outliers:
+        raise RuntimeError('Not all images in multi-image fit have consistent '
+                           'pointing!')
+
     return SourceListCreator(
-        catalog_sources=ensure_catalog(
-            dr_files=dr_fnames,
-            configuration=get_catalog_config(configuration, 'photometry'),
-            return_metadata=False,
-            skytoframe_version=configuration['skytoframe_version'],
-            lock=catalog_lock
-        ),
+        catalog_sources=catalog_sources,
         fit_variables=configuration['map_variables'],
         grouping=SplitSources(
             magnitude_column=configuration['split_magnitude_column'],
