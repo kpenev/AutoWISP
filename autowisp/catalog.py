@@ -545,28 +545,44 @@ def _find_best_fov(points, fov_size):
         ((0.0, 0.0), 1)
         >>> _find_best_fov(points, 3.11)
         ((0.1, 0.0), 4)
+        >>> points = numpy.array([(0.0, 0.0),
+        ...                       (0.1, 0.0),
+        ...                       (0.1, -0.1),
+        ...                       (3.2, 0.0),
+        ...                       (3.2, 3.0)],
+        ...                      dtype=[('RAcosDec', float), ('Dec', float)])
+        >>> _find_best_fov(points, 1.0)
+        ((0.0, -0.1), 3)
+        >>> _find_best_fov(points, 10.0)
+        ((0.0, -0.1), 5)
+        >>> _find_best_fov(points, 0.11)
+        ((0.0, -0.1), 3)
+        >>> _find_best_fov(points, 0.05)
+        ((0.0, 0.0), 1)
+        >>> _find_best_fov(points, 3.11)
+        ((0.1, -0.1), 4)
 
     """
 
     max_count = 0
     best_fov = None, None
 
-    # Sort points by RA cos(Dec)-coordinate
+    # Sort points for faster search
     points = numpy.sort(points, order='RAcosDec')
+    sorted_dec = numpy.sort(points['Dec'])
 
     _logger.debug('Finding best FOV for %d points:\n%s',
                   points.size,
                   repr(points))
 
-    for i in range(points.size):
+    for x_start_index in range(points.size):
         #No need to check further if peints beyond i are fewer than max found so
         #far
-        if points.size - i <= max_count:
-            _logger.debug('Stopping search at i=%d', i)
+        if points.size - x_start_index <= max_count:
+            _logger.debug('Stopping search at x_start_index=%d', x_start_index)
             break
 
-        x, y = points[i]
-
+        x = points[x_start_index]['RAcosDec']
         # Use a more efficient x-mask by limiting the range of points we
         # consider.
         # Find the range in the sorted array where x is within
@@ -574,21 +590,32 @@ def _find_best_fov(points, fov_size):
         x_end_index = numpy.searchsorted(points['RAcosDec'],
                                          x + fov_size,
                                          side='right')
+        if x_end_index - x_start_index <= max_count:
+            continue
 
-        # Count the points within the range [y1, y1 + fov_size]
-        in_range = numpy.logical_and(
-            points[i:x_end_index]['Dec'] >= y,
-            points[i:x_end_index]['Dec'] <= y + fov_size
-        ).sum()
+        for y_ind, y in enumerate(sorted_dec):
+            #No need try higher y bounds
+            if sorted_dec.size - y_ind <= max_count:
+                break
 
-        if in_range > max_count:
-            max_count = in_range
-            best_fov = (x, y)
+            # Count the points within the range [y1, y1 + fov_size]
+            in_range = numpy.logical_and(
+                points[x_start_index:x_end_index]['Dec'] >= y,
+                points[x_start_index:x_end_index]['Dec'] <= y + fov_size
+            ).sum()
 
-        _logger.debug(
-            'For x=%s, y=%s, index range is [%d, %d) with %d points surviving.',
-            repr(x), repr(y), i, x_end_index, in_range
-        )
+            if in_range > max_count:
+                max_count = in_range
+                best_fov = (x, y)
+
+            _logger.debug(
+                'For x=%s, y=%s, index range is [%d, %d) with %d points surviving.',
+                repr(x), repr(y), x_start_index, x_end_index, in_range
+            )
+
+            #No need to check further y bounds
+            if y + fov_size > sorted_dec[-1]:
+                break
 
         #No need to check further once right edge of window moves past last
         #point
