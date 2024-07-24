@@ -8,7 +8,6 @@ import logging
 from hashlib import md5
 from contextlib import nullcontext
 
-from configargparse import ArgumentParser, DefaultsFormatter
 import numpy
 import pandas
 from astropy import units
@@ -21,6 +20,8 @@ from autowisp.astrometry.map_projections import \
     gnomonic_projection,\
     inverse_gnomonic_projection
 if __name__ == '__main__':
+    import doctest
+    from configargparse import ArgumentParser, DefaultsFormatter
     from matplotlib import pyplot
 
 _logger = logging.getLogger(__name__)
@@ -512,22 +513,56 @@ def parse_command_line():
         action='store_true',
         help='Show the stars in the catalog on a 3-D plot of the sky.'
     )
+    parser.add_argument(
+        '--run-doctests', '--test',
+        action='store_true',
+        help='Run the unit tests defined in the function docstrings of this '
+        'module.'
+    )
     return parser.parse_args()
 
 
-def _find_best_square(points, fov):
-    """Find square of a given size that fits the most points."""
+def _find_best_fov(points, fov_size):
+    """
+    Find square of a given size that fits the most points.
+
+    Example:
+        >>> import numpy
+        >>> from autowisp.catalog import _find_best_fov
+        >>> points = numpy.array([(0.0, 0.0),
+        ...                       (0.1, 0.0),
+        ...                       (0.1, 0.1),
+        ...                       (3.2, 0.0),
+        ...                       (3.2, 3.1)],
+        ...                      dtype=[('RAcosDec', float), ('Dec', float)])
+        >>> _find_best_fov(points, 1.0)
+        ((0.0, 0.0), 3)
+        >>> _find_best_fov(points, 10.0)
+        ((0.0, 0.0), 5)
+        >>> _find_best_fov(points, 0.11)
+        ((0.0, 0.0), 3)
+        >>> _find_best_fov(points, 0.05)
+        ((0.0, 0.0), 1)
+        >>> _find_best_fov(points, 3.11)
+        ((0.1, 0.0), 4)
+
+    """
 
     max_count = 0
-    best_square = None, None
+    best_fov = None, None
 
     # Sort points by RA cos(Dec)-coordinate
     points = numpy.sort(points, order='RAcosDec')
+
+    _logger.debug('Finding best FOV for %d points:\n%s',
+                  points.size,
+                  repr(points))
 
     for i in range(points.size):
         #No need to check further if peints beyond i are fewer than max found so
         #far
         if points.size - i <= max_count:
+            _logger.debug('Stopping search at i=%d', i)
             break
 
         x, y = points[i]
@@ -535,29 +570,42 @@ def _find_best_square(points, fov):
         # Use a more efficient x-mask by limiting the range of points we
         # consider.
         # Find the range in the sorted array where x is within
-        # [x, x + square_size]
+        # [x, x + fov_size]
         x_end_index = numpy.searchsorted(points['RAcosDec'],
-                                         x + fov,
+                                         x + fov_size,
                                          side='right')
 
-        # Create a y-mask for points within the range [y1, y1 + square_size]
-        in_range = (points[i:x_end_index]['Dec'] >= y
-                    &
-                    points[i:x_end_index]['Dec'] <= y + fov)
+        # Count the points within the range [y1, y1 + fov_size]
+        in_range = numpy.logical_and(
+            points[i:x_end_index]['Dec'] >= y,
+            points[i:x_end_index]['Dec'] <= y + fov_size
+        ).sum()
 
-        # Count points within the square
-        count = numpy.sum(in_range)
+        if in_range > max_count:
+            max_count = in_range
+            best_fov = (x, y)
 
-        if count > max_count:
-            max_count = count
-            best_square = (x, y)
+        _logger.debug(
+            'For x=%s, y=%s, index range is [%d, %d) with %d points surviving.',
+            repr(x), repr(y), i, x_end_index, in_range
+        )
 
         #No need to check further once right edge of window moves past last
         #point
-        if x + fov > points['RAcosDec'][-1]:
+        if x + fov_size > points['RAcosDec'][-1]:
+            _logger.debug('Stopping search at x=%s', repr(x))
             break
 
-    return best_square, max_count
+    _logger.debug(
+        'Best FOV found: %s <= x <= %s, %s <= y <= %s with %d points.',
+        repr(best_fov[0]),
+        repr(best_fov[0] + fov_size),
+        repr(best_fov[1]),
+        repr(best_fov[1] + fov_size),
+        max_count
+    )
+
+    return best_fov, max_count
 
 
 def find_outliers(center_ra_dec, max_allowed_offset):
@@ -588,7 +636,7 @@ def find_outliers(center_ra_dec, max_allowed_offset):
                                                          numpy.pi / 180.0)
     points['Dec'] = center_ra_dec['Dec']
 
-    (min_ra_cos_dec, min_dec), num_inside = _find_best_square(
+    (min_ra_cos_dec, min_dec), num_inside = _find_best_fov(
         points,
         max_allowed_offset
     )
@@ -600,13 +648,13 @@ def find_outliers(center_ra_dec, max_allowed_offset):
 
 
     outside = (
-        points['RAcosDec'] < min_ra_cos_dec
+        (points['RAcosDec'] < min_ra_cos_dec)
         |
-        points['RAcosDec'] > min_ra_cos_dec + max_allowed_offset
+        (points['RAcosDec'] > min_ra_cos_dec + max_allowed_offset)
         |
-        points['Dec'] < min_dec
+        (points['Dec'] < min_dec)
         |
-        points['Dec'] > min_dec + max_allowed_offset
+        (points['Dec'] > min_dec + max_allowed_offset)
     )
     return numpy.arange(points.size)[outside]
 
@@ -1160,6 +1208,10 @@ def show_stars(catalog_fname):
 def main(config):
     """Avoid polluting global namespace."""
 
+    if config.run_doctests:
+        doctest.testmod(verbose=config.verbose)
+        return
+
     kwargs = {
         'ra': config.ra * units.deg,
         'dec': config.dec * units.deg,
@@ -1181,4 +1233,5 @@ def main(config):
 
 
 if __name__ == '__main__':
+
     main(parse_command_line())
