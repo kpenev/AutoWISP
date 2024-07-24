@@ -809,12 +809,16 @@ def get_catalog_info(*,
                 header = dr_file.get_frame_header()
             transformation = Transformation()
             transformation.read_transformation(dr_file, **dr_path_substitutions)
+    if dr_files is None or len(dr_files) == 1:
+        max_offset = None
+    else:
+        max_offset = configuration['max_pointing_offset']
 
     trans_fov = get_max_abs_corner_xi_eta(
         dr_files=dr_files,
         transformation=transformation,
         header=header,
-        max_offset=configuration['max_pointing_offset'],
+        max_offset=max_offset,
         **dr_path_substitutions
     )
 

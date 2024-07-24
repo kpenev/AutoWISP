@@ -319,6 +319,7 @@ def project_catalog(request, fits_fname):
             transformation=approx_trans,
             header=header,
             configuration=get_catalog_config(config, 'astrometry'),
+            return_metadata=False
         )[0]
         projected = approx_trans(catalog)
         return JsonResponse({

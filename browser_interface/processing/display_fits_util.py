@@ -32,9 +32,6 @@ def update_fits_display(request):
                 else value
             )
     request.session['view_config'] = json.dumps(request_data)
-    print('Request session:\n\t'
-          +
-          '\n\t'.join(f'{k!r}: {v!r}' for k, v in request.session.items()))
     request.session.modified = True
 
     return JsonResponse({'ok': True})
