@@ -684,9 +684,14 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
         drop_tables_matching(re.compile('hdf5_.*'))
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile('.*'))
+
+
     DataModelBase.metadata.create_all(db_engine)
-    init_processing()
     add_default_hdf5_structures()
+    if not cmdline_args.drop_all_tables:
+        return
+
+    init_processing()
     if overwrite_defaults is None:
         overwrite_defaults = {param: [(('False',), None)]
                               for param in ['srcfind-tool',
