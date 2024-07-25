@@ -1,6 +1,8 @@
 """Implement the view for selecting single photometric reference."""
 
 from io import StringIO
+from functools import reduce
+
 #from PIL.ImageTransform import AffineTransform
 from django.shortcuts import render, redirect
 import matplotlib
@@ -40,11 +42,18 @@ def _get_missing_photref(request):
         master_type_id = db_session.scalar(
             select(MasterType.id).filter_by(name='single_photref')
         )
-        pending_photref = processing.get_pending(
-            db_session,
-            [entry for entry in get_processing_sequence(db_session)
-             if entry[0].name == 'fit_magnitudes'],
-        )
+        magfit_steps = [entry for entry in get_processing_sequence(db_session)
+                        if entry[0].name == 'fit_magnitudes']
+        pending_photref = processing.get_pending(db_session, magfit_steps)
+        request.session['demo'] = False
+        if not reduce(lambda x, y: bool(x) or bool(y),
+                      pending_photref.values(),
+                      False):
+            request.session['demo'] = True
+            pending_photref = processing.get_pending(db_session,
+                                                     magfit_steps,
+                                                     True)
+
         astrom_step_id = db_session.scalar(
             select(Step.id).filter_by(name='solve_astrometry')
         )
@@ -91,12 +100,7 @@ def _get_missing_photref(request):
                     *by_master_values[0],
                     input_master_type,
                     db_session
-                )
-                print(
-                    f'Candidate masters for target {master_values!r}: '
-                    +
-                    repr(candidate_masters)
-                )
+                ) if not request.session['demo'] else False
 
                 if not candidate_masters:
                     config = processing.get_config(
@@ -274,6 +278,9 @@ def select_photref_target(request, recalc=False):
 def record_photref_selection(request, target_index, image_index):
     """Record a single photometric reference frame selected by the user."""
 
+    if request.session['demo']:
+        print('Demo only! Not saving selected reference!')
+        return
     print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
     merit_data = pandas.read_json(
         request.session['merit_info'][str(target_index)]

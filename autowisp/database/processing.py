@@ -1619,7 +1619,9 @@ class ProcessingManager:
                 to determine pending images for. If unspecified, the full
                 processing sequence defined in the database is used.
 
-            invert(bool):    If True, returns completed instead of pending.
+            invert(bool):    If True, returns successfully completed (not
+                failed) instead of pending.
+
 
         Returns:
             {(step.id, image_type.id): (Image, str)}:
@@ -1657,7 +1659,12 @@ class ProcessingManager:
                 self.step_version[step.name]
             ).where(
                 ProcessedImages.final
-            ).subquery()
+            )
+            if invert:
+                processed_subquery = processed_subquery.where(
+                    ProcessedImages.status > 0
+                )
+            processed_subquery = processed_subquery.subquery()
 
             query = select_image_channel.outerjoin(
                 processed_subquery,
@@ -1675,7 +1682,9 @@ class ProcessingManager:
             #This is how NULL comparison is done in SQLAlchemy
             #pylint: disable=singleton-comparison
             if invert:
-                query = query.where(processed_subquery.c.image_id != None)
+                query = query.where(
+                    processed_subquery.c.image_id != None
+                )
             else:
                 query = query.where(processed_subquery.c.image_id == None)
             #pylint: enable=singleton-comparison
