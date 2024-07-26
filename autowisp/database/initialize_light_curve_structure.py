@@ -465,7 +465,6 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('shapefit.cfg.psf.bicubic.initial_aperture', 3, True),
             ('shapefit.cfg.psf.bicubic.max_rel_amplitude_change', 3, True),
             ('shapefit.cfg.psf.bicubic.smoothing', 3, True),
-            ('shapefit.magfitcfg.single_photref', None, True),
             ('shapefit.magfitcfg.correction_type', None, True),
             ('shapefit.magfitcfg.correction', None, True),
             ('shapefit.magfitcfg.require', None, True),
@@ -479,7 +478,6 @@ def _get_data_reduction_attribute_datasets(db_session):
             ('apphot.cfg.error_floor', 3, True),
             ('apphot.cfg.gain', 3, True),
             ('apphot.cfg.magnitude_1adu', 5, True),
-            ('apphot.magfitcfg.single_photref', None, True),
             ('apphot.magfitcfg.correction_type', None, True),
             ('apphot.magfitcfg.correction', None, True),
             ('apphot.magfitcfg.require', None, True),
@@ -1007,6 +1005,34 @@ def _get_datasets(db_session):
         _get_detrended_datasets(magfit_datasets, 'epd')
         +
         _get_detrended_datasets(magfit_datasets, 'tfa')
+        +
+        [
+            HDF5DataSet(
+                pipeline_key=phot_mode + '.magfitcfg.single_photref',
+                abspath=(
+                    transform_dr_to_lc_path(
+                        phot_mode + '.magfitcfg.single_photref',
+                        (
+                            _dr_default_paths[phot_mode]['root']
+                            +
+                            _dr_default_paths['apphot']['apsplit']
+                        )
+                        if phot_mode == 'apphot' else
+                        _dr_default_paths[phot_mode]
+                    )
+                    +
+                    _default_paths['magfit']
+                    +
+                    '/Configuration/SinglePhotometricReference'
+                ),
+                dtype='numpy.string_',
+                compression='gzip',
+                compression_options='9',
+                description='The single photometric reference frame used to '
+                'initiate the magnitude fitting iterations.'
+            )
+            for phot_mode in ['apphot', 'shapefit']
+        ]
     )
 
 def get_default_light_curve_structure(db_session):

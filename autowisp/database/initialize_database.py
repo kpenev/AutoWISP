@@ -133,12 +133,11 @@ master_info =  {
             'CLRCHNL',
             'EXPTIME'
         )),
-        'config_name': 'master-photref-fname',
+        'config_name': 'single-photref-dr-fname',
         'created_by': ('fit_magnitudes', 'object'),
         'split_by': frozenset(),
         'used_by': [
-            ('fit_magnitudes', 'object', True),
-            ('create_lightcurves', 'object', False)
+            ('fit_magnitudes', 'object', True)
         ],
         'description': 'The master photometric reference to use for magnitude '
         'fitting if available.'
@@ -685,7 +684,6 @@ def initialize_database(cmdline_args, overwrite_defaults=None):
         drop_tables_matching(re.compile('hdf5_.*'))
     if cmdline_args.drop_all_tables:
         drop_tables_matching(re.compile('.*'))
-
 
     DataModelBase.metadata.create_all(db_engine)
     add_default_hdf5_structures()
