@@ -62,8 +62,9 @@ Processing Progress
         </tr>
     </thead>
     {% for step, imtype, by_channel, runs in progress %}
-    <tr>
-        <td>
+    <tr style="border-bottom: 3px dotted white;">
+        <td class="tooltip">
+            <span class="tooltiptext">step configuration</span>
             <a href="{% url 'configuration:config_tree' step=step|join:"_" version=0 %}">
                 <div class="lcars-element 
                                           button 
@@ -75,24 +76,39 @@ Processing Progress
                 </div>
             </a>
         </td>
-        <td>{{ imtype }}</td>
-        {% url 'processing:select_photref_target' as photrefsel_url %}
-        {% url 'processing:select_starfind_batch' as tune_starfind_url %}
+        <td class="tooltip">
+            {% if step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'find' and step.1 == 'stars' %}
+                {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                <a href="{% url 'processing:select_photref_target' %}">
+                    <span class="tooltiptext">select reference image</span>
+                {% else %}
+                <a href="{% url 'processing:select_starfind_batch' %}">
+                    <span class="tooltiptext">tune source extraction</span>
+                {% endif %}
+                    <div class="lcars-element 
+                                button 
+                                rounded 
+                                lcars-chestnut-rose-bg"
+                         style="align-items: center; justify-content: left;">
+                        {{ imtype }}
+                    </div>
+                </a>
+            {% else %}
+            {{ imtype }}
+            {% endif %}
+        </td>
         {% for success, failure, pending, by_status in by_channel %}
         {% with final=success|add:failure %}
         {% with total=final|add:pending %}
         <td>
             <table>
                 <tr>
-                    <td colspan=2>
+                    <td colspan=2 class="tooltip">
                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
-                        <a href="{{photrefsel_url}}">
-                        Click to select reference frames<br/>
+                        <span class="tooltiptext">Review magnitude fitting performance </span>
+                        <a href="{% url 'processing:diagnostics' step=step|join:"_" imtype=imtype %}">
                         {% endif %}
-                        {% if step.0 == 'find' and step.1 == 'stars' %}
-                        <a href="{{tune_starfind_url}}">
-                        Click to tune source extraction<br/>
-                        {% endif %}
+
                         <div id="progress-with-label">
                             <span style="width: {% widthratio final total 100 %}%;">
                                 {{success}}/{{total}}

@@ -85,5 +85,10 @@ urlpatterns = [
         'save_starfind_config/<slug:imtype>/<int:batch_index>',
         views.save_starfind_config,
         name='save_starfind_config'
+    ),
+    path(
+        'diagnostics/<slug:step>/<slug:imtype>',
+        views.display_diagnostics,
+        name='diagnostics'
     )
 ]
