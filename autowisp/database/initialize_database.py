@@ -141,8 +141,31 @@ master_info =  {
         ],
         'description': 'The master photometric reference to use for magnitude '
         'fitting if available.'
+    },
+    'magfit_stat': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'magfit-stat-fname',
+        'created_by': ('fit_magnitudes', 'object'),
+        'split_by': frozenset(),
+        'used_by': [],
+        'description': 'The statistics file generated during magnitude fitting.'
+    },
+    'magfit_catalog': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'magfit-catalog-fname',
+        'created_by': ('fit_magnitudes', 'object'),
+        'split_by': frozenset(),
+        'used_by': [],
+        'description': 'The catalog file generated during magnitude fitting.'
     }
-
 }
 
 

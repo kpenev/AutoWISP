@@ -224,10 +224,13 @@ def iterative_refit(fit_dr_filenames,
         ):
             assert next(iter(photref.values()))['mag'].size == num_photometries
 
-            result = photref_fname
+            result = (
+                photref_fname,
+                magfit_stat_fname_format.format_map(fname_substitutions)
+            )
 
             magfit_stat_collector = MasterPhotrefCollector(
-                magfit_stat_fname_format.format_map(fname_substitutions),
+                result[1],
                 num_photometries,
                 grcollect_tmp_dir,
                 source_name_format=source_name_format
