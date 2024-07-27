@@ -1140,7 +1140,8 @@ def ensure_catalog(*,
                                      else None),
                         return_metadata=return_metadata
                     ),
-                    outliers
+                    outliers,
+                    catalog_info['fname']
                 )
 
         del catalog_info['ra_ind']
@@ -1150,7 +1151,8 @@ def ensure_catalog(*,
         return (
             read_catalog_file(catalog_info['fname'],
                               return_metadata=return_metadata),
-            outliers
+            outliers,
+            catalog_info['fname']
         )
 #pylint: enable=too-many-branches
 

@@ -35,6 +35,7 @@ from matplotlib import pyplot
 
 from autowisp.catalog import read_catalog_file
 from autowisp import Evaluator
+from autowisp.diagnostics.detrending import detect_stat_columns
 
 def parse_command_line():
     """Return the parsed command line arguments."""
@@ -217,60 +218,6 @@ def match_stat_to_catalogue(stat_fname,
         ],
         check=True
     )
-
-
-def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
-    """
-    Automatically detect the relevant columns in the statistics file.
-
-    Args:
-        stat(pandas.DataFrame):     The statistics .
-
-    Returns:
-        tuple(list, list):
-            list:
-                The indices of the columns (starting from zero) containing the
-                number of unrejected frames for each extracted photometry.
-
-            list:
-                The indices of the columns (starting from zero) containing the
-                scatter (e.g. median deviation around the median for magfit).
-
-            list:
-                The indices of the columns (starting from zero) containing the
-                median of the formal magnitude error, or None if that is not
-                tracked.
-    """
-
-
-    columns_per_set = 5
-    assert num_stat_columns % columns_per_set == 0
-    num_stat = num_stat_columns // columns_per_set
-    assert num_stat % 2 == 0
-    num_stat //= 2
-
-    column_mask = numpy.arange(0,
-                               num_stat * columns_per_set,
-                               columns_per_set,
-                               dtype=int)
-    if skip_first_stat:
-        column_mask = column_mask[1:]
-
-    num_unrejected = column_mask + 2
-    scatter = column_mask + 5
-    formal_error = columns_per_set * num_stat + 3 + column_mask
-
-    for column_selection, expected_kind in [(num_unrejected, 'iu'),
-                                            (scatter, 'f'),
-                                            (formal_error, 'f')]:
-        print('column selection: ' + repr(column_selection))
-        print('expected kind: ' + repr(expected_kind))
-        check_dtype = stat[column_selection].dtypes.unique()
-        print('check_dtype: ' + repr(check_dtype))
-        assert check_dtype.size == 1
-        assert check_dtype[0].kind in expected_kind
-
-    return num_unrejected, scatter, formal_error
 
 
 #Meant to define callable with pre-computed pieces

@@ -88,7 +88,7 @@ def collect_light_curves(dr_filenames,
             configuration=get_catalog_config(configuration, 'lc'),
             return_metadata=False,
             skytoframe_version=configuration['skytoframe_version']
-        )
+        )[:2]
         for outlier_ind in reversed(outliers):
             outlier_dr = dr_filenames.pop(outlier_ind)
             logger.warning(

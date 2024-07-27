@@ -551,7 +551,7 @@ def create_source_list_creator(dr_fnames, configuration, catalog_lock):
         return_metadata=False,
         skytoframe_version=configuration['skytoframe_version'],
         lock=catalog_lock
-    )
+    )[:2]
     if outliers:
         raise RuntimeError('Not all images in multi-image fit have consistent '
                            'pointing!')

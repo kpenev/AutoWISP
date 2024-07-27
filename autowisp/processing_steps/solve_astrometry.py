@@ -361,7 +361,7 @@ def find_final_transformation(header,
             header=header,
             configuration=get_catalog_config(configuration, 'astrometry'),
             lock=catalog_lock
-        )
+        )[0]
 
         (
             transformation_estimate['trans_x'],

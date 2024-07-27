@@ -189,7 +189,7 @@ def fit_magnitudes(dr_collection,
         assert start_status % 2 == 1
 
     dr_fnames = sorted(dr_collection)
-    catalog_sources, outliers = ensure_catalog(
+    catalog_sources, outliers, catalog_fname = ensure_catalog(
         dr_files=dr_fnames,
         configuration=get_catalog_config(configuration, 'magfit'),
         return_metadata=False,
@@ -203,7 +203,7 @@ def fit_magnitudes(dr_collection,
         )
         mark_end(outlier_dr, -2, final=True)
 
-    master_photref_fname = magnitude_fitting.iterative_refit(
+    master_photref_fname, magfit_stat_fname = magnitude_fitting.iterative_refit(
         fit_dr_filenames=dr_fnames,
         single_photref_dr_fname=configuration['single_photref_dr_fname'],
         catalog_sources=catalog_sources,
@@ -219,10 +219,23 @@ def fit_magnitudes(dr_collection,
         continue_from_iteration=(start_status + 1) // 2,
         **get_path_substitutions(configuration)
     )
-    return {
-        'filename': master_photref_fname,
-        'preference_order': None
-    }
+    return [
+        {
+            'filename': master_photref_fname,
+            'preference_order': None,
+            'type': 'master_photref'
+        },
+        {
+            'filename': magfit_stat_fname,
+            'preference_order': None,
+            'type': 'magfit_stat'
+        },
+        {
+            'filename': catalog_fname,
+            'preference_order': None,
+            'type': 'magfit_catalog'
+        }
+    ]
 
 
 def cleanup_interrupted(interrupted, configuration):
