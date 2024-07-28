@@ -778,11 +778,11 @@ def get_max_abs_corner_xi_eta(header,
     if center is None and transformation is None and len(dr_files) > 1:
         center = {}
         outliers = numpy.array(sorted(find_outliers(center_ra_dec, max_offset)))
-        if outliers:
+        if outliers.size:
             keep = numpy.ones(center_ra_dec.size, dtype=bool)
             keep[outliers] = False
             center_ra_dec = center_ra_dec[keep]
-            keep = numpy.ones(corner_coords.size)
+            keep = numpy.ones(corner_coords.size, dtype=bool)
             for i in range(4):
                 keep[outliers + i] = False
             corner_coords = corner_coords[keep]
