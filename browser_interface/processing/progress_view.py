@@ -1,9 +1,9 @@
 """Define the view displaying the current processing progress."""
 
 from socket import getfqdn
-from datetime import datetime
+from os import waitpid, WNOHANG
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from psutil import pid_exists
 from django.shortcuts import render
 
@@ -95,7 +95,12 @@ def progress(request):
                 ImageProcessingProgress.host == getfqdn()
             )
         ):
-            if pid_exists(check_running.process_id):
+
+            if (
+                    pid_exists(check_running.process_id)
+                    and
+                    not waitpid(check_running.process_id, WNOHANG)
+            ):
                 print(f'Calibration process with ID {check_running.process_id}'
                       'still exists.')
                 context['running'] = True

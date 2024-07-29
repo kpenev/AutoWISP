@@ -8,7 +8,7 @@ import logging
 from os import path, getpid
 from socket import getfqdn
 
-from sqlalchemy import sql, select, update, and_, or_
+from sqlalchemy import sql, select, update, and_, or_, func
 from asteval import asteval
 import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -1057,11 +1057,15 @@ class ProcessingManager:
                 (
                     #This is how to check for NULL in sqlalchemy
                     #pylint: disable=singleton-comparison
-                    ImageProcessingProgress.finished
+                    ImageProcessingProgress.host
                     ==
-                    None
+                    this_host
                     #pylint: enable=singleton-comparison
                 )
+            ).order_by(
+                ImageProcessingProgress.started.desc()
+            ).limit(
+                1
             )
         ).scalar_one_or_none()
 
@@ -1255,7 +1259,8 @@ class ProcessingManager:
                     where(
                         ProcessedImages.progress_id
                         ==
-                        db_session.merge(self._current_processing, load=False).id
+                        db_session.merge(self._current_processing,
+                                         load=False).id
                     ).values(
                         status=status,
                         final=final
@@ -1288,12 +1293,26 @@ class ProcessingManager:
                 for image, channel in batch:
                     assert image.image_type_id == check_image_type_id
                     status_select = select(
-                        ProcessedImages.status
+                        func.max(ProcessedImages.status)
+                    ).join(
+                        ImageProcessingProgress
                     ).where(
                         ProcessedImages.image_id == image.id,
-                        ProcessedImages.progress_id
-                        ==
-                        self._current_processing.id
+                        (
+                            ImageProcessingProgress.step_id
+                            ==
+                            self._current_processing.step_id
+                        ),
+                        (
+                            ImageProcessingProgress.image_type_id
+                            ==
+                            self._current_processing.imaget_type_id
+                        ),
+                        (
+                            ImageProcessingProgress.configuration_version
+                            ==
+                            self._current_processing.configuration_version
+                        )
                     )
                     if channel is not None:
                         status_select = status_select.where(
@@ -1976,11 +1995,13 @@ class ProcessingManager:
 
             for master in new_masters:
                 if len(new_masters) > 1 or step_name is None:
-                    type_id_select = type_id_select.where(
-                        MasterType.name == master['type']
+                    master_type_id = db_session.scalar(
+                        type_id_select.where(
+                            MasterType.name == master['type']
+                        )
                     )
-                print(f'Master type select statement: {type_id_select}')
-                master_type_id = db_session.scalar(type_id_select)
+                else:
+                    master_type_id = db_session.scalar(type_id_select)
                 db_session.add(
                     MasterFile(
                         id=master_id,
@@ -1992,7 +2013,7 @@ class ProcessingManager:
                         enabled=not master.get('disable', False)
                     )
                 )
-
+                master_id += 1
 
 
     def create_config_file(self, example_header, outf, steps=None):
