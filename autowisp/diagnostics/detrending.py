@@ -70,7 +70,7 @@ def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
     return num_unrejected, scatter, formal_error
 
 
-def read_magfit_stat_data(progress_id):
+def read_magfit_stat_data(master_id):
     """Return the statistics and catalog generated during given magfit step."""
 
     master_select = select(
@@ -78,7 +78,7 @@ def read_magfit_stat_data(progress_id):
     ).join(
         MasterType
     ).where(
-        MasterFile.progress_id == progress_id
+        MasterFile.id == master_id
     )
     #False positive
     #pylint: disable=no-member
@@ -103,13 +103,13 @@ def read_magfit_stat_data(progress_id):
     return data, num_cat_columns
 
 
-def get_magfit_performance_data(progress_id,
+def get_magfit_performance_data(master_id,
                                 min_unrejected_fraction,
                                 magnitude_expression,
                                 skip_first_stat):
     """Return all data required for magnitude fitting performance plots."""
 
-    data, num_cat_columns = read_magfit_stat_data(progress_id)
+    data, num_cat_columns = read_magfit_stat_data(master_id)
     (
         num_unrejected_columns,
         scatter_columns,
@@ -126,20 +126,22 @@ def get_magfit_performance_data(progress_id,
 
     scatter = data[scatter_columns]
     scatter[scatter == 0.0] = numpy.nan
-    best_ind = numpy.nanargmin(scatter, 1)
-    scatter = 10.0**(numpy.nanmin(scatter, 1) / 2.5) - 1.0
+    data.insert(len(data.columns),
+                'best_index',
+                numpy.nanargmin(scatter, 1))
+    data.insert(len(data.columns),
+                'best_scatter',
+                10.0**(numpy.nanmin(scatter, 1) / 2.5) - 1.0)
 
     if expected_scatter_columns is not None:
         expected_scatter = data[expected_scatter_columns]
         expected_scatter[expected_scatter == 0.0] = numpy.nan
-        expected_scatter = 10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0
-    else:
-        expected_scatter = None
+        data.insert(len(data.columns),
+                    'expected_scatter',
+                    10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0)
 
-    magnitude = Evaluator(data)(magnitude_expression)
+    data.insert(len(data.columns),
+                'magnitudes',
+                Evaluator(data)(magnitude_expression))
 
-    return magnitude, scatter, expected_scatter, best_ind
-
-
-def get_magfit_diagnostics(progress_id):
-    """Return the scatter vs brightness after the specified detrending step."""
+    return data

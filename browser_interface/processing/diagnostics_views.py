@@ -1,13 +1,16 @@
 """Views for displaying diagnostics for the calibration steps."""
 
+import numpy
+from matplotlib import colormaps
 from sqlalchemy import select
 
-import pandas
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
+from autowisp import Evaluator
 from autowisp.database.interface import Session
-from autowisp.catalog import read_catalog_file
+from autowisp.diagnostics.detrending import get_magfit_performance_data
 #False positive
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
@@ -15,42 +18,93 @@ from autowisp.database.data_model import\
     MasterFile,\
     ImageType,\
     ImageProcessingProgress,\
+    Condition,\
+    ConditionExpression,\
     Step
 #pylint: enable=no-name-in-module
 
 
-def display_magfit_diagnostics(request, imtype, progress_id=None):
-    """View displaying the scatter after magnitude fitting."""
+def init_magfit_session(request):
+    """Add to browser session which magfit runs can be diagnosed."""
 
     #False positive
     #pylint: disable=no-member
     with Session.begin() as db_session:
     #pylint: enable=no-member
-        stat_subquery = select(
-            MasterFile.progress_id,
-            MasterFile.filename
-        ).join(
-            MasterType
-        ).where(
-            MasterType.name == 'magfit_stat'
-        ).subquery()
-
-        stat_cat_fnames = db_session.execute(
+        master_photref_fnames = db_session.execute(
             select(
-                stat_subquery.c.filename,
+                MasterFile.id,
                 MasterFile.filename
-            ).join_from(
-                MasterFile,
-                stat_subquery,
-                MasterFile.progress_id == stat_subquery.c.progress_id
             ).join(
                 MasterType
             ).where(
-                MasterType.name == 'magfit_catalog'
+                MasterType.name == 'master_photref'
+            ).order_by(
+                MasterFile.progress_id
             )
         ).all()
+        match_expressions = db_session.scalars(
+            select(
+                ConditionExpression.expression
+            ).join_from(
+                MasterType,
+                Condition,
+                MasterType.condition_id == Condition.id
+            ).join(
+                ConditionExpression
+            ).where(
+                MasterType.name == 'master_photref'
+            )
+        ).all()
+    color_map = colormaps.get_cmap('tab10')
+    request.session['diagnostics'] = {
+        'magfit': {
+            'match_expressions': match_expressions,
+            'mphotref': [
+                (
+                    progress_id,
+                    tuple(
+                        Evaluator(mphotref_fname)(expr)
+                        for expr in match_expressions
+                    ),
+                    (
+                        '#'
+                        +
+                        ''.join([
+                            f'{int(numpy.round(c * 255)):02x}'
+                            for c in color_map(mphotref_index % color_map.N)[:3]
+                        ])
+                    )
+                )
+                for mphotref_index, (progress_id, mphotref_fname) in enumerate(
+                    master_photref_fnames
+                )
+            ]
+        }
+    }
 
-    return HttpResponseRedirect(reverse('processing:progress'))
+
+def refresh_diagnostics(request):
+    """Reset all diagnostics related entries in the BUI session """
+
+    del request.session['diagnostics']
+    return display_magfit_diagnostics(request, None)
+
+
+def display_magfit_diagnostics(request, imtype, master_ids=None):
+    """View displaying the scatter after magnitude fitting."""
+
+    if (
+        'diagnostics' not in request.session
+        or
+        'magfit' not in request.session['diagnostics']
+    ):
+        init_magfit_session(request)
+    return render(
+        request,
+        'processing/detrending_diagnostics.html',
+        request.session['diagnostics']['magfit']
+    )
 
 
 def display_diagnostics(request, step, imtype):
