@@ -1,6 +1,10 @@
 {% extends 'core/lcars_app.html' %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+{% endblock extra_head %}
+
 {% block header_title %}{% block app_title %}
 Detrending Performance
 {% endblock %}{% endblock %}
@@ -31,7 +35,7 @@ Detrending Performance
     <tbody class="lcars-table select-row">
         {% for processing in mphotref %}
         {% url 'processing:display_magfit_diagnostics' imtype='dummy' master_ids=processing.0 as target_url %}
-        <tr onclick="window.location='{{target_url}}'">
+        <tr>
             <td>
                 <input type="color" 
                        id="plotColor{{processing.0}}"
@@ -39,6 +43,28 @@ Detrending Performance
                        value={{processing.2}}>
             </td>
             <td>
+                <div class="dropdown">
+                    <button class="dropbtn" style="background-color: #000;">
+                        <svg width="10" height="10">
+                            <line x1="0" y1="0" x2="10", y2="10" stroke="#fff" stroke-width="2"/>
+                            <line x1="0" y1="10" x2="10", y2="0" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <a>
+                        <svg width="10" height="10">
+                            <line x1="0" y1="0" x2="10", y2="10" stroke="#fff" stroke-width="2"/>
+                            <line x1="0" y1="10" x2="10", y2="0" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                        </a>
+                        <a>
+                        <svg width="10" height="10">
+                            <line x1="0" y1="5" x2="10", y2="5" stroke="#fff" stroke-width="2"/>
+                            <line x1="5" y1="0" x2="5", y2="10" stroke="#fff" stroke-width="2"/>
+                        </svg>
+                        </a>
+                    </div>
+                </div> 
             </td>
             {% for val in processing.1 %}
             <td> {{val}} </td>
