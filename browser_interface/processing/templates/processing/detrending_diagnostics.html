@@ -1,0 +1,50 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block header_title %}{% block app_title %}
+Detrending Performance
+{% endblock %}{% endblock %}
+
+{% block left_menu %}
+<a href="{% url 'processing:refresh_diagnostics' %}">
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-1">
+        Refresh
+    </div>
+</a>
+{% endblock left_menu %}
+
+
+{% block main %}
+<table class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>Color</th>
+            <th>Marker</th>
+            {% for expr in match_expressions %}
+            <th>{{expr}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody class="lcars-table select-row">
+        {% for processing in mphotref %}
+        {% url 'processing:display_magfit_diagnostics' imtype='dummy' master_ids=processing.0 as target_url %}
+        <tr onclick="window.location='{{target_url}}'">
+            <td>
+                <input type="color" 
+                       id="plotColor{{processing.0}}"
+                       name="plotColor{{processing.0}}"
+                       value={{processing.2}}>
+            </td>
+            <td>
+            </td>
+            {% for val in processing.1 %}
+            <td> {{val}} </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock main %}

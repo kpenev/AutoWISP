@@ -90,5 +90,20 @@ urlpatterns = [
         'diagnostics/<slug:step>/<slug:imtype>',
         views.display_diagnostics,
         name='diagnostics'
+    ),
+    path(
+        'diagnostics/<slug:step>/<slug:imtype>/<slug:master_ids>',
+        views.display_diagnostics,
+        name='diagnostics'
+    ),
+    path(
+        'display_magfit_diagnostics/<slug:imtype>/<slug:master_ids>',
+        views.display_magfit_diagnostics,
+        name='display_magfit_diagnostics'
+    ),
+    path(
+        'refresh_diagnostics',
+        views.refresh_diagnostics,
+        name='refresh_diagnostics'
     )
 ]

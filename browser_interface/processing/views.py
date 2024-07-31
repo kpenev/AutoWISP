@@ -23,7 +23,10 @@ from .tune_starfind_views import\
     find_stars,\
     project_catalog,\
     save_starfind_config
-from .diagnostics_views import display_diagnostics
+from .diagnostics_views import\
+    display_diagnostics,\
+    display_magfit_diagnostics,\
+    refresh_diagnostics
 from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
 
