@@ -1,0 +1,28 @@
+{% if svg == "T" %}
+<svg width="{{size}}" height="{{size}}" viewBox="0.0 0.0 1.0 1.0">
+{% endif %}
+
+{% widthratio 1 2 size as half %}
+{% if symb ==  "x" %}
+    <line x1="0" y1="0" x2="1", y2="1" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0" y1="1" x2="1", y2="0" stroke="#fff" stroke-width="0.2"/>
+{% elif symb == "+" %}
+    <line x1="0" y1="0.5" x2="1", y2="0.5" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0.5" y1="0" x2="0.5", y2="1" stroke="#fff" stroke-width="0.2"/>
+{% elif symb == "o" %}
+    <circle cx="0.5" cy="0.5" r="0.5" stroke-width="0" fill="#fff"/>
+{% elif symb == "s" %}
+    <rect x="0" y="0" width="1" height="1" stroke-width="0" fill="#fff"/>
+{% elif symb == "v" %}
+    <polygon points="0,0.0669872981077807 1,0.0669872981077807 0.5,0.9330127018922193" stroke-width="0" fill="#fff"/>
+{% elif symb == "^" %}
+    <polygon points="0,0.9330127018922193 1,0.9330127018922193 0.5,0.0669872981077807" stroke-width="0" fill="#fff"/>
+{% elif symb == "<" %}
+    <polygon points="0.9330127018922193,0 0.9330127018922193,1 0.0669872981077807,0.5" stroke-width="0" fill="#fff"/>
+{% elif symb == ">" %}
+    <polygon points="0.0669872981077807,0 0.0669872981077807,1 0.9330127018922193,0.5" stroke-width="0" fill="#fff"/>
+{% endif %}
+{% if svg == "T" %}
+</svg>
+{% endif %}
+
