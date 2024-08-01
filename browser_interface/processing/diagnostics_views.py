@@ -1,7 +1,10 @@
 """Views for displaying diagnostics for the calibration steps."""
 
+from io import StringIO
+
 import numpy
-from matplotlib import colormaps
+import matplotlib
+from matplotlib import pyplot
 from sqlalchemy import select
 
 from django.shortcuts import render
@@ -19,8 +22,7 @@ from autowisp.database.data_model import\
     ImageType,\
     ImageProcessingProgress,\
     Condition,\
-    ConditionExpression,\
-    Step
+    ConditionExpression
 #pylint: enable=no-name-in-module
 
 
@@ -56,13 +58,13 @@ def init_magfit_session(request):
                 MasterType.name == 'master_photref'
             )
         ).all()
-    color_map = colormaps.get_cmap('tab10')
+    color_map = matplotlib.colormaps.get_cmap('tab10')
     request.session['diagnostics'] = {
         'magfit': {
             'match_expressions': match_expressions,
             'mphotref': [
                 (
-                    progress_id,
+                    mphotref_id,
                     tuple(
                         Evaluator(mphotref_fname)(expr)
                         for expr in match_expressions
@@ -74,9 +76,10 @@ def init_magfit_session(request):
                             f'{int(numpy.round(c * 255)):02x}'
                             for c in color_map(mphotref_index % color_map.N)[:3]
                         ])
-                    )
+                    ),
+                    None
                 )
-                for mphotref_index, (progress_id, mphotref_fname) in enumerate(
+                for mphotref_index, (mphotref_id, mphotref_fname) in enumerate(
                     master_photref_fnames
                 )
             ]
@@ -91,7 +94,7 @@ def refresh_diagnostics(request):
     return display_magfit_diagnostics(request, None)
 
 
-def display_magfit_diagnostics(request, imtype, master_ids=None):
+def display_magfit_diagnostics(request, imtype):
     """View displaying the scatter after magnitude fitting."""
 
     if (
@@ -100,10 +103,38 @@ def display_magfit_diagnostics(request, imtype, master_ids=None):
         'magfit' not in request.session['diagnostics']
     ):
         init_magfit_session(request)
+
+    matplotlib.use('svg')
+    pyplot.style.use('dark_background')
+
+    for (
+        mphotref_id,
+        _,
+        color,
+        marker
+    ) in request.session['diagnostics']['magfit']['mphotref']:
+        if marker is None:
+            continue
+        data = get_magfit_performance_data(mphotref_id,
+                                    0.8,
+                                    'phot_g_mean_mag',
+                                    True)
+        pyplot.plot(
+            data['magnitudes'],
+            data['best_scatter'],
+            marker=marker,
+            markeredgecolor=(color if marker in 'x+.,1234|_' else 'none'),
+            markerfacecolor=color
+        )
+
+    context = dict(request.session['diagnostics']['magfit'])
+    with StringIO() as image_stream:
+        pyplot.savefig(image_stream, format='svg')
+        context['plot'] = image_stream.getvalue()
     return render(
         request,
         'processing/detrending_diagnostics.html',
-        request.session['diagnostics']['magfit']
+        context
     )
 
 

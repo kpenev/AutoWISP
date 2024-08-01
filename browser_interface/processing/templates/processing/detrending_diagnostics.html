@@ -15,6 +15,15 @@ Detrending Performance
                 button 
                 lcars-melrose-bg
                 lcars-u-1-1">
+        Plot
+    </div>
+</a>
+
+<a href="{% url 'processing:refresh_diagnostics' %}">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-1">
         Refresh
     </div>
 </a>
@@ -44,12 +53,12 @@ Detrending Performance
             </td>
             <td>
                 <div class="dropdown">
-                    <button class="dropbtn">
-                        {% include "core/plot_symbol.svg" with symb="" size="15" svg="T" %}
+                    <button class="dropbtn" id="marker-button:{{processing.0}}">
+                        {% include "core/plot_marker.html" with symb="" size="15" svg="T" %}
                     </button>
-                    <div class="dropdown-content">
+                    <div class="dropdown-content" id="marker:{{processing.0}}">
                         {% for symb in " x+osv^<>" %}
-                        {% include "core/plot_symbol.svg" with symb=symb size="15" svg="T" %}
+                        {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
                         {% endfor %}
                     </div>
                 </div> 
@@ -61,4 +70,7 @@ Detrending Performance
         {% endfor %}
     </tbody>
 </table>
+
+<script src="{% static 'processing/js/detrending.diagnostics.js' %}"></script>
+
 {% endblock main %}
