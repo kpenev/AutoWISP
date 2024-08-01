@@ -2,7 +2,6 @@ function selectSymbol(event)
 {
     let marker = event.currentTarget.className.baseVal.split(" ")[1];
     let master_id = event.currentTarget.parentElement.id.split(":")[1];
-
     let button = document.getElementById("marker-button:" + master_id);
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
 }
