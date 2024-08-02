@@ -21,7 +21,7 @@ async function postJson(targetURL, data)
     let headers = new Headers();
     headers.append('X-CSRFToken', csrftoken);
     headers.append("Content-type", "application/json; charset=UTF-8")
-    const response = await fetch(targetURL, {
+    return await fetch(targetURL, {
         method: "POST",
         body: JSON.stringify(data),
         headers: headers,

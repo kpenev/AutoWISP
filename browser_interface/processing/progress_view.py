@@ -2,6 +2,7 @@
 
 from socket import getfqdn
 from os import waitpid, WNOHANG
+from datetime import datetime
 
 from sqlalchemy import select
 from psutil import pid_exists
@@ -96,11 +97,7 @@ def progress(request):
             )
         ):
 
-            if (
-                    pid_exists(check_running.process_id)
-                    and
-                    not waitpid(check_running.process_id, WNOHANG)
-            ):
+            if pid_exists(check_running.process_id):
                 print(f'Calibration process with ID {check_running.process_id}'
                       'still exists.')
                 context['running'] = True
