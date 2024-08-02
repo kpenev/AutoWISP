@@ -10,14 +10,13 @@ Detrending Performance
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
-<a href="{% url 'processing:refresh_diagnostics' %}">
-    <div class="lcars-element 
-                button 
-                lcars-melrose-bg
-                lcars-u-1-1">
-        Plot
-    </div>
-</a>
+<div class="lcars-element 
+            button 
+            lcars-melrose-bg
+            lcars-u-1-1"
+     id="plot-button">
+    Plot
+</div>
 
 <a href="{% url 'processing:refresh_diagnostics' %}">
     <div class="lcars-element 
@@ -31,46 +30,56 @@ Detrending Performance
 
 
 {% block main %}
-<table class="lcars-table standard-header">
-    <thead>
-        <tr>
-            <th>Color</th>
-            <th>Marker</th>
-            {% for expr in match_expressions %}
-            <th>{{expr}}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody class="lcars-table select-row">
-        {% for processing in mphotref %}
-        {% url 'processing:display_magfit_diagnostics' imtype='dummy' master_ids=processing.0 as target_url %}
-        <tr>
-            <td>
-                <input type="color" 
-                       id="plotColor{{processing.0}}"
-                       name="plotColor{{processing.0}}"
-                       value={{processing.2}}>
-            </td>
-            <td>
-                <div class="dropdown">
-                    <button class="dropbtn" id="marker-button:{{processing.0}}">
-                        {% include "core/plot_marker.html" with symb="" size="15" svg="T" %}
-                    </button>
-                    <div class="dropdown-content" id="marker:{{processing.0}}">
-                        {% for symb in " x+osv^<>" %}
-                        {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
-                        {% endfor %}
-                    </div>
-                </div> 
-            </td>
-            {% for val in processing.1 %}
-            <td> {{val}} </td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div id="active-area" class="lcars-column fill-space">
+    <div id="plot-config-parent"> 
+        <table class="lcars-table standard-header">
+            <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>Marker</th>
+                    {% for expr in match_expressions %}
+                    <th>{{expr}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="lcars-table select-row">
+                {% for processing in mphotref %}
+                {% url 'processing:display_magfit_diagnostics' imtype='dummy' master_ids=processing.0 as target_url %}
+                <tr>
+                    <td>
+                        <input type="color" 
+                               id="plotColor:{{processing.0}}"
+                               name="plotColor{{processing.0}}"
+                               value={{processing.2}}>
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="dropbtn selected-marker" id="marker-button:{{processing.0}}">
+                                {% include "core/plot_marker.html" with symb="" size="15" svg="T" %}
+                            </button>
+                            <div class="dropdown-content" id="marker:{{processing.0}}">
+                                {% for symb in " x+osv^<>" %}
+                                {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
+                                {% endfor %}
+                            </div>
+                        </div> 
+                    </td>
+                    {% for val in processing.1 %}
+                    <td> {{val}} </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="plot-sep" class="lcars-bracket hollow top"></div>
+    <div id="plot-parent" class="fill-space"></div>
+</div>
 
+<script src="{% static 'js/autowisp.util.js' %}"></script>
 <script src="{% static 'processing/js/detrending.diagnostics.js' %}"></script>
-
+{% url 'processing:update_diagnostics_plot' as updateURL %}
+<script type="text/javascript">
+    initDiagnosticsPlotting("{{updateURL}}");
+</script> 
 {% endblock main %}

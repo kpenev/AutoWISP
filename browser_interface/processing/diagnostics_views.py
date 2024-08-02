@@ -1,6 +1,7 @@
 """Views for displaying diagnostics for the calibration steps."""
 
 from io import StringIO
+import json
 
 import numpy
 import matplotlib
@@ -8,7 +9,7 @@ from matplotlib import pyplot
 from sqlalchemy import select
 
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 from autowisp import Evaluator
@@ -104,37 +105,10 @@ def display_magfit_diagnostics(request, imtype):
     ):
         init_magfit_session(request)
 
-    matplotlib.use('svg')
-    pyplot.style.use('dark_background')
-
-    for (
-        mphotref_id,
-        _,
-        color,
-        marker
-    ) in request.session['diagnostics']['magfit']['mphotref']:
-        if marker is None:
-            continue
-        data = get_magfit_performance_data(mphotref_id,
-                                    0.8,
-                                    'phot_g_mean_mag',
-                                    True)
-        pyplot.plot(
-            data['magnitudes'],
-            data['best_scatter'],
-            marker=marker,
-            markeredgecolor=(color if marker in 'x+.,1234|_' else 'none'),
-            markerfacecolor=color
-        )
-
-    context = dict(request.session['diagnostics']['magfit'])
-    with StringIO() as image_stream:
-        pyplot.savefig(image_stream, format='svg')
-        context['plot'] = image_stream.getvalue()
     return render(
         request,
         'processing/detrending_diagnostics.html',
-        context
+        request.session['diagnostics']['magfit'],
     )
 
 
@@ -144,3 +118,36 @@ def display_diagnostics(request, step, imtype):
     if step == 'fit_magnitudes':
         return display_magfit_diagnostics(request, imtype)
     return HttpResponseRedirect(reverse('processing:progress'))
+
+
+def update_diagnostics_plot(request):
+    """Update the session with new configuration for the diagnostics plot."""
+
+    plot_config = json.loads(request.body.decode())
+
+    matplotlib.use('svg')
+    pyplot.style.use('dark_background')
+    pyplot.clf()
+
+    for mphotref_id, style in plot_config.items():
+        data = get_magfit_performance_data(mphotref_id,
+                                           0.8,
+                                           'phot_g_mean_mag',
+                                           True)
+        pyplot.semilogy(
+            data['magnitudes'],
+            data['best_scatter'],
+            linestyle='none',
+            marker=style['marker'],
+            markeredgecolor=(style['color'] if style['marker'] in 'x+.,1234|_'
+                             else 'none'),
+            markerfacecolor=style['color']
+        )
+
+    pyplot.xlabel('Gaia G')
+    pyplot.ylabel('MAD')
+    pyplot.grid(True, which='both', linewidth=0.2)
+
+    with StringIO() as image_stream:
+        pyplot.savefig(image_stream, format='svg')
+        return JsonResponse({'plot_data': image_stream.getvalue()})

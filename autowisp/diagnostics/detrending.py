@@ -1,6 +1,7 @@
 """Functions for extracting diagnostics for the detrending steps."""
 
 from sqlalchemy import select
+from sqlalchemy.orm import aliased
 
 import pandas
 import numpy
@@ -73,12 +74,17 @@ def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
 def read_magfit_stat_data(master_id):
     """Return the statistics and catalog generated during given magfit step."""
 
+    master_file_alias = aliased(MasterFile)
     master_select = select(
         MasterFile.filename
     ).join(
-        MasterType
+        master_file_alias,
+        MasterFile.progress_id == master_file_alias.progress_id
+    ).join(
+        MasterType,
+        MasterFile.type_id == MasterType.id
     ).where(
-        MasterFile.id == master_id
+        master_file_alias.id == master_id
     )
     #False positive
     #pylint: disable=no-member

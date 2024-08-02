@@ -851,24 +851,28 @@ a.lcars-text-box.blink {
 }
 .lcars-bracket.left {
   width: 1.5rem;
+  min-width: 1.5rem;
   border-top-left-radius: 1.5rem;
   border-bottom-left-radius: 1.5rem;
   border-width: 0.75rem 0 0.75rem 0.25rem;
 }
 .lcars-bracket.right {
   width: 1.5rem;
+  min-width: 1.5rem;
   border-top-right-radius: 1.5rem;
   border-bottom-right-radius: 1.5rem;
   border-width: 0.75rem 0.25rem 0.75rem 0;
 }
 .lcars-bracket.top {
   height: 1.5rem;
+  min-height: 1.5rem;
   border-top-left-radius: 1.5rem;
   border-top-right-radius: 1.5rem;
   border-width: 0.25rem 0.75rem 0 0.75rem;
 }
 .lcars-bracket.bottom {
   height: 1.5rem;
+  min-height: 1.5rem;
   border-bottom-left-radius: 1.5rem;
   border-bottom-right-radius: 1.5rem;
   border-width: 0 0.75rem 0.25rem 0.75rem;
@@ -883,12 +887,12 @@ a.lcars-text-box.blink {
   min-height: 3rem;
 }
 .lcars-u--2 {
-  height: 3rem;
-  min-height: 3rem;
+  height: 6.25rem;
+  min-height: 6.25rem;
 }
 .lcars-u--3 {
-  height: 3rem;
-  min-height: 3rem;
+  height: 9.5rem;
+  min-height: 9.5rem;
 }
 .lcars-u-1-1 {
   width: 7.5rem;

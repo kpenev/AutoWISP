@@ -105,5 +105,11 @@ urlpatterns = [
         'refresh_diagnostics',
         views.refresh_diagnostics,
         name='refresh_diagnostics'
+    ),
+    path(
+        'update_diagnostics_plot',
+        views.update_diagnostics_plot,
+        name='update_diagnostics_plot'
     )
+
 ]

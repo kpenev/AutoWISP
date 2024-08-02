@@ -5,14 +5,15 @@
 
 from tempfile import NamedTemporaryFile
 import logging
-from os import path, getpid
+from os import path, getpid, getpgid, setsid
 from socket import getfqdn
+import errno
 
 from sqlalchemy import sql, select, update, and_, or_, func
 from asteval import asteval
 import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
-from psutil import pid_exists
+from psutil import pid_exists, Process
 
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process,\
@@ -62,6 +63,13 @@ class ProcessingInProgress(Exception):
         self.image_type = image_type
         self.host = host
         self.process_id = process_id
+
+    def __str__(self):
+        return (
+            f'Processing of {self.image_type} images by {self.step} step on '
+            f'{self.host!r} is still running with process id '
+            f'{self.process_id!r}!'
+        )
 
 #Intended to be used as simple callable
 #pylint: disable=too-few-public-methods
@@ -331,10 +339,10 @@ class ProcessingManager:
     """
 
 
-    def _get_param_values(self,
-                          matched_expressions,
-                          parameters=None,
-                          db_session=None):
+    def get_param_values(self,
+                         matched_expressions,
+                         parameters=None,
+                         db_session=None):
         """
         Return the values to use for the given parameters.
 
@@ -358,7 +366,7 @@ class ProcessingManager:
                 parameter name.
         """
 
-        def get_param_value(param):
+        def get_value(param):
             """Return value for given parameter."""
 
             for required_expressions, value in self.configuration[
@@ -383,7 +391,7 @@ class ProcessingManager:
         elif isinstance(parameters, Step):
             parameters = [param.name for param in parameters.parameters]
 
-        return {param: get_param_value(param) for param in parameters}
+        return {param: get_value(param) for param in parameters}
 
 
     def _write_config_file(self,
@@ -426,7 +434,7 @@ class ProcessingManager:
 
         for step in db_steps:
             outf.write(f'[{step.name}]\n')
-            step_config = self._get_param_values(
+            step_config = self.get_param_values(
                 matched_expressions,
                 [
                     param.name
@@ -1069,11 +1077,23 @@ class ProcessingManager:
             )
         ).scalar_one_or_none()
 
-        if self._current_processing is not None:
+        if (
+            self._current_processing is not None
+            and
+            not self._current_processing.finished
+        ):
             if (
                     self._current_processing.host != this_host
                     or
-                    pid_exists(self._current_processing.process_id)
+                    (
+                        pid_exists(self._current_processing.process_id)
+                        and
+                        path.basename(
+                            Process(
+                                self._current_processing.process_id
+                            ).cmdline()[1] == 'processing.py'
+                        )
+                    )
             ):
                 raise ProcessingInProgress(step.name,
                                            image_type,
@@ -1306,7 +1326,7 @@ class ProcessingManager:
                         (
                             ImageProcessingProgress.image_type_id
                             ==
-                            self._current_processing.imaget_type_id
+                            self._current_processing.image_type_id
                         ),
                         (
                             ImageProcessingProgress.configuration_version
@@ -1370,7 +1390,6 @@ class ProcessingManager:
                     image_type.name
                 )
 
-            self._some_failed = False
             pending_images, step_input_type = self._start_step(step,
                                                                image_type,
                                                                db_session)
@@ -1885,12 +1904,29 @@ class ProcessingManager:
             ) = self._prepare_processing(step,
                                          image_type,
                                          limit_to_steps)
+            self._finalize_processing()
             if processing_batches is None:
                 continue
+            first_batch = True
             for (
                     (_, start_status),
                     (config, batch)
             ) in processing_batches.items():
+                if self._some_failed:
+                    self._finalize_processing()
+                    self._some_failed = False
+                    first_batch = False
+                #False positivie
+                #pylint: disable=no-member
+                with Session.begin() as db_session:
+                #pylint: enable=no-member
+                    self._create_current_processing(
+                        db_session.merge(step),
+                        db_session.merge(image_type),
+                        db_session
+                    )
+                first_batch = False
+
                 self._logger.debug(
                     'Starting %s for a batch of %d %s images from status %s '
                     'with config:\n%s',
@@ -1909,7 +1945,7 @@ class ProcessingManager:
                 self._logger.debug('Processed %s batch of %d images.',
                                    step_name,
                                    len(batch))
-            self._finalize_processing()
+                self._finalize_processing()
 
     def add_raw_images(self, image_collection):
         """Add the given RAW images to the database for processing."""
@@ -2093,4 +2129,8 @@ def main(config):
 
 
 if __name__ == '__main__':
+    try:
+        setsid()
+    except OSError:
+        print("pid=%d  pgid=%d" % (getpid(), getpgid(0)))
     main(parse_command_line())
