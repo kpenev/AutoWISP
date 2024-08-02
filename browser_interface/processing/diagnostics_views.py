@@ -140,7 +140,6 @@ def display_magfit_diagnostics(request):
         print('Refreshing session')
         _init_magfit_session(request)
 
-
     print('Using session: ' + repr(request.session['diagnostics']['magfit']))
 
     return render(
