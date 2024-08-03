@@ -1,8 +1,9 @@
 label {
-    width: 7.5rem;
+    width: 10rem;
     height: 3rem;
     text-align: left;
     vertical-align: bottom;
+    white-space: nowrap;
 }
 
 input.param {
@@ -15,8 +16,8 @@ input.param {
     background-color: #234;
     width: 7.5rem;
     min-width: 7.5rem;
-    height: 3rem;
-    min-height: 3rem;
+    height: 2rem;
+    min-height: 2rem;
 }
 
 .param-parent {
