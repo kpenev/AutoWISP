@@ -97,7 +97,7 @@ urlpatterns = [
         name='diagnostics'
     ),
     path(
-        'display_magfit_diagnostics/<slug:imtype>/<slug:master_ids>',
+        'display_magfit_diagnostics',
         views.display_magfit_diagnostics,
         name='display_magfit_diagnostics'
     ),

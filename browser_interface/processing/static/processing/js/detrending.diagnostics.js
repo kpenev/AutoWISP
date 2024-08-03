@@ -44,30 +44,78 @@ function setPlotSize()
                                maxHeight * aspectRatio));
 }
 
-function updatePlot()
+function getPlotConfig()
 {
     const markerButtons = document.getElementsByClassName("selected-marker");
-    let plotConfig = {}
+    let plotConfig = {
+        'datasets': {},
+        'x_range': [
+            document.getElementById("plot-x-min").value,
+            document.getElementById("plot-x-max").value
+        ],
+        'y_range': [
+            document.getElementById("plot-y-min").value,
+            document.getElementById("plot-y-max").value
+        ],
+        'mag_expression': document.getElementById("mag-expression").value
+    }
     for ( const button of markerButtons ) {
         let marker = button.children[0].className.baseVal.split(" ")[1];
         if ( marker != "" ) {
             let masterId = button.id.split(":")[1];
-            plotConfig[masterId] = {
-                "color": document.getElementById("plotColor:" + masterId).value,
-                "marker": marker
+            plotConfig['datasets'][masterId] = {
+                "color": document.getElementById("plot-color:" 
+                                                 + 
+                                                 masterId).value,
+                "marker": marker,
+                "min_fraction": document.getElementById("min-fraction:" 
+                                                        + 
+                                                        masterId).value,
+                "label": document.getElementById("label:" 
+                                                 + 
+                                                 masterId).value,
             }
         }
     }
-    postJson(updatePlot.url, plotConfig)
+    return plotConfig;
+}
+
+function showNewPlot(data)
+{
+    let plotParent = document.getElementById("plot-parent");
+    for ( child of plotParent.children )
+        if ( child.tagName.toUpperCase() == "SVG" )
+            plotParent.removeChild(child);
+
+    plotParent.innerHTML = 
+        data["plot_data"]
+        +
+        document.getElementById("plot-parent").innerHTML;
+
+    document.getElementById("plot-x-min").value = 
+        data["plot_config"]["x_range"][0];
+    document.getElementById("plot-x-max").value =
+        data["plot_config"]["x_range"][1];
+
+    document.getElementById("plot-y-min").value = 
+        data["plot_config"]["y_range"][0];
+    document.getElementById("plot-y-max").value =
+        data["plot_config"]["y_range"][1];
+
+
+    setPlotSize();
+}
+
+function updatePlot()
+{
+    postJson(updatePlot.url, getPlotConfig())
         .then((response) => {
             console.log(response);
             return response.json();
         })
         .then((data) => {
             console.log(data);
-            document.getElementById("plot-parent").innerHTML = 
-                data["plot_data"];
-            setPlotSize();
+            showNewPlot(data);
         })
         .catch(function(error) {
             alert("Updating plot failed: " + error);
@@ -103,6 +151,11 @@ function sepDragStart(event)
     container.addEventListener("mouseup", sepDragEnd);
 }
 
+function startEditPlot(event)
+{
+    event.preventDefault();
+}
+
 function initDiagnosticsPlotting(plotURL) 
 {
     const plotSymbols = document.getElementsByClassName("plot-marker");
@@ -115,4 +168,6 @@ function initDiagnosticsPlotting(plotURL)
     updatePlot.url = plotURL;
     document.getElementById("plot-sep").addEventListener("mousedown",
                                                          sepDragStart)
+    let plot = document.getElementById("plot-parent").children[0];
+    plot.addEventListener("dblclick", startEditPlot);
 }
