@@ -110,6 +110,10 @@ urlpatterns = [
         'update_diagnostics_plot',
         views.update_diagnostics_plot,
         name='update_diagnostics_plot'
+    ),
+    path(
+        'download_diagnostics_plot',
+        views.download_diagnostics_plot,
+        name='download_diagnostics_plot'
     )
-
 ]

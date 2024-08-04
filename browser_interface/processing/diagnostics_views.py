@@ -1,6 +1,6 @@
 """Views for displaying diagnostics for the calibration steps."""
 
-from io import StringIO
+from io import StringIO, BytesIO
 import json
 
 import numpy
@@ -9,8 +9,7 @@ from matplotlib import pyplot
 from sqlalchemy import select
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, JsonResponse
-from django.urls import reverse
+from django.http import JsonResponse, HttpResponse
 
 from autowisp import Evaluator
 from autowisp.database.interface import Session
@@ -157,30 +156,32 @@ def display_diagnostics(request, step, imtype):
     return redirect('processing/progress')
 
 
-def update_diagnostics_plot(request):
-    """Generate and respond with update plot, also update session."""
+def create_plot(session_magfit):
+    """Create the diagnostic plot per configuration in session."""
 
-    plot_config = json.loads(request.body.decode())
-    print('Plot config: ' + repr(plot_config))
-
-    matplotlib.use('svg')
-    pyplot.style.use('dark_background')
     pyplot.clf()
+    pyplot.cla()
 
-    for mphotref_id, style in plot_config['datasets'].items():
-        data = get_magfit_performance_data(mphotref_id,
-                                           float(style['min_fraction']),
+    plot_config = session_magfit['plot_config']
+    for mphotref_info in session_magfit['mphotref']:
+        if not mphotref_info[3]:
+            continue
+
+        data = get_magfit_performance_data(int(mphotref_info[0]),
+                                           float(mphotref_info[4]),
                                            plot_config['mag_expression'],
                                            True)
         pyplot.semilogy(
             data['magnitudes'],
             data['best_scatter'],
             linestyle='none',
-            marker=style['marker'],
-            markeredgecolor=(style['color'] if style['marker'] in 'x+.,1234|_'
-                             else 'none'),
-            markerfacecolor=style['color'],
-            label=style['label']
+            marker=mphotref_info[3],
+            markeredgecolor=(
+                mphotref_info[2] if mphotref_info[3] in 'x+.,1234|_'
+                else 'none'
+            ),
+            markerfacecolor=mphotref_info[2],
+            label=mphotref_info[5]
         )
 
     try:
@@ -193,27 +194,44 @@ def update_diagnostics_plot(request):
     except ValueError:
         pass
 
-    to_update = request.session['diagnostics']['magfit']
-    to_update['plot_config']['x_range'] = [str(val) for val in pyplot.xlim()]
-    to_update['plot_config']['y_range'] = [str(val) for val in pyplot.ylim()]
-    to_update['plot_config']['mag_expression'] = plot_config['mag_expression']
-
-    pyplot.legend()
-    to_update = to_update['mphotref']
-    for mphotref_ind, mphotref_info in enumerate(to_update):
-        this_config = plot_config['datasets'].get(str(mphotref_info[0]))
-        if this_config is None:
-            continue
-        to_update[mphotref_ind][2] = this_config['color']
-        to_update[mphotref_ind][3] = this_config['marker']
-
     pyplot.xlabel(plot_config['mag_expression'])
     pyplot.ylabel('MAD')
     pyplot.grid(True, which='both', linewidth=0.2)
+    pyplot.legend()
+
+
+def update_diagnostics_plot(request):
+    """Generate and respond with update plot, also update session."""
+
+    plot_config = json.loads(request.body.decode())
+    print('Plot config: ' + repr(plot_config))
+
+    matplotlib.use('svg')
+    pyplot.style.use('dark_background')
+
+    session_magfit = request.session['diagnostics']['magfit']
+    session_magfit['plot_config']['x_range'] = plot_config['x_range']
+    session_magfit['plot_config']['y_range'] = plot_config['y_range']
+    session_magfit['plot_config']['mag_expression'] = (
+        plot_config['mag_expression']
+    )
+
+    to_update = session_magfit['mphotref']
+    for mphotref_info in to_update:
+        this_config = plot_config['datasets'].get(str(mphotref_info[0]))
+        if this_config is None:
+            continue
+        mphotref_info[2] = this_config['color']
+        mphotref_info[3] = this_config['marker']
+        mphotref_info[4] = this_config['min_fraction']
+        mphotref_info[5] = this_config['label']
+
 
     print('Updated session: ' + repr(request.session['diagnostics']['magfit']))
 
     request.session.modified = True
+
+    create_plot(session_magfit)
 
     with StringIO() as image_stream:
         pyplot.savefig(image_stream, bbox_inches='tight', format='svg')
@@ -223,3 +241,24 @@ def update_diagnostics_plot(request):
                 request.session['diagnostics']['magfit']['plot_config']
             )
         })
+
+
+def download_diagnostics_plot(request):
+    """Send the user the diagnostics plot as a PDF file."""
+
+    matplotlib.use('pdf')
+    pyplot.style.use('default')
+
+    create_plot(request.session['diagnostics']['magfit'])
+
+    with BytesIO() as image_stream:
+        pyplot.savefig(image_stream, bbox_inches='tight', format='pdf')
+        return HttpResponse(
+            image_stream.getvalue(),
+            headers={
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': (
+                    'attachment; filename="detrending_performance.pdf"'
+                )
+            }
+        )
