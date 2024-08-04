@@ -231,10 +231,6 @@ def update_diagnostics_plot(request):
 
     create_plot(session_magfit)
 
-    print('Updated session: ' + repr(request.session['diagnostics']['magfit']))
-
-    request.session.modified = True
-
     with StringIO() as image_stream:
         pyplot.savefig(image_stream, bbox_inches='tight', format='svg')
         return JsonResponse({

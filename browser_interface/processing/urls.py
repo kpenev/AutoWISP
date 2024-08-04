@@ -116,5 +116,4 @@ urlpatterns = [
         views.download_diagnostics_plot,
         name='download_diagnostics_plot'
     )
-
 ]
