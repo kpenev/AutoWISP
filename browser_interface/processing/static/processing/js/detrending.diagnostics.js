@@ -102,8 +102,11 @@ function showNewPlot(data)
     document.getElementById("plot-y-max").value =
         data["plot_config"]["y_range"][1];
 
+    document.getElementById("mag-expression").value =
+        data["plot_config"]["mag_expression"];
 
     setPlotSize();
+    document.getElementById("download-button").style.display="inline";
 }
 
 function updatePlot()

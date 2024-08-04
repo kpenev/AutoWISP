@@ -11,12 +11,23 @@ Detrending Performance
 {% endblock %}{% endblock %}
 
 {% block left_menu %}
+
+<a id="download-button" 
+   href="{% url 'processing:download_diagnostics_plot' %}">
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-1">
+        Download Figure
+    </div>
+</a>
+
 <div class="lcars-element 
             button 
             lcars-melrose-bg
             lcars-u-1-1"
      id="plot-button">
-    Plot
+    Update plot
 </div>
 
 <a href="{% url 'processing:refresh_diagnostics' %}">

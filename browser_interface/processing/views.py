@@ -27,7 +27,8 @@ from .diagnostics_views import\
     display_diagnostics,\
     display_magfit_diagnostics,\
     refresh_diagnostics,\
-    update_diagnostics_plot
+    update_diagnostics_plot,\
+    download_diagnostics_plot
 from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
 
