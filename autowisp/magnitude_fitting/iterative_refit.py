@@ -192,7 +192,8 @@ def iterative_refit(fit_dr_filenames,
     path_substitutions['magfit_iteration'] = continue_from_iteration
 
     with DataReductionFile(single_photref_dr_fname, 'r') as photref_dr:
-        fname_substitutions = dict(photref_dr.get_frame_header())
+        common_header = photref_dr.get_frame_header()
+        fname_substitutions = dict(common_header)
         fname_substitutions.update(path_substitutions)
         if continue_from_iteration > 0:
             master_reference_fname = master_photref_fname_format.format_map(
@@ -214,7 +215,6 @@ def iterative_refit(fit_dr_filenames,
     )
 
     photref_fname = None
-    common_header = _get_common_header(fit_dr_filenames)
     common_header['IMAGETYP'] = 'mphotref'
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
