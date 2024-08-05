@@ -27,23 +27,23 @@ from autowisp.database.data_model import\
 def _guess_labels(mphotref_entries):
     """Guess what would make good labels for plotting."""
 
-    num_expr = len(mphotref_entries[0][1])
+    num_expr = len(mphotref_entries[0]['expressions'])
     print(
         'Expression sets: '
         +
         repr([
-            set(entry[1][i] for entry in mphotref_entries)
+            set(entry['expressions'][i] for entry in mphotref_entries)
             for i in range(num_expr)
         ])
     )
     use_expr = [
-        len(set(entry[1][i] for entry in mphotref_entries)) > 1
+        len(set(entry['expressions'][i] for entry in mphotref_entries)) > 1
         for i in range(num_expr)
     ]
     print(f'Use expr flags: {use_expr!r}')
     for entry in mphotref_entries:
-        entry[5] = ':'.join(
-            expr for expr, use in zip(entry[1], use_expr) if use
+        entry['label'] = ':'.join(
+            expr for expr, use in zip(entry['expressions'], use_expr) if use
         )
 
 
@@ -84,13 +84,13 @@ def _init_magfit_session(request):
         'magfit': {
             'match_expressions': match_expressions,
             'mphotref': [
-                [
-                    str(mphotref_id),
-                    tuple(
+                {
+                    'id': str(mphotref_id),
+                    'expressions': tuple(
                         str(Evaluator(mphotref_fname)(expr))
                         for expr in match_expressions
                     ),
-                    (
+                    'color': (
                         '#'
                         +
                         ''.join([
@@ -98,10 +98,11 @@ def _init_magfit_session(request):
                             for c in color_map(mphotref_index % color_map.N)[:3]
                         ])
                     ),
-                    '',
-                    '0.8',
-                    ''
-                ]
+                    'marker': '',
+                    'scale': '1.0',
+                    'min_fraction': '0.8',
+                    'label': ''
+                }
                 for mphotref_index, (mphotref_id, mphotref_fname) in enumerate(
                     master_photref_fnames
                 )
@@ -109,7 +110,8 @@ def _init_magfit_session(request):
             'plot_config': {
                 'x_range': ['', ''],
                 'y_range': ['', ''],
-                'mag_expression': 'phot_g_mean_mag'
+                'mag_expression': ['phot_g_mean_mag', 'Gaia G mag'],
+                'marker_size': '5'
             }
         }
     }
@@ -164,24 +166,28 @@ def create_plot(session_magfit):
 
     plot_config = session_magfit['plot_config']
     for mphotref_info in session_magfit['mphotref']:
-        if not mphotref_info[3]:
+        if not mphotref_info['marker']:
             continue
 
-        data = get_magfit_performance_data(int(mphotref_info[0]),
-                                           float(mphotref_info[4]),
-                                           plot_config['mag_expression'],
+        data = get_magfit_performance_data(int(mphotref_info['id']),
+                                           float(mphotref_info['min_fraction']),
+                                           plot_config['mag_expression'][0],
                                            True)
         pyplot.semilogy(
             data['magnitudes'],
             data['best_scatter'],
             linestyle='none',
-            marker=mphotref_info[3],
+            marker=mphotref_info['marker'],
+            markersize=(float(plot_config['marker_size'])
+                        *
+                        float(mphotref_info['scale'])),
             markeredgecolor=(
-                mphotref_info[2] if mphotref_info[3] in 'x+.,1234|_'
-                else 'none'
+                mphotref_info['color']
+                if mphotref_info['marker'] in 'x+.,1234|_' else
+                'none'
             ),
-            markerfacecolor=mphotref_info[2],
-            label=mphotref_info[5]
+            markerfacecolor=mphotref_info['color'],
+            label=mphotref_info['label']
         )
 
     try:
@@ -194,7 +200,7 @@ def create_plot(session_magfit):
     except ValueError:
         pass
 
-    pyplot.xlabel(plot_config['mag_expression'])
+    pyplot.xlabel(plot_config['mag_expression'][1])
     pyplot.ylabel('MAD')
     pyplot.grid(True, which='both', linewidth=0.2)
     pyplot.legend()
@@ -210,21 +216,14 @@ def update_diagnostics_plot(request):
     pyplot.style.use('dark_background')
 
     session_magfit = request.session['diagnostics']['magfit']
-    session_magfit['plot_config']['x_range'] = plot_config['x_range']
-    session_magfit['plot_config']['y_range'] = plot_config['y_range']
-    session_magfit['plot_config']['mag_expression'] = (
-        plot_config['mag_expression']
-    )
+    session_magfit['plot_config'].update(plot_config)
 
     to_update = session_magfit['mphotref']
     for mphotref_info in to_update:
-        this_config = plot_config['datasets'].get(str(mphotref_info[0]))
+        this_config = plot_config['datasets'].get(str(mphotref_info['id']))
         if this_config is None:
             continue
-        mphotref_info[2] = this_config['color']
-        mphotref_info[3] = this_config['marker']
-        mphotref_info[4] = this_config['min_fraction']
-        mphotref_info[5] = this_config['label']
+        mphotref_info.update(this_config)
 
 
     print('Updated session: ' + repr(request.session['diagnostics']['magfit']))

@@ -57,7 +57,12 @@ function getPlotConfig()
             document.getElementById("plot-y-min").value,
             document.getElementById("plot-y-max").value
         ],
-        'mag_expression': document.getElementById("mag-expression").value
+        'mag_expression': [
+            document.getElementById("mag-expression").value,
+            document.getElementById("mag-label").value
+        ],
+        'marker_size': document.getElementById("marker-size").value,
+
     }
     for ( const button of markerButtons ) {
         let marker = button.children[0].className.baseVal.split(" ")[1];
@@ -68,6 +73,9 @@ function getPlotConfig()
                                                  + 
                                                  masterId).value,
                 "marker": marker,
+                "scale": document.getElementById("scale:" 
+                                                 + 
+                                                 masterId).value,
                 "min_fraction": document.getElementById("min-fraction:" 
                                                         + 
                                                         masterId).value,
@@ -103,7 +111,13 @@ function showNewPlot(data)
         data["plot_config"]["y_range"][1];
 
     document.getElementById("mag-expression").value =
-        data["plot_config"]["mag_expression"];
+        data["plot_config"]["mag_expression"][0];
+
+    document.getElementById("mag-label").value =
+        data["plot_config"]["mag_expression"][1];
+
+    document.getElementById("marker-size").value = 
+        data["plot_config"]["marker_size"];
 
     setPlotSize();
     document.getElementById("download-button").style.display="inline";

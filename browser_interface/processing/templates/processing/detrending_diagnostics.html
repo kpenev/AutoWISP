@@ -49,6 +49,7 @@ Detrending Performance
                 <tr>
                     <th>Color</th>
                     <th>Marker</th>
+                    <th>Scale</th>
                     {% for expr in match_expressions %}
                     <th>{{expr}}</th>
                     {% endfor %}
@@ -58,41 +59,46 @@ Detrending Performance
             </thead>
             <tbody class="lcars-table select-row">
                 {% for processing in mphotref %}
-                {% url 'processing:display_magfit_diagnostics' imtype='dummy' master_ids=processing.0 as target_url %}
                 <tr>
                     <td>
                         <input type="color" 
-                               id="plot-color:{{processing.0}}"
-                               value={{processing.2}}>
+                               id="plot-color:{{processing.id}}"
+                               value={{processing.color}}>
                     </td>
                     <td>
                         <div class="dropdown">
-                            <button class="dropbtn selected-marker" id="marker-button:{{processing.0}}">
-                                {% include "core/plot_marker.html" with symb=processing.3 size="15" svg="T" %}
+                            <button class="dropbtn selected-marker"
+                                    id="marker-button:{{processing.id}}">
+                                {% include "core/plot_marker.html" with symb=processing.marker size="15" svg="T" %}
                             </button>
-                            <div class="dropdown-content" id="marker:{{processing.0}}">
+                            <div class="dropdown-content"
+                                id="marker:{{processing.id}}">
                                 {% for symb in " x+osv^<>" %}
                                 {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
                                 {% endfor %}
                             </div>
                         </div> 
                     </td>
-                    {% for val in processing.1 %}
+                    <td>
+                        <input type="text" 
+                               id="scale:{{processing.id}}"
+                               value={{processing.scale}}>
+                    </td>
+
+                    {% for val in processing.expressions %}
                     <td> {{val}} </td>
                     {% endfor %}
                     <td> 
                         <input class="param" 
-                               id="min-fraction:{{processing.0}}" 
-                               name="min-fraction:{{processing.0}}"
+                               id="min-fraction:{{processing.id}}" 
                                type="text"
-                               value="{{processing.4}}"> 
+                               value="{{processing.min_fraction}}"> 
                     </td>
                     <td>
                         <input class="param" 
-                               id="label:{{processing.0}}" 
-                               name="label:{{processing.0}}"
+                               id="label:{{processing.id}}" 
                                type="text"
-                               value="{{processing.5}}"> 
+                               value="{{processing.label}}"> 
                     </td>
                 </tr>
                 {% endfor %}
@@ -107,13 +113,11 @@ Detrending Performance
             <label for="plot-{{dir}}-min">{{dir}} range:</label>
             <input class="param"
                    id="plot-{{dir}}-min"
-                   name="plot-{{dir}}-min"
                    type="text"
                    value="{{range.0}}">
             <label for="plot-{{dir}}-max"> to </label>
             <input class="param"
                    id="plot-{{dir}}-max"
-                   name="plot-{{dir}}-max"
                    type="text"
                    value="{{range.1}}">
             {% cycle range %}
@@ -122,9 +126,20 @@ Detrending Performance
             <label for="mag-expression">Magnitude expression:</label>
             <input class="param"
                    id="mag-expression"
-                   name="mag-expression"
                    type="text"
-                   value="{{plot_config.mag_expression}}">
+                   value="{{plot_config.mag_expression.0}}">
+            <label for="mag-label">X label:</label>
+            <input class="param"
+                   id="mag-label"
+                   type="text"
+                   value="{{plot_config.mag_expression.1}}">
+            <div id="param-sep" style="width:100%; height:100%"></div>
+            <label for="marker-size">Marker size:</label>
+            <input class="param"
+                   id="marker-size"
+                   type="text"
+                   value="{{plot_config.marker_size}}">
+
         </div>
     </div>
 </div>
