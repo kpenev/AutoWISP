@@ -32,7 +32,6 @@ def parse_command_line(*args):
         inputs_help_extra=('The corresponding DR files must alread contain all '
                            'photometric measurements and be magnitude fitted.'),
         add_catalog={'prefix': 'lc'},
-        add_photref=True,
         add_component_versions=('srcproj',
                                 'background',
                                 'shapefit',

@@ -802,7 +802,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
 
                     for pipeline_key_end, config_attribute in [
                             ('correction', 'correction_parametrization'),
-                            ('require', 'fit_source_condition')
+                            ('require', 'fit_source_condition'),
+                            ('single_photref', 'single_photref_dr_fname')
                     ]:
                         self.add_attribute(
                             phot_method + '.magfit.cfg.' + pipeline_key_end,

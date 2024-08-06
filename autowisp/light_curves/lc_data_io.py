@@ -752,9 +752,10 @@ class LCDataIO:
             for dset_key in component_dsets:
                 dset_dtype = get_lc_dtype(dset_key)
                 try:
-                    if dset_key.endswith('.magfit.cfg.single_photref'):
-                        value = self._config['single_photref_dr_fname']
-                    elif dset_key in self.header_datasets:
+#                    if dset_key.endswith('.magfit.cfg.single_photref'):
+#                        value = self._config['single_photref_dr_fname']
+#                    el
+                    if dset_key in self.header_datasets:
                         value = frame_header[
                             self.header_datasets[dset_key].upper()
                         ]
