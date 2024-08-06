@@ -794,7 +794,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 if path_substitutions['magfit_iteration'] == 0:
 
                     self.add_attribute(
-                        phot_method + '.magfitcfg.correction_type',
+                        phot_method + '.magfit.cfg.correction_type',
                         b'linear',
                         if_exists='error',
                         **path_substitutions
@@ -805,7 +805,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                             ('require', 'fit_source_condition')
                     ]:
                         self.add_attribute(
-                            phot_method + '.magfitcfg.' + pipeline_key_end,
+                            phot_method + '.magfit.cfg.' + pipeline_key_end,
                             getattr(magfit_configuration, config_attribute),
                             if_exists='error',
                             **path_substitutions
@@ -817,7 +817,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                                          'max_rej_iter',
                                          'error_avg']:
                         self.add_attribute(
-                            phot_method + '.magfitcfg.' + config_param,
+                            phot_method + '.magfit.cfg.' + config_param,
                             getattr(magfit_configuration, config_param),
                             if_exists='error',
                             **path_substitutions

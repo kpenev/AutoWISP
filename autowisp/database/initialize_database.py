@@ -133,7 +133,7 @@ master_info =  {
             'CLRCHNL',
             'EXPTIME'
         )),
-        'config_name': 'single-photref-dr-fname',
+        'config_name': 'master-photref-dr-fname',
         'created_by': ('fit_magnitudes', 'object'),
         'split_by': frozenset(),
         'used_by': [

@@ -13,7 +13,7 @@ _config_dset_key_rex = re.compile(
     '|'.join([
         r'_cfg_version$',
         r'.software_versions$',
-        r'\.cfg\.(?!(epoch|fov|orientation))|\.magfitcfg\.',
+        r'\.cfg\.(?!(epoch|fov|orientation))',
         r'^srcextract\.psf_map\.cfg\.'
     ])
 )
@@ -200,6 +200,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         config_component + '.cfg_index',
                         **substitutions
                     )
+                    print(f'Found config component {config_component!r}!')
                     if config_component not in self._config_indices:
                         self._config_indices[config_component] = {}
                     self._config_indices[config_component][substitution_key] = (
@@ -208,6 +209,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
                 return result
             except KeyError:
+                print(f'Config component {config_component!r} not found!')
                 config_component = config_component.rsplit('.', 1)[0]
 
     def read_data_array(self, variables):

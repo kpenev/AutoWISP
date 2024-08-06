@@ -647,7 +647,7 @@ def _get_magfit_attributes(photometry_mode):
             'fit.'
         )
     ]
-    pipeline_key_start = pipeline_key_start[:-1] + 'cfg.'
+    pipeline_key_start = pipeline_key_start[:-1] + '.cfg.'
     return result + [
         HDF5Attribute(
             pipeline_key=pipeline_key_start + 'correction_type',
