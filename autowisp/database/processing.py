@@ -7,7 +7,6 @@ from tempfile import NamedTemporaryFile
 import logging
 from os import path, getpid, getpgid, setsid
 from socket import getfqdn
-import errno
 
 from sqlalchemy import sql, select, update, and_, or_, func
 from asteval import asteval
@@ -932,6 +931,18 @@ class ProcessingManager:
                 )
         ).all():
             if self._pending[requirement]:
+                self._logger.debug(
+                    'Not ready for %s of %d %s frames because of %d pending %s '
+                    'type ID images for step ID %s:\n\t%s',
+                    step.name,
+                    len(self._pending[(step.id, image_type.id)]),
+                    image_type.name,
+                    len(self._pending[requirement]),
+                    requirement[1],
+                    requirement[0],
+                    '\n\t'.join(f'{db_session.merge(e[0])!r}: {e[1]!r}'
+                                for e in self._pending[requirement])
+                )
                 return False
         return True
 
@@ -1271,16 +1282,15 @@ class ProcessingManager:
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
+            processing = db_session.merge(self._current_processing,
+                                          load=False)
             for finished_id in self._processed_ids[input_fname]:
                 db_session.execute(
                     update(ProcessedImages).
                     where(ProcessedImages.image_id == finished_id['image_id']).
                     where(ProcessedImages.channel == finished_id['channel']).
                     where(
-                        ProcessedImages.progress_id
-                        ==
-                        db_session.merge(self._current_processing,
-                                         load=False).id
+                        ProcessedImages.progress_id == processing.id
                     ).values(
                         status=status,
                         final=final
@@ -1383,12 +1393,7 @@ class ProcessingManager:
                 return step.name, image_type.name, None
 
             if not self._check_ready(step, image_type, db_session):
-                self._logger.debug(
-                    'Not ready for %s of %d %s frames',
-                    step.name,
-                    len(self._pending[(step.id, image_type.id)]),
-                    image_type.name
-                )
+                return step.name, image_type.name, None
 
             pending_images, step_input_type = self._start_step(step,
                                                                image_type,
@@ -1420,6 +1425,62 @@ class ProcessingManager:
                 sql.func.now()
                 #pylint: enable=not-callable
             )
+            pending = [
+                (db_session.merge(image), channel)
+                for image, channel in self._pending[
+                    (
+                        self._current_processing.step_id,
+                        self._current_processing.image_type_id
+                    )
+                ]
+            ]
+
+            for finished_image_id, finished_channel in db_session.execute(
+                select(
+                    ProcessedImages.image_id,
+                    ProcessedImages.channel
+                ).where(
+                    ProcessedImages.progress_id == self._current_processing.id
+                ).where(
+                    #pylint: disable=singleton-comparison
+                    ProcessedImages.final == True
+                    #pylint: enable=singleton-comparison
+                ).where(
+                    ProcessedImages.status > 0
+                )
+            ).all():
+                found = False
+                for i, (image, channel) in enumerate(pending):
+                    if (
+                        image.id == finished_image_id
+                        and
+                        channel == finished_channel
+                    ):
+                        assert not found
+                        del pending[i]
+                        found = True
+                        break
+                if not found:
+                    self._logger.error(
+                        'Completed image ID %d, channel %s not found in '
+                        'pending for step ID %d, image type ID %d:\n\t%s',
+                        finished_image_id,
+                        finished_channel,
+                        self._current_processing.step_id,
+                        self._current_processing.image_type_id,
+                        '\n\t'.join(f'{e[0]!r}: {e[1]!r}' for e in pending)
+                    )
+                    raise RuntimeError('Finished non-pending image!')
+
+                self._pending[
+                    (
+                        self._current_processing.step_id,
+                        self._current_processing.image_type_id
+                    )
+                ] = pending
+
+
+
             if self._some_failed:
                 dropped = self._clean_pending_per_dependencies(
                     db_session,
@@ -1897,6 +1958,11 @@ class ProcessingManager:
             processing_sequence = get_processing_sequence(db_session)
 
         for step, image_type in processing_sequence:
+            self._logger.debug(
+                'At start of step pending:\n\t%s',
+                '\n\t'.join(f'{key!r}: {len(val)}'
+                            for key, val in self._pending.items())
+            )
             (
                 step_name,
                 image_type_name,
@@ -1907,7 +1973,6 @@ class ProcessingManager:
             self._finalize_processing()
             if processing_batches is None:
                 continue
-            first_batch = True
             for (
                     (_, start_status),
                     (config, batch)
@@ -1915,7 +1980,6 @@ class ProcessingManager:
                 if self._some_failed:
                     self._finalize_processing()
                     self._some_failed = False
-                    first_batch = False
                 #False positivie
                 #pylint: disable=no-member
                 with Session.begin() as db_session:
@@ -1925,7 +1989,6 @@ class ProcessingManager:
                         db_session.merge(image_type),
                         db_session
                     )
-                first_batch = False
 
                 self._logger.debug(
                     'Starting %s for a batch of %d %s images from status %s '
@@ -1946,6 +2009,12 @@ class ProcessingManager:
                                    step_name,
                                    len(batch))
                 self._finalize_processing()
+                self._logger.debug(
+                    'After processing batch, pending:\n\t%s',
+                    '\n\t'.join(f'{key!r}: {len(val)}'
+                                for key, val in self._pending.items())
+                )
+
 
     def add_raw_images(self, image_collection):
         """Add the given RAW images to the database for processing."""
@@ -2132,5 +2201,5 @@ if __name__ == '__main__':
     try:
         setsid()
     except OSError:
-        print("pid=%d  pgid=%d" % (getpid(), getpgid(0)))
+        print(f"pid={getpid():d}  pgid={getpgid(0):d}")
     main(parse_command_line())

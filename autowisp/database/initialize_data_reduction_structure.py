@@ -650,6 +650,14 @@ def _get_magfit_attributes(photometry_mode):
     pipeline_key_start = pipeline_key_start[:-1] + '.cfg.'
     return result + [
         HDF5Attribute(
+            pipeline_key=pipeline_key_start + 'single_photref',
+            parent=dset_path,
+            name='SinglePhotometricReference',
+            dtype='numpy.string_',
+            description='The name of the DR file used as single photometric '
+            'reference to initiate magnitude fitting iterations.'
+        ),
+        HDF5Attribute(
             pipeline_key=pipeline_key_start + 'correction_type',
             parent=dset_path,
             name='CorrectionType',

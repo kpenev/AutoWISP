@@ -1007,34 +1007,6 @@ def _get_datasets(db_session):
         _get_detrended_datasets(magfit_datasets, 'epd')
         +
         _get_detrended_datasets(magfit_datasets, 'tfa')
-        +
-        [
-            HDF5DataSet(
-                pipeline_key=phot_mode + '.magfit.cfg.single_photref',
-                abspath=(
-                    transform_dr_to_lc_path(
-                        phot_mode + '.magfit.cfg.single_photref',
-                        (
-                            _dr_default_paths[phot_mode]['root']
-                            +
-                            _dr_default_paths['apphot']['apsplit']
-                        )
-                        if phot_mode == 'apphot' else
-                        _dr_default_paths[phot_mode]
-                    )
-                    +
-                    _default_paths['magfit']
-                    +
-                    '/Configuration/SinglePhotometricReference'
-                ),
-                dtype='numpy.string_',
-                compression='gzip',
-                compression_options='9',
-                description='The single photometric reference frame used to '
-                'initiate the magnitude fitting iterations.'
-            )
-            for phot_mode in ['apphot', 'shapefit']
-        ]
     )
 
 def get_default_light_curve_structure(db_session):
