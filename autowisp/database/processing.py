@@ -1435,6 +1435,9 @@ class ProcessingManager:
                 ]
             ]
 
+            self._logger.info('Removing from pending all successful images for '
+                              'progress: %s',
+                              self._current_processing)
             for finished_image_id, finished_channel in db_session.execute(
                 select(
                     ProcessedImages.image_id,
@@ -1446,7 +1449,7 @@ class ProcessingManager:
                     ProcessedImages.final == True
                     #pylint: enable=singleton-comparison
                 ).where(
-                    ProcessedImages.status > 0
+                    or_(ProcessedImages.status > 0, ProcessedImages.status < -1)
                 )
             ).all():
                 found = False
@@ -1958,11 +1961,6 @@ class ProcessingManager:
             processing_sequence = get_processing_sequence(db_session)
 
         for step, image_type in processing_sequence:
-            self._logger.debug(
-                'At start of step pending:\n\t%s',
-                '\n\t'.join(f'{key!r}: {len(val)}'
-                            for key, val in self._pending.items())
-            )
             (
                 step_name,
                 image_type_name,
@@ -1970,9 +1968,17 @@ class ProcessingManager:
             ) = self._prepare_processing(step,
                                          image_type,
                                          limit_to_steps)
-            self._finalize_processing()
+            self._logger.debug(
+                'At start of %s step for %s images, pending:\n\t%s',
+                step_name,
+                image_type_name,
+                '\n\t'.join(f'{key!r}: {len(val)}'
+                            for key, val in self._pending.items())
+            )
             if processing_batches is None:
                 continue
+
+            self._finalize_processing()
             for (
                     (_, start_status),
                     (config, batch)
