@@ -1163,7 +1163,7 @@ class ImageProcessingManager(ProcessingManager):
         """Initialize self._failed_dependencies in addition to normali init."""
 
         self._failed_dependencies = {}
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
     def get_step_input(self, image, channel_name, step_input_type):

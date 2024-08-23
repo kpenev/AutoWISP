@@ -6,7 +6,7 @@ from django.urls import reverse
 #from django.contrib import messages
 #from django.template import loader
 
-from autowisp.database import processing
+from autowisp.database import image_processing
 
 #This module should collect all views
 #pylint: disable=unused-import
@@ -38,7 +38,7 @@ def start_processing(_request):
 
     #We don't want processing to stop when this goes out of scope.
     #pylint: disable=consider-using-with
-    Popen([processing.__file__],
+    Popen([image_processing.__file__],
           start_new_session=True,
           encoding='ascii')
     #pylint: enable=consider-using-with

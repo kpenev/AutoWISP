@@ -176,8 +176,8 @@ master_info =  {
         'created_by': ('create_lightcurves', 'object'),
         'split_by': frozenset(),
         'used_by': [
-            'epd', 'object',
-            'tfa', 'object'
+            ('epd', 'object', False),
+            ('tfa', 'object', False)
         ],
         'description': 'The catalog file generated for collecting lightcurves.'
 

@@ -13,6 +13,8 @@ from autowisp.database.data_model.base import DataModelBase
 class LightCurveStatus(DataModelBase):
     """Table tracking the status of lightcurves for interrupted steps."""
 
+    __tablename__ = 'light_curve_status'
+
     progress_id = Column(
         Integer,
         ForeignKey('light_curve_processing_progress.id',
