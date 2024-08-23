@@ -120,7 +120,8 @@ master_info =  {
         'created_by': None,
         'split_by': frozenset(),
         'used_by': [
-            ('fit_magnitudes', 'object', False)
+            ('fit_magnitudes', 'object', False),
+            ('create_lightcurves', 'object', False)
         ],
         'description': 'The reference image to use to start magnitude '
         'fitting. Subsequently replaced by average of the corrected '
@@ -164,6 +165,22 @@ master_info =  {
         'split_by': frozenset(),
         'used_by': [],
         'description': 'The catalog file generated during magnitude fitting.'
+    },
+    'lightcurve_catalog': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'lightcurve-catalog-fname',
+        'created_by': ('create_lightcurves', 'object'),
+        'split_by': frozenset(),
+        'used_by': [
+            'epd', 'object',
+            'tfa', 'object'
+        ],
+        'description': 'The catalog file generated for collecting lightcurves.'
+
     }
 }
 
@@ -574,8 +591,10 @@ def init_processing():
                     ProcessingSequence(
                         id = processing_id,
                         step_id=db_steps[step_name].id,
-                        image_type_id=(None if image_type is None
-                                       else image_type_list.index(image_type) + 1)
+                        image_type_id=(
+                            None if image_type is None
+                            else image_type_list.index(image_type) + 1
+                        )
                     )
                 )
             for required_step, required_imtype in dependencies:

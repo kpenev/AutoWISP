@@ -6,7 +6,7 @@ Usage in terminal:
 from configargparse import ArgumentParser
 from sqlalchemy.orm import Session
 from autowisp.database.interface import Session
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.database.data_model.configuration import Configuration
 from autowisp.database.data_model.steps_and_parameters import Parameter
 from datetime import datetime
@@ -38,7 +38,7 @@ def add_to_db(version, filename, option):
         # if no version was specified use n+1 version >> processing script
             # we'd want it to be a large number to capture all current versions
             # largest version here
-        process_manage = ProcessingManager(sys.maxsize) #is this an ok value to have here?
+        process_manage = ImageProcessingManager(sys.maxsize) #is this an ok value to have here?
         for keys,values in merged_config.items():
             config = process_manage.configuration.get(keys)
             # check that key matches parameter in table
@@ -83,7 +83,7 @@ def add_to_db(version, filename, option):
 def check_exists(key, value):
     return -1
 
-def max_version(process_manage:ProcessingManager):
+def max_version(process_manage:ImageProcessingManager):
     # find max version in table to use
     return -1
 

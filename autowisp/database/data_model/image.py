@@ -178,7 +178,8 @@ class ImageProcessingProgress(DataModelBase):
 
     def __str__(self):
         return (
-            f'({self.id}) {self.step} v{self.configuration_version} started '
+            f'({self.id}) {self.step} v{self.configuration_version} for '
+            f'{self.image_type.name} images started '
             f'{self.started} on {self.host} '
             +
             (

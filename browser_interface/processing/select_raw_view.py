@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from autowisp.file_utilities import find_fits_fnames
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.image_processing import ImageProcessingManager
 
 
 class SelectRawImages(View):
@@ -104,7 +104,7 @@ class SelectRawImages(View):
                 image_list.append(full_path)
 
             try:
-                ProcessingManager().add_raw_images(image_list)
+                ImageProcessingManager().add_raw_images(image_list)
             except OSError:
                 return HttpResponseRedirect(
                     reverse('processing:select_raw_images')

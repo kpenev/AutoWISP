@@ -79,23 +79,44 @@ def get_db_configuration(version,
     #pylint: enable=no-member
 
 
-def get_processing_sequence(db_session):
-    """Return the sequence of step/image type pairs to process."""
+def get_processing_sequence(db_session, which='images'):
+    """
+    Return the sequence of steps in the pipeline.
 
-    return db_session.execute(
-        select(
+    For image processing this will be a sequence of step/image type pairs, and
+    for lightcurves it will just be a sequence of steps.
+    """
+
+
+    assert which in ['images', 'lightcurves']
+
+    if which == 'images':
+        select_seq = select(
             Step,
             ImageType
-        ).select_from(
-            ProcessingSequence
-        ).join(
-            Step,
-            ProcessingSequence.step_id == Step.id
-        ).join(
+        )
+    else:
+        select_seq = select(
+            Step
+        )
+    select_seq = select_seq.select_from(
+        ProcessingSequence
+    ).join(
+        Step,
+        ProcessingSequence.step_id == Step.id
+    )
+    if which == 'images':
+        select_seq = select_seq.join(
             ImageType,
             ProcessingSequence.image_type_id == ImageType.id
         )
-    ).all()
+    else:
+        #This is how NULL comparison is done in SQLAlchemy
+        #pylint: disable=singleton-comparison
+        select_seq = select_seq.where(ProcessingSequence.image_type_id == None)
+        #pylint: enable=singleton-comparison
+
+    return db_session.execute(select_seq).all()
 
 
 def list_channels(db_session):

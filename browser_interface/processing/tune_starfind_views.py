@@ -11,7 +11,7 @@ from sqlalchemy import select, sql
 
 from autowisp import SourceFinder, Evaluator
 from autowisp.database.interface import Session
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.image_processing import ImageProcessingManager
 from autowisp.astrometry import estimate_transformation
 from autowisp.fits_utilities import get_primary_header
 from autowisp.catalog import ensure_catalog
@@ -99,7 +99,7 @@ def _init_session(request, processing, db_session):
 def _get_pending(request):
     """Add to ``request.session`` all image/channel pending star finding ."""
 
-    processing = ProcessingManager(dummy=True)
+    processing = ImageProcessingManager(dummy=True)
 
     #False positivie
     #pylint: disable=no-member
@@ -268,7 +268,7 @@ def project_catalog(request, fits_fname):
     try:
         header = get_primary_header(fits_fname)
         evaluate = Evaluator(header)
-        processing = ProcessingManager(dummy=True)
+        processing = ImageProcessingManager(dummy=True)
         config = prepare_configuration(
             processing.get_config(
                 matched_expressions=processing.get_matched_expressions(

@@ -335,6 +335,7 @@ class EPDCorrection(Correction):
         else:
             num_extra_predictors = len(extra_predictors.dtype.names)
 
+        self.mark_start(lc_fname)
         with LightCurveFile(lc_fname, 'r+') as light_curve:
 
             result = scipy.empty(
@@ -363,6 +364,7 @@ class EPDCorrection(Correction):
                     num_extra_predictors=num_extra_predictors
                 )
 
+        self.mark_end(lc_fname)
         return result
     #pylint: enable=too-many-locals
 #pylint: enable=too-many-instance-attributes

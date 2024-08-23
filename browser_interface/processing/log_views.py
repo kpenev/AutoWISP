@@ -7,7 +7,7 @@ from django.shortcuts import render
 from sqlalchemy import select, func, and_
 
 from autowisp.database.interface import Session
-from autowisp.database.processing import ProcessingManager
+from autowisp.database.image_processing import ImageProcessingManager
 #False positive
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
@@ -142,7 +142,9 @@ def review_single(request,
                'min_log_level': min_log_level,
                'selected_subp': sub_process}
 
-    log_output_fnames = ProcessingManager(dummy=True).find_processing_outputs(
+    log_output_fnames = ImageProcessingManager(
+        dummy=True
+    ).find_processing_outputs(
         selected_processing_id
     )
     context['sub_processes'] = range(1, len(log_output_fnames[1][0]) + 1)

@@ -160,4 +160,6 @@ def collect_light_curves(dr_filenames,
             mark_end(dr_fname, status=1, final=True)
 
         num_processed = stop_processing
+
+    return catalog_sources
 #pylint: enable=too-many-locals

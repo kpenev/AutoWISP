@@ -7,6 +7,8 @@ import logging
 
 from asteval import Interpreter
 import numpy
+from astropy.io import fits
+from astropy.table import Table
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
@@ -110,6 +112,12 @@ def parse_command_line(*args):
         default='{ALTITUDE}',
         help='Same as `--latitude-deg` but for the altitude in meters.'
     )
+    parser.add_argument(
+        '--lightcurve-catalog-fname',
+        default='MASTERS/lc_catalog_{FIELD}_{CLRCHNL}_{EXPTIME}.fits',
+        help='The filename of the master catalog to create, possibly with '
+        'substitutions from the header of the single photometric reference.'
+    )
 
     result = parser.parse_args(*args)
 
@@ -182,6 +190,24 @@ def get_path_substitutions(configuration):
     return path_substitutions
 
 
+def create_master_catalog(catalog_sources, configuration):
+    """Create a FITS catalog containing the given sources."""
+
+    with DataReductionFile(configuration['single_photref_dr_fname'], 'r') as \
+            sphotref_dr:
+        master_cat_fname = configuration['lightcurve_catalog_fname'].format_map(
+            sphotref_dr.get_frame_header()
+        )
+
+    table_hdu = fits.table_to_hdu(Table.from_pandas(catalog_sources))
+    table_hdu.header['SPHOTREF'] = configuration['single_photref_dr_fname']
+    fits.HDUList([
+        fits.PrimaryHDU(),
+        table_hdu
+    ]).writeto(master_cat_fname)
+    return master_cat_fname
+
+
 def create_lightcurves(dr_collection,
                        start_status,
                        configuration,
@@ -196,13 +222,15 @@ def create_lightcurves(dr_collection,
     if start_status == 1:
         for dr_fname in dr_collection:
             mark_end(dr_fname)
-        return
+        return None
 
     path_substitutions = get_path_substitutions(configuration)
     print('Path substitutions: ' + repr(path_substitutions))
 
+    catalog_sources = None
+
     for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
-        collect_light_curves(
+        new_catalog_sources = collect_light_curves(
             dr_filename_list,
             configuration,
             mark_start=mark_start,
@@ -214,6 +242,16 @@ def create_lightcurves(dr_collection,
                          'SITEALT': alt},
             **path_substitutions
         )
+        if catalog_sources is None:
+            catalog_sources = new_catalog_sources
+        else:
+            catalog_sources = catalog_sources.combine_first(new_catalog_sources)
+
+    return {
+        'filename': create_master_catalog(catalog_sources, configuration),
+        'preference_order': None,
+        'type': 'lightcurve_catalog'
+    }
 
 
 def cleanup_interrupted(interrupted, configuration):

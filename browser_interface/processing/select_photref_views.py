@@ -10,8 +10,8 @@ from matplotlib import pyplot
 from sqlalchemy import select
 import pandas
 
-from autowisp.database.processing import\
-    ProcessingManager,\
+from autowisp.database.image_processing import\
+    ImageProcessingManager,\
     get_master_expression_ids,\
     remove_failed_prerequisite
 from autowisp.database.interface import Session
@@ -34,7 +34,7 @@ def _get_missing_photref(request):
     """Add all frame sets missing photometric reference to the session."""
 
     assert 'need_photref' not in request.session
-    processing = ProcessingManager(dummy=True)
+    processing = ImageProcessingManager(dummy=True)
     #False positivie
     #pylint: disable=no-member
     with Session.begin() as db_session:
@@ -321,7 +321,7 @@ def record_photref_selection(request, target_index, image_index):
 
     request.session.modified = True
 
-    ProcessingManager(dummy=True).add_masters(
+    ImageProcessingManager(dummy=True).add_masters(
         {
             'type': 'single_photref',
             'filename': dr_fname,
