@@ -4,20 +4,18 @@
 """Handle data processing DB interactions."""
 
 import logging
-from os import path, getpid, getpgid, setsid
-from socket import getfqdn
+from os import path, getpid, getpgid, setsid, fork
+import sys
 
 from sqlalchemy import sql, select, update, and_, or_, func
 import numpy
 from configargparse import ArgumentParser, DefaultsFormatter
-from psutil import pid_exists, Process
 
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process,\
     get_log_outerr_filenames
 
 from autowisp.database.processing import ProcessingManager
-from autowisp import Evaluator
 from autowisp.database.interface import Session
 from autowisp.file_utilities import find_fits_fnames
 from autowisp import processing_steps
@@ -31,7 +29,6 @@ from autowisp.database.data_model import\
     Step,\
     Image,\
     ObservingSession,\
-    MasterFile,\
     MasterType,\
     InputMasterTypes,\
     Condition,\
@@ -44,22 +41,6 @@ from autowisp.database.data_model.provenance import\
 
 class NoMasterError(ValueError):
     """Raised when no suitable master can be found for a batch of frames."""
-
-class ProcessingInProgress(Exception):
-    """Raised when a particular step is running in a different process/host."""
-
-    def __init__(self, step, image_type, host, process_id):
-        self.step = step
-        self.image_type = image_type
-        self.host = host
-        self.process_id = process_id
-
-    def __str__(self):
-        return (
-            f'Processing of {self.image_type} images by {self.step} step on '
-            f'{self.host!r} is still running with process id '
-            f'{self.process_id!r}!'
-        )
 
 #Intended to be used as simple callable
 #pylint: disable=too-few-public-methods
@@ -276,7 +257,7 @@ class ImageProcessingManager(ProcessingManager):
     Attrs:
         See `ProcessingManager`.
 
-        _pending(dict):    Indexed by step ID, and image type ID list of
+        pending(dict):    Indexed by step ID, and image type ID list of
             (Image, channel name) tuples listing all the images of the given
             type that have not been processed by the currently selected version
             of the step in the key.
@@ -502,7 +483,7 @@ class ImageProcessingManager(ProcessingManager):
         """Remove pending images from steps if they failed a required step."""
 
         dropped = {}
-        for (step_id, image_type_id), pending in self._pending.items():
+        for (step_id, image_type_id), pending in self.pending.items():
             if (
                 from_image_type_id is not None
                 and
@@ -530,7 +511,7 @@ class ImageProcessingManager(ProcessingManager):
                                                            image_type_id,
                                                            prereq_step_id,
                                                            db_session)
-                self._pending[(step_id, image_type_id)] = pending
+                self.pending[(step_id, image_type_id)] = pending
 
                 dropped[(step_id, image_type_id)].extend(failed_prereq)
 
@@ -586,18 +567,18 @@ class ImageProcessingManager(ProcessingManager):
                     StepDependencies.blocked_image_type_id == image_type.id
                 )
         ).all():
-            if self._pending[requirement]:
+            if self.pending[requirement]:
                 self._logger.debug(
                     'Not ready for %s of %d %s frames because of %d pending %s '
                     'type ID images for step ID %s:\n\t%s',
                     step.name,
-                    len(self._pending[(step.id, image_type.id)]),
+                    len(self.pending[(step.id, image_type.id)]),
                     image_type.name,
-                    len(self._pending[requirement]),
+                    len(self.pending[requirement]),
                     requirement[1],
                     requirement[0],
                     '\n\t'.join(f'{db_session.merge(e[0])!r}: {e[1]!r}'
-                                for e in self._pending[requirement])
+                                for e in self.pending[requirement])
                 )
                 return False
         return True
@@ -703,101 +684,17 @@ class ImageProcessingManager(ProcessingManager):
             )
 
 
-    def _create_current_processing(self, step, image_type, db_session):
-        """Add a new ImageProcessingProgress at start of given step."""
-
-        this_host  = getfqdn()
-        process_id = getpid()
-
-        self.current_step = step
-        self._current_processing = db_session.execute(
-            select(
-                ImageProcessingProgress
-            ).where(
-                (
-                    ImageProcessingProgress.step_id
-                    ==
-                    self.current_step.id
-                ),
-                (
-                    ImageProcessingProgress.image_type_id
-                    ==
-                    image_type.id
-                ),
-                (
-                    ImageProcessingProgress.configuration_version
-                    ==
-                    self.step_version[step.name]
-                ),
-                (
-                    #This is how to check for NULL in sqlalchemy
-                    #pylint: disable=singleton-comparison
-                    ImageProcessingProgress.host
-                    ==
-                    this_host
-                    #pylint: enable=singleton-comparison
-                )
-            ).order_by(
-                ImageProcessingProgress.started.desc()
-            ).limit(
-                1
-            )
-        ).scalar_one_or_none()
-
-        if (
-            self._current_processing is not None
-            and
-            not self._current_processing.finished
-        ):
-            if (
-                    self._current_processing.host != this_host
-                    or
-                    (
-                        pid_exists(self._current_processing.process_id)
-                        and
-                        path.basename(
-                            Process(
-                                self._current_processing.process_id
-                            ).cmdline()[1] == 'processing.py'
-                        )
-                    )
-            ):
-                raise ProcessingInProgress(step.name,
-                                           image_type,
-                                           self._current_processing.host,
-                                           self._current_processing.process_id)
-            self._logger.warning(
-                'Processing progress %s appears to have crashed.',
-                self._current_processing
-            )
-            #False positive
-            #pylint: disable=not-callable
-            self._current_processing.finished = sql.func.now()
-            #pylint: enable=not-callable
-            db_session.flush()
-
-        self._current_processing = ImageProcessingProgress(
-            step_id=step.id,
-            image_type_id=image_type.id,
-            configuration_version=self.step_version[step.name],
-            host=this_host,
-            process_id=process_id,
-            #False positive
-            #pylint: disable=not-callable
-            started=sql.func.now(),
-            #pylint: enable=not-callable
-            finished=None
-        )
-        db_session.add(self._current_processing)
-        db_session.flush()
-
-
     def _start_step(self, step, image_type, db_session):
         """
         Record the start of a processing step and return the images to process.
 
         Args:
-            step_name(str):    The name of the step to start.
+            step(Step):    The database step to start.
+
+            image_type(ImageType):    The database type of image to start
+                processing.
+
+            db_session:    Active session for database queries.
 
         Returns:
             [(Image, str)]:
@@ -807,13 +704,13 @@ class ImageProcessingManager(ProcessingManager):
                 The type of input expected by the current step.
         """
 
-        step = db_session.merge(step, load=False)
-        image_type = db_session.merge(image_type, load=False)
-        self._create_current_processing(step, image_type, db_session)
+        self._create_current_processing(step,
+                                        ('image_type', image_type.id),
+                                        db_session)
 
         pending_images = [
             (db_session.merge(image, load=False), channel)
-            for image, channel in self._pending[(step.id, image_type.id)]
+            for image, channel in self.pending[(step.id, image_type.id)]
         ]
         for image, channel in self._failed_dependencies.get(
             (step.id, image_type.id),
@@ -1083,7 +980,7 @@ class ImageProcessingManager(ProcessingManager):
             )
             pending = [
                 (db_session.merge(image), channel)
-                for image, channel in self._pending[
+                for image, channel in self.pending[
                     (
                         self._current_processing.step_id,
                         self._current_processing.image_type_id
@@ -1131,7 +1028,7 @@ class ImageProcessingManager(ProcessingManager):
                     )
                     raise RuntimeError('Finished non-pending image!')
 
-                self._pending[
+                self.pending[
                     (
                         self._current_processing.step_id,
                         self._current_processing.image_type_id
@@ -1193,38 +1090,14 @@ class ImageProcessingManager(ProcessingManager):
         raise ValueError(f'Invalid step input type {step_input_type}')
 
 
-    def get_candidate_masters(self, image, channel, master_type, db_session):
-        """Return list of masters of given type that are applicable to image."""
-
-        image_eval = self.evaluate_expressions_image(image,
-                                                     channel,
-                                                     True)
-        print(f'Image keys: {image_eval.symtable.keys()!r}')
-        candidate_masters = db_session.scalars(
-            select(
-                MasterFile
-            ).filter_by(
-                type_id=master_type.master_type_id,
-                enabled=True,
-            )
-        ).all()
-        result = []
-        for master in candidate_masters:
-            master_eval = Evaluator(master.filename)
-            print(f'Master keys: {master_eval.symtable.keys()!r}')
-            all_match = True
-            for expr in master.master_type.match_expressions:
-                if master_eval(expr.expression) != image_eval(expr.expression):
-                    all_match = False
-                    break
-            if all_match:
-                result.append(master)
-        return result
-
-
-    def get_pending(self, db_session, steps_imtypes=None, invert=False):
+    def set_pending(self, db_session, steps_imtypes=None, invert=False):
         """
-        Return the unprocessed images and channels split by step and image type.
+        Set the unprocessed images and channels split by step and image type.
+
+        Set the self.pending attribute to a dictionary with format ``{(step.id,
+        image_type.id): (Image, str)}``, containing the images and channels of
+        the specified type for which the specified step has not applied with the
+        current configuration.
 
         Args:
             db_session(Session):    The database session to use.
@@ -1238,9 +1111,7 @@ class ImageProcessingManager(ProcessingManager):
 
 
         Returns:
-            {(step.id, image_type.id): (Image, str)}:
-                The images and channels of the specified type for which the
-                specified step has not applied with the current configuration.
+            None
         """
 
         select_image_channel = select(
@@ -1256,7 +1127,6 @@ class ImageProcessingManager(ProcessingManager):
             CameraChannel
         )
 
-        pending = {}
         for step, image_type in (steps_imtypes
                                  or
                                  get_processing_sequence(db_session)):
@@ -1302,14 +1172,16 @@ class ImageProcessingManager(ProcessingManager):
             else:
                 query = query.where(processed_subquery.c.image_id == None)
             #pylint: enable=singleton-comparison
-            pending[(step.id, image_type.id)] = db_session.execute(query).all()
+            self.pending[(step.id, image_type.id)] = db_session.execute(
+                query
+            ).all()
             self._logger.debug(
                 'Identified %d %s images for which %s is pending',
-                len(pending[(step.id, image_type.id)]),
+                len(self.pending[(step.id, image_type.id)]),
                 image_type.name,
                 step.name
             )
-        self._logger.debug('Pending: %s', repr(pending))
+        self._logger.debug('Pending: %s', repr(self.pending))
 
         self._failed_dependencies = (
             self._clean_pending_per_dependencies(db_session)
@@ -1323,8 +1195,6 @@ class ImageProcessingManager(ProcessingManager):
                 self._failed_dependencies.items()
             )
         )
-
-        return pending
 
 
     def group_pending_by_conditions(self,
@@ -1498,7 +1368,7 @@ class ImageProcessingManager(ProcessingManager):
                 step_name,
                 image_type_name,
                 '\n\t'.join(f'{key!r}: {len(val)}'
-                            for key, val in self._pending.items())
+                            for key, val in self.pending.items())
             )
             if processing_batches is None:
                 continue
@@ -1517,7 +1387,7 @@ class ImageProcessingManager(ProcessingManager):
                 #pylint: enable=no-member
                     self._create_current_processing(
                         db_session.merge(step),
-                        db_session.merge(image_type),
+                        ('image_type', db_session.merge(image_type).id),
                         db_session
                     )
 
@@ -1543,7 +1413,7 @@ class ImageProcessingManager(ProcessingManager):
                 self._logger.debug(
                     'After processing batch, pending:\n\t%s',
                     '\n\t'.join(f'{key!r}: {len(val)}'
-                                for key, val in self._pending.items())
+                                for key, val in self.pending.items())
                 )
 
 
@@ -1611,4 +1481,12 @@ if __name__ == '__main__':
         setsid()
     except OSError:
         print(f"pid={getpid():d}  pgid={getpgid(0):d}")
+
+    pid = fork()
+    if pid < 0:
+        raise RuntimeError("fork fail")
+    if pid != 0:
+        sys.exit(0)
+
+    setsid()
     main(parse_command_line())
