@@ -10,6 +10,8 @@ from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
+__all__ = ['LightCurveStatus']
+
 class LightCurveStatus(DataModelBase):
     """Table tracking the status of lightcurves for interrupted steps."""
 

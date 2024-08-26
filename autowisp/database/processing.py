@@ -2,9 +2,11 @@
 
 from abc import ABC, abstractmethod
 import logging
-from os import path
+from os import path, getpid
 from tempfile import NamedTemporaryFile
+from socket import getfqdn
 
+from psutil import pid_exists, Process
 from sqlalchemy import sql, select
 from asteval import asteval
 
@@ -25,10 +27,32 @@ from autowisp import processing_steps
 from autowisp.database.data_model import\
     Configuration,\
     ImageType,\
+    ImageProcessingProgress,\
+    LightCurveProcessingProgress,\
     MasterFile,\
     MasterType,\
     Step
 #pylint: enable=no-name-in-module
+
+
+class ProcessingInProgress(Exception):
+    """Raised when a particular step is running in a different process/host."""
+
+    def __init__(self, processing):
+        self.step = processing.step.name
+        if hasattr(processing, 'image_type'):
+            self.target = processing.image_type.name + ' images'
+        else:
+            self.target = processing.sphotref.filename + ' lightcurves'
+        self.host = processing.host
+        self.process_id = processing.process_id
+
+    def __str__(self):
+        return (
+            f'Processing of {self.target} by {self.step} step on '
+            f'{self.host!r} is still running with process id '
+            f'{self.process_id!r}!'
+        )
 
 
 #pylint: disable=too-many-instance-attributes
@@ -390,6 +414,98 @@ class ProcessingManager(ABC):
             self.add_masters(new_masters, step_name, image_type_name)
 
 
+    def _check_running_processing(self,
+                                  running_processing,
+                                  this_host,
+                                  db_session):
+        """Check if any unfinished processing progresses are still running."""
+
+        for processing in running_processing:
+            if (
+                processing is not None
+                and
+                not processing.finished
+            ):
+                if (
+                        processing.host != this_host
+                        or
+                        (
+                            pid_exists(processing.process_id)
+                            and
+                            path.basename(
+                                Process(
+                                    processing.process_id
+                                ).cmdline()[1] == 'processing.py'
+                            )
+                        )
+                ):
+                    raise ProcessingInProgress(processing)
+                self._logger.warning(
+                    'Processing progress %s appears to have crashed.',
+                    processing
+                )
+                #False positive
+                #pylint: disable=not-callable
+                processing.finished = sql.func.now()
+                #pylint: enable=not-callable
+                db_session.flush()
+
+
+    def _create_current_processing(self, step, target, db_session):
+        """Add a new ProcessingProgress at start of given step."""
+
+        this_host  = getfqdn()
+        process_id = getpid()
+
+        self.current_step = step
+
+        progress_class = (
+            ImageProcessingProgress if target[0] == 'image_type'
+            else LightCurveProcessingProgress
+        )
+        self._check_running_processing(
+            db_session.scalars(
+                select(
+                    progress_class
+                ).where(
+                    (
+                        progress_class.step_id
+                        ==
+                        self.current_step.id
+                    ),
+                    (
+                        getattr(progress_class, target[0] + '_id')
+                        ==
+                        target[1]
+                    ),
+                    (
+                        progress_class.configuration_version
+                        ==
+                        self.step_version[step.name]
+                    )
+                )
+            ).all(),
+            this_host,
+            db_session
+        )
+
+        self._current_processing = progress_class(
+            step_id=step.id,
+            **{
+                target[0] + '_id': target[1]
+            },
+            configuration_version=self.step_version[step.name],
+            host=this_host,
+            process_id=process_id,
+            #False positive
+            #pylint: disable=not-callable
+            started=sql.func.now(),
+            #pylint: enable=not-callable
+            finished=None,
+        )
+        db_session.add(self._current_processing)
+        db_session.flush()
+
 
     @abstractmethod
     def _start_processing(self, input_fname):
@@ -461,7 +577,7 @@ class ProcessingManager(ABC):
         self.condition_expressions = {}
         self._evaluated_expressions = {}
         self._processed_ids = {}
-        self._pending = {}
+        self.pending = {}
         self._some_failed = False
         #False positivie
         #pylint: disable=no-member
@@ -534,7 +650,7 @@ class ProcessingManager(ABC):
 
             if not dummy:
                 self._cleanup_interrupted(db_session)
-                self._pending = self.get_pending(db_session)
+                self.set_pending(db_session)
 
 
     def get_config(self,
@@ -573,21 +689,42 @@ class ProcessingManager(ABC):
             ), config_key
 
 
+    def get_candidate_masters(self, image, channel, master_type, db_session):
+        """Return list of masters of given type that are applicable to image."""
+
+        image_eval = self.evaluate_expressions_image(image,
+                                                     channel,
+                                                     True)
+        print(f'Image keys: {image_eval.symtable.keys()!r}')
+        candidate_masters = db_session.scalars(
+            select(
+                MasterFile
+            ).filter_by(
+                type_id=master_type.master_type_id,
+                enabled=True,
+            )
+        ).all()
+        result = []
+        for master in candidate_masters:
+            master_eval = Evaluator(master.filename)
+            print(f'Master keys: {master_eval.symtable.keys()!r}')
+            all_match = True
+            for expr in master.master_type.match_expressions:
+                if master_eval(expr.expression) != image_eval(expr.expression):
+                    all_match = False
+                    break
+            if all_match:
+                result.append(master)
+        return result
+
+
     @abstractmethod
-    def get_pending(self, db_session):
+    def set_pending(self, db_session):
         """
-        Return the unprocessed images and channels split by step and image type.
+        Set the unprocessed images and channels split by step and image type.
 
         Args:
             db_session(Session):    The database session to use.
-
-            steps_imtypes(Step, ImageType):    The step image type combinations
-                to determine pending images for. If unspecified, the full
-                processing sequence defined in the database is used.
-
-            invert(bool):    If True, returns successfully completed (not
-                failed) instead of pending.
-
 
         Returns:
             {(step.id, image_type.id): (Image, str)}:

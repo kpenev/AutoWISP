@@ -127,12 +127,13 @@ def _get_pending(request):
             )
         ).all()
 
-        pending = processing.get_pending(db_session, find_star_steps)
-        if not reduce(lambda x, y: bool(x) or bool(y), pending.values(), False):
-            pending = processing.get_pending(db_session, find_star_steps, True)
+        processing.set_pending(db_session, find_star_steps)
+        if not reduce(lambda x, y: bool(x) or bool(y),
+                      processing.pending.values(), False):
+            processing.set_pending(db_session, find_star_steps, True)
         for step, imtype in find_star_steps:
             grouping = {}
-            for image, channel in pending[step.id, imtype.id]:
+            for image, channel in processing.pending[step.id, imtype.id]:
                 evaluator = processing.evaluate_expressions_image(image,
                                                                   channel,
                                                                   True)

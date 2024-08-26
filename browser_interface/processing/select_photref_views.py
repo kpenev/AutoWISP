@@ -44,15 +44,15 @@ def _get_missing_photref(request):
         )
         magfit_steps = [entry for entry in get_processing_sequence(db_session)
                         if entry[0].name == 'fit_magnitudes']
-        pending_photref = processing.get_pending(db_session, magfit_steps)
+        processing.set_pending(db_session, magfit_steps)
         request.session['demo'] = False
         if not reduce(lambda x, y: bool(x) or bool(y),
-                      pending_photref.values(),
+                      processing.pending.values(),
                       False):
             request.session['demo'] = True
-            pending_photref = processing.get_pending(db_session,
-                                                     magfit_steps,
-                                                     True)
+            processing.set_pending(db_session,
+                                   magfit_steps,
+                                   True)
 
         astrom_step_id = db_session.scalar(
             select(Step.id).filter_by(name='solve_astrometry')
@@ -60,7 +60,7 @@ def _get_missing_photref(request):
         for (
                 (step_id, image_type_id),
                 pending_images
-        ) in pending_photref.items():
+        ) in processing.pending.items():
             remove_failed_prerequisite(pending_images,
                                        image_type_id,
                                        astrom_step_id,
@@ -280,7 +280,7 @@ def record_photref_selection(request, target_index, image_index):
 
     if request.session['demo']:
         print('Demo only! Not saving selected reference!')
-        return
+        return None
     print('Merit info keys: ' + repr(request.session['merit_info'].keys()))
     merit_data = pandas.read_json(
         request.session['merit_info'][str(target_index)]

@@ -293,6 +293,21 @@ step_dependencies = [
             ('fit_star_shape', 'object'),
             ('fit_source_extracted_psf_map', 'object'),
         ]
+    ),
+    (
+        'epd', 'object',
+        [
+            ('create_lightcurves', 'object'),
+            ('fit_magnitudes', 'object')
+        ]
+    ),
+    (
+        'tfa', 'object',
+        [
+            ('epd', 'object'),
+            ('create_lightcurves', 'object'),
+            ('fit_magnitudes', 'object')
+        ]
     )
 ]
 
