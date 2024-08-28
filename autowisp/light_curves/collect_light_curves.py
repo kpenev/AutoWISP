@@ -83,6 +83,10 @@ def collect_light_curves(dr_filenames,
                 **path_substitutions
             )
         ]
+        if not configuration['num_magfit_iterations']:
+            configuration['num_magfit_iterations'] = (
+                first_dr.get_num_magfit_iterations(**path_substitutions)
+            )
         catalog_sources, outliers = ensure_catalog(
             dr_files=dr_filenames,
             configuration=get_catalog_config(configuration, 'lc'),

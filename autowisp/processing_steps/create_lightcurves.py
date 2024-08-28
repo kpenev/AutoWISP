@@ -62,11 +62,13 @@ def parse_command_line(*args):
         'number is used).'
     )
     parser.add_argument(
-        '--max-magfit-iterations',
+        '--num-magfit-iterations',
         type=int,
-        default=6,
-        help='The maximum number of iterations of deriving a master photometric'
-        ' referene and re-fitting allowed during magnitude fitting.'
+        default=0,
+        help='The number of iterations of deriving a master photometric'
+        ' referene and re-fitting to copy from DR to LCs. If left as '
+        'zero the number of magnitude fitting iterations of the first DR file '
+        'is used instead.'
     )
     parser.add_argument(
         '--srcproj-column-names',

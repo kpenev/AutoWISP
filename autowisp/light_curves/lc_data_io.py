@@ -272,7 +272,7 @@ class LCDataIO:
                     - max_apertures: The maximum number of photometriec
                       apertures in any input frame.
 
-                    - max_magfit_iterations: The maximum number of magnitude
+                    - num_magfit_iterations: The maximum number of magnitude
                       fitting iterations in any input frame.
 
                     - lcdump_catalogue: The filename of a catalogue file
@@ -352,7 +352,7 @@ class LCDataIO:
         cls.max_dimension_size = {
             'source': num_sources,
             'aperture_index': config['max_apertures'],
-            'magfit_iteration': config['max_magfit_iterations'],
+            'magfit_iteration': config['num_magfit_iterations'],
             'srcextract_psf_param': len(config['srcextract_psf_params']),
             'srcproj_column_name': len(config['srcproj_column_names']),
             'sky_coord': 2
