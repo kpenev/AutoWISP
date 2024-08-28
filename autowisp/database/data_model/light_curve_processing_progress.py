@@ -7,6 +7,7 @@ from sqlalchemy import\
     Integer,\
     String,\
     TIMESTAMP,\
+    Boolean,\
     ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -61,6 +62,14 @@ class LightCurveProcessingProgress(DataModelBase):
         nullable = True,
         doc='The time processing is known to have ended (NULL if possibly still'
         ' on-going)'
+    )
+    final = Column(
+        Boolean,
+        nullable=False,
+        default=False,
+        doc='Is this the final processing status? The only case where '
+        '`status`=1 is not final is for magnitude fitting, where there may be '
+        'additional iterations needed.'
     )
     notes = Column(
         String(1000),

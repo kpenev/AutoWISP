@@ -392,28 +392,6 @@ class ProcessingManager(ABC):
         return result if return_evaluator else None
 
 
-    def _process_batch(self,
-                       batch,
-                       *,
-                       start_status,
-                       config,
-                       step_name,
-                       image_type_name):
-        """Run the current step for a batch of images given configuration."""
-
-        step_module = getattr(processing_steps, step_name)
-
-        new_masters = getattr(step_module, step_name)(
-            batch,
-            start_status,
-            config,
-            self._start_processing,
-            self._end_processing
-        )
-        if new_masters:
-            self.add_masters(new_masters, step_name, image_type_name)
-
-
     def _check_running_processing(self,
                                   running_processing,
                                   this_host,
@@ -505,34 +483,6 @@ class ProcessingManager(ABC):
         )
         db_session.add(self._current_processing)
         db_session.flush()
-
-
-    @abstractmethod
-    def _start_processing(self, input_fname):
-        """
-        Mark in the database that processing the given file has begun.
-
-        Args:
-            input_fname:    The filename of the input (DR or FITS) that is about
-                to begin processing.
-
-        Returns:
-            None
-        """
-
-
-    @abstractmethod
-    def _end_processing(self, input_fname, status=1, final=True):
-        """
-        Record that the current step has finished processing the given file.
-
-        Args:
-            input_fname:    The filename of the input (DR or FITS) that was
-                processed.
-
-        Returns:
-            None
-        """
 
 
     @abstractmethod

@@ -22,30 +22,31 @@ def parse_command_line(*args):
     ).parse_args(*args)
 
 
-def epd(lc_collection, start_status, configuration, mark_start, mark_end):
+def epd(lc_collection, start_status, configuration, mark_progress):
     """Perform EPD on (a subset of the points in) the given lightucurves."""
 
-    assert start_status is None
+    assert start_status == 0
+    configuration['fit_datasets'] = configuration.pop('epd_datasets')
+
     detrend_light_curves(
         lc_collection,
         configuration,
         EPDCorrection(
             fit_identifier='EPD',
-            used_variables=dict(cmdline_config['epd_variables']),
+            used_variables=dict(configuration['variables']),
             fit_points_filter_expression=(
-                cmdline_config['fit_points_filter_expression']
+                configuration['lc_points_filter_expression']
             ),
-            fit_terms_expression=cmdline_config['epd_terms_expression'],
-            fit_datasets=cmdline_config['fit_datasets'],
-            fit_weights=cmdline_config['fit_weights'],
-            error_avg=cmdline_config['detrend_error_avg'],
-            rej_level=cmdline_config['detrend_rej_level'],
-            max_rej_iter=cmdline_config['detrend_max_rej_iter'],
-            pre_reject=cmdline_config['pre_reject_outliers'],
-            mark_start=mark_start,
-            mark_end=mark_end
+            fit_terms_expression=configuration['epd_terms_expression'],
+            fit_datasets=configuration['fit_datasets'],
+            fit_weights=configuration['fit_weights'],
+            error_avg=configuration['detrend_error_avg'],
+            rej_level=configuration['detrend_rej_level'],
+            max_rej_iter=configuration['detrend_max_rej_iter'],
+            pre_reject=configuration['pre_reject_outliers'],
+            mark_progress=mark_progress
         ),
-        cmdline_config.pop('epd_statistics_fname'),
+        configuration.pop('epd_statistics_fname'),
     )
 
 
@@ -53,7 +54,6 @@ if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='manage', **cmdline_config)
     epd(find_lc_fnames(cmdline_config.pop('lc_files')),
-        None,
+        0,
         cmdline_config,
-        ignore_progress,
         ignore_progress)

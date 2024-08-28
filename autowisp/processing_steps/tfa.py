@@ -2,6 +2,8 @@
 
 """Apply TFA correction to lightcurves."""
 
+from general_purpose_python_modules.multiprocessing_util import setup_process
+
 from autowisp import TFACorrection
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import\
@@ -10,6 +12,7 @@ from autowisp.processing_steps.lc_detrending import\
     detrend_light_curves
 from autowisp.light_curves.apply_correction import\
     load_correction_statistics
+from autowisp.processing_steps.manual_util import ignore_progress
 
 
 def parse_command_line(*args):
@@ -22,20 +25,40 @@ def parse_command_line(*args):
     ).parse_args(*args)
 
 
-if __name__ == '__main__':
-    cmdline_config = parse_command_line()
+def tfa(lc_collection, start_status, configuration, mark_progress):
+    """Perform TFA on (a subset of the points in) the given lightucurves."""
+
+    assert start_status == 0
+
+    configuration['fit_datasets'] = configuration.pop('tfa_datasets')
+    for param in list(configuration.keys()):
+        if param.startswith('tfa_'):
+            print(f'Renaming {param!r} -> {param[4:]!r}')
+            configuration[param[4:]] = configuration.pop(param)
+        else:
+            print('Not renaming ' + repr(param))
 
     detrend_light_curves(
-        find_lc_fnames(cmdline_config.pop('lc_files')),
-        cmdline_config,
+        lc_collection,
+        configuration,
         TFACorrection(
-            load_correction_statistics(cmdline_config['epd_statistics_fname']),
-            cmdline_config,
-            error_avg=cmdline_config['detrend_error_avg'],
-            rej_level=cmdline_config['detrend_rej_level'],
-            max_rej_iter=cmdline_config['detrend_max_rej_iter'],
+            load_correction_statistics(configuration['epd_statistics_fname']),
+            configuration,
+            error_avg=configuration['detrend_error_avg'],
+            rej_level=configuration['detrend_rej_level'],
+            max_rej_iter=configuration['detrend_max_rej_iter'],
             fit_identifier='TFA',
-            verify_template_data=True
+            verify_template_data=True,
+            mark_progress=mark_progress
         ),
-        cmdline_config.pop('statistics_fname')
+        configuration.pop('statistics_fname')
     )
+
+
+if __name__ == '__main__':
+    cmdline_config = parse_command_line()
+    setup_process(task='manage', **cmdline_config)
+    tfa(find_lc_fnames(cmdline_config.pop('lc_files')),
+        0,
+        cmdline_config,
+        ignore_progress)

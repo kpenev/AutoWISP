@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 """Define a class that automates the processing of light curves."""
-from os import path, getpid, getpgid, setsid
-from socket import getfqdn
+from os import path, getpid, getpgid, setsid, fork
+import logging
+import sys
 
-from sqlalchemy import sql, select, or_, and_, literal
+from sqlalchemy import select, or_, and_, literal, update, sql
 import numpy
 
 from general_purpose_python_modules.multiprocessing_util import\
@@ -16,10 +17,12 @@ from autowisp.database.interface import Session
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.user_interface import get_processing_sequence
 from autowisp.light_curves.collect_light_curves import DecodingStringFormatter
+from autowisp import processing_steps
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
     Image,\
+    ImageType,\
     InputMasterTypes,\
     LightCurveStatus,\
     LightCurveProcessingProgress,\
@@ -43,22 +46,7 @@ class LightCurveProcessingManager(ProcessingManager):
             detrending step is pending.
     """
 
-    def _start_processing(self, input_fname):
-        """
-        Mark in the database that processing the given file has begun.
-
-        Args:
-            input_fname:    The filename of the input (DR or FITS) that is about
-                to begin processing.
-
-        Returns:
-            None
-        """
-
-        #<++>
-
-
-    def _end_processing(self, input_fname, status=1, final=True):
+    def _mark_progress(self, src_id, status=1, final=True):
         """
         Record that the current step has finished processing the given file.
 
@@ -70,48 +58,143 @@ class LightCurveProcessingManager(ProcessingManager):
             None
         """
 
-        #<++>
+        assert status > 0
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            if final:
+                db_session.execute(
+                    LightCurveStatus.delete().where(id=src_id)
+                )
+            else:
+                db_session.execute(
+                    update(LightCurveStatus).
+                    where(id=src_id).
+                    values(status=status)
+                )
 
 
     def _cleanup_interrupted(self, db_session):
-        """Cleanup previously interrupted processing for the current step."""
-
-        #<++>
+        """Don't do anything for lightcurves."""
 
 
-    def _clean_pending_per_dependencies(self, db_session):
-        """
-        Remove pending images/LCs from steps if they failed a required step.
-        """
+    def _get_lc_fnames(self,
+                       *,
+                       step,
+                       db_sphotref,
+                       catalog_fname,
+                       lc_fname,
+                       db_session):
+        """Return the lightcurves to be processed by the current step."""
 
-        #<++>
+        def check_add(src_id, lc_fname):
+            """Check if the given LC exists and mark src_id started if so."""
+
+            if path.exists(lc_fname):
+                db_session.add(
+                    LightCurveStatus(id=src_id,
+                                     progress_id=self._current_processing.id,
+                                     status=0)
+                )
+                return True
+            return False
+
+        previous = db_session.scalar(
+            select(
+                #False positive
+                #pylint: disable=not-callable
+                sql.func.count(LightCurveProcessingProgress.id)
+                #pylint: enable=not-callable
+            ).where(
+                LightCurveProcessingProgress.step_id == step.id,
+                LightCurveProcessingProgress.single_photref_id == (
+                    db_sphotref.id
+                ),
+                LightCurveProcessingProgress.configuration_version == (
+                    self.step_version[step.name]
+                ),
+                LightCurveProcessingProgress.id != self._current_processing.id
+            )
+        )
+
+        if previous:
+            source_list = db_session.scalars(
+                select(
+                    LightCurveStatus.id
+                ).join(
+                    LightCurveProcessingProgress
+                ).where(
+                    LightCurveProcessingProgress.step_id == step.id,
+                    LightCurveProcessingProgress.single_photref_id == (
+                        db_sphotref.id
+                    ),
+                    LightCurveProcessingProgress.configuration_version == (
+                        self.step_version[step.name]
+                    )
+                )
+            ).all()
+        else:
+            self._logger.debug('Reading LC catalog file: %s',
+                               repr(catalog_fname))
+            catalog = read_catalog_file(catalog_fname)
+            source_list = catalog.index
+        srcid_formatter = DecodingStringFormatter()
+
+        lc_fnames = map(
+            lambda src_id: srcid_formatter.format(lc_fname,
+                                                  *numpy.atleast_1d(src_id)),
+            source_list
+        )
+        if previous:
+            for check in lc_fnames:
+                assert path.exists(check)
+            return list(lc_fnames)
+        return [
+            lc
+            for src_id, lc in zip(source_list, lc_fnames)
+            if check_add(src_id, lc)
+        ]
 
 
     def _start_step(self,
+                    *,
                     step,
                     db_sphotref_image,
-                    sphotref_header):
+                    sphotref_header,
+                    db_sphotref,
+                    db_session):
         """
         Record start of processing and return the LCs and configuration to use.
 
         Args:
             step(Step):    The database step to start.
 
-            sphotref_image_id(int):    The ID within the image table
+            db_sphotref_image(Image):    The Image database object
                 corresponding to the single photometric reference for which
                 processing is starting.
 
-            sphotref_master_id(int):    Same as above but the ID in the
-                MasterFile table.
+            sphotref_header(dict-like):    The header of the single
+                photometric reference.
 
-            db_session:    Database session to use for creating new processing
-                progress.
+            db_sphotref(MasterFile):    The database MasterFile instance
+                corresponding to the single photometric reference.
+
+            db_session:    Session for querying the database.
 
         Returns:
+            []:
+                List of the lightcurves to process
+
             dict:
                 The complete configuration to use for the specified processing.
         """
 
+        self._create_current_processing(
+            step,
+            ('single_photref', db_sphotref.id),
+            db_session
+        )
         matched_expressions = self._evaluated_expressions[
             db_sphotref_image.id
         ][
@@ -123,36 +206,56 @@ class LightCurveProcessingManager(ProcessingManager):
             matched_expressions,
             step_name='create_lightcurves'
         )[0]
-        catalog = create_lc_cofig['lightcurve-catalog-fname'].format_map(
+
+        catalog = create_lc_cofig['lightcurve_catalog_fname'].format_map(
             sphotref_header
         )
-        lc_fname = create_lc_cofig['lc-fname']
         assert path.exists(catalog)
-        catalog = read_catalog_file(catalog)
+
+
         step_config = self.get_config(
             matched_expressions,
             db_step=step
-        )
-        srcid_formatter = DecodingStringFormatter()
-        lc_fnames = map(
-            lambda src_id: srcid_formatter.format(lc_fname,
-                                                  *numpy.atleast_1d(src_id)),
-            catalog.index
-        )
+        )[0]
+        if 'detrending_catalog' in step_config:
+            step_config['detrending_catalog'] = catalog
+        match_sphotref = f'sphotref == {db_sphotref.filename!r}'
+        if not step_config['lc_points_filter_expression']:
+            step_config['lc_points_filter_expression'] = match_sphotref
+        else:
+            step_config['lc_points_filter_expression'] = (
+                f'({step_config["lc_points_filter_expression"]}) and '
+                +
+                match_sphotref
+            )
+
+
         return (
-            [lc for lc in lc_fnames if path.exists(lc)],
+            self._get_lc_fnames(step=step,
+                                db_sphotref=db_sphotref,
+                                catalog_fname=catalog,
+                                lc_fname=create_lc_cofig['lc_fname'],
+                                db_session=db_session),
             step_config
         )
 
 
-    def _check_ready(self, step, single_p, db_session):
+    def _check_ready(self,
+                     step,
+                     image_type,
+                     single_photref_fname,
+                     db_session):
         """
         Check if the given type of images is ready to process with given step.
 
         Args:
             step(Step):    The step to check for readiness.
 
-            image_type(ImageType):    The type of images to check for readiness.
+            image_type_id(int):    The ID of the type of image to check for
+                readiness (the image type of the single photometric reference).
+
+            single_photref_fname(str):    The filename of the single photometric
+                reference identifying light curve points to process.
 
             db_session(Session):    The database session to use.
 
@@ -161,66 +264,108 @@ class LightCurveProcessingManager(ProcessingManager):
                 satisfied.
         """
 
-        for requirement in db_session.execute(
-                select(
-                    StepDependencies.blocking_step_id,
-                    StepDependencies.blocking_image_type_id,
-                ).where(
-                    StepDependencies.blocked_step_id == step.id
-                ).where(
-                    StepDependencies.blocked_image_type_id == image_type.id
-                )
+        for required_step_name, required_imtype_id in db_session.execute(
+            select(
+                Step.name,
+                StepDependencies.blocking_image_type_id,
+            ).select_from(
+                StepDependencies
+            ).join(
+                Step,
+                StepDependencies.blocking_step_id == Step.id,
+            ).where(
+                StepDependencies.blocked_step_id == step.id
+            ).where(
+                StepDependencies.blocked_image_type_id == image_type.id
+            )
         ).all():
-            if self.pending[requirement]:
+            assert required_imtype_id == image_type.id
+            if (
+                required_step_name in self.pending
+                and
+                image_type.name in self.pending[required_step_name]
+                and
+                (
+                    single_photref_fname
+                    in
+                    self.pending[required_step_name][image_type.name]
+                )
+            ):
                 self._logger.debug(
-                    'Not ready for %s of %d %s frames because of %d pending %s '
-                    'type ID images for step ID %s:\n\t%s',
+                    'Not ready for %s of lightcurve points corresponding to '
+                    'single photometric reference %s because %s is pending.',
                     step.name,
-                    len(self.pending[(step.id, image_type.id)]),
-                    image_type.name,
-                    len(self.pending[requirement]),
-                    requirement[1],
-                    requirement[0],
-                    '\n\t'.join(f'{db_session.merge(e[0])!r}: {e[1]!r}'
-                                for e in self.pending[requirement])
+                    repr(single_photref_fname),
+                    required_step_name
                 )
                 return False
         return True
 
 
-
-    def _prepare_processing(self, step, single_photref_fname, limit_to_steps):
+    def _prepare_processing(self,
+                            step_name,
+                            single_photref_fname,
+                            limit_to_steps):
         """Prepare for processing images of given type by a calibration step."""
+
+        if limit_to_steps is not None and step_name not in limit_to_steps:
+            self._logger.debug(
+                'Skipping disabled %s for single photometric reference: %s',
+                step_name,
+                repr(single_photref_fname)
+            )
+            return None, None
 
         #pylint: disable=no-member
         with (
             Session.begin() as db_session,
-            DataReductionFile(single_photref_fname) as sphotref_dr
+            DataReductionFile(single_photref_fname, 'r') as sphotref_dr
         ):
         #pylint: enable=no-member
-            step = db_session.merge(step)
+            db_sphotref = db_session.scalar(
+                select(
+                    MasterFile
+                ).where(
+                    MasterFile.filename == single_photref_fname
+                )
+            )
+            step = db_session.scalar(select(Step).where(Step.name == step_name))
             header = sphotref_dr.get_frame_header()
             image = db_session.scalar(
-                select(Image).where(Image.raw_fname == header['RAWFNAME'])
+                select(
+                    Image
+                ).where(
+                    Image.raw_fname.contains(header['RAWFNAME'] + '.fits')
+                )
             )
             self.evaluate_expressions_image(image, header['CLRCHNL'])
 
+            self._current_image_type = image.image_type.name
             setup_process(task='main',
                           parent_pid='',
-                          processing_step=step.name,
-                          image_type=image.image_type.name,
+                          processing_step=step_name,
+                          image_type=self._current_image_type,
                           **self._processing_config)
 
-            if limit_to_steps is not None and step.name not in limit_to_steps:
-                self._logger.debug('Skipping disabled %s for %s frames',
-                                   step.name,
-                                   image.image_type.name)
+            if not self._check_ready(step,
+                                     image.image_type,
+                                     single_photref_fname,
+                                     db_session):
                 return None, None
 
-            if not self._check_ready(step, image.image_type, db_session):
-                return None, None
+            return self._start_step(step=step,
+                                    db_sphotref_image=image,
+                                    sphotref_header=header,
+                                    db_sphotref=db_sphotref,
+                                    db_session=db_session)
 
-            return self._start_step(step, image, header)
+
+    def __init__(self, *args, **kwargs):
+        """Initialize self._current_image_type in addition to normali init."""
+
+        self._current_image_type = None
+        super().__init__(*args, **kwargs)
+
 
 
     def set_pending(self, db_session):
@@ -294,17 +439,36 @@ class LightCurveProcessingManager(ProcessingManager):
             ).where(
                 #pylint: disable=singleton-comparison
                 or_(
-                    LightCurveProcessingProgress.finished == False,
-                    LightCurveProcessingProgress.finished == None
+                    LightCurveProcessingProgress.final == False,
+                    LightCurveProcessingProgress.final == None
                 )
                 #pylint: enable=singleton-comparison
             )
         ).all()
         print('\n\t' + '\n\t'.join([repr(e) for e in pending]))
         for step, sphotref_fname in pending:
+            #pylint: disable=no-member
+            with DataReductionFile(sphotref_fname, 'r') as sphotref_dr:
+            #pylint: enable=no-member
+                image_type_name = db_session.scalar(
+                    select(
+                        ImageType.name
+                    ).select_from(
+                        Image
+                    ).join(
+                        ImageType
+                    ).where(
+                        Image.raw_fname.contains(
+                            sphotref_dr.get_frame_header()['RAWFNAME'] + '.fits'
+                        )
+                    )
+                )
+
             if step not in self.pending:
-                self.pending[step] = []
-            self.pending[step].append(sphotref_fname)
+                self.pending[step] = {}
+            if image_type_name not in self.pending[step]:
+                self.pending[step][image_type_name] = []
+            self.pending[step][image_type_name].append(sphotref_fname)
 
 
     def __call__(self, limit_to_steps=None):
@@ -314,13 +478,80 @@ class LightCurveProcessingManager(ProcessingManager):
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            processing_sequence = get_processing_sequence(db_session,
-                                                          'lightcurves')
+            processing_sequence = [
+                (step.name, imtype.name)
+                for step, imtype in get_processing_sequence(db_session)
+            ]
 
-        for step in processing_sequence:
-            pass
-            #<++>
+        for step_name, imtype_name in processing_sequence:
+            if step_name not in self.pending:
+                continue
+            for single_photref_fname in self.pending[step_name][imtype_name]:
+                lc_fnames, configuration = self._prepare_processing(
+                    step_name,
+                    single_photref_fname,
+                    limit_to_steps
+                )
+                if lc_fnames is None:
+                    continue
+
+                self._logger.debug(
+                    'Starting %s on %d lightcurves for single photref %s with '
+                    'configuration:\n\t%s',
+                    step_name,
+                    len(lc_fnames),
+                    repr(single_photref_fname),
+                    '\n\t'.join(f'{key}: {value!r}'
+                                for key, value in configuration.items())
+                )
+
+                step_module = getattr(processing_steps, step_name)
+                new_masters = getattr(step_module, step_name)(
+                    lc_fnames,
+                    0,
+                    configuration,
+                    self._mark_progress
+                )
+                #False positivie
+                #pylint: disable=no-member
+                with Session.begin() as db_session:
+                #pylint: enable=no-member
+                    #False positive
+                    #pylint: disable=not-callable
+                    self._current_processing = db_session.merge(
+                        self._current_processing
+                    )
+                    self._current_processing.finished = sql.func.now()
+                    self._current_processing.final = True
+                    #pylint: enable=not-callable
+
+                if new_masters:
+                    self.add_masters(new_masters,
+                                     step_name,
+                                     self._current_image_type)
+
+
+def main():
+    """Avoid global variables."""
+
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    manager = LightCurveProcessingManager()
+    print('Pending: ' + repr(manager.pending))
+    manager()
+
 
 if __name__ == '__main__':
-    manager = LightCurveProcessingManager()
-    print(repr(manager.pending))
+    try:
+        setsid()
+    except OSError:
+        print(f"pid={getpid():d}  pgid={getpgid(0):d}")
+
+    pid = fork()
+    if pid < 0:
+        raise RuntimeError("fork fail")
+    if pid != 0:
+        sys.exit(0)
+
+    setsid()
+    main()

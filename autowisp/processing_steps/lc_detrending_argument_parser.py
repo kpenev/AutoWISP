@@ -103,7 +103,7 @@ def _parse_fit_datasets(argument):
     return result
 
 
-def _parse_epd_variables(argument):
+def _parse_lc_variables(argument):
     """Parse the EPD variables command line argument (see help for details)."""
 
     var_specfication_rex = re.compile(
@@ -116,6 +116,7 @@ def _parse_epd_variables(argument):
     )
     result = []
     for specification in _split_delimited_string(argument, ';'):
+        print(f'Parsing: {specification!r}.')
         parsed_var = var_specfication_rex.match(specification)
         assert parsed_var
         substitutions = list(
@@ -255,7 +256,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 choices.extend(['limbdark'])
             parser.add_argument(
                 '--mutable-transit-params',
-                nargs='+',
+                nargs='*',
                 choices=choices,
                 default=[],
                 help='List the transit parameters for which best-fit values '
@@ -267,31 +268,6 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
     @staticmethod
     def _add_epd_arguments(parser):
         """Add parameters required for EPD only."""
-
-        parser.add_argument(
-            '--epd-variables',
-            type=_parse_epd_variables,
-            default=(
-                "x = srcproj.columns : "
-                "srcproj_column_name = 'x' & srcproj_version = 0; "
-                "y = srcproj.columns : "
-                "srcproj_column_name = 'y' & srcproj_version = 0; "
-                "bg = bg.value; "
-                "z = skypos.zenith_distance; "
-                "S = srcextract.psf_map.eval: srcextract_psf_param = 's'"
-            ),
-            help='Specify datasets to detrend against, assigning them variables'
-            'to be used in --epd-terms-expression, --fit-weights, etc. Should '
-            'be formatted as a `;` separated list of '
-            '<varname> = <dataset key> [: <substitutions>]. Similar to '
-            '--epd-datasets. For example: '
-            '"x = srcproj.columns : src_proj_column_name = x  & '
-            'srcproj_version = 0; y = srcproj.columns : '
-            'src_proj_column_name = y", defines `x` and `y` variables that '
-            'correspond to the projected x and y positions of the source in '
-            'the frame. By default, only the zenith distance is used: '
-            'z = skypos.zenith_distance'
-        )
 
         parser.add_argument(
             '--epd-terms-expression',
@@ -462,9 +438,43 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
 
         self.add_argument(
-            '--fit-points-filter-expression',
+            '--variables',
+            type=_parse_lc_variables,
+            default=(
+                'sphotref = apphot.magfit.cfg.single_photref : '
+                'aperture_index = 0'
+                +
+                (
+                    (
+                        "; x = srcproj.columns : "
+                        "srcproj_column_name = 'x' & srcproj_version = 0; "
+                        "y = srcproj.columns : "
+                        "srcproj_column_name = 'y' & srcproj_version = 0; "
+                        "bg = bg.value; "
+                        "z = skypos.zenith_distance; "
+                        "S = srcextract.psf_map.eval: "
+                        "srcextract_psf_param = 's'"
+                    )
+                    if self._mode == 'epd' else
+                    ''
+                )
+            ),
+            help='Define variables'
+            'to be used in --lc-points-filter-expression, '
+            '--epd-terms-expression, --fit-weights, etc. Should be formatted as'
+            ' a `;` separated list of <varname> = <dataset key> '
+            '[: <substitutions>]. For example: '
+            '"x = srcproj.columns : src_proj_column_name = x  & '
+            'srcproj_version = 0; y = srcproj.columns : '
+            'src_proj_column_name = y", defines `x` and `y` variables that '
+            'correspond to the projected x and y positions of the source in '
+            'the frame.'
+        )
+
+        self.add_argument(
+            '--lc-points-filter-expression',
             default=None,
-            help='An expression using epd_variables` which evaluates to either'
+            help='An expression using variables` which evaluates to either'
             ' True or False indicating if a given point in the lightcurve '
             'should be fit and corrected. Default: %(default)s'
         )
@@ -573,26 +583,3 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             help='If passed, the correction is assumed to have already been '
             'performed and performance statistics are re-derived.'
         )
-
-    def parse_args(self, *args, **kwargs):
-        """Tweaks to the parsed arguments."""
-
-        result = super().parse_args(*args, **kwargs)
-        if (
-            hasattr(result, 'epd_variables')
-            and
-            result.get('epd_variables') is None
-        ):
-            result['epd_variables'] = [('z', ('skypos.zenith_distance', {}))]
-
-        if not args and not kwargs:
-            result['fit_datasets'] = result.pop(self._mode + '_datasets')
-
-            if self._mode == 'tfa':
-                for param in list(result.keys()):
-                    if param.startswith('tfa_'):
-                        print(f'Renaming {param!r} -> {param[4:]!r}')
-                        result[param[4:]] = result.pop(param)
-                    else:
-                        print('Not renaming ' + repr(param))
-        return result

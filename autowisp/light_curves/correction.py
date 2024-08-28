@@ -245,8 +245,7 @@ class Correction:
 
     def __init__(self,
                  fit_datasets,
-                 mark_start,
-                 mark_end,
+                 mark_progress,
                  **iterative_fit_config):
         """
         Configure the fitting.
@@ -275,6 +274,5 @@ class Correction:
 
         self.fit_datasets = fit_datasets
         self.iterative_fit_config = iterative_fit_config
-        self.mark_start = mark_start
-        self.mark_end = mark_end
+        self.mark_progress = mark_progress
 #pylint: enable=too-few-public-methods

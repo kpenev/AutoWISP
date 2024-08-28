@@ -199,7 +199,9 @@ def create_master_catalog(catalog_sources, configuration):
             sphotref_dr.get_frame_header()
         )
 
-    table_hdu = fits.table_to_hdu(Table.from_pandas(catalog_sources))
+    table_hdu = fits.table_to_hdu(
+        Table.from_pandas(catalog_sources, index=True)
+    )
     table_hdu.header['SPHOTREF'] = configuration['single_photref_dr_fname']
     fits.HDUList([
         fits.PrimaryHDU(),
