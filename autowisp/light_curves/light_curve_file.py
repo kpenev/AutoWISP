@@ -430,12 +430,26 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 self.extend_dataset(pipeline_key,
                                     new_data,
                                     resolve_size='actual',
+                                    is_config=True,
                                     **substitutions)
+
+
+    def get_lc_length(self, **substitutions):
+        """Return the number of poinst present in this lightcurve."""
+
+        dataset_path = (self._file_structure['skypos.BJD'].abspath
+                        %
+                        substitutions)
+        if dataset_path not in self:
+            return 0
+        return len(self[dataset_path])
+
 
     def extend_dataset(self,
                        dataset_key,
                        new_data,
                        resolve_size=None,
+                       is_config=False,
                        **substitutions):
         """
         Add more points to the dataset identified by dataset_key.
@@ -463,6 +477,25 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         Returns:
             None
         """
+
+        def get_pad_value(replace_nonfinite):
+            """If replace_nonfinite is undefined base padding on dtype."""
+
+            if replace_nonfinite is not None:
+                return replace_nonfinite
+
+            dtype_str = self._file_structure[dataset_key].dtype
+            if dtype_str == 'numpy.bool_':
+                return False
+            if dtype_str == 'numpy.float64':
+                return numpy.nan
+            if dtype_str == 'numpy.int32':
+                return numpy.iinfo(numpy.int32).min
+            if dtype_str == 'numpy.string_':
+                return ''
+            if dtype_str == 'numpy.uint':
+                return numpy.iinfo(numpy.uint).max
+            assert False
 
         def add_new_data(dataset,
                          confirmed_length):
@@ -501,48 +534,77 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                     **substitutions
                 )
             else:
+                pad = confirmed_length - len(dataset)
                 dataset.resize(new_dataset_size, 0)
+                if pad > 0:
+                    self._logger.debug(
+                        'Padding %s (shape %s) from %s to %s with %s',
+                        repr(dataset.name),
+                        repr(dataset.shape),
+                        repr(confirmed_length - pad),
+                        repr(confirmed_length),
+                        repr(dataset_config.replace_nonfinite)
+                    )
+                    dataset[confirmed_length - pad : confirmed_length] = (
+                        get_pad_value(dataset_config.replace_nonfinite)
+                    )
                 dataset[confirmed_length:] = data_copy
 
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
 
-        if dataset_path in self:
-            dataset = self[dataset_path]
-            confirmed_length = self.get_attribute(
-                'confirmed_lc_length',
-                default_value=0
+        confirmed_length = self.get_attribute(
+            'confirmed_lc_length',
+            default_value=0
+        )
+        actual_length = self.get_lc_length(**substitutions)
+        if (
+                confirmed_length > actual_length
+                and
+                resolve_size != 'actual'
+        ):
+            raise IOError(
+                f'The {self.filename} lightcurve has a length of '
+                f'{actual_length}, smaller than the confirmed '
+                f'length of {confirmed_length}.'
             )
-            actual_length = len(dataset)
-            if (
-                    confirmed_length > actual_length
-                    and
-                    resolve_size != 'actual'
-            ):
+        if confirmed_length != actual_length:
+            if not resolve_size:
                 raise IOError(
-                    f'The {dataset_path} dataset of {self.filename} has a '
-                    f'length of {actual_length}, smaller than the confirmed '
-                    f'length of the lightcurve ({confirmed_length}).'
+                    f"The lightcurve {self.filename!r} has an actual "
+                    f"length of {actual_length:d}, expected "
+                    f"{confirmed_length:d}!"
                 )
-            if confirmed_length != actual_length:
-                if not resolve_size:
-                    raise IOError(
-                        "The lightcurve dataset "
-                        f"'{self.filename}/{dataset_path}' has an actual "
-                        f"length of {len(dataset):d}, expected "
-                        f"{confirmed_length:d}!"
-                    )
-                if resolve_size == 'actual':
-                    confirmed_length = actual_length
-                elif resolve_size != 'confirmed':
-                    raise IOError('Unexpected lightcurve length resolution: '
-                                  +
-                                  repr(resolve_size))
-            add_new_data(dataset, confirmed_length)
+            if resolve_size == 'actual':
+                confirmed_length = actual_length
+            elif resolve_size != 'confirmed':
+                raise IOError('Unexpected lightcurve length resolution: '
+                              +
+                              repr(resolve_size))
+        confirmed_length = int(confirmed_length)
+
+        if dataset_path in self:
+            assert actual_length > 0
+            dataset = self[dataset_path]
+            add_new_data(dataset,
+                         len(dataset) if is_config else confirmed_length)
         else:
+            if confirmed_length == 0 or is_config:
+                data_to_add = new_data
+            else:
+                assert confirmed_length > 0
+                data_to_add = numpy.concatenate(
+                    (
+                        numpy.full(
+                            confirmed_length,
+                            get_pad_value(dataset_config.replace_nonfinite)
+                        ),
+                        new_data
+                    )
+                )
             self.add_dataset(dataset_key,
-                             new_data,
+                             data_to_add,
                              unlimited=True,
                              **substitutions)
 
@@ -551,12 +613,43 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         """Set the confirmed length of the lightcurve to match actual length."""
 
 
-        dataset_path = (self._file_structure['skypos.BJD'].abspath
-                        %
-                        substitutions)
-        assert dataset_path in self
-        actual_length = len(self[dataset_path])
-        self.add_attribute('confirmed_lc_length', actual_length)
+        self.add_attribute('confirmed_lc_length',
+                           self.get_lc_length(**substitutions))
+
+
+    def get_num_magfit_iterations(self,
+                                  photometry_mode,
+                                  lc_points,
+                                  **path_substitutions):
+        """
+        Return how many magnitude fitting iterations are in the file.
+
+        Args:
+            path_substitutions:    See get_source_count().
+
+        Returns:
+            int:
+                The number of magnitude fitting iterations performed on the
+                set of photometry measurements identified by the
+                path_substitutions argument.
+        """
+
+        path_substitutions['magfit_iteration'] = 0
+        while True:
+            path_substitutions['magfit_iteration'] += 1
+            try:
+                if not numpy.isfinite(
+                    self.get_dataset(
+                        photometry_mode + '.magfit.magnitude',
+                        **path_substitutions
+                    )[lc_points]
+                ).any():
+                    break
+            except IOError:
+                break
+
+        return path_substitutions['magfit_iteration']
+
 
 
     def add_corrected_dataset(self,

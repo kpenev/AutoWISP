@@ -433,8 +433,6 @@ class StepCreator:
                     param not in ['h',
                                   'config-file',
                                   'extra-config-file',
-                                  'epd-datasets',
-                                  'tfa-datasets',
                                   'split-channels']
                     and
                     not param.endswith('-only-if')

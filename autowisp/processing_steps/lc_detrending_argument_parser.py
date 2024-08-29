@@ -481,6 +481,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         self.add_argument(
             f'--{self._mode!s}-datasets',
             type=_parse_fit_datasets,
+            default=None,
             help='A `;` separated list of the datasets to detrend. Each entry '
             'should be formatted as: `<input-key> -> <output-key> '
             '[: <substitution> (= <value>| in <expression>) '
