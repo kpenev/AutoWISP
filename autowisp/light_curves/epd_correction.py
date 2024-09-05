@@ -3,7 +3,6 @@
 from itertools import repeat
 import logging
 
-import scipy
 import numpy
 from numpy.lib import recfunctions
 
@@ -155,7 +154,7 @@ class EPDCorrection(Correction):
     #pylint: disable=too-many-locals
     def __call__(self,
                  lc_fname,
-                 get_fit_data=LightCurveFile.get_dataset,
+                 get_fit_dataset=LightCurveFile.get_dataset,
                  extra_predictors=None,
                  save=True):
         """
@@ -164,7 +163,7 @@ class EPDCorrection(Correction):
         Args:
             lc_fname(str):    The filename of the light curve to fit.
 
-            get_fit_data(callable):    A function that takes a LightCurveFile
+            get_fit_dataset(callable):    A function that takes a LightCurveFile
                 instance, dataset key and substitutions and returns either a
                 single array which is the dataset to calculate and apply EPD
                 correction to, or a 2-tuple of arrays, the first of which is
@@ -175,7 +174,7 @@ class EPDCorrection(Correction):
                 removed from it, and the first dataset should be the original
                 datasets stored in the lightcurve.
 
-            extra_predictors(None, dict, or scipy structured array):
+            extra_predictors(None, dict, or numpy structured array):
                 Additional predictor datasets to add to the ones configured
                 through __init__, for this lightcurve only. The intent is to
                 allow for reconstructive EPD, by passing an expected signal or a
@@ -223,7 +222,7 @@ class EPDCorrection(Correction):
             fit_points = (
                 evaluate(self.fit_points_filter_expression)
                 if self.fit_points_filter_expression is not None else
-                scipy.ones(predictors.shape[1], dtype=bool)
+                numpy.ones(predictors.shape[1], dtype=bool)
             )
             predictors = predictors[:, fit_points]
 
@@ -239,6 +238,7 @@ class EPDCorrection(Correction):
                 )
             return predictors, fit_weight_iter, fit_points
 
+        #<++> Move out
         def correct_one_dataset(light_curve,
                                 *,
                                 predictors,
@@ -278,13 +278,10 @@ class EPDCorrection(Correction):
             """
 
             logger = logging.getLogger(__name__)
-            logger.debug('Fitting %s (%s) for %s ',
-                         fit_target[0],
-                         repr(fit_target[1]),
-                         lc_fname)
-            raw_values = get_fit_data(light_curve,
-                                      fit_target[0],
-                                      **fit_target[1])
+            raw_values = self._get_fit_data(light_curve,
+                                            get_fit_dataset,
+                                            fit_target,
+                                            fit_points)
             if isinstance(raw_values, tuple):
                 raw_values, fit_data = raw_values
             else:
@@ -299,7 +296,7 @@ class EPDCorrection(Correction):
 
             raw_values = raw_values[fit_points]
             fit_data = fit_data[fit_points]
-            fit_data -= scipy.nanmedian(fit_data)
+            fit_data -= numpy.nanmedian(fit_data)
 
             #Those should come from self.iteritave_fit_config.
             #pylint: disable=missing-kwoa
@@ -337,7 +334,7 @@ class EPDCorrection(Correction):
 
         with LightCurveFile(lc_fname, 'r+') as light_curve:
 
-            result = scipy.empty(
+            result = numpy.empty(
                 1,
                 dtype=self.get_result_dtype(len(self.fit_datasets),
                                             extra_predictors)
@@ -363,7 +360,7 @@ class EPDCorrection(Correction):
                     num_extra_predictors=num_extra_predictors
                 )
 
-        self.mark_progress(int(light_curve['Identifiers'][0][1]))
+            self.mark_progress(int(light_curve['Identifiers'][0][1]))
         return result
     #pylint: enable=too-many-locals
 #pylint: enable=too-many-instance-attributes

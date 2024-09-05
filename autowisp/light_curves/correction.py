@@ -1,6 +1,8 @@
 """Define base class for all LC de-trend algorithms."""
 
-import scipy
+import logging
+
+import numpy
 
 #Intended to serve as base class only
 #pylint: disable=too-few-public-methods
@@ -98,6 +100,9 @@ class Correction:
         original_key, substitutions, destination_key = (
             self.fit_datasets[fit_index]
         )
+        if self._fixed_substitutions is not None:
+            substitutions = self._fixed_substitutions
+            self._fixed_substitutions = None
 
         light_curve.add_corrected_dataset(
             original_key=original_key,
@@ -120,10 +125,11 @@ class Correction:
         light_curve.add_configurations(
             component=config_key_prefix,
             configurations=(configuration,),
-            config_indices=scipy.zeros(shape=(fit_points.size,),
-                                       dtype=scipy.uint),
+            config_indices=numpy.zeros(shape=(fit_points.size,),
+                                       dtype=numpy.uint),
             **substitutions
         )
+
 
     @staticmethod
     def _process_fit(*,
@@ -164,13 +170,13 @@ class Correction:
         if fit_results[0] is None:
             if num_extra_predictors:
                 for predictor in result.dtype.names[-num_extra_predictors:]:
-                    result[predictor][0][fit_index] = scipy.nan
+                    result[predictor][0][fit_index] = numpy.nan
 
             fit_results = {
-                'corrected_values': scipy.full(raw_values.shape,
-                                               scipy.nan,
+                'corrected_values': numpy.full(raw_values.shape,
+                                               numpy.nan,
                                                dtype=raw_values.dtype),
-                'fit_residual': scipy.nan,
+                'fit_residual': numpy.nan,
                 'non_rejected_points': 0
             }
 
@@ -184,13 +190,13 @@ class Correction:
                 corrected_values = (
                     raw_values
                     -
-                    scipy.dot(fit_results[0][:-num_extra_predictors],
+                    numpy.dot(fit_results[0][:-num_extra_predictors],
                               predictors[:-num_extra_predictors])
                 )
             else:
                 corrected_values = (raw_values
                                     -
-                                    scipy.dot(fit_results[0], predictors))
+                                    numpy.dot(fit_results[0], predictors))
 
             fit_results = {
                 'corrected_values': corrected_values,
@@ -198,15 +204,15 @@ class Correction:
                 'non_rejected_points': fit_results[2],
             }
 
-        result['rms'][0][fit_index] = scipy.sqrt(
-            scipy.nanmean(
-                scipy.power(
+        result['rms'][0][fit_index] = numpy.sqrt(
+            numpy.nanmean(
+                numpy.power(
                     fit_results['corrected_values'],
                     2
                 )
             )
         )
-        result['num_finite'][0][fit_index] = scipy.isfinite(
+        result['num_finite'][0][fit_index] = numpy.isfinite(
             fit_results['corrected_values']
         ).sum()
         return fit_results
@@ -221,17 +227,17 @@ class Correction:
             [
                 (
                     'ID',
-                    scipy.uint64 if id_size==1 else (scipy.uint64, id_size),
+                    numpy.uint64 if id_size==1 else (numpy.uint64, id_size),
                 ),
-                ('mag', scipy.float64),
-                ('xi', scipy.float64),
-                ('eta', scipy.float64),
-                ('rms', (scipy.float64, (num_photometries,))),
-                ('num_finite', (scipy.uint, (num_photometries,)))
+                ('mag', numpy.float64),
+                ('xi', numpy.float64),
+                ('eta', numpy.float64),
+                ('rms', (numpy.float64, (num_photometries,))),
+                ('num_finite', (numpy.uint, (num_photometries,)))
             ]
             +
             [
-                (predictor_name, scipy.float64)
+                (predictor_name, numpy.float64)
                 for predictor_name in (
                     [] if extra_predictors is None
                     else (extra_predictors.keys()
@@ -240,6 +246,51 @@ class Correction:
                 )
             ]
         )
+
+
+    def _fix_substitutions(self,
+                           *,
+                           light_curve,
+                           photometry_mode,
+                           fit_points,
+                           substitutions,
+                           in_place=False):
+        """Fix magfit iteration in substitutions if negative."""
+
+        if substitutions.get('magfit_iteration', 0) >= 0:
+            return substitutions
+        if not in_place:
+            substitutions = dict(substitutions)
+        substitutions['magfit_iteration'] += (
+            light_curve.get_num_magfit_iterations(photometry_mode,
+                                                  fit_points,
+                                                  **substitutions)
+        )
+        assert self._fixed_substitutions is None
+        self._fixed_substitutions = substitutions
+        return substitutions
+
+
+    def _get_fit_data(self,
+                      light_curve,
+                      get_fit_dataset,
+                      fit_target,
+                      fit_points):
+        """Return the lightcurve points to detrend."""
+
+        substitutions = self._fix_substitutions(
+            light_curve=light_curve,
+            photometry_mode=fit_target[0].split('.', 1)[0],
+            fit_points=fit_points,
+            substitutions=fit_target[1]
+        )
+        logging.getLogger(__name__).debug('Fitting %s (%s) for %s ',
+                                          fit_target[0],
+                                          repr(substitutions),
+                                          light_curve.filename)
+        return get_fit_dataset(light_curve,
+                               fit_target[0],
+                               **substitutions)
 
 
 
@@ -275,4 +326,5 @@ class Correction:
         self.fit_datasets = fit_datasets
         self.iterative_fit_config = iterative_fit_config
         self.mark_progress = mark_progress
+        self._fixed_substitutions = None
 #pylint: enable=too-few-public-methods

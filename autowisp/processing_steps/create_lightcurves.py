@@ -192,7 +192,7 @@ def get_path_substitutions(configuration):
     return path_substitutions
 
 
-def create_master_catalog(catalog_sources, configuration):
+def create_master_catalog(catalog_sources, catalog_centers, configuration):
     """Create a FITS catalog containing the given sources."""
 
     with DataReductionFile(configuration['single_photref_dr_fname'], 'r') as \
@@ -205,6 +205,8 @@ def create_master_catalog(catalog_sources, configuration):
         Table.from_pandas(catalog_sources, index=True)
     )
     table_hdu.header['SPHOTREF'] = configuration['single_photref_dr_fname']
+    for coord in ['RA', 'Dec']:
+        table_hdu.header[coord] = numpy.median(catalog_centers[coord])
     fits.HDUList([
         fits.PrimaryHDU(),
         table_hdu
@@ -232,9 +234,10 @@ def create_lightcurves(dr_collection,
     print('Path substitutions: ' + repr(path_substitutions))
 
     catalog_sources = None
+    catalog_centers = {'RA': [], 'Dec': []}
 
     for (lat, lon, alt), dr_filename_list in dr_by_observatory.items():
-        new_catalog_sources = collect_light_curves(
+        new_catalog_sources, catalog_header = collect_light_curves(
             dr_filename_list,
             configuration,
             mark_start=mark_start,
@@ -251,8 +254,13 @@ def create_lightcurves(dr_collection,
         else:
             catalog_sources = catalog_sources.combine_first(new_catalog_sources)
 
+        for coord in ['RA', 'Dec']:
+            catalog_centers[coord].append(catalog_header[coord])
+
     return {
-        'filename': create_master_catalog(catalog_sources, configuration),
+        'filename': create_master_catalog(catalog_sources,
+                                          catalog_centers,
+                                          configuration),
         'preference_order': None,
         'type': 'lightcurve_catalog'
     }

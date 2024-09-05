@@ -1,13 +1,10 @@
 """Functions for detrending light curves (EPD or TFA)."""
 
-from os import path, makedirs
+from os import path, makedirs, getpid
 import logging
 
 import numpy
 from pytransit import QuadraticModel
-
-from general_purpose_python_modules.multiprocessing_util import\
-        setup_process
 
 from autowisp import DataReductionFile
 from autowisp import LightCurveFile
@@ -172,11 +169,6 @@ def detrend_light_curves(lc_collection,
                          output_statistics_fname):
     """Detrend all lightcurves and create statistics file."""
 
-    setup_process(
-        task=(correct.iterative_fit_config['fit_identifier'] + '_manage'),
-        **configuration
-    )
-
     lc_collection = list(lc_collection)
     print(f'Detrending {len(lc_collection):d} light_curves')
     if not configuration['recalc_performance']:
@@ -198,6 +190,7 @@ def detrend_light_curves(lc_collection,
             configuration['task'] = (
                 correct.iterative_fit_config['fit_identifier'] + '_calc'
             )
+            configuration['parent_pid'] = getpid()
             result = apply_parallel_correction(
                 lc_fnames,
                 correct,
@@ -216,7 +209,8 @@ def detrend_light_curves(lc_collection,
             lc_collection,
             fit_datasets=configuration['fit_datasets'],
             catalog_sources=read_catalog_file(
-                configuration['detrending_catalog']
+                configuration['detrending_catalog'],
+                add_gnomonic_projection=True
             ),
             magnitude_column=configuration['magnitude_column'],
             output_statistics_fname=output_statistics_fname,

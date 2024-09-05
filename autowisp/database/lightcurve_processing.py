@@ -5,7 +5,7 @@ from os import path, getpid, getpgid, setsid, fork
 import logging
 import sys
 
-from sqlalchemy import select, or_, and_, literal, update, sql
+from sqlalchemy import select, or_, and_, literal, update, sql, delete
 import numpy
 
 from general_purpose_python_modules.multiprocessing_util import\
@@ -65,7 +65,7 @@ class LightCurveProcessingManager(ProcessingManager):
         #pylint: enable=no-member
             if final:
                 db_session.execute(
-                    LightCurveStatus.delete().where(id=src_id)
+                    delete(LightCurveStatus).filter_by(id=src_id)
                 )
             else:
                 db_session.execute(
@@ -147,14 +147,61 @@ class LightCurveProcessingManager(ProcessingManager):
             source_list
         )
         if previous:
+            lc_fnames = list(lc_fnames)
             for check in lc_fnames:
                 assert path.exists(check)
-            return list(lc_fnames)
+            return lc_fnames
         return [
             lc
             for src_id, lc in zip(source_list, lc_fnames)
             if check_add(src_id, lc)
         ]
+
+
+    def _specialize_config(self,
+                           *,
+                           step,
+                           step_config,
+                           db_sphotref,
+                           catalog,
+                           db_session):
+        """Add parts of configuration for step that depend on database."""
+
+        step_config['image_type'] = self._current_image_type
+        match_sphotref = f'sphotref == {db_sphotref.filename.encode("ascii")!r}'
+        if not step_config['lc_points_filter_expression']:
+            step_config['lc_points_filter_expression'] = match_sphotref
+        else:
+            step_config['lc_points_filter_expression'] = (
+                f'({step_config["lc_points_filter_expression"]}) and '
+                +
+                match_sphotref
+            )
+        for option_name, input_master_type in db_session.execute(
+            select(
+                InputMasterTypes.config_name,
+                MasterType.name
+            ).join(
+                MasterType
+            ).join(
+                ImageType,
+                InputMasterTypes.image_type_id == ImageType.id
+            ).where(
+                InputMasterTypes.step_id == step.id,
+                ImageType.name == self._current_image_type
+            )
+        ).all():
+            option_name = option_name.replace('-', '_')
+            if input_master_type == 'single_photref':
+                step_config[option_name] = db_sphotref.filename
+            elif input_master_type == 'lightcurve_catalog':
+                step_config[option_name] = catalog
+            else:
+                raise NotImplementedError(
+                    f'Supplying {input_master_type!r} master to light curve '
+                    f'processing steps, like {step.name!r}, is not currently '
+                    'supported!'
+                )
 
 
     def _start_step(self,
@@ -212,23 +259,17 @@ class LightCurveProcessingManager(ProcessingManager):
         )
         assert path.exists(catalog)
 
-
         step_config = self.get_config(
             matched_expressions,
             db_step=step
         )[0]
-        if 'detrending_catalog' in step_config:
-            step_config['detrending_catalog'] = catalog
-        match_sphotref = f'sphotref == {db_sphotref.filename!r}'
-        if not step_config['lc_points_filter_expression']:
-            step_config['lc_points_filter_expression'] = match_sphotref
-        else:
-            step_config['lc_points_filter_expression'] = (
-                f'({step_config["lc_points_filter_expression"]}) and '
-                +
-                match_sphotref
-            )
-
+        self._specialize_config(
+            step=step,
+            step_config=step_config,
+            db_sphotref=db_sphotref,
+            catalog=catalog,
+            db_session=db_session
+        )
 
         return (
             self._get_lc_fnames(step=step,
@@ -486,7 +527,7 @@ class LightCurveProcessingManager(ProcessingManager):
         for step_name, imtype_name in processing_sequence:
             if step_name not in self.pending:
                 continue
-            for single_photref_fname in self.pending[step_name][imtype_name]:
+            for single_photref_fname in self.pending[step_name][imtype_name][:]:
                 lc_fnames, configuration = self._prepare_processing(
                     step_name,
                     single_photref_fname,
@@ -529,6 +570,9 @@ class LightCurveProcessingManager(ProcessingManager):
                     self.add_masters(new_masters,
                                      step_name,
                                      self._current_image_type)
+                self.pending[step_name][imtype_name].remove(
+                    single_photref_fname
+                )
 
 
 def main():

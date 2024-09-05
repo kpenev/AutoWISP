@@ -934,7 +934,7 @@ class TFACorrection(Correction):
 
     def __call__(self,
                  lc_fname,
-                 get_fit_data=LightCurveFile.get_dataset,
+                 get_fit_dataset=LightCurveFile.get_dataset,
                  extra_predictors=None,
                  save=True):
 
@@ -968,15 +968,8 @@ class TFACorrection(Correction):
                 None
             """
 
-            raw_values = get_fit_data(light_curve,
-                                      fit_target[0],
-                                      **fit_target[1])
             lc_observation_ids = self._get_observation_ids(light_curve,
                                                            fit_target[1])
-            if isinstance(raw_values, tuple):
-                raw_values, fit_data = raw_values
-            else:
-                fit_data = raw_values
 
             matched_indices = numpy.searchsorted(
                 self._template_observation_ids[fit_index],
@@ -992,6 +985,16 @@ class TFACorrection(Correction):
                     fit_points,
                     self.get_fit_points(light_curve)
                 )
+
+            raw_values = self._get_fit_data(light_curve,
+                                            get_fit_dataset,
+                                            fit_target,
+                                            fit_points)
+            if isinstance(raw_values, tuple):
+                raw_values, fit_data = raw_values
+            else:
+                fit_data = raw_values
+
             matched_indices = matched_indices[fit_points]
 
             matched_fit_data = numpy.full(

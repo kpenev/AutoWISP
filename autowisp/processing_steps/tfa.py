@@ -4,7 +4,7 @@
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
-from autowisp import TFACorrection
+from autowisp import TFACorrection, DataReductionFile
 from autowisp.file_utilities import find_lc_fnames
 from autowisp.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
@@ -38,11 +38,19 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
         else:
             print('Not renaming ' + repr(param))
 
+    with DataReductionFile(configuration['single_photref_dr_fname'],
+                           'r') as sphotref_dr:
+        sphotref_header = sphotref_dr.get_frame_header()
+
     detrend_light_curves(
         lc_collection,
         configuration,
         TFACorrection(
-            load_correction_statistics(configuration['epd_statistics_fname']),
+            load_correction_statistics(
+                configuration['epd_statistics_fname'].format_map(
+                    sphotref_header
+                )
+            ),
             configuration,
             error_avg=configuration['detrend_error_avg'],
             rej_level=configuration['detrend_rej_level'],
@@ -51,7 +59,7 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             verify_template_data=True,
             mark_progress=mark_progress
         ),
-        configuration.pop('statistics_fname')
+        configuration.pop('tfa_statistics_fname').format_map(sphotref_header)
     )
 
 

@@ -87,10 +87,10 @@ def collect_light_curves(dr_filenames,
             configuration['num_magfit_iterations'] = (
                 first_dr.get_num_magfit_iterations(**path_substitutions)
             )
-        catalog_sources, outliers = ensure_catalog(
+        (catalog_sources, catalog_header), outliers = ensure_catalog(
             dr_files=dr_filenames,
             configuration=get_catalog_config(configuration, 'lc'),
-            return_metadata=False,
+            return_metadata=True,
             skytoframe_version=configuration['skytoframe_version']
         )[:2]
         for outlier_ind in reversed(outliers):
@@ -165,5 +165,5 @@ def collect_light_curves(dr_filenames,
 
         num_processed = stop_processing
 
-    return catalog_sources
+    return catalog_sources, catalog_header
 #pylint: enable=too-many-locals

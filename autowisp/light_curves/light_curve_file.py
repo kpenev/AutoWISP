@@ -682,6 +682,17 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             None
         """
 
+        self._logger.debug(
+            'Adding to %s corrected version of %d points of %s: %s',
+            repr(self.filename),
+            corrected_selection.sum(),
+            repr(self._file_structure[original_key].abspath
+                 %
+                 substitutions),
+            repr(self._file_structure[corrected_key].abspath
+                 %
+                 substitutions)
+        )
         original_dset = self[self._file_structure[original_key].abspath
                              %
                              substitutions]

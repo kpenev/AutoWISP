@@ -394,7 +394,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         parser.add_argument(
             '--tfa-radius-splits',
-            nargs='+',
+            nargs='*',
             type=float,
             default=[],
             help='The threshold radius values where to split sources into '
@@ -437,6 +437,12 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             add_lc_fname_arg=(self._mode == 'tfa')
         )
 
+        self.add_argument(
+            '--single-photref-dr-fname',
+            default=None,
+            help='The filename of the single photometric reference DR file. '
+            'Used for string substitutions of command line arguments.'
+        )
         self.add_argument(
             '--variables',
             type=_parse_lc_variables,
