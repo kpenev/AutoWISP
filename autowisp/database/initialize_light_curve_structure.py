@@ -637,8 +637,13 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
 
     result = []
     for magfit_dset in magfit_datasets:
-        assert magfit_dset.abspath.endswith('/Magnitude')
-        root_path = magfit_dset.abspath[:-len('Magnitude')] + mode.upper() + '/'
+        magfit_tail = (
+            '/MagnitudeFitting/Iteration%(magfit_iteration)03d/Magnitude'
+        )
+        assert magfit_dset.abspath.endswith(magfit_tail)
+        root_path = (magfit_dset.abspath[:-len(magfit_tail)]
+                     +
+                     '/' + mode.upper() + '/')
         detrend_key = magfit_dset.pipeline_key.replace(
             '.magfit.',
             '.' + mode.lower() + '.'
@@ -846,7 +851,7 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                 HDF5DataSet(
                     pipeline_key=(config_key_prefix
                                   +
-                                  'fit_points_filter_variables'),
+                                  'variables'),
                     abspath=(cfg_path + 'PointsFilterVariables'),
                     dtype='numpy.string_',
                     compression='gzip',

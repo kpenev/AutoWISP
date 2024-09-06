@@ -316,6 +316,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
             config_keys = None
             for config_index, new_config in enumerate(configurations):
+                print(f'Configuration to save: {new_config!r}')
                 config_hash = hash(new_config)
                 if config_keys is None:
                     config_keys = [entry[0] for entry in new_config]

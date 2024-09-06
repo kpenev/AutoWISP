@@ -12,7 +12,6 @@ from scipy.spatial import cKDTree
 #pylint: enable=no-name-in-module
 
 from autowisp.evaluator import Evaluator
-from autowisp.data_reduction import DataReductionFile
 from autowisp.fit_expression import iterative_fit, iterative_fit_qr
 from .light_curve_file import LightCurveFile
 from .correction import Correction
@@ -37,9 +36,11 @@ class TFACorrection(Correction):
         Return properly formatted configuration to pass to :func:`_save_result`.
         """
 
-        def default_format(config):
+        def default_format(config, name):
             """Encode strings as ascii, leave everything else unchanged."""
 
+            if name == 'variables':
+                return repr(config).encode('ascii')
             try:
                 return config.encode('ascii')
             except AttributeError:
@@ -57,7 +58,8 @@ class TFACorrection(Correction):
                             ('num_templates' if cfg_key == 'sqrt_num_templates'
                              else cfg_key)
                         ),
-                        default_format(self._configuration.get(cfg_key))
+                        default_format(self._configuration.get(cfg_key),
+                                       cfg_key)
                     )
                     for cfg_key in ['saturation_magnitude',
                                     'mag_rms_dependence_order',
@@ -67,7 +69,7 @@ class TFACorrection(Correction):
                                     'faint_mag_limit',
                                     'min_observations_quantile',
                                     'sqrt_num_templates',
-                                    'fit_points_filter_variables',
+                                    'variables',
                                     'fit_points_filter_expression']
                 ]
                 +
@@ -307,6 +309,12 @@ class TFACorrection(Correction):
                     phot_predictors.shape,
                     fit_lg_rms.shape
                 )
+                self._logger.debug(
+                    'Predictors:\n%s\nFit data:\n%s',
+                    repr(phot_predictors),
+                    repr(fit_lg_rms)
+                )
+
 
                 coefficients, max_excess_lg_rms = iterative_fit(
                     phot_predictors,
@@ -452,7 +460,7 @@ class TFACorrection(Correction):
 
         return Evaluator(
             light_curve.read_data_array(
-                self._configuration['fit_points_filter_variables']
+                dict(self._configuration['variables'])
             )
         )(
             self._configuration['fit_points_filter_expression']
@@ -481,6 +489,18 @@ class TFACorrection(Correction):
         phot_observation_ids = phot_observation_ids[selected_points]
 
         return phot_data, phot_observation_ids
+
+
+    def get_lc_fname(self, source_id):
+        """Return the file name of the lightcurve for the given source ID."""
+
+        try:
+            return self._configuration['lc_fname'].format(
+                *source_id
+            )
+        except TypeError:
+            return self._configuration['lc_fname'].format(source_id)
+
 
     #Organized into pieces as much as I could figure out how to.
     #pylint: disable=too-many-locals
@@ -660,9 +680,8 @@ class TFACorrection(Correction):
             phot_template_measurements = None
             num_templates = phot_template_stars.shape[0]
             for source_index, source_id in enumerate(phot_template_stars):
-                print('LC fname: ' + repr(self._configuration['lc_fname']))
                 with LightCurveFile(
-                        self._configuration['lc_fname'].format(*source_id),
+                        self.get_lc_fname(source_id),
                         'r'
                 ) as light_curve:
                     phot_data, phot_observation_ids = self.read_template_data(
@@ -726,7 +745,7 @@ class TFACorrection(Correction):
             ):
                 template_selection = template_data != 0.0
                 with LightCurveFile(
-                        self._configuration['lc_fname'].format(*source_id),
+                        self.get_lc_fname(source_id),
                         'r'
                 ) as light_curve:
                     print('Checking against LC: ' + repr(light_curve.filename))
@@ -932,6 +951,7 @@ class TFACorrection(Correction):
         ]
         #pylint: enable=unexpected-keyword-arg
 
+
     def __call__(self,
                  lc_fname,
                  get_fit_dataset=LightCurveFile.get_dataset,
@@ -941,8 +961,6 @@ class TFACorrection(Correction):
         """
         Apply TFA to the given LC, optionally protecting an expected signal.
         """
-
-        parse_hat_id = DataReductionFile().parse_hat_source_id
 
         def correct_one_dataset(light_curve,
                                 fit_target,
@@ -975,10 +993,19 @@ class TFACorrection(Correction):
                 self._template_observation_ids[fit_index],
                 lc_observation_ids
             )
-            fit_points = (
-                lc_observation_ids
-                ==
-                self._template_observation_ids[fit_index][matched_indices]
+            found = (
+                matched_indices
+                !=
+                len(self._template_observation_ids[fit_index])
+            )
+            matched_indices[numpy.logical_not(found)] = 0
+            fit_points = numpy.logical_and(
+                found,
+                (
+                    lc_observation_ids
+                    ==
+                    self._template_observation_ids[fit_index][matched_indices]
+                )
             )
             if self._configuration['fit_points_filter_expression'] is not None:
                 fit_points = numpy.logical_and(
@@ -1004,22 +1031,21 @@ class TFACorrection(Correction):
             matched_fit_data[matched_indices] = fit_data[fit_points]
             matched_fit_data -= numpy.nanmedian(matched_fit_data)
 
-            print(
-                'Searching for source id: '
-                +
-                repr(parse_hat_id(dict(light_curve['Identifiers'])[b'HAT']))
-                +
-                ' within\n'
-                +
-                repr(self._template_source_ids[fit_index])
-            )
-            exclude_template = numpy.nonzero(
-                (
-                    self._template_source_ids[fit_index]
-                    ==
-                    parse_hat_id(dict(light_curve['Identifiers'])[b'HAT'])
-                ).all(1)
-            )[0]
+            print('Checking if LC with identifiers '
+                  f'{light_curve["Identifiers"]!r} is a template.')
+            for source_id in light_curve['Identifiers'][:, 1]:
+                try:
+                    exclude_template = (
+                        self._template_source_ids[fit_index]
+                        ==
+                        self._template_source_ids[fit_index].dtype.type(
+                            source_id
+                        )
+                    ).any()
+                except ValueError:
+                    continue
+                if exclude_template.size:
+                    break
             print('Exclude template: ' + repr(exclude_template))
             if exclude_template.size:
                 exclude_template_index = int(

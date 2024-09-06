@@ -42,6 +42,10 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
                            'r') as sphotref_dr:
         sphotref_header = sphotref_dr.get_frame_header()
 
+    configuration['fit_points_filter_expression'] = configuration.pop(
+        'lc_points_filter_expression'
+    )
+
     detrend_light_curves(
         lc_collection,
         configuration,
@@ -59,7 +63,7 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             verify_template_data=True,
             mark_progress=mark_progress
         ),
-        configuration.pop('tfa_statistics_fname').format_map(sphotref_header)
+        configuration.pop('statistics_fname').format_map(sphotref_header)
     )
 
 
