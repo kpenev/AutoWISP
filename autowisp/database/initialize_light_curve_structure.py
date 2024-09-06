@@ -836,9 +836,24 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
                     compression='gzip',
                     compression_options='9',
                     description='The minimum number of observations required of'
-                    ' template stars is this quantile among the input '
-                    'collection of stars.'
+                    ' template stars is the smaller of this quantile among the '
+                    'input collection of stars and that determined by '
+                    'MinimumObservationsFraction.'
                 ),
+                HDF5DataSet(
+                    pipeline_key=(config_key_prefix
+                                  +
+                                  'min_observations_fraction'),
+                    abspath=(cfg_path + 'MinimumObservationsFraction'),
+                    dtype='numpy.float64',
+                    compression='gzip',
+                    compression_options='9',
+                    description='The minimum number of observations required of'
+                    ' template stars is the smaller this fraction of the '
+                    'longest lightcurve and that determined by '
+                    'MinimumObservationsQuantile'
+                ),
+
                 HDF5DataSet(
                     pipeline_key=config_key_prefix + 'num_templates',
                     abspath=(cfg_path + 'NumberTemplates'),

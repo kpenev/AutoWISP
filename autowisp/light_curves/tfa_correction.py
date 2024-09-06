@@ -68,6 +68,7 @@ class TFACorrection(Correction):
                                     'max_rms',
                                     'faint_mag_limit',
                                     'min_observations_quantile',
+                                    'min_observations_fraction',
                                     'sqrt_num_templates',
                                     'variables',
                                     'fit_points_filter_expression']
@@ -368,9 +369,16 @@ class TFACorrection(Correction):
                      self._configuration['saturation_magnitude'])
         self._logger.debug('There are %s unsaturated stars.',
                            numpy.logical_not(saturated).sum())
-        min_observations = numpy.quantile(
-            epd_statistics['num_finite'],
-            self._configuration['min_observations_quantile']
+        min_observations = min(
+            numpy.quantile(
+                epd_statistics['num_finite'],
+                self._configuration['min_observations_quantile']
+            ),
+            (
+                self._configuration['min_observations_fraction']
+                *
+                epd_statistics['num_finite'].max()
+            )
         )
         self._logger.debug('Requiring at least %s observations',
                            repr(min_observations))
@@ -869,9 +877,13 @@ class TFACorrection(Correction):
                 faint_mag_limit
                     Stars fainter than this cannot be template stars.
 
-                min_observations_quantile
+                min_observations_quantile, min_observations_fraction
                     The minimum number of observations required of template
-                    stars is this quantile among the input collection of stars.
+                    stars is the smaller of:
+
+                      * this quantile among the input collection of stars
+
+                      * this fraction of the star with most observations
 
                 sqrt_num_templates
                     The number of template stars is the square of this number.
@@ -1032,7 +1044,9 @@ class TFACorrection(Correction):
             matched_fit_data -= numpy.nanmedian(matched_fit_data)
 
             print('Checking if LC with identifiers '
-                  f'{light_curve["Identifiers"]!r} is a template.')
+                  f'{light_curve["Identifiers"][:]!r} is among the templates:\n'
+                  +
+                  repr(self._template_source_ids[fit_index]))
             for source_id in light_curve['Identifiers'][:, 1]:
                 try:
                     exclude_template = (
@@ -1041,20 +1055,14 @@ class TFACorrection(Correction):
                         self._template_source_ids[fit_index].dtype.type(
                             source_id
                         )
-                    ).any()
+                    )
                 except ValueError:
                     continue
-                if exclude_template.size:
+                if exclude_template.any():
                     break
             print('Exclude template: ' + repr(exclude_template))
-            if exclude_template.size:
-                exclude_template_index = int(
-                    numpy.nonzero(
-                        self._template_qrp[fit_index][2]
-                        ==
-                        int(exclude_template)
-                    )[0]
-                )
+            if exclude_template.any():
+                exclude_template_index = int(numpy.nonzero(exclude_template)[0])
                 apply_qrp = (
                     *scipy.linalg.qr_delete(
                         *self._template_qrp[fit_index][:2],
@@ -1121,5 +1129,6 @@ class TFACorrection(Correction):
                     fit_index,
                     result
                 )
+            self.mark_progress(int(light_curve['Identifiers'][0][1]))
 
         return result

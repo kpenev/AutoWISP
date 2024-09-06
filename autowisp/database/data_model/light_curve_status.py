@@ -22,7 +22,7 @@ class LightCurveStatus(DataModelBase):
         ForeignKey('light_curve_processing_progress.id',
                    onupdate='CASCADE',
                    ondelete='RESTRICT'),
-        nullable=False,
+        primary_key=True,
         doc='The ID of the LC processing progress which was interrupted'
     )
     status = Column(

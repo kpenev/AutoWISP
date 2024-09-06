@@ -358,8 +358,17 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             type=float,
             default=0.5,
             help='The minimum number of observations required of template stars'
-            ' is this quantile among the input collection of stars. Default: '
-            '%(default)s.'
+            ' is the smaller of this quantile among the input collection of '
+            'stars and the number per --tfa-min-observations-fraction.'
+        )
+        parser.add_argument(
+            '--tfa-min-observations-fraction',
+            type=float,
+            default=0.8,
+            help='The minimum number of observations required of template stars'
+            ' is the smaller of this number times the maximum number of '
+            'observations of any star and the number per '
+            '--tfa-min-observations-quantile.'
         )
         parser.add_argument(
             '--tfa-sqrt-num-templates',
