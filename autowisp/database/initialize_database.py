@@ -123,7 +123,9 @@ master_info =  {
             ('fit_magnitudes', 'object', False),
             ('create_lightcurves', 'object', False),
             ('epd', 'object', False),
+            ('generate_epd_statistics', 'object', False),
             ('tfa', 'object', False)
+            ('generate_tfa_statistics', 'object', False)
         ],
         'description': 'The reference image to use to start magnitude '
         'fitting. Subsequently replaced by average of the corrected '
@@ -179,7 +181,9 @@ master_info =  {
         'split_by': frozenset(),
         'used_by': [
             ('epd', 'object', False),
+            ('generate_epd_statistics', 'object', False),
             ('tfa', 'object', False)
+            ('generate_tfa_statistics', 'object', False)
         ],
         'description': 'The catalog file generated for collecting lightcurves.'
 

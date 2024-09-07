@@ -121,6 +121,8 @@ def calculate_iterative_rejection_scatter(values,
 
 def recalculate_correction_statistics(lc_fnames,
                                       fit_datasets,
+                                      variables,
+                                      lc_points_filter_expression,
                                       **calculate_scatter_config):
     """
     Extract the performance metrics for a de-trending step directly from LCs.
@@ -151,13 +153,18 @@ def recalculate_correction_statistics(lc_fnames,
                     fit_datasets
             ):
                 try:
+                    stat_points = lightcurve.evaluate_expression(
+                        variables,
+                        lc_points_filter_expression
+                    )
                     #False positive
                     #pylint: disable=unbalanced-tuple-unpacking
                     (
                         result['rms'][lc_index][fit_index],
                         result['num_finite'][lc_index][fit_index]
                     ) = calculate_iterative_rejection_scatter(
-                        lightcurve.get_dataset(to_dset, **substitutions),
+                        lightcurve.get_dataset(to_dset,
+                                               **substitutions)[stat_points],
                         **calculate_scatter_config
                     )
                     #pylint: enable=unbalanced-tuple-unpacking

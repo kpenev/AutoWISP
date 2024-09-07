@@ -7,6 +7,7 @@ import h5py
 
 from autowisp.database.hdf5_file_structure import\
     HDF5FileDatabaseStructure
+from autowisp.evaluator import Evaluator
 from .hashable_array import HashableArray
 
 _config_dset_key_rex = re.compile(
@@ -652,7 +653,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         return path_substitutions['magfit_iteration']
 
 
-
     def add_corrected_dataset(self,
                               original_key,
                               corrected_key,
@@ -715,5 +715,15 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             self.get_dataset_creation_args(corrected_key,
                                            **substitutions).get('dtype'),
             destination_config.replace_nonfinite
+        )
+
+
+    def evaluate_expression(self, variables, expression):
+        """Return the values of the given expression at each LC point."""
+
+        return Evaluator(
+            self.read_data_array(dict(variables))
+        )(
+            expression
         )
 #pylint: enable=too-many-ancestors

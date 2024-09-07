@@ -11,7 +11,6 @@ import scipy.linalg
 from scipy.spatial import cKDTree
 #pylint: enable=no-name-in-module
 
-from autowisp.evaluator import Evaluator
 from autowisp.fit_expression import iterative_fit, iterative_fit_qr
 from .light_curve_file import LightCurveFile
 from .correction import Correction
@@ -463,17 +462,6 @@ class TFACorrection(Correction):
             for i, dset_key in enumerate(self._configuration['observation_id'])
         })
 
-    def get_fit_points(self, light_curve):
-        """Return a bool array indicating which points from LC to use in fit."""
-
-        return Evaluator(
-            light_curve.read_data_array(
-                dict(self._configuration['variables'])
-            )
-        )(
-            self._configuration['fit_points_filter_expression']
-        )
-
     def read_template_data(self, light_curve, phot_dset_key, substitutions):
         """Read the data for a single photometry method in a template LC."""
 
@@ -488,7 +476,10 @@ class TFACorrection(Correction):
         if self._configuration['fit_points_filter_expression'] is not None:
             selected_points = numpy.logical_and(
                 selected_points,
-                self.get_fit_points(light_curve)
+                light_curve.evaluate_expression(
+                    self._configuration['variables'],
+                    self._configuration['fit_points_filter_expression']
+                )
             )
 
         assert selected_points.shape == phot_data.shape
@@ -1022,7 +1013,10 @@ class TFACorrection(Correction):
             if self._configuration['fit_points_filter_expression'] is not None:
                 fit_points = numpy.logical_and(
                     fit_points,
-                    self.get_fit_points(light_curve)
+                    light_curve.evaluate_expression(
+                        self._configuration['variables'],
+                        self._configuration['fit_points_filter_expression']
+                    )
                 )
 
             raw_values = self._get_fit_data(light_curve,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Generate a statistics file showing the performance after EPD."""
+"""Generate a statistics file showing the performance after TFA."""
 
 from functools import partial
 

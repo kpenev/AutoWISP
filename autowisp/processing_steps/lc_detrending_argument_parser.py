@@ -396,9 +396,9 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'substitutions.'
         )
         parser.add_argument(
-            '--tfa-statistics-fname',
-            default=path.join('MASTERS', 'tfa_statistics.txt'),
-            help='The statistics filename for the results of the TFA fit. '
+            '--epd-statistics-fname',
+            default='epd_statistics.txt',
+            help='The statistics filename for the results of the EPD fit. '
             'Default: %(default)s'
         )
         parser.add_argument(
@@ -441,9 +441,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         super().__init__(
             input_type=input_type,
             description=description,
-            allow_parallel_processing=True,
+            allow_parallel_processing=self._mode in ['epd', 'tfa'],
             convert_to_dict=convert_to_dict,
-            add_lc_fname_arg=(self._mode == 'tfa')
+            add_lc_fname_arg=(self._mode == 'tfa'),
+            skip_io=mode.lower().endswith('stat')
         )
 
         if self._mode != 'epd':
@@ -453,48 +454,47 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
                 help='The filename of the single photometric reference DR file.'
                 ' Used for string substitutions of command line arguments.'
             )
-        if self._mode in ['epd', 'tfa']:
-            self.add_argument(
-                '--variables',
-                type=_parse_lc_variables,
-                default=(
-                    'sphotref = apphot.magfit.cfg.single_photref : '
-                    'aperture_index = 0'
-                    +
+        self.add_argument(
+            '--variables',
+            type=_parse_lc_variables,
+            default=(
+                'sphotref = apphot.magfit.cfg.single_photref : '
+                'aperture_index = 0'
+                +
+                (
                     (
-                        (
-                            "; x = srcproj.columns : "
-                            "srcproj_column_name = 'x' & srcproj_version = 0; "
-                            "y = srcproj.columns : "
-                            "srcproj_column_name = 'y' & srcproj_version = 0; "
-                            "bg = bg.value; "
-                            "z = skypos.zenith_distance; "
-                            "S = srcextract.psf_map.eval: "
-                            "srcextract_psf_param = 's'"
-                        )
-                        if self._mode == 'epd' else
-                        ''
+                        "; x = srcproj.columns : "
+                        "srcproj_column_name = 'x' & srcproj_version = 0; "
+                        "y = srcproj.columns : "
+                        "srcproj_column_name = 'y' & srcproj_version = 0; "
+                        "bg = bg.value; "
+                        "z = skypos.zenith_distance; "
+                        "S = srcextract.psf_map.eval: "
+                        "srcextract_psf_param = 's'"
                     )
-                ),
-                help='Define variables'
-                'to be used in --lc-points-filter-expression, '
-                '--epd-terms-expression, --fit-weights, etc. Should be '
-                'formatted as a `;` separated list of <varname> = <dataset key>'
-                ' [: <substitutions>]. For example: '
-                '"x = srcproj.columns : src_proj_column_name = x  & '
-                'srcproj_version = 0; y = srcproj.columns : '
-                'src_proj_column_name = y", defines `x` and `y` variables that '
-                'correspond to the projected x and y positions of the source in'
-                ' the frame.'
-            )
+                    if self._mode == 'epd' else
+                    ''
+                )
+            ),
+            help='Define variables'
+            'to be used in --lc-points-filter-expression, '
+            '--epd-terms-expression, --fit-weights, etc. Should be '
+            'formatted as a `;` separated list of <varname> = <dataset key>'
+            ' [: <substitutions>]. For example: '
+            '"x = srcproj.columns : src_proj_column_name = x  & '
+            'srcproj_version = 0; y = srcproj.columns : '
+            'src_proj_column_name = y", defines `x` and `y` variables that '
+            'correspond to the projected x and y positions of the source in'
+            ' the frame.'
+        )
 
-            self.add_argument(
-                '--lc-points-filter-expression',
-                default=None,
-                help='An expression using variables` which evaluates to either'
-                ' True or False indicating if a given point in the lightcurve '
-                'should be fit and corrected. Default: %(default)s'
-            )
+        self.add_argument(
+            '--lc-points-filter-expression',
+            default=None,
+            help='An expression using variables` which evaluates to either'
+            ' True or False indicating if a given point in the lightcurve '
+            'should be fit and corrected. Default: %(default)s'
+        )
         self.add_argument(
             f'--{self._mode[:3]!s}-datasets',
             type=_parse_fit_datasets,
@@ -570,10 +570,10 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
         if self._mode.endswith('stat'):
             self.add_argument(
-                '--epd-statistics-fname',
-                default='epd_statistics.txt',
-                help='The statistics filename for the results of the EPD fit. '
-                'Default: %(default)s'
+                f'--{self._mode[:3]}-statistics-fname',
+                default=f'{self._mode[:3]}_statistics.txt',
+                help='The statistics filename for the results of the '
+                f'{self._mode[:3].upper()} fit.'
             )
         self.add_argument(
             '--magnitude-column',
@@ -583,4 +583,4 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
         )
 
         if self._mode in ['epd', 'tfa']:
-            getattr(self, '_add_' + mode.lower() + '_arguments')(self)
+            getattr(self, f'_add_{self._mode}_arguments')(self)

@@ -236,7 +236,8 @@ class ManualStepArgumentParser(ArgumentParser):
                  allow_parallel_processing=False,
                  convert_to_dict=True,
                  add_lc_fname_arg=False,
-                 add_exposure_timing=False):
+                 add_exposure_timing=False,
+                 skip_io=False):
         """
         Initialize the praser with options common to all manual steps.
 
@@ -345,48 +346,49 @@ class ManualStepArgumentParser(ArgumentParser):
                 help='The light curve dumping filename pattern to use.'
             )
 
-        self.add_argument(
-            '--std-out-err-fname',
-            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.outerr',
-            help='The filename pattern to redirect stdout and stderr during'
-            'multiprocessing. Should include substitutions to distinguish '
-            'output from different multiprocessing processes. May include '
-            'substitutions for any configuration arguments for a given '
-            'processing step.'
-        )
-        self.add_argument(
-            '--fname-datetime-format',
-            default='%Y%m%d%H%M%S',
-            help='How to format date and time as part of filenames (e.g. when '
-            'creating output files for multiprocessing.'
-        )
-        self.add_argument(
-            '--logging-fname',
-            default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log',
-            help='The filename pattern to use for log files. Should include'
-            ' substitutions to distinguish logs from different '
-            'multiprocessing processes. May include substitutions for any '
-            'configuration arguments for a given processing step.'
-        )
-        self.add_argument(
-            '--verbose',
-            default='info',
-            choices=['debug', 'info', 'warning', 'error', 'critical'],
-            help='The type of verbosity of logger.'
-        )
-        self.add_argument(
-            '--logging-message-format',
-            default=('%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                     '%(pathname)s.%(funcName)s:%(lineno)d'),
-            help='The format string to use for log messages. See python logging'
-            ' module for details.'
-        )
-        self.add_argument(
-            '--logging-datetime-format',
-            default=None,
-            help='How to format date and time as part of filenames (e.g. when '
-            'creating output files for multiprocessing.'
-        )
+        if not skip_io:
+            self.add_argument(
+                '--std-out-err-fname',
+                default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.outerr',
+                help='The filename pattern to redirect stdout and stderr during'
+                'multiprocessing. Should include substitutions to distinguish '
+                'output from different multiprocessing processes. May include '
+                'substitutions for any configuration arguments for a given '
+                'processing step.'
+            )
+            self.add_argument(
+                '--fname-datetime-format',
+                default='%Y%m%d%H%M%S',
+                help='How to format date and time as part of filenames (e.g. when '
+                'creating output files for multiprocessing.'
+            )
+            self.add_argument(
+                '--logging-fname',
+                default='{processing_step:s}_{task:s}_{now:s}_pid{pid:d}.log',
+                help='The filename pattern to use for log files. Should include'
+                ' substitutions to distinguish logs from different '
+                'multiprocessing processes. May include substitutions for any '
+                'configuration arguments for a given processing step.'
+            )
+            self.add_argument(
+                '--verbose',
+                default='info',
+                choices=['debug', 'info', 'warning', 'error', 'critical'],
+                help='The type of verbosity of logger.'
+            )
+            self.add_argument(
+                '--logging-message-format',
+                default=('%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                         '%(pathname)s.%(funcName)s:%(lineno)d'),
+                help='The format string to use for log messages. See python logging'
+                ' module for details.'
+            )
+            self.add_argument(
+                '--logging-datetime-format',
+                default=None,
+                help='How to format date and time as part of filenames (e.g. when '
+                'creating output files for multiprocessing.'
+            )
         if add_catalog:
             self._add_catalog_args(add_catalog)
 
@@ -479,13 +481,16 @@ class ManualStepArgumentParser(ArgumentParser):
         assert result.processing_step.endswith('.py')
         result.processing_step = result.processing_step[:-3]
 
-        logging_level = getattr(logging, result.verbose.upper())
-        logging.basicConfig(
-            level=logging_level,
-            format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
-                   '%(pathname)s.%(funcName)s:%(lineno)d'
-        )
-        logging.getLogger("sqlalchemy.engine").setLevel(logging_level)
+        try:
+            logging_level = getattr(logging, result.verbose.upper())
+            logging.basicConfig(
+                level=logging_level,
+                format='%(levelname)s %(asctime)s %(name)s: %(message)s | '
+                       '%(pathname)s.%(funcName)s:%(lineno)d'
+            )
+            logging.getLogger("sqlalchemy.engine").setLevel(logging_level)
+        except AttributeError:
+            pass
 
         if self._convert_to_dict:
             result = vars(result)

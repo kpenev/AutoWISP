@@ -152,31 +152,36 @@ def calculate_detrending_performance(lc_fnames,
 
     assert start_status == 0
 
-    configuration['fit_datasets'] = configuration.pop('epd_datasets')
     catalog_sources=read_catalog_file(configuration['detrending_catalog'],
                                       add_gnomonic_projection=True)
 
-    with DataReductionFile(configuration.pop('single_photref_dr_fname'),
+    with DataReductionFile(configuration['single_photref_dr_fname'],
                            'r') as sphotref_dr:
         sphotref_header = sphotref_dr.get_frame_header()
 
-    output_statistics_fname = configuration.pop(
+    output_statistics_fname = configuration[
         f'{detrending_mode}_statistics_fname'
-    ).format_map(
+    ].format_map(
         sphotref_header
     )
 
     statistics = recalculate_correction_statistics(
         lc_fnames,
+        fit_datasets=configuration[f'{detrending_mode}_datasets'],
+        variables=configuration['variables'],
+        lc_points_filter_expression=configuration[
+            'lc_points_filter_expression'
+        ],
         calculate_average=getattr(numpy,
                                   configuration['detrend_reference_avg']),
         calculate_scatter=getattr(numpy,
                                   configuration['detrend_error_avg']),
-        **configuration
+        outlier_threshold=configuration['detrend_rej_level'],
+        max_outlier_rejections=configuration['detrend_max_rej_iter']
     )
     _add_catalog_info(lc_fnames,
                       catalog_sources,
-                      configuration['magnitude_column'],
+                      configuration.pop('magnitude_column'),
                       statistics)
 
     if not path.exists(path.dirname(output_statistics_fname)):
