@@ -1,7 +1,6 @@
 """Functions for detrending light curves (EPD or TFA)."""
 
 from os import path, makedirs, getpid
-import logging
 
 import numpy
 from pytransit import QuadraticModel
@@ -127,13 +126,13 @@ def correct_target_lc(target_lc_fname, configuration, correct):
     )
 
 
-def _calculate_detrending_performance(lc_fnames,
-                                      catalog_sources,
-                                      magnitude_column,
-                                      output_statistics_fname,
-                                      **recalc_arguments):
+def calculate_detrending_performance(lc_fnames,
+                                     start_status,
+                                     configuration,
+                                     mark_progress,
+                                     detrending_mode):
     """
-    Re-create a statistics file after de-trending directly from LCs.
+    Create a statistics file after de-trending directly from LCs.
 
     Args:
         lc_fnames:    Iterable over the filenames of the de-trended lightcurves
@@ -151,76 +150,77 @@ def _calculate_detrending_performance(lc_fnames,
             recalculate_correction_statistics()
     """
 
-    statistics = recalculate_correction_statistics(lc_fnames,
-                                                   **recalc_arguments)
+    assert start_status == 0
+
+    configuration['fit_datasets'] = configuration.pop('epd_datasets')
+    catalog_sources=read_catalog_file(configuration['detrending_catalog'],
+                                      add_gnomonic_projection=True)
+
+    with DataReductionFile(configuration.pop('single_photref_dr_fname'),
+                           'r') as sphotref_dr:
+        sphotref_header = sphotref_dr.get_frame_header()
+
+    output_statistics_fname = configuration.pop(
+        f'{detrending_mode}_statistics_fname'
+    ).format_map(
+        sphotref_header
+    )
+
+    statistics = recalculate_correction_statistics(
+        lc_fnames,
+        calculate_average=getattr(numpy,
+                                  configuration['detrend_reference_avg']),
+        calculate_scatter=getattr(numpy,
+                                  configuration['detrend_error_avg']),
+        **configuration
+    )
     _add_catalog_info(lc_fnames,
                       catalog_sources,
-                      magnitude_column,
+                      configuration['magnitude_column'],
                       statistics)
 
     if not path.exists(path.dirname(output_statistics_fname)):
         makedirs(path.dirname(output_statistics_fname))
     save_correction_statistics(statistics, output_statistics_fname)
+    mark_progress(lc_fnames)
 
 
 def detrend_light_curves(lc_collection,
                          configuration,
-                         correct,
-                         output_statistics_fname):
+                         correct):
     """Detrend all lightcurves and create statistics file."""
 
     lc_collection = list(lc_collection)
     print(f'Detrending {len(lc_collection):d} light_curves')
-    if not configuration['recalc_performance']:
-        if configuration['target_id'] is not None:
-            target_lc_fname, lc_fnames = extract_target_lc(
-                lc_collection,
-                configuration['target_id']
-            )
 
-            _, target_result = correct_target_lc(
-                target_lc_fname,
-                configuration,
-                correct
-            )
-        else:
-            lc_fnames = lc_collection
-
-        if lc_fnames:
-            configuration['task'] = (
-                correct.iterative_fit_config['fit_identifier'] + '_calc'
-            )
-            configuration['parent_pid'] = getpid()
-            result = apply_parallel_correction(
-                lc_fnames,
-                correct,
-                **configuration
-            )
-            if configuration['target_id'] is not None:
-                result = numpy.concatenate((result, target_result))
-        else:
-            result = target_result
-
-        if configuration['target_id'] is not None:
-            lc_fnames.append(target_lc_fname)
-
-    if configuration['detrending_catalog'] is not None:
-        _calculate_detrending_performance(
+    if configuration['target_id'] is not None:
+        target_lc_fname, lc_fnames = extract_target_lc(
             lc_collection,
-            fit_datasets=configuration['fit_datasets'],
-            catalog_sources=read_catalog_file(
-                configuration['detrending_catalog'],
-                add_gnomonic_projection=True
-            ),
-            magnitude_column=configuration['magnitude_column'],
-            output_statistics_fname=output_statistics_fname,
-            calculate_average=getattr(numpy,
-                                      configuration['detrend_reference_avg']),
-            calculate_scatter=getattr(numpy,
-                                      configuration['detrend_error_avg']),
-            outlier_threshold=configuration['detrend_rej_level'],
-            max_outlier_rejections=configuration['detrend_max_rej_iter']
+            configuration['target_id']
         )
 
-        logging.info('Generated statistics file: %s.',
-                     repr(output_statistics_fname))
+        _, target_result = correct_target_lc(
+            target_lc_fname,
+            configuration,
+            correct
+        )
+    else:
+        lc_fnames = lc_collection
+
+    if lc_fnames:
+        configuration['task'] = (
+            correct.iterative_fit_config['fit_identifier'] + '_calc'
+        )
+        configuration['parent_pid'] = getpid()
+        result = apply_parallel_correction(
+            lc_fnames,
+            correct,
+            **configuration
+        )
+        if configuration['target_id'] is not None:
+            result = numpy.concatenate((result, target_result))
+    else:
+        result = target_result
+
+    if configuration['target_id'] is not None:
+        lc_fnames.append(target_lc_fname)

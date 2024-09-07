@@ -11,7 +11,7 @@ import numpy
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process
 
-from autowisp import DataReductionFile
+from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import Session
 from autowisp.database.processing import ProcessingManager
@@ -46,33 +46,39 @@ class LightCurveProcessingManager(ProcessingManager):
             detrending step is pending.
     """
 
-    def _mark_progress(self, src_id, status=1, final=True):
+    def _mark_progress(self, which, status=1, final=True):
         """
-        Record that the current step has finished processing the given file.
-
-        Args:
-            input_fname:    The filename of the input (DR or FITS) that was
-                processed.
+        Record that current step has finished processing given lightcurve(s).
 
         Returns:
             None
         """
+
+        if isinstance(which, int):
+            which = [which]
 
         assert status > 0
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
         #pylint: enable=no-member
-            if final:
-                db_session.execute(
-                    delete(LightCurveStatus).filter_by(id=src_id)
-                )
-            else:
-                db_session.execute(
-                    update(LightCurveStatus).
-                    where(id=src_id).
-                    values(status=status)
-                )
+            for star in which:
+                if isinstance(star, int):
+                    src_id = star
+                else:
+                    with LightCurveFile(star, 'r+') as light_curve:
+                        src_id = int(light_curve['Identifiers'][0][1])
+
+                if final:
+                    db_session.execute(
+                        delete(LightCurveStatus).filter_by(id=src_id)
+                    )
+                else:
+                    db_session.execute(
+                        update(LightCurveStatus).
+                        where(id=src_id).
+                        values(status=status)
+                    )
 
 
     def _cleanup_interrupted(self, db_session):

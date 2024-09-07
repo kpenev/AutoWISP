@@ -6,12 +6,11 @@ from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from autowisp import EPDCorrection
 from autowisp.file_utilities import find_lc_fnames
-from autowisp import DataReductionFile
 from autowisp.processing_steps.lc_detrending_argument_parser import\
     LCDetrendingArgumentParser
-from autowisp.processing_steps.lc_detrending import\
-    detrend_light_curves
+from autowisp.processing_steps.lc_detrending import detrend_light_curves
 from autowisp.processing_steps.manual_util import ignore_progress
+
 
 def parse_command_line(*args):
     """Parse the commandline optinos to a dictionary."""
@@ -28,10 +27,6 @@ def epd(lc_collection, start_status, configuration, mark_progress):
 
     assert start_status == 0
     configuration['fit_datasets'] = configuration.pop('epd_datasets')
-
-    with DataReductionFile(configuration['single_photref_dr_fname'],
-                           'r') as sphotref_dr:
-        sphotref_header = sphotref_dr.get_frame_header()
 
     detrend_light_curves(
         lc_collection,
@@ -50,8 +45,7 @@ def epd(lc_collection, start_status, configuration, mark_progress):
             max_rej_iter=configuration['detrend_max_rej_iter'],
             pre_reject=configuration['pre_reject_outliers'],
             mark_progress=mark_progress
-        ),
-        configuration.pop('epd_statistics_fname').format_map(sphotref_header),
+        )
     )
 
 

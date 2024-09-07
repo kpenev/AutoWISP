@@ -183,6 +183,31 @@ master_info =  {
         ],
         'description': 'The catalog file generated for collecting lightcurves.'
 
+    },
+    'epd_stat': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'epd-statistics-fname',
+        'created_by': ('epd', 'object'),
+        'split_by': frozenset(),
+        'used_by': [('tfa', 'object', False)],
+        'description': 'The statistics file showing the performance after EPD.'
+
+    },
+    'tfa_stat': {
+        'must_match': frozenset((
+            'FIELD',
+            'CLRCHNL',
+            'EXPTIME'
+        )),
+        'config_name': 'tfa-statistics-fname',
+        'created_by': ('tfa', 'object'),
+        'split_by': frozenset(),
+        'used_by': [],
+        'description': 'The statistics file showing the performance after TFA.'
     }
 }
 
@@ -304,11 +329,26 @@ step_dependencies = [
         ]
     ),
     (
+        'generate_epd_statistics', 'object',
+        [
+            ('create_lightcurves', 'object'),
+            ('epd', 'object')
+        ]
+    ),
+    (
         'tfa', 'object',
         [
             ('epd', 'object'),
+            ('generate_epd_statistics', 'object'),
             ('create_lightcurves', 'object'),
             ('fit_magnitudes', 'object')
+        ]
+    ),
+    (
+        'generate_tfa_statistics', 'object',
+        [
+            ('create_lightcurves', 'object'),
+            ('tfa', 'object')
         ]
     )
 ]

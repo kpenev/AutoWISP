@@ -446,55 +446,57 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             add_lc_fname_arg=(self._mode == 'tfa')
         )
 
-        self.add_argument(
-            '--single-photref-dr-fname',
-            default=None,
-            help='The filename of the single photometric reference DR file. '
-            'Used for string substitutions of command line arguments.'
-        )
-        self.add_argument(
-            '--variables',
-            type=_parse_lc_variables,
-            default=(
-                'sphotref = apphot.magfit.cfg.single_photref : '
-                'aperture_index = 0'
-                +
-                (
+        if self._mode != 'epd':
+            self.add_argument(
+                '--single-photref-dr-fname',
+                default=None,
+                help='The filename of the single photometric reference DR file.'
+                ' Used for string substitutions of command line arguments.'
+            )
+        if self._mode in ['epd', 'tfa']:
+            self.add_argument(
+                '--variables',
+                type=_parse_lc_variables,
+                default=(
+                    'sphotref = apphot.magfit.cfg.single_photref : '
+                    'aperture_index = 0'
+                    +
                     (
-                        "; x = srcproj.columns : "
-                        "srcproj_column_name = 'x' & srcproj_version = 0; "
-                        "y = srcproj.columns : "
-                        "srcproj_column_name = 'y' & srcproj_version = 0; "
-                        "bg = bg.value; "
-                        "z = skypos.zenith_distance; "
-                        "S = srcextract.psf_map.eval: "
-                        "srcextract_psf_param = 's'"
+                        (
+                            "; x = srcproj.columns : "
+                            "srcproj_column_name = 'x' & srcproj_version = 0; "
+                            "y = srcproj.columns : "
+                            "srcproj_column_name = 'y' & srcproj_version = 0; "
+                            "bg = bg.value; "
+                            "z = skypos.zenith_distance; "
+                            "S = srcextract.psf_map.eval: "
+                            "srcextract_psf_param = 's'"
+                        )
+                        if self._mode == 'epd' else
+                        ''
                     )
-                    if self._mode == 'epd' else
-                    ''
-                )
-            ),
-            help='Define variables'
-            'to be used in --lc-points-filter-expression, '
-            '--epd-terms-expression, --fit-weights, etc. Should be formatted as'
-            ' a `;` separated list of <varname> = <dataset key> '
-            '[: <substitutions>]. For example: '
-            '"x = srcproj.columns : src_proj_column_name = x  & '
-            'srcproj_version = 0; y = srcproj.columns : '
-            'src_proj_column_name = y", defines `x` and `y` variables that '
-            'correspond to the projected x and y positions of the source in '
-            'the frame.'
-        )
+                ),
+                help='Define variables'
+                'to be used in --lc-points-filter-expression, '
+                '--epd-terms-expression, --fit-weights, etc. Should be '
+                'formatted as a `;` separated list of <varname> = <dataset key>'
+                ' [: <substitutions>]. For example: '
+                '"x = srcproj.columns : src_proj_column_name = x  & '
+                'srcproj_version = 0; y = srcproj.columns : '
+                'src_proj_column_name = y", defines `x` and `y` variables that '
+                'correspond to the projected x and y positions of the source in'
+                ' the frame.'
+            )
 
+            self.add_argument(
+                '--lc-points-filter-expression',
+                default=None,
+                help='An expression using variables` which evaluates to either'
+                ' True or False indicating if a given point in the lightcurve '
+                'should be fit and corrected. Default: %(default)s'
+            )
         self.add_argument(
-            '--lc-points-filter-expression',
-            default=None,
-            help='An expression using variables` which evaluates to either'
-            ' True or False indicating if a given point in the lightcurve '
-            'should be fit and corrected. Default: %(default)s'
-        )
-        self.add_argument(
-            f'--{self._mode!s}-datasets',
+            f'--{self._mode[:3]!s}-datasets',
             type=_parse_fit_datasets,
             default=None,
             help='A `;` separated list of the datasets to detrend. Each entry '
@@ -543,14 +545,6 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'iteration is accepted. Default: %(default)s'
         )
         if add_reconstructive:
-            #TODO: see if groups can be revived without breaking auto DB init
-#            target_args = self.add_argument_group(
-#                title='Followup Target',
-#                description='Arguments specific to processing followup '
-#                'observations where the target star is known to have a transit'
-#                ' that occupies a significant fraction of the total collection'
-#                ' of observations.'
-#            )
             self.add_argument(
                 '--target-id',
                 default=None,
@@ -574,12 +568,13 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'frame. Used only to generate performance statistics reports. If '
             'not specified, performance is not reported.'
         )
-        self.add_argument(
-            '--epd-statistics-fname',
-            default='epd_statistics.txt',
-            help='The statistics filename for the results of the EPD fit. '
-            'Default: %(default)s'
-        )
+        if self._mode.endswith('stat'):
+            self.add_argument(
+                '--epd-statistics-fname',
+                default='epd_statistics.txt',
+                help='The statistics filename for the results of the EPD fit. '
+                'Default: %(default)s'
+            )
         self.add_argument(
             '--magnitude-column',
             default='phot_g_mean_mag',
@@ -587,15 +582,5 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             'Default: %(default)s'
         )
 
-#        mode_args = self.add_argument_group(
-#            title=mode + ' specific arguments'
-#        )
-        getattr(self, '_add_' + mode.lower() + '_arguments')(self)
-
-        self.add_argument(
-            '--recalc-performance',
-            action='store_true',
-            default=False,
-            help='If passed, the correction is assumed to have already been '
-            'performed and performance statistics are re-derived.'
-        )
+        if self._mode in ['epd', 'tfa']:
+            getattr(self, '_add_' + mode.lower() + '_arguments')(self)

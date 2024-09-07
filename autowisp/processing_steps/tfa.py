@@ -62,8 +62,7 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
             fit_identifier='TFA',
             verify_template_data=True,
             mark_progress=mark_progress
-        ),
-        configuration.pop('statistics_fname').format_map(sphotref_header)
+        )
     )
 
 
