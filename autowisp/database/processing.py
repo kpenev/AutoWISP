@@ -710,6 +710,10 @@ class ProcessingManager(ABC):
                 processing created the masters.
         """
 
+        self._logger.debug('Adding new masters from %s step for %s images:\n%s',
+                           step_name,
+                           image_type_name,
+                           repr(new_masters))
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:

@@ -1,6 +1,7 @@
 """Functions for detrending light curves (EPD or TFA)."""
 
 from os import path, makedirs, getpid
+import logging
 
 import numpy
 from pytransit import QuadraticModel
@@ -15,6 +16,8 @@ from autowisp.light_curves.apply_correction import\
     save_correction_statistics,\
     recalculate_correction_statistics
 from autowisp import Evaluator
+
+_logger = logging.getLogger(__name__)
 
 
 def extract_target_lc(lc_fnames, target_id):
@@ -150,7 +153,12 @@ def calculate_detrending_performance(lc_fnames,
             recalculate_correction_statistics()
     """
 
+    lc_fnames = list(lc_fnames)
     assert start_status == 0
+
+    _logger.debug('Generating %s performance statistics for %d light_curves',
+                  detrending_mode,
+                  len(lc_fnames))
 
     catalog_sources=read_catalog_file(configuration['detrending_catalog'],
                                       add_gnomonic_projection=True)
@@ -188,6 +196,10 @@ def calculate_detrending_performance(lc_fnames,
         makedirs(path.dirname(output_statistics_fname))
     save_correction_statistics(statistics, output_statistics_fname)
     mark_progress(lc_fnames)
+    return {
+        'filename': output_statistics_fname,
+        'preference_order': None
+    }
 
 
 def detrend_light_curves(lc_collection,
@@ -196,7 +208,7 @@ def detrend_light_curves(lc_collection,
     """Detrend all lightcurves and create statistics file."""
 
     lc_collection = list(lc_collection)
-    print(f'Detrending {len(lc_collection):d} light_curves')
+    _logger.debug('Detrending %d light_curves', len(lc_collection))
 
     if configuration['target_id'] is not None:
         target_lc_fname, lc_fnames = extract_target_lc(

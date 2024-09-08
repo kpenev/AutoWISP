@@ -183,10 +183,15 @@ class LightCurveProcessingManager(ProcessingManager):
                 +
                 match_sphotref
             )
-        for option_name, input_master_type in db_session.execute(
+        for (
+            option_name,
+            input_master_type,
+            input_master_type_id
+        ) in db_session.execute(
             select(
                 InputMasterTypes.config_name,
-                MasterType.name
+                MasterType.name,
+                MasterType.id
             ).join(
                 MasterType
             ).join(
@@ -203,10 +208,21 @@ class LightCurveProcessingManager(ProcessingManager):
             elif input_master_type == 'lightcurve_catalog':
                 step_config[option_name] = catalog
             else:
-                raise NotImplementedError(
-                    f'Supplying {input_master_type!r} master to light curve '
-                    f'processing steps, like {step.name!r}, is not currently '
-                    'supported!'
+                step_config[option_name] = db_session.scalar(
+                    select(
+                        MasterFile.filename
+                    ).join(
+                        LightCurveProcessingProgress,
+                        MasterFile.progress_id
+                        ==
+                        LightCurveProcessingProgress.id
+                    ).where(
+                        LightCurveProcessingProgress.single_photref_id
+                        ==
+                        db_sphotref.id
+                    ).where(
+                        MasterFile.type_id == input_master_type_id
+                    )
                 )
 
 

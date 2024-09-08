@@ -105,9 +105,9 @@ class MasterFile(DataModelBase):
     )
     progress_id = Column(
         Integer,
-        ForeignKey('image_processing_progress.id'),
         nullable=True,
-        doc='The ImageProcessingProgress that generated this master, if any.'
+        doc='The ImageProcessingProgress or LightCurveProcessingProgress that '
+        'generated this master, if any.'
     )
     filename = Column(
         String(1000),

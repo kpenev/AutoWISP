@@ -161,7 +161,6 @@ def get_master_fname(image_fname,
     )
 
 
-
 def stack_to_master(image_collection,
                     start_status,
                     configuration,
