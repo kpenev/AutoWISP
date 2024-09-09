@@ -1,6 +1,6 @@
 .dropdown {
     float: left;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .dropdown .dropbtn {
@@ -18,7 +18,6 @@
     position: absolute;
     color: #fff;
     background-color: #333;
-    z-index: 1;
 }
 
 .dropdown-content svg {
@@ -35,6 +34,7 @@
 
 .dropdown:hover .dropdown-content {
     display: block;
+    position: absolute;
 }
 
 #plot-config-parent {
