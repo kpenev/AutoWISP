@@ -226,7 +226,7 @@ def detrend_light_curves(lc_collection,
 
     if lc_fnames:
         configuration['task'] = (
-            correct.iterative_fit_config['fit_identifier'] + '_calc'
+            correct.iterative_fit_config['fit_identifier'] + '_fit'
         )
         configuration['parent_pid'] = getpid()
         result = apply_parallel_correction(

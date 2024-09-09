@@ -24,8 +24,7 @@ from .tune_starfind_views import\
     project_catalog,\
     save_starfind_config
 from .diagnostics_views import\
-    display_diagnostics,\
-    display_magfit_diagnostics,\
+    display_detrending_diagnostics,\
     refresh_diagnostics,\
     update_diagnostics_plot,\
     download_diagnostics_plot

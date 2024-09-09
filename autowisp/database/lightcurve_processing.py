@@ -174,6 +174,7 @@ class LightCurveProcessingManager(ProcessingManager):
         """Add parts of configuration for step that depend on database."""
 
         step_config['image_type'] = self._current_image_type
+        step_config['processing_step'] = step.name
         match_sphotref = f'sphotref == {db_sphotref.filename.encode("ascii")!r}'
         if not step_config['lc_points_filter_expression']:
             step_config['lc_points_filter_expression'] = match_sphotref
@@ -264,40 +265,19 @@ class LightCurveProcessingManager(ProcessingManager):
             ('single_photref', db_sphotref.id),
             db_session
         )
-        matched_expressions = self._evaluated_expressions[
-            db_sphotref_image.id
-        ][
-            sphotref_header['CLRCHNL']
-        ][
-            'matched'
-        ]
-        create_lc_cofig = self.get_config(
-            matched_expressions,
-            step_name='create_lightcurves'
-        )[0]
 
-        catalog = create_lc_cofig['lightcurve_catalog_fname'].format_map(
-            sphotref_header
-        )
-        assert path.exists(catalog)
-
-        step_config = self.get_config(
-            matched_expressions,
-            db_step=step
-        )[0]
-        self._specialize_config(
+        catalog, step_config, lc_fname = self.get_step_config(
             step=step,
-            step_config=step_config,
             db_sphotref=db_sphotref,
-            catalog=catalog,
+            db_sphotref_image=db_sphotref_image,
+            sphotref_header=sphotref_header,
             db_session=db_session
         )
-
         return (
             self._get_lc_fnames(step=step,
                                 db_sphotref=db_sphotref,
                                 catalog_fname=catalog,
-                                lc_fname=create_lc_cofig['lc_fname'],
+                                lc_fname=lc_fname,
                                 db_session=db_session),
             step_config
         )
@@ -430,21 +410,9 @@ class LightCurveProcessingManager(ProcessingManager):
         super().__init__(*args, **kwargs)
 
 
-
-    def set_pending(self, db_session):
-        """
-        Set the unprocessed images and channels split by step and image type.
-
-        Args:
-            db_session(Session):    The database session to use.
-
-
-        Returns:
-            {step name: [str, ...]}:
-                The filenames of the single photometric reference DR files for
-                which lightcurves exist but the given steps has not been
-                performend yet.
-        """
+    @staticmethod
+    def select_step_sphotref(db_session, pending=True, full_objects=False):
+        """Return pening or non-pending step/single photref combinations."""
 
         master_cat_id = db_session.scalar(
             select(
@@ -460,10 +428,10 @@ class LightCurveProcessingManager(ProcessingManager):
                 Step.name == 'create_lightcurves'
             )
         )
-        pending = db_session.execute(
+        return db_session.execute(
             select(
-                Step.name,
-                MasterFile.filename,
+                Step if full_objects else Step.name,
+                MasterFile if full_objects else MasterFile.filename,
             ).select_from(
                 ProcessingSequence
             ).join(
@@ -505,9 +473,29 @@ class LightCurveProcessingManager(ProcessingManager):
                     LightCurveProcessingProgress.final == False,
                     LightCurveProcessingProgress.final == None
                 )
+                if pending else
+                LightCurveProcessingProgress.final == True
                 #pylint: enable=singleton-comparison
             )
         ).all()
+
+
+    def set_pending(self, db_session):
+        """
+        Set the unprocessed images and channels split by step and image type.
+
+        Args:
+            db_session(Session):    The database session to use.
+
+
+        Returns:
+            {step name: [str, ...]}:
+                The filenames of the single photometric reference DR files for
+                which lightcurves exist but the given steps has not been
+                performend yet.
+        """
+
+        pending = self.select_step_sphotref(db_session)
         print('\n\t' + '\n\t'.join([repr(e) for e in pending]))
         for step, sphotref_fname in pending:
             #pylint: disable=no-member
@@ -532,6 +520,47 @@ class LightCurveProcessingManager(ProcessingManager):
             if image_type_name not in self.pending[step]:
                 self.pending[step][image_type_name] = []
             self.pending[step][image_type_name].append(sphotref_fname)
+
+
+    def get_step_config(self,
+                        *,
+                        step,
+                        db_sphotref,
+                        db_sphotref_image,
+                        sphotref_header,
+                        db_session):
+        """Return the configuration to use for the given step/sphotref combo."""
+
+        matched_expressions = self._evaluated_expressions[
+            db_sphotref_image.id
+        ][
+            sphotref_header['CLRCHNL']
+        ][
+            'matched'
+        ]
+        create_lc_cofig = self.get_config(
+            matched_expressions,
+            step_name='create_lightcurves'
+        )[0]
+
+        catalog = create_lc_cofig['lightcurve_catalog_fname'].format_map(
+            sphotref_header
+        )
+        assert path.exists(catalog)
+
+        step_config = self.get_config(
+            matched_expressions,
+            db_step=step
+        )[0]
+        self._specialize_config(
+            step=step,
+            step_config=step_config,
+            db_sphotref=db_sphotref,
+            catalog=catalog,
+            db_session=db_session
+        )
+        return catalog, step_config, create_lc_cofig['lc_fname']
+
 
 
     def __call__(self, limit_to_steps=None):

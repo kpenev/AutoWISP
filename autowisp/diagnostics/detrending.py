@@ -17,9 +17,9 @@ from autowisp.database.data_model import\
 #pylint: enable=no-name-in-module
 
 
-def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
+def detect_magfit_stat_columns(stat, num_stat_columns, skip_first_stat=False):
     """
-    Automatically detect the relevant columns in the statistics file.
+    Automatically detect the relevant columns in the magfit statistics file.
 
     Args:
         stat(pandas.DataFrame):     The statistics .
@@ -40,7 +40,7 @@ def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
                 tracked.
     """
 
-
+    print(f'Detecting magfit statistics columns from {stat.columns}')
     columns_per_set = 5
     assert num_stat_columns % columns_per_set == 0
     num_stat = num_stat_columns // columns_per_set
@@ -71,7 +71,50 @@ def detect_stat_columns(stat, num_stat_columns, skip_first_stat=False):
     return num_unrejected, scatter, formal_error
 
 
-def read_magfit_stat_data(master_id):
+def detect_lc_stat_columns(stat, num_stat_columns, skip_first_stat=False):
+    """Same as `detect_magfit_stat_columns()` but for EPD and TFA statistics."""
+
+    print('Detecting lightcurve statistics columns')
+    assert num_stat_columns % 2 == 0
+    num_stat = (num_stat_columns - 4) // 2
+    return (
+        [
+            stat.columns.index(f'num_finite_{stat_i:02d}')
+            for stat_i in range(num_stat)
+        ],
+        [
+            stat.columns.index(f'rms_{stat_i:02d}')
+            for stat_i in range(num_stat)
+        ],
+        None
+    )
+
+
+def read_stat_data(catalog_fname, stat_fname):
+    """Return the performance statistics and catalog for a pipeline step."""
+
+    data = read_catalog_file(catalog_fname, add_gnomonic_projection=True)
+
+    from_magfit = not(
+        'mag' in data.columns
+        and
+        'xi' in data.columns
+        and
+        'eta' in data.columns
+    )
+
+    num_cat_columns = len(data.columns)
+    data = data.join(
+        pandas.read_csv(stat_fname,
+                        sep=r'\s+',
+                        header=None,
+                        index_col=0),
+        how='inner'
+    )
+    return data, num_cat_columns, from_magfit
+
+
+def find_magfit_stat_catalog(master_id):
     """Return the statistics and catalog generated during given magfit step."""
 
     master_file_alias = aliased(MasterFile)
@@ -97,32 +140,31 @@ def read_magfit_stat_data(master_id):
             master_select.where(MasterType.name == 'magfit_catalog')
         )
 
-    data = read_catalog_file(catalog_fname, add_gnomonic_projection=True)
-    num_cat_columns = len(data.columns)
-    data = data.join(
-        pandas.read_csv(stat_fname,
-                        sep=r'\s+',
-                        header=None,
-                        index_col=0),
-        how='inner'
-    )
-    return data, num_cat_columns
+    return catalog_fname, stat_fname
 
 
-def get_magfit_performance_data(master_id,
-                                min_unrejected_fraction,
-                                magnitude_expression,
-                                skip_first_stat):
+def get_detrending_performance_data(catalog_fname,
+                                    stat_fname,
+                                    min_unrejected_fraction,
+                                    magnitude_expression,
+                                    skip_first_stat):
     """Return all data required for magnitude fitting performance plots."""
 
-    data, num_cat_columns = read_magfit_stat_data(master_id)
+    data, num_cat_columns, from_magfit = read_stat_data(catalog_fname,
+                                                        stat_fname)
     (
         num_unrejected_columns,
         scatter_columns,
         expected_scatter_columns
-    ) = detect_stat_columns(data,
-                            len(data.columns) - num_cat_columns,
-                            skip_first_stat)
+    ) = (
+        detect_magfit_stat_columns
+        if from_magfit else
+        detect_lc_stat_columns
+    )(
+        data,
+        len(data.columns) - num_cat_columns,
+        skip_first_stat
+    )
 
     min_unrejected = numpy.min(data[num_unrejected_columns], 1)
     many_unrejected = (min_unrejected

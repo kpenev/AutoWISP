@@ -88,18 +88,18 @@ urlpatterns = [
     ),
     path(
         'diagnostics/<slug:step>/<slug:imtype>',
-        views.display_diagnostics,
+        views.display_detrending_diagnostics,
         name='diagnostics'
     ),
     path(
         'diagnostics/<slug:step>/<slug:imtype>/<slug:master_ids>',
-        views.display_diagnostics,
+        views.display_detrending_diagnostics,
         name='diagnostics'
     ),
     path(
-        'display_magfit_diagnostics',
-        views.display_magfit_diagnostics,
-        name='display_magfit_diagnostics'
+        'display_detrending_diagnostics',
+        views.display_detrending_diagnostics,
+        name='display_detrending_diagnostics'
     ),
     path(
         'refresh_diagnostics',

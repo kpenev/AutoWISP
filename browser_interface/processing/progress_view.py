@@ -15,7 +15,9 @@ from autowisp.database.user_interface import\
     list_channels
 #False positive
 #pylint: disable=no-name-in-module
-from autowisp.database.data_model import ImageProcessingProgress
+from autowisp.database.data_model import \
+    ImageProcessingProgress,\
+    LightCurveProcessingProgress
 #pylint: enable=no-name-in-module
 
 from .log_views import datetime_fmt
@@ -48,7 +50,7 @@ def progress(request):
         ]
         for (step, imtype), destination in zip(processing_sequence,
                                                context['progress']):
-            final, pending, by_status = get_progress(step.id,
+            final, pending, by_status = get_progress(step,
                                                      imtype.id,
                                                      0,
                                                      db_session)
@@ -86,17 +88,29 @@ def progress(request):
                 ).all()
             ]
 
-        for check_running in db_session.scalars(
-            select(
-                ImageProcessingProgress
-            ).where(
-                #pylint: disable=singleton-comparison
-                ImageProcessingProgress.finished == None,
-                #pylint: enable=singleton-comparison
-                ImageProcessingProgress.host == getfqdn()
-            )
+        for check_running in (
+            db_session.scalars(
+                select(
+                    ImageProcessingProgress
+                ).where(
+                    #pylint: disable=singleton-comparison
+                    ImageProcessingProgress.finished == None,
+                    #pylint: enable=singleton-comparison
+                    ImageProcessingProgress.host == getfqdn()
+                )
+            ).all()
+            +
+            db_session.scalars(
+                select(
+                    LightCurveProcessingProgress
+                ).where(
+                    #pylint: disable=singleton-comparison
+                    LightCurveProcessingProgress.finished == None,
+                    #pylint: enable=singleton-comparison
+                    LightCurveProcessingProgress.host == getfqdn()
+                )
+            ).all()
         ):
-
             if pid_exists(check_running.process_id):
                 print(f'Calibration process with ID {check_running.process_id}'
                       'still exists.')

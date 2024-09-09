@@ -124,7 +124,7 @@ master_info =  {
             ('create_lightcurves', 'object', False),
             ('epd', 'object', False),
             ('generate_epd_statistics', 'object', False),
-            ('tfa', 'object', False)
+            ('tfa', 'object', False),
             ('generate_tfa_statistics', 'object', False)
         ],
         'description': 'The reference image to use to start magnitude '
@@ -182,7 +182,7 @@ master_info =  {
         'used_by': [
             ('epd', 'object', False),
             ('generate_epd_statistics', 'object', False),
-            ('tfa', 'object', False)
+            ('tfa', 'object', False),
             ('generate_tfa_statistics', 'object', False)
         ],
         'description': 'The catalog file generated for collecting lightcurves.'

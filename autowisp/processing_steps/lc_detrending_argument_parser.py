@@ -443,8 +443,7 @@ class LCDetrendingArgumentParser(ManualStepArgumentParser):
             description=description,
             allow_parallel_processing=self._mode in ['epd', 'tfa'],
             convert_to_dict=convert_to_dict,
-            add_lc_fname_arg=(self._mode == 'tfa'),
-            skip_io=mode.lower().endswith('stat')
+            add_lc_fname_arg=(self._mode == 'tfa')
         )
 
         if self._mode != 'epd':

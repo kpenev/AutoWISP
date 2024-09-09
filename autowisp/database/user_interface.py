@@ -3,9 +3,10 @@
 import json
 import logging
 
-from sqlalchemy import sql, select, delete, func, and_
+from sqlalchemy import sql, select, delete, func, and_, or_
 
 from autowisp.database.interface import Session
+from autowisp.data_reduction import DataReductionFile
 #False positive
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model.provenance import\
@@ -14,17 +15,20 @@ from autowisp.database.data_model.provenance import\
     CameraChannel
 
 from autowisp.database.data_model import\
-    ObservingSession,\
-    Configuration,\
-    Step,\
-    Image,\
-    ImageType,\
-    ProcessingSequence,\
-    ProcessedImages,\
-    ImageProcessingProgress,\
-    ConditionExpression,\
     Condition,\
+    ConditionExpression,\
+    Configuration,\
+    Image,\
+    ImageProcessingProgress,\
+    ImageType,\
+    LightCurveProcessingProgress,\
+    MasterFile,\
+    MasterType,\
+    ObservingSession,\
     Parameter,\
+    ProcessedImages,\
+    ProcessingSequence,\
+    Step,\
     step_param_association
 #pylint: enable=no-name-in-module
 
@@ -110,7 +114,7 @@ def list_channels(db_session):
     return db_session.scalars(func.distinct(CameraChannel.name)).all()
 
 
-def get_progress(step_id, image_type_id, config_version, db_session):
+def get_progress_images(step_id, image_type_id, config_version, db_session):
     """
     Return number of images in final state and by status for given step/imtype.
 
@@ -239,6 +243,80 @@ def get_progress(step_id, image_type_id, config_version, db_session):
         )
     ).all()
     return final, pending, by_status
+
+
+def get_progress_lightcurves(step_id,
+                             image_type_id,
+                             config_version,
+                             db_session):
+    """Same as `get_progress_images()` but for lightcurve steps."""
+
+    step_version = get_db_configuration(config_version,
+                                        db_session,
+                                        step_id,
+                                        max_version_only=True)
+
+    final = {}
+    pending = {}
+    for db_sphotref in db_session.scalars(
+        select(
+            MasterFile
+        ).join(
+            MasterType
+        ).where(
+            MasterType.name == 'single_photref'
+        )
+    ).all():
+        with DataReductionFile(db_sphotref.filename, 'r') as sphotref_dr:
+            header = sphotref_dr.get_frame_header()
+            if not db_session.scalar(
+                select(
+                    ImageType.id
+                ).select_from(
+                    Image
+                ).join(
+                    ImageType
+                ).where(
+                    Image.raw_fname.contains(header['RAWFNAME'] + '.fits')
+                )
+            ) == image_type_id:
+                continue
+            channel = header['CLRCHNL']
+            if channel not in final:
+                final[channel] = 0
+            if channel not in pending:
+                pending[channel] = 0
+
+            if db_session.scalar(
+                select(
+                    LightCurveProcessingProgress.final
+                ).filter_by(
+                    step_id=step_id,
+                    single_photref_id=db_sphotref.id,
+                    configuration_version=step_version
+                )
+            ):
+                final[channel] += 1
+            else:
+                pending[channel] += 1
+
+    return (
+        [(channel, 1, count) for channel, count in final.items()],
+        list(pending.items()),
+        []
+    )
+
+
+def get_progress(step, *args, **kwargs):
+    """Return info about completed work ona given step."""
+
+    if step.name in ['epd',
+                     'tfa',
+                     'generate_epd_statistics',
+                     'generate_tfa_statistics']:
+        return get_progress_lightcurves(step.id, *args, **kwargs)
+
+    return get_progress_images(step.id, *args, **kwargs)
 
 
 def _get_config_info(version, step='All'):
