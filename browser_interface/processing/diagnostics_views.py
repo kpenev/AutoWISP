@@ -29,24 +29,24 @@ from autowisp.database.data_model import\
 #pylint: enable=no-name-in-module
 
 
-def _guess_labels(mphotref_entries):
+def _guess_labels(photref_entries):
     """Guess what would make good labels for plotting."""
 
-    num_expr = len(mphotref_entries[0]['expressions'])
+    num_expr = len(photref_entries[0]['expressions'])
     print(
         'Expression sets: '
         +
         repr([
-            set(entry['expressions'][i] for entry in mphotref_entries)
+            set(entry['expressions'][i] for entry in photref_entries)
             for i in range(num_expr)
         ])
     )
     use_expr = [
-        len(set(entry['expressions'][i] for entry in mphotref_entries)) > 1
+        len(set(entry['expressions'][i] for entry in photref_entries)) > 1
         for i in range(num_expr)
     ]
     print(f'Use expr flags: {use_expr!r}')
-    for entry in mphotref_entries:
+    for entry in photref_entries:
         entry['label'] = ':'.join(
             expr for expr, use in zip(entry['expressions'], use_expr) if use
         )
@@ -247,31 +247,32 @@ def create_plot(session_detrending):
     pyplot.cla()
 
     plot_config = session_detrending['plot_config']
-    for mphotref_info in session_detrending['photref']:
-        if not mphotref_info['marker']:
+    for photref_info in session_detrending['photref']:
+        if not photref_info['marker']:
             continue
 
         data = get_detrending_performance_data(
-            *mphotref_info['filenames'],
-            float(mphotref_info['min_fraction']),
-            plot_config['mag_expression'][0],
-            True
+            *photref_info['filenames'],
+            photref_info['expressions'][0],
+            min_unrejected_fraction=float(photref_info['min_fraction']),
+            magnitude_expression=plot_config['mag_expression'][0],
+            skip_first_stat=False
         )
         pyplot.semilogy(
             data['magnitudes'],
             data['best_scatter'],
             linestyle='none',
-            marker=mphotref_info['marker'],
+            marker=photref_info['marker'],
             markersize=(float(plot_config['marker_size'])
                         *
-                        float(mphotref_info['scale'])),
+                        float(photref_info['scale'])),
             markeredgecolor=(
-                mphotref_info['color']
-                if mphotref_info['marker'] in 'x+.,1234|_' else
+                photref_info['color']
+                if photref_info['marker'] in 'x+.,1234|_' else
                 'none'
             ),
-            markerfacecolor=mphotref_info['color'],
-            label=mphotref_info['label']
+            markerfacecolor=photref_info['color'],
+            label=photref_info['label']
         )
 
     try:
@@ -303,11 +304,12 @@ def update_diagnostics_plot(request):
     session_detrending['plot_config'].update(plot_config)
 
     to_update = session_detrending['photref']
-    for mphotref_info in to_update:
-        this_config = plot_config['datasets'].get(str(mphotref_info['id']))
+    for photref_info in to_update:
+        this_config = plot_config['datasets'].get(str(photref_info['id']))
         if this_config is None:
-            continue
-        mphotref_info.update(this_config)
+            photref_info['marker'] = ''
+        else:
+            photref_info.update(this_config)
 
 
     print('Updated session: '

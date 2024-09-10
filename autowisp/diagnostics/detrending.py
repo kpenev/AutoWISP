@@ -5,10 +5,12 @@ from sqlalchemy.orm import aliased
 
 import pandas
 import numpy
+from numpy.lib.recfunctions import append_fields
 
 from autowisp import Evaluator
 from autowisp.database.interface import Session
 from autowisp.catalog import read_catalog_file
+from autowisp.light_curves.apply_correction import load_correction_statistics
 #False positive
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
@@ -40,7 +42,6 @@ def detect_magfit_stat_columns(stat, num_stat_columns, skip_first_stat=False):
                 tracked.
     """
 
-    print(f'Detecting magfit statistics columns from {stat.columns}')
     columns_per_set = 5
     assert num_stat_columns % columns_per_set == 0
     num_stat = num_stat_columns // columns_per_set
@@ -61,47 +62,17 @@ def detect_magfit_stat_columns(stat, num_stat_columns, skip_first_stat=False):
     for column_selection, expected_kind in [(num_unrejected, 'iu'),
                                             (scatter, 'f'),
                                             (formal_error, 'f')]:
-        print('column selection: ' + repr(column_selection))
-        print('expected kind: ' + repr(expected_kind))
         check_dtype = stat[column_selection].dtypes.unique()
-        print('check_dtype: ' + repr(check_dtype))
         assert check_dtype.size == 1
         assert check_dtype[0].kind in expected_kind
 
     return num_unrejected, scatter, formal_error
 
 
-def detect_lc_stat_columns(stat, num_stat_columns, skip_first_stat=False):
-    """Same as `detect_magfit_stat_columns()` but for EPD and TFA statistics."""
-
-    print('Detecting lightcurve statistics columns')
-    assert num_stat_columns % 2 == 0
-    num_stat = (num_stat_columns - 4) // 2
-    return (
-        [
-            stat.columns.index(f'num_finite_{stat_i:02d}')
-            for stat_i in range(num_stat)
-        ],
-        [
-            stat.columns.index(f'rms_{stat_i:02d}')
-            for stat_i in range(num_stat)
-        ],
-        None
-    )
-
-
 def read_stat_data(catalog_fname, stat_fname):
     """Return the performance statistics and catalog for a pipeline step."""
 
     data = read_catalog_file(catalog_fname, add_gnomonic_projection=True)
-
-    from_magfit = not(
-        'mag' in data.columns
-        and
-        'xi' in data.columns
-        and
-        'eta' in data.columns
-    )
 
     num_cat_columns = len(data.columns)
     data = data.join(
@@ -111,7 +82,7 @@ def read_stat_data(catalog_fname, stat_fname):
                         index_col=0),
         how='inner'
     )
-    return data, num_cat_columns, from_magfit
+    return data, num_cat_columns
 
 
 def find_magfit_stat_catalog(master_id):
@@ -145,26 +116,29 @@ def find_magfit_stat_catalog(master_id):
 
 def get_detrending_performance_data(catalog_fname,
                                     stat_fname,
+                                    detrending_mode,
+                                    *,
                                     min_unrejected_fraction,
                                     magnitude_expression,
                                     skip_first_stat):
     """Return all data required for magnitude fitting performance plots."""
 
-    data, num_cat_columns, from_magfit = read_stat_data(catalog_fname,
-                                                        stat_fname)
-    (
-        num_unrejected_columns,
-        scatter_columns,
-        expected_scatter_columns
-    ) = (
-        detect_magfit_stat_columns
-        if from_magfit else
-        detect_lc_stat_columns
-    )(
-        data,
-        len(data.columns) - num_cat_columns,
-        skip_first_stat
-    )
+    if detrending_mode.lower() == 'mfit':
+        data, num_cat_columns = read_stat_data(catalog_fname, stat_fname)
+        (
+            num_unrejected_columns,
+            scatter_columns,
+            expected_scatter_columns
+        ) = detect_magfit_stat_columns(
+            data,
+            len(data.columns) - num_cat_columns,
+            skip_first_stat
+        )
+    else:
+        data = load_correction_statistics(stat_fname, catalog_fname)
+        num_unrejected_columns = 'num_finite'
+        scatter_columns = 'rms'
+        expected_scatter_columns = None
 
     min_unrejected = numpy.min(data[num_unrejected_columns], 1)
     many_unrejected = (min_unrejected
@@ -173,13 +147,21 @@ def get_detrending_performance_data(catalog_fname,
     data = data[many_unrejected]
 
     scatter = data[scatter_columns]
-    scatter[scatter == 0.0] = numpy.nan
-    data.insert(len(data.columns),
-                'best_index',
-                numpy.nanargmin(scatter, 1))
-    data.insert(len(data.columns),
-                'best_scatter',
-                10.0**(numpy.nanmin(scatter, 1) / 2.5) - 1.0)
+    new_data = {
+        'best_index': numpy.nanargmin(scatter, 1),
+        'best_scatter': 10.0**(numpy.nanmin(scatter, 1) / 2.5) - 1.0,
+        'magnitudes': Evaluator(data)(magnitude_expression)
+    }
+    if detrending_mode.lower() == 'mfit':
+        for column, values in new_data.items():
+            data.insert(len(data.columns), column, values)
+    else:
+        data = append_fields(
+            data,
+            ['best_index', 'best_scatter', 'magnitudes'],
+            [new_data[c] for c in ['best_index', 'best_scatter', 'magnitudes']],
+        )
+
 
     if expected_scatter_columns is not None:
         expected_scatter = data[expected_scatter_columns]
@@ -188,8 +170,5 @@ def get_detrending_performance_data(catalog_fname,
                     'expected_scatter',
                     10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0)
 
-    data.insert(len(data.columns),
-                'magnitudes',
-                Evaluator(data)(magnitude_expression))
 
     return data

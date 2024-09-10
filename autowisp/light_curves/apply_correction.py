@@ -10,6 +10,7 @@ import pandas
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from autowisp import DataReductionFile, LightCurveFile
+from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import db_engine
 from .epd_correction import EPDCorrection
 from .reconstructive_correction_transit import\
@@ -37,18 +38,30 @@ def save_correction_statistics(correction_statistics, filename):
     with open(filename, 'w', encoding='utf-8') as outf:
         dframe.to_string(outf, col_space=25, index=False, justify='left')
 
-def load_correction_statistics(filename):
+def load_correction_statistics(filename, add_catalog=False):
     """Read a previously stored statistics from a file."""
 
     mem_dr = DataReductionFile()
-    dframe = pandas.read_csv(filename, delim_whitespace=True)
+    dframe = pandas.read_csv(filename,
+                             delim_whitespace=True,
+                             index_col='ID')
 
     num_sources, num_photometries = dframe.shape
     num_photometries = (num_photometries - 4) // 2
 
-    result = numpy.empty(num_sources,
-                         dtype=EPDCorrection.get_result_dtype(num_photometries))
-    for column in ['mag', 'xi', 'eta']:
+    result_dtype = EPDCorrection.get_result_dtype(num_photometries)
+    if add_catalog:
+        catalog = read_catalog_file(add_catalog, add_gnomonic_projection=True)
+        result_dtype += [
+            (col, catalog[col].dtype)
+            for col in catalog.columns if col not in ['xi', 'eta']
+        ]
+        dframe = dframe.drop(columns=['xi', 'eta']).join(catalog, how='inner')
+
+    result = numpy.empty(num_sources, dtype=result_dtype)
+    for column in dframe.columns:
+        if column.startswith('rms_') or column.startswith('num_finite_'):
+            continue
         result[column] = dframe[column]
 
     for prefix in ['rms', 'num_finite']:
@@ -61,7 +74,7 @@ def load_correction_statistics(filename):
         for index, source_id in enumerate(dframe['2MASSID']):
             result['ID'][index] = mem_dr.parse_hat_source_id(source_id)
     else:
-        result['ID'] = dframe['ID']
+        result['ID'] = dframe.index
 
     mem_dr.close()
 
