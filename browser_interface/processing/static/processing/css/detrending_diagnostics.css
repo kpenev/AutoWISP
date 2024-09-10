@@ -37,11 +37,16 @@
     position: absolute;
 }
 
+.dropdown-wrapper {
+    position: relative;
+}
+
 #plot-config-parent {
     height: 12.75rem;
     max-height: 12.75rem;
     min-height: 12.75rem;
     overflow: auto;
+    z-index: 10;
 }
 
 .fill-space {
@@ -51,4 +56,9 @@
 
 #download-button {
     display: none
+}
+
+#param-sep {
+    width:100%; 
+    height:100%
 }
