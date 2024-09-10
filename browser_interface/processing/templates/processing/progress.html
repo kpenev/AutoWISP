@@ -106,7 +106,7 @@ Processing Progress
                     <td colspan=2 class="tooltip">
                         {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
                         <span class="tooltiptext">Review magnitude fitting performance </span>
-                        <a href="{% url 'processing:diagnostics' step=step|join:"_" imtype=imtype %}">
+                        <a href="{% url 'processing:display_detrending_diagnostics' %}">
                         {% endif %}
 
                         <div id="progress-with-label">
