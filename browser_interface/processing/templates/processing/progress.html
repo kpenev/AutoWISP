@@ -104,7 +104,7 @@ Processing Progress
             <table>
                 <tr>
                     <td colspan=2 class="tooltip">
-                        {% if step.0 == 'fit' and step.1 == 'magnitudes' %}
+                        {% if step.0 == 'fit' and step.1 == 'magnitudes' or step.0 == 'epd' or step.0 == 'tfa' or step.1 == 'epd' or step.1 == 'tfa' %}
                         <span class="tooltiptext">Review magnitude fitting performance </span>
                         <a href="{% url 'processing:display_detrending_diagnostics' %}">
                         {% endif %}
