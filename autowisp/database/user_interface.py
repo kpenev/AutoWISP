@@ -4,7 +4,7 @@ import json
 import logging
 from time import sleep
 
-from sqlalchemy import sql, select, delete, func, and_, or_
+from sqlalchemy import sql, select, delete, func, and_
 
 from autowisp.database.interface import Session
 from autowisp.data_reduction import DataReductionFile
@@ -268,7 +268,7 @@ def get_progress_lightcurves(step_id,
             MasterType.name == 'single_photref'
         )
     ).all():
-        for i in range(10):
+        for _ in range(10):
             try:
                 with DataReductionFile(db_sphotref.filename,
                                        'r') as sphotref_dr:
@@ -306,8 +306,11 @@ def get_progress_lightcurves(step_id,
                     else:
                         pending[channel] += 1
                 break
-            except BlockingIOError:
+            #h5py refuses to provide public interface to exceptions
+            #pylint: disable=bare-except
+            except:
                 sleep(10)
+            #pylint: enable=bare-except
 
     return (
         [(channel, 1, count) for channel, count in final.items()],
