@@ -2,6 +2,7 @@
 
 import json
 import logging
+from time import sleep
 
 from sqlalchemy import sql, select, delete, func, and_, or_
 
@@ -306,7 +307,7 @@ def get_progress_lightcurves(step_id,
                         pending[channel] += 1
                 break
             except BlockingIOError:
-                pass
+                sleep(10)
 
     return (
         [(channel, 1, count) for channel, count in final.items()],
