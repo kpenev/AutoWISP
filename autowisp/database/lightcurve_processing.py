@@ -408,6 +408,10 @@ class LightCurveProcessingManager(ProcessingManager):
 
         self._current_image_type = None
         super().__init__(*args, **kwargs)
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+            #pylint: enable=no-member
+            self.set_pending(db_session)
 
 
     @staticmethod
