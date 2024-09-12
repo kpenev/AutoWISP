@@ -463,7 +463,8 @@ class LightCurveProcessingManager(ProcessingManager):
                         LightCurveProcessingProgress.single_photref_id
                         ==
                         MasterFile.id
-                    )
+                    ),
+                    LightCurveProcessingProgress.final == True
                 )
             ).where(
                 StepDependencies.blocking_step_id == create_lc_step_id
@@ -473,10 +474,7 @@ class LightCurveProcessingManager(ProcessingManager):
                 InputMasterTypes.master_type_id == master_cat_id
             ).where(
                 #pylint: disable=singleton-comparison
-                or_(
-                    LightCurveProcessingProgress.final == False,
-                    LightCurveProcessingProgress.final == None
-                )
+                LightCurveProcessingProgress.final == None
                 if pending else
                 LightCurveProcessingProgress.final == True
                 #pylint: enable=singleton-comparison

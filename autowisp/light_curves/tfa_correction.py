@@ -927,6 +927,14 @@ class TFACorrection(Correction):
 
         self._io_configurations = self._get_io_configurations()
 
+        self._logger.debug('EPD statistics (dtype: %s):\n%s',
+                           repr(epd_statistics.dtype),
+                           repr(epd_statistics))
+        self._logger.debug('Fit datasets (%d):\n\t%s',
+                           len(configuration['fit_datasets']),
+                           '\n\t'.join(repr(dset) for dset in
+                                       configuration['fit_datasets']))
+
         assert (epd_statistics['rms'][0].size
                 ==
                 len(configuration['fit_datasets']))

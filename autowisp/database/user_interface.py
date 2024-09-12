@@ -295,7 +295,7 @@ def get_progress_lightcurves(step_id,
 
                     if db_session.scalar(
                         select(
-                            LightCurveProcessingProgress.final
+                            func.max(LightCurveProcessingProgress.final)
                         ).filter_by(
                             step_id=step_id,
                             single_photref_id=db_sphotref.id,

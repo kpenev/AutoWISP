@@ -172,6 +172,17 @@ function startEditPlot(event)
     event.preventDefault();
 }
 
+function scrollConfig(event)
+{
+    const markerDropdowns = document.getElementsByClassName("dropdown-content");
+    for ( const entry of markerDropdowns ) {
+        entry.style.top = entry.
+            parentNode.
+            getElementsByClassName("dropbtn selected-marker")[0].
+            getBoundingClientRect().bottom + "px";
+    }
+}
+
 function initDiagnosticsPlotting(plotURL) 
 {
     const plotSymbols = document.getElementsByClassName("plot-marker");
@@ -186,4 +197,6 @@ function initDiagnosticsPlotting(plotURL)
                                                          sepDragStart)
     let plot = document.getElementById("plot-parent").children[0];
     plot.addEventListener("dblclick", startEditPlot);
+    document.getElementById("plot-config-parent").
+        addEventListener("scroll", scrollConfig);
 }

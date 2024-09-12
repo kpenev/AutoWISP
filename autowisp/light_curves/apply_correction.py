@@ -47,7 +47,7 @@ def load_correction_statistics(filename, add_catalog=False):
                              index_col='ID')
 
     num_sources, num_photometries = dframe.shape
-    num_photometries = (num_photometries - 4) // 2
+    num_photometries = (num_photometries - 3) // 2
 
     result_dtype = EPDCorrection.get_result_dtype(num_photometries)
     if add_catalog:
