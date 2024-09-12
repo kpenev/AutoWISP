@@ -267,38 +267,46 @@ def get_progress_lightcurves(step_id,
             MasterType.name == 'single_photref'
         )
     ).all():
-        with DataReductionFile(db_sphotref.filename, 'r') as sphotref_dr:
-            header = sphotref_dr.get_frame_header()
-            if not db_session.scalar(
-                select(
-                    ImageType.id
-                ).select_from(
-                    Image
-                ).join(
-                    ImageType
-                ).where(
-                    Image.raw_fname.contains(header['RAWFNAME'] + '.fits')
-                )
-            ) == image_type_id:
-                continue
-            channel = header['CLRCHNL']
-            if channel not in final:
-                final[channel] = 0
-            if channel not in pending:
-                pending[channel] = 0
+        for i in range(10):
+            try:
+                with DataReductionFile(db_sphotref.filename,
+                                       'r') as sphotref_dr:
+                    header = sphotref_dr.get_frame_header()
+                    if not db_session.scalar(
+                        select(
+                            ImageType.id
+                        ).select_from(
+                            Image
+                        ).join(
+                            ImageType
+                        ).where(
+                            Image.raw_fname.contains(header['RAWFNAME']
+                                                     +
+                                                     '.fits')
+                        )
+                    ) == image_type_id:
+                        continue
+                    channel = header['CLRCHNL']
+                    if channel not in final:
+                        final[channel] = 0
+                    if channel not in pending:
+                        pending[channel] = 0
 
-            if db_session.scalar(
-                select(
-                    LightCurveProcessingProgress.final
-                ).filter_by(
-                    step_id=step_id,
-                    single_photref_id=db_sphotref.id,
-                    configuration_version=step_version
-                )
-            ):
-                final[channel] += 1
-            else:
-                pending[channel] += 1
+                    if db_session.scalar(
+                        select(
+                            LightCurveProcessingProgress.final
+                        ).filter_by(
+                            step_id=step_id,
+                            single_photref_id=db_sphotref.id,
+                            configuration_version=step_version
+                        )
+                    ):
+                        final[channel] += 1
+                    else:
+                        pending[channel] += 1
+                break
+            except BlockingIOError:
+                pass
 
     return (
         [(channel, 1, count) for channel, count in final.items()],

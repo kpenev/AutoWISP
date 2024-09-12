@@ -106,7 +106,7 @@ class ProcessingManager(ABC):
             just the common (intersection) set of expressions satisfied for all
             channels.
 
-        _pending(dict):     Information about what images or lightcurves still
+        pending(dict):     Information about what images or lightcurves still
             need processing by the various steps. The format is different for
             image vs lightcurve processing managers.
     """
@@ -248,7 +248,8 @@ class ProcessingManager(ABC):
     def evaluate_expressions_image(self,
                                    image,
                                    eval_channel=None,
-                                   return_evaluator=False):
+                                   return_evaluator=False,
+                                   **extra_keywords):
         """
         Return evaluator for header expressions for given image.
 
@@ -265,6 +266,9 @@ class ProcessingManager(ABC):
 
             return_evaluator(bool):    Should an evaluator setup per the image
                 header be returned for further use?
+
+            extra_keywords(dict):    Additional keywords to add to to the
+                evaluater on top of what already exists in the header.
 
         Returns:
             Evaluator or None:
@@ -293,8 +297,7 @@ class ProcessingManager(ABC):
                            repr(image))
         result = None
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
-        evaluate.symtable['IMAGE_TYPE'] = image.image_type.name
-        evaluate.symtable['OBS_SESN'] = image.observing_session.label
+        evaluate.symtable.update(extra_keywords)
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
         skip_evaluate = image.id in self._evaluated_expressions
@@ -600,7 +603,6 @@ class ProcessingManager(ABC):
 
             if not dummy:
                 self._cleanup_interrupted(db_session)
-                self.set_pending(db_session)
 
 
     def get_config(self,

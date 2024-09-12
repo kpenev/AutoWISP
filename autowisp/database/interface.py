@@ -18,5 +18,5 @@ db_engine = create_engine(
 
 #pylint false positive - Session is actually a class name.
 #pylint: disable=invalid-name
-Session = sessionmaker(db_engine)
+Session = sessionmaker(db_engine, expire_on_commit=False)
 #pylint: enable=invalid-name

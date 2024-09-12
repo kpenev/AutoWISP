@@ -45,6 +45,16 @@ def _get_missing_photref(request):
         magfit_steps = [entry for entry in get_processing_sequence(db_session)
                         if entry[0].name == 'fit_magnitudes']
         processing.set_pending(db_session, magfit_steps)
+        for step in magfit_steps:
+            for pending in processing.pending[
+                    (step[0].id, step[1].id)
+            ]:
+                processing.evaluate_expressions_image(
+                    pending[0],
+                    IMAGE_TYPE=pending[0].image_type.name,
+                    OBS_SESN=pending[0].observing_session.label
+                )
+
         request.session['demo'] = False
         if not reduce(lambda x, y: bool(x) or bool(y),
                       processing.pending.values(),
@@ -97,7 +107,7 @@ def _get_missing_photref(request):
             )
             for by_master_values, master_values in by_photref:
                 candidate_masters = processing.get_candidate_masters(
-                    *by_master_values[0],
+                    *by_master_values[0][:2],
                     input_master_type,
                     db_session
                 ) if not request.session['demo'] else False
@@ -128,7 +138,7 @@ def _get_missing_photref(request):
                                     image.id,
                                     channel
                                 )
-                                for image, channel in by_master_values
+                                for image, channel, _ in by_master_values
                             ]
                         )
                     )

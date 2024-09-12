@@ -133,7 +133,7 @@ def _get_pending(request):
             processing.set_pending(db_session, find_star_steps, True)
         for step, imtype in find_star_steps:
             grouping = {}
-            for image, channel in processing.pending[step.id, imtype.id]:
+            for image, channel, _ in processing.pending[step.id, imtype.id]:
                 evaluator = processing.evaluate_expressions_image(image,
                                                                   channel,
                                                                   True)
