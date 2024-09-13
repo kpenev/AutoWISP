@@ -1,7 +1,8 @@
 """Define class for performing EPD correction on lightcurves."""
 
-from itertools import repeat
+from traceback import format_exc
 import logging
+from itertools import repeat
 
 import numpy
 from numpy.lib import recfunctions
@@ -37,6 +38,9 @@ class EPDCorrection(Correction):
             directly to LightCurveFile.add_configurations().
 
     """
+
+    _logger = logging.getLogger(__name__)
+
 
     def _get_fit_configurations(self, fit_terms_expression):
         """Return the current fitting configurations (see self._fit_config)."""
@@ -227,16 +231,16 @@ class EPDCorrection(Correction):
             predictors = predictors[:, fit_points]
 
             if self.fit_weights is None:
-                fit_weight_iter = repeat(None)
+                fit_weights = repeat(None)
             elif isinstance(self.fit_weights, str):
-                fit_weight_iter = repeat(evaluate(self.fit_weights)[fit_points])
+                fit_weights = repeat(evaluate(self.fit_weights)[fit_points])
             else:
                 assert len(self.fit_datasets) == len(self.fit_weights)
-                fit_weight_iter = (
+                fit_weights = [
                     evaluate(weight_expression)[fit_points]
                     for weight_expression in self.fit_weights
-                )
-            return predictors, fit_weight_iter, fit_points
+                ]
+            return predictors, fit_weights, fit_points
 
         #<++> Move out
         def correct_one_dataset(light_curve,
@@ -277,7 +281,6 @@ class EPDCorrection(Correction):
                 None
             """
 
-            logger = logging.getLogger(__name__)
             raw_values = self._get_fit_data(light_curve,
                                             get_fit_dataset,
                                             fit_target,
@@ -287,7 +290,7 @@ class EPDCorrection(Correction):
             else:
                 fit_data = raw_values
 
-            logger.debug(
+            self._logger.debug(
                 'Fit data contains %d NaNs, %d non finites, and %d negatives',
                 numpy.isnan(fit_data).sum(),
                 numpy.logical_not(numpy.isfinite(fit_data)).sum(),
@@ -334,31 +337,50 @@ class EPDCorrection(Correction):
 
         with LightCurveFile(lc_fname, 'r+') as light_curve:
 
-            result = numpy.empty(
-                1,
+            result = numpy.full(
+                shape=1,
+                fill_value=numpy.nan,
                 dtype=self.get_result_dtype(len(self.fit_datasets),
                                             extra_predictors)
             )
 
-            predictors, fit_weight_iter, fit_points = prepare_fit(
+            predictors, fit_weights, fit_points = prepare_fit(
                 result.dtype.names[-num_extra_predictors:] if extra_predictors
                 else []
             )
+            if not fit_points.any():
+                return result
 
             for fit_index, to_fit in enumerate(
-                    zip(self.fit_datasets,
-                        fit_weight_iter)
+                    zip(self.fit_datasets, fit_weights)
             ):
-                correct_one_dataset(
-                    light_curve=light_curve,
-                    predictors=predictors,
-                    fit_points=fit_points,
-                    fit_target=to_fit[0],
-                    weights=to_fit[1],
-                    fit_index=fit_index,
-                    result=result,
-                    num_extra_predictors=num_extra_predictors
-                )
+                try:
+                    correct_one_dataset(
+                        light_curve=light_curve,
+                        predictors=predictors,
+                        fit_points=fit_points,
+                        fit_target=to_fit[0],
+                        weights=to_fit[1],
+                        fit_index=fit_index,
+                        result=result,
+                        num_extra_predictors=num_extra_predictors
+                    )
+                except:
+                    error_message = '\n'.join([
+                        f'EPD failed for {to_fit[0]!r} dataset of {lc_fname!r}'
+                        f'Predictors:\n{predictors!r}'
+                        f'fit_points:\n{fit_points!r}'
+                        f'fit_weights:\n{to_fit[1]!r}'
+                        f'fit_index: {fit_index:d}'
+                        f'num_extra_predictors: {num_extra_predictors:d}\n'
+                    ]) + format_exc()
+                    self._logger.critical(error_message)
+
+                    #The point is to avoid pickling error when some exceptions
+                    #cannot travel back from Pool
+                    #pylint: disable=raise-missing-from
+                    raise RuntimeError(error_message)
+                    #pylint: enable=raise-missing-from
 
             self.mark_progress(int(light_curve['Identifiers'][0][1]))
         return result
