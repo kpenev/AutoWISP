@@ -1045,10 +1045,12 @@ class TFACorrection(Correction):
             matched_fit_data[matched_indices] = fit_data[fit_points]
             matched_fit_data -= numpy.nanmedian(matched_fit_data)
 
-            print('Checking if LC with identifiers '
-                  f'{light_curve["Identifiers"][:]!r} is among the templates:\n'
-                  +
-                  repr(self._template_source_ids[fit_index]))
+            self._logger.debug(
+                'Checking if LC with identifiers %s is among the '
+                'templates:\n%s',
+                repr(light_curve["Identifiers"][:]),
+                repr(self._template_source_ids[fit_index])
+            )
             for source_id in light_curve['Identifiers'][:, 1]:
                 try:
                     exclude_template = (
@@ -1062,13 +1064,24 @@ class TFACorrection(Correction):
                     continue
                 if exclude_template.any():
                     break
-            print('Exclude template: ' + repr(exclude_template))
+            self._logger.debug('Exclude template: %s', repr(exclude_template))
             if exclude_template.any():
                 exclude_template_index = int(numpy.nonzero(exclude_template)[0])
+                self._logger.debug(
+                    'Excluding template with index %d (permuted index %d)',
+                    exclude_template_index,
+                    self._template_qrp[fit_index][2][exclude_template_index]
+                )
                 apply_qrp = (
                     *scipy.linalg.qr_delete(
                         *self._template_qrp[fit_index][:2],
-                        exclude_template_index,
+                        self._template_qrp[
+                            fit_index
+                        ][
+                            2
+                        ][
+                            exclude_template_index
+                        ],
                         which='col'
                     ),
                     numpy.delete(self._template_qrp[fit_index][2],
@@ -1080,6 +1093,7 @@ class TFACorrection(Correction):
                     axis=1
                 )
             else:
+                exclude_template_index = None
                 apply_qrp = self._template_qrp[fit_index]
                 fit_templates = self.template_measurements[fit_index]
 
