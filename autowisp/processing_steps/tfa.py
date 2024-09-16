@@ -46,15 +46,22 @@ def tfa(lc_collection, start_status, configuration, mark_progress):
         'lc_points_filter_expression'
     )
 
+    epd_statistics = load_correction_statistics(
+        configuration['epd_statistics_fname'].format_map(
+            sphotref_header
+        )
+    )
+
+    if configuration['target_id'] is not None:
+        epd_statistics = epd_statistics[epd_statistics['ID']
+                                        !=
+                                        int(configuration['target_id'])]
+
     detrend_light_curves(
         lc_collection,
         configuration,
         TFACorrection(
-            load_correction_statistics(
-                configuration['epd_statistics_fname'].format_map(
-                    sphotref_header
-                )
-            ),
+            epd_statistics,
             configuration,
             error_avg=configuration['detrend_error_avg'],
             rej_level=configuration['detrend_rej_level'],
