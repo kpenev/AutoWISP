@@ -213,6 +213,19 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 print(f'Config component {config_component!r} not found!')
                 config_component = config_component.rsplit('.', 1)[0]
 
+
+    def read_data(self, dataset_key, **substitutions):
+        """Similar to get_dataset, except config datasets are expanded."""
+
+        data = self.get_dataset(dataset_key, **substitutions)
+
+        if _config_dset_key_rex.search(dataset_key):
+            config_indices = self.get_config_indices(dataset_key,
+                                                     **substitutions)
+            data = data[config_indices]
+        return data
+
+
     def read_data_array(self, variables):
         """
         Return a numpy structured array of the given variables.
@@ -253,12 +266,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         result = None
         for var_name, (dataset_key, substitutions) in variables.items():
-            data = self.get_dataset(dataset_key, **substitutions)
-
-            if _config_dset_key_rex.search(dataset_key):
-                config_indices = self.get_config_indices(dataset_key,
-                                                         **substitutions)
-                data = data[config_indices]
+            data = self.read_data(dataset_key, **substitutions)
 
             if result is None:
                 result = create_empty_result(data.size)
