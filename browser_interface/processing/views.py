@@ -23,11 +23,11 @@ from .tune_starfind_views import\
     find_stars,\
     project_catalog,\
     save_starfind_config
-from .diagnostics_views import\
+from .detrending_diagnostics_views import\
     display_detrending_diagnostics,\
-    refresh_diagnostics,\
-    update_diagnostics_plot,\
-    download_diagnostics_plot
+    refresh_detrending_diagnostics,\
+    update_detrending_diagnostics_plot,\
+    download_detrending_diagnostics_plot
 from .display_fits_util import update_fits_display
 #pylint: enable=unused-import
 

@@ -52,7 +52,7 @@ def _guess_labels(photref_entries):
         )
 
 
-def _init_magfit_session(request):
+def _init_detrending_session(request):
     """Add to browser session which magfit runs can be diagnosed."""
 
     #False positive
@@ -184,7 +184,7 @@ def _init_lc_detrending_session(request):
             )
 
 
-def refresh_diagnostics(request):
+def refresh_detrending_diagnostics(request):
     """Reset all diagnostics related entries in the BUI session """
 
     if 'diagnostics' in request.session:
@@ -204,7 +204,7 @@ def display_detrending_diagnostics(request):
         'detrending' not in request.session['diagnostics']
     ):
         print('Refreshing session')
-        _init_magfit_session(request)
+        _init_detrending_session(request)
         _init_lc_detrending_session(request)
         photref_entries = request.session[
             'diagnostics'
@@ -291,7 +291,7 @@ def create_plot(session_detrending):
     pyplot.legend()
 
 
-def update_diagnostics_plot(request):
+def update_detrending_diagnostics_plot(request):
     """Generate and respond with update plot, also update session."""
 
     plot_config = json.loads(request.body.decode())
@@ -330,7 +330,7 @@ def update_diagnostics_plot(request):
         })
 
 
-def download_diagnostics_plot(request):
+def download_detrending_diagnostics_plot(request):
     """Send the user the diagnostics plot as a PDF file."""
 
     matplotlib.use('pdf')

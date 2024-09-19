@@ -80,9 +80,7 @@ def optimize_substitutions(lc_eval,
     return best_found, best_model
 
 
-def get_lightcurve_data(lc_fname,
-                        expressions,
-                        configuration):
+def get_plot_data(lc_fname, expressions, configuration):
     """Read relevant data from the lightcurve."""
 
     result = {}
@@ -146,8 +144,11 @@ def get_lightcurve_data(lc_fname,
                     lc_eval,
                     find_best=configuration['find_best'],
                     minimize=configuration['minimize'],
-                    y_expression=expressions['y'],
-                    model=configuration['model'],
+                    y_expression=(
+                        None if 'model' not in configuration
+                        else expressions[configuration['model']['quantity']]
+                    ),
+                    model=configuration.get('model'),
                     expression_params={'mode': photometry_mode}
                 )
                 if best_minimize is None or minimize_value < best_minimize:
@@ -157,131 +158,33 @@ def get_lightcurve_data(lc_fname,
                             var_expr.format(mode=photometry_mode),
                             raise_errors=True
                         )
+                    best_substitutions = lc_eval.lc_substitutions
 
-    return result
+    return result, best_substitutions
 
 
-def get_plot_data(lc_fname, configuration):
+def calculate_combined(plot_data, match_id_key, aggregation_function):
     """Create a specified plot of the given lightcurve."""
 
-    plot_data = {coord: pandas.Series() for coord in 'xy'}
-    plot_data['by_sphotref'] = {}
-    match_ids = pandas.Series()
-    with LightCurveFile(lc_fname, 'r') as lightcurve:
-        lc_eval = LightCurveEvaluator(lightcurve,
-                                      configuration['lc_substitutions'])
-        lc_eval.update_substitutions({'aperture_index': 0})
-        all_sphotref_fnames = set()
-        for photometry_mode in configuration['photometry_modes']:
-            all_sphotref_fnames |= set(
-                lightcurve.get_dataset(
-                    photometry_mode + '.magfit.cfg.single_photref',
-                    aperture_index=0
-                )
-            )
+    fixed_order_data = list(plot_data.values())
+    combined_data = {}
 
-        for single_photref_fname in all_sphotref_fnames:
-            print(f'Single photref: {single_photref_fname!r}')
-            best_minimize = None
-            plot_data['by_sphotref'][single_photref_fname] = {}
-            sphotref_data = plot_data['by_sphotref'][single_photref_fname]
-            for photometry_mode in configuration['photometry_modes']:
-                sphotref_dset_key = (photometry_mode
-                                     +
-                                     '.magfit.cfg.single_photref')
+    match_ids = pandas.concat(
+        (pandas.Series(data[match_id_key]) for data in fixed_order_data),
+        ignore_index=True
+    )
 
-                lc_eval.lc_points_selection = None
-                lc_eval.lc_points_selection = lc_eval(
-                    sphotref_dset_key
-                    +
-                    ' == '
-                    +
-                    repr(single_photref_fname),
-                    raise_errors=True
-                )
-                if configuration['selection'] is not None:
-                    lc_eval.lc_points_selection = numpy.logical_and(
-                        lc_eval(configuration['selection'] or 'True',
-                                raise_errors=True),
-                        lc_eval.lc_points_selection
-                    )
-                if configuration[
-                        'lc_substitutions'
-                ].get(
-                    'magfit_iteration', 0
-                ) < 0:
-                    lc_eval.update_substitutions({
-                        'magfit_iteration': configuration[
-                            'lc_substitutions'
-                        ][
-                            'magfit_iteration'
-                        ] + lightcurve.get_num_magfit_iterations(
-                            photometry_mode,
-                            lc_eval.lc_points_selection,
-                            **lc_eval.lc_substitutions
-                        )
-                    })
-                (
-                    minimize_value,
-                    sphotref_data['best_model']
-                ) = optimize_substitutions(
-                    lc_eval,
-                    find_best=configuration['find_best'],
-                    minimize=configuration['minimize'],
-                    y_expression=configuration['y_expression'],
-                    model=configuration['model'],
-                    expression_params={'mode': photometry_mode}
-                )
-                if best_minimize is None or minimize_value < best_minimize:
-                    best_minimize = minimize_value
-                    for coord in 'xy':
-                        sphotref_data[coord] = lc_eval(
-                            configuration[
-                                coord + '_expression'
-                            ].format(
-                                mode=photometry_mode
-                            ),
-                            raise_errors=True
-                        )
-                        new_match_ids = lc_eval(
-                            configuration[
-                                'match_by'
-                            ].format(
-                                mode=photometry_mode
-                            ),
-                            raise_errors=True
-                        )
-            for coord in 'xy':
-                plot_data[coord] = pandas.concat(
-                    [
-                        plot_data[coord],
-                        pandas.Series(sphotref_data[coord])
-                    ],
-                    ignore_index=True
-                )
-            match_ids = pandas.concat(
-                [
-                    match_ids,
-                    pandas.Series(new_match_ids)
-                ],
-                ignore_index=True
-            )
-
-    print('X: ' + repr(plot_data['x']))
-    print('Y: ' + repr(plot_data['y']))
-    print('Match by: ' + repr(match_ids))
-
-
-    for coord in 'xy':
-        plot_data[coord] = pandas.Series(
-            plot_data[coord]
+    for var_name in fixed_order_data[0].keys():
+        combined_data[var_name] = pandas.concat(
+            (pandas.Series(data[var_name]) for data in fixed_order_data),
+            ignore_index=True
         ).groupby(
             match_ids
         ).agg(
-            getattr(numpy, configuration['aggregation_func'])
+            aggregation_function
         ).to_numpy()
 
-    return plot_data
+    return combined_data
 
 
 def transit_model(bjd, shift_to=None, **params):
@@ -311,13 +214,22 @@ def main():
         'p': 3.94150468,# the orbital period,
         'a': 11.24,# the orbital semi-major divided by R*,
         'i': 1.5500269086961642,# the orbital inclination in rad,
-        #e: the orbital eccentricity (optional, can be left out if assuming circular a orbit), and
-        #w: the argument of periastron in radians (also optional, can be left out if assuming circular a orbit).
+        #e: the orbital eccentricity (optional, can be left out if assuming
+        #   circular a orbit), and
+        #w: the argument of periastron in radians (also optional, can be left
+        #   out if assuming circular a orbit).
     }
 
     for detrend, fmt in [('magfit', 'ob'), ('epd', 'or'), ('tfa', 'og')]:
-        plot_data = get_plot_data(
+        data_by_sphotref = get_plot_data(
             '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
+            {
+                'y': (f'{{mode}}.{detrend}.magnitude - '
+                      f'nanmedian({{mode}}.{detrend}.magnitude)'),
+                'x': 'skypos.BJD - skypos.BJD.min()',
+                'match_ids': '(skypos.BJD * 24 * 12).astype(int)',
+                #'fitsheader.rawfname',
+            },
             {
                 'lc_substitutions': {'magfit_iteration': -1},
                 'selection': None,
@@ -326,11 +238,6 @@ def main():
 #                (f'nanmedian(abs({{mode}}.{detrend}.magnitude - '
 #                             f'nanmedian({{mode}}.{detrend}.magnitude)))'),
                 'photometry_modes': ['apphot'],
-                'y_expression': (f'{{mode}}.{detrend}.magnitude - '
-                                 f'nanmedian({{mode}}.{detrend}.magnitude)'),
-                'x_expression': 'skypos.BJD',
-                'match_by': 'fitsheader.rawfname',
-                'aggregation_func': 'nanmedian',
                 'model': {
                     'evaluate': partial(
                         transit_model,
@@ -346,22 +253,26 @@ def main():
                 }
             }
         )
+        data_combined = calculate_combined(data_by_sphotref,
+                                           'match_ids',
+                                           numpy.nanmedian)
 
         pyplot.figure(combined_figure_id)
-        pyplot.plot(plot_data['x'],
-                    plot_data['y'],
+        pyplot.plot(data_combined['x'],
+                    data_combined['y'],
                     fmt,
                     label=detrend,
                     markersize=2)
-        pyplot.plot(plot_data['x'],
-                    transit_model(plot_data['x'],
-                                  shift_to=plot_data['y'],
-                                  **transit_params),
+        pyplot.plot(data_combined['x'],
+                    data_combined['best_model'],
+#                    transit_model(plot_data['x'],
+#                                  shift_to=plot_data['y'],
+#                                  **transit_params),
                     '-k')
 
         pyplot.figure(individual_figures_id)
         for subfig_id, (sphotref_fname, single_data) in enumerate(
-                plot_data['by_sphotref'].items()
+                data_by_sphotref.items()
         ):
             print(f'Single data: {single_data!r}')
             pyplot.subplot(2, 2, subfig_id + 1)

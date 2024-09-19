@@ -102,18 +102,18 @@ urlpatterns = [
         name='display_detrending_diagnostics'
     ),
     path(
-        'refresh_diagnostics',
-        views.refresh_diagnostics,
+        'refresh_detrending_diagnostics',
+        views.refresh_detrending_diagnostics,
         name='refresh_diagnostics'
     ),
     path(
-        'update_diagnostics_plot',
-        views.update_diagnostics_plot,
+        'update_detrending_diagnostics_plot',
+        views.update_detrending_diagnostics_plot,
         name='update_diagnostics_plot'
     ),
     path(
-        'download_diagnostics_plot',
-        views.download_diagnostics_plot,
+        'download_detrending_diagnostics_plot',
+        views.download_detrending_diagnostics_plot,
         name='download_diagnostics_plot'
     )
 ]
