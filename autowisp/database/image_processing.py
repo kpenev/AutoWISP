@@ -345,9 +345,14 @@ class ImageProcessingManager(ProcessingManager):
             result[candidate_masters[channel_list[0]][0].filename] = batch
         else:
             for image, channel, status in batch:
-                best_master = self._get_best_master(candidate_masters[channel],
-                                                    image,
-                                                    channel)
+                best_master = self._get_best_master(
+                    (
+                        candidate_masters if channel is None
+                        else candidate_masters[channel]
+                    ),
+                    image,
+                    channel
+                )
                 if best_master in result:
                     result[best_master].append((image, channel, status))
                 else:
