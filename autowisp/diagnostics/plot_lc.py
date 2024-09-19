@@ -80,6 +80,87 @@ def optimize_substitutions(lc_eval,
     return best_found, best_model
 
 
+def get_lightcurve_data(lc_fname,
+                        expressions,
+                        configuration):
+    """Read relevant data from the lightcurve."""
+
+    result = {}
+    with LightCurveFile(lc_fname, 'r') as lightcurve:
+        lc_eval = LightCurveEvaluator(lightcurve,
+                                      configuration['lc_substitutions'])
+        lc_eval.update_substitutions({'aperture_index': 0})
+        all_sphotref_fnames = set()
+        for photometry_mode in configuration['photometry_modes']:
+            all_sphotref_fnames |= set(
+                lightcurve.get_dataset(
+                    photometry_mode + '.magfit.cfg.single_photref',
+                    aperture_index=0
+                )
+            )
+
+        for single_photref_fname in all_sphotref_fnames:
+            print(f'Single photref: {single_photref_fname!r}')
+            best_minimize = None
+            result[single_photref_fname] = {}
+            for photometry_mode in configuration['photometry_modes']:
+                sphotref_dset_key = (photometry_mode
+                                     +
+                                     '.magfit.cfg.single_photref')
+
+                lc_eval.lc_points_selection = None
+                lc_eval.lc_points_selection = lc_eval(
+                    sphotref_dset_key
+                    +
+                    ' == '
+                    +
+                    repr(single_photref_fname),
+                    raise_errors=True
+                )
+                if configuration['selection'] is not None:
+                    lc_eval.lc_points_selection = numpy.logical_and(
+                        lc_eval(configuration['selection'] or 'True',
+                                raise_errors=True),
+                        lc_eval.lc_points_selection
+                    )
+                if configuration[
+                        'lc_substitutions'
+                ].get(
+                    'magfit_iteration', 0
+                ) < 0:
+                    lc_eval.update_substitutions({
+                        'magfit_iteration': configuration[
+                            'lc_substitutions'
+                        ][
+                            'magfit_iteration'
+                        ] + lightcurve.get_num_magfit_iterations(
+                            photometry_mode,
+                            lc_eval.lc_points_selection,
+                            **lc_eval.lc_substitutions
+                        )
+                    })
+                (
+                    minimize_value,
+                    result[single_photref_fname]['best_model']
+                ) = optimize_substitutions(
+                    lc_eval,
+                    find_best=configuration['find_best'],
+                    minimize=configuration['minimize'],
+                    y_expression=expressions['y'],
+                    model=configuration['model'],
+                    expression_params={'mode': photometry_mode}
+                )
+                if best_minimize is None or minimize_value < best_minimize:
+                    best_minimize = minimize_value
+                    for var_name, var_expr in expressions.items():
+                        result[single_photref_fname][var_name] = lc_eval(
+                            var_expr.format(mode=photometry_mode),
+                            raise_errors=True
+                        )
+
+    return result
+
+
 def get_plot_data(lc_fname, configuration):
     """Create a specified plot of the given lightcurve."""
 
