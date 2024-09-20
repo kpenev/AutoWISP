@@ -89,16 +89,7 @@ function getPlotConfig()
 
 function showNewPlot(data)
 {
-    let plotParent = document.getElementById("plot-parent");
-    for ( child of plotParent.children )
-        if ( child.tagName.toUpperCase() == "SVG" )
-            plotParent.removeChild(child);
-
-    plotParent.innerHTML = 
-        data["plot_data"]
-        +
-        document.getElementById("plot-parent").innerHTML;
-
+    showSVG(data, "plot-parent");
     document.getElementById("plot-x-min").value = 
         data["plot_config"]["x_range"][0];
     document.getElementById("plot-x-max").value =

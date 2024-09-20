@@ -28,3 +28,14 @@ async function postJson(targetURL, data)
         credentials: 'include'
     });
 }
+
+
+function showSVG(data, parentId)
+{
+    let parentElement = document.getElementById(parentId);
+    for ( child of parentElement.children )
+        if ( child.tagName.toUpperCase() == "SVG" )
+            parentElement.removeChild(child);
+
+    parentElement.innerHTML = data["plot_data"] + parentElement.innerHTML;
+}

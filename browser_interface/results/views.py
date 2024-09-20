@@ -2,5 +2,9 @@
 
 #This module should collect all views
 #pylint: disable=unused-import
-from .lightcurve_views import display_lightcurve
+from .lightcurve_views import\
+    display_lightcurve,\
+    update_lightcurve_figure,\
+    download_lightcurve_figure,\
+    clear_lightcurve_buffer
 #pylint: enable=unused-import

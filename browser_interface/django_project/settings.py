@@ -33,6 +33,7 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 # Application definition
 
 INSTALLED_APPS = [
+    'results.apps.ResultsConfig',
     'processing.apps.ProcessingConfig',
     'configuration.apps.ConfigurationConfig',
     'core.apps.CoreConfig',

@@ -1,0 +1,49 @@
+{% extends 'core/lcars_app.html' %}
+{% load static %}
+
+{% block extra_head %}
+{% endblock extra_head %}
+
+{% block header_title %}{% block app_title %}
+Preview Lightcurves
+{% endblock %}{% endblock %}
+
+{% block left_menu %}
+
+<a id="download-button" 
+   href="{% url 'results:download_lightcurve_figure' %}">
+    <div class="lcars-element 
+                button 
+                lcars-melrose-bg
+                lcars-u-1-2">
+        Download Figure
+    </div>
+</a>
+
+<a href="{% url 'results:clear_lightcurve_buffer' %}">
+    <div class="lcars-element 
+                button 
+                lcars-husk-bg
+                lcars-u-1-2">
+        Clear LC Buffer
+    </div>
+</a>
+{% endblock left_menu %}
+
+{% block main %}
+<div id="active-area" class="lcars-column fill-space">
+    <div id="figure-parent" class="fill-space lcars-row">
+    </div>
+</div>
+
+<script src="{% static 'js/autowisp.util.js' %}"></script>
+<script src="{% static 'results/js/display.lightcurves.js' %}"></script>
+{% url 'results:update_lightcurve_figure' as updateURL %}
+<script type="text/javascript">
+    initLightcurveDisplay("{{updateURL}}");
+</script> 
+{% endblock main %}
+
+
+
+

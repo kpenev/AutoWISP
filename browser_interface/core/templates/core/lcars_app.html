@@ -46,9 +46,9 @@
                 {% block processing_link %}
                 <a href="{% url 'processing:progress' %}">
                     <div class="lcars-element 
-                                   button 
-                                   lcars-chestnut-rose-bg
-                                   lcars-u-1-2">
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
                         Processing Status
                     </div>
                 </a>
@@ -57,9 +57,9 @@
                 {% block configuration_link %}
                 <a href="{% url 'configuration:config_tree' %}">
                     <div class="lcars-element 
-                                   button 
-                                   lcars-chestnut-rose-bg
-                                   lcars-u-1-2">
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
                         Configure Processing
                     </div>
                 </a>
@@ -68,13 +68,25 @@
                 {% block edit_survey_link %}
                 <a href="{% url 'configuration:survey' %}">
                     <div class="lcars-element 
-                                   button 
-                                   lcars-chestnut-rose-bg
-                                   lcars-u-1-2">
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
                         Edit Survey
                     </div>
                 </a>
                 {% endblock edit_survey_link %}
+
+                {% block review_results_link %}
+                <a href="{% url 'results:results' %}">
+                    <div class="lcars-element 
+                                button 
+                                lcars-chestnut-rose-bg
+                                lcars-u-1-2">
+                        Review Results
+                    </div>
+                </a>
+                {% endblock review_results_link %}
+
 
                 <div class="lcars-bar lcars-u-1"></div>
             </div>

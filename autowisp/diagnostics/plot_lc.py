@@ -62,18 +62,20 @@ def optimize_substitutions(lc_eval,
     best_found = None
     for combination in product(*(values for _, values in find_best)):
         lc_eval.update_substitutions(zip(key_order, combination))
-        model_values = evaluate_model(model, lc_eval, expression_params)
-        lc_eval.symtable['model_diff'] = (
-            lc_eval(y_expression.format_map(expression_params))
-            -
-            model_values
-        )
+        if model is not None:
+            model_values = evaluate_model(model, lc_eval, expression_params)
+            lc_eval.symtable['model_diff'] = (
+                lc_eval(y_expression.format_map(expression_params))
+                -
+                model_values
+            )
 
-        minimize_val = lc_eval(minimize, raise_errors=True)
+        minimize_val = lc_eval(minimize.format_map(expression_params),
+                               raise_errors=True)
         if best_found is None or minimize_val < best_found:
             best_found = minimize_val
             best_combination = combination
-            best_model = model_values
+            best_model = None if model is None else model_values
     print(f'Best substitutions: {dict(zip(key_order, best_combination))!r}')
     print(f'Best value: {best_found!r}')
     lc_eval.lc_substitutions.update(zip(key_order, best_combination))
@@ -100,7 +102,7 @@ def get_plot_data(lc_fname, expressions, configuration):
         for single_photref_fname in all_sphotref_fnames:
             print(f'Single photref: {single_photref_fname!r}')
             best_minimize = None
-            result[single_photref_fname] = {}
+            sphotref_result = {}
             for photometry_mode in configuration['photometry_modes']:
                 sphotref_dset_key = (photometry_mode
                                      +
@@ -139,7 +141,7 @@ def get_plot_data(lc_fname, expressions, configuration):
                     })
                 (
                     minimize_value,
-                    result[single_photref_fname]['best_model']
+                    sphotref_result['best_model']
                 ) = optimize_substitutions(
                     lc_eval,
                     find_best=configuration['find_best'],
@@ -154,11 +156,13 @@ def get_plot_data(lc_fname, expressions, configuration):
                 if best_minimize is None or minimize_value < best_minimize:
                     best_minimize = minimize_value
                     for var_name, var_expr in expressions.items():
-                        result[single_photref_fname][var_name] = lc_eval(
+                        sphotref_result[var_name] = lc_eval(
                             var_expr.format(mode=photometry_mode),
                             raise_errors=True
                         )
                     best_substitutions = lc_eval.lc_substitutions
+
+            result[single_photref_fname.decode()] = sphotref_result
 
     return result, best_substitutions
 
@@ -175,6 +179,8 @@ def calculate_combined(plot_data, match_id_key, aggregation_function):
     )
 
     for var_name in fixed_order_data[0].keys():
+        if var_name == match_id_key:
+            continue
         combined_data[var_name] = pandas.concat(
             (pandas.Series(data[var_name]) for data in fixed_order_data),
             ignore_index=True
