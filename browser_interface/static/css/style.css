@@ -51,3 +51,10 @@ html,body {
     visibility: visible;
     opacity: 1;
 }
+
+.fill-space {
+    height: 100%;
+    width: 100%;
+}
+
+

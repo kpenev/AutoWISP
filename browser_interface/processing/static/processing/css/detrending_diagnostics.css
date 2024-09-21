@@ -49,11 +49,6 @@
     z-index: 10;
 }
 
-.fill-space {
-    height: 100%;
-    width: 100%;
-}
-
 #download-button {
     display: none
 }

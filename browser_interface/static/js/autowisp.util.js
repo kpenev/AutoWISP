@@ -38,4 +38,68 @@ function showSVG(data, parentId)
             parentElement.removeChild(child);
 
     parentElement.innerHTML = data["plot_data"] + parentElement.innerHTML;
+    delete data["plot_data"];
+    return data
 }
+
+function stripUnits(quantity)
+{
+    while ( isNaN(Number(quantity)) ) 
+        quantity = quantity.slice(0, -1);
+    return Number(quantity);
+}
+
+function setFigureSize(parentId)
+{
+    let fullRect = document
+        .getElementById("active-area")
+        .getBoundingClientRect();
+    let figureParent = document.getElementById(parentId);
+    let figure = figureParent.children[0];
+    let width = figure.getAttribute("width");
+    let aspectRatio = (stripUnits(figure.getAttribute("width"))
+                       / 
+                       stripUnits(figure.getAttribute("height")));
+    let parentBoundingRect = figureParent.getBoundingClientRect();
+    maxHeight = (fullRect.top
+                 +
+                 fullRect.height
+                 -
+                 parentBoundingRect.top)
+    figureParent.style.height = maxHeight + "px";
+    figureParent.style.minHeight = maxHeight + "px";
+    figureParent.style.maxHeight = maxHeight + "px";
+    figureParent.style.padding = "0px";
+    figureParent.style.margin = "0px";
+    figure.setAttribute("height", 
+                        Math.min(maxHeight, 
+                                 parentBoundingRect.width 
+                                 / 
+                                 aspectRatio ));
+    figure.setAttribute("width",
+                        Math.min(parentBoundingRect.width,
+                                 maxHeight * aspectRatio));
+}
+
+function updateFigure()
+{
+    let param;
+    if (typeof updateFigure.getParam === 'function')
+        param = updateFigure.getParam();
+
+    postJson(updateFigure.url, param)
+        .then((response) => {
+            console.log(response);
+            return response.json();
+        })
+        .then((data) => {
+            console.log(data);
+            updateFigure.callback(data);
+        })
+        .catch(function(error) {
+            alert("Updating plot failed: " + error);
+        });
+
+}
+
+

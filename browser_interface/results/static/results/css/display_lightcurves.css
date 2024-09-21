@@ -1,0 +1,8 @@
+#figure-parent {
+    position: relative;
+}
+
+#plot-split {
+    display: none;
+    position: absolute;
+}

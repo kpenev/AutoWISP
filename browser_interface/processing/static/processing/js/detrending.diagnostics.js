@@ -6,43 +6,6 @@ function selectSymbol(event)
     button.replaceChild(event.currentTarget.cloneNode(true), button.children[0]);
 }
 
-function stripUnits(quantity)
-{
-    while ( isNaN(Number(quantity)) ) 
-        quantity = quantity.slice(0, -1);
-    return Number(quantity);
-}
-
-function setPlotSize()
-{
-    let fullRect = document
-        .getElementById("active-area")
-        .getBoundingClientRect();
-    let plotParent = document.getElementById("plot-parent");
-    let plot = plotParent.children[0];
-    let width = plot.getAttribute("width");
-    let aspectRatio = (stripUnits(plot.getAttribute("width"))
-                       / 
-                       stripUnits(plot.getAttribute("height")));
-    let parentBoundingRect = plotParent.getBoundingClientRect();
-    maxHeight = (fullRect.top
-                 +
-                 fullRect.height
-                 -
-                 parentBoundingRect.top)
-    plotParent.style.height = maxHeight + "px";
-    plotParent.style.minHeight = maxHeight + "px";
-    plotParent.style.maxHeight = maxHeight + "px";
-    plot.setAttribute("height", 
-                      Math.min(maxHeight, 
-                               parentBoundingRect.width 
-                               / 
-                               aspectRatio ));
-    plot.setAttribute("width",
-                      Math.min(parentBoundingRect.width,
-                               maxHeight * aspectRatio));
-}
-
 function getPlotConfig()
 {
     const markerButtons = document.getElementsByClassName("selected-marker");
@@ -109,25 +72,8 @@ function showNewPlot(data)
     document.getElementById("marker-size").value = 
         data["plot_config"]["marker_size"];
 
-    setPlotSize();
+    setFigureSize("plot-parent");
     document.getElementById("download-button").style.display="inline";
-}
-
-function updatePlot()
-{
-    postJson(updatePlot.url, getPlotConfig())
-        .then((response) => {
-            console.log(response);
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data);
-            showNewPlot(data);
-        })
-        .catch(function(error) {
-            alert("Updating plot failed: " + error);
-        });
-
 }
 
 function moveSep(event)
@@ -139,7 +85,7 @@ function moveSep(event)
     config.style.height = height + "px";
     config.style.minHeight = height + "px";
     config.style.maxHeight = height + "px";
-    setPlotSize();
+    setFigureSize("plot-parent");
 }
 
 function sepDragEnd(event)
@@ -182,8 +128,10 @@ function initDiagnosticsPlotting(plotURL)
             symbol.addEventListener("click", selectSymbol);
     }
     document.getElementById("plot-button").addEventListener("click", 
-                                                            updatePlot);
-    updatePlot.url = plotURL;
+                                                            updateFigure);
+    updateFigure.url = plotURL;
+    updateFigure.callback = showNewPlot;
+    updateFigure.getParam = getPlotConfig;
     document.getElementById("plot-sep").addEventListener("mousedown",
                                                          sepDragStart)
     let plot = document.getElementById("plot-parent").children[0];

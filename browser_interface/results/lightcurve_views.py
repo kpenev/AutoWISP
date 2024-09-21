@@ -1,6 +1,7 @@
 """Views for displaying the lightcurve of a star."""
 
 from functools import partial
+from itertools import product
 from copy import deepcopy
 from io import StringIO, BytesIO
 import json
@@ -202,11 +203,38 @@ def create_subplots(plotting_info, splits, children, parent, figure):
             )
 
 
+def get_subplot_boundaries(splits,
+                           children,
+                           x_offset,
+                           y_offset,
+                           result):
+    """Return coords of horizontal and vertical boundaries between plots."""
+
+    x_bounds = numpy.cumsum([x_offset] + splits[0])
+    y_bounds = numpy.cumsum([y_offset] + splits[1])
+    cell_indices = product(range(len(splits[0])), range(len(splits[1])))
+    for child, (x_ind, y_ind) in zip(children, cell_indices):
+        if isinstance(child, int):
+            result[child] = {
+                'left': x_bounds[x_ind],
+                'right': x_bounds[x_ind + 1],
+                'top': y_bounds[y_ind],
+                'bottom': y_bounds[y_ind + 1]
+            }
+        else:
+            get_subplot_boundaries(
+                *child,
+                x_bounds[x_ind],
+                y_bounds[y_ind],
+                result
+            )
+
+
 def update_lightcurve_figure(request):
     """Generate and return a new figure for the current lightcurve."""
 
     matplotlib.use('svg')
-    pyplot.style.use('dark_background')
+    #pyplot.style.use('dark_background')
 
     figure = pyplot.figure(
         **request.session['lc_plotting']['figure_config']
@@ -225,8 +253,14 @@ def update_lightcurve_figure(request):
 
     with StringIO() as image_stream:
         pyplot.savefig(image_stream, bbox_inches='tight', format='svg')
+        subplot_boundaries = {}
+        get_subplot_boundaries(*request.session['lc_plotting']['plot_layout'],
+                               0,
+                               0,
+                               subplot_boundaries)
         return JsonResponse({
             'plot_data': image_stream.getvalue(),
+            'boundaries': subplot_boundaries
         })
 
 
