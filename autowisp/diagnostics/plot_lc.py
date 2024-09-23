@@ -179,7 +179,7 @@ def calculate_combined(plot_data, match_id_key, aggregation_function):
     )
 
     for var_name in fixed_order_data[0].keys():
-        if var_name == match_id_key:
+        if var_name == match_id_key or var_name == 'frame':
             continue
         combined_data[var_name] = pandas.concat(
             (pandas.Series(data[var_name]) for data in fixed_order_data),
@@ -214,11 +214,11 @@ def main():
     combined_figure_id = pyplot.figure(0, dpi=300).number
     individual_figures_id = pyplot.figure(1, dpi=300).number
     transit_params={
-        'k': 0.1326, #the planet-star radius ratio
+        'k': 0.1215, #the planet-star radius ratio
         'ldc': [0.79272802, 0.72786169], #limb darkening coeff
         't0': 2455787.553228,# the zero epoch,
         'p': 3.94150468,# the orbital period,
-        'a': 11.24,# the orbital semi-major divided by R*,
+        'a': 11.04,# the orbital semi-major divided by R*,
         'i': 1.5500269086961642,# the orbital inclination in rad,
         #e: the orbital eccentricity (optional, can be left out if assuming
         #   circular a orbit), and
@@ -226,15 +226,17 @@ def main():
         #   out if assuming circular a orbit).
     }
 
-    for detrend, fmt in [('magfit', 'ob'), ('epd', 'or'), ('tfa', 'og')]:
-        data_by_sphotref = get_plot_data(
+    for detrend, fmt in [#('magfit', 'ob'),
+                         #('epd', 'or'),
+                         ('tfa', 'og')]:
+        data_by_sphotref, _ = get_plot_data(
             '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
             {
                 'y': (f'{{mode}}.{detrend}.magnitude - '
                       f'nanmedian({{mode}}.{detrend}.magnitude)'),
                 'x': 'skypos.BJD - skypos.BJD.min()',
-                'match_ids': '(skypos.BJD * 24 * 12).astype(int)',
-                #'fitsheader.rawfname',
+                'frame': 'fitsheader.rawfname',
+                'bin5min': '(skypos.BJD * 24 * 12).astype(int)',
             },
             {
                 'lc_substitutions': {'magfit_iteration': -1},
@@ -249,6 +251,7 @@ def main():
                         transit_model,
                         **transit_params
                     ),
+                    'quantity': 'y',
                     'args': [
                         'skypos.BJD',
                         (
@@ -259,22 +262,27 @@ def main():
                 }
             }
         )
-        data_combined = calculate_combined(data_by_sphotref,
-                                           'match_ids',
-                                           numpy.nanmedian)
 
         pyplot.figure(combined_figure_id)
-        pyplot.plot(data_combined['x'],
-                    data_combined['y'],
-                    fmt,
-                    label=detrend,
-                    markersize=2)
+        for combine_by, markersize, label in [('frame', 2, 'raw'),
+                                              ('bin5min', 10, '5 min bins')]:
+            data_combined = calculate_combined(data_by_sphotref,
+                                               combine_by,
+                                               numpy.nanmedian)
+
+            pyplot.plot(data_combined['x'],
+                        data_combined['y'],
+                        fmt,
+                        label=detrend,
+                        markersize=markersize,
+                        markeredgecolor='black' if markersize > 5 else 'none')
         pyplot.plot(data_combined['x'],
                     data_combined['best_model'],
 #                    transit_model(plot_data['x'],
 #                                  shift_to=plot_data['y'],
 #                                  **transit_params),
-                    '-k')
+                    '-k',
+                    linewidth=3)
 
         pyplot.figure(individual_figures_id)
         for subfig_id, (sphotref_fname, single_data) in enumerate(
@@ -285,7 +293,7 @@ def main():
             pyplot.plot(single_data['x'],
                         single_data['y'],
                         fmt,
-                        label=detrend,
+                        label=label,
                         markersize=1)
             pyplot.plot(single_data['x'],
                         single_data['best_model'],
@@ -297,7 +305,9 @@ def main():
 
 
     pyplot.figure(combined_figure_id)
-    pyplot.ylim(0.1, -0.1)
+    pyplot.xlabel('Time [days]')
+    pyplot.ylabel('Magnitude')
+    pyplot.ylim(0.05, -0.05)
     pyplot.legend()
     pyplot.savefig('XO-1_combined.pdf')
     pyplot.figure(individual_figures_id)
