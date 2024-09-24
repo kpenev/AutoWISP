@@ -115,7 +115,6 @@ function highlightPlotBoundary(which, box, figureBounds)
 function cleanSplits(removeUnapplied)
 {
     if ( removeUnapplied ) {
-        console.log("Cleaning up unapplied");
         elements = document.querySelectorAll(".unapplied");
     } else
         elements = document.querySelectorAll(".temporary");
@@ -191,7 +190,6 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
         &&
         splitBoundary.side in unappliedSplits[plotId]
        ) {
-        console.log("Splits: " + unappliedSplits[plotId][splitBoundary.side]);
         for ( const splitSize of unappliedSplits[plotId][splitBoundary.side] ){
             if ( splitRange[0] + splitSize > splitBoundary.fraction ) {
                 splitRange[1] = splitRange[0] + splitSize;
@@ -235,7 +233,7 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
         figureParent.appendChild(newSplit);
     }
 
-    document.onkeyup = function() { cleanSplits(false); };
+    document.onkeyup = cleanSplits.bind(null, false);
     plotSplit = document.getElementById("plot-split");
     plotSplit.onclick = function(event) {
         if ( event.shiftKey && splitCount > 1 ) 
@@ -250,11 +248,12 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
                            plotId,
                            splitCount + 1);
     }
-    plotSplit.ondblclick = function() {addSplits(splitBoundary,
-                                                 box,
-                                                 plotId,
-                                                 splitRange,
-                                                 splitCount);}
+    plotSplit.ondblclick = addSplits.bind(null,
+                                          splitBoundary,
+                                          box,
+                                          plotId,
+                                          splitRange,
+                                          splitCount);
     document.onkeydown = null;
 }
 
@@ -278,12 +277,11 @@ function figureMouseOver(event)
             if ( event.ctrlKey ) {
                 showExtraSplit(activeBoundary, box, plotId, 1);
             } else {
-                document.onkeydown = (function(event) {
-                    showExtraSplit(activeBoundary, 
-                                   box, 
-                                   plotId,
-                                   1);
-                });
+                document.onkeydown = showExtraSplit.bind(null,
+                                                         activeBoundary, 
+                                                         box, 
+                                                         plotId,
+                                                         1);
             }
             return;
         }
