@@ -17,7 +17,7 @@ Preview Lightcurves
     <div class="lcars-element 
                 button 
                 lcars-melrose-bg
-                lcars-u-1-2">
+                lcars-u-1">
         Download Figure
     </div>
 </a>
@@ -26,11 +26,24 @@ Preview Lightcurves
     <div class="lcars-element 
                 button 
                 lcars-husk-bg
-                lcars-u-1-2">
+                lcars-u-1">
         Clear LC Buffer
     </div>
 </a>
 {% endblock left_menu %}
+
+{% block header_bar_extra %}
+<div class="lcars-bar horizontal spacer"></div>
+<div id="apply"
+     class="lcars-bar
+            button
+            lcars-husk-bg
+            horizontal
+            lcars-u-1">
+    Apply
+</div>
+<div class="lcars-bar horizontal spacer"></div>
+{% endblock header_bar_extra %}
 
 {% block main %}
 <div id="active-area" class="lcars-column fill-space">

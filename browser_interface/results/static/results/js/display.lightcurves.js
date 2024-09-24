@@ -112,16 +112,20 @@ function highlightPlotBoundary(which, box, figureBounds)
     plotSplit.addEventListener("mouseleave", unhighlightPlotBoundary);
 }
 
-function removeAllTemporary()
+function cleanSplits(removeUnapplied)
 {
-    document
-        .querySelectorAll(".temporary")
-        .forEach(e => e.parentNode.removeChild(e));
+    if ( removeUnapplied ) {
+        console.log("Cleaning up unapplied");
+        elements = document.querySelectorAll(".unapplied");
+    } else
+        elements = document.querySelectorAll(".temporary");
+
+    elements.forEach(e => e.parentNode.removeChild(e));
 }
 
 function unhighlightPlotBoundary()
 {
-    removeAllTemporary();
+    cleanSplits(false);
     if ( typeof figureMouseOver.action !== "undefined" ) {
         let plotSplit = document.getElementById("plot-split");
         plotSplit.classList.remove(figureMouseOver.action);
@@ -133,9 +137,10 @@ function unhighlightPlotBoundary()
 
 }
 
-function addSplits(splitBoundary, box, plotId, splitCount)
+function addSplits(splitBoundary, box, plotId, splitRange, splitCount)
 {
-    showExtraSplit(splitBoundary, box, plotId, splitCount - 2);
+    splitCount -= 2;
+    showExtraSplit(splitBoundary, box, plotId, splitCount);
     document
         .querySelectorAll(".temporary")
         .forEach(e => e.classList.remove("temporary"));
@@ -144,11 +149,22 @@ function addSplits(splitBoundary, box, plotId, splitCount)
     figure = document.getElementById("figure-parent").children[0];
     if ( !(plotId in figure.unappliedSplits) )
         figure.unappliedSplits[plotId] = {};
-    figure.unappliedSplits[plotId][splitBoundary.side] = 
-        Array.from({length: splitCount},
-                   function(_, i) {
-                       return (i + 1) / splitCount;
-                   });
+
+    const currentSplits = figure.unappliedSplits[plotId][splitBoundary.side];
+    const newSplits = new Array(splitCount + 1);
+    newSplits.fill((splitRange[1] - splitRange[0]) / (splitCount + 1))
+
+    if ( typeof currentSplits === "undefined" )
+        figure.unappliedSplits[plotId][splitBoundary.side] = newSplits;
+    else {
+        let splicePos = 0;
+        for ( let right = 0; 
+              right < splitRange[0]; 
+              right += currentSplits[splicePos] )
+            splicePos++;
+        currentSplits.splice(splicePos, 1, ...newSplits);
+    }
+
     if ( splitBoundary.side == "left" )
         figure.unappliedSplits[plotId]["right"] = 
             figure.unappliedSplits[plotId]["left"];
@@ -165,7 +181,7 @@ function addSplits(splitBoundary, box, plotId, splitCount)
 
 function showExtraSplit(splitBoundary, box, plotId, splitCount)
 {
-    removeAllTemporary();
+    cleanSplits(false);
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
     let unappliedSplits = figure.unappliedSplits;
@@ -175,6 +191,7 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
         &&
         splitBoundary.side in unappliedSplits[plotId]
        ) {
+        console.log("Splits: " + unappliedSplits[plotId][splitBoundary.side]);
         for ( const splitSize of unappliedSplits[plotId][splitBoundary.side] ){
             if ( splitRange[0] + splitSize > splitBoundary.fraction ) {
                 splitRange[1] = splitRange[0] + splitSize;
@@ -192,21 +209,21 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
 
         let newSplit = document.createElement("hr");
         newSplit.style.position = "absolute";
-        newSplit.classList.add("temporary");
+        newSplit.classList.add("split", "unapplied", "temporary")
 
         if ( splitBoundary.side == "top" || splitBoundary.side == "bottom" ) {
+            newSplit.classList.add("vertical");
             newSplit.style.top = box.top + "px";
             newSplit.style.height = box.bottom - box.top + "px";
-            newSplit.style.width = "1px";
             newSplit.style.left = ((1.0 - splitFraction) * box.left
                                    +
                                    splitFraction * box.right
                                    +
                                    "px");
         } else {
+            newSplit.classList.add("horizontal");
             newSplit.style.left = box.left + "px";
             newSplit.style.width = box.right - box.left + "px";
-            newSplit.style.height = "1px";
             newSplit.style.top = (
                                   (1.0 - splitFraction) * box.top
                                    +
@@ -218,7 +235,7 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
         figureParent.appendChild(newSplit);
     }
 
-    document.onkeyup = removeAllTemporary;
+    document.onkeyup = function() { cleanSplits(false); };
     plotSplit = document.getElementById("plot-split");
     plotSplit.onclick = function(event) {
         if ( event.shiftKey && splitCount > 1 ) 
@@ -236,6 +253,7 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
     plotSplit.ondblclick = function() {addSplits(splitBoundary,
                                                  box,
                                                  plotId,
+                                                 splitRange,
                                                  splitCount);}
     document.onkeydown = null;
 }
@@ -272,19 +290,30 @@ function figureMouseOver(event)
     })
 }
 
+function getFigureConfig()
+{
+    let figure = document.getElementById("figure-parent").children[0];
+    return {
+        applySplits: figure.unappliedSplits
+    }
+}
+
 function showNewFigure(data)
 {
+    cleanSplits(true);
     boundaries = showSVG(data, "figure-parent")["boundaries"];
     let figure = document.getElementById("figure-parent").children[0];
     figure.boundaries = boundaries;
     figure.unappliedSplits = {};
     setFigureSize("figure-parent");
     figure.addEventListener("mousemove", figureMouseOver);
+    document.getElementById("apply").onclick = updateFigure;
 }
 
 function initLightcurveDisplay(updateURL)
 {
     updateFigure.url = updateURL;
     updateFigure.callback = showNewFigure;
+    updateFigure.getParam = getFigureConfig;
     updateFigure();
 }

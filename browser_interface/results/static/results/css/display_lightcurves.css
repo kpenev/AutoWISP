@@ -1,3 +1,25 @@
+.split {
+    margin: 0px
+}
+
+.split.unapplied {
+    background: #777;
+    color: #777;
+}
+
+.split.unapplied.temporary {
+    background: none;
+    color: #777;
+}
+
+.split.vertical {
+    width: 3px
+}
+
+.split.horizontal {
+    height: 3px
+}
+
 #figure-parent {
     position: relative;
 }

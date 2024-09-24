@@ -179,7 +179,7 @@ def create_subplots(plotting_info, splits, children, parent, figure):
     """Recursively walks the plot layout tree creating subplots as needed."""
 
     args = tuple(len(s) for s in splits)
-    kwargs= {'width_ratios': splits[0], 'height_ratios': splits[1]}
+    kwargs= {'width_ratios': splits[1], 'height_ratios': splits[0]}
     if parent is None:
         grid = gridspec.GridSpec(*args, figure=figure, **kwargs)
     else:
@@ -195,11 +195,11 @@ def create_subplots(plotting_info, splits, children, parent, figure):
                  plotting_info['plot_config'][child],
                  plotting_info['detrending_modes_config'])
         else:
-
             create_subplots(
                 plotting_info,
                 *child,
-                subplot
+                subplot,
+                figure
             )
 
 
@@ -210,9 +210,9 @@ def get_subplot_boundaries(splits,
                            result):
     """Return coords of horizontal and vertical boundaries between plots."""
 
-    x_bounds = numpy.cumsum([x_offset] + splits[0])
-    y_bounds = numpy.cumsum([y_offset] + splits[1])
-    cell_indices = product(range(len(splits[0])), range(len(splits[1])))
+    x_bounds = numpy.cumsum([x_offset] + splits[1])
+    y_bounds = numpy.cumsum([y_offset] + splits[0])
+    cell_indices = product(range(len(splits[1])), range(len(splits[0])))
     for child, (x_ind, y_ind) in zip(children, cell_indices):
         if isinstance(child, int):
             result[child] = {
@@ -230,11 +230,59 @@ def get_subplot_boundaries(splits,
             )
 
 
+def subdivide_figure(plot_config, new_splits, current_splits, children):
+    """Sub-divide all plots with entries in new_splits accordingly."""
+
+    print('Starting children: ' + repr(children))
+    for child_ind, child in enumerate(children):
+        if isinstance(child, int):
+            child_splits = new_splits.get(str(child))
+            if child_splits is not None:
+                print(f'Sub-dividing plot {child!r}')
+                child_splits = {
+                    side: child_splits.get(side, [1.0])
+                    for side in ['top', 'left']
+                }
+                num_subplots = (len(child_splits['top'])
+                                *
+                                len(child_splits['left']))
+                children[child_ind] = [
+                    (
+                        list(child_splits['left']),
+                        list(child_splits['top']),
+                    ),
+                    [child] +list(range(len(plot_config),
+                                        len(plot_config) + num_subplots - 1))
+                ]
+                plot_config.extend((deepcopy(plot_config[child])
+                                    for _ in range(num_subplots)))
+        else:
+            subdivide_figure(plot_config, new_splits, *child)
+    print('Updated children: ' + repr(children))
+
+
+def update_plotting_info(session, updates):
+    """Modify the currently set-up figure per user input from BUI."""
+
+    print(f'Updates: {updates!r}')
+    if 'applySplits' in updates:
+        subdivide_figure(session['lc_plotting']['plot_config'],
+                         updates['applySplits'],
+                         *session['lc_plotting']['plot_layout'])
+        return True
+    return False
+
+
 def update_lightcurve_figure(request):
     """Generate and return a new figure for the current lightcurve."""
 
+    request.session.modified = update_plotting_info(
+        request.session,
+        json.loads(request.body.decode())
+    )
+
     matplotlib.use('svg')
-    #pyplot.style.use('dark_background')
+    pyplot.style.use('dark_background')
 
     figure = pyplot.figure(
         **request.session['lc_plotting']['figure_config']
@@ -267,7 +315,7 @@ def update_lightcurve_figure(request):
 def display_lightcurve(request):
     """Display plots of a single lightcurve to the user."""
 
-    if 'lc_plotting' not in request.session or True:
+    if 'lc_plotting' not in request.session:
         _init_session(request)
         _add_lightcurve_to_session(
             request,
