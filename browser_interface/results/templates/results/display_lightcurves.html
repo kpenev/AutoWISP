@@ -43,12 +43,34 @@ Preview Lightcurves
     Apply
 </div>
 <div class="lcars-bar horizontal spacer"></div>
+<div id="apply"
+     class="lcars-bar
+            button
+            lcars-melrose-bg
+            horizontal
+            lcars-u-1">
+    Figure Config.
+</div>
+<div class="lcars-bar horizontal spacer"></div>
 {% endblock header_bar_extra %}
 
 {% block main %}
-<div id="active-area" class="lcars-column fill-space">
+<div id="active-area" class="lcars-row fill-space">
     <div id="figure-parent" class="fill-space lcars-row">
         <div id="plot-split" class="lcars-bracket hollow"></div>
+    </div>
+    {% if config %}
+    <div class="lcars-row lcars-u-5">
+        <div id="resize-config" class="lcars-bracket left"></div>
+        <div id="config-parent" class="lcars-column">
+            {% for param in config %}
+            <div class="lcars-row">
+                <label for="{{param.0}}">{{param.0}}:</label>
+                <input class="param" id="{{param.0}}" type="text" value="{{param.1}}">
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </div>
 

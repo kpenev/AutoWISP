@@ -28,3 +28,33 @@
     display: none;
     position: absolute;
 }
+
+#resize-config {
+    width: 1rem;
+    min-width: 1rem;
+    height: 100%;
+}
+
+label {
+    width: 100%;
+    text-align: right;
+}
+
+input.param {
+    color: #fc6;
+    border-left: 0.8rem solid #fc6;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-right: 0.8rem solid #fc6;
+    border-radius: 0.5em;
+    background-color: #234;
+    width: 7.5rem;
+    min-width: 7.5rem;
+    height: 2rem;
+    min-height: 2rem;
+}
+
+#config-parent {
+    overflow: auto;
+    width: 100%;
+}

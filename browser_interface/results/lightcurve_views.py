@@ -7,7 +7,7 @@ from io import StringIO, BytesIO
 import json
 
 import matplotlib
-from matplotlib import pyplot, gridspec
+from matplotlib import pyplot, gridspec, rcParams
 import numpy
 from asteval import Interpreter
 
@@ -323,7 +323,9 @@ def display_lightcurve(request):
     return render(
         request,
         'results/display_lightcurves.html',
-        {}
+        {
+            'config': list(rcParams.items())
+        }
     )
 
 
