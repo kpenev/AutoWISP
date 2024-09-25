@@ -54,7 +54,7 @@ input.param {
     min-height: 2rem;
 }
 
-#config-parent {
+.config-parent {
     overflow: auto;
     width: 100%;
 }

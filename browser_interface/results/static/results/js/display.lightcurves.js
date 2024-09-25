@@ -291,9 +291,15 @@ function figureMouseOver(event)
 function getFigureConfig()
 {
     let figure = document.getElementById("figure-parent").children[0];
-    return {
+    let configParent = document.querySelector(".config-parent");
+    let result = {
         applySplits: figure.unappliedSplits
     }
+    result[configParent.id] = {}
+    for ( const element of document.getElementsByClassName("param") ) {
+        result[configParent.id][element.id] = element.value;
+    }
+    return result;
 }
 
 function showNewFigure(data)

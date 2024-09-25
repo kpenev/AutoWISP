@@ -263,12 +263,16 @@ def subdivide_figure(plot_config, new_splits, current_splits, children):
 def update_plotting_info(session, updates):
     """Modify the currently set-up figure per user input from BUI."""
 
+    modified_session = False
     if 'applySplits' in updates:
         subdivide_figure(session['lc_plotting']['plot_config'],
                          updates['applySplits'],
                          *session['lc_plotting']['plot_layout'])
-        return True
-    return False
+        modified_session = True
+    if 'rcParams' in updates:
+        for param, value in updates['rcParams'].items():
+            rcParams[param] = value.strip('[]')
+    return modified_session
 
 
 def update_lightcurve_figure(request):
@@ -310,6 +314,22 @@ def update_lightcurve_figure(request):
         })
 
 
+def sanitize_rcparams(rcParams):
+    """Return list of matplotlib rcParams that can be set through BUI."""
+
+    result = []
+    for param, value in rcParams.items():
+        if param == 'lines.dash_capstyle':
+            value = 'butt'
+        elif param == 'lines.solid_capstyle':
+            value = 'projecting'
+        elif param.endswith('_joinstyle'):
+            value = 'round'
+        if not param.endswith('prop_cycle') and param != 'savefig.bbox':
+            result.append((param, value))
+    return result
+
+
 def display_lightcurve(request):
     """Display plots of a single lightcurve to the user."""
 
@@ -324,7 +344,7 @@ def display_lightcurve(request):
         request,
         'results/display_lightcurves.html',
         {
-            'config': list(rcParams.items())
+            'config': ('rcParams', sanitize_rcparams(rcParams))
         }
     )
 

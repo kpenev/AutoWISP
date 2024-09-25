@@ -62,8 +62,8 @@ Preview Lightcurves
     {% if config %}
     <div class="lcars-row lcars-u-5">
         <div id="resize-config" class="lcars-bracket left"></div>
-        <div id="config-parent" class="lcars-column">
-            {% for param in config %}
+        <div id="{{config.0}}" class="lcars-column config-parent">
+            {% for param in config.1 %}
             <div class="lcars-row">
                 <label for="{{param.0}}">{{param.0}}:</label>
                 <input class="param" id="{{param.0}}" type="text" value="{{param.1}}">
