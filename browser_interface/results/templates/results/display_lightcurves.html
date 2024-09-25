@@ -43,7 +43,8 @@ Preview Lightcurves
     Apply
 </div>
 <div class="lcars-bar horizontal spacer"></div>
-<div id="apply"
+<a href="{% url 'results:display_lightcurve' show_config="rcParams" %}">
+<div id="rcParams"
      class="lcars-bar
             button
             lcars-melrose-bg
@@ -51,34 +52,40 @@ Preview Lightcurves
             lcars-u-1">
     Figure Config.
 </div>
-<div class="lcars-bar horizontal spacer"></div>
+</a>
 {% endblock header_bar_extra %}
 
 {% block main %}
 <div id="active-area" class="lcars-row fill-space">
     <div id="figure-parent" class="fill-space lcars-row">
         <div id="plot-split" class="lcars-bracket hollow"></div>
+        <div id="plot-highlight"></div>
     </div>
     {% if config %}
     <div class="lcars-row lcars-u-5">
         <div id="resize-config" class="lcars-bracket left"></div>
         <div id="{{config.0}}" class="lcars-column config-parent">
+            {% if config.0 == "sub-plot" %}
+            {% include "./sub_plot_config.html" with config=config.1 %}
+            {% else %}
             {% for param in config.1 %}
             <div class="lcars-row">
                 <label for="{{param.0}}">{{param.0}}:</label>
                 <input class="param" id="{{param.0}}" type="text" value="{{param.1}}">
             </div>
             {% endfor %}
+            {% endif %}
         </div>
-        {% endif %}
     </div>
+    {% endif %}
 </div>
 
 <script src="{% static 'js/autowisp.util.js' %}"></script>
 <script src="{% static 'results/js/display.lightcurves.js' %}"></script>
 {% url 'results:update_lightcurve_figure' as updateURL %}
+{% url 'results:edit_subplot' plot_id=0 as editSubPlotURL%}
 <script type="text/javascript">
-    initLightcurveDisplay("{{updateURL}}");
+    initLightcurveDisplay("{{updateURL}}", "{{editSubPlotURL}}");
 </script> 
 {% endblock main %}
 

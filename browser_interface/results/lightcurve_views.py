@@ -46,7 +46,15 @@ def _init_session(request):
             'photometry_modes': ['apphot'],
         },
         'detrending_modes': [('tfa', ('og',), {})],
-        'plot_layout': [([1.0], [1.0]), [0]],
+        'plot_layout': [
+            {
+                'width_ratios': [1.0],
+                'height_ratios': [1.0],
+                'wspace': rcParams['figure.subplot.wspace'],
+                'hspace': rcParams['figure.subplot.hspace']
+            },
+            [0]
+        ],
         'plot_config': [
             {
                 'aggregate': 'nanmedian',
@@ -175,17 +183,16 @@ def plot(target_info, plot_config, detrending_modes_config):
     pyplot.title(plot_config['title'])
 
 
-def create_subplots(plotting_info, splits, children, parent, figure):
+def _create_subplots(plotting_info, splits, children, parent, figure):
     """Recursively walks the plot layout tree creating subplots as needed."""
 
-    args = tuple(len(s) for s in splits)
-    kwargs= {'width_ratios': splits[1], 'height_ratios': splits[0]}
+    args = (len(splits['height_ratios']), len(splits['width_ratios']))
     if parent is None:
-        grid = gridspec.GridSpec(*args, figure=figure, **kwargs)
+        grid = gridspec.GridSpec(*args, figure=figure, **splits)
     else:
         grid = gridspec.GridSpecFromSubplotSpec(*args,
                                                 subplot_spec=parent,
-                                                **kwargs)
+                                                **splits)
 
     assert len(children) == args[0] * args[1]
     for child, subplot in zip(children, grid):
@@ -195,7 +202,7 @@ def create_subplots(plotting_info, splits, children, parent, figure):
                  plotting_info['plot_config'][child],
                  plotting_info['detrending_modes_config'])
         else:
-            create_subplots(
+            _create_subplots(
                 plotting_info,
                 *child,
                 subplot,
@@ -203,16 +210,19 @@ def create_subplots(plotting_info, splits, children, parent, figure):
             )
 
 
-def get_subplot_boundaries(splits,
-                           children,
-                           x_offset,
-                           y_offset,
-                           result):
+def _get_subplot_boundaries(splits,
+                            children,
+                            x_offset,
+                            y_offset,
+                            result):
     """Return coords of horizontal and vertical boundaries between plots."""
 
-    x_bounds = numpy.cumsum([x_offset] + splits[1])
-    y_bounds = numpy.cumsum([y_offset] + splits[0])
-    cell_indices = product(range(len(splits[0])), range(len(splits[1])))
+    x_bounds = numpy.cumsum([x_offset] + splits['width_ratios'])
+    y_bounds = numpy.cumsum([y_offset] + splits['height_ratios'])
+    cell_indices = product(
+        range(len(splits['height_ratios'])),
+        range(len(splits['width_ratios']))
+    )
     for child, (y_ind, x_ind) in zip(children, cell_indices):
         if isinstance(child, int):
             result[child] = {
@@ -222,7 +232,7 @@ def get_subplot_boundaries(splits,
                 'bottom': y_bounds[y_ind + 1]
             }
         else:
-            get_subplot_boundaries(
+            _get_subplot_boundaries(
                 *child,
                 x_bounds[x_ind],
                 y_bounds[y_ind],
@@ -230,14 +240,22 @@ def get_subplot_boundaries(splits,
             )
 
 
-def subdivide_figure(plot_config, new_splits, current_splits, children):
+def _subdivide_figure(plot_config, new_splits, current_splits, children):
     """Sub-divide all plots with entries in new_splits accordingly."""
 
     for child_ind, child in enumerate(children):
         if isinstance(child, int):
             child_splits = new_splits.get(str(child))
-            orig_width = current_splits[1][child_ind % len(current_splits[1])]
-            orig_height = current_splits[0][child_ind // len(current_splits[1])]
+            orig_width = current_splits[
+                'width_ratios'
+            ][
+                child_ind % len(current_splits['width_ratios'])
+            ]
+            orig_height = current_splits[
+                'height_ratios'
+            ][
+                child_ind // len(current_splits['width_ratios'])
+            ]
             if child_splits is not None:
                 child_splits = {
                     side: child_splits.get(side, [1.0])
@@ -247,27 +265,35 @@ def subdivide_figure(plot_config, new_splits, current_splits, children):
                                 *
                                 len(child_splits['left']))
                 children[child_ind] = [
-                    (
-                        [s * orig_height for s in child_splits['left']],
-                        [s * orig_width for s in child_splits['top']],
-                    ),
-                    [child] +list(range(len(plot_config),
-                                        len(plot_config) + num_subplots - 1))
+                    {
+                        'height_ratios': [s * orig_height
+                                          for s in child_splits['left']],
+                        'width_ratios': [s * orig_width
+                                         for s in child_splits['top']],
+                        'wspace': (current_splits['wspace']
+                                   *
+                                   len(child_splits['top'])),
+                        'hspace': (current_splits['hspace']
+                                   *
+                                   len(child_splits['left']))
+                    },
+                    [child] + list(range(len(plot_config),
+                                         len(plot_config) + num_subplots - 1))
                 ]
                 plot_config.extend((deepcopy(plot_config[child])
-                                    for _ in range(num_subplots)))
+                                    for _ in range(num_subplots - 1)))
         else:
-            subdivide_figure(plot_config, new_splits, *child)
+            _subdivide_figure(plot_config, new_splits, *child)
 
 
-def update_plotting_info(session, updates):
+def _update_plotting_info(session, updates):
     """Modify the currently set-up figure per user input from BUI."""
 
     modified_session = False
     if 'applySplits' in updates:
-        subdivide_figure(session['lc_plotting']['plot_config'],
-                         updates['applySplits'],
-                         *session['lc_plotting']['plot_layout'])
+        _subdivide_figure(session['lc_plotting']['plot_config'],
+                          updates['applySplits'],
+                          *session['lc_plotting']['plot_layout'])
         modified_session = True
     if 'rcParams' in updates:
         for param, value in updates['rcParams'].items():
@@ -278,7 +304,7 @@ def update_plotting_info(session, updates):
 def update_lightcurve_figure(request):
     """Generate and return a new figure for the current lightcurve."""
 
-    request.session.modified = update_plotting_info(
+    request.session.modified = _update_plotting_info(
         request.session,
         json.loads(request.body.decode())
     )
@@ -290,7 +316,7 @@ def update_lightcurve_figure(request):
         **request.session['lc_plotting']['figure_config']
     )
     plotting_info = request.session['lc_plotting']
-    create_subplots(
+    _create_subplots(
         {
             'target_info': plotting_info[plotting_info['target_fname']],
             'plot_config': plotting_info['plot_config'],
@@ -304,17 +330,50 @@ def update_lightcurve_figure(request):
     with StringIO() as image_stream:
         pyplot.savefig(image_stream, bbox_inches='tight', format='svg')
         subplot_boundaries = {}
-        get_subplot_boundaries(*request.session['lc_plotting']['plot_layout'],
-                               0,
-                               0,
-                               subplot_boundaries)
+        _get_subplot_boundaries(*request.session['lc_plotting']['plot_layout'],
+                                0,
+                                0,
+                                subplot_boundaries)
         return JsonResponse({
             'plot_data': image_stream.getvalue(),
             'boundaries': subplot_boundaries
         })
 
 
-def sanitize_rcparams(rcParams):
+def edit_subplot(request, plot_id):
+    """Set the view to allow editing the selected plot."""
+
+    plotting_info = request.session['lc_plotting']
+    sub_plot_config = dict(plotting_info['plot_config'][plot_id])
+    sub_plot_config['plot_id'] = plot_id
+    sub_plot_config['expressions'] = list(
+        plotting_info['expressions'].items()
+    )
+    sub_plot_config['model'] = plotting_info.get(
+        'model',
+        {
+            'k': 0.1, #the planet-star radius ratio
+            'ldc': [0.8, 0.7], #limb darkening coeff
+            't0': 2455787.553228,# the zero epoch,
+            'p': 3.0,# the orbital period,
+            'a': 10.0,# the orbital semi-major divided by R*,
+            'i': numpy.pi / 2,# the orbital inclination in rad,
+            'e': None, # the orbital eccentricity (optional, can be left out if
+                     # assuming circular a orbit), and
+            'w': None  # the argument of periastron in radians (also optional,
+                       # can be left out if assuming circular a orbit).
+        }
+    )
+    sub_plot_config['model']['enabled'] = 'model' in plotting_info
+    return render(
+        request,
+        'results/display_lightcurves.html',
+        {
+            'config': ('sub-plot', sub_plot_config)
+        }
+    )
+
+def _sanitize_rcparams():
     """Return list of matplotlib rcParams that can be set through BUI."""
 
     result = []
@@ -325,26 +384,46 @@ def sanitize_rcparams(rcParams):
             value = 'projecting'
         elif param.endswith('_joinstyle'):
             value = 'round'
-        if not param.endswith('prop_cycle') and param != 'savefig.bbox':
+        if (
+            not param.endswith('prop_cycle')
+            and
+            param not in ['savefig.bbox', 'backend']
+            and
+            not param.startswith('animation')
+            and
+            not param.startswith('keymap')
+            and
+            not param.startswith('figure.subplot')
+            and
+            param[0] != '_'
+        ):
             result.append((param, value))
     return result
 
 
-def display_lightcurve(request):
+def display_lightcurve(request, show_config=None):
     """Display plots of a single lightcurve to the user."""
 
     if 'lc_plotting' not in request.session:
+        rcParams['figure.subplot.bottom'] = 0.0
+        rcParams['figure.subplot.top'] = 1.0
+        rcParams['figure.subplot.left'] = 0.0
+        rcParams['figure.subplot.right'] = 1.0
         _init_session(request)
         _add_lightcurve_to_session(
             request,
             request.session['lc_plotting']['target_fname']
         )
 
+    if show_config == 'rcParams':
+        config = ('rcParams', _sanitize_rcparams())
+    else:
+        config = None
     return render(
         request,
         'results/display_lightcurves.html',
         {
-            'config': ('rcParams', sanitize_rcparams(rcParams))
+            'config': config
         }
     )
 

@@ -27,6 +27,7 @@
 #plot-split {
     display: none;
     position: absolute;
+    z-index: 20;
 }
 
 #resize-config {
@@ -35,9 +36,11 @@
     height: 100%;
 }
 
-label {
-    width: 100%;
-    text-align: right;
+#plot-highlight {
+    display: none;
+    position: absolute;
+    background-color: #7775;
+    z-index: 10;
 }
 
 input.param {
@@ -55,6 +58,27 @@ input.param {
 }
 
 .config-parent {
+    display: table;
     overflow: auto;
     width: 100%;
+}
+
+.config-row {
+    display: table;
+}
+
+.config-row > * {
+    display: table-cell;
+    vertical-align: middle;
+    height: 2rem;
+}
+
+.config-row > label {
+    width: 100%;
+    text-align: right;
+    font-weight: bold;
+}
+
+#model-button {
+    font-weight: bold;
 }

@@ -7,6 +7,12 @@ app_name = 'results'
 
 urlpatterns = [
     path('', views.display_lightcurve, name='results'),
+    path('display_lightcurve/<slug:show_config>',
+         views.display_lightcurve,
+         name='display_lightcurve'),
+    path('edit_subplot/<int:plot_id>',
+         views.edit_subplot,
+         name='edit_subplot'),
     path('update_lightcurve_figure',
          views.update_lightcurve_figure,
          name='update_lightcurve_figure'),

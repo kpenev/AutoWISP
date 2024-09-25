@@ -2,33 +2,13 @@
 function triggerBoundary(event, box)
 {
     let side;
-    if ( 
-        event.offsetX > box.left 
-        && event.offsetX < box.left + 10 
-        && event.offsetY > box.top
-        && event.offsetY < box.bottom
-       )
+    if ( event.offsetX > box.left && event.offsetX < box.left + 20 )
         side = "left";
-    else if ( 
-        event.offsetX > box.right - 10 
-        && event.offsetX < box.right 
-        && event.offsetY > box.top
-        && event.offsetY < box.bottom
-       )
+    else if ( event.offsetX > box.right - 20  && event.offsetX < box.right )
         side = "right";
-    else if ( 
-        event.offsetY > box.top 
-        && event.offsetY < box.top + 10 
-        && event.offsetX > box.left
-        && event.offsetX < box.right
-       )
+    else if ( event.offsetY > box.top && event.offsetY < box.top + 20 )
         side = "top";
-    else if ( 
-        event.offsetY > box.bottom - 10 
-        && event.offsetY < box.bottom 
-        && event.offsetX > box.left
-        && event.offsetX < box.right
-       )
+    else if ( event.offsetY > box.bottom - 20 && event.offsetY < box.bottom )
         side = "bottom";
     else
         return null;
@@ -45,6 +25,26 @@ function triggerBoundary(event, box)
         };
 }
 
+function triggerSubPlot(event, box)
+{
+    if (
+        event.offsetX > box.left
+        && event.offsetX < box.right
+        && event.offsetY > box.top
+        && event.offsetY < box.bottom
+       ) {
+        let plotHighlight = document.getElementById("plot-highlight");
+        plotHighlight.style.display = "inline";
+        plotHighlight.style.left = box.left + "px";
+        plotHighlight.style.top = box.top + "px";
+        plotHighlight.style.width = box.right - box.left + "px";
+        plotHighlight.style.height = box.bottom - box.top + "px";
+        plotHighlight.onmouseleave = (event) => {plotHighlight.style.display = "none";}
+        return true;
+    }
+    return false;
+}
+
 function highlightPlotBoundary(which, box, figureBounds)
 {
     let parentBounds = document
@@ -53,10 +53,11 @@ function highlightPlotBoundary(which, box, figureBounds)
     let plotSplit = document.getElementById("plot-split");
     let rem = parseFloat(getComputedStyle(plotSplit).fontSize);
 
-    plotSplit.style.removeProperty("left");
-    plotSplit.style.removeProperty("right");
-    plotSplit.style.removeProperty("top");
-    plotSplit.style.removeProperty("bottom");
+    for ( side of ["left", "right", "top", "bottom"] ) {
+        plotSplit.style.removeProperty(side);
+        plotSplit.classList.remove(side);
+    }
+
     plotSplit.style.removeProperty("width");
     plotSplit.style.removeProperty("height");
 
@@ -257,44 +258,72 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
     document.onkeydown = null;
 }
 
-function figureMouseOver(event)
+//Return the plot ID, box and boundary where this event occurred (each could be
+//null)
+function identifySubPlot(event)
 {
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
     let figureBounds = figure.getBoundingClientRect();
 
+    let shifted_event = {
+        offsetX: event.clientX - figureBounds.left,
+        offsetY: event.clientY - figureBounds.top
+    };
+
     let box;
     let activeBoundary;
-    Object.keys(figure.boundaries).forEach(function(plotId) {
+    for ( plotId of Object.keys(figure.boundaries) ) {
         box = { ...figure.boundaries[plotId] };
         box.left *= figureBounds.width;
         box.right *= figureBounds.width;
         box.top *= figureBounds.height;
         box.bottom *= figureBounds.height;
-        activeBoundary = triggerBoundary(event, box);
-        if ( activeBoundary !== null ) {
-            highlightPlotBoundary(activeBoundary.side, box, figureBounds);
-            if ( event.ctrlKey ) {
-                showExtraSplit(activeBoundary, box, plotId, 1);
-            } else {
-                document.onkeydown = showExtraSplit.bind(null,
-                                                         activeBoundary, 
-                                                         box, 
-                                                         plotId,
-                                                         1);
-            }
-            return;
+
+        if ( triggerSubPlot(shifted_event, box) ) {
+            return [plotId, box, triggerBoundary(shifted_event, box)]
         }
-    })
+    }
+    return [null, null, null];
+}
+
+function figureMouseOver(event)
+{
+    const [plotId, box, activeBoundary] = identifySubPlot(event);
+    if ( activeBoundary !== null ) {
+        let figureBounds = document
+            .getElementById("figure-parent")
+            .children[0]
+            .getBoundingClientRect();
+        highlightPlotBoundary(activeBoundary.side, 
+                              box, 
+                              figureBounds);
+        if ( event.ctrlKey ) {
+            showExtraSplit(activeBoundary, 
+                           box, 
+                           plotId, 
+                           1);
+        } else {
+            document.onkeydown = showExtraSplit.bind(null,
+                                                     activeBoundary, 
+                                                     box, 
+                                                     plotId,
+                                                     1);
+        }
+        return;
+    }
 }
 
 function getFigureConfig()
 {
     let figure = document.getElementById("figure-parent").children[0];
-    let configParent = document.querySelector(".config-parent");
     let result = {
         applySplits: figure.unappliedSplits
     }
+
+    let configParent = document.querySelector(".config-parent");
+    if ( configParent === null )
+        return result;
     result[configParent.id] = {}
     for ( const element of document.getElementsByClassName("param") ) {
         result[configParent.id][element.id] = element.value;
@@ -302,22 +331,51 @@ function getFigureConfig()
     return result;
 }
 
+function checkPlotSelect(event)
+{
+    const [plotId, box, activeBoundary] = identifySubPlot(event);
+    if ( plotId !== null && activeBoundary === null ) {
+        window.location = (checkPlotSelect.editSubPlotURL.slice(0, -1) 
+                           + 
+                           plotId);
+    }
+}
+
+function enableModel()
+{
+    modelButton = document.getElementById("model-button");
+    modelButton.style.cursor = "default";
+    modelButton.textContent = "Model Parameters";
+    document.getElementById("define-model").style.display = "inline";
+}
+
 function showNewFigure(data)
 {
     cleanSplits(true);
     boundaries = showSVG(data, "figure-parent")["boundaries"];
-    let figure = document.getElementById("figure-parent").children[0];
+    let figureParent = document.getElementById("figure-parent");
+    let figure = figureParent.children[0];
     figure.boundaries = boundaries;
     figure.unappliedSplits = {};
     setFigureSize("figure-parent");
-    figure.addEventListener("mousemove", figureMouseOver);
+    figureParent.addEventListener("mousemove", figureMouseOver);
     document.getElementById("apply").onclick = updateFigure;
+    modelButton = document.getElementById("model-button");
+    console.log(JSON.stringify(modelButton.textContent));
+    if ( modelButton.textContent.trim() == "Add Model" ) {
+        modelButton.style.cursor = "pointer";
+        modelButton.onclick = enableModel;
+    } else
+        modelButton.style.cursor = "default";
+
+    figureParent.onclick = checkPlotSelect;
 }
 
-function initLightcurveDisplay(updateURL)
+function initLightcurveDisplay(updateURL, editSubPlotURL)
 {
     updateFigure.url = updateURL;
     updateFigure.callback = showNewFigure;
     updateFigure.getParam = getFigureConfig;
+    checkPlotSelect.editSubPlotURL = editSubPlotURL
     updateFigure();
 }
