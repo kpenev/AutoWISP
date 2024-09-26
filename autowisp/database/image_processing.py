@@ -1403,9 +1403,6 @@ class ImageProcessingManager(ProcessingManager):
                     (_, start_status),
                     (config, batch)
             ) in processing_batches.items():
-                if self._some_failed:
-                    self._finalize_processing()
-                    self._some_failed = False
                 #False positivie
                 #pylint: disable=no-member
                 with Session.begin() as db_session:
@@ -1440,6 +1437,8 @@ class ImageProcessingManager(ProcessingManager):
                     '\n\t'.join(f'{key!r}: {len(val)}'
                                 for key, val in self.pending.items())
                 )
+
+                self._some_failed = False
 
 
     def add_raw_images(self, image_collection):
