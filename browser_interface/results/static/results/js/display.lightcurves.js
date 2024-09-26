@@ -1,3 +1,5 @@
+var configURLs
+
 //Check if a given boundary should be triggered by the given event location.
 function triggerBoundary(event, box)
 {
@@ -314,7 +316,7 @@ function figureMouseOver(event)
     }
 }
 
-function getFigureConfig()
+function getSubPlotArrangement()
 {
     let figure = document.getElementById("figure-parent").children[0];
     let result = {
@@ -331,22 +333,53 @@ function getFigureConfig()
     return result;
 }
 
-function checkPlotSelect(event)
+function showConfig(url, extra)
 {
-    const [plotId, box, activeBoundary] = identifySubPlot(event);
-    if ( plotId !== null && activeBoundary === null ) {
-        window.location = (checkPlotSelect.editSubPlotURL.slice(0, -1) 
-                           + 
-                           plotId);
+    const request = new XMLHttpRequest();
+    request.open("GET", url);
+    request.send();
+    request.onreadystatechange = function() {
+        let configParent = document.getElementById("config-parent");
+        configParent.innerHTML = request.responseText;
+        configParent.parentNode.style.display = "inline-flex";
+        if ( typeof extra !== "undefined" )
+            extra();
     }
 }
 
-function enableModel()
+function showEditPlot(event)
+{
+    const [plotId, box, activeBoundary] = identifySubPlot(event);
+    if ( plotId !== null && activeBoundary === null ) {
+        showConfig(configURLs.subplot.slice(0, -1) + plotId,
+                   function() {
+                       document.getElementById("apply").onclick = updateFigure;
+                       document.getElementById("model-button").onclick = toggleModel;
+                   });
+    }
+}
+
+function showEditRc(event)
+{
+    const request = new XMLHttpRequest();
+    request.open("GET", configURLs.rcParams);
+    request.send();
+    request.onreadystatechange = function() {
+        document.getElementById("config-parent").innerHTML = 
+            request.responseText;
+    }
+}
+
+function toggleModel()
 {
     modelButton = document.getElementById("model-button");
-    modelButton.style.cursor = "default";
-    modelButton.textContent = "Model Parameters";
-    document.getElementById("define-model").style.display = "inline";
+    if ( modelButton.textContent.trim() == "Add Model" ) {
+        modelButton.textContent = "Remove Model";
+        document.getElementById("define-model").style.display = "inline";
+    } else {
+        modelButton.textContent = "Add Model";
+        document.getElementById("define-model").style.display = "none";
+    }
 }
 
 function showNewFigure(data)
@@ -359,23 +392,16 @@ function showNewFigure(data)
     figure.unappliedSplits = {};
     setFigureSize("figure-parent");
     figureParent.addEventListener("mousemove", figureMouseOver);
-    document.getElementById("apply").onclick = updateFigure;
-    modelButton = document.getElementById("model-button");
-    console.log(JSON.stringify(modelButton.textContent));
-    if ( modelButton.textContent.trim() == "Add Model" ) {
-        modelButton.style.cursor = "pointer";
-        modelButton.onclick = enableModel;
-    } else
-        modelButton.style.cursor = "default";
-
-    figureParent.onclick = checkPlotSelect;
+    figureParent.onclick = showEditPlot;
 }
 
-function initLightcurveDisplay(updateURL, editSubPlotURL)
+function initLightcurveDisplay(urls)
 {
-    updateFigure.url = updateURL;
+    updateFigure.url = urls.update;
+    delete urls.update;
+    configURLs = urls;
     updateFigure.callback = showNewFigure;
-    updateFigure.getParam = getFigureConfig;
-    checkPlotSelect.editSubPlotURL = editSubPlotURL
+    updateFigure.getParam = getSubPlotArrangement;
+    document.getElementById("rcParams").onclick = (() => showConfig(urls.rcParams));
     updateFigure();
 }

@@ -367,10 +367,8 @@ def edit_subplot(request, plot_id):
     sub_plot_config['model']['enabled'] = 'model' in plotting_info
     return render(
         request,
-        'results/display_lightcurves.html',
-        {
-            'config': ('sub-plot', sub_plot_config)
-        }
+        'results/subplot_config.html',
+        {'config': sub_plot_config}
     )
 
 def _sanitize_rcparams():
@@ -401,7 +399,16 @@ def _sanitize_rcparams():
     return result
 
 
-def display_lightcurve(request, show_config=None):
+def edit_rcparams(request):
+    """Set the view to allow editing rcParams."""
+
+    return render(
+        request,
+        'results/rcParams_config.html',
+        {'config': _sanitize_rcparams()}
+    )
+
+def display_lightcurve(request):
     """Display plots of a single lightcurve to the user."""
 
     if 'lc_plotting' not in request.session:
@@ -415,16 +422,10 @@ def display_lightcurve(request, show_config=None):
             request.session['lc_plotting']['target_fname']
         )
 
-    if show_config == 'rcParams':
-        config = ('rcParams', _sanitize_rcparams())
-    else:
-        config = None
     return render(
         request,
         'results/display_lightcurves.html',
-        {
-            'config': config
-        }
+        {'config': None}
     )
 
 

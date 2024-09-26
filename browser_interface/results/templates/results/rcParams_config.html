@@ -1,0 +1,6 @@
+{% for param in config %}
+<div class="config-row">
+    <label for="{{param.0}}">{{param.0}}:</label>
+    <input class="param" id="{{param.0}}" type="text" value="{{param.1}}">
+</div>
+{% endfor %}

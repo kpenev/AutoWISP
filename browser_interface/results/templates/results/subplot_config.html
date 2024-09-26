@@ -1,0 +1,120 @@
+{% for char in "xym"|make_list %}
+{% cycle config.x_quantity config.y_quantity config.match_by as quantity silent %}
+{% cycle 'X' 'Y' 'Aggregate by' as label silent %}
+<div class="config-row">
+    <label for="{{ label|truncatewords:1 }}">{{label}}:</label>
+    <div class="lcars-bracket left"></div>
+    <select name="{{ label|truncatewords:1 }}" 
+            id="{{ label|truncatewords:1 }}"
+            class="lcars-text-box lcars-gray-bg lcars-husk-color">
+        {% for option in config.expressions %}
+        <option value="{{option.0}}" 
+                {% if option.0 == quantity %}
+                selected
+                {% endif %}
+                >
+                {{option.0}}
+        </option>
+        {% endfor %}
+    </select>
+    <div class="lcars-bracket right"></div>
+</div>
+{% endfor %}
+<div class="config-row">
+    <label for="aggregate-func">Aggregate func.:</label>
+    <input type="text" 
+           id="aggregate-func"
+           class="param"
+           value="{{ config.aggregate }}">
+</div>
+
+{% for axis in "XY"|make_list %}
+{% cycle config.x_label config.y_label as value silent %}
+<div class="config-row">
+    <label for="{{ axis }}-label">{{ axis }} label:</label>
+    <input type="text" 
+           id="{{ axis }}-label"
+           class="param"
+           value="{{ value }}">
+</div>
+{% endfor %}
+
+
+<div id="model-button" class="lcars-element button config-row" style="width: 100%">
+    {% if not config.model.enabled %}
+    Add Model
+    {% else %}
+    Model Parameters
+    {% endif %}
+</div>
+<div class="config-row"></div>
+<table id="define-model" 
+       class="lcars-table standard-header"
+       {% if not config.model.enabled %}
+       style="display: none;"
+       {% endif %}
+       >
+       <thead>
+           <tr>
+               <th>Parameter</th>
+               <th>Value</th>
+           </tr>
+       </thead>
+       <tbody>
+           {% for param_name, param_value in config.model.items %}
+           {% if param_name != "enabled" %}
+           <tr>
+               <td> {{param_name}} </td>
+               <td>
+                   <input type="text" 
+                          id="model-{{ param_name }}" 
+                          class="param" 
+                          value="{{ param_value }}">
+               </td>
+           </tr>
+           {% endif %}
+           {% endfor %}
+       </tbody>
+</table>
+
+<div class="lcars-element button config-row" style="width: 100%">
+    Plot Quantities
+</div>
+<div class="config-row"></div>
+<table id="lc-expressions" 
+       class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Expression</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expression in config.expressions %}
+        <tr>
+            <td> 
+                <input type="text"
+                       id="lc-quantity-{{ forloop.counter0 }}"
+                       class="lc-expression"
+                       value="{{ expression.0 }}">
+            </td>
+            <td style="width: 100%">
+                <input type="text"
+                       id="lc-expression-{{ forloop.counter0 }}"
+                       class="lc-expression"
+                       style="width: 100%"
+                       value="{{ expression.1 }}">
+            </td>
+        </tr>
+        {% endfor %}
+        <tr> 
+            <td colspan="2">
+                <div id="add-expression"
+                     class="lcars-element button rounded lcars-melrose-bg">
+                    New
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</table>

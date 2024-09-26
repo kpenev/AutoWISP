@@ -43,7 +43,7 @@
     z-index: 10;
 }
 
-input.param {
+input.param, input.lc-expression {
     color: #fc6;
     border-left: 0.8rem solid #fc6;
     padding-left: 0.5rem;
@@ -57,8 +57,7 @@ input.param {
     min-height: 2rem;
 }
 
-.config-parent {
-    display: table;
+#config-parent {
     overflow: auto;
     width: 100%;
 }
@@ -81,4 +80,12 @@ input.param {
 
 #model-button {
     font-weight: bold;
+    cursor: pointer;
+}
+
+#add-expression {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
 }
