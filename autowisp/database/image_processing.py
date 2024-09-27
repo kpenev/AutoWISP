@@ -603,8 +603,14 @@ class ImageProcessingManager(ProcessingManager):
         for entry in need_cleanup:
             assert entry[2] == self.current_step
 
-        pending = [(image, None if input_type == 'raw' else processed.channel)
-                   for image, processed, _ in need_cleanup]
+        pending = [
+            (
+                image,
+                None if input_type == 'raw' else processed.channel,
+                processed.status
+            )
+            for image, processed, _ in need_cleanup
+        ]
 
         for image, _, __ in need_cleanup:
             if image.id not in self._evaluated_expressions:
