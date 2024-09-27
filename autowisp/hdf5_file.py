@@ -781,6 +781,8 @@ class HDF5File(ABC, h5py.File):
     def _add_repack_dataset(self, dataset_path):
         """Add the given dataset to the list of datasets to repack."""
 
+        if 'repack' not in self._file_structure:
+            return
         repack_attribute_config = self._file_structure['repack']
         if repack_attribute_config.parent not in self:
             self.create_group(repack_attribute_config.parent)
