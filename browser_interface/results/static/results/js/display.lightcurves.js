@@ -316,24 +316,24 @@ function figureMouseOver(event)
     }
 }
 
-function getSubPlotArrangement()
+function getPlottingConfig()
 {
     let figure = document.getElementById("figure-parent").children[0];
     let result = {
         applySplits: figure.unappliedSplits
     }
 
-    let configParent = document.querySelector(".config-parent");
+    let configParent = document.getElementById("config-parent");
     if ( configParent === null )
         return result;
-    result[configParent.id] = {}
+    result[getPlottingConfig.mode] = {plotId: getPlottingConfig.plotId};
     for ( const element of document.getElementsByClassName("param") ) {
-        result[configParent.id][element.id] = element.value;
+        result[getPlottingConfig.mode][element.id] = element.value;
     }
     return result;
 }
 
-function showConfig(url, extra)
+function showConfig(url, mode)
 {
     const request = new XMLHttpRequest();
     request.open("GET", url);
@@ -341,9 +341,12 @@ function showConfig(url, extra)
     request.onreadystatechange = function() {
         let configParent = document.getElementById("config-parent");
         configParent.innerHTML = request.responseText;
+        getPlottingConfig.mode = mode;
         configParent.parentNode.style.display = "inline-flex";
-        if ( typeof extra !== "undefined" )
-            extra();
+        if ( mode == "subplot" ) {
+            document.getElementById("apply").onclick = updateFigure;
+            document.getElementById("model-button").onclick = toggleModel;
+        }
     }
 }
 
@@ -351,11 +354,8 @@ function showEditPlot(event)
 {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if ( plotId !== null && activeBoundary === null ) {
-        showConfig(configURLs.subplot.slice(0, -1) + plotId,
-                   function() {
-                       document.getElementById("apply").onclick = updateFigure;
-                       document.getElementById("model-button").onclick = toggleModel;
-                   });
+        showConfig(configURLs.subplot.slice(0, -1) + plotId, "subplot");
+        getPlottingConfig.plotId = plotId;
     }
 }
 
@@ -401,7 +401,8 @@ function initLightcurveDisplay(urls)
     delete urls.update;
     configURLs = urls;
     updateFigure.callback = showNewFigure;
-    updateFigure.getParam = getSubPlotArrangement;
-    document.getElementById("rcParams").onclick = (() => showConfig(urls.rcParams));
+    updateFigure.getParam = getPlottingConfig;
+    document.getElementById("rcParams").onclick = (() => showConfig(urls.rcParams,
+                                                                    "rcParams"));
     updateFigure();
 }

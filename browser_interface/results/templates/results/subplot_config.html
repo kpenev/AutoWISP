@@ -2,11 +2,11 @@
 {% cycle config.x_quantity config.y_quantity config.match_by as quantity silent %}
 {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
 <div class="config-row">
-    <label for="{{ label|truncatewords:1 }}">{{label}}:</label>
+    <label for="{{ label|slugify }}">{{label}}:</label>
     <div class="lcars-bracket left"></div>
-    <select name="{{ label|truncatewords:1 }}" 
-            id="{{ label|truncatewords:1 }}"
-            class="lcars-text-box lcars-gray-bg lcars-husk-color">
+    <select name="{{ label|slugify }}" 
+            id="{{ label|slugify }}"
+            class="lcars-text-box lcars-gray-bg lcars-husk-color param">
         {% for option in config.expressions %}
         <option value="{{option.0}}" 
                 {% if option.0 == quantity %}
@@ -61,6 +61,26 @@
            </tr>
        </thead>
        <tbody>
+           <tr>
+               <td> Quantity </td>
+               <td>
+                   <div class="lcars-bracket left"></div>
+                   <select name="model-quantity" 
+                           id="model-quantity"
+                           class="lcars-text-box lcars-gray-bg lcars-husk-color param">
+                       {% for option in config.expressions %}
+                       <option value="{{option.0}}" 
+                               {% if option.0 == "magnitude" %}
+                               selected
+                               {% endif %}
+                               >
+                               {{option.0}}
+                       </option>
+                       {% endfor %}
+                   </select>
+                   <div class="lcars-bracket right"></div>
+               </td>
+           </tr>
            {% for param_name, param_value in config.model.items %}
            {% if param_name != "enabled" %}
            <tr>
@@ -95,13 +115,13 @@
             <td> 
                 <input type="text"
                        id="lc-quantity-{{ forloop.counter0 }}"
-                       class="lc-expression"
+                       class="param"
                        value="{{ expression.0 }}">
             </td>
             <td style="width: 100%">
                 <input type="text"
                        id="lc-expression-{{ forloop.counter0 }}"
-                       class="lc-expression"
+                       class="param"
                        style="width: 100%"
                        value="{{ expression.1 }}">
             </td>

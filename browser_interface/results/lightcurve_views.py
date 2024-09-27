@@ -3,18 +3,16 @@
 from functools import partial
 from itertools import product
 from copy import deepcopy
-from io import StringIO, BytesIO
+from io import StringIO
 import json
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
 import numpy
-from asteval import Interpreter
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
-from autowisp.data_reduction import DataReductionFile
 from autowisp.diagnostics.plot_lc import\
     get_plot_data,\
     calculate_combined,\
@@ -76,7 +74,7 @@ def _jsonify_plot_data(plot_data):
 
     result = {}
     for key, value in plot_data.items():
-        if key == 'best_model':
+        if value is None:
             result[key] = value
         else:
             if isinstance(value[0], bytes):
@@ -91,7 +89,7 @@ def _unjsonify_plot_data(json_data):
 
     result = {}
     for key, value in json_data.items():
-        if key == 'best_model':
+        if value is None:
             result[key] = value
         else:
             if isinstance(value[0], str):
@@ -110,13 +108,27 @@ def _convert_plot_data_json(plot_data, reverse):
     return {fname: transform(data) for fname, data in plot_data.items()}
 
 
-def _add_lightcurve_to_session(request, lightcurve_fname, select=True):
+def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
     """Add to the browser session a new entry for the given lightcurve."""
 
-    plotting_info = request.session['lc_plotting']
     plotting_info[lightcurve_fname] = {}
+    configuration = deepcopy(plotting_info['configuration'])
+    if 'model' in configuration:
+        eval_model = {
+            'quantity': configuration['model'].pop('quantity'),
+            'evaluate': partial(transit_model, **configuration['model']),
+        }
+        configuration['model'] = eval_model
     for detrend, _, _ in plotting_info['detrending_modes']:
-        configuration = plotting_info['configuration']
+        if 'model' in configuration:
+            configuration['model']['args'] = [
+                'skypos.BJD',
+                (
+                    f'{{mode}}.{detrend}.magnitude - '
+                    f'nanmedian({{mode}}.{detrend}.magnitude)'
+                )
+            ]
+
         configuration['minimize'] = (
             configuration['minimize'].format(detrend=detrend)
         )
@@ -130,12 +142,13 @@ def _add_lightcurve_to_session(request, lightcurve_fname, select=True):
             configuration
         )
 
+        if 'model' in configuration:
+            del configuration['model']
         plotting_info[lightcurve_fname][detrend] = {
             'configuration': configuration,
             'plot_data': _convert_plot_data_json(plot_data, False),
             'best_substitutions': best_substitutions
         }
-    plotting_info[lightcurve_fname] = plotting_info[lightcurve_fname]
     if select:
         plotting_info['target_fname'] = lightcurve_fname
 
@@ -286,18 +299,58 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
             _subdivide_figure(plot_config, new_splits, *child)
 
 
-def _update_plotting_info(session, updates):
+def update_subplot(plotting_session, updates):
+    """Change a given sub-plot (and/or add plot quantities)."""
+
+    subplot = plotting_session['plot_config'][int(updates.pop('plotId'))]
+    param_to_key = {'aggregate-by': 'match_by',
+                    'aggregate-func': 'aggregate'}
+    for param, value in updates.items():
+        if param.startswith('model'):
+            if value == 'None':
+                continue
+            if 'model' not in plotting_session['configuration']:
+                plotting_session['configuration']['model'] = {}
+            model_param = param[len('model-'):]
+            try:
+                value = value if model_param == 'quantity' else float(value)
+            except ValueError:
+                value = [float(e) for e in value.strip('[]').split(',')]
+            plotting_session['configuration']['model'][model_param] = value
+        elif param.endswith('label'):
+            subplot[param.lower().replace('-', '_')] = value
+        elif param.startswith('lc-quantity-'):
+            expression = updates['lc-expression-' + param.rsplit('-', 1)[1]]
+            if plotting_session['expressions'].get(value) != expression:
+                plotting_session['expressions'][value] = expression
+        elif param.startswith('lc-expression-'):
+            continue
+        elif param in 'xy':
+            subplot[param + '_quantity'] = value
+        else:
+            subplot[param_to_key[param]] = value
+    _add_lightcurve_to_session(
+        plotting_session,
+        plotting_session['target_fname']
+    )
+
+
+def _update_plotting_info(plotting_session, updates):
     """Modify the currently set-up figure per user input from BUI."""
 
+    print(f'Updates to apply: {updates!r}')
     modified_session = False
     if 'applySplits' in updates:
-        _subdivide_figure(session['lc_plotting']['plot_config'],
+        _subdivide_figure(plotting_session['plot_config'],
                           updates['applySplits'],
-                          *session['lc_plotting']['plot_layout'])
+                          *plotting_session['plot_layout'])
         modified_session = True
     if 'rcParams' in updates:
         for param, value in updates['rcParams'].items():
             rcParams[param] = value.strip('[]')
+    if 'subplot' in updates:
+        update_subplot(plotting_session, updates['subplot'])
+        modified_session = True
     return modified_session
 
 
@@ -305,7 +358,7 @@ def update_lightcurve_figure(request):
     """Generate and return a new figure for the current lightcurve."""
 
     request.session.modified = _update_plotting_info(
-        request.session,
+        request.session['lc_plotting'],
         json.loads(request.body.decode())
     )
 
@@ -383,6 +436,8 @@ def _sanitize_rcparams():
         elif param.endswith('_joinstyle'):
             value = 'round'
         if (
+            #Cannot be reduced in a readable way
+            #pylint: disable=too-many-boolean-expressions
             not param.endswith('prop_cycle')
             and
             param not in ['savefig.bbox', 'backend']
@@ -394,6 +449,7 @@ def _sanitize_rcparams():
             not param.startswith('figure.subplot')
             and
             param[0] != '_'
+            #pylint: enable=too-many-boolean-expressions
         ):
             result.append((param, value))
     return result
@@ -418,7 +474,7 @@ def display_lightcurve(request):
         rcParams['figure.subplot.right'] = 1.0
         _init_session(request)
         _add_lightcurve_to_session(
-            request,
+            request.session['lc_plotting'],
             request.session['lc_plotting']['target_fname']
         )
 
