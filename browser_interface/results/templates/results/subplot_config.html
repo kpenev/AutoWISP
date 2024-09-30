@@ -1,52 +1,92 @@
-{% for char in "xym"|make_list %}
-{% cycle config.x_quantity config.y_quantity config.match_by as quantity silent %}
-{% cycle 'X' 'Y' 'Aggregate by' as label silent %}
-<div class="config-row">
-    <label for="{{ label|slugify }}">{{label}}:</label>
-    <div class="lcars-bracket left"></div>
-    <select name="{{ label|slugify }}" 
-            id="{{ label|slugify }}"
-            class="lcars-text-box lcars-gray-bg lcars-husk-color param">
-        {% for option in config.expressions %}
-        <option value="{{option.0}}" 
-                {% if option.0 == quantity %}
-                selected
-                {% endif %}
-                >
-                {{option.0}}
-        </option>
+<div class="lcars-row">
+    {% if curve_id > 0 %}
+    <div id="previous-curve" 
+         class="lcars-bracket left lcars-melrose-bg center-center button">
+        <
+    </div>
+    {% endif %}
+
+    <div class="lcars-column" style="width: 100%">
+        {% for char in "xym"|make_list %}
+        {% cycle config.plot_config.x_quantity config.plot_config.y_quantity config.plot_config.match_by as quantity silent %}
+        {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
+        <div id="curve-parent" class="config-row">
+            <label for="{{ label|slugify }}">{{label}}:</label>
+            <div class="lcars-bracket left"></div>
+            <select name="{{ label|slugify }}" 
+                    id="{{ label|slugify }}"
+                    class="lcars-text-box lcars-gray-bg lcars-husk-color param">
+                {% for option in expressions %}
+                <option value="{{option.0}}" 
+                        {% if option.0 == quantity %}
+                        selected
+                        {% endif %}
+                        >
+                        {{option.0}}
+                </option>
+                {% endfor %}
+            </select>
+            <div class="lcars-bracket right"></div>
+        </div>
         {% endfor %}
-    </select>
-    <div class="lcars-bracket right"></div>
-</div>
-{% endfor %}
-<div class="config-row">
-    <label for="aggregate-func">Aggregate func.:</label>
-    <input type="text" 
-           id="aggregate-func"
-           class="param"
-           value="{{ config.aggregate }}">
+        {% for axis in "ac"|make_list %}
+        {% cycle config.plot_config.aggregate config.plot_config.curve_label as value silent %}
+        {% cycle "Aggregate func." "Curve label" as label silent %}
+        <div class="config-row">
+            <label for="label|slugify">{{ label }}:</label>
+            <input type="text" 
+                   id="label|slugify"
+                   class="param"
+                   value="{{ value }}">
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not last_curve %}
+    <div id="next-curve" 
+         class="lcars-bracket right lcars-melrose-bg center-center button">
+        >
+    </div>
+    {% endif %}
 </div>
 
-{% for axis in "XY"|make_list %}
-{% cycle config.x_label config.y_label as value silent %}
+{% for axis in "XYT"|make_list %}
+{% cycle x_label y_label title as value silent %}
+{% cycle "X label" "Y label" "Title" as label silent %}
 <div class="config-row">
-    <label for="{{ axis }}-label">{{ axis }} label:</label>
+    <label for="{{ label|slugify }}">{{ label }}:</label>
     <input type="text" 
-           id="{{ axis }}-label"
+           id="{{ label|slugify }}"
            class="param"
            value="{{ value }}">
 </div>
 {% endfor %}
 
 
-<div id="model-button" class="lcars-element button config-row" style="width: 100%">
-    {% if not config.model.enabled %}
-    Add Model
-    {% else %}
-    Model Parameters
-    {% endif %}
+<div class="lcars-row">
+    <div class="lcars-bracket left"></div>
+    <select name="select-model" 
+            id="select-model"
+            class="lcars-text-box lcars-gray-bg lcars-husk-color param"
+            style="width: 100%">
+        <option value=""
+                {% if not config.model.enabled %}
+                selected
+                {% endif %}
+                >
+        </option>
+        <option value="transit"
+                {% if config.model.enabled %}
+                selected
+                {% endif %}
+                >
+                Transit
+        </option>
+    </select>
+    <div class="lcars-bracket right"></div>
 </div>
+
+
 <div class="config-row"></div>
 <table id="define-model" 
        class="lcars-table standard-header"
@@ -54,47 +94,6 @@
        style="display: none;"
        {% endif %}
        >
-       <thead>
-           <tr>
-               <th>Parameter</th>
-               <th>Value</th>
-           </tr>
-       </thead>
-       <tbody>
-           <tr>
-               <td> Quantity </td>
-               <td>
-                   <div class="lcars-bracket left"></div>
-                   <select name="model-quantity" 
-                           id="model-quantity"
-                           class="lcars-text-box lcars-gray-bg lcars-husk-color param">
-                       {% for option in config.expressions %}
-                       <option value="{{option.0}}" 
-                               {% if option.0 == "magnitude" %}
-                               selected
-                               {% endif %}
-                               >
-                               {{option.0}}
-                       </option>
-                       {% endfor %}
-                   </select>
-                   <div class="lcars-bracket right"></div>
-               </td>
-           </tr>
-           {% for param_name, param_value in config.model.items %}
-           {% if param_name != "enabled" %}
-           <tr>
-               <td> {{param_name}} </td>
-               <td>
-                   <input type="text" 
-                          id="model-{{ param_name }}" 
-                          class="param" 
-                          value="{{ param_value }}">
-               </td>
-           </tr>
-           {% endif %}
-           {% endfor %}
-       </tbody>
 </table>
 
 <div class="lcars-element button config-row" style="width: 100%">
@@ -129,7 +128,7 @@
         {% endfor %}
         <tr> 
             <td colspan="2">
-                <div id="add-expression"
+                <div id="add-expression center-center"
                      class="lcars-element button rounded lcars-melrose-bg">
                     New
                 </div>

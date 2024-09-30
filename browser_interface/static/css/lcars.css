@@ -848,6 +848,8 @@ a.lcars-text-box.blink {
 }
 .lcars-bracket {
   background-color: #fc6;
+  font-weight: bold;
+  color: #000;
 }
 .lcars-bracket.left {
   width: 1.5rem;

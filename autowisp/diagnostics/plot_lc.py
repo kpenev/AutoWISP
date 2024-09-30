@@ -15,16 +15,21 @@ from autowisp.evaluator import LightCurveEvaluator
 #TODO:Document all expected entries in configuration for `get_plot_data()`
 
 
-def evaluate_model(model, lc_eval, expression_params):
+def evaluate_model(model, lc_eval, expression_params, shift_to=None):
     """Return the model evaluated for the given lightcurve."""
 
     args = [lc_eval(expression.format_map(expression_params))
             for expression in model.get('args', [])]
     kwargs = {
         arg_name: lc_eval(expression.format_map(expression_params))
-        for arg_name, expression in model.get('kwargs', {})
+        for arg_name, expression in model.get('kwargs', {}).items()
     }
-    return model['evaluate'](*args, **kwargs)
+    model_values = globals()[model['type'] + '_model'](*args, **kwargs)
+    if shift_to is not None:
+        shift_to = lc_eval(shift_to.format_map(expression_params))
+        assert len(shift_to) == len(times)
+        model_values += numpy.nanmedian(shift_to - model_values)
+    return model_values
 
 
 def optimize_substitutions(lc_eval,
@@ -82,10 +87,12 @@ def optimize_substitutions(lc_eval,
     return best_found, best_model
 
 
-def get_plot_data(lc_fname, expressions, configuration):
+def get_plot_data(lc_fname, expressions, configuration, model=None):
     """Read relevant data from the lightcurve."""
 
     result = {}
+    if model and model.get('shift_to') is True:
+        model['shift_to'] = expressions[model['quantity']]
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         lc_eval = LightCurveEvaluator(lightcurve,
                                       configuration['lc_substitutions'])
@@ -147,10 +154,10 @@ def get_plot_data(lc_fname, expressions, configuration):
                     find_best=configuration['find_best'],
                     minimize=configuration['minimize'],
                     y_expression=(
-                        None if 'model' not in configuration
-                        else expressions[configuration['model']['quantity']]
+                        None if model is None
+                        else expressions[model['quantity']]
                     ),
-                    model=configuration.get('model'),
+                    model=model,
                     expression_params={'mode': photometry_mode}
                 )
                 if best_minimize is None or minimize_value < best_minimize:
@@ -193,18 +200,16 @@ def calculate_combined(plot_data, match_id_key, aggregation_function):
     return combined_data
 
 
-def transit_model(bjd, shift_to=None, **params):
+def transit_model(times, **params):
     """Calculate the magnitude change of exoplanet with given parameters."""
 
     model = RoadRunnerModel('quadratic')
-    model.set_data(bjd)
+    model.set_data(times)
     print(
-        f'Evaluating transit model for parameters: {params!r} for BJD: {bjd!r}'
+        f'Evaluating transit model for parameters: {params!r} '
+        f'for times: {times!r}.'
     )
     mag_change = -2.5 * numpy.log10(model.evaluate(**params))
-    if shift_to is not None:
-        assert len(shift_to) == len(bjd)
-        mag_change += numpy.nanmedian(shift_to - mag_change)
     return mag_change
 
 
@@ -228,17 +233,17 @@ def main():
 
     for detrend, fmt in [#('magfit', 'ob'),
                          #('epd', 'or'),
-                         ('tfa', 'og')]:
+                         ('tfa', 'ob')]:
         data_by_sphotref, _ = get_plot_data(
             '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
-            {
+            expressions={
                 'y': (f'{{mode}}.{detrend}.magnitude - '
                       f'nanmedian({{mode}}.{detrend}.magnitude)'),
                 'x': 'skypos.BJD - skypos.BJD.min()',
                 'frame': 'fitsheader.rawfname',
                 'bin5min': '(skypos.BJD * 24 * 12).astype(int)',
             },
-            {
+            configuration={
                 'lc_substitutions': {'magfit_iteration': -1},
                 'selection': None,
                 'find_best': [('aperture_index', range(41))],
@@ -246,20 +251,15 @@ def main():
 #                (f'nanmedian(abs({{mode}}.{detrend}.magnitude - '
 #                             f'nanmedian({{mode}}.{detrend}.magnitude)))'),
                 'photometry_modes': ['apphot'],
-                'model': {
-                    'evaluate': partial(
-                        transit_model,
-                        **transit_params
-                    ),
-                    'quantity': 'y',
-                    'args': [
-                        'skypos.BJD',
-                        (
-                            f'{{mode}}.{detrend}.magnitude - '
-                            f'nanmedian({{mode}}.{detrend}.magnitude)'
-                        )
-                    ]
-                }
+            },
+            model={
+                'type': 'transit',
+                'quantity': 'y',
+                'shift_to': True,
+                'kwargs': dict(
+                    times='skypos.BJD',
+                    **{k: repr(v) for k, v in transit_params.items()}
+                )
             }
         )
 
@@ -277,7 +277,13 @@ def main():
                         markersize=markersize,
                         markeredgecolor='black' if markersize > 5 else 'none')
         pyplot.plot(data_combined['x'],
-                    data_combined['best_model'],
+                    data_combined['best_model']
+                    +
+                    numpy.nanmedian(
+                        data_combined['y']
+                        -
+                        data_combined['best_model']
+                    ),
 #                    transit_model(plot_data['x'],
 #                                  shift_to=plot_data['y'],
 #                                  **transit_params),

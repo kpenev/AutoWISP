@@ -1,6 +1,5 @@
 """Views for displaying the lightcurve of a star."""
 
-from functools import partial
 from itertools import product
 from copy import deepcopy
 from io import StringIO
@@ -13,14 +12,33 @@ import numpy
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
+from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.plot_lc import\
     get_plot_data,\
-    calculate_combined,\
-    transit_model
-
+    calculate_combined
 
 _custom_aggregators = {
     'len': len
+}
+
+_default_models = {
+    'transit': {
+        'times': 'skypos.BJD',
+        'shift_to': (
+            '{mode}.tfa.magnitude - '
+            'nanmedian({mode}.tfa.magnitude)'
+        ),
+        'k': 0.1, #the planet-star radius ratio
+        'ldc': [0.8, 0.7], #limb darkening coeff
+        't0': 2455787.553228,# the zero epoch,
+        'p': 3.0,# the orbital period,
+        'a': 10.0,# the orbital semi-major divided by R*,
+        'i': numpy.pi / 2,# the orbital inclination in rad,
+        'e': None, # the orbital eccentricity (optional, can be left out if
+                   # assuming circular a orbit), and
+        'w': None  # the argument of periastron in radians (also optional,
+                   # can be left out if assuming circular a orbit).
+    }
 }
 
 
@@ -30,36 +48,45 @@ def _init_session(request):
     request.session['lc_plotting'] = {
         'target_fname': '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
         'expressions': {
-            'magnitude': ('{{mode}}.{detrend}.magnitude - '
-                          'nanmedian({{mode}}.{detrend}.magnitude)'),
+            'magnitude': ('{mode}.tfa.magnitude - '
+                          'nanmedian({mode}.tfa.magnitude)'),
             'bjd': 'skypos.BJD - skypos.BJD.min()',
             'rawfname': 'fitsheader.rawfname',
         },
-        'configuration': {
-            'lc_substitutions': {'magfit_iteration': -1},
-            'selection': None,
-            'find_best': [('aperture_index', list(range(41)))],
-            'minimize': ('nanmedian(abs({{mode}}.{detrend}.magnitude - '
-                         'nanmedian({{mode}}.{detrend}.magnitude)))'),
-            'photometry_modes': ['apphot'],
-        },
-        'detrending_modes': [('tfa', ('og',), {})],
+        'data_select': [
+            {
+                'lc_substitutions': {'magfit_iteration': -1},
+                'find_best': [('aperture_index', list(range(41)))],
+                'minimize': ('nanmedian(abs({mode}.tfa.magnitude - '
+                             'nanmedian({mode}.tfa.magnitude)))'),
+                'photometry_modes': ['apphot'],
+                'selection': None,
+                'plot_config': [
+                    [
+                        {
+                            'sphotref_selector': '*',
+                            'aggregate': 'nanmedian',
+                            'x_quantity': 'bjd',
+                            'y_quantity': 'magnitude',
+                            'match_by': 'rawfname',
+                            'curve_label': 'tfa',
+                            'plot_args': ['og']
+                        }
+                    ]
+                ],
+            }
+        ],
         'plot_layout': [
             {
                 'width_ratios': [1.0],
                 'height_ratios': [1.0],
                 'wspace': rcParams['figure.subplot.wspace'],
-                'hspace': rcParams['figure.subplot.hspace']
+                'hspace': rcParams['figure.subplot.hspace'],
             },
             [0]
         ],
-        'plot_config': [
+        'plot_decorations': [
             {
-                'aggregate': 'nanmedian',
-                'x_quantity': 'bjd',
-                'y_quantity': 'magnitude',
-                'match_by': 'rawfname',
-                'plot_model': ['-r', {'label': 'model'}],
                 'x_label': 'BJD',
                 'y_label': 'magnitude',
                 'title': 'GDR3 {GaiaID}'
@@ -111,116 +138,103 @@ def _convert_plot_data_json(plot_data, reverse):
 def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
     """Add to the browser session a new entry for the given lightcurve."""
 
-    plotting_info[lightcurve_fname] = {}
-    configuration = deepcopy(plotting_info['configuration'])
-    if 'model' in configuration:
-        eval_model = {
-            'quantity': configuration['model'].pop('quantity'),
-            'evaluate': partial(transit_model, **configuration['model']),
-        }
-        configuration['model'] = eval_model
-    for detrend, _, _ in plotting_info['detrending_modes']:
-        if 'model' in configuration:
-            configuration['model']['args'] = [
-                'skypos.BJD',
-                (
-                    f'{{mode}}.{detrend}.magnitude - '
-                    f'nanmedian({{mode}}.{detrend}.magnitude)'
-                )
-            ]
+    plotting_info[lightcurve_fname] = []
 
-        configuration['minimize'] = (
-            configuration['minimize'].format(detrend=detrend)
-        )
+    for data_select in plotting_info['data_select']:
         plot_data, best_substitutions = get_plot_data(
             lightcurve_fname,
-            {
-                name: expression.format(detrend=detrend)
-                for name, expression in
-                plotting_info['expressions'].items()
-            },
-            configuration
+            plotting_info['expressions'],
+            data_select,
+            data_select.get('model')
         )
 
-        if 'model' in configuration:
-            del configuration['model']
-        plotting_info[lightcurve_fname][detrend] = {
-            'configuration': configuration,
+        plotting_info[lightcurve_fname].append({
             'plot_data': _convert_plot_data_json(plot_data, False),
             'best_substitutions': best_substitutions
-        }
+        })
     if select:
         plotting_info['target_fname'] = lightcurve_fname
 
 
-def plot(target_info, plot_config, detrending_modes_config):
+def plot(target_info, plot_config, plot_decorations):
     """Make a single plot of the spceified lighturve."""
 
     plot_data = {}
-    for detrend, plot_args, plot_kwargs in detrending_modes_config:
-        plot_data = _convert_plot_data_json(target_info[detrend]['plot_data'],
-                                            True)
-        if plot_config.get('sphotref_fname') is not None:
-            plot_data = plot_data[plot_config['sphotref_fname']]
-        else:
-            plot_data = calculate_combined(
-                plot_data,
-                plot_config['match_by'],
+    assert len(plot_config) == len(target_info)
+    for dataset, dataset_plot_configs in zip(target_info, plot_config):
+        plot_data = _convert_plot_data_json(dataset['plot_data'], True)
+        for curve_config in dataset_plot_configs:
+            if curve_config['sphotref_selector'] == '*':
+                curve_data = plot_data
+            else:
+                if isinstance(curve_config['sphotref_selector'], list):
+                    curve_data = [plot_data[sphotref_fname]
+                                 for sphotref_fname in
+                                 curve_config['sphotref_selector']]
+                else:
+                    curve_data = [
+                        plot_data[sphotref_fname]
+                        for sphotref_fname in plot_data.keys()
+                        if Evaluator(
+                            sphotref_fname
+                        )(
+                            curve_config['sphotref_selector']
+                        )
+                    ]
+            curve_data = calculate_combined(
+                curve_data,
+                curve_config['match_by'],
                 (
-                    _custom_aggregators.get(plot_config['aggregate'])
+                    _custom_aggregators.get(curve_config['aggregate'])
                     or
-                    getattr(numpy, plot_config['aggregate'])
+                    getattr(numpy, curve_config['aggregate'])
                 )
             )
-        pyplot.plot(
-            plot_data[plot_config['x_quantity']],
-            plot_data[plot_config['y_quantity']],
-            label=detrend,
-            *plot_args,
-            **plot_kwargs
-        )
-        if (
-            plot_config.get('plot_model')
-            and
-            'model' in target_info[detrend]['configuration']
-        ):
             pyplot.plot(
-                plot_data[plot_config['x_quantity']],
-                plot_data['best_model'],
-                *plot_config['plot_model'][0],
-                **plot_config['plot_model'][1]
+                curve_data[curve_config['x_quantity']],
+                curve_data[curve_config['y_quantity']],
+                *curve_config.get('plot_args', []),
+                label=curve_config['curve_label'],
+                **curve_config.get('plot_kwargs', {})
             )
     pyplot.legend()
-    pyplot.xlabel(plot_config['x_label'])
-    pyplot.ylabel(plot_config['y_label'])
-    pyplot.title(plot_config['title'])
+    pyplot.xlabel(plot_decorations['x_label'])
+    pyplot.ylabel(plot_decorations['y_label'])
+    pyplot.title(plot_decorations['title'])
 
 
 def _create_subplots(plotting_info, splits, children, parent, figure):
     """Recursively walks the plot layout tree creating subplots as needed."""
 
     args = (len(splits['height_ratios']), len(splits['width_ratios']))
+    kwargs = {k: splits[k] for k in splits if k not in ['x_label',
+                                                        'y_label',
+                                                        'title']}
+
     if parent is None:
-        grid = gridspec.GridSpec(*args, figure=figure, **splits)
+        grid = gridspec.GridSpec(*args, figure=figure, **kwargs)
     else:
         grid = gridspec.GridSpecFromSubplotSpec(*args,
                                                 subplot_spec=parent,
-                                                **splits)
+                                                **kwargs)
 
     assert len(children) == args[0] * args[1]
     for child, subplot in zip(children, grid):
         if isinstance(child, int):
             pyplot.sca(figure.add_subplot(subplot))
-            plot(plotting_info['target_info'],
-                 plotting_info['plot_config'][child],
-                 plotting_info['detrending_modes_config'])
-        else:
-            _create_subplots(
-                plotting_info,
-                *child,
-                subplot,
-                figure
+            plot(
+                plotting_info['target_info'],
+                [
+                    plot_config[child]
+                    for plot_config in plotting_info['plot_config']
+                ],
+                plotting_info['plot_decorations'][child]
             )
+        else:
+            _create_subplots(plotting_info,
+                             *child,
+                             subplot,
+                             figure)
 
 
 def _get_subplot_boundaries(splits,
@@ -288,13 +302,17 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
                                    len(child_splits['top'])),
                         'hspace': (current_splits['hspace']
                                    *
-                                   len(child_splits['left']))
+                                   len(child_splits['left'])),
                     },
-                    [child] + list(range(len(plot_config),
-                                         len(plot_config) + num_subplots - 1))
+                    [child] + list(
+                        range(len(plot_config[0]),
+                              len(plot_config[0]) + num_subplots - 1)
+                    )
                 ]
-                plot_config.extend((deepcopy(plot_config[child])
-                                    for _ in range(num_subplots - 1)))
+                for config in plot_config:
+                    config.extend((deepcopy(config[child])
+                                   for _ in range(num_subplots - 1)))
+                print(f'After subdividing, children: {children!r}.')
         else:
             _subdivide_figure(plot_config, new_splits, *child)
 
@@ -341,14 +359,21 @@ def _update_plotting_info(plotting_session, updates):
     print(f'Updates to apply: {updates!r}')
     modified_session = False
     if 'applySplits' in updates:
-        _subdivide_figure(plotting_session['plot_config'],
-                          updates['applySplits'],
-                          *plotting_session['plot_layout'])
+        _subdivide_figure(
+            [
+                data_select['plot_config']
+                for data_select in plotting_session['data_select']
+            ]
+            +
+            [plotting_session['plot_decorations']],
+            updates['applySplits'],
+            *plotting_session['plot_layout']
+        )
         modified_session = True
     if 'rcParams' in updates:
         for param, value in updates['rcParams'].items():
             rcParams[param] = value.strip('[]')
-    if 'subplot' in updates:
+    if 'subplot' in updates and False:
         update_subplot(plotting_session, updates['subplot'])
         modified_session = True
     return modified_session
@@ -372,8 +397,10 @@ def update_lightcurve_figure(request):
     _create_subplots(
         {
             'target_info': plotting_info[plotting_info['target_fname']],
-            'plot_config': plotting_info['plot_config'],
-            'detrending_modes_config': plotting_info['detrending_modes']
+            'plot_layout': plotting_info['plot_layout'],
+            'plot_config': [data_select['plot_config']
+                            for data_select in plotting_info['data_select']],
+            'plot_decorations': plotting_info['plot_decorations']
         },
         *request.session['lc_plotting']['plot_layout'],
         None,
@@ -393,35 +420,38 @@ def update_lightcurve_figure(request):
         })
 
 
-def edit_subplot(request, plot_id):
+def edit_subplot(request, plot_id, data_select_id=0, curve_id=0):
     """Set the view to allow editing the selected plot."""
 
     plotting_info = request.session['lc_plotting']
-    sub_plot_config = dict(plotting_info['plot_config'][plot_id])
-    sub_plot_config['plot_id'] = plot_id
-    sub_plot_config['expressions'] = list(
-        plotting_info['expressions'].items()
-    )
-    sub_plot_config['model'] = plotting_info.get(
-        'model',
-        {
-            'k': 0.1, #the planet-star radius ratio
-            'ldc': [0.8, 0.7], #limb darkening coeff
-            't0': 2455787.553228,# the zero epoch,
-            'p': 3.0,# the orbital period,
-            'a': 10.0,# the orbital semi-major divided by R*,
-            'i': numpy.pi / 2,# the orbital inclination in rad,
-            'e': None, # the orbital eccentricity (optional, can be left out if
-                     # assuming circular a orbit), and
-            'w': None  # the argument of periastron in radians (also optional,
-                       # can be left out if assuming circular a orbit).
-        }
-    )
-    sub_plot_config['model']['enabled'] = 'model' in plotting_info
+    data_select = plotting_info['data_select'][data_select_id]
+    sub_plot_config = {
+        param: value[plot_id][curve_id] if param == 'plot_config' else value
+        for param, value in data_select.items()
+    }
+
+    context = {
+        'config': sub_plot_config,
+        'plot_id': plot_id,
+        'data_select_id': data_select_id,
+        'curve_id': curve_id,
+        'last_plot': plot_id < len(data_select['plot_config']) - 1,
+        'last_data_select': (data_select_id
+                             <
+                             len(plotting_info['data_select'])) - 1,
+        'last_curve': (curve_id
+                       <
+                       len(data_select['plot_config'][plot_id]) - 1),
+        'expressions': list(
+            plotting_info['expressions'].items()
+        ),
+        **plotting_info['plot_decorations'][plot_id]
+    }
+    print(f'Sub-plot config context: {context!r}')
     return render(
         request,
         'results/subplot_config.html',
-        {'config': sub_plot_config}
+        context
     )
 
 def _sanitize_rcparams():
@@ -482,6 +512,19 @@ def display_lightcurve(request):
         request,
         'results/display_lightcurves.html',
         {'config': None}
+    )
+
+
+def edit_model(request, model_type):
+    """Add controls to edit the model parameters."""
+
+    return render(
+        request,
+        'results/edit_model.html',
+        {
+            'expressions': request.session['lc_plotting']['expressions'].keys(),
+            'model': _default_models[model_type]
+        }
     )
 
 

@@ -118,6 +118,7 @@ function highlightPlotBoundary(which, box, figureBounds)
 function cleanSplits(removeUnapplied)
 {
     if ( removeUnapplied ) {
+        getPlottingConfig.unappliedSplits = {};
         elements = document.querySelectorAll(".unapplied");
     } else
         elements = document.querySelectorAll(".temporary");
@@ -149,15 +150,17 @@ function addSplits(splitBoundary, box, plotId, splitRange, splitCount)
     event.preventDefault();
     document.getElementById("plot-split").onclick = null;
     figure = document.getElementById("figure-parent").children[0];
-    if ( !(plotId in figure.unappliedSplits) )
-        figure.unappliedSplits[plotId] = {};
+    if ( !(plotId in getPlottingConfig.unappliedSplits) )
+        getPlottingConfig.unappliedSplits[plotId] = {};
 
-    const currentSplits = figure.unappliedSplits[plotId][splitBoundary.side];
+    const currentSplits = 
+        getPlottingConfig.unappliedSplits[plotId][splitBoundary.side];
     const newSplits = new Array(splitCount + 1);
     newSplits.fill((splitRange[1] - splitRange[0]) / (splitCount + 1))
 
     if ( typeof currentSplits === "undefined" )
-        figure.unappliedSplits[plotId][splitBoundary.side] = newSplits;
+        getPlottingConfig.unappliedSplits[plotId][splitBoundary.side] = 
+            newSplits;
     else {
         let splicePos = 0;
         for ( let right = 0; 
@@ -168,17 +171,17 @@ function addSplits(splitBoundary, box, plotId, splitRange, splitCount)
     }
 
     if ( splitBoundary.side == "left" )
-        figure.unappliedSplits[plotId]["right"] = 
-            figure.unappliedSplits[plotId]["left"];
+        getPlottingConfig.unappliedSplits[plotId]["right"] = 
+            getPlottingConfig.unappliedSplits[plotId]["left"];
     else if ( splitBoundary.side == "right" )
-        figure.unappliedSplits[plotId]["left"] = 
-            figure.unappliedSplits[plotId]["right"];
+        getPlottingConfig.unappliedSplits[plotId]["left"] = 
+            getPlottingConfig.unappliedSplits[plotId]["right"];
     if ( splitBoundary.side == "top" )
-        figure.unappliedSplits[plotId]["bottom"] = 
-            figure.unappliedSplits[plotId]["top"];
+        getPlottingConfig.unappliedSplits[plotId]["bottom"] = 
+            getPlottingConfig.unappliedSplits[plotId]["top"];
     else if ( splitBoundary.side == "bottom" )
-        figure.unappliedSplits[plotId]["top"] = 
-            figure.unappliedSplits[plotId]["bottom"];
+        getPlottingConfig.unappliedSplits[plotId]["top"] = 
+            getPlottingConfig.unappliedSplits[plotId]["bottom"];
 }
 
 function showExtraSplit(splitBoundary, box, plotId, splitCount)
@@ -186,7 +189,7 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount)
     cleanSplits(false);
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
-    let unappliedSplits = figure.unappliedSplits;
+    let unappliedSplits = getPlottingConfig.unappliedSplits;
     let splitRange = [0.0, 1.0];
     if ( 
         plotId in unappliedSplits
@@ -318,13 +321,9 @@ function figureMouseOver(event)
 
 function getPlottingConfig()
 {
-    let figure = document.getElementById("figure-parent").children[0];
-    let result = {
-        applySplits: figure.unappliedSplits
-    }
+    const result = {applySplits: getPlottingConfig.unappliedSplits};
 
-    let configParent = document.getElementById("config-parent");
-    if ( configParent === null )
+    if ( typeof getPlottingConfig.plotId === "undefined" )
         return result;
     result[getPlottingConfig.mode] = {plotId: getPlottingConfig.plotId};
     for ( const element of document.getElementsByClassName("param") ) {
@@ -333,20 +332,18 @@ function getPlottingConfig()
     return result;
 }
 
-function showConfig(url, mode)
+function showConfig(url, parentId, onSuccess)
 {
     const request = new XMLHttpRequest();
     request.open("GET", url);
     request.send();
-    request.onreadystatechange = function() {
-        let configParent = document.getElementById("config-parent");
+    request.onload = () => {
+        let configParent = document.getElementById(parentId);
         configParent.innerHTML = request.responseText;
-        getPlottingConfig.mode = mode;
         configParent.parentNode.style.display = "inline-flex";
-        if ( mode == "subplot" ) {
-            document.getElementById("apply").onclick = updateFigure;
-            document.getElementById("model-button").onclick = toggleModel;
-        }
+        configParent.style.display = "inline";
+        if ( typeof onSuccess !== "undefined" )
+            onSuccess();
     }
 }
 
@@ -354,7 +351,16 @@ function showEditPlot(event)
 {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if ( plotId !== null && activeBoundary === null ) {
-        showConfig(configURLs.subplot.slice(0, -1) + plotId, "subplot");
+        showConfig(
+                   configURLs.subplot.slice(0, -1) + plotId, 
+                   "config-parent",
+                   () => {
+                       document
+                           .getElementById("select-model")
+                           .onchange = changeModel;
+                       getPlottingConfig.mode = "subplot";
+                   }
+                  );
         getPlottingConfig.plotId = plotId;
     }
 }
@@ -370,16 +376,14 @@ function showEditRc(event)
     }
 }
 
-function toggleModel()
+function changeModel()
 {
-    modelButton = document.getElementById("model-button");
-    if ( modelButton.textContent.trim() == "Add Model" ) {
-        modelButton.textContent = "Remove Model";
-        document.getElementById("define-model").style.display = "inline";
-    } else {
-        modelButton.textContent = "Add Model";
+    modelSelect = document.getElementById("select-model");
+    if ( modelSelect.value == "" )
         document.getElementById("define-model").style.display = "none";
-    }
+    else
+        showConfig(configURLs.editModel.slice(0, -1) + modelSelect.value,
+                   "define-model");
 }
 
 function showNewFigure(data)
@@ -389,7 +393,6 @@ function showNewFigure(data)
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
     figure.boundaries = boundaries;
-    figure.unappliedSplits = {};
     setFigureSize("figure-parent");
     figureParent.addEventListener("mousemove", figureMouseOver);
     figureParent.onclick = showEditPlot;
@@ -402,7 +405,14 @@ function initLightcurveDisplay(urls)
     configURLs = urls;
     updateFigure.callback = showNewFigure;
     updateFigure.getParam = getPlottingConfig;
-    document.getElementById("rcParams").onclick = (() => showConfig(urls.rcParams,
-                                                                    "rcParams"));
+    getPlottingConfig.unappliedSplits = {};
+    document
+        .getElementById("rcParams")
+        .onclick = (() => showConfig(urls.rcParams,
+                                     "config-parent",
+                                     () => {
+                                         getPlottingConfig.mode = "rcParams";
+                                     }));
+    document.getElementById("apply").onclick = updateFigure;
     updateFigure();
 }

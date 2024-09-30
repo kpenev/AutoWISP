@@ -1,0 +1,42 @@
+<thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Value</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td> Quantity </td>
+        <td>
+            <div class="lcars-bracket left"></div>
+            <select name="model-quantity" 
+                    id="model-quantity"
+                    class="lcars-text-box lcars-gray-bg lcars-husk-color param">
+                {% for option in expressions %}
+                <option value="{{option}}" 
+                        {% if option == "magnitude" %}
+                        selected
+                        {% endif %}
+                        >
+                        {{option}}
+                </option>
+                {% endfor %}
+            </select>
+            <div class="lcars-bracket right"></div>
+        </td>
+    </tr>
+    {% for param_name, param_value in model.items %}
+    {% if param_name != "enabled" %}
+    <tr>
+        <td> {{param_name}} </td>
+        <td>
+            <input type="text" 
+                   id="model-{{ param_name }}" 
+                   class="param" 
+                   value="{{ param_value }}">
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</tbody>
+

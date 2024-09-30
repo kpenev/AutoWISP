@@ -83,9 +83,12 @@ function setFigureSize(parentId)
 
 function updateFigure()
 {
+    console.log("Updating figure");
     let param;
-    if (typeof updateFigure.getParam === 'function')
+    if (typeof updateFigure.getParam === 'function') {
+        console.log("Getting parameters");
         param = updateFigure.getParam();
+    }
 
     postJson(updateFigure.url, param)
         .then((response) => {

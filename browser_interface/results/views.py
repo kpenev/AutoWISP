@@ -8,5 +8,6 @@ from .lightcurve_views import\
     download_lightcurve_figure,\
     edit_subplot,\
     edit_rcparams,\
+    edit_model,\
     clear_lightcurve_buffer
 #pylint: enable=unused-import

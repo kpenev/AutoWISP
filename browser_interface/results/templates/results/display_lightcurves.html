@@ -76,12 +76,14 @@ Preview Lightcurves
 <script src="{% static 'js/autowisp.util.js' %}"></script>
 <script src="{% static 'results/js/display.lightcurves.js' %}"></script>
 {% url 'results:update_lightcurve_figure' as updateURL %}
-{% url 'results:edit_subplot' plot_id=0 as editSubPlotURL%}
+{% url 'results:edit_subplot' plot_id=0 as editSubPlotURL %}
 {% url 'results:edit_rcparams' as rcParamsURL%}
+{% url 'results:edit_model' model_type='m' as editModelURL %}
 <script type="text/javascript">
     initLightcurveDisplay({update: "{{ updateURL }}", 
                            subplot: "{{ editSubPlotURL }}",
-                           rcParams: "{{ rcParamsURL }}"});
+                           rcParams: "{{ rcParamsURL }}",
+                           editModel: "{{ editModelURL }}"});
 </script> 
 {% endblock main %}
 
