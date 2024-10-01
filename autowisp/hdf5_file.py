@@ -1153,7 +1153,8 @@ class HDF5File(ABC, h5py.File):
         if dataset_path in self:
             print(
                 f'Dataset {dataset_path!r} already existis in '
-                f'{self.filename!r}!'            )
+                f'{self.filename!r}: {if_exists.rstrip("e")}ing!'
+            )
             if if_exists == 'ignore':
                 return
             if if_exists == 'error':

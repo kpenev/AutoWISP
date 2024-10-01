@@ -537,6 +537,14 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         f'(actual length of {len(dataset):d}, '
                         f'expected {confirmed_length:d})!'
                     ) from exc
+                self._logger.debug(
+                    'Dataset %s length (%s) exceeds confirmed (%d) + new %s. '
+                    'Recreating from scratch.',
+                    dataset.name,
+                    repr(dataset.shape),
+                    confirmed_length,
+                    repr(data_copy.shape)
+                )
                 self.add_dataset(
                     dataset_key=dataset_key,
                     data=all_data,
