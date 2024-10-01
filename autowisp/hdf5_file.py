@@ -1201,6 +1201,14 @@ class HDF5File(ABC, h5py.File):
         if 'scaleoffset' in creation_args:
             assert data is None or numpy.isfinite(data_copy).all()
 
+        print(
+            '\n'.join([
+                f'Creating {dataset_path} dataset in {self.filename} from:',
+                f'data: {data_copy!r}',
+                f'shape: {shape!r}',
+                f'creation args: {creation_args!r}'
+            ])
+        )
         self.create_dataset(
             dataset_path,
             data=data_copy,
