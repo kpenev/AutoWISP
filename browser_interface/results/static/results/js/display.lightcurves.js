@@ -358,6 +358,11 @@ function showEditPlot(event)
                        document
                            .getElementById("select-model")
                            .onchange = changeModel;
+
+                       document
+                           .getElementById("add-expression")
+                           .onclick = addNewExpressionConfig;
+
                        getPlottingConfig.mode = "subplot";
                    }
                   );
@@ -396,6 +401,22 @@ function showNewFigure(data)
     setFigureSize("figure-parent");
     figureParent.addEventListener("mousemove", figureMouseOver);
     figureParent.onclick = showEditPlot;
+}
+
+function addNewExpressionConfig()
+{
+    let expressionsParent = document
+        .getElementById("lc-expressions")
+        .getElementsByTagName("tbody")[0];
+    let lastRow = expressionsParent.lastElementChild.previousElementSibling;
+    let newRow = lastRow.cloneNode(true);
+    for ( input of newRow.getElementsByTagName("input")) {
+        let lastDashPos = input.id.lastIndexOf('-');
+        let counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
+        input.id = input.id.slice(0, lastDashPos + 1) + counter;
+        input.value = "";
+    }
+    lastRow.after(newRow);
 }
 
 function initLightcurveDisplay(urls)

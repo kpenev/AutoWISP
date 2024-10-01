@@ -109,27 +109,27 @@
         </tr>
     </thead>
     <tbody>
-        {% for expression in config.expressions %}
+        {% for expr in expressions %}
         <tr>
             <td> 
                 <input type="text"
                        id="lc-quantity-{{ forloop.counter0 }}"
                        class="param"
-                       value="{{ expression.0 }}">
+                       value="{{ expr.0 }}">
             </td>
             <td style="width: 100%">
                 <input type="text"
                        id="lc-expression-{{ forloop.counter0 }}"
                        class="param"
                        style="width: 100%"
-                       value="{{ expression.1 }}">
+                       value="{{ expr.1 }}">
             </td>
         </tr>
         {% endfor %}
         <tr> 
             <td colspan="2">
-                <div id="add-expression center-center"
-                     class="lcars-element button rounded lcars-melrose-bg">
+                <div id="add-expression"
+                     class="lcars-element button rounded lcars-melrose-bg center-center">
                     New
                 </div>
             </td>
