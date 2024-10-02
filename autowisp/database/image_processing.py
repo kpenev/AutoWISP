@@ -1322,7 +1322,7 @@ class ImageProcessingManager(ProcessingManager):
                     f'{image.raw_fname}: {channel} status {status}'
                     for image, channel, status in batch
                 )
-                    )
+            )
 
             result.append((batch, match_expressions.ref_master_values))
         return result

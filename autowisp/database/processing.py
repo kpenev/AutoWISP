@@ -308,6 +308,14 @@ class ProcessingManager(ABC):
         for channel_name, channel_slice in self._get_split_channels(
                 image
         ).items():
+            if (
+                skip_evaluate
+                and
+                eval_channel is not None
+                and
+                eval_channel != channel_name
+            ):
+                continue
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
