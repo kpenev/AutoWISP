@@ -1077,9 +1077,9 @@ class HDF5File(ABC, h5py.File):
                 (
                     data.dtype.kind == 'S'
                     or
-                    expected_dtype == numpy.string_
-                    or
                     data.dtype == numpy.string_
+                    or
+                    data.dtype == numpy.bytes_
                 )
                 and
                 (
@@ -1089,7 +1089,7 @@ class HDF5File(ABC, h5py.File):
                         numpy.dtype(expected_dtype).kind == 'f'
                     )
                     or
-                    (numpy.atleast_1d(data) == b'NaN').all()
+                    numpy.atleast_1d(numpy.atleast_1d(data) == b'NaN').all()
                 )
         ):
             assert (data == b'NaN').all() or (data == b'None').all()
