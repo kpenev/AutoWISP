@@ -12,7 +12,11 @@ urlpatterns = [
     path('update_lightcurve_figure',
          views.update_lightcurve_figure,
          name='update_lightcurve_figure'),
-    path('edit_model/<slug:model_type>', views.edit_model, name='edit_model'),
+    path(
+        'edit_model/<slug:model_type>/<int:data_select_index>',
+        views.edit_model,
+        name='edit_model'
+    ),
     path('download_lightcurve_figure',
          views.download_lightcurve_figure,
          name='download_lightcurve_figure'),

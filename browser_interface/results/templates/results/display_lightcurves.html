@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block extra_head %}
+<link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{% static 'results/css/display_lightcurves.css' %}">
 
 {% endblock extra_head %}
@@ -64,7 +66,22 @@ Preview Lightcurves
          {% if not config %}
          style="display:none"
          {% endif %}>
-        <div id="resize-config" class="lcars-bracket left"></div>
+
+        <div id="resize-config" class="lcars-column">
+            <div id="previous-selection" 
+                 class="lcars-bracket top lcars-melrose-bg button center-center" 
+                 style="height:30%">
+                <i class="fa fa-plus"></i>
+            </div>
+            <div id="resize-hist" class="lcars-bar" style="height:40%;"></div>
+            <div class="lcars-bar vertical spacer"></div>
+            <div id="next-selection"
+                 class="lcars-bracket bottom button center-center" 
+                 style="height:30%">
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+
         <div id="config-parent" class="lcars-column">
             {% if config %}
             {% include "./"|add:config.0|add:"_config.html" with config=config.1 %}
@@ -78,7 +95,7 @@ Preview Lightcurves
 {% url 'results:update_lightcurve_figure' as updateURL %}
 {% url 'results:edit_subplot' plot_id=0 as editSubPlotURL %}
 {% url 'results:edit_rcparams' as rcParamsURL%}
-{% url 'results:edit_model' model_type='m' as editModelURL %}
+{% url 'results:edit_model' model_type='m' data_select_index=0 as editModelURL %}
 <script type="text/javascript">
     initLightcurveDisplay({update: "{{ updateURL }}", 
                            subplot: "{{ editSubPlotURL }}",

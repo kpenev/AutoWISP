@@ -1,61 +1,60 @@
-var configURLs
+var configURLs;
+var plotCurves;
 
 //Check if a given boundary should be triggered by the given event location.
-function triggerBoundary(event, box)
-{
+function triggerBoundary(event, box) {
     let side;
-    if ( event.offsetX > box.left && event.offsetX < box.left + 20 )
+    if (event.offsetX > box.left && event.offsetX < box.left + 20)
         side = "left";
-    else if ( event.offsetX > box.right - 20  && event.offsetX < box.right )
+    else if (event.offsetX > box.right - 20 && event.offsetX < box.right)
         side = "right";
-    else if ( event.offsetY > box.top && event.offsetY < box.top + 20 )
+    else if (event.offsetY > box.top && event.offsetY < box.top + 20)
         side = "top";
-    else if ( event.offsetY > box.bottom - 20 && event.offsetY < box.bottom )
+    else if (event.offsetY > box.bottom - 20 && event.offsetY < box.bottom)
         side = "bottom";
-    else
-        return null;
-    
-    if ( side == "left" || side == "right" ) 
+    else return null;
+
+    if (side == "left" || side == "right")
         return {
-            side: side, 
-            fraction: (event.offsetY - box.top) / (box.bottom - box.top)
+            side: side,
+            fraction: (event.offsetY - box.top) / (box.bottom - box.top),
         };
     else
         return {
-            side: side, 
-            fraction: (event.offsetX - box.left) / (box.right - box.left)
+            side: side,
+            fraction: (event.offsetX - box.left) / (box.right - box.left),
         };
 }
 
-function triggerSubPlot(event, box)
-{
+function triggerSubPlot(event, box) {
     if (
-        event.offsetX > box.left
-        && event.offsetX < box.right
-        && event.offsetY > box.top
-        && event.offsetY < box.bottom
-       ) {
+        event.offsetX > box.left &&
+        event.offsetX < box.right &&
+        event.offsetY > box.top &&
+        event.offsetY < box.bottom
+    ) {
         let plotHighlight = document.getElementById("plot-highlight");
         plotHighlight.style.display = "inline";
         plotHighlight.style.left = box.left + "px";
         plotHighlight.style.top = box.top + "px";
         plotHighlight.style.width = box.right - box.left + "px";
         plotHighlight.style.height = box.bottom - box.top + "px";
-        plotHighlight.onmouseleave = (event) => {plotHighlight.style.display = "none";}
+        plotHighlight.onmouseleave = (event) => {
+            plotHighlight.style.display = "none";
+        };
         return true;
     }
     return false;
 }
 
-function highlightPlotBoundary(which, box, figureBounds)
-{
+function highlightPlotBoundary(which, box, figureBounds) {
     let parentBounds = document
         .getElementById("figure-parent")
         .getBoundingClientRect();
     let plotSplit = document.getElementById("plot-split");
     let rem = parseFloat(getComputedStyle(plotSplit).fontSize);
 
-    for ( side of ["left", "right", "top", "bottom"] ) {
+    for (side of ["left", "right", "top", "bottom"]) {
         plotSplit.style.removeProperty(side);
         plotSplit.classList.remove(side);
     }
@@ -65,71 +64,56 @@ function highlightPlotBoundary(which, box, figureBounds)
 
     plotSplit.classList.add(which);
     plotSplit.style.display = "inline";
-    if ( which == "left" || which == "right" ) {
-        plotSplit.style.top = (box.top 
-                               + figureBounds.top 
-                               - parentBounds.top 
-                               + "px");
-        plotSplit.style.height = (box.bottom 
-                                  - box.top 
-                                  - 1.5 * rem 
-                                  + "px");
+    if (which == "left" || which == "right") {
+        plotSplit.style.top =
+            box.top + figureBounds.top - parentBounds.top + "px";
+        plotSplit.style.height = box.bottom - box.top - 1.5 * rem + "px";
 
-        if ( which == "left" ) 
-            plotSplit.style.left = (box.left
-                                    + figureBounds.left
-                                    - parentBounds.left
+        if (which == "left")
+            plotSplit.style.left = (box.left 
+                                    + figureBounds.left 
+                                    - parentBounds.left 
                                     + "px");
         else
-            plotSplit.style.right = (parentBounds.right 
-                                     + figureBounds.width 
-                                     - box.right 
-                                     - figureBounds.right 
-                                     + "px");
+            plotSplit.style.right =
+                parentBounds.right +
+                figureBounds.width -
+                box.right -
+                figureBounds.right +
+                "px";
 
         splitBounds = plotSplit.getBoundingClientRect();
     } else {
-        plotSplit.style.left = (box.left 
-                                + figureBounds.left 
-                                - parentBounds.left
-                                + "px");
-        plotSplit.style.width = (box.right 
-                                 - box.left 
-                                 - 1.5 * rem 
-                                 + "px");
-        if ( which == "top" )
-            plotSplit.style.top = (box.top
-                                   + figureBounds.top
-                                   - parentBounds.top
-                                   + "px");
+        plotSplit.style.left =
+            box.left + figureBounds.left - parentBounds.left + "px";
+        plotSplit.style.width = box.right - box.left - 1.5 * rem + "px";
+        if (which == "top")
+            plotSplit.style.top =
+                box.top + figureBounds.top - parentBounds.top + "px";
         else
             plotSplit.style.bottom = (parentBounds.bottom 
                                       - figureBounds.bottom 
                                       + figureBounds.height 
                                       - box.bottom 
                                       + "px");
-
     }
     figureMouseOver.action = which;
 
     plotSplit.addEventListener("mouseleave", unhighlightPlotBoundary);
 }
 
-function cleanSplits(removeUnapplied)
-{
-    if ( removeUnapplied ) {
+function cleanSplits(removeUnapplied) {
+    if (removeUnapplied) {
         getPlottingConfig.unappliedSplits = {};
         elements = document.querySelectorAll(".unapplied");
-    } else
-        elements = document.querySelectorAll(".temporary");
+    } else elements = document.querySelectorAll(".temporary");
 
-    elements.forEach(e => e.parentNode.removeChild(e));
+    elements.forEach((e) => e.parentNode.removeChild(e));
 }
 
-function unhighlightPlotBoundary()
-{
+function unhighlightPlotBoundary() {
     cleanSplits(false);
-    if ( typeof figureMouseOver.action !== "undefined" ) {
+    if (typeof figureMouseOver.action !== "undefined") {
         let plotSplit = document.getElementById("plot-split");
         plotSplit.classList.remove(figureMouseOver.action);
         plotSplit.style.display = "none";
@@ -137,203 +121,181 @@ function unhighlightPlotBoundary()
     document
         .getElementById("plot-split")
         .removeEventListener("mouseleave", unhighlightPlotBoundary);
-
 }
 
-function addSplits(splitBoundary, box, plotId, splitRange, splitCount)
-{
+function addSplits(splitBoundary, box, plotId, splitRange, splitCount) {
     splitCount -= 2;
     showExtraSplit(splitBoundary, box, plotId, splitCount);
     document
         .querySelectorAll(".temporary")
-        .forEach(e => e.classList.remove("temporary"));
+        .forEach((e) => e.classList.remove("temporary"));
     event.preventDefault();
     document.getElementById("plot-split").onclick = null;
     figure = document.getElementById("figure-parent").children[0];
-    if ( !(plotId in getPlottingConfig.unappliedSplits) )
+    if (!(plotId in getPlottingConfig.unappliedSplits))
         getPlottingConfig.unappliedSplits[plotId] = {};
 
-    const currentSplits = 
+    const currentSplits =
         getPlottingConfig.unappliedSplits[plotId][splitBoundary.side];
     const newSplits = new Array(splitCount + 1);
-    newSplits.fill((splitRange[1] - splitRange[0]) / (splitCount + 1))
+    newSplits.fill((splitRange[1] - splitRange[0]) / (splitCount + 1));
 
-    if ( typeof currentSplits === "undefined" )
-        getPlottingConfig.unappliedSplits[plotId][splitBoundary.side] = 
+    if (typeof currentSplits === "undefined")
+        getPlottingConfig.unappliedSplits[plotId][splitBoundary.side] =
             newSplits;
     else {
         let splicePos = 0;
-        for ( let right = 0; 
-              right < splitRange[0]; 
-              right += currentSplits[splicePos] )
+        for (
+            let right = 0;
+            right < splitRange[0];
+            right += currentSplits[splicePos]
+        )
             splicePos++;
         currentSplits.splice(splicePos, 1, ...newSplits);
     }
 
-    if ( splitBoundary.side == "left" )
-        getPlottingConfig.unappliedSplits[plotId]["right"] = 
+    if (splitBoundary.side == "left")
+        getPlottingConfig.unappliedSplits[plotId]["right"] =
             getPlottingConfig.unappliedSplits[plotId]["left"];
-    else if ( splitBoundary.side == "right" )
-        getPlottingConfig.unappliedSplits[plotId]["left"] = 
+    else if (splitBoundary.side == "right")
+        getPlottingConfig.unappliedSplits[plotId]["left"] =
             getPlottingConfig.unappliedSplits[plotId]["right"];
-    if ( splitBoundary.side == "top" )
-        getPlottingConfig.unappliedSplits[plotId]["bottom"] = 
+    if (splitBoundary.side == "top")
+        getPlottingConfig.unappliedSplits[plotId]["bottom"] =
             getPlottingConfig.unappliedSplits[plotId]["top"];
-    else if ( splitBoundary.side == "bottom" )
-        getPlottingConfig.unappliedSplits[plotId]["top"] = 
+    else if (splitBoundary.side == "bottom")
+        getPlottingConfig.unappliedSplits[plotId]["top"] =
             getPlottingConfig.unappliedSplits[plotId]["bottom"];
 }
 
-function showExtraSplit(splitBoundary, box, plotId, splitCount)
-{
+function showExtraSplit(splitBoundary, box, plotId, splitCount) {
     cleanSplits(false);
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
     let unappliedSplits = getPlottingConfig.unappliedSplits;
     let splitRange = [0.0, 1.0];
-    if ( 
-        plotId in unappliedSplits
-        &&
+    if (
+        plotId in unappliedSplits &&
         splitBoundary.side in unappliedSplits[plotId]
-       ) {
-        for ( const splitSize of unappliedSplits[plotId][splitBoundary.side] ){
-            if ( splitRange[0] + splitSize > splitBoundary.fraction ) {
+    ) {
+        for (const splitSize of unappliedSplits[plotId][splitBoundary.side]) {
+            if (splitRange[0] + splitSize > splitBoundary.fraction) {
                 splitRange[1] = splitRange[0] + splitSize;
                 break;
             }
             splitRange[0] += splitSize;
         }
     }
-    for ( let splitInd = 1; splitInd <= splitCount; splitInd++) {
-        let splitFraction = (
-                             (splitInd * splitRange[1]
-                             + 
-                             (splitCount + 1 - splitInd) * splitRange[0])
-                            ) / (splitCount + 1); 
+    for (let splitInd = 1; splitInd <= splitCount; splitInd++) {
+        let splitFraction =
+            (splitInd * splitRange[1] +
+                (splitCount + 1 - splitInd) * splitRange[0]) /
+            (splitCount + 1);
 
         let newSplit = document.createElement("hr");
         newSplit.style.position = "absolute";
-        newSplit.classList.add("split", "unapplied", "temporary")
+        newSplit.classList.add("split", "unapplied", "temporary");
 
-        if ( splitBoundary.side == "top" || splitBoundary.side == "bottom" ) {
+        if (splitBoundary.side == "top" || splitBoundary.side == "bottom") {
             newSplit.classList.add("vertical");
             newSplit.style.top = box.top + "px";
             newSplit.style.height = box.bottom - box.top + "px";
-            newSplit.style.left = ((1.0 - splitFraction) * box.left
-                                   +
-                                   splitFraction * box.right
-                                   +
-                                   "px");
+            newSplit.style.left =
+                (1.0 - splitFraction) * box.left +
+                splitFraction * box.right +
+                "px";
         } else {
             newSplit.classList.add("horizontal");
             newSplit.style.left = box.left + "px";
             newSplit.style.width = box.right - box.left + "px";
-            newSplit.style.top = (
-                                  (1.0 - splitFraction) * box.top
-                                   +
-                                   splitFraction * box.bottom
-                                  +
-                                  "px"
-                                 );
+            newSplit.style.top = ((1.0 - splitFraction) * box.top 
+                                  + splitFraction * box.bottom 
+                                  + "px");
         }
         figureParent.appendChild(newSplit);
     }
 
     document.onkeyup = cleanSplits.bind(null, false);
     plotSplit = document.getElementById("plot-split");
-    plotSplit.onclick = function(event) {
-        if ( event.shiftKey && splitCount > 1 ) 
-            showExtraSplit(splitBoundary,
-                           box,
-                           plotId,
-                           splitCount - 1);
-
-        else if ( !event.shiftKey )
-            showExtraSplit(splitBoundary,
-                           box,
-                           plotId,
-                           splitCount + 1);
-    }
-    plotSplit.ondblclick = addSplits.bind(null,
-                                          splitBoundary,
-                                          box,
-                                          plotId,
-                                          splitRange,
-                                          splitCount);
+    plotSplit.onclick = function (event) {
+        if (event.shiftKey && splitCount > 1)
+            showExtraSplit(splitBoundary, box, plotId, splitCount - 1);
+        else if (!event.shiftKey)
+            showExtraSplit(splitBoundary, box, plotId, splitCount + 1);
+    };
+    plotSplit.ondblclick = addSplits.bind(
+        null,
+        splitBoundary,
+        box,
+        plotId,
+        splitRange,
+        splitCount
+    );
     document.onkeydown = null;
 }
 
 //Return the plot ID, box and boundary where this event occurred (each could be
 //null)
-function identifySubPlot(event)
-{
+function identifySubPlot(event) {
     let figureParent = document.getElementById("figure-parent");
     let figure = figureParent.children[0];
     let figureBounds = figure.getBoundingClientRect();
 
     let shifted_event = {
         offsetX: event.clientX - figureBounds.left,
-        offsetY: event.clientY - figureBounds.top
+        offsetY: event.clientY - figureBounds.top,
     };
 
     let box;
     let activeBoundary;
-    for ( plotId of Object.keys(figure.boundaries) ) {
+    for (plotId of Object.keys(figure.boundaries)) {
         box = { ...figure.boundaries[plotId] };
         box.left *= figureBounds.width;
         box.right *= figureBounds.width;
         box.top *= figureBounds.height;
         box.bottom *= figureBounds.height;
 
-        if ( triggerSubPlot(shifted_event, box) ) {
-            return [plotId, box, triggerBoundary(shifted_event, box)]
+        if (triggerSubPlot(shifted_event, box)) {
+            return [plotId, box, triggerBoundary(shifted_event, box)];
         }
     }
     return [null, null, null];
 }
 
-function figureMouseOver(event)
-{
+function figureMouseOver(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
-    if ( activeBoundary !== null ) {
+    if (activeBoundary !== null) {
         let figureBounds = document
             .getElementById("figure-parent")
-            .children[0]
-            .getBoundingClientRect();
-        highlightPlotBoundary(activeBoundary.side, 
-                              box, 
-                              figureBounds);
-        if ( event.ctrlKey ) {
-            showExtraSplit(activeBoundary, 
-                           box, 
-                           plotId, 
-                           1);
+            .children[0].getBoundingClientRect();
+        highlightPlotBoundary(activeBoundary.side, box, figureBounds);
+        if (event.ctrlKey) {
+            showExtraSplit(activeBoundary, box, plotId, 1);
         } else {
-            document.onkeydown = showExtraSplit.bind(null,
-                                                     activeBoundary, 
-                                                     box, 
-                                                     plotId,
-                                                     1);
+            document.onkeydown = showExtraSplit.bind(
+                null,
+                activeBoundary,
+                box,
+                plotId,
+                1
+            );
         }
         return;
     }
 }
 
-function getPlottingConfig()
-{
-    const result = {applySplits: getPlottingConfig.unappliedSplits};
+function getPlottingConfig() {
+    const result = { applySplits: getPlottingConfig.unappliedSplits };
 
-    if ( typeof getPlottingConfig.plotId === "undefined" )
-        return result;
-    result[getPlottingConfig.mode] = {plotId: getPlottingConfig.plotId};
-    for ( const element of document.getElementsByClassName("param") ) {
+    if (typeof getPlottingConfig.plotId === "undefined") return result;
+    result[getPlottingConfig.mode] = { plotId: getPlottingConfig.plotId };
+    for (const element of document.getElementsByClassName("param")) {
         result[getPlottingConfig.mode][element.id] = element.value;
     }
     return result;
 }
 
-function showConfig(url, parentId, onSuccess)
-{
+function showConfig(url, parentId, onSuccess) {
     const request = new XMLHttpRequest();
     request.open("GET", url);
     request.send();
@@ -342,57 +304,82 @@ function showConfig(url, parentId, onSuccess)
         configParent.innerHTML = request.responseText;
         configParent.parentNode.style.display = "inline-flex";
         configParent.style.display = "inline";
-        if ( typeof onSuccess !== "undefined" )
-            onSuccess();
-    }
+        if (typeof onSuccess !== "undefined") onSuccess();
+    };
 }
 
-function showEditPlot(event)
-{
+function showEditPlot(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
-    if ( plotId !== null && activeBoundary === null ) {
+    if (plotId !== null && activeBoundary === null) {
         showConfig(
-                   configURLs.subplot.slice(0, -1) + plotId, 
-                   "config-parent",
-                   () => {
-                       document
-                           .getElementById("select-model")
-                           .onchange = changeModel;
+            configURLs.subplot.slice(0, -1) + plotId,
+            "config-parent",
+            () => {
+                document.getElementById("select-model").onchange = changeModel;
 
-                       document
-                           .getElementById("add-expression")
-                           .onclick = addNewExpressionConfig;
+                document.getElementById("add-expression").onclick =
+                    addNewExpressionConfig;
 
-                       getPlottingConfig.mode = "subplot";
-                   }
-                  );
+                const lcDataSelect = JSON.parse(
+                    document.getElementById('lc-data-select').textContent
+                );
+                plotCurves = new plotCurvesType(lcDataSelect);
+
+                document.getElementById("previous-curve").onclick = (
+                    () => plotCurves.switchCurve(-1)
+                );
+                document.getElementById("next-curve").onclick = (
+                    () => plotCurves.switchCurve(1)
+                );
+
+
+                getPlottingConfig.mode = "subplot";
+            }
+        );
         getPlottingConfig.plotId = plotId;
     }
 }
 
-function showEditRc(event)
-{
+function showEditRc(event) {
     const request = new XMLHttpRequest();
     request.open("GET", configURLs.rcParams);
     request.send();
-    request.onreadystatechange = function() {
-        document.getElementById("config-parent").innerHTML = 
+    request.onreadystatechange = function () {
+        document.getElementById("config-parent").innerHTML =
             request.responseText;
+    };
+}
+
+function changeModel() {
+    let modelSelect = document.getElementById("select-model");
+    let modelDefine = document.getElementById("define-model");
+    if (modelSelect.value == "") {
+        modelDefine.style.display = "none";
+        let model = {};
+        for (element of modelDefine.getElementsByClassName("param")) {
+            model[element.id] = element.value;
+        }
+        changeModel.stashed[changeModel.currentModel] = model;
+    } else {
+        showConfig(
+            configURLs.editModel.slice(0, -3) + modelSelect.value + "/0",
+            "define-model",
+            () => {
+                changeModel.currentModel = modelSelect.value;
+                if (modelSelect.value in changeModel.stashed) {
+                    model = changeModel.stashed[changeModel.currentModel];
+                    for (element of modelDefine.getElementsByClassName(
+                        "param"
+                    )) {
+                        element.value = model[element.id];
+                    }
+                }
+            }
+        );
     }
 }
 
-function changeModel()
-{
-    modelSelect = document.getElementById("select-model");
-    if ( modelSelect.value == "" )
-        document.getElementById("define-model").style.display = "none";
-    else
-        showConfig(configURLs.editModel.slice(0, -1) + modelSelect.value,
-                   "define-model");
-}
-
-function showNewFigure(data)
-{
+function showNewFigure(data) {
     cleanSplits(true);
     boundaries = showSVG(data, "figure-parent")["boundaries"];
     let figureParent = document.getElementById("figure-parent");
@@ -403,15 +390,151 @@ function showNewFigure(data)
     figureParent.onclick = showEditPlot;
 }
 
-function addNewExpressionConfig()
-{
+//Allow user to edit the curves in a given data selection to display.
+class plotCurvesType {
+    //Initialize the object.
+    constructor(configuredCurves) {
+        console.log("Configuring plot curves with: " 
+                    + 
+                    JSON.stringify(configuredCurves));
+        this.configuredCurves = configuredCurves;
+        this.dataSelectionInd = 0;
+        this.curveInd = 0;
+        this.elements = {
+            define: document.getElementById("define-curve"),
+            nextSelection: document.getElementById("next-selection"),
+            prevSelection: document.getElementById("previous-selection"),
+            nextCurve: document.getElementById("next-curve"),
+            prevCurve: document.getElementById("previous-curve")
+        };
+        this.fixVisual();
+    }
+
+    createNewCurve()
+    {
+        return JSON.parse(
+            JSON.stringify(
+                this.configuredCurves[this.dataSelectionInd].plot_config[0]
+            )
+        );
+    }
+
+    //Visually indicate whether first or last curve/data selection is selected.
+    fixVisual()
+    {
+        if( this.curveInd == 0 ) {
+            this.elements.prevCurve.classList.add("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.prevCurve.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-chevron-left");
+            indicatorClassList.add("fa-plus");
+        } else {
+            this.elements.prevCurve.classList.remove("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.prevCurve.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-plus");
+            indicatorClassList.add("fa-chevron-left");
+        }
+        if( this.curveInd 
+            == 
+            this.configuredCurves[this.dataSelectionInd].plot_config.length 
+            - 
+            1 
+        ) {
+            this.elements.nextCurve.classList.add("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.nextCurve.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-chevron-right");
+            indicatorClassList.add("fa-plus");
+        } else {
+            this.elements.nextCurve.classList.remove("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.nextCurve.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-plus");
+            indicatorClassList.add("fa-chevron-right");
+        }
+        if( this.dataSelectionInd == 0 ) {
+            this.elements.prevSelection.classList.add("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.prevSelection.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-chevron-up");
+            indicatorClassList.add("fa-plus");
+        } else {
+            this.elements.prevSelection.classList.remove("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.prevSelection.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-plus");
+            indicatorClassList.add("fa-chevron-up");
+        }
+        if( this.dataSelectionInd 
+            == 
+            this.configuredCurves.length - 1 
+        ) {
+            this.elements.nextSelection.classList.add("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.nextSelection.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-chevron-down");
+            indicatorClassList.add("fa-plus");
+        } else {
+            this.elements.nextSelection.classList.remove("lcars-melrose-bg");
+            const indicatorClassList = 
+                this.elements.nextSelection.firstElementChild.classList;
+
+            indicatorClassList.remove("fa-plus");
+            indicatorClassList.add("fa-chevron-down");
+        }
+    }
+
+    //Switch the curve being configured, saving anything edited.
+    switchCurve(step) {
+        for (let element of this.elements.define.getElementsByClassName("param"))
+            this.configuredCurves[this.dataSelectionInd].plot_config[this.curveInd][element.id] = 
+                element.value;
+
+        this.curveInd += step;
+        if( this.curveInd < 0 ) {
+            console.log('Pre-pending new curve');
+            this.configuredCurves[this.dataSelectionInd].plot_config.splice(
+                0,
+                0,
+                this.createNewCurve()
+            );
+            this.curveInd++;
+        } else if ( 
+            this.curveInd 
+            == 
+            this.configuredCurves[this.dataSelectionInd].plot_config.length
+        )
+            this.configuredCurves[this.dataSelectionInd].plot_config.push(
+                this.createNewCurve()
+            );
+        console.log(
+            'Curve data: ' 
+            + 
+            JSON.stringify(this.configuredCurves[this.dataSelectionInd])
+        );
+        for (let element of this.elements.define.getElementsByClassName("param"))
+            element.value = 
+                this.configuredCurves[this.dataSelectionInd].plot_config[this.curveInd][element.id];
+        this.fixVisual();
+    }
+}
+
+function addNewExpressionConfig() {
     let expressionsParent = document
         .getElementById("lc-expressions")
         .getElementsByTagName("tbody")[0];
     let lastRow = expressionsParent.lastElementChild.previousElementSibling;
     let newRow = lastRow.cloneNode(true);
-    for ( input of newRow.getElementsByTagName("input")) {
-        let lastDashPos = input.id.lastIndexOf('-');
+    for (input of newRow.getElementsByTagName("input")) {
+        let lastDashPos = input.id.lastIndexOf("-");
         let counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
         input.id = input.id.slice(0, lastDashPos + 1) + counter;
         input.value = "";
@@ -419,21 +542,18 @@ function addNewExpressionConfig()
     lastRow.after(newRow);
 }
 
-function initLightcurveDisplay(urls)
-{
+function initLightcurveDisplay(urls) {
     updateFigure.url = urls.update;
     delete urls.update;
     configURLs = urls;
     updateFigure.callback = showNewFigure;
     updateFigure.getParam = getPlottingConfig;
+    changeModel.stashed = {};
     getPlottingConfig.unappliedSplits = {};
-    document
-        .getElementById("rcParams")
-        .onclick = (() => showConfig(urls.rcParams,
-                                     "config-parent",
-                                     () => {
-                                         getPlottingConfig.mode = "rcParams";
-                                     }));
+    document.getElementById("rcParams").onclick = () =>
+        showConfig(urls.rcParams, "config-parent", () => {
+            getPlottingConfig.mode = "rcParams";
+        });
     document.getElementById("apply").onclick = updateFigure;
     updateFigure();
 }

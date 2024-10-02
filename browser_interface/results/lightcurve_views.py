@@ -47,12 +47,6 @@ def _init_session(request):
 
     request.session['lc_plotting'] = {
         'target_fname': '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
-        'expressions': {
-            'magnitude': ('{mode}.tfa.magnitude - '
-                          'nanmedian({mode}.tfa.magnitude)'),
-            'bjd': 'skypos.BJD - skypos.BJD.min()',
-            'rawfname': 'fitsheader.rawfname',
-        },
         'data_select': [
             {
                 'lc_substitutions': {'magfit_iteration': -1},
@@ -61,6 +55,13 @@ def _init_session(request):
                              'nanmedian({mode}.tfa.magnitude)))'),
                 'photometry_modes': ['apphot'],
                 'selection': None,
+                'model': None,
+                'expressions': {
+                    'magnitude': ('{mode}.tfa.magnitude - '
+                                  'nanmedian({mode}.tfa.magnitude)'),
+                    'bjd': 'skypos.BJD - skypos.BJD.min()',
+                    'rawfname': 'fitsheader.rawfname',
+                },
                 'plot_config': [
                     [
                         {
@@ -143,7 +144,7 @@ def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
     for data_select in plotting_info['data_select']:
         plot_data, best_substitutions = get_plot_data(
             lightcurve_fname,
-            plotting_info['expressions'],
+            data_select['expressions'],
             data_select,
             data_select.get('model')
         )
@@ -420,38 +421,26 @@ def update_lightcurve_figure(request):
         })
 
 
-def edit_subplot(request, plot_id, data_select_id=0, curve_id=0):
+def edit_subplot(request, plot_id):
     """Set the view to allow editing the selected plot."""
 
     plotting_info = request.session['lc_plotting']
-    data_select = plotting_info['data_select'][data_select_id]
-    sub_plot_config = {
-        param: value[plot_id][curve_id] if param == 'plot_config' else value
-        for param, value in data_select.items()
-    }
+    data_select = [
+        {
+            param: value[plot_id] if param == 'plot_config' else value
+            for param, value in data_select_entry.items()
+        }
+        for data_select_entry in plotting_info['data_select']
+    ]
 
-    context = {
-        'config': sub_plot_config,
-        'plot_id': plot_id,
-        'data_select_id': data_select_id,
-        'curve_id': curve_id,
-        'last_plot': plot_id < len(data_select['plot_config']) - 1,
-        'last_data_select': (data_select_id
-                             <
-                             len(plotting_info['data_select'])) - 1,
-        'last_curve': (curve_id
-                       <
-                       len(data_select['plot_config'][plot_id]) - 1),
-        'expressions': list(
-            plotting_info['expressions'].items()
-        ),
-        **plotting_info['plot_decorations'][plot_id]
-    }
-    print(f'Sub-plot config context: {context!r}')
     return render(
         request,
         'results/subplot_config.html',
-        context
+        {
+            'data_select': data_select,
+            'plot_decorations': plotting_info['plot_decorations'][plot_id],
+            'figure_config': plotting_info['figure_config']
+        }
     )
 
 def _sanitize_rcparams():
@@ -515,14 +504,23 @@ def display_lightcurve(request):
     )
 
 
-def edit_model(request, model_type):
+def edit_model(request, model_type, data_select_index):
     """Add controls to edit the model parameters."""
 
     return render(
         request,
         'results/edit_model.html',
         {
-            'expressions': request.session['lc_plotting']['expressions'].keys(),
+            'expressions':
+            request.session[
+                'lc_plotting'
+            ][
+                'data_select'
+            ][
+                data_select_index
+            ][
+                'expressions'
+            ].keys(),
             'model': _default_models[model_type]
         }
     )
