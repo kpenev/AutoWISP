@@ -1074,7 +1074,13 @@ class HDF5File(ABC, h5py.File):
         """Return (copy of) data with non-finite values replaced."""
 
         if (
-                data.dtype.kind == 'S'
+                (
+                    data.dtype.kind == 'S'
+                    or
+                    expected_dtype == numpy.string_
+                    or
+                    data.dtype == numpy.string_
+                )
                 and
                 (
                     (
@@ -1194,7 +1200,11 @@ class HDF5File(ABC, h5py.File):
 
             creation_args['maxshape'] = (None,) + shape_tail
 
-        if dtype.kind == 'S':
+        if (
+            creation_args.get('dtype', dtype) == numpy.string_
+            or
+            dtype.kind == 'S'
+        ):
             assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
             creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
 
