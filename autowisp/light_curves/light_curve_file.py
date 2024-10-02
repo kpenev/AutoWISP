@@ -519,6 +519,9 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                 dtype = new_data.dtype
             else:
                 dtype = numpy.dtype(dtype)
+            self._logger.debug('Adding new data after confirmed length %s:\n%s',
+                               repr(confirmed_length),
+                               repr(dataset))
             data_copy = self._replace_nonfinite(
                 new_data,
                 dtype,
