@@ -194,6 +194,7 @@ def plot(target_info, plot_config, plot_decorations):
     assert len(plot_config) == len(target_info)
     for dataset, dataset_plot_configs in zip(target_info, plot_config):
         plot_data = _convert_plot_data_json(dataset['plot_data'], True)
+        print(f'Plot configs: {dataset_plot_configs!r}')
         for curve_config in dataset_plot_configs:
             if curve_config['sphotref_selector'] == '*':
                 curve_data = plot_data
@@ -351,37 +352,17 @@ def _subdivide_figure(plot_config, new_splits, current_splits, children):
 def update_subplot(plotting_session, updates):
     """Change a given sub-plot (and/or add plot quantities)."""
 
-    subplot = plotting_session['plot_config'][int(updates.pop('plotId'))]
-    param_to_key = {'aggregate-by': 'match_by',
-                    'aggregate-func': 'aggregate'}
-    for param, value in updates.items():
-        if param.startswith('model'):
-            if value == 'None':
-                continue
-            if 'model' not in plotting_session['configuration']:
-                plotting_session['configuration']['model'] = {}
-            model_param = param[len('model-'):]
-            try:
-                value = value if model_param == 'quantity' else float(value)
-            except ValueError:
-                value = [float(e) for e in value.strip('[]').split(',')]
-            plotting_session['configuration']['model'][model_param] = value
-        elif param.endswith('label'):
-            subplot[param.lower().replace('-', '_')] = value
-        elif param.startswith('lc-quantity-'):
-            expression = updates['lc-expression-' + param.rsplit('-', 1)[1]]
-            if plotting_session['expressions'].get(value) != expression:
-                plotting_session['expressions'][value] = expression
-        elif param.startswith('lc-expression-'):
-            continue
-        elif param in 'xy':
-            subplot[param + '_quantity'] = value
-        else:
-            subplot[param_to_key[param]] = value
-    _add_lightcurve_to_session(
-        plotting_session,
-        plotting_session['target_fname']
-    )
+    print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
+    plot_id = int(updates.pop('plot_id'))
+    assert len(plotting_session['data_select']) == len(updates['data_select'])
+    for original, updated in zip(plotting_session['data_select'],
+                                 updates['data_select']):
+        for k in original:
+            if k == 'plot_config':
+                original[k][plot_id] = updated[k]
+                print(f'Updated plotting info: {original[k]}')
+            else:
+                original[k] = updated[k]
 
 
 def _update_plotting_info(plotting_session, updates):
@@ -404,7 +385,7 @@ def _update_plotting_info(plotting_session, updates):
     if 'rcParams' in updates:
         for param, value in updates['rcParams'].items():
             rcParams[param] = value.strip('[]')
-    if 'subplot' in updates and False:
+    if 'subplot' in updates:
         update_subplot(plotting_session, updates['subplot'])
         modified_session = True
     return modified_session

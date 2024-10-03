@@ -53,13 +53,12 @@
 </div>
 
 <div class="config-row">
-    <label for="minimize">LC Points Selection:</label>
+    <label for="points-selection">LC Points Selection:</label>
     <input type="text" 
-           id="minimize"
+           id="points-selection"
            class="param"
            value="{{ data_select.0.selection }}">
 </div>
-
 
 <div class="lcars-row">
     <div id="previous-curve" 
@@ -68,6 +67,14 @@
     </div>
 
     <div id="define-curve" class="lcars-column" style="width: 100%">
+        <div class="config-row">
+            <label for="sphotref_selector">Photometric Reference Condition:</label>
+            <input type="text" 
+                   id="sphotref_selector"
+                   class="param"
+                   value="{{ data_select.0.0plot_config.0.sphotref_selector }}">
+        </div>
+
         {% for char in "xym"|make_list %}
         {% cycle data_select.0.plot_config.0.x_quantity data_select.0.plot_config.0.y_quantity data_select.0.plot_config.0.match_by as quantity silent %}
         {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
@@ -133,13 +140,12 @@
 
 
 <div class="config-row"></div>
-<table id="define-model" 
-       class="lcars-table standard-header"
+<div id="define-model"
        {% if not config.model.enabled %}
        style="display: none;"
        {% endif %}
        >
-</table>
+</div>
 
 <div class="lcars-bar horizontal config-row" style="width: 100%">
     Plot Quantities

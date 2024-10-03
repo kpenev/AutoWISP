@@ -287,10 +287,18 @@ function getPlottingConfig() {
     const result = { applySplits: getPlottingConfig.unappliedSplits };
 
     if (typeof getPlottingConfig.plotId === "undefined") return result;
-    result[getPlottingConfig.mode] = { plotId: getPlottingConfig.plotId };
-    for (const element of document.getElementsByClassName("param")) {
-        result[getPlottingConfig.mode][element.id] = element.value;
+    const subplotConfig = { plot_id: getPlottingConfig.plotId }
+    if (getPlottingConfig.mode == "subplot") {
+        plotCurves.saveCurve;
+        subplotConfig["data_select"] = plotCurves.configuredCurves;
+        const selectedModel = document.getElementById("select-model").value;
+        if (selectedModel) {
+            subplotConfig["model"] = getModelParameters();
+            subplotConfig["model"]["type"] = selectedModel;
+        }
     }
+
+    result[getPlottingConfig.mode] = subplotConfig;
     return result;
 }
 
@@ -316,12 +324,13 @@ function showEditPlot(event) {
             () => {
                 document.getElementById("select-model").onchange = changeModel;
 
-                for( const param_group of ["substitution", 
-                                           "lc-expression",
-                                           "find-best"] )
-                    document.getElementById("add-" + param_group).onclick = (
-                        () => addNewParam(param_group)
-                    );
+                for (const param_group of [
+                    "substitution",
+                    "lc-expression",
+                    "find-best",
+                ])
+                    document.getElementById("add-" + param_group).onclick =
+                        () => addNewParam(param_group);
 
                 const lcDataSelect = JSON.parse(
                     document.getElementById("lc-data-select").textContent
@@ -344,16 +353,21 @@ function showEditRc(event) {
     };
 }
 
+function getModelParameters() {
+    const modelDefine = document.getElementById("define-model");
+    const model = {};
+    for (element of modelDefine.getElementsByClassName("param")) {
+        model[element.id] = element.value;
+    }
+    return model;
+}
+
 function changeModel() {
     const modelSelect = document.getElementById("select-model");
     const modelDefine = document.getElementById("define-model");
     if (modelSelect.value == "") {
         modelDefine.style.display = "none";
-        const model = {};
-        for (element of modelDefine.getElementsByClassName("param")) {
-            model[element.id] = element.value;
-        }
-        changeModel.stashed[changeModel.currentModel] = model;
+        changeModel.stashed[changeModel.currentModel] = getModelParameters();
     } else {
         showConfig(
             configURLs.editModel.slice(0, -3) + modelSelect.value + "/0",
@@ -409,8 +423,7 @@ class plotCurvesType {
     cloneCurve(selectionInd, curveInd) {
         if (typeof selectionInd === "undefined")
             selectionInd = this.selectionInd;
-        if (typeof curveInd === "undefined" )
-            curveInd = 0;
+        if (typeof curveInd === "undefined") curveInd = 0;
         return JSON.parse(
             JSON.stringify(
                 this.configuredCurves[selectionInd].plot_config[curveInd]
@@ -422,8 +435,7 @@ class plotCurvesType {
     createNewSelection() {
         const result = {};
         for (const key in this.configuredCurves[0]) {
-            if (key == "plot_config") 
-                result[key] = [this.cloneCurve(0, 0)];
+            if (key == "plot_config") result[key] = [this.cloneCurve(0, 0)];
             else
                 result[key] = JSON.parse(
                     JSON.stringify(this.configuredCurves[0][key])
@@ -434,6 +446,7 @@ class plotCurvesType {
 
     //Visually indicate whether first or last curve/data selection is selected.
     fixVisual() {
+        this.saveLoadSelection(true);
         if (this.curveInd == 0) {
             this.elements.prevCurve.classList.add("lcars-melrose-bg");
             const indicatorClassList =
@@ -500,13 +513,107 @@ class plotCurvesType {
     }
 
     //Save edits to the currently selected plot curve
-    saveCurve() {
+    saveLoadCurve(load) {
         for (const element of this.elements.define.getElementsByClassName(
             "param"
         ))
-            this.configuredCurves[this.selectionInd].plot_config[
-                this.curveInd
-            ][element.id] = element.value;
+            if (load) {
+                this.configuredCurves[this.selectionInd].plot_config[this.curveInd][
+                    element.id
+                ] = element.value;
+            } else {
+                element.value =
+                    this.configuredCurves[this.selectionInd].plot_config[
+                        this.curveInd
+                    ][element.id];
+            }
+    }
+
+    //Save edits to the currently selected selection, including the curve
+    saveLoadSelection(load) {
+        this.saveLoadCurve(load);
+        const thisSelection = this.configuredCurves[this.selectionInd];
+        console.log("Saving selection. Original: " 
+                    + 
+                    JSON.stringify(thisSelection));
+        const paramGroupTargets = {
+            "substitutions": "lc_substitutions",
+            "find-bests": "find_best",
+            "lc-expressions": "expressions"
+        }
+        for (const groupName in paramGroupTargets) {
+            const target = thisSelection[paramGroupTargets[groupName]];
+            const selectorStr = "[id^='" + groupName + "-key-']";
+            console.log("Selector string: " + selectorStr);
+            for (
+                const keyElement 
+                of 
+                document
+                .getElementById(groupName)
+                .querySelectorAll(selectorStr)
+            ) {
+                valueElement = document.getElementById(
+                    element.id.replace("-key-", "-value-")
+                );
+                if (load)
+                    valueElement.value = target[keyElement.value];
+                else
+                    target[keyElement.value] = valueElement.value;
+            }
+        }
+        if (load) {
+            document.getElementById("minimize").value = thisSelection["minimize"];
+            document.getElementById("include-apphot").checked = 
+                thisSelection["photometry_modes"].includes("apphot");
+            document.getElementById("include-shapefit").checked =
+                thisSelection["photometry_modes"].includes("shapefit");
+            document.getElementById("points-selection").value = 
+                thisSelection["selection"];
+            const model = thisSelection['model'];
+            if (model) {
+                document.getElementById("select-model").value = model.type;
+                document.getElementById("model-quantity").value = 
+                    model["quantity"];
+                document.getElementById("model-shift").checked = 
+                    model["shift_to"];
+                for ( param in model.kwargs )
+                    document.getElementById["model-" + param] = model[param];
+            } else {
+                document.getElementById("select-model").value = "";
+            }
+        } else {
+            thisSelection["minimize"] = document.getElementById("minimize").value;
+            thisSelection["photometry_modes"] = [];
+            if (document.getElementById("include-apphot").checked)
+                thisSelection["photometry_modes"].push("apphot");
+            if (document.getElementById("include-shapefit").checked)
+                thisSelection["photometry_modes"].push("shapefit");
+            thisSelection["selection"] = 
+                document.getElementById("points-selection").value;
+
+            const modelType = document.getElementById("select-model").value;
+            if (modelType) {
+                const model = {
+                    "type": modelType,
+                    "quantity": document.getElementById("model-quantity").value,
+                    "shift_to": document.getElementById("model-shift").checked,
+                    "kwargs": {}
+                };
+                for( 
+                    const element 
+                    of 
+                    document
+                    .getElementById("define-model")
+                    .getElementsByTagName("input")
+                ) {
+                    model["kwargs"][element.id] = element.value;
+                }
+                thisSelection['model'] = model;
+            } else {
+                thisSelection['model'] = null;
+            }
+            console.log("Updated selection: " + JSON.stringify(thisSelection));
+        }
     }
 
     //Switch the curve being configured, saving anything edited.
@@ -530,28 +637,23 @@ class plotCurvesType {
                     this.cloneCurve()
                 );
         }
-        for (const element of this.elements.define.getElementsByClassName(
-            "param"
-        ))
-            element.value =
-                this.configuredCurves[this.selectionInd].plot_config[
-                    this.curveInd
-                ][element.id];
         this.fixVisual();
     }
 
     //Switch the data selection being, saving any edits.
     switchSelection(step) {
-        this.saveCurve();
-        this.selectionInd += step;
-        if (this.selectionInd < 0) {
-            this.configuredCurves.splice(0, 0, this.createNewSelection());
-            this.selectionInd++; 
-        } else if (this.selectionInd == this.configuredCurves.length)
-            this.configuredCurves.push(this.createNewSelection());
-        if (step)
-            this.curveInd = 0;
-        this.switchCurve(0);
+        if (step) {
+            this.saveLoadSelection();
+            this.selectionInd += step;
+            if (this.selectionInd < 0) {
+                this.configuredCurves.splice(0, 0, this.createNewSelection());
+                this.selectionInd++;
+            } else if (this.selectionInd == this.configuredCurves.length)
+                this.configuredCurves.push(this.createNewSelection());
+            if (step) this.curveInd = 0;
+            this.switchCurve(0);
+        } else 
+            this.fixVisual();
     }
 }
 
