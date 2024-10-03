@@ -110,7 +110,10 @@ class LightCurveEvaluator(asteval.Interpreter):
             self.symtable[name] = LightCurveLookUp(name, self)
 
 
-    def __init__(self, lightcurve, lc_substitutions, lc_points_selection=None):
+    def __init__(self,
+                 lightcurve,
+                 lc_points_selection=None,
+                 **lc_substitutions):
         """Get ready to evaluate expressions against the given light curve."""
 
         super().__init__()

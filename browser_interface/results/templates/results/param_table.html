@@ -1,0 +1,40 @@
+<table id="{{ param_group }}s" 
+       class="lcars-table standard-header">
+    <thead>
+        <tr>
+            <th>{{ col1 }}</th>
+            <th>{{ col2 }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in data.items %}
+        <tr>
+            <td> 
+                <input type="text"
+                       id="{{ param_group }}-key-{{ forloop.counter0 }}"
+                       class="param"
+                       value="{{ entry.0 }}">
+            </td>
+            <td style="width: 100%">
+                <input type="text"
+                       id="{{ param_group }}-value-{{ forloop.counter0 }}"
+                       class="param"
+                       style="width: 100%"
+                       value="{{ entry.1 }}">
+            </td>
+        </tr>
+        {% endfor %}
+        {% if can_add %}
+        <tr> 
+            <td colspan="2">
+                <div id="add-{{ param_group }}"
+                     class="lcars-element button rounded lcars-melrose-bg
+                     center-center add-to-dict">
+                    Add
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+

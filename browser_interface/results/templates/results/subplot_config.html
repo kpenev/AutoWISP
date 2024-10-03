@@ -1,3 +1,66 @@
+{% for axis in "XYT"|make_list %}
+{% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title as value silent %}
+{% cycle "X label" "Y label" "Title" as label silent %}
+<div class="config-row">
+    <label for="{{ label|slugify }}">{{ label }}:</label>
+    <input type="text" 
+           id="{{ label|slugify }}"
+           class="param"
+           value="{{ value }}">
+</div>
+{% endfor %}
+
+<div class="lcars-row">
+    <div id="previous-selection"
+         class="lcars-bracket left lcars-melrose-bg button center-center" 
+         style="width:50%">
+        <i class="fa fa-plus"></i>
+    </div>
+    <div id="next-selection"
+         class="lcars-bracket right button center-center" 
+         style="width:50%">
+        <i class="fa fa-chevron-right"></i>
+    </div>
+</div>
+{% include "results/param_table.html" with param_group="substitution" col1="LC Substitution" col2="Value" data=data_select.0.lc_substitutions can_add=1 %}
+
+{% include "results/param_table.html" with param_group="find-best" col1="Find Best" col2="Allowed Values" data=data_select.0.find_best can_add=1 %}
+
+<div class="config-row">
+    <label for="minimize">Minimize:</label>
+    <input type="text" 
+           id="minimize"
+           class="param"
+           value="{{ data_select.0.minimize }}">
+</div>
+
+<div class="config-row">
+    <input type="checkbox" 
+           id="include-apphot" 
+           name="include-apphot" 
+           checked 
+           class="param"/>
+    <label for="include-apphot" style="text-align: left">Aperture Photometry</label>
+</div>
+
+<div class="config-row">
+    <input type="checkbox" 
+           id="include-shapefit" 
+           name="include-shapefit" 
+           checked 
+           class="param"/>
+    <label for="include-shapefit" style="text-align: left">PSF/PRF Fit</label>
+</div>
+
+<div class="config-row">
+    <label for="minimize">LC Points Selection:</label>
+    <input type="text" 
+           id="minimize"
+           class="param"
+           value="{{ data_select.0.selection }}">
+</div>
+
+
 <div class="lcars-row">
     <div id="previous-curve" 
          class="lcars-bracket left center-center lcars-melrose-bg button">
@@ -10,21 +73,19 @@
         {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
         <div class="config-row">
             <label for="{{ label|slugify }}">{{label}}:</label>
-            <div class="lcars-bracket left"></div>
             <select name="{{ label|slugify }}" 
                     id="{{ label|slugify }}"
                     class="lcars-text-box lcars-gray-bg lcars-husk-color param">
-                {% for option in data_select.0.expressions.items %}
-                <option value="{{option.0}}" 
-                        {% if option.0 == quantity %}
+                {% for option in data_select.0.expressions %}
+                <option value="{{option}}" 
+                        {% if option == quantity %}
                         selected
                         {% endif %}
                         >
-                        {{option.0}}
+                        {{option}}
                 </option>
                 {% endfor %}
             </select>
-            <div class="lcars-bracket right"></div>
         </div>
         {% endfor %}
         {% for axis in "ac"|make_list %}
@@ -48,21 +109,8 @@
 
 {{ data_select|json_script:"lc-data-select" }}
 
-{% for axis in "XYT"|make_list %}
-{% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title as value silent %}
-{% cycle "X label" "Y label" "Title" as label silent %}
-<div class="config-row">
-    <label for="{{ label|slugify }}">{{ label }}:</label>
-    <input type="text" 
-           id="{{ label|slugify }}"
-           class="param"
-           value="{{ value }}">
-</div>
-{% endfor %}
-
-
-<div class="lcars-row">
-    <div class="lcars-bracket left"></div>
+<div class="lcars-row center-center">
+    <label for="select-model">Model:</label>
     <select name="select-model" 
             id="select-model"
             class="lcars-text-box lcars-gray-bg lcars-husk-color param"
@@ -81,7 +129,6 @@
                 Transit
         </option>
     </select>
-    <div class="lcars-bracket right"></div>
 </div>
 
 
@@ -97,41 +144,5 @@
 <div class="lcars-bar horizontal config-row" style="width: 100%">
     Plot Quantities
 </div>
-<div class="config-row"></div>
-<table id="lc-expressions" 
-       class="lcars-table standard-header">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Expression</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for expr in data_select.0.expressions.items %}
-        <tr>
-            <td> 
-                <input type="text"
-                       id="lc-quantity-{{ forloop.counter0 }}"
-                       class="param"
-                       value="{{ expr.0 }}">
-            </td>
-            <td style="width: 100%">
-                <input type="text"
-                       id="lc-expression-{{ forloop.counter0 }}"
-                       class="param"
-                       style="width: 100%"
-                       value="{{ expr.1 }}">
-            </td>
-        </tr>
-        {% endfor %}
-        <tr> 
-            <td colspan="2">
-                <div id="add-expression"
-                     class="lcars-element button rounded lcars-melrose-bg center-center">
-                    New
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
-</table>
+
+{% include "results/param_table.html" with param_group="lc-expression" col1="Name" col2="Expression" data=data_select.0.expressions can_add=1 %}

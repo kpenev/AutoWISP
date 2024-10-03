@@ -4,6 +4,7 @@ from itertools import product
 from copy import deepcopy
 from io import StringIO
 import json
+import re
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
@@ -50,7 +51,7 @@ def _init_session(request):
         'data_select': [
             {
                 'lc_substitutions': {'magfit_iteration': -1},
-                'find_best': [('aperture_index', list(range(41)))],
+                'find_best': {'aperture_index': '0..40'},
                 'minimize': ('nanmedian(abs({mode}.tfa.magnitude - '
                              'nanmedian({mode}.tfa.magnitude)))'),
                 'photometry_modes': ['apphot'],
@@ -136,18 +137,47 @@ def _convert_plot_data_json(plot_data, reverse):
     return {fname: transform(data) for fname, data in plot_data.items()}
 
 
+def _parse_optimizables(optimizables):
+    """Convert user shorthands to lists of allowed values for ``find_best``."""
+
+    result = {}
+    for substitution, user_value in optimizables.items():
+        if '..' in user_value:
+            result[substitution] = list(
+                range(
+                    *map(int, user_value.split('..'))
+                )
+            )
+        else:
+            result[substitution] = [
+                int(s)
+                for s in user_value.split(',' if ',' in user_value else None)
+            ]
+    return result
+
+
 def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
     """Add to the browser session a new entry for the given lightcurve."""
 
     plotting_info[lightcurve_fname] = []
 
     for data_select in plotting_info['data_select']:
+        print('Data select pre getting data: ' + repr(data_select))
         plot_data, best_substitutions = get_plot_data(
             lightcurve_fname,
             data_select['expressions'],
-            data_select,
+            {
+                k: (_parse_optimizables(data_select[k]) if k == 'find_best'
+                    else data_select[k])
+                for k in ['lc_substitutions',
+                          'find_best',
+                          'minimize',
+                          'photometry_modes',
+                          'selection']
+            },
             data_select.get('model')
         )
+        print('Data select post getting data: ' + repr(data_select))
 
         plotting_info[lightcurve_fname].append({
             'plot_data': _convert_plot_data_json(plot_data, False),
@@ -433,6 +463,7 @@ def edit_subplot(request, plot_id):
         for data_select_entry in plotting_info['data_select']
     ]
 
+    print('Sub-plot data_select: ' + repr(data_select))
     return render(
         request,
         'results/subplot_config.html',

@@ -95,7 +95,7 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
         model['shift_to'] = expressions[model['quantity']]
     with LightCurveFile(lc_fname, 'r') as lightcurve:
         lc_eval = LightCurveEvaluator(lightcurve,
-                                      configuration['lc_substitutions'])
+                                      **configuration['lc_substitutions'])
         lc_eval.update_substitutions({'aperture_index': 0})
         all_sphotref_fnames = set()
         for photometry_mode in configuration['photometry_modes']:
@@ -151,7 +151,7 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                     sphotref_result['best_model']
                 ) = optimize_substitutions(
                     lc_eval,
-                    find_best=configuration['find_best'],
+                    find_best=configuration['find_best'].items(),
                     minimize=configuration['minimize'],
                     y_expression=(
                         None if model is None

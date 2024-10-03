@@ -33,7 +33,7 @@ function triggerSubPlot(event, box) {
         event.offsetY > box.top &&
         event.offsetY < box.bottom
     ) {
-        let plotHighlight = document.getElementById("plot-highlight");
+        const plotHighlight = document.getElementById("plot-highlight");
         plotHighlight.style.display = "inline";
         plotHighlight.style.left = box.left + "px";
         plotHighlight.style.top = box.top + "px";
@@ -48,11 +48,11 @@ function triggerSubPlot(event, box) {
 }
 
 function highlightPlotBoundary(which, box, figureBounds) {
-    let parentBounds = document
+    const parentBounds = document
         .getElementById("figure-parent")
         .getBoundingClientRect();
-    let plotSplit = document.getElementById("plot-split");
-    let rem = parseFloat(getComputedStyle(plotSplit).fontSize);
+    const plotSplit = document.getElementById("plot-split");
+    const rem = parseFloat(getComputedStyle(plotSplit).fontSize);
 
     for (side of ["left", "right", "top", "bottom"]) {
         plotSplit.style.removeProperty(side);
@@ -70,10 +70,8 @@ function highlightPlotBoundary(which, box, figureBounds) {
         plotSplit.style.height = box.bottom - box.top - 1.5 * rem + "px";
 
         if (which == "left")
-            plotSplit.style.left = (box.left 
-                                    + figureBounds.left 
-                                    - parentBounds.left 
-                                    + "px");
+            plotSplit.style.left =
+                box.left + figureBounds.left - parentBounds.left + "px";
         else
             plotSplit.style.right =
                 parentBounds.right +
@@ -91,11 +89,12 @@ function highlightPlotBoundary(which, box, figureBounds) {
             plotSplit.style.top =
                 box.top + figureBounds.top - parentBounds.top + "px";
         else
-            plotSplit.style.bottom = (parentBounds.bottom 
-                                      - figureBounds.bottom 
-                                      + figureBounds.height 
-                                      - box.bottom 
-                                      + "px");
+            plotSplit.style.bottom =
+                parentBounds.bottom -
+                figureBounds.bottom +
+                figureBounds.height -
+                box.bottom +
+                "px";
     }
     figureMouseOver.action = which;
 
@@ -114,7 +113,7 @@ function cleanSplits(removeUnapplied) {
 function unhighlightPlotBoundary() {
     cleanSplits(false);
     if (typeof figureMouseOver.action !== "undefined") {
-        let plotSplit = document.getElementById("plot-split");
+        const plotSplit = document.getElementById("plot-split");
         plotSplit.classList.remove(figureMouseOver.action);
         plotSplit.style.display = "none";
     }
@@ -170,9 +169,9 @@ function addSplits(splitBoundary, box, plotId, splitRange, splitCount) {
 
 function showExtraSplit(splitBoundary, box, plotId, splitCount) {
     cleanSplits(false);
-    let figureParent = document.getElementById("figure-parent");
-    let figure = figureParent.children[0];
-    let unappliedSplits = getPlottingConfig.unappliedSplits;
+    const figureParent = document.getElementById("figure-parent");
+    const figure = figureParent.children[0];
+    const unappliedSplits = getPlottingConfig.unappliedSplits;
     let splitRange = [0.0, 1.0];
     if (
         plotId in unappliedSplits &&
@@ -187,12 +186,12 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount) {
         }
     }
     for (let splitInd = 1; splitInd <= splitCount; splitInd++) {
-        let splitFraction =
+        const splitFraction =
             (splitInd * splitRange[1] +
                 (splitCount + 1 - splitInd) * splitRange[0]) /
             (splitCount + 1);
 
-        let newSplit = document.createElement("hr");
+        const newSplit = document.createElement("hr");
         newSplit.style.position = "absolute";
         newSplit.classList.add("split", "unapplied", "temporary");
 
@@ -208,9 +207,10 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount) {
             newSplit.classList.add("horizontal");
             newSplit.style.left = box.left + "px";
             newSplit.style.width = box.right - box.left + "px";
-            newSplit.style.top = ((1.0 - splitFraction) * box.top 
-                                  + splitFraction * box.bottom 
-                                  + "px");
+            newSplit.style.top =
+                (1.0 - splitFraction) * box.top +
+                splitFraction * box.bottom +
+                "px";
         }
         figureParent.appendChild(newSplit);
     }
@@ -237,17 +237,16 @@ function showExtraSplit(splitBoundary, box, plotId, splitCount) {
 //Return the plot ID, box and boundary where this event occurred (each could be
 //null)
 function identifySubPlot(event) {
-    let figureParent = document.getElementById("figure-parent");
-    let figure = figureParent.children[0];
-    let figureBounds = figure.getBoundingClientRect();
+    const figureParent = document.getElementById("figure-parent");
+    const figure = figureParent.children[0];
+    const figureBounds = figure.getBoundingClientRect();
 
-    let shifted_event = {
+    const shifted_event = {
         offsetX: event.clientX - figureBounds.left,
         offsetY: event.clientY - figureBounds.top,
     };
 
     let box;
-    let activeBoundary;
     for (plotId of Object.keys(figure.boundaries)) {
         box = { ...figure.boundaries[plotId] };
         box.left *= figureBounds.width;
@@ -265,7 +264,7 @@ function identifySubPlot(event) {
 function figureMouseOver(event) {
     const [plotId, box, activeBoundary] = identifySubPlot(event);
     if (activeBoundary !== null) {
-        let figureBounds = document
+        const figureBounds = document
             .getElementById("figure-parent")
             .children[0].getBoundingClientRect();
         highlightPlotBoundary(activeBoundary.side, box, figureBounds);
@@ -300,7 +299,7 @@ function showConfig(url, parentId, onSuccess) {
     request.open("GET", url);
     request.send();
     request.onload = () => {
-        let configParent = document.getElementById(parentId);
+        const configParent = document.getElementById(parentId);
         configParent.innerHTML = request.responseText;
         configParent.parentNode.style.display = "inline-flex";
         configParent.style.display = "inline";
@@ -317,22 +316,17 @@ function showEditPlot(event) {
             () => {
                 document.getElementById("select-model").onchange = changeModel;
 
-                document.getElementById("add-expression").onclick =
-                    addNewExpressionConfig;
+                for( const param_group of ["substitution", 
+                                           "lc-expression",
+                                           "find-best"] )
+                    document.getElementById("add-" + param_group).onclick = (
+                        () => addNewParam(param_group)
+                    );
 
                 const lcDataSelect = JSON.parse(
-                    document.getElementById('lc-data-select').textContent
+                    document.getElementById("lc-data-select").textContent
                 );
                 plotCurves = new plotCurvesType(lcDataSelect);
-
-                document.getElementById("previous-curve").onclick = (
-                    () => plotCurves.switchCurve(-1)
-                );
-                document.getElementById("next-curve").onclick = (
-                    () => plotCurves.switchCurve(1)
-                );
-
-
                 getPlottingConfig.mode = "subplot";
             }
         );
@@ -351,11 +345,11 @@ function showEditRc(event) {
 }
 
 function changeModel() {
-    let modelSelect = document.getElementById("select-model");
-    let modelDefine = document.getElementById("define-model");
+    const modelSelect = document.getElementById("select-model");
+    const modelDefine = document.getElementById("define-model");
     if (modelSelect.value == "") {
         modelDefine.style.display = "none";
-        let model = {};
+        const model = {};
         for (element of modelDefine.getElementsByClassName("param")) {
             model[element.id] = element.value;
         }
@@ -382,8 +376,8 @@ function changeModel() {
 function showNewFigure(data) {
     cleanSplits(true);
     boundaries = showSVG(data, "figure-parent")["boundaries"];
-    let figureParent = document.getElementById("figure-parent");
-    let figure = figureParent.children[0];
+    const figureParent = document.getElementById("figure-parent");
+    const figure = figureParent.children[0];
     figure.boundaries = boundaries;
     setFigureSize("figure-parent");
     figureParent.addEventListener("mousemove", figureMouseOver);
@@ -394,148 +388,182 @@ function showNewFigure(data) {
 class plotCurvesType {
     //Initialize the object.
     constructor(configuredCurves) {
-        console.log("Configuring plot curves with: " 
-                    + 
-                    JSON.stringify(configuredCurves));
         this.configuredCurves = configuredCurves;
-        this.dataSelectionInd = 0;
+        this.selectionInd = 0;
         this.curveInd = 0;
         this.elements = {
             define: document.getElementById("define-curve"),
             nextSelection: document.getElementById("next-selection"),
             prevSelection: document.getElementById("previous-selection"),
             nextCurve: document.getElementById("next-curve"),
-            prevCurve: document.getElementById("previous-curve")
+            prevCurve: document.getElementById("previous-curve"),
         };
+        this.elements.prevSelection.onclick = () => this.switchSelection(-1);
+        this.elements.nextSelection.onclick = () => this.switchSelection(1);
+        this.elements.prevCurve.onclick = () => this.switchCurve(-1);
+        this.elements.nextCurve.onclick = () => this.switchCurve(1);
         this.fixVisual();
     }
 
-    createNewCurve()
-    {
+    //Deep copy the first curve in the current selection.
+    cloneCurve(selectionInd, curveInd) {
+        if (typeof selectionInd === "undefined")
+            selectionInd = this.selectionInd;
+        if (typeof curveInd === "undefined" )
+            curveInd = 0;
         return JSON.parse(
             JSON.stringify(
-                this.configuredCurves[this.dataSelectionInd].plot_config[0]
+                this.configuredCurves[selectionInd].plot_config[curveInd]
             )
         );
     }
 
+    //Return a deep copy the first selection but with only the first curve.
+    createNewSelection() {
+        const result = {};
+        for (const key in this.configuredCurves[0]) {
+            if (key == "plot_config") 
+                result[key] = [this.cloneCurve(0, 0)];
+            else
+                result[key] = JSON.parse(
+                    JSON.stringify(this.configuredCurves[0][key])
+                );
+        }
+        return result;
+    }
+
     //Visually indicate whether first or last curve/data selection is selected.
-    fixVisual()
-    {
-        if( this.curveInd == 0 ) {
+    fixVisual() {
+        if (this.curveInd == 0) {
             this.elements.prevCurve.classList.add("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.prevCurve.firstElementChild.classList;
 
             indicatorClassList.remove("fa-chevron-left");
             indicatorClassList.add("fa-plus");
         } else {
             this.elements.prevCurve.classList.remove("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.prevCurve.firstElementChild.classList;
 
             indicatorClassList.remove("fa-plus");
             indicatorClassList.add("fa-chevron-left");
         }
-        if( this.curveInd 
-            == 
-            this.configuredCurves[this.dataSelectionInd].plot_config.length 
-            - 
-            1 
+        if (
+            this.curveInd ==
+            this.configuredCurves[this.selectionInd].plot_config.length - 1
         ) {
             this.elements.nextCurve.classList.add("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.nextCurve.firstElementChild.classList;
 
             indicatorClassList.remove("fa-chevron-right");
             indicatorClassList.add("fa-plus");
         } else {
             this.elements.nextCurve.classList.remove("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.nextCurve.firstElementChild.classList;
 
             indicatorClassList.remove("fa-plus");
             indicatorClassList.add("fa-chevron-right");
         }
-        if( this.dataSelectionInd == 0 ) {
+        if (this.selectionInd == 0) {
             this.elements.prevSelection.classList.add("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.prevSelection.firstElementChild.classList;
 
-            indicatorClassList.remove("fa-chevron-up");
+            indicatorClassList.remove("fa-chevron-left");
             indicatorClassList.add("fa-plus");
         } else {
             this.elements.prevSelection.classList.remove("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.prevSelection.firstElementChild.classList;
 
             indicatorClassList.remove("fa-plus");
-            indicatorClassList.add("fa-chevron-up");
+            indicatorClassList.add("fa-chevron-left");
         }
-        if( this.dataSelectionInd 
-            == 
-            this.configuredCurves.length - 1 
-        ) {
+        if (this.selectionInd == this.configuredCurves.length - 1) {
             this.elements.nextSelection.classList.add("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.nextSelection.firstElementChild.classList;
 
-            indicatorClassList.remove("fa-chevron-down");
+            indicatorClassList.remove("fa-chevron-right");
             indicatorClassList.add("fa-plus");
         } else {
             this.elements.nextSelection.classList.remove("lcars-melrose-bg");
-            const indicatorClassList = 
+            const indicatorClassList =
                 this.elements.nextSelection.firstElementChild.classList;
 
             indicatorClassList.remove("fa-plus");
-            indicatorClassList.add("fa-chevron-down");
+            indicatorClassList.add("fa-chevron-right");
         }
+    }
+
+    //Save edits to the currently selected plot curve
+    saveCurve() {
+        for (const element of this.elements.define.getElementsByClassName(
+            "param"
+        ))
+            this.configuredCurves[this.selectionInd].plot_config[
+                this.curveInd
+            ][element.id] = element.value;
     }
 
     //Switch the curve being configured, saving anything edited.
     switchCurve(step) {
-        for (let element of this.elements.define.getElementsByClassName("param"))
-            this.configuredCurves[this.dataSelectionInd].plot_config[this.curveInd][element.id] = 
-                element.value;
+        if (step) {
+            this.saveCurve();
 
-        this.curveInd += step;
-        if( this.curveInd < 0 ) {
-            console.log('Pre-pending new curve');
-            this.configuredCurves[this.dataSelectionInd].plot_config.splice(
-                0,
-                0,
-                this.createNewCurve()
-            );
-            this.curveInd++;
-        } else if ( 
-            this.curveInd 
-            == 
-            this.configuredCurves[this.dataSelectionInd].plot_config.length
-        )
-            this.configuredCurves[this.dataSelectionInd].plot_config.push(
-                this.createNewCurve()
-            );
-        console.log(
-            'Curve data: ' 
-            + 
-            JSON.stringify(this.configuredCurves[this.dataSelectionInd])
-        );
-        for (let element of this.elements.define.getElementsByClassName("param"))
-            element.value = 
-                this.configuredCurves[this.dataSelectionInd].plot_config[this.curveInd][element.id];
+            this.curveInd += step;
+            if (this.curveInd < 0) {
+                this.configuredCurves[this.selectionInd].plot_config.splice(
+                    0,
+                    0,
+                    this.cloneCurve()
+                );
+                this.curveInd++;
+            } else if (
+                this.curveInd ==
+                this.configuredCurves[this.selectionInd].plot_config.length
+            )
+                this.configuredCurves[this.selectionInd].plot_config.push(
+                    this.cloneCurve()
+                );
+        }
+        for (const element of this.elements.define.getElementsByClassName(
+            "param"
+        ))
+            element.value =
+                this.configuredCurves[this.selectionInd].plot_config[
+                    this.curveInd
+                ][element.id];
         this.fixVisual();
+    }
+
+    //Switch the data selection being, saving any edits.
+    switchSelection(step) {
+        this.saveCurve();
+        this.selectionInd += step;
+        if (this.selectionInd < 0) {
+            this.configuredCurves.splice(0, 0, this.createNewSelection());
+            this.selectionInd++; 
+        } else if (this.selectionInd == this.configuredCurves.length)
+            this.configuredCurves.push(this.createNewSelection());
+        if (step)
+            this.curveInd = 0;
+        this.switchCurve(0);
     }
 }
 
-function addNewExpressionConfig() {
-    let expressionsParent = document
-        .getElementById("lc-expressions")
+function addNewParam(param_group) {
+    const expressionsParent = document
+        .getElementById(param_group + "s")
         .getElementsByTagName("tbody")[0];
-    let lastRow = expressionsParent.lastElementChild.previousElementSibling;
-    let newRow = lastRow.cloneNode(true);
+    const lastRow = expressionsParent.lastElementChild.previousElementSibling;
+    const newRow = lastRow.cloneNode(true);
     for (input of newRow.getElementsByTagName("input")) {
-        let lastDashPos = input.id.lastIndexOf("-");
-        let counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
+        const lastDashPos = input.id.lastIndexOf("-");
+        const counter = parseInt(input.id.slice(lastDashPos + 1)) + 1;
         input.id = input.id.slice(0, lastDashPos + 1) + counter;
         input.value = "";
     }

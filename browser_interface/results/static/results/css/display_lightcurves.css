@@ -43,7 +43,7 @@
     z-index: 10;
 }
 
-input.param, input.lc-expression {
+input.param, select.param, input.lc-expression {
     color: #fc6;
     border-left: 0.8rem solid #fc6;
     padding-left: 0.5rem;
@@ -51,7 +51,6 @@ input.param, input.lc-expression {
     border-right: 0.8rem solid #fc6;
     border-radius: 0.5em;
     background-color: #234;
-    width: 7.5rem;
     min-width: 7.5rem;
     height: 2rem;
     min-height: 2rem;
@@ -83,7 +82,7 @@ input.param, input.lc-expression {
     cursor: pointer;
 }
 
-#add-expression {
+.add-to-dict {
     display: flex;
     width: 100%;
 }
