@@ -66,49 +66,7 @@
         <i class="fa fa-plus"></i>
     </div>
 
-    <div id="define-curve" class="lcars-column" style="width: 100%">
-        <div class="config-row">
-            <label for="sphotref_selector">Photometric Reference Condition:</label>
-            <input type="text" 
-                   id="sphotref_selector"
-                   class="param"
-                   value="{{ data_select.0.plot_config.0.sphotref_selector }}">
-        </div>
-
-        {% for char in "xym"|make_list %}
-        {% cycle data_select.0.plot_config.0.x data_select.0.plot_config.0.y data_select.0.plot_config.0.match_by as quantity silent %}
-        {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
-        {% cycle 'x' 'y' 'match_by' as id silent %}
-        <div class="config-row">
-            <label for="{{ id }}">{{label}}:</label>
-            <select name="{{ id }}" 
-                    id="{{ id }}"
-                    class="lcars-text-box lcars-gray-bg lcars-husk-color param">
-                {% for option in data_select.0.expressions %}
-                <option value="{{option}}" 
-                        {% if option == quantity %}
-                        selected
-                        {% endif %}
-                        >
-                        {{option}}
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endfor %}
-        {% for axis in "abl"|make_list %}
-        {% cycle data_select.0.plot_config.0.x_aggregate data_select.0.plot_config.0.y_aggregate data_select.0.plot_config.0.curve_label as value silent %}
-        {% cycle 'X Aggregate func.' 'Y Aggregate func.' 'Curve label' as label silent %}
-        {% cycle 'x_aggregate' 'y_aggregate' 'curve_label' as id silent %}
-        <div class="config-row">
-            <label for="{{ id }}">{{ label }}:</label>
-            <input type="text" 
-                   id="{{ id }}"
-                   class="param"
-                   value="{{ value }}">
-        </div>
-        {% endfor %}
-    </div>
+    {% include "results/curve_config.html" with plot_config=data_select.0.plot_config.0 expression=data_select.0.expressions %}
 
     <div id="next-curve" 
          class="lcars-bracket right center-center button">

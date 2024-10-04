@@ -4,7 +4,6 @@ from itertools import product
 from copy import deepcopy
 from io import StringIO
 import json
-import re
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
@@ -13,6 +12,7 @@ import numpy
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
+from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.plot_lc import\
     get_plot_data,\
@@ -31,10 +31,10 @@ _default_models = {
         'p': 3.0,# the orbital period,
         'a': 10.0,# the orbital semi-major divided by R*,
         'i': numpy.pi / 2,# the orbital inclination in rad,
-        'e': None, # the orbital eccentricity (optional, can be left out if
-                   # assuming circular a orbit), and
-        'w': None  # the argument of periastron in radians (also optional,
-                   # can be left out if assuming circular a orbit).
+        'e': 0.0, # the orbital eccentricity (optional, can be left out if
+                  # assuming circular a orbit), and
+        'w': 0.0  # the argument of periastron in radians (also optional,
+                  # can be left out if assuming circular a orbit).
     }
 }
 
@@ -42,8 +42,10 @@ _default_models = {
 def _init_session(request):
     """Initialize the session for displaying lightcurve with defaults."""
 
+    color_map = matplotlib.colormaps.get_cmap('tab10')
     request.session['lc_plotting'] = {
         'target_fname': '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
+        'color_map': [hex_color(color_map(i)) for i in range(10)],
         'data_select': [
             {
                 'lc_substitutions': {'magfit_iteration': -1},
@@ -69,7 +71,15 @@ def _init_session(request):
                             'y': 'magnitude',
                             'match_by': 'rawfname',
                             'curve_label': 'tfa',
-                            'plot_args': ['o']
+                            'plot_kwargs': {
+                                'marker': 'o',
+                                'markersize': 3,
+                                'markeredgecolor': 'none',
+                                'markerfacecolor': hex_color(color_map(0)),
+                                'linestyle': 'none',
+                                'linewidth': 0,
+                                'color': '#ffffff'
+                            }
                         }
                     ]
                 ],
@@ -93,6 +103,7 @@ def _init_session(request):
         ],
         'figure_config': {}
     }
+    print(f'Color map: {request.session["lc_plotting"]["color_map"]}')
 
 
 def _jsonify_plot_data(plot_data):
@@ -188,6 +199,8 @@ def plot(target_info, plot_config, plot_decorations):
     """Make a single plot of the spceified lighturve."""
 
     plot_data = {}
+    print(f'Plot config (len:{len(plot_config)}): {plot_config!r}')
+    print(f'len(target_info): {len(target_info)}')
     assert len(plot_config) == len(target_info)
     for dataset, dataset_plot_configs in zip(target_info, plot_config):
         plot_data = _convert_plot_data_json(dataset['plot_data'], True)
@@ -381,6 +394,8 @@ def update_subplot(plotting_session, updates):
                 print(f'Updated plotting info: {original[k]}')
             else:
                 original[k] = deepcopy(updated[k])
+    #TODO: only do this if data selection has changed and the ideally only
+    #re-optimize if needed.
     _add_lightcurve_to_session(
         plotting_session,
         plotting_session['target_fname']

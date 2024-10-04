@@ -1,0 +1,77 @@
+<div id="define-curve" class="lcars-column" style="width: 100%">
+    <div class="config-row">
+        <label for="sphotref_selector">Photometric Reference Condition:</label>
+        <input type="text" 
+               id="sphotref_selector"
+               class="param"
+               value="{{ plot_config.sphotref_selector }}">
+    </div>
+
+    {% for char in "xym"|make_list %}
+    {% cycle plot_config.x plot_config.y plot_config.match_by as quantity silent %}
+    {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
+    {% cycle 'x' 'y' 'match_by' as id silent %}
+    <div class="config-row">
+        <label for="{{ id }}">{{label}}:</label>
+        <select name="{{ id }}" 
+                id="{{ id }}"
+                class="lcars-text-box lcars-gray-bg lcars-husk-color param">
+            {% for option in expressions %}
+            <option value="{{option}}" 
+                    {% if option == quantity %}
+                    selected
+                    {% endif %}
+                    >
+                    {{option}}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endfor %}
+    {% for axis in "abl"|make_list %}
+    {% cycle plot_config.x_aggregate plot_config.y_aggregate plot_config.curve_label as value silent %}
+    {% cycle 'X Aggregate func.' 'Y Aggregate func.' 'Curve label' as label silent %}
+    {% cycle 'x_aggregate' 'y_aggregate' 'curve_label' as id silent %}
+    <div class="config-row">
+        <label for="{{ id }}">{{ label }}:</label>
+        <input type="text" 
+               id="{{ id }}"
+               class="param"
+               style="display: table-cell;"
+               value="{{ value }}">
+    </div>
+    {% endfor %}
+    {% for format in plot_config.plot_kwargs.items %}
+    <div class="config-row">
+        <label for="{{ format.0 }}">
+            {% if format.0 == "color" %}
+            Line color:
+            {% else %}
+            {{ format.0 }}:
+            {% endif %}
+        </label>
+
+        {% if format.0|slice:"-5:" == "color" %}
+        <input type="color" 
+               id="{{ format.0 }}"
+               class="param kwarg"
+               value="{{ format.1 }}">
+        {% elif format.0 == "marker" %}
+        <div class="dropdown">
+            <button class="dropbtn selected-marker"
+                    id="marker">
+                {% include "core/plot_marker.html" with symb=processing.marker size="15" svg="T" %}
+            </button>
+            <div class="dropdown-content"
+                 id="marker-option">
+                {% for symb in " x+osv^<>" %}
+                {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
+                {% endfor %}
+            </div>
+        </div> 
+
+        {% endif %}
+
+    </div>
+    {% endfor %}
+</div>

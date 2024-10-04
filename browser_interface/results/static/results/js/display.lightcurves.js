@@ -533,20 +533,27 @@ class plotCurvesType {
 
     //Save edits to the currently selected plot curve
     saveLoadCurve(load) {
+        const curveConfig = this.configuredCurves[
+            this.selectionInd
+        ].plot_config[
+            this.curveInd
+        ];
+
         for (const element of this.elements.define.getElementsByClassName(
             "param"
-        ))
-            if (load) {
-                element.value =
-                    this.configuredCurves[this.selectionInd].plot_config[
-                        this.curveInd
-                    ][element.id];
-
+        )) {
+            let config;
+            if (element.classList.contains('kwarg')) {
+                config = curveConfig.plot_kwargs;
             } else {
-                this.configuredCurves[this.selectionInd].plot_config[this.curveInd][
-                    element.id
-                ] = element.value;
+                config = curveConfig;
             }
+            if (load) {
+                element.value = config[element.id]
+            } else {
+                config[element.id] = element.value;
+            }
+        }
     }
 
     //Save edits to the currently selected selection, including the curve
