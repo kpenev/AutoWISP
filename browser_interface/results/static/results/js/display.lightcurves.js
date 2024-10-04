@@ -558,8 +558,12 @@ class plotCurvesType {
                 );
                 if (load)
                     valueElement.value = target[keyElement.value];
-                else
-                    target[keyElement.value] = valueElement.value;
+                else {
+                    if (keyElement.value == "magfit_iteration") 
+                        target[keyElement.value] = parseInt(valueElement.value);
+                    else
+                        target[keyElement.value] = valueElement.value;
+                }
             }
         }
         if (load) {
