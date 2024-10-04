@@ -76,12 +76,13 @@
         </div>
 
         {% for char in "xym"|make_list %}
-        {% cycle data_select.0.plot_config.0.x_quantity data_select.0.plot_config.0.y_quantity data_select.0.plot_config.0.match_by as quantity silent %}
+        {% cycle data_select.0.plot_config.0.x data_select.0.plot_config.0.y data_select.0.plot_config.0.match_by as quantity silent %}
         {% cycle 'X' 'Y' 'Aggregate by' as label silent %}
+        {% cycle 'x' 'y' 'match_by' as id silent %}
         <div class="config-row">
-            <label for="{{ label|slugify }}">{{label}}:</label>
-            <select name="{{ label|slugify }}" 
-                    id="{{ label|slugify }}"
+            <label for="{{ id }}">{{label}}:</label>
+            <select name="{{ id }}" 
+                    id="{{ id }}"
                     class="lcars-text-box lcars-gray-bg lcars-husk-color param">
                 {% for option in data_select.0.expressions %}
                 <option value="{{option}}" 
@@ -95,13 +96,14 @@
             </select>
         </div>
         {% endfor %}
-        {% for axis in "ac"|make_list %}
-        {% cycle data_select.0.plot_config.0.aggregate data_select.0.plot_config.0.curve_label as value silent %}
-        {% cycle "Aggregate func." "Curve label" as label silent %}
+        {% for axis in "abl"|make_list %}
+        {% cycle data_select.0.plot_config.0.x_aggregate data_select.0.plot_config.0.y_aggregate data_select.0.plot_config.0.curve_label as value silent %}
+        {% cycle 'X Aggregate func.' 'Y Aggregate func.' 'Curve label' as label silent %}
+        {% cycle 'x_aggregate' 'y_aggregate' 'curve_label' as id silent %}
         <div class="config-row">
-            <label for="{{ label|slugify }}">{{ label }}:</label>
+            <label for="{{ id }}">{{ label }}:</label>
             <input type="text" 
-                   id="{{ label|slugify }}"
+                   id="{{ id }}"
                    class="param"
                    value="{{ value }}">
         </div>
