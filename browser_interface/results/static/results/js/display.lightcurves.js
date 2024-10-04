@@ -289,7 +289,7 @@ function getPlottingConfig() {
     if (typeof getPlottingConfig.plotId === "undefined") return result;
     const subplotConfig = { plot_id: getPlottingConfig.plotId }
     if (getPlottingConfig.mode == "subplot") {
-        plotCurves.saveCurve;
+        plotCurves.saveLoadSelection();
         subplotConfig["data_select"] = plotCurves.configuredCurves;
         const selectedModel = document.getElementById("select-model").value;
         if (selectedModel) {
@@ -533,13 +533,13 @@ class plotCurvesType {
     saveLoadSelection(load) {
         this.saveLoadCurve(load);
         const thisSelection = this.configuredCurves[this.selectionInd];
-        console.log("Saving selection. Original: " 
+        console.log("Saving selection " + JSON.stringify(load) + ". Original: " 
                     + 
                     JSON.stringify(thisSelection));
         const paramGroupTargets = {
-            "substitutions": "lc_substitutions",
-            "find-bests": "find_best",
-            "lc-expressions": "expressions"
+            "substitution": "lc_substitutions",
+            "find-best": "find_best",
+            "lc-expression": "expressions"
         }
         for (const groupName in paramGroupTargets) {
             const target = thisSelection[paramGroupTargets[groupName]];
@@ -549,11 +549,12 @@ class plotCurvesType {
                 const keyElement 
                 of 
                 document
-                .getElementById(groupName)
+                .getElementById(groupName + "s")
                 .querySelectorAll(selectorStr)
             ) {
-                valueElement = document.getElementById(
-                    element.id.replace("-key-", "-value-")
+                console.log("Element ID: " + keyElement.id);
+                const valueElement = document.getElementById(
+                    keyElement.id.replace("-key-", "-value-")
                 );
                 if (load)
                     valueElement.value = target[keyElement.value];

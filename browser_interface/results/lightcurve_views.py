@@ -363,6 +363,10 @@ def update_subplot(plotting_session, updates):
                 print(f'Updated plotting info: {original[k]}')
             else:
                 original[k] = updated[k]
+    _add_lightcurve_to_session(
+        plotting_session,
+        plotting_session['target_fname']
+    )
 
 
 def _update_plotting_info(plotting_session, updates):
