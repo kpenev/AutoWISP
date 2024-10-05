@@ -92,3 +92,45 @@ input.param, select.param, input.lc-expression {
     justify-content: center;
     align-items: center;
 }
+
+.dropdown {
+    float: left;
+    overflow: visible;
+    width: 3rem;
+}
+
+.dropdown .dropbtn {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    margin: 0;
+    background-color: #000;
+    color: #000;
+}
+
+.dropdown-content {
+    display: none;
+    position: relative;
+    color: #fff;
+    background-color: #333;
+    z-index: 100;
+}
+
+.dropdown-content svg {
+    float: none;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content svg:hover {
+    background-color: #555
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+

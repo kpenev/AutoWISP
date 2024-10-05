@@ -37,7 +37,6 @@
         <input type="text" 
                id="{{ id }}"
                class="param"
-               style="display: table-cell;"
                value="{{ value }}">
     </div>
     {% endfor %}
@@ -58,9 +57,9 @@
                value="{{ format.1 }}">
         {% elif format.0 == "marker" %}
         <div class="dropdown">
-            <button class="dropbtn selected-marker"
+            <button class="dropbtn selected-marker param kwarg"
                     id="marker">
-                {% include "core/plot_marker.html" with symb=processing.marker size="15" svg="T" %}
+                {% include "core/plot_marker.html" with symb=format.1 size="15" svg="T" %}
             </button>
             <div class="dropdown-content"
                  id="marker-option">
@@ -69,7 +68,11 @@
                 {% endfor %}
             </div>
         </div> 
-
+        {% else %}
+        <input type="text" 
+               id="{{ format.0 }}"
+               class="param kwarg"
+               value="{{ format.1 }}">
         {% endif %}
 
     </div>
