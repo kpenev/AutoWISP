@@ -9,6 +9,7 @@ from socket import getfqdn
 from psutil import pid_exists, Process
 from sqlalchemy import sql, select
 from asteval import asteval
+from numpy import inf as infinity
 
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process
@@ -28,6 +29,7 @@ from autowisp.database.data_model import\
     Configuration,\
     ImageType,\
     ImageProcessingProgress,\
+    InputMasterTypes,\
     LightCurveProcessingProgress,\
     MasterFile,\
     MasterType,\
@@ -101,6 +103,9 @@ class ProcessingManager(ABC):
                 * calibrated: the filename of the calibrated image
 
                 * dr: the filename of the data reduction file
+
+                * masters: A dictionary indexed by master type name of the best
+                  master of the given type to apply to the image
 
             An additional entry with channel=None is included which contains
             just the common (intersection) set of expressions satisfied for all
@@ -224,6 +229,104 @@ class ProcessingManager(ABC):
         return frozenset(result)
 
 
+    def _get_best_master(self, candidate_masters, image_eval):
+        """Find the best master from given list for given image/channel."""
+
+        self._logger.debug('Selecting best master for %s, channel %s from %s',
+                           repr(image_eval('RAWFNAME')),
+                           repr(image_eval('CLRCHNL')),
+                           repr(candidate_masters))
+        if not candidate_masters:
+            return None
+
+        best_master_value = infinity
+        best_master_fname = None
+        for master in candidate_masters:
+            assert master.use_smallest is not None
+            master_value = image_eval(master.use_smallest)
+            if master_value < best_master_value:
+                best_master_value = master_value
+                best_master_fname = master.filename
+        assert best_master_fname
+        return best_master_fname
+
+
+    def _get_master(self, master_type, image_eval, db_session):
+        """Return the master that should be used for the given image."""
+
+        all_masters = db_session.scalars(
+            select(
+                MasterFile
+            ).filter_by(
+                type_id=master_type.id,
+                enabled=True,
+            )
+        ).all()
+        candidates = []
+        for master in all_masters:
+            master_eval = Evaluator(master.filename)
+            all_match = True
+            for expr in master.master_type.match_expressions:
+                if master_eval(expr.expression) != image_eval(expr.expression):
+                    all_match = False
+                    break
+            if all_match:
+                candidates.append(master)
+        if len(candidates) == 1:
+            return candidates[0].filename
+        return self._get_best_master(candidates, image_eval)
+
+
+    def _get_evaluated_entry(self,
+                             evaluate,
+                             image_type_id,
+                             calib_config,
+                             db_session):
+        """Return entry to add to self._evaluated_expressions."""
+
+        evaluated_expressions = {
+            'values': {expr_id: evaluate(expression)
+                       for expr_id, expression in
+                       self.condition_expressions.items()},
+            'calibrated': calib_config['calibrated_fname'].format_map(
+                evaluate.symtable
+            ),
+            'masters': {}
+        }
+        evaluated_expressions['matched'] = set(
+            expr_id
+            for expr_id, value in evaluated_expressions['values'].items()
+            if value
+        )
+
+        for required_expressions, value in self.configuration[
+                'data-reduction-fname'
+        ][
+                'value'
+        ].items():
+            if required_expressions <= evaluated_expressions['matched']:
+                evaluated_expressions['dr'] = value.format_map(
+                    evaluate.symtable
+                )
+                break
+        assert 'dr' in evaluated_expressions
+
+        for master_type in db_session.scalars(
+                select(
+                    MasterType
+                ).join(
+                    InputMasterTypes
+                ).where(
+                    InputMasterTypes.image_type_id == image_type_id
+                )
+        ):
+            evaluated_expressions['masters'][master_type.name] = (
+                self._get_master(master_type, evaluate, db_session)
+            )
+
+        return evaluated_expressions
+
+
     def get_matched_expressions(self, evaluate):
         """Return set of matching expressions given an evaluator for image."""
 
@@ -242,14 +345,7 @@ class ProcessingManager(ABC):
         )
 
 
-    #TODO: see if can be simplified
-    #pylint: disable=too-many-locals
-    #pylint: disable=too-many-branches
-    def evaluate_expressions_image(self,
-                                   image,
-                                   eval_channel=None,
-                                   return_evaluator=False,
-                                   **extra_keywords):
+    def evaluate_expressions_image(self, image, db_session, **extra_keywords):
         """
         Return evaluator for header expressions for given image.
 
@@ -259,10 +355,7 @@ class ProcessingManager(ABC):
                 ``IMAGE_TYPE`` keyword set to the name of the image type of the
                 given image.
 
-            eval_channel(str or None):    If given, the evaluator will involve
-                all keywords that can be expected of the calibrated header for
-                the given channel. Otherwise, an arbitatry channel header
-                keywords will be available.
+            db_session:    Used to select the best master.
 
             return_evaluator(bool):    Should an evaluator setup per the image
                 header be returned for further use?
@@ -278,44 +371,20 @@ class ProcessingManager(ABC):
 
 
         if image.id in self._evaluated_expressions:
-            if not return_evaluator:
-                return None
-            image_expressions = self._evaluated_expressions[
-                image.id
-            ][
-                eval_channel
-            ]
-            for product in ['dr', 'calibrated']:
-                if (
-                        product in image_expressions
-                        and
-                        path.exists(image_expressions[product])
-                ):
-                    return Evaluator(image_expressions[product])
+            return
 
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
-        result = None
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable.update(extra_keywords)
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
-        skip_evaluate = image.id in self._evaluated_expressions
-        if not skip_evaluate:
-            self._evaluated_expressions[image.id] = {}
+        self._evaluated_expressions[image.id] = {}
 
         all_channel={'matched': None, 'values': None}
         for channel_name, channel_slice in self._get_split_channels(
                 image
         ).items():
-            if (
-                skip_evaluate
-                and
-                eval_channel is not None
-                and
-                eval_channel != channel_name
-            ):
-                continue
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
@@ -330,27 +399,12 @@ class ProcessingManager(ABC):
                                image.raw_fname,
                                repr(calib_config['raw_hdu']))
             add_required_keywords(evaluate.symtable, calib_config, True)
-            if result is None and return_evaluator:
-                result = asteval.Interpreter()
-                if return_evaluator and eval_channel is None:
-                    result.symtable.update(evaluate.symtable)
 
-            if return_evaluator and eval_channel == channel_name:
-                result.symtable.update(evaluate.symtable)
-            if skip_evaluate:
-                continue
-            evaluated_expressions = {
-                'values': {expr_id: evaluate(expression)
-                           for expr_id, expression in
-                           self.condition_expressions.items()},
-                'calibrated': calib_config['calibrated_fname'].format_map(
-                    evaluate.symtable
-                )
-            }
-            evaluated_expressions['matched'] = set(
-                expr_id
-                for expr_id, value in evaluated_expressions['values'].items()
-                if value
+            evaluated_expressions = self._get_evaluated_entry(
+                evaluate,
+                image.image_type_id,
+                calib_config,
+                db_session
             )
 
             if all_channel['matched'] is None:
@@ -373,25 +427,10 @@ class ProcessingManager(ABC):
                 #pylint: enable=unsupported-delete-operation
                 #pylint: enable=unsubscriptable-object
 
-            for required_expressions, value in self.configuration[
-                    'data-reduction-fname'
-            ][
-                    'value'
-            ].items():
-                if required_expressions <= evaluated_expressions['matched']:
-                    evaluated_expressions['dr'] = value.format_map(
-                        evaluate.symtable
-                    )
-                    break
-            assert 'dr' in evaluated_expressions
-
             self._evaluated_expressions[image.id][channel_name] = (
                 evaluated_expressions
             )
 
-        if skip_evaluate:
-            assert return_evaluator
-            return result
         self._evaluated_expressions[image.id][None] = {
             'matched': all_channel['matched'],
             'values': all_channel['values'],
@@ -399,8 +438,6 @@ class ProcessingManager(ABC):
         self._logger.debug('Evaluated expressions for image %s: %s',
                            image,
                            repr(self._evaluated_expressions[image.id]))
-
-        return result if return_evaluator else None
 
 
     def _check_running_processing(self,
@@ -647,35 +684,6 @@ class ProcessingManager(ABC):
             ).parse_command_line(
                 ['-c', config_file.name]
             ), config_key
-
-
-    def get_candidate_masters(self, image, channel, master_type, db_session):
-        """Return list of masters of given type that are applicable to image."""
-
-        image_eval = self.evaluate_expressions_image(image,
-                                                     channel,
-                                                     True)
-        print(f'Image keys: {image_eval.symtable.keys()!r}')
-        candidate_masters = db_session.scalars(
-            select(
-                MasterFile
-            ).filter_by(
-                type_id=master_type.master_type_id,
-                enabled=True,
-            )
-        ).all()
-        result = []
-        for master in candidate_masters:
-            master_eval = Evaluator(master.filename)
-            print(f'Master keys: {master_eval.symtable.keys()!r}')
-            all_match = True
-            for expr in master.master_type.match_expressions:
-                if master_eval(expr.expression) != image_eval(expr.expression):
-                    all_match = False
-                    break
-            if all_match:
-                result.append(master)
-        return result
 
 
     @abstractmethod

@@ -3,6 +3,7 @@
 from os import path
 import logging
 
+from numpy import nan
 from astropy.io import fits
 
 from autowisp.pipeline_exceptions import\
@@ -176,33 +177,24 @@ def update_stack_header(master_header,
     else:
         _logger.debug('Checking master header against %s', filename)
 
-        delete_indices = []
-        for card_index, master_card in enumerate(master_header.cards):
-            delete = False
-            for frame_card in frame_header.cards:
-                if(
-                        frame_card[0] == master_card[0]
-                        and
-                        frame_card[1] != master_card[1]
-                ):
-                    delete = True
-            if delete:
-                if master_card[0] == 'IMAGETYP':
-                    raise ImageMismatchError(
-                        'Attempting to combine images with '
-                        f'IMAGETYP = {master_card[1]} and '
-                        f"IMAGETYP={frame_header['IMAGETYP']} "
-                        'into a master!'
-                    )
-                delete_indices.insert(0, card_index)
-        _logger.debug(
-            'Deleting:\n%s',
-            '\n'.join([
-                repr(master_header.cards[i][0]) for i in delete_indices
-            ])
-        )
+        mismatch_keys = {
+            k for k in master_header
+            if master_header[k] != frame_header.get(k, nan)
+        } | (set(master_header) - set(frame_header))
+
+        if 'IMAGEYP' in mismatch_keys:
+            raise ImageMismatchError(
+                'Attempting to combine images with '
+                f"IMAGETYP = {master_header['IMAGETYP']} and "
+                f"IMAGETYP={frame_header['IMAGETYP']} "
+                'into a master!'
+            )
+
+        _logger.debug('Deleting:\n%s',
+                      '\n'.join(mismatch_keys))
+
         _logger.debug('Starting with %d cards',
                            len(master_header.cards))
-        for index in delete_indices:
-            del master_header[index]
+        for key in mismatch_keys:
+            master_header.remove(key, remove_all=True)
         _logger.debug('%d cards remain', len(master_header.cards))

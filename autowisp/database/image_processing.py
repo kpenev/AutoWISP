@@ -7,8 +7,7 @@ import logging
 from os import path, getpid, getpgid, setsid, fork
 import sys
 
-from sqlalchemy import sql, select, update, and_, or_, func
-import numpy
+from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from general_purpose_python_modules.multiprocessing_util import\
@@ -268,98 +267,6 @@ class ImageProcessingManager(ProcessingManager):
             step.
     """
 
-
-    def _get_best_master(self, candidate_masters, image, channel):
-        """Find the best master from given list for given image/channel."""
-
-        if channel is None:
-            return tuple(
-                (
-                    channel,
-                    self._get_best_master(candidate_masters[channel],
-                                          image,
-                                          channel)
-                )
-                for channel in sorted(
-                    filter(None, self._evaluated_expressions[image.id].keys())
-                )
-            )
-
-        self._logger.debug('Selecting best master for %s, channel %s from %s',
-                           repr(image),
-                           repr(channel),
-                           repr(candidate_masters))
-        if not candidate_masters:
-            return None
-        image_eval = self.evaluate_expressions_image(image,
-                                                     channel,
-                                                     True)
-        best_master_value = numpy.inf
-        best_master_fname = None
-        for master in candidate_masters:
-            assert master.use_smallest is not None
-            master_value = image_eval(master.use_smallest)
-            if master_value < best_master_value:
-                best_master_value = master_value
-                best_master_fname = master.filename
-        assert best_master_fname
-        return best_master_fname
-
-
-    def _split_by_master(self, batch, input_master_type, db_session):
-        """Split the given list of images by the best master of given type."""
-
-        result = {}
-
-        candidate_masters = {}
-        if self.current_step.name == 'calibrate':
-            channel_list = self._evaluated_expressions[batch[0][0].id].keys()
-        else:
-            assert batch[0][1] is not None
-            channel_list = [batch[0][1]]
-
-        for channel in channel_list:
-            candidate_masters[channel] = self.get_candidate_masters(
-                batch[0][0],
-                channel,
-                input_master_type,
-                db_session
-            )
-            if not candidate_masters[channel]:
-                if input_master_type.optional:
-                    return {None: batch}
-                raise NoMasterError(
-                    f'No master {input_master_type.master_type.name} '
-                    f'found for image {batch[0][0].raw_fname} channel '
-                    f'{channel}.'
-                )
-
-        if (
-            len(channel_list) == 1
-            and
-            len(candidate_masters[channel_list[0]]) == 1
-        ):
-            print('Result: ' + repr(result))
-            print('Candidate masters: ' + repr(candidate_masters))
-            print('Channel list: ' + repr(channel_list))
-            result[candidate_masters[channel_list[0]][0].filename] = batch
-        else:
-            for image, channel, status in batch:
-                best_master = self._get_best_master(
-                    (
-                        candidate_masters if channel is None
-                        else candidate_masters[channel]
-                    ),
-                    image,
-                    channel
-                )
-                if best_master in result:
-                    result[best_master].append((image, channel, status))
-                else:
-                    result[best_master] = [(image, channel, status)]
-        return result
-
-
     def _set_calibration_config(self, config, first_image):
         """Retrun the specially formatted argument for the calibration step."""
 
@@ -385,6 +292,53 @@ class ImageProcessingManager(ProcessingManager):
                                (f'{k}: {v!r}' for k, v in config.items())
                            ))
         return result
+
+    def _split_by_master(self, batch, input_master_type):
+        """Split the given list of images by the best master of given type."""
+
+        result = {}
+
+        for image, channel, status in batch:
+            if channel is None:
+                best_master = tuple(
+                    (
+                        channel,
+                        self._evaluated_expressions[
+                            image.id
+                        ][
+                            channel
+                        ][
+                            'masters'
+                        ][
+                            input_master_type.master_type.name
+                        ]
+                    )
+                    for channel in sorted(
+                        filter(
+                            None,
+                            self._evaluated_expressions[image.id].keys()
+                        )
+                    )
+                )
+            else:
+                best_master = self._evaluated_expressions[
+                    image.id
+                ][
+                    channel
+                ][
+                    'masters'
+                ][
+                    input_master_type.master_type.name
+                ]
+
+            if best_master in result:
+                result[best_master].append((image, channel, status))
+            else:
+                result[best_master] = [(image, channel, status)]
+        return result
+
+
+
 
 
     #Could not find good way to simplify
@@ -454,9 +408,7 @@ class ImageProcessingManager(ProcessingManager):
             for config_key, (config, sub_batch) in list(result.items()):
                 del result[config_key]
                 try:
-                    splits = self._split_by_master(sub_batch,
-                                                   input_master_type,
-                                                   db_session)
+                    splits = self._split_by_master(sub_batch, input_master_type)
                 except NoMasterError as no_master:
                     self._logger.error(str(no_master))
                     continue
@@ -616,6 +568,7 @@ class ImageProcessingManager(ProcessingManager):
             if image.id not in self._evaluated_expressions:
                 self.evaluate_expressions_image(
                     image,
+                    db_session,
                     IMAGE_TYPE=image.image_type.name,
                     OBS_SESN=image.observing_session.label
                 )
@@ -755,6 +708,7 @@ class ImageProcessingManager(ProcessingManager):
         for image, channel_name, _ in pending_images:
             self.evaluate_expressions_image(
                 image,
+                db_session,
                 IMAGE_TYPE=image.image_type.name,
                 OBS_SESN=image.observing_session.label
             )
