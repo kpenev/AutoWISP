@@ -85,6 +85,8 @@ input.param, select.param, input.lc-expression {
 .add-to-dict {
     display: flex;
     width: 100%;
+    justify-content: center;
+    align-items: center;
 }
 
 .center-center {
@@ -96,6 +98,7 @@ input.param, select.param, input.lc-expression {
 .dropdown {
     float: left;
     overflow: visible;
+    position: relative;
     width: 3rem;
 }
 
@@ -104,6 +107,7 @@ input.param, select.param, input.lc-expression {
     border: none;
     outline: none;
     font-family: inherit;
+    padding: 12px 16px;
     margin: 0;
     background-color: #000;
     color: #000;
@@ -111,7 +115,9 @@ input.param, select.param, input.lc-expression {
 
 .dropdown-content {
     display: none;
-    position: relative;
+    left: 0pt;
+    top: 0pt;
+    position: absolute;
     color: #fff;
     background-color: #333;
     z-index: 100;
@@ -133,4 +139,10 @@ input.param, select.param, input.lc-expression {
     display: block;
 }
 
+td {
+    width: 50%;
+}
 
+td:first-child {
+    text-align: right;
+}

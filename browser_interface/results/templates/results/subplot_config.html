@@ -1,14 +1,22 @@
-{% for axis in "XYT"|make_list %}
-{% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title as value silent %}
-{% cycle "X label" "Y label" "Title" as label silent %}
-<div class="config-row">
-    <label for="{{ label|slugify }}">{{ label }}:</label>
-    <input type="text" 
-           id="{{ label|slugify }}"
-           class="param"
-           value="{{ value }}">
-</div>
-{% endfor %}
+<table class="lcars-table">
+    <tbody>
+        {% for axis in "XYT"|make_list %}
+        {% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title as value silent %}
+        {% cycle "X label" "Y label" "Title" as label silent %}
+        <tr>
+            <td>
+                <label for="{{ label|slugify }}">{{ label }}:</label>
+            </td>
+            <td>
+                <input type="text" 
+                       id="{{ label|slugify }}"
+                       class="param"
+                       value="{{ value }}">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 <div class="lcars-row">
     <div id="previous-selection"
@@ -26,39 +34,60 @@
 
 {% include "results/param_table.html" with param_group="find-best" col1="Find Best" col2="Allowed Values" data=data_select.0.find_best can_add=1 %}
 
-<div class="config-row">
-    <label for="minimize">Minimize:</label>
-    <input type="text" 
-           id="minimize"
-           class="param"
-           value="{{ data_select.0.minimize }}">
-</div>
+<table class="lcars-table">
+    <tbody>
+        <tr>
+            <td>
+                <label for="minimize">Minimize:</label>
+            </td>
+            <td>
+                <input type="text" 
+                       id="minimize"
+                       class="param"
+                       value="{{ data_select.0.minimize }}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="include-apphot" style="text-align: left">
+                    Aperture Photometry
+                </label>
+            </td>
+            <td>
+                <input type="checkbox" 
+                       id="include-apphot" 
+                       name="include-apphot" 
+                       checked 
+                       class="param"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="include-shapefit" style="text-align: left">
+                    PSF/PRF Fit
+                </label>
+            </td>
+            <td>
+                <input type="checkbox" 
+                       id="include-shapefit" 
+                       name="include-shapefit" 
+                       checked 
+                       class="param"/>
+            </td>
+        </tr>
+        <tr>
+            <td><label for="points-selection">LC Points Selection:</label></td>
+            <td>
+                <input type="text" 
+                       id="points-selection"
+                       class="param"
+                       value="{{ data_select.0.selection }}">
+            </td>
+        </tr>
+    </tbody>
+</table>
 
-<div class="config-row">
-    <input type="checkbox" 
-           id="include-apphot" 
-           name="include-apphot" 
-           checked 
-           class="param"/>
-    <label for="include-apphot" style="text-align: left">Aperture Photometry</label>
-</div>
 
-<div class="config-row">
-    <input type="checkbox" 
-           id="include-shapefit" 
-           name="include-shapefit" 
-           checked 
-           class="param"/>
-    <label for="include-shapefit" style="text-align: left">PSF/PRF Fit</label>
-</div>
-
-<div class="config-row">
-    <label for="points-selection">LC Points Selection:</label>
-    <input type="text" 
-           id="points-selection"
-           class="param"
-           value="{{ data_select.0.selection }}">
-</div>
 
 <div class="lcars-row">
     <div id="previous-curve" 
@@ -66,7 +95,7 @@
         <i class="fa fa-plus"></i>
     </div>
 
-    {% include "results/curve_config.html" with plot_config=data_select.0.plot_config.0 expression=data_select.0.expressions %}
+    {% include "results/curve_config.html" with plot_config=data_select.0.plot_config.0 expressions=data_select.0.expressions %}
 
     <div id="next-curve" 
          class="lcars-bracket right center-center button">

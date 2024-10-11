@@ -116,7 +116,8 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                                      '.magfit.cfg.single_photref')
 
                 lc_eval.lc_points_selection = None
-                lc_eval.lc_points_selection = lc_eval(
+
+                lc_points_selection = lc_eval(
                     sphotref_dset_key
                     +
                     ' == '
@@ -125,11 +126,13 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                     raise_errors=True
                 )
                 if configuration['selection'] is not None:
-                    lc_eval.lc_points_selection = numpy.logical_and(
+                    lc_points_selection = numpy.logical_and(
                         lc_eval(configuration['selection'] or 'True',
                                 raise_errors=True),
-                        lc_eval.lc_points_selection
+                        lc_points_selection
                     )
+
+                lc_eval.lc_points_selection = lc_points_selection
                 if configuration[
                         'lc_substitutions'
                 ].get(
