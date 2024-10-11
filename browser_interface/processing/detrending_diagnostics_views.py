@@ -153,7 +153,7 @@ def _init_lc_detrending_session(request):
                 )
             )
             lc_processing.evaluate_expressions_image(db_sphotref_image,
-                                                     sphotref_header['CLRCHNL'])
+                                                     db_session)
 
             catalog_fname, step_config = lc_processing.get_step_config(
                 step=db_step,

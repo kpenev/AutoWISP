@@ -436,6 +436,12 @@ class plotCurvesType {
         this.elements.prevCurve.onclick = () => this.switchCurve(-1);
         this.elements.nextCurve.onclick = () => this.switchCurve(1);
         this.fixVisual();
+        const plotSymbols = document.getElementsByClassName("plot-marker");
+        for ( const symbol of plotSymbols ) {
+            if ( symbol.parentElement.id == "marker-option" )
+                symbol.addEventListener("click", selectSymbol);
+        }
+
     }
 
     //Deep copy the first curve in the current selection.
@@ -548,7 +554,13 @@ class plotCurvesType {
             } else {
                 config = curveConfig;
             }
-            if (load) {
+            if (element.id == "marker") {
+                let marker = element.children[0];
+                if (load)
+                    marker.className.baseVal = "plot-marker " +  config.marker;
+                else
+                    config.marker = marker.className.baseVal.split(" ")[1];
+            } else if (load) {
                 element.value = config[element.id]
             } else {
                 config[element.id] = element.value;
@@ -746,6 +758,13 @@ function handleLCParamChange(event) {
             addElement(option);
         }
     }
+}
+
+function selectSymbol(event)
+{
+    let markerButton = document.getElementById("marker");
+    markerButton.replaceChild(event.currentTarget.cloneNode(true), 
+                              markerButton.children[0]);
 }
 
 function initLightcurveDisplay(urls) {
