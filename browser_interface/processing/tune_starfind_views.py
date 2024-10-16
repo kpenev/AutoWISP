@@ -1,7 +1,6 @@
 """Implement views for tuning source extraction."""
 
 import json
-import sys
 from traceback import print_exc
 from functools import reduce
 
@@ -134,9 +133,12 @@ def _get_pending(request):
         for step, imtype in find_star_steps:
             grouping = {}
             for image, channel, _ in processing.pending[step.id, imtype.id]:
-                evaluator = processing.evaluate_expressions_image(image,
-                                                                  channel,
-                                                                  True)
+                processing.evaluate_expressions_image(image, db_session)
+                evaluator = Evaluator(
+                    processing.get_product_fname(image.id,
+                                                 channel,
+                                                 'calibrated')
+                )
                 grouping_key = json.dumps([
                     evaluator(expr) for expr, _ in
                     request.session['starfind']['grouping_expressions']
@@ -287,7 +289,8 @@ def project_catalog(request, fits_fname):
 
         approx_trans = {
             coord + '_cent': value
-            for coord, value in zip(['ra', 'dec'], config['frame_center_estimate'])
+            for coord, value in zip(['ra', 'dec'],
+                                    config['frame_center_estimate'])
         }
 
         print('Extracted: ' + repr(request.session['extracted']))

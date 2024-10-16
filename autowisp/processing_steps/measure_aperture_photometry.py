@@ -182,7 +182,7 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove the aperture photometry from a frame that was interrupted."""
 
     for frame_fname, status in interrupted:
-        assert status is None
+        assert status == 0
 
         header = get_primary_header(frame_fname)
 
@@ -199,7 +199,11 @@ def cleanup_interrupted(interrupted, configuration):
                                      'srcproj',
                                      'apphot']
             }
-            delete_aperture_photometry(dr_file, **dr_path_substitutions)
+            delete_aperture_photometry(
+                dr_file,
+                len(configuration['apertures']),
+                **dr_path_substitutions
+            )
 
     return -1
 

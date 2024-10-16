@@ -494,12 +494,16 @@ def add_aperture_photometry(dr_file,
     )
 
 
-def delete_aperture_photometry(dr_file, **path_substitutions):
+def delete_aperture_photometry(dr_file, num_apertures, **path_substitutions):
     """Delete all DR elements of an aperture photometry."""
 
-    _auto_delete_tree_quantities(dr_file,
-                                 re.compile(r'(?!apphot\.)|^apphot.aperture$'),
-                                 **path_substitutions)
+    for aperture_index in range(num_apertures):
+        _auto_delete_tree_quantities(
+            dr_file,
+            re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+            aperture_index=aperture_index,
+            **path_substitutions
+        )
 
 
 def get_source_extracted_psf_map(dr_file, **path_substitutions):

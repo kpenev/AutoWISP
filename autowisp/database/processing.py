@@ -8,7 +8,6 @@ from socket import getfqdn
 
 from psutil import pid_exists, Process
 from sqlalchemy import sql, select
-from asteval import asteval
 from numpy import inf as infinity
 
 from general_purpose_python_modules.multiprocessing_util import\
@@ -254,6 +253,7 @@ class ProcessingManager(ABC):
     def _get_master(self, master_type, image_eval, db_session):
         """Return the master that should be used for the given image."""
 
+        print(f'Getting master {master_type}')
         all_masters = db_session.scalars(
             select(
                 MasterFile
@@ -265,6 +265,7 @@ class ProcessingManager(ABC):
         candidates = []
         for master in all_masters:
             master_eval = Evaluator(master.filename)
+            print(f'Master keywords: {master_eval.symtable.keys()}')
             all_match = True
             for expr in master.master_type.match_expressions:
                 if master_eval(expr.expression) != image_eval(expr.expression):
@@ -375,10 +376,14 @@ class ProcessingManager(ABC):
 
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
+        print(f'Evaluating expressions for: {image!r}')
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable.update(extra_keywords)
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
+        print(
+            f'Matched expressions: {self.get_matched_expressions(evaluate)!r}'
+        )
         self._evaluated_expressions[image.id] = {}
 
         all_channel={'matched': None, 'values': None}
@@ -438,6 +443,31 @@ class ProcessingManager(ABC):
         self._logger.debug('Evaluated expressions for image %s: %s',
                            image,
                            repr(self._evaluated_expressions[image.id]))
+
+
+    def get_product_fname(self, image_id, channel, product):
+        """
+        Return the ``dr`` or ``calibrated`` filename of specified image/channel.
+
+        `self.evaluate_image_expressions()` must already have been called for
+        this image.
+        """
+
+        return self._evaluated_expressions[image_id][channel][product]
+
+
+    def get_master_fname(self, image_id, channel, master_type_name):
+        """Return the filename of best master for a given image/channel."""
+
+        return self._evaluated_expressions[
+            image_id
+        ][
+            channel
+        ][
+            'masters'
+        ][
+            master_type_name
+        ]
 
 
     def _check_running_processing(self,

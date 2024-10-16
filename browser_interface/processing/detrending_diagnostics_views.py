@@ -1,5 +1,6 @@
 """Views for displaying diagnostics for the calibration steps."""
 
+import logging
 from io import StringIO, BytesIO
 import json
 

@@ -51,6 +51,7 @@ def _get_missing_photref(request):
             ]:
                 processing.evaluate_expressions_image(
                     pending[0],
+                    db_session,
                     IMAGE_TYPE=pending[0].image_type.name,
                     OBS_SESN=pending[0].observing_session.label
                 )
@@ -106,13 +107,15 @@ def _get_missing_photref(request):
                 masters_only=True
             )
             for by_master_values, master_values in by_photref:
-                candidate_masters = processing.get_candidate_masters(
-                    *by_master_values[0][:2],
-                    input_master_type,
-                    db_session
-                ) if not request.session['demo'] else False
-
-                if not candidate_masters:
+                if (
+                    request.session['demo']
+                    or
+                    not processing.get_master_fname(
+                        by_master_values[0][0].id,
+                        by_master_values[0][1],
+                        'single_photref'
+                    )
+                ):
                     config = processing.get_config(
                         matched_expressions=None,
                         image_id=by_master_values[0][0].id,
