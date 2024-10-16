@@ -255,6 +255,8 @@ class MasterPhotrefCollector:
                                 +
                                 repr(phot_ind))
             )[0]
+            if coefficients is None:
+                return None
             residuals[:, phot_ind] = (statistics[scatter_quantity][:, phot_ind]
                                       -
                                       numpy.dot(coefficients, predictors))
@@ -593,6 +595,11 @@ class MasterPhotrefCollector:
             outlier_threshold=fit_outlier_threshold,
             max_rej_iter=fit_max_rej_iter
         )
+        if residual_scatter is None:
+            raise RuntimeError(
+                'Failed to generate master photometric reference: %s',
+                repr(master_reference_fname)
+            )
         primary_header = fits.Header()
         if extra_header is not None:
             primary_header.update(extra_header)

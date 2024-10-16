@@ -1,6 +1,8 @@
 """Define a function doing iterative re-fitting of terms from an expression."""
 
 import logging
+from traceback import format_exc
+
 import numpy
 import scipy.linalg
 
@@ -47,6 +49,8 @@ def iterative_fit_qr(weighted_predictors,
     Returns:
         See iterative_fit_qr()
     """
+
+    logger = logging.getLogger(__name__)
 
     def rejected_indices(weighted_fit_diff, weights):
         """Return indices of outlier sources and squared fit residual."""
@@ -102,7 +106,6 @@ def iterative_fit_qr(weighted_predictors,
             )
         return (fit_diff2 > max_diff2).nonzero()[0], res2
 
-    logger = logging.getLogger(__name__)
     num_free_coef = len(weighted_predictors)
 
     if 0.0 <= max_downdates < 1:
@@ -118,6 +121,13 @@ def iterative_fit_qr(weighted_predictors,
     for rej_iter in range(-1 if pre_reject else 0, max_rej_iter + 1):
         weighted_target = numpy.delete(weighted_target, bad_ind)
         if len(weighted_target) < num_free_coef:
+            logger.critical(
+                'Iteration %d has too few sources: %d to fit for %d '
+                'coefficients.\n',
+                rej_iter,
+                len(weighted_target),
+                num_free_coef
+            )
             return None, None, 0
 
         weighted_predictors = numpy.delete(weighted_predictors, bad_ind, 1)
@@ -160,6 +170,8 @@ def iterative_fit_qr(weighted_predictors,
                 )[permutation]
                 #pylint: enable=no-member
             except scipy.linalg.LinAlgError:
+                logger.critical('Linear least squares fit failed:\n%s',
+                                format_exc())
                 return None, None, 0
         bad_ind, fit_res2 = rejected_indices(
             numpy.dot(best_fit_coef, weighted_predictors) - weighted_target,
