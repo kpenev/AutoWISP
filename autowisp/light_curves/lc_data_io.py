@@ -131,7 +131,7 @@ class LCDataIO:
             config_components = {}
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
-            ignore_rex = re.compile(r'\.epd\.')
+            ignore_rex = re.compile(r'\.epd\.|\.tfa\.')
             key_rex = {
                 'config': _config_dset_key_rex,
                 'perframe': re.compile(
@@ -158,9 +158,13 @@ class LCDataIO:
             }
 
             for lc_quantity in lc_example.elements['dataset']:
-                split_quantity = lc_quantity.split('.')
-                if split_quantity[1] in ['epf', 'tfa']:
+                cls._logger.debug('Organizing LC quantity: %s',
+                                  repr(lc_quantity))
+                if ignore_rex.search(lc_quantity):
+                    cls._logger.debug('Skipping: %s', repr(lc_quantity))
                     continue
+
+                split_quantity = lc_quantity.split('.')
                 if split_quantity[0] == 'fitsheader':
                     cls.header_datasets[lc_quantity] = split_quantity[-1]
 
@@ -179,8 +183,6 @@ class LCDataIO:
                     )
                 )
 
-                if ignore_rex.search(lc_quantity):
-                    continue
 
                 found_match = False
                 for key_type, type_rex in key_rex.items():
@@ -200,9 +202,15 @@ class LCDataIO:
                                    'skytoframe.sky_center']:
                     dimensions += ('sky_coord',)
 
+                cls._logger.debug('Dimensions for %s: %s',
+                                  repr(lc_quantity),
+                                  repr(dimensions))
                 cls.dataset_dimensions[lc_quantity] = dimensions
 
                 if lc_quantity.endswith('.' + cls.cfg_index_id):
+                    cls._logger.debug('%s is configuration quantity.',
+                                      repr(lc_quantity))
+
                     config_group = parent + '/Configuration'
                     assert config_group not in config_components
                     config_components[config_group] = lc_quantity[
@@ -352,11 +360,14 @@ class LCDataIO:
         cls.max_dimension_size = {
             'source': num_sources,
             'aperture_index': config['max_apertures'],
-            'magfit_iteration': config['num_magfit_iterations'],
             'srcextract_psf_param': len(config['srcextract_psf_params']),
             'srcproj_column_name': len(config['srcproj_column_names']),
             'sky_coord': 2
         }
+        if config['num_magfit_iterations']:
+            cls.max_dimension_size['magfit_iteration'] = (
+                config['num_magfit_iterations']
+            )
 
         cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
