@@ -321,9 +321,10 @@ class ProcessingManager(ABC):
                     InputMasterTypes.image_type_id == image_type_id
                 )
         ):
-            evaluated_expressions['masters'][master_type.name] = (
-                self._get_master(master_type, evaluate, db_session)
-            )
+            if master_type.name not in ['epd_stat', 'tfa_stat']:
+                evaluated_expressions['masters'][master_type.name] = (
+                    self._get_master(master_type, evaluate, db_session)
+                )
 
         return evaluated_expressions
 

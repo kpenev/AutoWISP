@@ -206,11 +206,13 @@ class EPDCorrection(Correction):
         def prepare_fit(extra_predictor_order):
             """Return predictors, weights, and array flagging points to fit."""
 
-            evaluate = Evaluator(
-                light_curve.read_data_array(self.used_variables)
-            )
+            lc_variables = light_curve.read_data_array(self.used_variables)
+            self._logger.debug('Creating evaluator from:\n%s',
+                               repr(lc_variables))
+            evaluate = Evaluator(lc_variables)
 
             predictors = FitTermsInterface(self.fit_terms_expression)(evaluate)
+            self._logger.debug('Predictors:\n%s', repr(predictors))
 
             if extra_predictors:
                 predictors = recfunctions.append_fields(
@@ -228,6 +230,10 @@ class EPDCorrection(Correction):
                 if self.fit_points_filter_expression is not None else
                 numpy.ones(predictors.shape[1], dtype=bool)
             )
+            self._logger.debug('Fit points (%s): %d\n%s',
+                               self.fit_points_filter_expression,
+                               fit_points.sum(),
+                               repr(fit_points))
             predictors = predictors[:, fit_points]
 
             if self.fit_weights is None:
@@ -348,39 +354,40 @@ class EPDCorrection(Correction):
                 result.dtype.names[-num_extra_predictors:] if extra_predictors
                 else []
             )
-            if not fit_points.any():
-                return result
+            if fit_points.any():
+                for fit_index, to_fit in enumerate(
+                        zip(self.fit_datasets, fit_weights)
+                ):
+                    try:
+                        correct_one_dataset(
+                            light_curve=light_curve,
+                            predictors=predictors,
+                            fit_points=fit_points,
+                            fit_target=to_fit[0],
+                            weights=to_fit[1],
+                            fit_index=fit_index,
+                            result=result,
+                            num_extra_predictors=num_extra_predictors
+                        )
+                    except:
+                        error_message = '\n'.join([
+                            f'EPD failed for {to_fit[0]!r} dataset of '
+                            f'{lc_fname!r}'
+                            f'Predictors:\n{predictors!r}'
+                            f'fit_points:\n{fit_points!r}'
+                            f'fit_weights:\n{to_fit[1]!r}'
+                            f'fit_index: {fit_index:d}'
+                            f'num_extra_predictors: {num_extra_predictors:d}\n'
+                        ]) + format_exc()
+                        self._logger.critical(error_message)
 
-            for fit_index, to_fit in enumerate(
-                    zip(self.fit_datasets, fit_weights)
-            ):
-                try:
-                    correct_one_dataset(
-                        light_curve=light_curve,
-                        predictors=predictors,
-                        fit_points=fit_points,
-                        fit_target=to_fit[0],
-                        weights=to_fit[1],
-                        fit_index=fit_index,
-                        result=result,
-                        num_extra_predictors=num_extra_predictors
-                    )
-                except:
-                    error_message = '\n'.join([
-                        f'EPD failed for {to_fit[0]!r} dataset of {lc_fname!r}'
-                        f'Predictors:\n{predictors!r}'
-                        f'fit_points:\n{fit_points!r}'
-                        f'fit_weights:\n{to_fit[1]!r}'
-                        f'fit_index: {fit_index:d}'
-                        f'num_extra_predictors: {num_extra_predictors:d}\n'
-                    ]) + format_exc()
-                    self._logger.critical(error_message)
-
-                    #The point is to avoid pickling error when some exceptions
-                    #cannot travel back from Pool
-                    #pylint: disable=raise-missing-from
-                    raise RuntimeError(error_message)
-                    #pylint: enable=raise-missing-from
+                        #The point is to avoid pickling error when some
+                        #exceptions cannot travel back from Pool
+                        #pylint: disable=raise-missing-from
+                        raise RuntimeError(error_message)
+                        #pylint: enable=raise-missing-from
+            else:
+                self._logger.info('No points to fit in %s', repr(lc_fname))
 
             self.mark_progress(int(light_curve['Identifiers'][0][1]))
         return result

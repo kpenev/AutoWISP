@@ -17,6 +17,8 @@ class Correction:
             fitting. See iterative_fit() for details.
     """
 
+    _logger = logging.getLogger(__name__)
+
     @staticmethod
     def _get_config_key_prefix(fit_target):
         """Return the prefix of the pipeline key for storing configuration."""
@@ -257,6 +259,8 @@ class Correction:
                            in_place=False):
         """Fix magfit iteration in substitutions if negative."""
 
+        self._logger.debug('Fixing LC substitutions: %s',
+                           repr(substitutions))
         if substitutions.get('magfit_iteration', 0) >= 0:
             return substitutions
         if not in_place:
@@ -284,10 +288,10 @@ class Correction:
             fit_points=fit_points,
             substitutions=fit_target[1]
         )
-        logging.getLogger(__name__).debug('Fitting %s (%s) for %s ',
-                                          fit_target[0],
-                                          repr(substitutions),
-                                          light_curve.filename)
+        self._logger.debug('Fitting %s (%s) for %s ',
+                           fit_target[0],
+                           repr(substitutions),
+                           light_curve.filename)
         return get_fit_dataset(light_curve,
                                fit_target[0],
                                **substitutions)
