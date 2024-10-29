@@ -149,7 +149,7 @@ def collect_light_curves(dr_filenames,
         )
 
         data_io.prepare_for_writing([entry[0] for entry in config_skipped])
-        data_io.print_organized_configurations()
+        #data_io.print_organized_configurations()
 
         for write_arg in sources_lc_fnames:
             data_io.write(write_arg)

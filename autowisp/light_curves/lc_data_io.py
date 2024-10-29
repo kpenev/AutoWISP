@@ -1123,10 +1123,6 @@ class LCDataIO:
             psf_map = get_source_extracted_psf_map(data_reduction,
                                                    **self._path_substitutions)
             psf_param_values = psf_map(source_data)
-            print('Evaluated PSF params: ' + repr(psf_param_values.dtype.names))
-            print('Expected PSF params: '
-                  +
-                  repr(self._config['srcextract_psf_params']))
 
             assert(set(psf_param_values.dtype.names)
                    ==
@@ -1152,12 +1148,9 @@ class LCDataIO:
             background=False,
             **self._path_substitutions
         )
-        print('Read sources: ' + repr(source_data))
 
         data_slice_source_indices = [self.source_destinations.get(src_id)
                                      for src_id in source_data.index]
-
-        print('Destination indices: ' + repr(data_slice_source_indices))
 
         skipped_sources = []
         for skip_src, slice_ind in zip(source_data.index,
@@ -1165,12 +1158,8 @@ class LCDataIO:
             if slice_ind is None:
                 skipped_sources.append(skip_src)
 
-        print('Skipping sources: ' + repr(skipped_sources))
-
         if skipped_sources:
             source_data.drop(skipped_sources, inplace=True)
-
-        print('Remaining sources: ' + repr(skipped_sources))
 
         fill_direct_from_dr(data_slice_source_indices)
         fill_sky_position_datasets(data_slice_source_indices)
