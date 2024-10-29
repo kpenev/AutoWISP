@@ -1,7 +1,7 @@
 {% if svg or onclick %}
 <svg width="{{size}}" 
      height="{{size}}" 
-     viewBox="0.0 0.0 1.0 1.0"
+     viewBox="-0.5 -0.5 2.0 2.0"
      class="plot-marker {{symb}}"
 {% if onclick %}
      onclick={{onclick}}
@@ -10,11 +10,11 @@
 {% endif %}
 {% widthratio 1 2 size as half %}
 {% if symb ==  "x" %}
-    <line x1="0" y1="0" x2="1", y2="1" stroke="#fff" stroke-width="0.2"/>
-    <line x1="0" y1="1" x2="1", y2="0" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0" y1="0" x2="1" y2="1" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0" y1="1" x2="1" y2="0" stroke="#fff" stroke-width="0.2"/>
 {% elif symb == "+" %}
-    <line x1="0" y1="0.5" x2="1", y2="0.5" stroke="#fff" stroke-width="0.2"/>
-    <line x1="0.5" y1="0" x2="0.5", y2="1" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0" y1="0.5" x2="1" y2="0.5" stroke="#fff" stroke-width="0.2"/>
+    <line x1="0.5" y1="0" x2="0.5" y2="1" stroke="#fff" stroke-width="0.2"/>
 {% elif symb == "o" %}
     <circle cx="0.5" cy="0.5" r="0.5" stroke-width="0" fill="#fff"/>
 {% elif symb == "s" %}
