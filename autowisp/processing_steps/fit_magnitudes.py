@@ -201,6 +201,7 @@ def fit_magnitudes(dr_collection,
             'Data reduction file %s has outlier pointing. Discarding!',
             outlier_dr
         )
+        mark_start(outlier_dr)
         mark_end(outlier_dr, -2, final=True)
 
     master_photref_fname, magfit_stat_fname = magnitude_fitting.iterative_refit(
