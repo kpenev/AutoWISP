@@ -253,7 +253,8 @@ class ProcessingManager(ABC):
     def _get_master(self, master_type, image_eval, db_session):
         """Return the master that should be used for the given image."""
 
-        print(f'Getting master {master_type}')
+        self._logger.debug('Getting master type: %s',
+                           repr(master_type))
         all_masters = db_session.scalars(
             select(
                 MasterFile
@@ -265,14 +266,18 @@ class ProcessingManager(ABC):
         candidates = []
         for master in all_masters:
             master_eval = Evaluator(master.filename)
-            print(f'Master keywords: {master_eval.symtable.keys()}')
+            self._logger.debug('Created Master evaluator')
             all_match = True
             for expr in master.master_type.match_expressions:
+                self._logger.debug('Comparing: %s',
+                                   repr(expr.expression))
                 if master_eval(expr.expression) != image_eval(expr.expression):
                     all_match = False
                     break
             if all_match:
                 candidates.append(master)
+        self._logger.debug('Candidate Masters: %s',
+                           repr(candidates))
         if len(candidates) == 1:
             return candidates[0].filename
         return self._get_best_master(candidates, image_eval)
@@ -319,7 +324,7 @@ class ProcessingManager(ABC):
                     InputMasterTypes
                 ).where(
                     InputMasterTypes.image_type_id == image_type_id
-                )
+                ).distinct()
         ):
             if master_type.name not in ['epd_stat', 'tfa_stat']:
                 evaluated_expressions['masters'][master_type.name] = (
@@ -377,24 +382,26 @@ class ProcessingManager(ABC):
 
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
-        print(f'Evaluating expressions for: {image!r}')
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
         evaluate.symtable.update(extra_keywords)
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
-        print(
-            f'Matched expressions: {self.get_matched_expressions(evaluate)!r}'
-        )
         self._evaluated_expressions[image.id] = {}
 
         all_channel={'matched': None, 'values': None}
         for channel_name, channel_slice in self._get_split_channels(
                 image
         ).items():
+            self._logger.debug('Adding channel keywords for channel %s of %s',
+                               channel_name,
+                               image.raw_fname)
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
-
+            self._logger.debug('Configuring for channel %s (%s) of %s',
+                               channel_name,
+                               evaluate.symtable['CLRCHNL'],
+                               image.raw_fname)
             calib_config = self.get_config(
                 self.get_matched_expressions(evaluate),
                 step_name='calibrate',
