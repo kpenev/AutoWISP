@@ -25,6 +25,8 @@ from autowisp import processing_steps
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
+    Condition,\
+    ConditionExpression,\
     Configuration,\
     ImageType,\
     ImageProcessingProgress,\
@@ -110,6 +112,10 @@ class ProcessingManager(ABC):
             just the common (intersection) set of expressions satisfied for all
             channels.
 
+        _master_expressions(dict):    Indexed by master type, then tuple of
+            expression values ordered by expression ID of the masters of the
+            given type that match the given expression values.
+
         pending(dict):     Information about what images or lightcurves still
             need processing by the various steps. The format is different for
             image vs lightcurve processing managers.
@@ -173,6 +179,8 @@ class ProcessingManager(ABC):
     def _write_config_file(self,
                            matched_expressions,
                            outf,
+                           db_session,
+                           *,
                            db_steps=None,
                            step_names=None):
         """
@@ -185,30 +193,27 @@ class ProcessingManager(ABC):
 
         #TODO: exclude master options
         if db_steps is None:
-
-            #False positivie
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-
-                if step_names is None:
-                    steps = db_session.scalars(
-                        select(Step).order_by(Step.id)
-                    ).all()
-                else:
-                    steps = [
-                        db_session.execute(
-                            select(Step).filter_by(name=name)
-                        ).scalar_one()
-                        for name in step_names
-                    ]
-                return self._write_config_file(matched_expressions,
-                                               outf,
-                                               db_steps=steps)
+            if step_names is None:
+                steps = db_session.scalars(
+                    select(Step).order_by(Step.id)
+                ).all()
+            else:
+                steps = [
+                    db_session.execute(
+                        select(Step).filter_by(name=name)
+                    ).scalar_one()
+                    for name in step_names
+                ]
+            return self._write_config_file(matched_expressions,
+                                           outf,
+                                           db_steps=steps,
+                                           db_session=db_session)
 
         result = set()
 
         for step in db_steps:
+            self._logger.debug('Getting configuration for %s step',
+                               step.name)
             outf.write(f'[{step.name}]\n')
             step_config = self.get_param_values(
                 matched_expressions,
@@ -217,11 +222,17 @@ class ProcessingManager(ABC):
                     for param in step.parameters
                 ]
             )
+            self._logger.debug(
+                'Adding configuration for %s step to config file',
+                step.name
+            )
+
             for param, value in step_config.items():
                 if value is not None:
                     outf.write(f'    {param} = {value!r}\n')
-                    print(f'    {param} = {value!r}\n')
+                    self._logger.debug('    %s = %s', param, repr(value))
                     result.add((param, value))
+                    self._logger.debug('    %s in result', param)
 
             outf.write('\n')
 
@@ -240,42 +251,75 @@ class ProcessingManager(ABC):
 
         best_master_value = infinity
         best_master_fname = None
-        for master in candidate_masters:
-            assert master.use_smallest is not None
-            master_value = image_eval(master.use_smallest)
+        for master_fname, use_smallest in candidate_masters:
+            assert use_smallest is not None
+            master_value = image_eval(use_smallest)
             if master_value < best_master_value:
                 best_master_value = master_value
-                best_master_fname = master.filename
+                best_master_fname = master_fname
         assert best_master_fname
         return best_master_fname
 
 
-    def _get_master(self, master_type, image_eval, db_session):
+    def _get_master(self, master_type, image_values, image_eval, db_session):
         """Return the master that should be used for the given image."""
 
-        self._logger.debug('Getting master type: %s',
-                           repr(master_type))
-        all_masters = db_session.scalars(
+        expressions = db_session.execute(
             select(
-                MasterFile
-            ).filter_by(
-                type_id=master_type.id,
-                enabled=True,
+                ConditionExpression.id,
+                ConditionExpression.expression
+            ).join_from(
+                Condition,
+                ConditionExpression,
+                Condition.expression_id == ConditionExpression.id
+            ).where(
+                Condition.id == master_type.condition_id
+            ).order_by(
+                ConditionExpression.id
             )
         ).all()
-        candidates = []
-        for master in all_masters:
-            master_eval = Evaluator(master.filename)
-            self._logger.debug('Created Master evaluator')
-            all_match = True
-            for expr in master.master_type.match_expressions:
-                self._logger.debug('Comparing: %s',
-                                   repr(expr.expression))
-                if master_eval(expr.expression) != image_eval(expr.expression):
-                    all_match = False
-                    break
-            if all_match:
-                candidates.append(master)
+
+        if master_type.name not in self._master_expressions:
+            self._logger.debug(
+                'Evaluating expressions for all masters of type: %s',
+                repr(master_type.name)
+            )
+            self._master_expressions[master_type.name] = {}
+            all_masters = db_session.execute(
+                select(
+                    MasterFile.filename,
+                    MasterFile.use_smallest
+                ).filter_by(
+                    type_id=master_type.id,
+                    enabled=True,
+                )
+            ).all()
+            for master in all_masters:
+                master_eval = Evaluator(master.filename)
+                expr_values = tuple(master_eval(expr)
+                                    for _, expr in expressions)
+                if (
+                    expr_values
+                    not in
+                    self._master_expressions[master_type.name]
+                ):
+                    self._master_expressions[master_type.name][expr_values] = []
+                self._master_expressions[master_type.name][expr_values].append(
+                    master
+                )
+
+        expr_values = tuple(
+            image_values[expr_id] for expr_id, _ in expressions
+        )
+        self._logger.debug(
+            'Master %s available for: %s',
+            master_type.name,
+            repr(self._master_expressions[master_type.name].keys())
+        )
+
+        candidates = self._master_expressions[master_type.name].get(expr_values,
+                                                                    [])
+
         self._logger.debug('Candidate Masters: %s',
                            repr(candidates))
         if len(candidates) == 1:
@@ -328,7 +372,10 @@ class ProcessingManager(ABC):
         ):
             if master_type.name not in ['epd_stat', 'tfa_stat']:
                 evaluated_expressions['masters'][master_type.name] = (
-                    self._get_master(master_type, evaluate, db_session)
+                    self._get_master(master_type,
+                                     evaluated_expressions['values'],
+                                     evaluate,
+                                     db_session)
                 )
 
         return evaluated_expressions
@@ -404,6 +451,7 @@ class ProcessingManager(ABC):
                                image.raw_fname)
             calib_config = self.get_config(
                 self.get_matched_expressions(evaluate),
+                db_session,
                 step_name='calibrate',
             )[0]
             self._logger.debug('Raw HDU for channel %s (%s) of %s: %s',
@@ -612,6 +660,7 @@ class ProcessingManager(ABC):
         self.configuration = {}
         self.condition_expressions = {}
         self._evaluated_expressions = {}
+        self._master_expressions = {}
         self._processed_ids = {}
         self.pending = {}
         self._some_failed = False
@@ -652,6 +701,7 @@ class ProcessingManager(ABC):
 
             self._processing_config = self.get_config(
                 self.get_matched_expressions(Evaluator()),
+                db_session,
                 step_name='add_images_to_db',
             )[0]
             del self._processing_config['processing_step']
@@ -690,6 +740,7 @@ class ProcessingManager(ABC):
 
     def get_config(self,
                    matched_expressions,
+                   db_session,
                    *,
                    db_step=None,
                    step_name=None,
@@ -712,8 +763,11 @@ class ProcessingManager(ABC):
                 matched_expressions,
                 config_file,
                 db_steps=[db_step] if db_step else None,
-                step_names=[step_name] if not db_step else None
+                step_names=[step_name] if not db_step else None,
+                db_session=db_session
             )
+            self._logger.debug('Flushing config file %s',
+                               repr(config_file.name))
             config_file.flush()
             self._logger.debug('Wrote config file %s', repr(config_file.name))
             return getattr(
@@ -854,15 +908,21 @@ class ProcessingManager(ABC):
         matched_expressions = self.get_matched_expressions(
             Evaluator(example_header)
         )
-        if isinstance(outf, str):
-            with open(outf, 'w', encoding='utf-8') as opened_outf:
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            if isinstance(outf, str):
+                with open(outf, 'w', encoding='utf-8') as opened_outf:
+                    self._write_config_file(matched_expressions,
+                                            opened_outf,
+                                            step_names=steps,
+                                            db_session=db_session)
+            else:
                 self._write_config_file(matched_expressions,
-                                        opened_outf,
-                                        step_names=steps)
-        else:
-            self._write_config_file(matched_expressions,
-                                    outf,
-                                    step_names=steps)
+                                        outf,
+                                        step_names=steps,
+                                        db_session=db_session)
 
     @abstractmethod
     def __call__(self, limit_to_steps=None):

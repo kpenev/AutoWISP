@@ -388,6 +388,7 @@ class ImageProcessingManager(ProcessingManager):
         first_image_expressions = self._evaluated_expressions[batch[0][0].id]
         config, config_key = self.get_config(
             first_image_expressions[batch[0][1]]['matched'],
+            db_session,
             db_step=step
         )
         config_key |= {master_expression_values}
@@ -1414,8 +1415,9 @@ class ImageProcessingManager(ProcessingManager):
                     ConditionExpression.notes == 'Default expression'
                 )
             )
-        configuration = self.get_config({default_expression_id},
-                                        step_name='add_images_to_db')[0]
+            configuration = self.get_config({default_expression_id},
+                                            db_session,
+                                            step_name='add_images_to_db')[0]
         processing_steps.add_images_to_db.add_images_to_db(image_collection,
                                                            configuration)
 #pylint: enable=too-many-instance-attributes
