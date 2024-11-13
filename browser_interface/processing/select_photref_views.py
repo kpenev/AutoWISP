@@ -49,12 +49,7 @@ def _get_missing_photref(request):
             for pending in processing.pending[
                     (step[0].id, step[1].id)
             ]:
-                processing.evaluate_expressions_image(
-                    pending[0],
-                    db_session,
-                    IMAGE_TYPE=pending[0].image_type.name,
-                    OBS_SESN=pending[0].observing_session.label
-                )
+                processing.evaluate_expressions_image(pending[0], db_session)
 
         request.session['demo'] = False
         if not reduce(lambda x, y: bool(x) or bool(y),
