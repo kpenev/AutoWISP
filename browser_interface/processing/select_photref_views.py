@@ -113,6 +113,7 @@ def _get_missing_photref(request):
                 ):
                     config = processing.get_config(
                         matched_expressions=None,
+                        db_session=db_session,
                         image_id=by_master_values[0][0].id,
                         channel=by_master_values[0][1],
                         step_name='calculate_photref_merit'
