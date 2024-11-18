@@ -547,8 +547,8 @@ class ProcessingManager(ABC):
                             path.basename(
                                 Process(
                                     processing.process_id
-                                ).cmdline()[1] == 'processing.py'
-                            )
+                                ).cmdline()[1]
+                            ) == 'processing.py'
                         )
                 ):
                     raise ProcessingInProgress(processing)
