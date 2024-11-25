@@ -399,7 +399,7 @@ class ProcessingManager(ABC):
         )
 
 
-    def evaluate_expressions_image(self, image, db_session, **extra_keywords):
+    def evaluate_expressions_image(self, image, db_session):
         """
         Return evaluator for header expressions for given image.
 
@@ -414,9 +414,6 @@ class ProcessingManager(ABC):
             return_evaluator(bool):    Should an evaluator setup per the image
                 header be returned for further use?
 
-            extra_keywords(dict):    Additional keywords to add to to the
-                evaluater on top of what already exists in the header.
-
         Returns:
             Evaluator or None:
                 Evaluator ready to evaluate additional expressions involving
@@ -430,7 +427,10 @@ class ProcessingManager(ABC):
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
-        evaluate.symtable.update(extra_keywords)
+        evaluate.symtable.update(
+            IMAGE_TYPE=image.image_type.name,
+            OBS_SESN=image.observing_session.label
+        )
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
         self._evaluated_expressions[image.id] = {}
@@ -547,8 +547,8 @@ class ProcessingManager(ABC):
                             path.basename(
                                 Process(
                                     processing.process_id
-                                ).cmdline()[1] == 'processing.py'
-                            )
+                                ).cmdline()[1]
+                            ) == 'processing.py'
                         )
                 ):
                     raise ProcessingInProgress(processing)

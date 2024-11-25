@@ -567,12 +567,7 @@ class ImageProcessingManager(ProcessingManager):
 
         for image, _, __ in need_cleanup:
             if image.id not in self._evaluated_expressions:
-                self.evaluate_expressions_image(
-                    image,
-                    db_session,
-                    IMAGE_TYPE=image.image_type.name,
-                    OBS_SESN=image.observing_session.label
-                )
+                self.evaluate_expressions_image(image, db_session)
 
         cleanup_batches = self._get_config_batches(pending,
                                                    input_type,
@@ -707,12 +702,7 @@ class ImageProcessingManager(ProcessingManager):
             pending_images = new_pending
 
         for image, channel_name, _ in pending_images:
-            self.evaluate_expressions_image(
-                image,
-                db_session,
-                IMAGE_TYPE=image.image_type.name,
-                OBS_SESN=image.observing_session.label
-            )
+            self.evaluate_expressions_image(image, db_session)
             self._init_processed_ids(image, [channel_name], step_input_type)
 
         self._logger.info('Starting %s step for %d %s images',
