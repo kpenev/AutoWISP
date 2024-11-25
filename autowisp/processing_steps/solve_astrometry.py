@@ -122,7 +122,7 @@ def parse_command_line(*args):
     parser.add_argument(
         '--trans-threshold',
         type=float,
-        default=1e-3,
+        default=0.005,
         help='The threshold for the difference of two consecutive '
              'transformations'
     )
