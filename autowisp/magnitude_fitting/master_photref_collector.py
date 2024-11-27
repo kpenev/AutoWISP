@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+
 """Define class for collecting statistics and making a master photref."""
 
 import os
 from subprocess import Popen, PIPE
 import logging
 
+import zarr
 import numpy
 from astropy.io import fits
 
@@ -608,3 +611,41 @@ class MasterPhotrefCollector:
                                outlier_threshold=fit_outlier_threshold,
                                reference_fname=master_reference_fname,
                                primary_header=primary_header)
+
+
+if __name__ == '__main__':
+    from time import time
+
+    nstars = 5000
+    nframes = 5000
+    nphot = 40
+    max_mem = 2 * 1024**3
+    dtype = numpy.dtype(float)
+    chunk_size = int(max_mem / (nframes * nphot * dtype.itemsize))
+    print(f'Using chunk size: {chunk_size}')
+    arr = zarr.empty((nstars, nframes, nphot),
+                     chunks=(chunk_size,  None, None),
+                     dtype=dtype,
+                     store=zarr.TempStore())
+    arr_med = numpy.empty((nstars, nphot), dtype=dtype)
+    print(f'Stored at: {arr.store.dir_path()}')
+    print('Setting random values')
+    start = time()
+    for b in range(arr.cdata_shape[0]):
+        arr.blocks[b] = numpy.random.rand(
+            min(nstars - b * chunk_size, chunk_size),
+            nframes,
+            nphot
+        )
+        print(f'Progress {b + 1}/{arr.cdata_shape[0]}')
+    print(f'Setting took {time() - start} sec')
+    print('Calculating median')
+    start = time()
+    for b in range(arr.cdata_shape[0]):
+        arr_med[
+            b * chunk_size : min(nstars, (b + 1) * chunk_size),
+            :
+        ] = numpy.median(arr.blocks[b], 1)
+        print(f'Progress {b + 1}/{arr.cdata_shape[0]}')
+    print(f'Median took {time() - start} sec.')
+    print(repr(arr_med))
