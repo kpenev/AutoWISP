@@ -195,15 +195,21 @@ def get_path_substitutions(configuration):
 def create_master_catalog(catalog_sources, catalog_centers, configuration):
     """Create a FITS catalog containing the given sources."""
 
-    with DataReductionFile(configuration['single_photref_dr_fname'], 'r') as \
-            sphotref_dr:
-        master_cat_fname = configuration['lightcurve_catalog_fname'].format_map(
-            sphotref_dr.get_frame_header()
-        )
-
     table_hdu = fits.table_to_hdu(
         Table.from_pandas(catalog_sources, index=True)
     )
+
+    with DataReductionFile(configuration['single_photref_dr_fname'], 'r') as \
+            sphotref_dr:
+        sphotref_header = sphotref_dr.get_frame_header()
+        master_cat_fname = configuration['lightcurve_catalog_fname'].format_map(
+            sphotref_header
+        )
+        for k in ['NAXIS', 'NAXIS1', 'NAXIS2', 'BITPIX', 'XTENSION']:
+            if k in sphotref_header:
+                del sphotref_header[k]
+        table_hdu.header.update(sphotref_header)
+
     table_hdu.header['SPHOTREF'] = configuration['single_photref_dr_fname']
     for coord in ['RA', 'Dec']:
         table_hdu.header[coord] = numpy.median(catalog_centers[coord])

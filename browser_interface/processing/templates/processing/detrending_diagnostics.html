@@ -69,12 +69,12 @@ Detrending Performance
                         <div class="dropdown">
                             <button class="dropbtn selected-marker"
                                     id="marker-button:{{processing.id}}">
-                                {% include "core/plot_marker.html" with symb=processing.marker size="15" svg="T" %}
+                                {% include "core/plot_marker.html" with symb=processing.marker size="30" svg="T" %}
                             </button>
                                 <div class="dropdown-content"
                                      id="marker:{{processing.id}}">
                                     {% for symb in " x+osv^<>" %}
-                                    {% include "core/plot_marker.html" with symb=symb size="15" svg="T" %}
+                                    {% include "core/plot_marker.html" with symb=symb size="30" svg="T" %}
                                     {% endfor %}
                                 </div>
                         </div> 

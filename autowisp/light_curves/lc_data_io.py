@@ -131,7 +131,7 @@ class LCDataIO:
             config_components = {}
 
             substitution_rex = re.compile(r'.*?%[(](?P<substitution>.*?)[)]')
-            ignore_rex = re.compile(r'\.epd\.')
+            ignore_rex = re.compile(r'\.epd\.|\.tfa\.')
             key_rex = {
                 'config': _config_dset_key_rex,
                 'perframe': re.compile(
@@ -158,9 +158,13 @@ class LCDataIO:
             }
 
             for lc_quantity in lc_example.elements['dataset']:
-                split_quantity = lc_quantity.split('.')
-                if split_quantity[1] in ['epf', 'tfa']:
+                cls._logger.debug('Organizing LC quantity: %s',
+                                  repr(lc_quantity))
+                if ignore_rex.search(lc_quantity):
+                    cls._logger.debug('Skipping: %s', repr(lc_quantity))
                     continue
+
+                split_quantity = lc_quantity.split('.')
                 if split_quantity[0] == 'fitsheader':
                     cls.header_datasets[lc_quantity] = split_quantity[-1]
 
@@ -179,8 +183,6 @@ class LCDataIO:
                     )
                 )
 
-                if ignore_rex.search(lc_quantity):
-                    continue
 
                 found_match = False
                 for key_type, type_rex in key_rex.items():
@@ -200,9 +202,15 @@ class LCDataIO:
                                    'skytoframe.sky_center']:
                     dimensions += ('sky_coord',)
 
+                cls._logger.debug('Dimensions for %s: %s',
+                                  repr(lc_quantity),
+                                  repr(dimensions))
                 cls.dataset_dimensions[lc_quantity] = dimensions
 
                 if lc_quantity.endswith('.' + cls.cfg_index_id):
+                    cls._logger.debug('%s is configuration quantity.',
+                                      repr(lc_quantity))
+
                     config_group = parent + '/Configuration'
                     assert config_group not in config_components
                     config_components[config_group] = lc_quantity[
@@ -352,11 +360,14 @@ class LCDataIO:
         cls.max_dimension_size = {
             'source': num_sources,
             'aperture_index': config['max_apertures'],
-            'magfit_iteration': config['num_magfit_iterations'],
             'srcextract_psf_param': len(config['srcextract_psf_params']),
             'srcproj_column_name': len(config['srcproj_column_names']),
             'sky_coord': 2
         }
+        if config['num_magfit_iterations']:
+            cls.max_dimension_size['magfit_iteration'] = (
+                config['num_magfit_iterations']
+            )
 
         cls._classify_datasets(no_light_curve, path_substitutions.keys())
 
@@ -1112,10 +1123,6 @@ class LCDataIO:
             psf_map = get_source_extracted_psf_map(data_reduction,
                                                    **self._path_substitutions)
             psf_param_values = psf_map(source_data)
-            print('Evaluated PSF params: ' + repr(psf_param_values.dtype.names))
-            print('Expected PSF params: '
-                  +
-                  repr(self._config['srcextract_psf_params']))
 
             assert(set(psf_param_values.dtype.names)
                    ==
@@ -1141,12 +1148,9 @@ class LCDataIO:
             background=False,
             **self._path_substitutions
         )
-        print('Read sources: ' + repr(source_data))
 
         data_slice_source_indices = [self.source_destinations.get(src_id)
                                      for src_id in source_data.index]
-
-        print('Destination indices: ' + repr(data_slice_source_indices))
 
         skipped_sources = []
         for skip_src, slice_ind in zip(source_data.index,
@@ -1154,12 +1158,8 @@ class LCDataIO:
             if slice_ind is None:
                 skipped_sources.append(skip_src)
 
-        print('Skipping sources: ' + repr(skipped_sources))
-
         if skipped_sources:
             source_data.drop(skipped_sources, inplace=True)
-
-        print('Remaining sources: ' + repr(skipped_sources))
 
         fill_direct_from_dr(data_slice_source_indices)
         fill_sky_position_datasets(data_slice_source_indices)

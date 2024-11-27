@@ -1,9 +1,9 @@
 """Views for displaying diagnostics for the calibration steps."""
 
+import logging
 from io import StringIO, BytesIO
 import json
 
-import numpy
 import matplotlib
 from matplotlib import pyplot
 from sqlalchemy import select
@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 
 from autowisp import Evaluator
+from autowisp.bui_util import hex_color
 from autowisp.data_reduction import DataReductionFile
 from autowisp.database.interface import Session
 from autowisp.database.lightcurve_processing import LightCurveProcessingManager
@@ -153,7 +154,7 @@ def _init_lc_detrending_session(request):
                 )
             )
             lc_processing.evaluate_expressions_image(db_sphotref_image,
-                                                     sphotref_header['CLRCHNL'])
+                                                     db_session)
 
             catalog_fname, step_config = lc_processing.get_step_config(
                 step=db_step,
@@ -215,14 +216,7 @@ def display_detrending_diagnostics(request):
         ]
         color_map = matplotlib.colormaps.get_cmap('tab10')
         for photref_index, entry in enumerate(photref_entries):
-            entry['color'] = (
-                '#'
-                +
-                ''.join([
-                    f'{int(numpy.round(c * 255)):02x}'
-                    for c in color_map(photref_index % color_map.N)[:3]
-                ])
-            )
+            entry['color'] = hex_color(color_map(photref_index % color_map.N))
             entry['marker'] = ''
             entry['scale'] = '1.0'
             entry['min_fraction'] = '0.8'

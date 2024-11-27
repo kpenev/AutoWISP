@@ -400,7 +400,11 @@ def transform_dr_to_lc_path(pipeline_key, dr_path):
                 _default_paths['srcextract_psf_map']
             ),
             ('/ProjectedToFrameMap', ''),
-            ('/CatalogueSources', '/SkyToFrameTransformation')
+            ('/CatalogueSources', '/SkyToFrameTransformation'),
+            (
+                '/MagnitudeFitting/Iteration%\(magfit_iteration\)03d',
+                '/MagnitudeFitting',
+            )
     ]:
         result = re.sub(dr_string, lc_string, result)
 
@@ -637,8 +641,9 @@ def _get_detrended_datasets(magfit_datasets, mode='epd'):
 
     result = []
     for magfit_dset in magfit_datasets:
+        print(f'Magfit dataset: {magfit_dset!s}')
         magfit_tail = (
-            '/MagnitudeFitting/Iteration%(magfit_iteration)03d/Magnitude'
+            '/MagnitudeFitting/Magnitude'
         )
         assert magfit_dset.abspath.endswith(magfit_tail)
         root_path = (magfit_dset.abspath[:-len(magfit_tail)]
@@ -918,10 +923,7 @@ def _get_configuration_index_datasets(db_session):
         magfit_path = transform_dr_to_lc_path(
             magfit_dataset.pipeline_key,
             magfit_dataset.abspath
-        ).rsplit(
-            '/',
-            1
-        )[0]
+        )
 
         result.extend([
             HDF5DataSet(

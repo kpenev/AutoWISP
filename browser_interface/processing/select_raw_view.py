@@ -3,6 +3,7 @@
 from os import path, scandir
 import fnmatch
 import re
+from traceback import print_exc
 
 from django.views import View
 from django.shortcuts import render
@@ -106,6 +107,7 @@ class SelectRawImages(View):
             try:
                 ImageProcessingManager().add_raw_images(image_list)
             except OSError:
+                print_exc()
                 return HttpResponseRedirect(
                     reverse('processing:select_raw_images')
                 )

@@ -381,7 +381,7 @@ class LightCurveProcessingManager(ProcessingManager):
                     Image.raw_fname.contains(header['RAWFNAME'] + '.fits')
                 )
             )
-            self.evaluate_expressions_image(image, header['CLRCHNL'])
+            self.evaluate_expressions_image(image, db_session)
 
             self._current_image_type = image.image_type.name
             setup_process(task='main',

@@ -331,6 +331,8 @@ function showEditPlot(event) {
                 ])
                     document.getElementById("add-" + param_group).onclick =
                         () => addNewParam(param_group);
+                document.getElementById("lc-expressions").onchange =
+                    handleLCParamChange;
 
                 const lcDataSelect = JSON.parse(
                     document.getElementById("lc-data-select").textContent
@@ -357,7 +359,7 @@ function getModelParameters() {
     const modelDefine = document.getElementById("define-model");
     const model = {};
     for (element of modelDefine.getElementsByClassName("param")) {
-        model[element.id] = element.value;
+        model[element.id.substring(6)] = element.value;
     }
     return model;
 }
@@ -379,11 +381,28 @@ function changeModel() {
                     for (element of modelDefine.getElementsByClassName(
                         "param"
                     )) {
-                        element.value = model[element.id];
+                        element.value = model[element.id.substring(6)];
                     }
                 }
             }
         );
+    }
+
+    for (const updateId of ["x", "y", "match_by"]) {
+        updateElement = document.getElementById(updateId);
+        if (
+            modelSelect.value == "" 
+            && 
+            updateElement.lastElementChild.value == 'best_model'
+        )
+            updateElement.removeChild(updateElement.lastElementChild);
+        else if (updateElement.lastElementChild.value != 'best_model') {
+            const option = document.createElement("option");
+            option.value = "best_model";
+            option.textContent = "best_model";
+            updateElement.appendChild(option);
+
+        }
     }
 }
 
@@ -417,6 +436,12 @@ class plotCurvesType {
         this.elements.prevCurve.onclick = () => this.switchCurve(-1);
         this.elements.nextCurve.onclick = () => this.switchCurve(1);
         this.fixVisual();
+        const plotSymbols = document.getElementsByClassName("plot-marker");
+        for ( const symbol of plotSymbols ) {
+            if ( symbol.parentElement.id == "marker-option" )
+                symbol.addEventListener("click", selectSymbol);
+        }
+
     }
 
     //Deep copy the first curve in the current selection.
@@ -514,28 +539,39 @@ class plotCurvesType {
 
     //Save edits to the currently selected plot curve
     saveLoadCurve(load) {
+        const curveConfig = this.configuredCurves[
+            this.selectionInd
+        ].plot_config[
+            this.curveInd
+        ];
+
         for (const element of this.elements.define.getElementsByClassName(
             "param"
-        ))
-            if (load) {
-                this.configuredCurves[this.selectionInd].plot_config[this.curveInd][
-                    element.id
-                ] = element.value;
+        )) {
+            let config;
+            if (element.classList.contains('kwarg')) {
+                config = curveConfig.plot_kwargs;
             } else {
-                element.value =
-                    this.configuredCurves[this.selectionInd].plot_config[
-                        this.curveInd
-                    ][element.id];
+                config = curveConfig;
             }
+            if (element.id == "marker") {
+                let marker = element.children[0];
+                if (load)
+                    marker.className.baseVal = "plot-marker " +  config.marker;
+                else
+                    config.marker = marker.className.baseVal.split(" ")[1];
+            } else if (load) {
+                element.value = config[element.id]
+            } else {
+                config[element.id] = element.value;
+            }
+        }
     }
 
     //Save edits to the currently selected selection, including the curve
     saveLoadSelection(load) {
         this.saveLoadCurve(load);
         const thisSelection = this.configuredCurves[this.selectionInd];
-        console.log("Saving selection " + JSON.stringify(load) + ". Original: " 
-                    + 
-                    JSON.stringify(thisSelection));
         const paramGroupTargets = {
             "substitution": "lc_substitutions",
             "find-best": "find_best",
@@ -544,7 +580,6 @@ class plotCurvesType {
         for (const groupName in paramGroupTargets) {
             const target = thisSelection[paramGroupTargets[groupName]];
             const selectorStr = "[id^='" + groupName + "-key-']";
-            console.log("Selector string: " + selectorStr);
             for (
                 const keyElement 
                 of 
@@ -552,7 +587,6 @@ class plotCurvesType {
                 .getElementById(groupName + "s")
                 .querySelectorAll(selectorStr)
             ) {
-                console.log("Element ID: " + keyElement.id);
                 const valueElement = document.getElementById(
                     keyElement.id.replace("-key-", "-value-")
                 );
@@ -577,12 +611,22 @@ class plotCurvesType {
             const model = thisSelection['model'];
             if (model) {
                 document.getElementById("select-model").value = model.type;
+                changeModel.stashed[model.type] = JSON.parse(
+                    JSON.stringify(model.kwargs)
+                );
+                changeModel.stashed[model.type]["shift"] =
+                    Boolean(changeModel.stashed[model.type]["shift_to"]);
+                changeModel.stashed[model.type]["quantity"] = model["quantity"];
+
+                changeModel();
+                /*
                 document.getElementById("model-quantity").value = 
                     model["quantity"];
                 document.getElementById("model-shift").checked = 
                     model["shift_to"];
-                for ( param in model.kwargs )
+                for ( const param in model.kwargs )
                     document.getElementById["model-" + param] = model[param];
+                    */
             } else {
                 document.getElementById("select-model").value = "";
             }
@@ -608,23 +652,22 @@ class plotCurvesType {
                     const element 
                     of 
                     document
-                    .getElementById("define-model")
+                    .getElementById("model-params")
                     .getElementsByTagName("input")
                 ) {
-                    model["kwargs"][element.id] = element.value;
+                    model["kwargs"][element.id.substring(6)] = element.value;
                 }
                 thisSelection['model'] = model;
             } else {
                 thisSelection['model'] = null;
             }
-            console.log("Updated selection: " + JSON.stringify(thisSelection));
         }
     }
 
     //Switch the curve being configured, saving anything edited.
     switchCurve(step) {
         if (step) {
-            this.saveCurve();
+            this.saveLoadCurve();
 
             this.curveInd += step;
             if (this.curveInd < 0) {
@@ -675,6 +718,53 @@ function addNewParam(param_group) {
         input.value = "";
     }
     lastRow.after(newRow);
+}
+
+function handleLCParamChange(event) {
+    plotCurves.saveLoadSelection();
+    if (!event.target.id.startsWith("lc-expression-key"))
+        return;
+    const changeInd = parseInt(event.target.id.substring(18));
+    for (const updateId of ["x", "y", "match_by"]) {
+        updateElement = document.getElementById(updateId);
+        let numExpressions = updateElement.childElementCount;
+        let addElement;
+        if (updateElement.lastElementChild.value == "best_model") {
+            numExpressions--;
+            addElement = (
+                (opt) => updateElement.insertBefore(
+                    opt,
+                    updateElement.lastElementChild
+                )
+            );
+        } else 
+            addElement = updateElement.appendChild;
+        if (changeInd < numExpressions ) {
+            updateElement.children[changeInd].value = event.target.value;
+            updateElement.children[changeInd].textContent =
+                event.target.value;
+            return;
+        }
+        for (
+            let ind = numExpressions;
+            ind <= changeInd;
+            ind++
+        ) {
+            const option = document.createElement("option");
+            option.value = document
+                .getElementById("lc-expression-key-" + ind)
+                .value;
+            option.textContent = option.value;
+            addElement(option);
+        }
+    }
+}
+
+function selectSymbol(event)
+{
+    let markerButton = document.getElementById("marker");
+    markerButton.replaceChild(event.currentTarget.cloneNode(true), 
+                              markerButton.children[0]);
 }
 
 function initLightcurveDisplay(urls) {

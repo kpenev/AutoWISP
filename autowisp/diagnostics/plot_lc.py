@@ -116,7 +116,8 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                                      '.magfit.cfg.single_photref')
 
                 lc_eval.lc_points_selection = None
-                lc_eval.lc_points_selection = lc_eval(
+
+                lc_points_selection = lc_eval(
                     sphotref_dset_key
                     +
                     ' == '
@@ -125,11 +126,13 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                     raise_errors=True
                 )
                 if configuration['selection'] is not None:
-                    lc_eval.lc_points_selection = numpy.logical_and(
+                    lc_points_selection = numpy.logical_and(
                         lc_eval(configuration['selection'] or 'True',
                                 raise_errors=True),
-                        lc_eval.lc_points_selection
+                        lc_points_selection
                     )
+
+                lc_eval.lc_points_selection = lc_points_selection
                 if configuration[
                         'lc_substitutions'
                 ].get(
@@ -160,6 +163,7 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                     model=model,
                     expression_params={'mode': photometry_mode}
                 )
+                lc_eval.symtable['best_model'] = sphotref_result['best_model']
                 if best_minimize is None or minimize_value < best_minimize:
                     best_minimize = minimize_value
                     for var_name, var_expr in expressions.items():
@@ -186,16 +190,17 @@ def calculate_combined(plot_data, match_id_key, aggregation_function):
     )
 
     for var_name in fixed_order_data[0].keys():
-        if var_name == match_id_key or var_name == 'frame':
-            continue
-        combined_data[var_name] = pandas.concat(
-            (pandas.Series(data[var_name]) for data in fixed_order_data),
-            ignore_index=True
-        ).groupby(
-            match_ids
-        ).agg(
-            aggregation_function
-        ).to_numpy()
+        try:
+            combined_data[var_name] = pandas.concat(
+                (pandas.Series(data[var_name]) for data in fixed_order_data),
+                ignore_index=True
+            ).groupby(
+                match_ids
+            ).agg(
+                aggregation_function
+            ).to_numpy()
+        except TypeError:
+            pass
 
     return combined_data
 

@@ -201,7 +201,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                         config_component + '.cfg_index',
                         **substitutions
                     )
-                    print(f'Found config component {config_component!r}!')
                     if config_component not in self._config_indices:
                         self._config_indices[config_component] = {}
                     self._config_indices[config_component][substitution_key] = (
@@ -210,7 +209,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
                 return result
             except KeyError:
-                print(f'Config component {config_component!r} not found!')
                 config_component = config_component.rsplit('.', 1)[0]
 
 
@@ -325,7 +323,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
             config_keys = None
             for config_index, new_config in enumerate(configurations):
-                print(f'Configuration to save: {new_config!r}')
                 config_hash = hash(new_config)
                 if config_keys is None:
                     config_keys = [entry[0] for entry in new_config]
@@ -374,17 +371,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
             config_data_to_add[component + '.cfg_index'] = index_dset
             return config_data_to_add
 
-        if config_index_selection is not None:
-            print(
-                (
-                    f'Adding configurations for {component!r} in '
-                    f'{self.filename!r} for indices '
-                    f'(shape={config_indices.shape!r}): {config_indices!r}, '
-                    f'index selection (shape={config_index_selection.shape!r}):'
-                    f' {config_index_selection!r}'
-                )
-            )
-
         for pipeline_key, new_data in get_new_data().items():
             if (
                     config_index_selection is not None
@@ -398,41 +384,6 @@ class LightCurveFile(HDF5FileDatabaseStructure):
                                  shape=new_data.shape,
                                  dtype=new_data.dtype,
                                  **substitutions)
-                #This is actually more readable
-                #pylint: disable=consider-using-f-string
-                print(
-                    (
-                        'Adding entries to {!s} in {!r}: dset shape {!r}, '
-                        'index shape {!r}.'
-                    ).format(
-                        self._file_structure[pipeline_key].abspath
-                        %
-                        substitutions,
-                        self.filename,
-                        self[
-                            self._file_structure[pipeline_key].abspath
-                            %
-                            substitutions
-                        ].shape,
-                        config_index_selection.shape
-                    )
-                )
-                print(
-                    (
-                        '{!s} in {!r}: selected_shape {!r}, new_data shape {!r}'
-                    ).format(
-                        self._file_structure[pipeline_key].abspath
-                        %
-                        substitutions,
-                        self.filename,
-                        self[self._file_structure[pipeline_key].abspath
-                             %
-                             substitutions][config_index_selection].shape,
-                        new_data.shape
-                    )
-                )
-                #pylint: enable=consider-using-f-string
-
                 self[self._file_structure[pipeline_key].abspath
                      %
                      substitutions][config_index_selection] = new_data

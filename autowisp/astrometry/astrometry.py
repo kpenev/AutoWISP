@@ -34,31 +34,43 @@ _logger = logging.getLogger(__name__)
 
 def transformation_matrix(astrometry_order, xi, eta):
     """
-    Setting up the transformation matrix which includes the
-    related astrometry_orders of (xi, eta)
+    Constructs the transformation matrix for a given astrometry order.
 
     Args:
         astrometry_order(int): The order of the transformation to fit
 
-        xi(numpy array): from projected coordinates
+        xi(numpy.ndarray): from projected coordinates
 
-        eta(numpy array): from projected coordinates
+        eta(numpy.ndarray): from projected coordinates
 
     Returns:
-        trans_matrix(numpy array): transformation matrix
+        trans_matrix(numpy.ndarray): transformation matrix
 
     Notes:
         Ex: for astrometry_order 2: 1, xi, eta, xi^2, xi*eta, eta^2
     """
 
     #TODO: alocate matrix first with right size and then fill, instead of doing
-    #it the slow way below
+    #it the slow way below: new method seems to be not faster.
+    #if it is much slower than the initial, roll back!
 
-    trans_matrix = numpy.ones((eta.shape[0], 1))
+    # trans_matrix = numpy.ones((eta.shape[0], 1))
 
+    # for i in range(1, astrometry_order + 1):
+    #     for j in range(i + 1):
+    #         trans_matrix = numpy.block([trans_matrix, xi ** (i - j) * eta ** j])
+
+    num_terms = (astrometry_order + 1) * (astrometry_order + 2) // 2
+    n_points = len(xi)
+
+    trans_matrix = numpy.empty((n_points, num_terms))
+    trans_matrix[:, 0] = 1
+
+    col = 1
     for i in range(1, astrometry_order + 1):
         for j in range(i + 1):
-            trans_matrix = numpy.block([trans_matrix, xi ** (i - j) * eta ** j])
+                trans_matrix[:, col] = ((xi ** (i - j)) * (eta ** j)).ravel()
+                col +=1
 
     return trans_matrix
 
@@ -509,8 +521,8 @@ def refine_transformation(*,
 
     x_cent = x_frame / 2.0
     y_cent = y_frame / 2.0
-    xy_extracted = structured_to_unstructured(xy_extracted)
-    xy_extracted = xy_extracted[:, 0:2]
+    xy_extracted = structured_to_unstructured(xy_extracted)[:, 0:2]
+    # xy_extracted = xy_extracted[:, 0:2]
     counter = 0
     x_transformed = numpy.inf
     y_transformed = numpy.inf
@@ -520,7 +532,7 @@ def refine_transformation(*,
 
     while True:
 
-        counter = counter + 1
+        counter += 1
         if counter > 1:
             #TODO: fix pylint disables here
             #pylint:disable=used-before-assignment
@@ -536,10 +548,9 @@ def refine_transformation(*,
         )
         gnomonic_projection(catalog, projected, **radec_cent)
 
-        xi = projected['xi']
-        xi = xi.reshape(len(xi), 1)  # convert shape from (n,) to (n, 1)
-        eta = projected['eta']
-        eta = eta.reshape(len(eta), 1)  # convert shape from (n,) to (n, 1)
+        xi = projected['xi'].reshape(-1, 1)  # Reshape to (n, 1)
+        eta = projected['eta'].reshape(-1, 1)  # Reshape to (n, 1)
+
 
         trans_matrix_xy = transformation_matrix(astrometry_order,
                                                 xi,
@@ -626,7 +637,7 @@ def refine_transformation(*,
                 matched_sources['Dec'][j] = catalog['Dec'].iloc[k]
                 matched_sources['x'][j] = xy_extracted[ix[i], 0]
                 matched_sources['y'][j] = xy_extracted[ix[i], 1]
-                j = j + 1
+                j += 1
 
         cent_new = find_ra_dec(
             numpy.array([numpy.mean(xi), numpy.mean(eta)]),
@@ -663,5 +674,5 @@ def refine_transformation(*,
         )[0]
         trans_y = linalg.lstsq(
             trans_matrix,
-            matched_sources['y'].reshape(matched_sources['x'].size, 1)
+            matched_sources['y'].reshape(matched_sources['y'].size, 1)
         )[0]

@@ -49,11 +49,7 @@ def _get_missing_photref(request):
             for pending in processing.pending[
                     (step[0].id, step[1].id)
             ]:
-                processing.evaluate_expressions_image(
-                    pending[0],
-                    IMAGE_TYPE=pending[0].image_type.name,
-                    OBS_SESN=pending[0].observing_session.label
-                )
+                processing.evaluate_expressions_image(pending[0], db_session)
 
         request.session['demo'] = False
         if not reduce(lambda x, y: bool(x) or bool(y),
@@ -106,15 +102,18 @@ def _get_missing_photref(request):
                 masters_only=True
             )
             for by_master_values, master_values in by_photref:
-                candidate_masters = processing.get_candidate_masters(
-                    *by_master_values[0][:2],
-                    input_master_type,
-                    db_session
-                ) if not request.session['demo'] else False
-
-                if not candidate_masters:
+                if (
+                    request.session['demo']
+                    or
+                    not processing.get_master_fname(
+                        by_master_values[0][0].id,
+                        by_master_values[0][1],
+                        'single_photref'
+                    )
+                ):
                     config = processing.get_config(
                         matched_expressions=None,
+                        db_session=db_session,
                         image_id=by_master_values[0][0].id,
                         channel=by_master_values[0][1],
                         step_name='calculate_photref_merit'

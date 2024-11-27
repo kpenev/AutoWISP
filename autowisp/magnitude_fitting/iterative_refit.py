@@ -140,13 +140,16 @@ def iterative_refit(fit_dr_filenames,
         master_reference_fname = master_photref_fname_format.format_map(
             fname_substitutions
         )
-        magfit_stat_collector.generate_master(
-            master_reference_fname=master_reference_fname,
-            catalogue=catalog,
-            fit_terms_expression=master_scatter_fit_terms,
-            parse_source_id=source_id_parser,
-            extra_header=common_header
-        )
+        try:
+            magfit_stat_collector.generate_master(
+                master_reference_fname=master_reference_fname,
+                catalogue=catalog,
+                fit_terms_expression=master_scatter_fit_terms,
+                parse_source_id=source_id_parser,
+                extra_header=common_header
+            )
+        except RuntimeError:
+            return None, None
         new_reference = get_master_photref(master_reference_fname)
 
         common_sources = set(new_reference) & set(old_reference)

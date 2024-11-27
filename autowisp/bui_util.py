@@ -1,6 +1,6 @@
 """View for displaying FITS images."""
 
-from io import BytesIO, StringIO
+from io import BytesIO
 from base64 import b64encode
 from os.path import exists
 
@@ -102,3 +102,15 @@ def encode_fits(fits_fname,
             )
         ]
     }
+
+def hex_color(color_tuple):
+    """Return string of hex color give tuple of 0-1 float values."""
+
+    return (
+        '#'
+        +
+        ''.join([
+            f'{int(numpy.round(c * 255)):02x}'
+            for c in color_tuple[:3]
+        ])
+    )

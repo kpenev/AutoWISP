@@ -8,7 +8,7 @@ from socket import getfqdn
 
 from psutil import pid_exists, Process
 from sqlalchemy import sql, select
-from asteval import asteval
+from numpy import inf as infinity
 
 from general_purpose_python_modules.multiprocessing_util import\
     setup_process
@@ -25,9 +25,12 @@ from autowisp import processing_steps
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
 from autowisp.database.data_model import\
+    Condition,\
+    ConditionExpression,\
     Configuration,\
     ImageType,\
     ImageProcessingProgress,\
+    InputMasterTypes,\
     LightCurveProcessingProgress,\
     MasterFile,\
     MasterType,\
@@ -102,9 +105,16 @@ class ProcessingManager(ABC):
 
                 * dr: the filename of the data reduction file
 
+                * masters: A dictionary indexed by master type name of the best
+                  master of the given type to apply to the image
+
             An additional entry with channel=None is included which contains
             just the common (intersection) set of expressions satisfied for all
             channels.
+
+        _master_expressions(dict):    Indexed by master type, then tuple of
+            expression values ordered by expression ID of the masters of the
+            given type that match the given expression values.
 
         pending(dict):     Information about what images or lightcurves still
             need processing by the various steps. The format is different for
@@ -169,6 +179,8 @@ class ProcessingManager(ABC):
     def _write_config_file(self,
                            matched_expressions,
                            outf,
+                           db_session,
+                           *,
                            db_steps=None,
                            step_names=None):
         """
@@ -181,30 +193,27 @@ class ProcessingManager(ABC):
 
         #TODO: exclude master options
         if db_steps is None:
-
-            #False positivie
-            #pylint: disable=no-member
-            with Session.begin() as db_session:
-            #pylint: enable=no-member
-
-                if step_names is None:
-                    steps = db_session.scalars(
-                        select(Step).order_by(Step.id)
-                    ).all()
-                else:
-                    steps = [
-                        db_session.execute(
-                            select(Step).filter_by(name=name)
-                        ).scalar_one()
-                        for name in step_names
-                    ]
-                return self._write_config_file(matched_expressions,
-                                               outf,
-                                               db_steps=steps)
+            if step_names is None:
+                steps = db_session.scalars(
+                    select(Step).order_by(Step.id)
+                ).all()
+            else:
+                steps = [
+                    db_session.execute(
+                        select(Step).filter_by(name=name)
+                    ).scalar_one()
+                    for name in step_names
+                ]
+            return self._write_config_file(matched_expressions,
+                                           outf,
+                                           db_steps=steps,
+                                           db_session=db_session)
 
         result = set()
 
         for step in db_steps:
+            self._logger.debug('Getting configuration for %s step',
+                               step.name)
             outf.write(f'[{step.name}]\n')
             step_config = self.get_param_values(
                 matched_expressions,
@@ -213,15 +222,163 @@ class ProcessingManager(ABC):
                     for param in step.parameters
                 ]
             )
+            self._logger.debug(
+                'Adding configuration for %s step to config file',
+                step.name
+            )
+
             for param, value in step_config.items():
                 if value is not None:
                     outf.write(f'    {param} = {value!r}\n')
-                    print(f'    {param} = {value!r}\n')
+                    self._logger.debug('    %s = %s', param, repr(value))
                     result.add((param, value))
+                    self._logger.debug('    %s in result', param)
 
             outf.write('\n')
 
         return frozenset(result)
+
+
+    def _get_best_master(self, candidate_masters, image_eval):
+        """Find the best master from given list for given image/channel."""
+
+        self._logger.debug('Selecting best master for %s, channel %s from %s',
+                           repr(image_eval('RAWFNAME')),
+                           repr(image_eval('CLRCHNL')),
+                           repr(candidate_masters))
+        if not candidate_masters:
+            return None
+
+        best_master_value = infinity
+        best_master_fname = None
+        for master_fname, use_smallest in candidate_masters:
+            assert use_smallest is not None
+            master_value = image_eval(use_smallest)
+            if master_value < best_master_value:
+                best_master_value = master_value
+                best_master_fname = master_fname
+        assert best_master_fname
+        return best_master_fname
+
+
+    def _get_master(self, master_type, image_values, image_eval, db_session):
+        """Return the master that should be used for the given image."""
+
+        expressions = db_session.execute(
+            select(
+                ConditionExpression.id,
+                ConditionExpression.expression
+            ).join_from(
+                Condition,
+                ConditionExpression,
+                Condition.expression_id == ConditionExpression.id
+            ).where(
+                Condition.id == master_type.condition_id
+            ).order_by(
+                ConditionExpression.id
+            )
+        ).all()
+
+        if master_type.name not in self._master_expressions:
+            self._logger.debug(
+                'Evaluating expressions for all masters of type: %s',
+                repr(master_type.name)
+            )
+            self._master_expressions[master_type.name] = {}
+            all_masters = db_session.execute(
+                select(
+                    MasterFile.filename,
+                    MasterFile.use_smallest
+                ).filter_by(
+                    type_id=master_type.id,
+                    enabled=True,
+                )
+            ).all()
+            for master in all_masters:
+                master_eval = Evaluator(master.filename)
+                expr_values = tuple(master_eval(expr)
+                                    for _, expr in expressions)
+                if (
+                    expr_values
+                    not in
+                    self._master_expressions[master_type.name]
+                ):
+                    self._master_expressions[master_type.name][expr_values] = []
+                self._master_expressions[master_type.name][expr_values].append(
+                    master
+                )
+
+        expr_values = tuple(
+            image_values[expr_id] for expr_id, _ in expressions
+        )
+        self._logger.debug(
+            'Master %s available for: %s',
+            master_type.name,
+            repr(self._master_expressions[master_type.name].keys())
+        )
+
+        candidates = self._master_expressions[master_type.name].get(expr_values,
+                                                                    [])
+
+        self._logger.debug('Candidate Masters: %s',
+                           repr(candidates))
+        if len(candidates) == 1:
+            return candidates[0].filename
+        return self._get_best_master(candidates, image_eval)
+
+
+    def _get_evaluated_entry(self,
+                             evaluate,
+                             image_type_id,
+                             calib_config,
+                             db_session):
+        """Return entry to add to self._evaluated_expressions."""
+
+        evaluated_expressions = {
+            'values': {expr_id: evaluate(expression)
+                       for expr_id, expression in
+                       self.condition_expressions.items()},
+            'calibrated': calib_config['calibrated_fname'].format_map(
+                evaluate.symtable
+            ),
+            'masters': {}
+        }
+        evaluated_expressions['matched'] = set(
+            expr_id
+            for expr_id, value in evaluated_expressions['values'].items()
+            if value
+        )
+
+        for required_expressions, value in self.configuration[
+                'data-reduction-fname'
+        ][
+                'value'
+        ].items():
+            if required_expressions <= evaluated_expressions['matched']:
+                evaluated_expressions['dr'] = value.format_map(
+                    evaluate.symtable
+                )
+                break
+        assert 'dr' in evaluated_expressions
+
+        for master_type in db_session.scalars(
+                select(
+                    MasterType
+                ).join(
+                    InputMasterTypes
+                ).where(
+                    InputMasterTypes.image_type_id == image_type_id
+                ).distinct()
+        ):
+            if master_type.name not in ['epd_stat', 'tfa_stat']:
+                evaluated_expressions['masters'][master_type.name] = (
+                    self._get_master(master_type,
+                                     evaluated_expressions['values'],
+                                     evaluate,
+                                     db_session)
+                )
+
+        return evaluated_expressions
 
 
     def get_matched_expressions(self, evaluate):
@@ -242,14 +399,7 @@ class ProcessingManager(ABC):
         )
 
 
-    #TODO: see if can be simplified
-    #pylint: disable=too-many-locals
-    #pylint: disable=too-many-branches
-    def evaluate_expressions_image(self,
-                                   image,
-                                   eval_channel=None,
-                                   return_evaluator=False,
-                                   **extra_keywords):
+    def evaluate_expressions_image(self, image, db_session):
         """
         Return evaluator for header expressions for given image.
 
@@ -259,16 +409,10 @@ class ProcessingManager(ABC):
                 ``IMAGE_TYPE`` keyword set to the name of the image type of the
                 given image.
 
-            eval_channel(str or None):    If given, the evaluator will involve
-                all keywords that can be expected of the calibrated header for
-                the given channel. Otherwise, an arbitatry channel header
-                keywords will be available.
+            db_session:    Used to select the best master.
 
             return_evaluator(bool):    Should an evaluator setup per the image
                 header be returned for further use?
-
-            extra_keywords(dict):    Additional keywords to add to to the
-                evaluater on top of what already exists in the header.
 
         Returns:
             Evaluator or None:
@@ -278,50 +422,36 @@ class ProcessingManager(ABC):
 
 
         if image.id in self._evaluated_expressions:
-            if not return_evaluator:
-                return None
-            image_expressions = self._evaluated_expressions[
-                image.id
-            ][
-                eval_channel
-            ]
-            for product in ['dr', 'calibrated']:
-                if (
-                        product in image_expressions
-                        and
-                        path.exists(image_expressions[product])
-                ):
-                    return Evaluator(image_expressions[product])
+            return
 
         self._logger.debug('Evaluating expressions for: %s',
                            repr(image))
-        result = None
         evaluate = Evaluator(get_primary_header(image.raw_fname, True))
-        evaluate.symtable.update(extra_keywords)
+        evaluate.symtable.update(
+            IMAGE_TYPE=image.image_type.name,
+            OBS_SESN=image.observing_session.label
+        )
         self._logger.debug('Matched expressions: %s',
                            repr(self.get_matched_expressions(evaluate)))
-        skip_evaluate = image.id in self._evaluated_expressions
-        if not skip_evaluate:
-            self._evaluated_expressions[image.id] = {}
+        self._evaluated_expressions[image.id] = {}
 
         all_channel={'matched': None, 'values': None}
         for channel_name, channel_slice in self._get_split_channels(
                 image
         ).items():
-            if (
-                skip_evaluate
-                and
-                eval_channel is not None
-                and
-                eval_channel != channel_name
-            ):
-                continue
+            self._logger.debug('Adding channel keywords for channel %s of %s',
+                               channel_name,
+                               image.raw_fname)
             add_channel_keywords(evaluate.symtable,
                                  channel_name,
                                  channel_slice)
-
+            self._logger.debug('Configuring for channel %s (%s) of %s',
+                               channel_name,
+                               evaluate.symtable['CLRCHNL'],
+                               image.raw_fname)
             calib_config = self.get_config(
                 self.get_matched_expressions(evaluate),
+                db_session,
                 step_name='calibrate',
             )[0]
             self._logger.debug('Raw HDU for channel %s (%s) of %s: %s',
@@ -330,27 +460,12 @@ class ProcessingManager(ABC):
                                image.raw_fname,
                                repr(calib_config['raw_hdu']))
             add_required_keywords(evaluate.symtable, calib_config, True)
-            if result is None and return_evaluator:
-                result = asteval.Interpreter()
-                if return_evaluator and eval_channel is None:
-                    result.symtable.update(evaluate.symtable)
 
-            if return_evaluator and eval_channel == channel_name:
-                result.symtable.update(evaluate.symtable)
-            if skip_evaluate:
-                continue
-            evaluated_expressions = {
-                'values': {expr_id: evaluate(expression)
-                           for expr_id, expression in
-                           self.condition_expressions.items()},
-                'calibrated': calib_config['calibrated_fname'].format_map(
-                    evaluate.symtable
-                )
-            }
-            evaluated_expressions['matched'] = set(
-                expr_id
-                for expr_id, value in evaluated_expressions['values'].items()
-                if value
+            evaluated_expressions = self._get_evaluated_entry(
+                evaluate,
+                image.image_type_id,
+                calib_config,
+                db_session
             )
 
             if all_channel['matched'] is None:
@@ -373,25 +488,10 @@ class ProcessingManager(ABC):
                 #pylint: enable=unsupported-delete-operation
                 #pylint: enable=unsubscriptable-object
 
-            for required_expressions, value in self.configuration[
-                    'data-reduction-fname'
-            ][
-                    'value'
-            ].items():
-                if required_expressions <= evaluated_expressions['matched']:
-                    evaluated_expressions['dr'] = value.format_map(
-                        evaluate.symtable
-                    )
-                    break
-            assert 'dr' in evaluated_expressions
-
             self._evaluated_expressions[image.id][channel_name] = (
                 evaluated_expressions
             )
 
-        if skip_evaluate:
-            assert return_evaluator
-            return result
         self._evaluated_expressions[image.id][None] = {
             'matched': all_channel['matched'],
             'values': all_channel['values'],
@@ -400,7 +500,30 @@ class ProcessingManager(ABC):
                            image,
                            repr(self._evaluated_expressions[image.id]))
 
-        return result if return_evaluator else None
+
+    def get_product_fname(self, image_id, channel, product):
+        """
+        Return the ``dr`` or ``calibrated`` filename of specified image/channel.
+
+        `self.evaluate_image_expressions()` must already have been called for
+        this image.
+        """
+
+        return self._evaluated_expressions[image_id][channel][product]
+
+
+    def get_master_fname(self, image_id, channel, master_type_name):
+        """Return the filename of best master for a given image/channel."""
+
+        return self._evaluated_expressions[
+            image_id
+        ][
+            channel
+        ][
+            'masters'
+        ][
+            master_type_name
+        ]
 
 
     def _check_running_processing(self,
@@ -424,8 +547,8 @@ class ProcessingManager(ABC):
                             path.basename(
                                 Process(
                                     processing.process_id
-                                ).cmdline()[1] == 'processing.py'
-                            )
+                                ).cmdline()[1]
+                            ) == 'processing.py'
                         )
                 ):
                     raise ProcessingInProgress(processing)
@@ -537,6 +660,7 @@ class ProcessingManager(ABC):
         self.configuration = {}
         self.condition_expressions = {}
         self._evaluated_expressions = {}
+        self._master_expressions = {}
         self._processed_ids = {}
         self.pending = {}
         self._some_failed = False
@@ -577,6 +701,7 @@ class ProcessingManager(ABC):
 
             self._processing_config = self.get_config(
                 self.get_matched_expressions(Evaluator()),
+                db_session,
                 step_name='add_images_to_db',
             )[0]
             del self._processing_config['processing_step']
@@ -615,6 +740,7 @@ class ProcessingManager(ABC):
 
     def get_config(self,
                    matched_expressions,
+                   db_session,
                    *,
                    db_step=None,
                    step_name=None,
@@ -637,8 +763,11 @@ class ProcessingManager(ABC):
                 matched_expressions,
                 config_file,
                 db_steps=[db_step] if db_step else None,
-                step_names=[step_name] if not db_step else None
+                step_names=[step_name] if not db_step else None,
+                db_session=db_session
             )
+            self._logger.debug('Flushing config file %s',
+                               repr(config_file.name))
             config_file.flush()
             self._logger.debug('Wrote config file %s', repr(config_file.name))
             return getattr(
@@ -647,35 +776,6 @@ class ProcessingManager(ABC):
             ).parse_command_line(
                 ['-c', config_file.name]
             ), config_key
-
-
-    def get_candidate_masters(self, image, channel, master_type, db_session):
-        """Return list of masters of given type that are applicable to image."""
-
-        image_eval = self.evaluate_expressions_image(image,
-                                                     channel,
-                                                     True)
-        print(f'Image keys: {image_eval.symtable.keys()!r}')
-        candidate_masters = db_session.scalars(
-            select(
-                MasterFile
-            ).filter_by(
-                type_id=master_type.master_type_id,
-                enabled=True,
-            )
-        ).all()
-        result = []
-        for master in candidate_masters:
-            master_eval = Evaluator(master.filename)
-            print(f'Master keys: {master_eval.symtable.keys()!r}')
-            all_match = True
-            for expr in master.master_type.match_expressions:
-                if master_eval(expr.expression) != image_eval(expr.expression):
-                    all_match = False
-                    break
-            if all_match:
-                result.append(master)
-        return result
 
 
     @abstractmethod
@@ -808,15 +908,21 @@ class ProcessingManager(ABC):
         matched_expressions = self.get_matched_expressions(
             Evaluator(example_header)
         )
-        if isinstance(outf, str):
-            with open(outf, 'w', encoding='utf-8') as opened_outf:
+        #False positivie
+        #pylint: disable=no-member
+        with Session.begin() as db_session:
+        #pylint: enable=no-member
+            if isinstance(outf, str):
+                with open(outf, 'w', encoding='utf-8') as opened_outf:
+                    self._write_config_file(matched_expressions,
+                                            opened_outf,
+                                            step_names=steps,
+                                            db_session=db_session)
+            else:
                 self._write_config_file(matched_expressions,
-                                        opened_outf,
-                                        step_names=steps)
-        else:
-            self._write_config_file(matched_expressions,
-                                    outf,
-                                    step_names=steps)
+                                        outf,
+                                        step_names=steps,
+                                        db_session=db_session)
 
     @abstractmethod
     def __call__(self, limit_to_steps=None):

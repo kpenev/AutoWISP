@@ -4,7 +4,6 @@ from itertools import product
 from copy import deepcopy
 from io import StringIO
 import json
-import re
 
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
@@ -13,6 +12,7 @@ import numpy
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 
+from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.plot_lc import\
     get_plot_data,\
@@ -25,20 +25,16 @@ _custom_aggregators = {
 _default_models = {
     'transit': {
         'times': 'skypos.BJD',
-        'shift_to': (
-            '{mode}.tfa.magnitude - '
-            'nanmedian({mode}.tfa.magnitude)'
-        ),
         'k': 0.1, #the planet-star radius ratio
         'ldc': [0.8, 0.7], #limb darkening coeff
         't0': 2455787.553228,# the zero epoch,
         'p': 3.0,# the orbital period,
         'a': 10.0,# the orbital semi-major divided by R*,
         'i': numpy.pi / 2,# the orbital inclination in rad,
-        'e': None, # the orbital eccentricity (optional, can be left out if
-                   # assuming circular a orbit), and
-        'w': None  # the argument of periastron in radians (also optional,
-                   # can be left out if assuming circular a orbit).
+        'e': 0.0, # the orbital eccentricity (optional, can be left out if
+                  # assuming circular a orbit), and
+        'w': 0.0  # the argument of periastron in radians (also optional,
+                  # can be left out if assuming circular a orbit).
     }
 }
 
@@ -46,8 +42,10 @@ _default_models = {
 def _init_session(request):
     """Initialize the session for displaying lightcurve with defaults."""
 
+    color_map = matplotlib.colormaps.get_cmap('tab10')
     request.session['lc_plotting'] = {
         'target_fname': '/mnt/md1/EW/LC/GDR3_1316708918505350528.h5',
+        'color_map': [hex_color(color_map(i)) for i in range(10)],
         'data_select': [
             {
                 'lc_substitutions': {'magfit_iteration': -1},
@@ -67,12 +65,21 @@ def _init_session(request):
                     [
                         {
                             'sphotref_selector': '*',
-                            'aggregate': 'nanmedian',
-                            'x_quantity': 'bjd',
-                            'y_quantity': 'magnitude',
+                            'x_aggregate': 'nanmedian',
+                            'y_aggregate': 'nanmedian',
+                            'x': 'bjd',
+                            'y': 'magnitude',
                             'match_by': 'rawfname',
                             'curve_label': 'tfa',
-                            'plot_args': ['og']
+                            'plot_kwargs': {
+                                'marker': 'o',
+                                'markersize': 3,
+                                'markeredgecolor': 'none',
+                                'markerfacecolor': hex_color(color_map(0)),
+                                'linestyle': 'none',
+                                'linewidth': 0,
+                                'color': '#ffffff'
+                            }
                         }
                     ]
                 ],
@@ -96,6 +103,7 @@ def _init_session(request):
         ],
         'figure_config': {}
     }
+    print(f'Color map: {request.session["lc_plotting"]["color_map"]}')
 
 
 def _jsonify_plot_data(plot_data):
@@ -191,6 +199,8 @@ def plot(target_info, plot_config, plot_decorations):
     """Make a single plot of the spceified lighturve."""
 
     plot_data = {}
+    print(f'Plot config (len:{len(plot_config)}): {plot_config!r}')
+    print(f'len(target_info): {len(target_info)}')
     assert len(plot_config) == len(target_info)
     for dataset, dataset_plot_configs in zip(target_info, plot_config):
         plot_data = _convert_plot_data_json(dataset['plot_data'], True)
@@ -213,18 +223,24 @@ def plot(target_info, plot_config, plot_decorations):
                             curve_config['sphotref_selector']
                         )
                     ]
-            curve_data = calculate_combined(
-                curve_data,
-                curve_config['match_by'],
-                (
-                    _custom_aggregators.get(curve_config['aggregate'])
-                    or
-                    getattr(numpy, curve_config['aggregate'])
+            #TODO: optimize to combine only coord and match_by
+            curve_data = {
+                coord: calculate_combined(
+                    curve_data,
+                    curve_config['match_by'],
+                    (
+                        _custom_aggregators.get(
+                            curve_config[coord + '_aggregate']
+                        )
+                        or
+                        getattr(numpy, curve_config[coord + '_aggregate'])
+                    )
                 )
-            )
+                for coord in 'xy'
+            }
             pyplot.plot(
-                curve_data[curve_config['x_quantity']],
-                curve_data[curve_config['y_quantity']],
+                curve_data['x'][curve_config['x']],
+                curve_data['y'][curve_config['y']],
                 *curve_config.get('plot_args', []),
                 label=curve_config['curve_label'],
                 **curve_config.get('plot_kwargs', {})
@@ -354,15 +370,32 @@ def update_subplot(plotting_session, updates):
 
     print(f'Updating plot {updates["plot_id"]} with: {updates!r}')
     plot_id = int(updates.pop('plot_id'))
-    assert len(plotting_session['data_select']) == len(updates['data_select'])
+    if len(plotting_session['data_select']) < len(updates['data_select']):
+        plotting_session['data_select'].extend(
+            {
+                'plot_config': (
+                    [None]
+                    *
+                    len(plotting_session['data_select'][0]['plot_config'])
+                )
+            } for _ in range(len(updates['data_select'])
+                             -
+                             len(plotting_session['data_select']))
+        )
+    elif len(plotting_session['data_select']) > len(updates['data_select']):
+        plotting_session['data_select'] = (
+            plotting_session['data_select'][:len(updates['data_select'])]
+        )
     for original, updated in zip(plotting_session['data_select'],
                                  updates['data_select']):
-        for k in original:
+        for k in updated:
             if k == 'plot_config':
-                original[k][plot_id] = updated[k]
+                original[k][plot_id] = deepcopy(updated[k])
                 print(f'Updated plotting info: {original[k]}')
             else:
-                original[k] = updated[k]
+                original[k] = deepcopy(updated[k])
+    #TODO: only do this if data selection has changed and the ideally only
+    #re-optimize if needed.
     _add_lightcurve_to_session(
         plotting_session,
         plotting_session['target_fname']

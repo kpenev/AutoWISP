@@ -85,10 +85,64 @@ input.param, select.param, input.lc-expression {
 .add-to-dict {
     display: flex;
     width: 100%;
+    justify-content: center;
+    align-items: center;
 }
 
 .center-center {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.dropdown {
+    float: left;
+    overflow: visible;
+    position: relative;
+    width: 3rem;
+}
+
+.dropdown .dropbtn {
+    font-size: 16px;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    padding: 12px 16px;
+    margin: 0;
+    background-color: #000;
+    color: #000;
+}
+
+.dropdown-content {
+    display: none;
+    left: 0pt;
+    top: 0pt;
+    position: absolute;
+    color: #fff;
+    background-color: #333;
+    z-index: 100;
+}
+
+.dropdown-content svg {
+    float: none;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content svg:hover {
+    background-color: #555
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+td {
+    width: 50%;
+}
+
+td:first-child {
+    text-align: right;
 }
