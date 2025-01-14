@@ -302,7 +302,8 @@ def get_specified_photometry(lightcurve_filenames,
                              stat_only=False,
                              **scatter_config):
     """Same as get_minimum_scatter, except return specified aperture.
-    WARNING: SHOULD NOT BE USED! IT IS WRONG IN ITS CURRENT STATE!
+    *** WARNING: SHOULD NOT BE USED!***
+    IT IS WRONG IN ITS CURRENT STATE!
     it iterates through all the lightcurves, but when iterating,
     it just keeps overwriting magnitudes!
     """
@@ -538,17 +539,9 @@ def get_minimum_scatter(lightcurve_filenames,
 
         bjd = matched['bjd']
         matched = matched.drop('bjd', axis=1)
+
+        ### We used to have:
         
-        print('*****calculate_iterative_rejection_scatter(matched[mag_i]:')
-        try:
-            print(f"{calculate_iterative_rejection_scatter(matched['mag_000'], **scatter_config)[0]}")
-            print(f"{calculate_iterative_rejection_scatter(matched['mag_001'], **scatter_config)[0]}")
-            print(f"{calculate_iterative_rejection_scatter(matched['mag_002'], **scatter_config)[0]}")
-            print(f"{calculate_iterative_rejection_scatter(matched['mag_003'], **scatter_config)[0]}")
-        except:
-            print('problem in printing!')
-
-
         # avg_mag = matched.mean(axis=1)
 
         # avg_scatter, lc_length = calculate_iterative_rejection_scatter(
@@ -556,76 +549,37 @@ def get_minimum_scatter(lightcurve_filenames,
         #     **scatter_config
         # )
 
-        ### Instead of above, we introduce the following function:
+        ### Now, we use the following function for a weighted approach:
         
         def optimize_weighted_avg(coeffs):
             
             # Normalized coeff
             coeffs = coeffs / numpy.sum(coeffs)
-            # print(f'coeffs in the function: {coeffs}')
-            # Weighted average light curve
-            # weighted_avg_mag = numpy.zeros_like(matched.iloc[:, 0])
             weighted_avg_mag = numpy.zeros(len(matched))
+            
             for i, coeff in enumerate(coeffs):
-                # print(f'i,coeff {i}, {coeff}')
                 weighted_avg_mag += coeff * matched.iloc[:, i]
             
-            # print(f'***weighted avg mag: {weighted_avg_mag}')
-            # print(weighted_avg_mag.shape)
-
             weighted_scatter, _ = calculate_iterative_rejection_scatter(
                 weighted_avg_mag,
                 **scatter_config
             )
-            # print(f'weighted_scatter: {weighted_scatter}')
+            
             return weighted_scatter
 
-        # initial_guess = numpy.ones(num_lcs) / num_lcs
-        # initial_guess = numpy.array([0.97, 0.01, 0.01, 0.01])
-        # initial_guess = numpy.array([0.85, 0.05, 0.05, 0.05])
-        # initial_guess = numpy.random.rand(num_lcs)
-        # initial_guess /= numpy.sum(initial_guess) # Normalize to satisfy the constraint
-
-
-        # Bounds:  0 < coefficient < 1
         bounds = [(0, 1) for _ in range(num_lcs)]
-
-        minimizer_kwargs = {"method": "Nelder-Mead", "bounds": bounds}
-
-        # Constraint: sum(coefficients) = 1:
-        def constraint_function(x):
-            return np.sum(x) - 1
-        constraints = [{'type': 'eq', 'fun': constraint_function}]
-        # constraints = ({'type': 'eq', 'fun': lambda x: numpy.sum(x) - 1})
-        linear_constraint = LinearConstraint(numpy.ones(num_lcs), lb=0, ub=1)
+        linear_constraint = LinearConstraint(numpy.ones(num_lcs), lb=1, ub=1)
 
         # Optimize to find best coefficients
         coeff_result = optimize.differential_evolution(
             optimize_weighted_avg, 
             bounds=bounds,
-           constraints=linear_constraint
+            constraints=linear_constraint
         )
-        
-        # print('Is above == optimize_weighted_avg((..i..)):')
-        # try:
-        #     print(optimize_weighted_avg((1, 0, 0, 0)))
-        #     print(optimize_weighted_avg((0, 1, 0, 0)))
-        #     print(optimize_weighted_avg((0, 0, 1, 0)))
-        #     print(optimize_weighted_avg((0, 0, 0, 1)))
-
-        #     print(optimize_weighted_avg((1, 0, 0, 0)) == calculate_iterative_rejection_scatter(matched['mag_000'], **scatter_config)[0],
-        #         optimize_weighted_avg((0, 1, 0, 0)) == calculate_iterative_rejection_scatter(matched['mag_001'], **scatter_config)[0],
-        #         optimize_weighted_avg((0, 0, 1, 0)) == calculate_iterative_rejection_scatter(matched['mag_002'], **scatter_config)[0],
-        #         optimize_weighted_avg((0, 0, 0, 1)) == calculate_iterative_rejection_scatter(matched['mag_003'], **scatter_config)[0]
-        #     )
-        # except:
-        #     print('problem in comparison!')
 
         optimal_coeffs = coeff_result.x / numpy.sum(coeff_result.x)
-        # print(f'optimal coeff: {optimal_coeffs}')
 
         # Calculate weighted average light curve with optimal coefficients
-        # weighted_avg_mag = numpy.zeros_like(matched.iloc[:, 0])
         weighted_avg_mag = numpy.zeros(len(matched))
         for i, coeff in enumerate(optimal_coeffs):
             weighted_avg_mag += coeff * matched.iloc[:, i]
@@ -635,9 +589,6 @@ def get_minimum_scatter(lightcurve_filenames,
             weighted_avg_mag,
             **scatter_config
         )
-        # print(f'avg scatter: {avg_scatter}')
-        # avg_scatter = coeff_result.fun
-        # lc_length = optimize_weighted_avg
 
         scatter = (
             [avg_scatter]
