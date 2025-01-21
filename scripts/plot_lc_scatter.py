@@ -568,15 +568,14 @@ def get_minimum_scatter(lightcurve_filenames,
             return weighted_scatter
 
         bounds = [(0, 1) for _ in range(num_lcs)]
-        linear_constraint = LinearConstraint(numpy.ones(num_lcs), lb=1, ub=1)
-
+        # linear_constraint = LinearConstraint(numpy.ones(num_lcs), lb=1, ub=1)
         # Optimize to find best coefficients
         coeff_result = optimize.differential_evolution(
             optimize_weighted_avg, 
             bounds=bounds,
-            constraints=linear_constraint
+          #  constraints=linear_constraint
         )
-
+        
         optimal_coeffs = coeff_result.x / numpy.sum(coeff_result.x)
 
         # Calculate weighted average light curve with optimal coefficients
