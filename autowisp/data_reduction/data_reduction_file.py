@@ -42,6 +42,8 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             types in astrowisp.IOTree.
     """
 
+    _logger = logging.getLogger(__name__)
+
     @classmethod
     def _product(cls):
         return 'data_reduction'
@@ -182,7 +184,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         **path_substitutions
                     )
             else:
-                logging.getLogger(__name__).debug(
+                self._logger.debug(
                     'Saving %s dataset of type: %s',
                     repr(column_name),
                     repr(column_data.dtype)
@@ -351,10 +353,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             path_substitutions
         ].len()
 
+
     def add_frame_header(self, header, **substitutions):
         """Add the header of the corresponding FITS frame to DR file."""
 
         self.write_fitsheader_to_dataset('fitsheader', header, **substitutions)
+
 
     def get_frame_header(self, **substitutions):
         """Return the header of the corresponding FITS frame."""
@@ -376,6 +380,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                 return num_apertures
 
         assert False
+
 
     def get_num_magfit_iterations(self, **path_substitutions):
         """
@@ -527,9 +532,9 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             result = self.get_sources('srcproj.columns',
                                       'srcproj_column_name',
                                       **path_substitutions)
-            logging.getLogger(__name__).debug(
+            self._logger.debug(
                 'Initial source data columns: %s',
-                repr(result)
+                repr(tuple(result.dtype.names))
             )
             hat_id_components = ['hat_id_prefix',
                                  'hat_id_field',
@@ -564,7 +569,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     hat_id_components[0] = 'hat_id_prefnum'
                 result.set_index(hat_id_components, inplace=True)
 
-            logging.getLogger(__name__).debug(
+            self._logger.debug(
                 'Source data after formatting ID:\n%s',
                 repr(result)
             )
@@ -1013,7 +1018,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """Create the datasets and attributes holding the fit results."""
 
         psf_parameters = fit_results['coefficients'].keys()
-        logging.getLogger(__name__).debug(
+        self._logger.debug(
             'Writing the following data to srcextract.psf_map dataset: %s',
             repr([
                 fit_results['coefficients'][param_name]
