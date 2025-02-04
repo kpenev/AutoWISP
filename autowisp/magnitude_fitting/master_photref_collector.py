@@ -6,7 +6,6 @@ import os
 from subprocess import Popen, PIPE
 import logging
 
-import zarr
 import numpy
 from astropy.io import fits
 
