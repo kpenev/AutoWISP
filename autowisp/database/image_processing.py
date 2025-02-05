@@ -503,12 +503,13 @@ class ImageProcessingManager(ProcessingManager):
         cleanup_batches = self._get_config_batches(
             pending, input_type, db_session
         )
-        return [
-            (config, [(fname, status) for fname in batch])
-            for (_, status), (config, batch) in reversed(
-                sorted(cleanup_batches.items())
-            )
-        ]
+        result = {}
+        for (config_key, status), (config, batch) in cleanup_batches.items():
+            if config_key not in result:
+                result[config_key] = (config, [])
+            result[config_key][1].extend([(fname, status) for fname in batch])
+
+        return list(result.values())
 
     def _cleanup_interrupted(self, db_session):
         """Cleanup previously interrupted processing for the current step."""

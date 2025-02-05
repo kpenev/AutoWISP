@@ -192,7 +192,7 @@ def iterative_refit(fit_dr_filenames,
         return new_reference, master_reference_fname
 
 
-    path_substitutions['magfit_iteration'] = continue_from_iteration
+    path_substitutions['magfit_iteration'] = continue_from_iteration - 1
 
     with DataReductionFile(single_photref_dr_fname, 'r') as photref_dr:
         common_header = photref_dr.get_frame_header()
@@ -223,8 +223,11 @@ def iterative_refit(fit_dr_filenames,
         while (
                 photref
                 and
-                path_substitutions['magfit_iteration'] <= max_iterations
+                path_substitutions['magfit_iteration'] < max_iterations
         ):
+            path_substitutions['magfit_iteration'] += 1
+            fname_substitutions['magfit_iteration'] += 1
+
             assert next(iter(photref.values()))['mag'].size == num_photometries
 
             result = (
@@ -290,8 +293,6 @@ def iterative_refit(fit_dr_filenames,
                 fname_substitutions=fname_substitutions,
                 common_header=common_header
             )
-            path_substitutions['magfit_iteration'] += 1
-            fname_substitutions['magfit_iteration'] += 1
     for fit_dr_fname in fit_dr_filenames:
         mark_end(fit_dr_fname,
                  status=2 * path_substitutions['magfit_iteration'] - 1,

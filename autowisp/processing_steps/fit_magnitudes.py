@@ -284,12 +284,14 @@ def cleanup_interrupted(interrupted, configuration):
             os.remove(to_delete)
         for iteration in range(0, max_status // 2):
             fname_substitutions["magfit_iteration"] = iteration
-            assert os.path.exists(
-                configuration[master_type + "_fname_format"].format_map(
-                    fname_substitutions
-                )
-            )
-        fname_substitutions["magfit_iteration"] = max_status // 2 + 1
+            check_fname = configuration[
+                master_type + "_fname_format"
+            ].format_map(fname_substitutions)
+            _logger.debug("Checking existence of %s", repr(check_fname))
+            assert os.path.exists(check_fname)
+        fname_substitutions["magfit_iteration"] = (
+            max_status // 2 + 1
+        )
         if os.path.exists(
             configuration[master_type + "_fname_format"].format_map(
                 fname_substitutions
