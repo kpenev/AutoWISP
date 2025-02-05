@@ -933,23 +933,25 @@ def get_catalog_info(*,
     if header is None:
         with DataReductionFile(dr_files[0], 'r') as dr_file:
             header = dr_file.get_frame_header()
-    catalog_info['epoch'] = Evaluator(header)(configuration['epoch'])
-    if dr_files and len(dr_files) > 1:
-        for dr_fname in dr_files[1:]:
-            with DataReductionFile(dr_fname, 'r') as dr_file:
-                if (
-                    Evaluator(
-                        dr_file.get_frame_header()
-                    )(
-                        configuration['epoch']
-                    )
-                    !=
-                    catalog_info['epoch']
-                ):
-                    raise RuntimeError(
-                        'Not all data reduction files to be covered by a single'
-                        ' catalog have the same epoch'
-                    )
+        catalog_info['epoch'] = Evaluator(header)(configuration['epoch'])
+        if dr_files and len(dr_files) > 1:
+            for dr_fname in dr_files[1:]:
+                with DataReductionFile(dr_fname, 'r') as dr_file:
+                    if (
+                        Evaluator(
+                            dr_file.get_frame_header()
+                        )(
+                            configuration['epoch']
+                        )
+                        !=
+                        catalog_info['epoch']
+                    ):
+                        raise RuntimeError(
+                            'Not all data reduction files to be covered by a single'
+                            ' catalog have the same epoch'
+                        )
+    else:
+        catalog_info['epoch'] = Evaluator(header)(configuration['epoch'])
 
     catalog_info['columns'] = configuration['columns']
 
