@@ -66,7 +66,7 @@ def add_scatter_arguments(parser, multi_mode=True):
     )
     parser.add_argument(
         '--lc-substitutions',
-        default='magfit_iteration=0',
+        default={'magfit_iteration': 0},
         action=ParseKwargs,
         nargs='*',
         help='Substitutions needed to resolve the datasets in the lightcurve to'
@@ -530,7 +530,7 @@ def get_minimum_scatter(lightcurve_filenames,
           f'{lightcurve_filenames!r}')
     if num_lcs > 1:
         matched = get_lc_data(lightcurve_filenames[0], 0)
-        
+
         for lc_index, lc_fname in enumerate(lightcurve_filenames[1:]):
             matched = matched.join(
                 get_lc_data(lc_fname, lc_index + 1).drop('bjd', axis=1),
@@ -541,7 +541,7 @@ def get_minimum_scatter(lightcurve_filenames,
         matched = matched.drop('bjd', axis=1)
 
         ### We used to have:
-        
+
         # avg_mag = matched.mean(axis=1)
 
         # avg_scatter, lc_length = calculate_iterative_rejection_scatter(
@@ -550,21 +550,21 @@ def get_minimum_scatter(lightcurve_filenames,
         # )
 
         ### Now, we use the following function for a weighted approach:
-        
+
         def optimize_weighted_avg(coeffs):
-            
+
             # Normalized coeff
             coeffs = coeffs / numpy.sum(coeffs)
             weighted_avg_mag = numpy.zeros(len(matched))
-            
+
             for i, coeff in enumerate(coeffs):
                 weighted_avg_mag += coeff * matched.iloc[:, i]
-            
+
             weighted_scatter, _ = calculate_iterative_rejection_scatter(
                 weighted_avg_mag,
                 **scatter_config
             )
-            
+
             return weighted_scatter
 
         bounds = [(0, 1) for _ in range(num_lcs)]
@@ -577,14 +577,14 @@ def get_minimum_scatter(lightcurve_filenames,
             bounds=bounds,
             constraints=linear_constraint
         )
-        
+
         optimal_coeffs = coeff_result.x / numpy.sum(coeff_result.x)
 
         # Calculate weighted average light curve with optimal coefficients
         weighted_avg_mag = numpy.zeros(len(matched))
         for i, coeff in enumerate(optimal_coeffs):
             weighted_avg_mag += coeff * matched.iloc[:, i]
-        
+
         # Calculate scatter and individual light curve scatters
         avg_scatter, lc_length = calculate_iterative_rejection_scatter(
             weighted_avg_mag,
