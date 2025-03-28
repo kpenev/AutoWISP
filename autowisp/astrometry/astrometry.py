@@ -402,7 +402,7 @@ def get_initial_corr_web(header,
                 ):
                     return result, tweak_order
 
-        return 'web solve failed', 0
+    return 'web solve failed', 0
 
 
 def estimate_transformation(*,

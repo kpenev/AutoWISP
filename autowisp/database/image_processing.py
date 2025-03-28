@@ -356,14 +356,22 @@ class ImageProcessingManager(ProcessingManager):
         ).all():
             for config_key, (config, sub_batch) in list(result.items()):
                 del result[config_key]
-                try:
-                    splits = self._split_by_master(sub_batch, input_master_type)
-                except NoMasterError as no_master:
-                    self._logger.error(str(no_master))
-                    continue
+                splits = self._split_by_master(sub_batch, input_master_type)
 
                 for best_master, sub_batch in splits.items():
-                    if best_master is not None:
+                    if best_master is None:
+                        if input_master_type.optional:
+                            assert config_key not in result
+                            result[config_key] = (config, sub_batch)
+                        else:
+                            result[None] = (
+                                "No master "
+                                + input_master_type.master_type.name
+                                + " found!",
+                                sub_batch,
+                            )
+
+                    else:
                         new_config = dict(config)
                         new_config[
                             input_master_type.config_name.replace("-", "_")
@@ -376,9 +384,6 @@ class ImageProcessingManager(ProcessingManager):
                             (input_master_type.config_name, best_master)
                         }
                         result[config_key | key_extra] = (new_config, sub_batch)
-                    else:
-                        assert config_key not in result
-                        result[config_key] = (config, sub_batch)
 
         return result
 
@@ -743,6 +748,20 @@ class ImageProcessingManager(ProcessingManager):
                 self.current_step,
                 db_session,
             ).items():
+                if config_key is None:
+                    self._logger.warning(
+                        "Excluding the following images from %s:\n\t%s",
+                        config,
+                        "\n\t".join(
+                            [
+                                self.get_step_input(
+                                    image, channel, step_input_type
+                                )
+                                for image, channel, _ in batch
+                            ]
+                        ),
+                    )
+                    continue
                 for image, channel, status in batch:
                     assert image.image_type_id == check_image_type_id
 
@@ -938,11 +957,12 @@ class ImageProcessingManager(ProcessingManager):
             select(
                 ProcessedImages.image_id,
                 ProcessedImages.channel,
-                ProcessedImages.status,
+                sql.func.max(ProcessedImages.status).label('status'),
             )
             .join(ImageProcessingProgress)
             .where(ProcessedImages.status > 0)
             .where(ProcessedImages.final == 0)
+            .group_by(ProcessedImages.image_id, ProcessedImages.channel)
         )
 
         for step, image_type in steps_imtypes or get_processing_sequence(
@@ -980,6 +1000,7 @@ class ImageProcessingManager(ProcessingManager):
                 .where(ProcessedImages.final)
             )
 
+
             status_subquery = (
                 status_select.where(ImageProcessingProgress.step_id == step.id)
                 .where(ImageProcessingProgress.image_type_id == image_type.id)
@@ -989,6 +1010,7 @@ class ImageProcessingManager(ProcessingManager):
                 )
                 .subquery()
             )
+
 
             if invert:
                 processed_subquery = processed_subquery.where(
