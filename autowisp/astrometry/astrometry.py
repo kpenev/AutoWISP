@@ -341,7 +341,7 @@ def get_initial_corr_web(header,
     }
     client = AstrometryNetClient()
     client.login('kqrzybsrrzomydyc')
-    for tweak_order in range(*tweak_order_range):
+    for tweak_order in range(tweak_order_range[0], tweak_order_range[1] + 1):
         config['tweak_order'] = tweak_order
         upload_result = client.upload(**config)
 
