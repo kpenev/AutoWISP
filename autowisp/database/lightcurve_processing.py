@@ -5,7 +5,7 @@ from os import path, getpid, getpgid, setsid, fork
 import logging
 import sys
 
-from sqlalchemy import select, or_, and_, literal, update, sql, delete
+from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
 
 from general_purpose_python_modules.multiprocessing_util import\
@@ -542,6 +542,7 @@ class LightCurveProcessingManager(ProcessingManager):
         ]
         create_lc_cofig = self.get_config(
             matched_expressions,
+            db_session,
             step_name='create_lightcurves'
         )[0]
 
@@ -552,6 +553,7 @@ class LightCurveProcessingManager(ProcessingManager):
 
         step_config = self.get_config(
             matched_expressions,
+            db_session,
             db_step=step
         )[0]
         self._specialize_config(
