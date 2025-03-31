@@ -667,8 +667,7 @@ class ProcessingManager(ABC):
         #False positivie
         #pylint: disable=no-member
         with Session.begin() as db_session:
-        #pylint: enable=no-member
-
+            #pylint: enable=no-member
             if version is None:
                 version = db_session.execute(
                     #False positivie

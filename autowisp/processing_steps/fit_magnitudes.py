@@ -8,6 +8,7 @@ import os
 import logging
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
+from sqlalchemy import delete
 
 from autowisp import magnitude_fitting, DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
@@ -17,6 +18,13 @@ from autowisp.processing_steps.manual_util import (
     ignore_progress,
     get_catalog_config,
 )
+from autowisp.database.interface import Session
+
+# False positive due to unusual importing
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model import MasterFile
+
+# pylint: enable=no-name-in-module
 
 input_type = "dr"
 _logger = logging.getLogger(__name__)
@@ -244,6 +252,57 @@ def fit_magnitudes(
     ]
 
 
+def delete_master(filename, master_type):
+    """Delete the master from file system and database."""
+
+    if os.path.exists(filename):
+        _logger.warning(
+            "Removing potentially partial %s file '%s'!",
+            master_type,
+            filename,
+        )
+        os.remove(filename)
+    # False positivie
+    # pylint: disable=no-member
+    with Session.begin() as db_session:
+        # pylint: enable=no-member
+        db_session.execute(delete(MasterFile).filter_by(filename=filename))
+
+
+def check_no_master(filename, master_type):
+    """Raise an exception if the given master exists."""
+
+    if os.path.exists(filename):
+        raise RuntimeError(
+            f"{master_type} file {filename!r} should not exist!"
+            "Cleaning up interrupted magnitude fitting failed!"
+        )
+
+
+def clean_dr(dr_fname, dr_substitutions):
+    """Remove a magfit iteration from the given DR file."""
+
+    _logger.warning(
+        "Deleting magfit iteration %d from '%s'!",
+        dr_substitutions["magfit_iteration"],
+        dr_fname,
+    )
+    with DataReductionFile(dr_fname, "r+") as dr_file:
+        dr_file.delete_dataset("shapefit.magfit.magnitude", **dr_substitutions)
+        for aperture_index in count():
+            if not dr_file.check_for_dataset(
+                "apphot.magnitude",
+                aperture_index=aperture_index,
+                **dr_substitutions,
+            ):
+                break
+            dr_file.delete_dataset(
+                "apphot.magfit.magnitude",
+                aperture_index=aperture_index,
+                **dr_substitutions,
+            )
+
+
 def cleanup_interrupted(interrupted, configuration):
     """Remove DR entries stats and magfit references for magfit_iteration."""
 
@@ -272,16 +331,13 @@ def cleanup_interrupted(interrupted, configuration):
 
     for master_type in ["master_photref", "magfit_stat"]:
         fname_substitutions["magfit_iteration"] = max_status // 2
-        to_delete = configuration[master_type + "_fname_format"].format_map(
-            fname_substitutions
+        delete_master(
+            configuration[master_type + "_fname_format"].format_map(
+                fname_substitutions
+            ),
+            master_type,
         )
-        if os.path.exists(to_delete):
-            _logger.warning(
-                "Removing potentially partial %s file '%s'!",
-                master_type,
-                to_delete,
-            )
-            os.remove(to_delete)
+
         for iteration in range(0, max_status // 2):
             fname_substitutions["magfit_iteration"] = iteration
             check_fname = configuration[
@@ -289,45 +345,20 @@ def cleanup_interrupted(interrupted, configuration):
             ].format_map(fname_substitutions)
             _logger.debug("Checking existence of %s", repr(check_fname))
             assert os.path.exists(check_fname)
-        fname_substitutions["magfit_iteration"] = (
-            max_status // 2 + 1
-        )
-        if os.path.exists(
+        fname_substitutions["magfit_iteration"] = max_status // 2 + 1
+        check_no_master(
             configuration[master_type + "_fname_format"].format_map(
                 fname_substitutions
-            )
-        ):
-            raise RuntimeError(
-                f"{master_type} file {to_delete!r} should not exist!"
-                "Cleaning up interrupted magnitude fitting failed!"
-            )
+            ),
+            master_type,
+        )
 
     for dr_fname, from_status in interrupted:
         if from_status % 2:
             continue
 
         dr_substitutions["magfit_iteration"] = from_status // 2
-        _logger.warning(
-            "Deleting magfit iteration %d from '%s'!",
-            dr_substitutions["magfit_iteration"],
-            dr_fname,
-        )
-        with DataReductionFile(dr_fname, "r+") as dr_file:
-            dr_file.delete_dataset(
-                "shapefit.magfit.magnitude", **dr_substitutions
-            )
-            for aperture_index in count():
-                if not dr_file.check_for_dataset(
-                    "apphot.magnitude",
-                    aperture_index=aperture_index,
-                    **dr_substitutions,
-                ):
-                    break
-                dr_file.delete_dataset(
-                    "apphot.magfit.magnitude",
-                    aperture_index=aperture_index,
-                    **dr_substitutions,
-                )
+        clean_dr(dr_fname, dr_substitutions)
 
     return max_status - 1 - max_status % 2
 
