@@ -1,9 +1,13 @@
 """Define the view allowing users to add new raw images for processing."""
 
 from os import path, scandir
+import os
 import fnmatch
 import re
 from traceback import print_exc
+import sys
+import logging
+logger = logging.getLogger(__name__)
 
 from django.views import View
 from django.shortcuts import render
@@ -13,6 +17,10 @@ from django.urls import reverse
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.database.image_processing import ImageProcessingManager
 
+if os.name == 'nt':
+    ROOT_DIR = [(drive + ":\\", f"{drive} Drive") for drive in "CDEFGHI" if os.path.exists(f"{drive}:\\")]
+else:
+    ROOT_DIR = [('/', 'Computer')]
 
 class SelectRawImages(View):
     """A view for selecting raw images to add for processing."""
@@ -21,7 +29,7 @@ class SelectRawImages(View):
     def _get_context(config, search_dir):
         """Return te context required by the file selection template."""
 
-        print(f'Config: {config!r}')
+        logger.info(f'Config: {config!r}')
         result = {}
         filename_check = config.get('filename_filter', r'.*\.fits(.fz)?\Z')
         result['filename_filter'] = filename_check
@@ -64,14 +72,16 @@ class SelectRawImages(View):
         result['dir_list'].sort()
 
         head = path.abspath(search_dir)
-        parent_dir_list = [('/', 'Computer')]
-        while head and head != '/':
+#        parent_dir_list = [('/', 'Computer')]
+        parent_dir_list = ROOT_DIR[:]
+#        while head and head != '/':
+        while head and head not in [root[0] for root in ROOT_DIR]:
             parent_dir_list.insert(1, (head, path.basename(head)))
             head = path.dirname(head)
 
         result['parent_dir_list'] = parent_dir_list
 
-        print(f'Context: {result!r}')
+        logger.info(f'Context: {result!r}')
         return result
 
 
@@ -87,8 +97,15 @@ class SelectRawImages(View):
 
     def post(self, request, *_args, **_kwargs):
         """Respond to user changing file selection configuration."""
+        LOG_FILE = r"C:\WISP\AutoWISP\django_output.log"
+        ERROR_LOG_FILE = r"C:\WISP\AutoWISP\django_errors.log"
+        if sys.stdout.closed:
+            sys.stdout = open(LOG_FILE, "a")
+        if sys.stderr.closed:
+            sys.stderr = open(ERROR_LOG_FILE, "a")
 
-        print(f'POST: {request.POST!r}')
+        logger.info(f'POST: {request.POST!r}')
+
         dir_name = request.POST['currentdir']
         image_list = []
         selected = request.POST['selected']
@@ -97,17 +114,19 @@ class SelectRawImages(View):
         for item_name in selected:
             full_path = path.join(dir_name, item_name)
             if path.isdir(full_path):
-                print(f'Adding images under: {full_path!r}')
+                logger.info(f'Adding images under: {full_path!r}')
                 image_list.extend(find_fits_fnames(full_path))
             else:
-                print(f'Adding single image: {full_path!r}')
+                logger.info(f'Adding single image: {full_path!r}')
                 assert path.isfile(full_path)
                 image_list.append(full_path)
 
             try:
                 ImageProcessingManager().add_raw_images(image_list)
             except OSError:
-                print_exc()
+                logger.error("OSError occurred while adding raw images",
+                             exc_info=True
+                )
                 return HttpResponseRedirect(
                     reverse('processing:select_raw_images')
                 )

@@ -1,7 +1,7 @@
 """Define the view displaying the current processing progress."""
 
 from socket import getfqdn
-from os import waitpid, WNOHANG
+#from os import waitpid, WNOHANG
 from datetime import datetime
 
 from sqlalchemy import select
