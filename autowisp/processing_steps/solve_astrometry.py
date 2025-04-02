@@ -532,7 +532,7 @@ def solve_image(
                     "anet_indices": configuration["anet_indices"],
                     "anet_api_key": configuration["anet_api_key"],
                     **transformation_estimate,
-                }
+                },
                 header=header,
             )
             if status != "success":
