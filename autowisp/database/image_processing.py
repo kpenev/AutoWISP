@@ -4,8 +4,14 @@
 """Handle data processing DB interactions."""
 
 import logging
-from os import path, getpid, getpgid, setsid, fork
+import os
+
+if os.name == "posix":
+    from os import getpgid, setsid, fork
+from os import path, getpid
+
 import sys
+import subprocess
 
 from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -1345,16 +1351,28 @@ def main(config):
 
 
 if __name__ == "__main__":
-    try:
+    if os.name == "posix":  # Linux/macOS
+        try:
+            setsid()
+        except OSError:
+            print(f"pid={getpid():d}  pgid={getpgid(0):d}")
+
+        pid = fork()
+        if pid < 0:
+            raise RuntimeError("fork fail")
+        if pid != 0:
+            sys.exit(0)
+
         setsid()
-    except OSError:
-        print(f"pid={getpid():d}  pgid={getpgid(0):d}")
+        main(parse_command_line())  # Run main function in child process
 
-    pid = fork()
-    if pid < 0:
-        raise RuntimeError("fork fail")
-    if pid != 0:
-        sys.exit(0)
-
-    setsid()
-    main(parse_command_line())
+    elif os.name == "nt":  # Windows
+        try:
+            subprocess.Popen(
+                [sys.executable, sys.argv[0]] + sys.argv[1:],  # Relaunch with same arguments
+                creationflags=DETACHED_PROCESS
+            )
+            sys.exit(0)  # Exit parent process
+        except Exception as e:
+            sys.stderr.write(f"Failed to detach: {e}\n")
+            sys.exit(1)
