@@ -416,7 +416,7 @@ def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range,
 
 
 def estimate_transformation(
-    *, dr_file, xy_extracted, config, anet_indices, header=None
+    *, dr_file, xy_extracted, config, header=None
 ):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
 
@@ -434,7 +434,7 @@ def estimate_transformation(
         and os.path.exists(config["anet_indices"][1])
     ):
         field_corr, tweak_order = get_initial_corr_local(
-            *initial_corr_arg, anet_indices
+            *initial_corr_arg, config['anet_indices']
         )
     else:
         field_corr, tweak_order = get_initial_corr_web(*initial_corr_arg,
