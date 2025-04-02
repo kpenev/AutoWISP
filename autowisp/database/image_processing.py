@@ -26,6 +26,7 @@ from autowisp.database.interface import Session
 from autowisp.file_utilities import find_fits_fnames
 from autowisp import processing_steps
 from autowisp.database.user_interface import get_processing_sequence
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
 # False positive due to unusual importing
 # pylint: disable=no-name-in-module
@@ -1227,6 +1228,8 @@ class ImageProcessingManager(ProcessingManager):
         with Session.begin() as db_session:
             # pylint: enable=no-member
             processing_sequence = get_processing_sequence(db_session)
+
+        DataReductionFile()
 
         for step, image_type in processing_sequence:
             (step_name, image_type_name, processing_batches) = (

@@ -57,6 +57,8 @@ class HDF5FileDatabaseStructure(HDF5File):
                 str(structure.structure_versions[0].version)
             )
 
+        if version is not None:
+            version = int(version)
         if not hasattr(cls, '_file_structure'):
             cls._file_structure = {}
         if version in cls._file_structure:
@@ -96,6 +98,7 @@ class HDF5FileDatabaseStructure(HDF5File):
                 structure = query.order_by(
                     HDF5StructureVersion.version.desc()
                 ).first()
+                version = int(structure.structure_versions[0].version)
             else:
                 structure = query.filter(
                     HDF5StructureVersion.version == version
