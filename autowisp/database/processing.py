@@ -21,6 +21,8 @@ from autowisp.image_calibration.fits_util import\
     add_channel_keywords
 from autowisp.database.user_interface import\
     get_db_configuration
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
+from autowisp.light_curves.light_curve_file import LightCurveFile
 from autowisp import processing_steps
 #False positive due to unusual importing
 #pylint: disable=no-name-in-module
@@ -654,6 +656,8 @@ class ProcessingManager(ABC):
 
         if dummy:
             logging.disable()
+        DataReductionFile()
+        LightCurveFile()
         self._logger = logging.getLogger(__name__)
         self.current_step = None
         self._current_processing = None
