@@ -81,7 +81,7 @@ def parse_command_line():
         type=parse_range,
         help="Lightcurve substitutions to optimize to find the smallest value "
         "of the expression specified in ``--minimize-expression``. The format "
-        "is ``substitution_key:<min>...<max>``. If multiple keys are given all "
+        "is ``substitution_key:<min>..<max>``. If multiple keys are given all "
         "possible combinations are tested.",
     )
     parser.add_argument(
