@@ -19,9 +19,9 @@ def parse_lc_fname(fname):
 def add_catalogue_info(lc_fnames, catalogue_fname, magnitute_column, result):
     """Fill the catalogue information fields in result."""
 
-    mem_dr = DataReductionFile()
-    catalogue = read_master_catalogue(catalogue_fname,
-                                      mem_dr.parse_hat_source_id)
+    with DataReductionFile() as mem_dr:
+        catalogue = read_master_catalogue(catalogue_fname,
+                                          mem_dr.parse_hat_source_id)
 
     for lc_ind, fname in enumerate(lc_fnames):
         source_id = parse_lc_fname(fname)

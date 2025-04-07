@@ -13,80 +13,87 @@ from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import db_engine
 from .epd_correction import EPDCorrection
-from .reconstructive_correction_transit import\
-    ReconstructiveCorrectionTransit
+from .reconstructive_correction_transit import ReconstructiveCorrectionTransit
+
 
 def save_correction_statistics(correction_statistics, filename):
     """Save the given statistics (result of apply_parallel_correction)."""
 
-    print('Correction statistics:\n' + repr(correction_statistics))
+    print("Correction statistics:\n" + repr(correction_statistics))
     dframe = pandas.DataFrame(
         {
             column: correction_statistics[column]
-            for column in ['ID', 'mag', 'xi', 'eta']
+            for column in ["ID", "mag", "xi", "eta"]
         },
     )
 
-    num_photometries = correction_statistics['rms'][0].size
+    num_photometries = correction_statistics["rms"][0].size
 
-    for prefix in ['rms', 'num_finite']:
+    for prefix in ["rms", "num_finite"]:
         for phot_index in range(num_photometries):
-            dframe[prefix + f'_{phot_index:02d}'] = (
-                correction_statistics[prefix][:, phot_index]
-            )
+            dframe[prefix + f"_{phot_index:02d}"] = correction_statistics[
+                prefix
+            ][:, phot_index]
 
-    with open(filename, 'w', encoding='utf-8') as outf:
-        dframe.to_string(outf, col_space=25, index=False, justify='left')
+    with open(filename, "w", encoding="utf-8") as outf:
+        dframe.to_string(outf, col_space=25, index=False, justify="left")
+
 
 def load_correction_statistics(filename, add_catalog=False):
     """Read a previously stored statistics from a file."""
 
-    mem_dr = DataReductionFile()
-    dframe = pandas.read_csv(filename,
-                             delim_whitespace=True,
-                             index_col='ID')
+    with DataReductionFile() as mem_dr:
+        dframe = pandas.read_csv(
+            filename, delim_whitespace=True, index_col="ID"
+        )
 
-    num_sources, num_photometries = dframe.shape
-    num_photometries = (num_photometries - 3) // 2
+        num_sources, num_photometries = dframe.shape
+        num_photometries = (num_photometries - 3) // 2
 
-    result_dtype = EPDCorrection.get_result_dtype(num_photometries)
-    if add_catalog:
-        catalog = read_catalog_file(add_catalog, add_gnomonic_projection=True)
-        result_dtype += [
-            (col, catalog[col].dtype)
-            for col in catalog.columns if col not in ['xi', 'eta']
-        ]
-        dframe = dframe.drop(columns=['xi', 'eta']).join(catalog, how='inner')
-
-    result = numpy.empty(num_sources, dtype=result_dtype)
-    for column in dframe.columns:
-        if column.startswith('rms_') or column.startswith('num_finite_'):
-            continue
-        result[column] = dframe[column]
-
-    for prefix in ['rms', 'num_finite']:
-        for phot_index in range(num_photometries):
-            result[prefix][:, phot_index] = (
-                dframe[prefix + f'_{phot_index:02d}']
+        result_dtype = EPDCorrection.get_result_dtype(num_photometries)
+        if add_catalog:
+            catalog = read_catalog_file(
+                add_catalog, add_gnomonic_projection=True
+            )
+            result_dtype += [
+                (col, catalog[col].dtype)
+                for col in catalog.columns
+                if col not in ["xi", "eta"]
+            ]
+            dframe = dframe.drop(columns=["xi", "eta"]).join(
+                catalog, how="inner"
             )
 
-    if '2MASSID' in dframe.columns:
-        for index, source_id in enumerate(dframe['2MASSID']):
-            result['ID'][index] = mem_dr.parse_hat_source_id(source_id)
-    else:
-        result['ID'] = dframe.index
+        result = numpy.empty(num_sources, dtype=result_dtype)
+        for column in dframe.columns:
+            if column.startswith("rms_") or column.startswith("num_finite_"):
+                continue
+            result[column] = dframe[column]
 
-    mem_dr.close()
+        for prefix in ["rms", "num_finite"]:
+            for phot_index in range(num_photometries):
+                result[prefix][:, phot_index] = dframe[
+                    prefix + f"_{phot_index:02d}"
+                ]
+
+        if "2MASSID" in dframe.columns:
+            for index, source_id in enumerate(dframe["2MASSID"]):
+                result["ID"][index] = mem_dr.parse_hat_source_id(source_id)
+        else:
+            result["ID"] = dframe.index
 
     return result
 
-def calculate_iterative_rejection_scatter(values,
-                                          calculate_average,
-                                          calculate_scatter,
-                                          outlier_threshold,
-                                          max_outlier_rejections,
-                                          *,
-                                          return_average=False):
+
+def calculate_iterative_rejection_scatter(
+    values,
+    calculate_average,
+    calculate_scatter,
+    outlier_threshold,
+    max_outlier_rejections,
+    *,
+    return_average=False,
+):
     """
     Calculate the scatter for a dataset, with outlier rejectio iterations.
 
@@ -122,9 +129,9 @@ def calculate_iterative_rejection_scatter(values,
         average = calculate_average(values[include_points])
         square_deviations = numpy.square(values - average)
         square_scatter = calculate_scatter(square_deviations[include_points])
-        non_outliers = (square_deviations
-                        <=
-                        outlier_threshold**2 * square_scatter)
+        non_outliers = (
+            square_deviations <= outlier_threshold**2 * square_scatter
+        )
         if non_outliers[include_points].all():
             break
 
@@ -132,11 +139,14 @@ def calculate_iterative_rejection_scatter(values,
         return numpy.sqrt(square_scatter), include_points.sum(), average
     return numpy.sqrt(square_scatter), include_points.sum()
 
-def recalculate_correction_statistics(lc_fnames,
-                                      fit_datasets,
-                                      variables,
-                                      lc_points_filter_expression,
-                                      **calculate_scatter_config):
+
+def recalculate_correction_statistics(
+    lc_fnames,
+    fit_datasets,
+    variables,
+    lc_points_filter_expression,
+    **calculate_scatter_config,
+):
     """
     Extract the performance metrics for a de-trending step directly from LCs.
 
@@ -156,35 +166,35 @@ def recalculate_correction_statistics(lc_fnames,
     """
 
     result = numpy.empty(
-        len(lc_fnames),
-        dtype=EPDCorrection.get_result_dtype(len(fit_datasets))
+        len(lc_fnames), dtype=EPDCorrection.get_result_dtype(len(fit_datasets))
     )
 
     for lc_index, fname in enumerate(lc_fnames):
-        with LightCurveFile(fname, 'r') as lightcurve:
+        with LightCurveFile(fname, "r") as lightcurve:
             for fit_index, (_, substitutions, to_dset) in enumerate(
-                    fit_datasets
+                fit_datasets
             ):
                 try:
                     stat_points = lightcurve.evaluate_expression(
-                        variables,
-                        lc_points_filter_expression
+                        variables, lc_points_filter_expression
                     )
-                    #False positive
-                    #pylint: disable=unbalanced-tuple-unpacking
+                    # False positive
+                    # pylint: disable=unbalanced-tuple-unpacking
                     (
-                        result['rms'][lc_index][fit_index],
-                        result['num_finite'][lc_index][fit_index]
+                        result["rms"][lc_index][fit_index],
+                        result["num_finite"][lc_index][fit_index],
                     ) = calculate_iterative_rejection_scatter(
-                        lightcurve.get_dataset(to_dset,
-                                               **substitutions)[stat_points],
-                        **calculate_scatter_config
+                        lightcurve.get_dataset(to_dset, **substitutions)[
+                            stat_points
+                        ],
+                        **calculate_scatter_config,
                     )
-                    #pylint: enable=unbalanced-tuple-unpacking
+                    # pylint: enable=unbalanced-tuple-unpacking
                 except OSError:
-                    result['rms'][lc_index][fit_index] = numpy.nan
-                    result['num_finite'][lc_index][fit_index] = 0
+                    result["rms"][lc_index][fit_index] = numpy.nan
+                    result["num_finite"][lc_index][fit_index] = 0
     return result
+
 
 def pool_init(config):
     """Setup pool process."""
@@ -192,10 +202,10 @@ def pool_init(config):
     db_engine.dispose()
     setup_process(**config)
 
-def apply_parallel_correction(lc_fnames,
-                              correct,
-                              num_parallel_processes,
-                              **config):
+
+def apply_parallel_correction(
+    lc_fnames, correct, num_parallel_processes, **config
+):
     """
     Correct LCs running one of the detrending algorithms in parallel.
 
@@ -217,29 +227,30 @@ def apply_parallel_correction(lc_fnames,
 
     logger = logging.getLogger(__name__)
 
-    logger.info('Starting detrending %d light curves.', len(lc_fnames))
+    logger.info("Starting detrending %d light curves.", len(lc_fnames))
 
     if num_parallel_processes == 1:
         result = numpy.concatenate([correct(lcf) for lcf in lc_fnames])
     else:
         with Pool(
-                num_parallel_processes,
-                initializer=pool_init,
-                initargs=(config,)
+            num_parallel_processes, initializer=pool_init, initargs=(config,)
         ) as correction_pool:
             result = numpy.concatenate(correction_pool.map(correct, lc_fnames))
 
-    logger.info('Finished detrending.')
+    logger.info("Finished detrending.")
 
     return result
 
-def apply_reconstructive_correction_transit(lc_fname,
-                                            correct,
-                                            *,
-                                            transit_model,
-                                            transit_parameters,
-                                            fit_parameter_flags,
-                                            num_limbdark_coef):
+
+def apply_reconstructive_correction_transit(
+    lc_fname,
+    correct,
+    *,
+    transit_model,
+    transit_parameters,
+    fit_parameter_flags,
+    num_limbdark_coef,
+):
     """
     Perform a reconstructive correction on a LC assuming it contains a transit.
 
@@ -272,8 +283,8 @@ def apply_reconstructive_correction_transit(lc_fname,
               the best-fit transit parameters.
     """
 
-    #This is intended to server as a callable.
-    #pylint: disable=too-few-public-methods
+    # This is intended to server as a callable.
+    # pylint: disable=too-few-public-methods
     class MinimizeFunction:
         """Suitable callable for scipy.optimize.minimize()."""
 
@@ -306,24 +317,28 @@ def apply_reconstructive_correction_transit(lc_fname,
                 lc_fname,
                 self.transit_parameters[0],
                 self.transit_parameters[1 : num_limbdark_coef + 1],
-                *self.transit_parameters[num_limbdark_coef + 1 : ],
-                save=False
-            )['rms']
-    #pylint: enable=too-few-public-methods
+                *self.transit_parameters[num_limbdark_coef + 1 :],
+                save=False,
+            )["rms"]
+
+    # pylint: enable=too-few-public-methods
 
     rms_function = MinimizeFunction()
     best_fit_transit = numpy.copy(transit_parameters)
 
     if fit_parameter_flags.any():
-        minimize_result = minimize(rms_function,
-                                   transit_parameters[fit_parameter_flags])
+        minimize_result = minimize(
+            rms_function, transit_parameters[fit_parameter_flags]
+        )
         assert minimize_result.success
         best_fit_transit[fit_parameter_flags] = minimize_result.x
 
     return (
         best_fit_transit,
-        rms_function.correct(lc_fname,
-                             best_fit_transit[0],
-                             best_fit_transit[1: num_limbdark_coef + 1],
-                             *best_fit_transit[num_limbdark_coef + 1 : ])
+        rms_function.correct(
+            lc_fname,
+            best_fit_transit[0],
+            best_fit_transit[1 : num_limbdark_coef + 1],
+            *best_fit_transit[num_limbdark_coef + 1 :],
+        ),
     )

@@ -622,6 +622,8 @@ class MasterPhotrefCollector:
 if __name__ == '__main__':
     from time import time
 
+    import zarr
+
     nstars = 5000
     nframes = 5000
     nphot = 40

@@ -656,8 +656,9 @@ class ProcessingManager(ABC):
 
         if dummy:
             logging.disable()
-        DataReductionFile()
-        LightCurveFile()
+        DataReductionFile.get_file_structure()
+        LightCurveFile.get_file_structure()
+
         self._logger = logging.getLogger(__name__)
         self.current_step = None
         self._current_processing = None

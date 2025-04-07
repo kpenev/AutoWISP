@@ -35,10 +35,10 @@ class HDF5File(ABC, h5py.File):
     of files.
 
     Attributes:
-        _file_structure:    See the first entry returned by _get_file_structure.
+        _file_structure:    See the first entry returned by get_file_structure.
 
         _file_structure_version:    See the second entry returned by
-            _get_file_structure.
+            get_file_structure.
 
         _hat_id_prefixes (numpy.array):    A list of the currently recognized
             HAT-ID prefixes, with the correct data type ready for adding as a
@@ -84,7 +84,7 @@ class HDF5File(ABC, h5py.File):
 
     @classmethod
     @abstractmethod
-    def _get_file_structure(cls, version=None):
+    def get_file_structure(cls, version=None):
         """
         Return the layout structure with the given version of the file.
 
@@ -1282,7 +1282,7 @@ class HDF5File(ABC, h5py.File):
             self._defined_elements,
             self._file_structure,
             self._file_structure_version
-        ) = self._get_file_structure(layout_version)
+        ) = self.get_file_structure(layout_version)
 
         if fname is not None and not old_file:
             self[layout_version_path].attrs[layout_version_attr] = (

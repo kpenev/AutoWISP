@@ -1229,7 +1229,7 @@ class ImageProcessingManager(ProcessingManager):
             # pylint: enable=no-member
             processing_sequence = get_processing_sequence(db_session)
 
-        DataReductionFile()
+        DataReductionFile.get_file_struture()
 
         for step, image_type in processing_sequence:
             (step_name, image_type_name, processing_batches) = (
