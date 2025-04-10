@@ -1027,10 +1027,10 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         )
         self.add_dataset(
             "srcextract.psf_map",
-            numpy.stack(
+            numpy.stack([
                 fit_results["coefficients"][param_name]
                 for param_name in psf_parameters
-            ),
+            ]),
             **path_substitutions,
         )
 
