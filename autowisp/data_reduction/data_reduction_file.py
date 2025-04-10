@@ -525,11 +525,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             if string_source_ids:
                 if result.index.name == "source_id":
                     result["ID"] = numpy.vectorize(
-                        lambda i: str(i).encode("ascii")
+                        lambda i: str(i).encode("ascii"),
+                        otypes=['O']
                     )(result.index)
                 else:
                     result["ID"] = numpy.vectorize(assemble_hat_id)(
-                        *[result[comp] for comp in hat_id_components]
+                        *[result[comp] for comp in hat_id_components],
+                        otypes=['O']
                     )
                     for id_component in hat_id_components:
                         del result[id_component]
