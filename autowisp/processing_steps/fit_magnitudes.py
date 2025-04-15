@@ -178,13 +178,31 @@ def parse_command_line(*args):
     return parser.parse_args(*args)
 
 
-def get_path_substitutions(configuration):
+def get_path_substitutions(configuration, sphotref_header):
     """Return the path substitutions to find magfit datasets."""
 
-    return {
+    result = {
         what + "_version": configuration[what + "_version"]
         for what in ["shapefit", "srcproj", "apphot", "background", "magfit"]
     }
+    if configuration["master_photref_fname"] is not None:
+        for iteration in count():
+            if (
+                configuration["master_photref_fname_format"].format(
+                    **sphotref_header, **result, magfit_iteration=iteration
+                )
+                == configuration["master_photref_fname"]
+            ):
+                result["magfit_iteration"] = iteration
+                break
+            if iteration >= configuration["max_magfit_iterations"]:
+                raise ValueError(
+                    "Master photometric reference "
+                    f"{configuration['master_photref_fname']!r} does not appear"
+                    " to follow the specified filename format: "
+                    f"{configuration['master_photref_fname_format']!r}!"
+                )
+    return result
 
 
 def fit_magnitudes(
@@ -200,13 +218,14 @@ def fit_magnitudes(
     dr_fnames = sorted(dr_collection)
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r"
-    ) as mphotref_dr_file:
+    ) as sphotref_dr_file:
+        sphotref_header = sphotref_dr_file.get_frame_header()
         catalog_sources, outliers, catalog_fname = ensure_catalog(
             dr_files=dr_fnames,
             configuration=get_catalog_config(configuration, "magfit"),
             return_metadata=False,
             skytoframe_version=configuration["skytoframe_version"],
-            header=mphotref_dr_file.get_frame_header(),
+            header=sphotref_header,
         )
     for outlier_ind in reversed(outliers):
         outlier_dr = dr_fnames.pop(outlier_ind)
@@ -217,21 +236,45 @@ def fit_magnitudes(
         mark_start(outlier_dr)
         mark_end(outlier_dr, -2, final=True)
 
+    kwargs = {
+        "fit_dr_filenames": dr_fnames,
+        "configuration": SimpleNamespace(
+            **configuration,
+            continue_from_iteration=(start_status + 1) // 2,
+            source_name_format="{0:d}",
+        ),
+        "mark_start": mark_start,
+        "mark_end": mark_end,
+        "path_substitutions": get_path_substitutions(
+            configuration, sphotref_header
+        ),
+    }
+
+    if configuration["master_photref_fname"] is not None:
+        _logger.info(
+            "Using existing master photometric reference: %s with\n\t%s",
+            configuration["master_photref_fname"],
+            "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
+        )
+        assert start_status == -1
+        magnitude_fitting.single_iteration(
+            photref=magnitude_fitting.get_master_photref(
+                configuration["master_photref_fname"]
+            ),
+            **kwargs,
+        )
+        return None
+
+    _logger.info(
+        "Starting iterative magfit for single photref: %s with\n\t%s",
+        configuration["single_photref_dr_fname"],
+        "\n\t".join(f"{k}: {v!r}" for k, v in kwargs.items()),
+    )
+
     master_photref_fname, magfit_stat_fname = magnitude_fitting.iterative_refit(
-        fit_dr_filenames=dr_fnames,
         single_photref_dr_fname=configuration["single_photref_dr_fname"],
         catalog_sources=catalog_sources,
-        configuration=SimpleNamespace(**configuration),
-        master_photref_fname_format=(
-            configuration["master_photref_fname_format"]
-        ),
-        magfit_stat_fname_format=configuration["magfit_stat_fname_format"],
-        master_scatter_fit_terms=configuration["mphotref_scatter_fit_terms"],
-        mark_start=mark_start,
-        mark_end=mark_end,
-        max_iterations=configuration["max_magfit_iterations"],
-        continue_from_iteration=(start_status + 1) // 2,
-        **get_path_substitutions(configuration),
+        **kwargs,
     )
     return [
         {

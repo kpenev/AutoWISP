@@ -525,13 +525,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             if string_source_ids:
                 if result.index.name == "source_id":
                     result["ID"] = numpy.vectorize(
-                        lambda i: str(i).encode("ascii"),
-                        otypes=['O']
+                        lambda i: str(i).encode("ascii"), otypes=["O"]
                     )(result.index)
                 else:
                     result["ID"] = numpy.vectorize(assemble_hat_id)(
                         *[result[comp] for comp in hat_id_components],
-                        otypes=['O']
+                        otypes=["O"],
                     )
                     for id_component in hat_id_components:
                         del result[id_component]
@@ -735,12 +734,26 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             if include_shape_fit:
                 num_apertures -= 1
                 apphot_start = 1
-                self.add_dataset(
+                orig_path = self.add_dataset(
                     "shapefit.magfit.magnitude",
                     fitted_magnitudes[:, 0],
                     if_exists="error",
                     **path_substitutions,
                 )
+                path_template = self._file_structure[
+                    "shapefit.magfit.magnitude"
+                ].abspath
+                for magfit_iter in range(
+                    num_magfit_iterations,
+                    path_substitutions["magfit_iteration"],
+                ):
+                    self[
+                        path_template
+                        % {
+                            **path_substitutions,
+                            "magfit_iteration": magfit_iter,
+                        }
+                    ] = self[orig_path]
             for aperture_index in range(num_apertures):
                 self.add_dataset(
                     "apphot.magfit.magnitude",
@@ -813,9 +826,15 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         **path_substitutions,
                     )
 
-        path_substitutions["magfit_iteration"] = self.get_num_magfit_iterations(
+        num_magfit_iterations = self.get_num_magfit_iterations(
             **path_substitutions
         )
+        if "magfit_iteration" in path_substitutions:
+            assert (
+                path_substitutions["magfit_iteration"] >= num_magfit_iterations
+            )
+        else:
+            path_substitutions["magfit_iteration"] = num_magfit_iterations
         include_shape_fit = self.has_shape_fit(
             accept_zeropsf=False, **path_substitutions
         )
@@ -1027,10 +1046,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         )
         self.add_dataset(
             "srcextract.psf_map",
-            numpy.stack([
-                fit_results["coefficients"][param_name]
-                for param_name in psf_parameters
-            ]),
+            numpy.stack(
+                [
+                    fit_results["coefficients"][param_name]
+                    for param_name in psf_parameters
+                ]
+            ),
             **path_substitutions,
         )
 
