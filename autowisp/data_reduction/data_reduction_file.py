@@ -74,15 +74,15 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         """
 
         path_substitutions[column_substitution_name] = "{column}"
-        print(
-            "Parsing source path: "
-            + repr(self._file_structure[dataset_key].abspath)
+        self._logger.debug(
+            "Parsing source path: %s",
+            repr(self._file_structure[dataset_key].abspath),
         )
         parsed_path = string.Formatter().parse(
             self._file_structure[dataset_key].abspath % path_substitutions
         )
         pre_column, verify, _, _ = next(parsed_path)
-        print(f"Pre_column: {pre_column}, verify: {verify}")
+        self._logger.debug("Pre_column: %s, verify: %s", pre_column, verify)
         assert verify == "column"
         try:
             name_tail = next(parsed_path)
@@ -231,9 +231,13 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             dataset_key, column_substitution_name, **path_substitutions
         )
         result = pandas.DataFrame()
-        print(
-            f"Collecting columns frcom {self.filename} under {parent}, "
-            f"starting with {name_head} and ending with {name_tail}"
+        self._logger.debug(
+            "Collecting columns frcom %s under %s, starting with %s and ending "
+            "with %s",
+            self.filename,
+            parent,
+            name_head,
+            name_tail,
         )
         self[parent].visititems(
             partial(self.collect_columns, result, name_head, name_tail)
@@ -729,20 +733,15 @@ class DataReductionFile(HDF5FileDatabaseStructure):
         def add_magfit_datasets(fitted_magnitudes, include_shape_fit):
             """Create the datasets holding the newly fitted magnitudes."""
 
-            num_apertures = fitted_magnitudes.shape[1]
-            apphot_start = 0
-            if include_shape_fit:
-                num_apertures -= 1
-                apphot_start = 1
+            def add_dataset(dset_key, dset_data, substitutions):
+
                 orig_path = self.add_dataset(
-                    "shapefit.magfit.magnitude",
-                    fitted_magnitudes[:, 0],
+                    dset_key,
+                    dset_data,
                     if_exists="error",
-                    **path_substitutions,
+                    **substitutions,
                 )
-                path_template = self._file_structure[
-                    "shapefit.magfit.magnitude"
-                ].abspath
+                path_template = self._file_structure[dset_key].abspath
                 for magfit_iter in range(
                     num_magfit_iterations,
                     path_substitutions["magfit_iteration"],
@@ -750,17 +749,26 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                     self[
                         path_template
                         % {
-                            **path_substitutions,
+                            **substitutions,
                             "magfit_iteration": magfit_iter,
                         }
                     ] = self[orig_path]
+
+            num_apertures = fitted_magnitudes.shape[1]
+            apphot_start = 0
+            if include_shape_fit:
+                num_apertures -= 1
+                apphot_start = 1
+                add_dataset(
+                    "shapefit.magfit.magnitude",
+                    fitted_magnitudes[:, 0],
+                    path_substitutions,
+                )
             for aperture_index in range(num_apertures):
-                self.add_dataset(
+                add_dataset(
                     "apphot.magfit.magnitude",
                     fitted_magnitudes[:, aperture_index + apphot_start],
-                    if_exists="error",
-                    aperture_index=aperture_index,
-                    **path_substitutions,
+                    {**path_substitutions, "aperture_index": aperture_index},
                 )
 
         def add_attributes(include_shape_fit):
@@ -835,6 +843,12 @@ class DataReductionFile(HDF5FileDatabaseStructure):
             )
         else:
             path_substitutions["magfit_iteration"] = num_magfit_iterations
+        self._logger.debug(
+            "Adding magfit iteration %d to %s containing %d prior iterations",
+            path_substitutions["magfit_iteration"],
+            self.filename,
+            num_magfit_iterations,
+        )
         include_shape_fit = self.has_shape_fit(
             accept_zeropsf=False, **path_substitutions
         )
