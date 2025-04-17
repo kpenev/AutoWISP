@@ -150,12 +150,13 @@ def main(config):
             "photometry_modes": config.photometry_modes,
         },
     )
+    nrows = 2 if len(data_by_sphotref) <= 4 else 3
     if config.bin is None:
         for subfig_id, (sphotref_fname, single_data) in enumerate(
             data_by_sphotref.items()
         ):
             print(f"Single data: {single_data!r}")
-            pyplot.subplot(2, 2, subfig_id + 1)
+            pyplot.subplot(nrows, nrows, subfig_id + 1)
             pyplot.plot(single_data["x"], single_data["y"], config.fmt)
             # pyplot.plot(single_data["x"], single_data["best_model"], "-k")
             with DataReductionFile(sphotref_fname, "r") as dr_file:
