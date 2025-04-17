@@ -1217,6 +1217,7 @@ class HDF5File(ABC, h5py.File):
             shape=shape,
             **creation_args
         )
+        return dataset_path
 
     def __init__(self,
                  fname=None,

@@ -9,18 +9,22 @@ from os import getpid
 import numpy
 from astropy.io import fits
 
-from general_purpose_python_modules.multiprocessing_util import\
-    setup_process_map
+from general_purpose_python_modules.multiprocessing_util import (
+    setup_process_map,
+)
 
 from autowisp import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
-from autowisp.magnitude_fitting import\
-    LinearMagnitudeFit,\
-    MasterPhotrefCollector
-from autowisp.magnitude_fitting.util import\
-    get_single_photref,\
-    get_master_photref,\
-    format_master_catalog
+from autowisp.magnitude_fitting import (
+    LinearMagnitudeFit,
+    MasterPhotrefCollector,
+)
+from autowisp.magnitude_fitting.util import (
+    get_single_photref,
+    get_master_photref,
+    format_master_catalog,
+)
+
 
 def _get_common_header(fit_dr_filenames):
     """Return header containing all keywords common to all input frames."""
@@ -28,30 +32,94 @@ def _get_common_header(fit_dr_filenames):
     result = fits.Header()
     first = True
     for dr_fname in fit_dr_filenames:
-        with DataReductionFile(dr_fname, 'r') as data_reduction:
-            update_stack_header(result,
-                                data_reduction.get_frame_header(),
-                                dr_fname,
-                                first)
+        with DataReductionFile(dr_fname, "r") as data_reduction:
+            update_stack_header(
+                result, data_reduction.get_frame_header(), dr_fname, first
+            )
             first = False
     return result
 
 
-#Could not come up with a sensible way to simplify
-#pylint: disable=too-many-locals
-def iterative_refit(fit_dr_filenames,
-                    *,
-                    single_photref_dr_fname,
-                    catalog_sources,
-                    configuration,
-                    master_photref_fname_format,
-                    magfit_stat_fname_format,
-                    master_scatter_fit_terms,
-                    mark_start,
-                    mark_end,
-                    max_iterations=5,
-                    continue_from_iteration=0,
-                    **path_substitutions):
+# Could not come up with a sensible way to simplify
+# pylint: disable=too-many-arguments
+def single_iteration(
+    fit_dr_filenames,
+    *,
+    photref,
+    configuration,
+    path_substitutions,
+    mark_start,
+    mark_end,
+    magfit_stat_collector=None
+):
+    """Do a single magfit iteration using parallel processes."""
+
+    magfit = LinearMagnitudeFit(
+        config=configuration,
+        reference=photref,
+        source_name_format=configuration.source_name_format,
+    )
+
+    pool_magfit = partial(
+        magfit,
+        mark_start=(
+            partial(
+                mark_start, status=2 * path_substitutions["magfit_iteration"]
+            )
+            if (
+                path_substitutions["magfit_iteration"] == 0
+                or magfit_stat_collector is None
+            )
+            else partial(
+                mark_end,
+                status=2 * path_substitutions["magfit_iteration"],
+                final=False,
+            )
+        ),
+        mark_end=partial(
+            mark_end,
+            status=2 * path_substitutions["magfit_iteration"] + 1,
+            final=configuration.master_photref_fname is not None,
+        ),
+        **path_substitutions
+    )
+
+    if configuration.num_parallel_processes > 1:
+        configuration.parent_pid = getpid()
+        with Pool(
+            configuration.num_parallel_processes,
+            initializer=setup_process_map,
+            initargs=(vars(configuration),),
+        ) as magfit_pool:
+            if magfit_stat_collector is None:
+                magfit_pool.map(pool_magfit, fit_dr_filenames)
+            else:
+                magfit_stat_collector.add_input(
+                    magfit_pool.imap_unordered(pool_magfit, fit_dr_filenames)
+                )
+    elif magfit_stat_collector is None:
+        for dr_fname in fit_dr_filenames:
+            pool_magfit(dr_fname)
+    else:
+        magfit_stat_collector.add_input(map(pool_magfit, fit_dr_filenames))
+
+
+# pylint: enable=too-many-arguments
+
+
+# Could not come up with a sensible way to simplify
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+def iterative_refit(
+    fit_dr_filenames,
+    *,
+    single_photref_dr_fname,
+    catalog_sources,
+    configuration,
+    mark_start,
+    mark_end,
+    path_substitutions
+):
     """
     Iteratively performa magnitude fitting/generating master until convergence.
 
@@ -78,21 +146,24 @@ def iterative_refit(fit_dr_filenames,
                   of photometric reference magnitudes to consider the iterations
                   converged.
 
-        master_photref_fname_format(str):    A format string involving
-            a {magfit_iteration} substitution along with any variables from the
-            header of the single photometric reference or passed through the
-            path_substitutions arguments, that expands to the name of the file
-            to save the master photometric reference for a particular iteration.
+                * master_photref_fname_format(str): A format string involving a
+                  {magfit_iteration} substitution along with any variables from
+                  the header of the single photometric reference or passed
+                  through the path_substitutions arguments, that expands to the
+                  name of the file to save the master photometric reference for
+                  a particular iteration.
 
-        magfit_stat_fname_format(str):    Similar to
-            ``master_photref_fname_format``, but defines the name to use for
-            saving the statistics of a magnitude fitting iteration.
+                * magfit_stat_fname_format(str): Similar
+                  to ``master_photref_fname_format``, but defines the name to
+                  use for saving the statistics of a magnitude fitting
+                  iteration.
 
-        num_parallel_processes(int):     How many processes to use for
-            simultaneus fitting.
+                * num_parallel_processes(int): How many processes to use
+                  for simultaneus fitting.
 
-        master_scatter_fit_terms(str):    Terms to include in the fit for the
-            scatter when deciding which stars to include in the master.
+                * master_scatter_fit_terms(str): Terms to include in the fit
+                  for the scatter when deciding which stars to include in the
+                  master.
 
         mark_start(callable):    A function called at the start of each DR file
             fitting.
@@ -103,7 +174,7 @@ def iterative_refit(fit_dr_filenames,
         max_iterations(int):    The maximum number of iterations of deriving a
             master and re-fitting to allow.
 
-        path_substitutions:     Any variables to substitute in
+        path_substitutions(dict):     Any variables to substitute in
             ``master_photref_fname_format`` or to pass to data reduction files
             to identify components to use in the fit.
 
@@ -111,13 +182,15 @@ def iterative_refit(fit_dr_filenames,
         The filename of the last master photometric reference created.
     """
 
-    def update_photref(*,
-                       magfit_stat_collector,
-                       old_reference,
-                       source_id_parser,
-                       num_photometries,
-                       fname_substitutions,
-                       common_header):
+    def update_photref(
+        *,
+        magfit_stat_collector,
+        old_reference,
+        source_id_parser,
+        num_photometries,
+        fname_substitutions,
+        common_header
+    ):
         """
         Return the next iteration photometric reference or None if converged.
 
@@ -137,16 +210,18 @@ def iterative_refit(fit_dr_filenames,
         """
 
         logger = logging.getLogger(__name__)
-        master_reference_fname = master_photref_fname_format.format_map(
-            fname_substitutions
+        master_reference_fname = (
+            configuration.master_photref_fname_format.format_map(
+                fname_substitutions
+            )
         )
         try:
             magfit_stat_collector.generate_master(
                 master_reference_fname=master_reference_fname,
                 catalogue=catalog,
-                fit_terms_expression=master_scatter_fit_terms,
+                fit_terms_expression=configuration.mphotref_scatter_fit_terms,
                 parse_source_id=source_id_parser,
-                extra_header=common_header
+                extra_header=common_header,
             )
         except RuntimeError:
             return None, None
@@ -154,36 +229,44 @@ def iterative_refit(fit_dr_filenames,
 
         common_sources = set(new_reference) & set(old_reference)
 
-        average_square_change = numpy.zeros(num_photometries,
-                                            dtype=numpy.float64)
+        average_square_change = numpy.zeros(
+            num_photometries, dtype=numpy.float64
+        )
         num_finite = numpy.zeros(num_photometries, dtype=numpy.float64)
         for source in common_sources:
-            square_diff = (old_reference[source]['mag'][0]
-                           -
-                           new_reference[source]['mag'][0])**2
-            #False positive
-            #pylint: disable=assignment-from-no-return
+            square_diff = (
+                old_reference[source]["mag"][0]
+                - new_reference[source]["mag"][0]
+            ) ** 2
+            # False positive
+            # pylint: disable=assignment-from-no-return
             finite_entries = numpy.isfinite(square_diff)
-            #pylint: enable=assignment-from-no-return
-            logger.debug('Num photometries: %s', repr(num_photometries))
-            logger.debug('square_diff (shape=%s): %s',
-                         repr(square_diff.shape),
-                         repr(square_diff))
-            logger.debug('finite_entries (shape=%s): %s',
-                         repr(finite_entries.shape),
-                         repr(finite_entries))
-            logger.debug('average_square_change (shape=%s): %s',
-                         repr(average_square_change.shape),
-                         repr(average_square_change))
+            # pylint: enable=assignment-from-no-return
+            logger.debug("Num photometries: %s", repr(num_photometries))
+            logger.debug(
+                "square_diff (shape=%s): %s",
+                repr(square_diff.shape),
+                repr(square_diff),
+            )
+            logger.debug(
+                "finite_entries (shape=%s): %s",
+                repr(finite_entries.shape),
+                repr(finite_entries),
+            )
+            logger.debug(
+                "average_square_change (shape=%s): %s",
+                repr(average_square_change.shape),
+                repr(average_square_change),
+            )
 
             average_square_change[finite_entries] += square_diff[finite_entries]
             num_finite += finite_entries
 
         average_square_change /= num_finite
         logger.debug(
-            'Fit iteration resulted in average square change in magnitudes of: '
-            '%s',
-            repr(average_square_change)
+            "Fit iteration resulted in average square change in magnitudes of: "
+            "%s",
+            repr(average_square_change),
         )
 
         if average_square_change.max() <= configuration.max_photref_change:
@@ -191,99 +274,63 @@ def iterative_refit(fit_dr_filenames,
 
         return new_reference, master_reference_fname
 
+    path_substitutions["magfit_iteration"] = (
+        configuration.continue_from_iteration - 1
+    )
 
-    path_substitutions['magfit_iteration'] = continue_from_iteration - 1
-
-    with DataReductionFile(single_photref_dr_fname, 'r') as photref_dr:
+    with DataReductionFile(single_photref_dr_fname, "r") as photref_dr:
         common_header = photref_dr.get_frame_header()
         fname_substitutions = dict(common_header)
         fname_substitutions.update(path_substitutions)
-        if continue_from_iteration > 0:
-            master_reference_fname = master_photref_fname_format.format_map(
-                fname_substitutions
+        if configuration.continue_from_iteration > 0:
+            master_reference_fname = (
+                configuration.master_photref_fname_format.format_map(
+                    fname_substitutions
+                )
             )
             photref = get_master_photref(master_reference_fname)
         else:
             photref = get_single_photref(photref_dr, **path_substitutions)
 
-    catalog = format_master_catalog(catalog_sources,
-                                    photref_dr.parse_hat_source_id)
-
-    num_photometries = next(iter(photref.values()))['mag'].size
-
-    source_name_format=(
-        'HAT-{0[1]:03d}-{0[2]:07d}'
-        if isinstance(next(iter(catalog)), tuple) else
-        '{0:d}'
+    catalog = format_master_catalog(
+        catalog_sources, photref_dr.parse_hat_source_id
     )
 
+    num_photometries = next(iter(photref.values()))["mag"].size
+
     photref_fname = None
-    common_header['IMAGETYP'] = 'mphotref'
+    common_header["IMAGETYP"] = "mphotref"
     with TemporaryDirectory() as grcollect_tmp_dir:
         while (
-                photref
-                and
-                path_substitutions['magfit_iteration'] < max_iterations
+            photref
+            and path_substitutions["magfit_iteration"]
+            < configuration.max_magfit_iterations
         ):
-            path_substitutions['magfit_iteration'] += 1
-            fname_substitutions['magfit_iteration'] += 1
+            path_substitutions["magfit_iteration"] += 1
+            fname_substitutions["magfit_iteration"] += 1
 
-            assert next(iter(photref.values()))['mag'].size == num_photometries
+            assert next(iter(photref.values()))["mag"].size == num_photometries
 
-            result = (
-                photref_fname,
-                magfit_stat_fname_format.format_map(fname_substitutions)
+            stat_fname = configuration.magfit_stat_fname_format.format_map(
+                fname_substitutions
             )
 
             magfit_stat_collector = MasterPhotrefCollector(
-                result[1],
+                stat_fname,
                 num_photometries,
                 grcollect_tmp_dir,
-                source_name_format=source_name_format
-            )
-            magfit = LinearMagnitudeFit(
-                config=configuration,
-                reference=photref,
-#                master_catalogue=catalogue,
-                source_name_format=source_name_format
+                source_name_format=configuration.source_name_format,
             )
 
-            pool_magfit = partial(
-                magfit,
-                mark_start=(
-                    mark_start
-                    if path_substitutions['magfit_iteration'] == 0 else
-                    partial(
-                        mark_end,
-                        status=2 * path_substitutions['magfit_iteration'],
-                        final=False
-                    )
-                ),
-                mark_end=partial(
-                    mark_end,
-                    status=2 * path_substitutions['magfit_iteration'] + 1,
-                    final=False
-                ),
-                **path_substitutions
+            single_iteration(
+                fit_dr_filenames,
+                photref=photref,
+                configuration=configuration,
+                path_substitutions=path_substitutions,
+                mark_start=mark_start,
+                mark_end=mark_end,
+                magfit_stat_collector=magfit_stat_collector,
             )
-
-            if configuration.num_parallel_processes > 1:
-                configuration.parent_pid = getpid()
-                with Pool(
-                        configuration.num_parallel_processes,
-                        initializer=setup_process_map,
-                        initargs=(vars(configuration),)
-                ) as magfit_pool:
-                    magfit_stat_collector.add_input(
-                        magfit_pool.imap_unordered(
-                            pool_magfit,
-                            fit_dr_filenames
-                        )
-                    )
-            else:
-                magfit_stat_collector.add_input(
-                    map(pool_magfit, fit_dr_filenames)
-                )
 
             photref, photref_fname = update_photref(
                 magfit_stat_collector=magfit_stat_collector,
@@ -291,11 +338,16 @@ def iterative_refit(fit_dr_filenames,
                 source_id_parser=photref_dr.parse_hat_source_id,
                 num_photometries=num_photometries,
                 fname_substitutions=fname_substitutions,
-                common_header=common_header
+                common_header=common_header,
             )
     for fit_dr_fname in fit_dr_filenames:
-        mark_end(fit_dr_fname,
-                 status=2 * path_substitutions['magfit_iteration'] - 1,
-                 final=True)
-    return result
-#pylint: enable=too-many-locals
+        mark_end(
+            fit_dr_fname,
+            status=2 * path_substitutions["magfit_iteration"] - 1,
+            final=True,
+        )
+    return photref_fname, stat_fname
+
+
+# pylint: enable=too-many-arguments
+# pylint: enable=too-many-locals

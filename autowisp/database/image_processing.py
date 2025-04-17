@@ -665,7 +665,7 @@ class ImageProcessingManager(ProcessingManager):
         if new_masters:
             self.add_masters(new_masters, step_name, image_type_name)
 
-    def _start_processing(self, input_fname):
+    def _start_processing(self, input_fname, status=0):
         """
         Mark in the database that processing the given file has begun.
 
@@ -692,7 +692,7 @@ class ImageProcessingManager(ProcessingManager):
                     ProcessedImages(
                         **starting_id,
                         progress_id=self._current_processing.id,
-                        status=0,
+                        status=status,
                         final=False,
                     )
                 )
@@ -1229,7 +1229,7 @@ class ImageProcessingManager(ProcessingManager):
             # pylint: enable=no-member
             processing_sequence = get_processing_sequence(db_session)
 
-        DataReductionFile.get_file_struture()
+        DataReductionFile.get_file_structure()
 
         for step, image_type in processing_sequence:
             (step_name, image_type_name, processing_batches) = (
