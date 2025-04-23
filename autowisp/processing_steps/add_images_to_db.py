@@ -183,8 +183,10 @@ def get_or_create_target(image_type,
     elif image_type not in no_pointing_imtypes:
         image_target = SkyCoord(image_target['ra'] * units.deg,
                                 image_target['dec'] * units.deg)
-        print(f'Checking target {target_name} for {image_type!r} image. '
-              f'From DB: {db_target!r} vs image: {image_target!r}')
+        _logger.debug(
+            f'Checking target {target_name} for {image_type!r} image. '
+            f'From DB: {db_target!r} vs image: {image_target!r}'
+        )
         assert (
             image_target.separation(
                 SkyCoord(ra=db_target.ra * units.deg,
