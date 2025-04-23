@@ -2,8 +2,9 @@
 
 from abc import ABC, abstractmethod
 import logging
+import os
 from os import path, getpid
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from socket import getfqdn
 
 from psutil import pid_exists, Process
@@ -762,24 +763,26 @@ class ProcessingManager(ABC):
             ][
                 'matched'
             ]
-        with NamedTemporaryFile(mode='w') as config_file:
-            config_key = self._write_config_file(
-                matched_expressions,
-                config_file,
-                db_steps=[db_step] if db_step else None,
-                step_names=[step_name] if not db_step else None,
-                db_session=db_session
-            )
-            self._logger.debug('Flushing config file %s',
-                               repr(config_file.name))
-            config_file.flush()
-            self._logger.debug('Wrote config file %s', repr(config_file.name))
-            return getattr(
-                processing_steps,
-                db_step.name if db_step else step_name
-            ).parse_command_line(
-                ['-c', config_file.name]
-            ), config_key
+        with TemporaryDirectory() as temp_dir:
+            temp_file_path = path.join(temp_dir, 'config_file.tmp')
+            with open(temp_file_path, mode='w') as config_file:
+                config_key = self._write_config_file(
+                    matched_expressions,
+                    config_file,
+                    db_steps=[db_step] if db_step else None,
+                    step_names=[step_name] if not db_step else None,
+                    db_session=db_session
+                )
+                self._logger.debug('Flushing config file %s', repr(config_file.name))
+                config_file.flush()
+                os.fsync(config_file.fileno())  # Ensure data is written to disk (cross-platform)
+                self._logger.debug('Wrote config file %s', repr(config_file.name))
+                return getattr(
+                    processing_steps,
+                    db_step.name if db_step else step_name
+                ).parse_command_line(
+                    ['-c', config_file.name]
+                ), config_key
 
 
     @abstractmethod
