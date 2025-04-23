@@ -220,6 +220,7 @@ class MasterCatalog:
                     self._master_cat_fname, return_metadata=True
                 )
                 self._centers = None
+                self._new = False
             else:
                 self._sources = None
                 self._header = sphotref_header.copy()
@@ -227,6 +228,7 @@ class MasterCatalog:
                     if k in self._header:
                         del self._header[k]
                 self._centers = {"RA": [], "Dec": []}
+                self._new = True
 
     def add_batch(self, new_sources, new_header):
         """Add any sources after a batch of newly created lightcurves."""
@@ -255,6 +257,12 @@ class MasterCatalog:
             self._master_cat_fname, overwrite=True
         )
         return self._master_cat_fname
+
+
+    def is_new(self):
+        """True iff the given master is newly created rather than extension."""
+
+        return self._new
 
 
 def create_lightcurves(
@@ -290,11 +298,14 @@ def create_lightcurves(
             )
         )
 
-    return {
-        "filename": master_catalog.save(),
-        "preference_order": None,
-        "type": "lightcurve_catalog",
-    }
+    if master_catalog.is_new():
+        return {
+            "filename": master_catalog.save(),
+            "preference_order": None,
+            "type": "lightcurve_catalog",
+        }
+
+    return None
 
 
 def cleanup_interrupted(interrupted, configuration):
