@@ -12,6 +12,7 @@ from os import path, getpid
 
 import sys
 import subprocess
+from subprocess import DETACHED_PROCESS
 
 from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -1370,12 +1371,22 @@ if __name__ == "__main__":
         main(parse_command_line())  # Run main function in child process
 
     elif os.name == "nt":  # Windows
-        try:
-            subprocess.Popen(
-                [sys.executable, sys.argv[0]] + sys.argv[1:],  # Relaunch with same arguments
-                creationflags=DETACHED_PROCESS
-            )
-            sys.exit(0)  # Exit parent process
-        except Exception as e:
-            sys.stderr.write(f"Failed to detach: {e}\n")
-            sys.exit(1)
+        if "--detached" not in sys.argv:
+            try:
+                with open("detached_process.log", "w") as log_file:
+                    subprocess.Popen(
+                        [sys.executable, os.path.abspath(sys.argv[0]), "--detached"] + sys.argv[1:],  # Relaunch with --detached
+                        creationflags=DETACHED_PROCESS,
+                        stdout=log_file,
+                        stderr=log_file
+                    )
+                sys.exit(0)  # Exit parent process
+            except Exception as e:
+                sys.stderr.write(f"Failed to detach: {e}\n")
+                sys.exit(1)
+        else:            
+            try:
+                main(parse_command_line())
+            except Exception as e:
+                with open("detached_process_error.log", "w") as error_log:
+                    error_log.write(f"Error in main: {e}\n")
