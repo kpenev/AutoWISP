@@ -1,5 +1,6 @@
 """Define the view displaying the current processing progress."""
 
+import logging
 from socket import getfqdn
 #from os import waitpid, WNOHANG
 from datetime import datetime
@@ -22,6 +23,7 @@ from autowisp.database.data_model import \
 
 from .log_views import datetime_fmt
 
+logger = logging.getLogger(__name__)
 
 def progress(request):
     """Display the current processing progress."""
@@ -112,12 +114,12 @@ def progress(request):
             ).all()
         ):
             if pid_exists(check_running.process_id):
-                print(f'Calibration process with ID {check_running.process_id}'
+                logger.info(f'Calibration process with ID {check_running.process_id}'
                       'still exists.')
                 context['running'] = True
                 context['refresh_seconds'] = 5
             else:
-                print('Marking {check_running} as finished')
+                logger.info(f'Marking {check_running} as finished')
                 check_running.finished = datetime.now()
 
     return render(request, 'processing/progress.html', context)
