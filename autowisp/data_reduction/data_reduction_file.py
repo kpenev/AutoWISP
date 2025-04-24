@@ -787,8 +787,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
                         path_substitutions.get("aperture_index", -1) + 1
                     )
 
-                if path_substitutions["magfit_iteration"] == 0:
-
+                if num_magfit_iterations == 0:
                     self.add_attribute(
                         phot_method + ".magfit.cfg.correction_type",
                         b"linear",
