@@ -1,5 +1,6 @@
 """The views showing the status of the processing."""
 from subprocess import Popen
+from sys import executable  # Import the Python interpreter path
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -37,7 +38,7 @@ def start_processing(_request):
 
     #We don't want processing to stop when this goes out of scope.
     #pylint: disable=consider-using-with
-    Popen([image_processing.__file__],
+    Popen([executable, image_processing.__file__],  # Use the Python interpreter
           start_new_session=True,
           encoding='ascii')
     #pylint: enable=consider-using-with

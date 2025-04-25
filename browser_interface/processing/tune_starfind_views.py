@@ -1,6 +1,7 @@
 """Implement views for tuning source extraction."""
 
 import json
+import logging
 from traceback import print_exc
 from functools import reduce
 
@@ -183,7 +184,7 @@ def select_starfind_batch(request, refresh=False):
                 )
             ).all()
         )
-        print("Found configured: " + repr(configured))
+        logging.info("Found configured: " + repr(configured))
 
     context = {"batches": []}
     for imtype_name, imtype_batches in request.session["starfind"][
@@ -277,7 +278,7 @@ def project_catalog(request, fits_fname):
             )
         }
 
-        print("Extracted: " + repr(request.session["extracted"]))
+        logging.info("Extracted: " + repr(request.session["extracted"]))
 
         (approx_trans["trans_x"], approx_trans["trans_y"], status) = (
             estimate_transformation(

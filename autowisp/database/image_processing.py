@@ -12,6 +12,7 @@ from os import path, getpid
 
 import sys
 import subprocess
+from subprocess import DETACHED_PROCESS
 
 from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -189,7 +190,7 @@ def get_master_expression_ids(step_id, image_type_id, db_session):
                             MasterType.maker_image_split_condition_id
                             == Condition.id
                         ),
-                        # pylint: enable=no-member
+                        # pylint: enable-no-member
                     ),
                 )
                 .join(ConditionExpression)
@@ -721,7 +722,7 @@ class ImageProcessingManager(ProcessingManager):
         # False positivie
         # pylint: disable=no-member
         with Session.begin() as db_session:
-            # pylint: enable=no-member
+            # pylint: enable-no-member
             for finished_id in self._processed_ids[input_fname]:
                 db_session.execute(
                     update(ProcessedImages)
@@ -1339,18 +1340,31 @@ def parse_command_line():
         help="Process using only the specified steps. Leave empty for full "
         "processing.",
     )
+    parser.add_argument(
+        "--detached",
+        action="store_true",
+        help="Indicates that the script is running as a detached process.",
+    )
+    print(f"Parsed arguments: {parser.parse_args()}")
     return parser.parse_args()
 
 
 def main(config):
     """Avoid global variables."""
-
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
+    logging.debug(f"Config add_raw_images: {config.add_raw_images}")
+    logging.debug(f"Config steps: {config.steps}")
+
     processing = ImageProcessingManager()
     for img_to_add in config.add_raw_images:
+        logging.debug(f"Adding raw images from: {img_to_add}")
         processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
+
+    logging.debug("Starting processing...")
     processing(limit_to_steps=config.steps)
+    logging.debug("Processing completed.")
 
 
 if __name__ == "__main__":
@@ -1370,12 +1384,22 @@ if __name__ == "__main__":
         main(parse_command_line())  # Run main function in child process
 
     elif os.name == "nt":  # Windows
-        try:
-            subprocess.Popen(
-                [sys.executable, sys.argv[0]] + sys.argv[1:],  # Relaunch with same arguments
-                creationflags=DETACHED_PROCESS
-            )
-            sys.exit(0)  # Exit parent process
-        except Exception as e:
-            sys.stderr.write(f"Failed to detach: {e}\n")
-            sys.exit(1)
+        if "--detached" not in sys.argv:
+            try:
+                with open("detached_process.log", "w") as log_file:
+                    subprocess.Popen(
+                        [sys.executable, os.path.abspath(sys.argv[0]), "--detached"] + sys.argv[1:],  # Relaunch with --detached
+                        creationflags=DETACHED_PROCESS,
+                        stdout=log_file,
+                        stderr=log_file
+                    )
+                sys.exit(0)  # Exit parent process
+            except Exception as e:
+                sys.stderr.write(f"Failed to detach: {e}\n")
+                sys.exit(1)
+        else:            
+            try:
+                main(parse_command_line())
+            except Exception as e:
+                with open("detached_process_error.log", "w") as error_log:
+                    error_log.write(f"Error in main: {e}\n")
