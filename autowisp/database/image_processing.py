@@ -6,13 +6,10 @@
 import logging
 import os
 
-if os.name == "posix":
-    from os import getpgid, setsid, fork
 from os import path, getpid
 
 import sys
 import subprocess
-from subprocess import DETACHED_PROCESS
 
 from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -1369,6 +1366,8 @@ def main(config):
 
 if __name__ == "__main__":
     if os.name == "posix":  # Linux/macOS
+        from os import getpgid, setsid, fork
+        
         try:
             setsid()
         except OSError:
@@ -1384,6 +1383,8 @@ if __name__ == "__main__":
         main(parse_command_line())  # Run main function in child process
 
     elif os.name == "nt":  # Windows
+        from subprocess import DETACHED_PROCESS
+
         if "--detached" not in sys.argv:
             try:
                 with open("detached_process.log", "w") as log_file:
