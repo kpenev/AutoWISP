@@ -131,7 +131,7 @@ class MasterPhotrefCollector:
             else:
                 source_id_size = 1
             dtype = [
-                ("source_id", numpy.uint64, source_id_size),
+                ("source_id", numpy.uint64),
                 ("full_count", numpy.intc, (self._num_photometries,)),
                 ("rejected_count", numpy.intc, (self._num_photometries,)),
                 ("median", numpy.float64, (self._num_photometries,)),
@@ -141,6 +141,7 @@ class MasterPhotrefCollector:
                 (colname, special_dtypes.get(colname, numpy.float64))
                 for colname in catalogue_columns
             ]
+            self._logger.debug("Stat result dtype: %s", repr(dtype))
             return numpy.empty(num_sources, dtype=dtype)
 
         def add_stat_data(stat_data, result):
@@ -181,9 +182,10 @@ class MasterPhotrefCollector:
 
         catalogue_columns = next(iter(catalogue.values())).dtype.names
         stat_data = get_stat_data()
-
+        self._logger.debug("Stat data:\n%s", repr(stat_data))
         result = create_result(stat_data.size, catalogue_columns)
         add_stat_data(stat_data, result)
+        self._logger.debug("Result without catalog:\n%s", repr(result))
         add_catalogue_info(catalogue_columns, result)
 
         return result
@@ -399,7 +401,7 @@ class MasterPhotrefCollector:
         rejection_center="median",
         rejection_units="meddev",
         max_memory="2g",
-        source_name_format="HAT-%03d-%07d",
+        source_name_format="{0:d}",
     ):
         """
         Prepare for collecting magfit results for master photref creation.
@@ -712,4 +714,4 @@ if __name__ == "__main__":
         print(f"Progress {b + 1}/{arr.cdata_shape[0]}")
     print(f"Median took {time() - start} sec.")
     for stat, values in results.items():
-        print(f'{stat}: {values!r}\n')
+        print(f"{stat}: {values!r}\n")
