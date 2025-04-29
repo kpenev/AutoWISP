@@ -3,7 +3,8 @@
 import logging
 from tempfile import TemporaryDirectory
 from os import path
-#from shutil import copy
+
+# from shutil import copy
 
 import unittest
 import numpy
@@ -12,7 +13,7 @@ from astropy.table import Table
 
 from astrowisp.tests.utilities import FloatTestCase
 
-from autowisp.magnitude_fitting.master_photref_collector import (
+from autowisp.magnitude_fitting.master_photref_collector_zarr import (
     MasterPhotrefCollector,
 )
 from autowisp.magnitude_fitting.tests import test_data_dir
@@ -230,7 +231,6 @@ class TestMphotrefCollector(FloatTestCase):
                     self._dimensions["rotatestars"]["photometries"]
                 )
             ]
-        self._logger.debug("Adding phot:\n%s", repr(phot))
         return phot, fitted
 
     def perform_test(self, test_name):
@@ -243,7 +243,7 @@ class TestMphotrefCollector(FloatTestCase):
             collector = MasterPhotrefCollector(
                 statistics_fname=stat_fname,
                 num_photometries=self._dimensions[test_name]["photometries"],
-                # num_frames=self._dimensions[test_name]["images"],
+                num_frames=self._dimensions[test_name]["images"],
                 temp_directory=tempdir,
                 source_name_format="{0:d}",
             )
@@ -253,7 +253,7 @@ class TestMphotrefCollector(FloatTestCase):
                 )
             collector.generate_master(
                 master_reference_fname=master_fname,
-                catalogue=getattr(self, f"_get_{test_name}_catalog")(),
+                catalog=getattr(self, f"_get_{test_name}_catalog")(),
                 fit_terms_expression="O0{ra}",
                 parse_source_id=None,
             )
@@ -264,17 +264,21 @@ class TestMphotrefCollector(FloatTestCase):
             )
             self._assertMaster(master_fname, test_name)
 
-    # def test_tiny(self):
-    #    """Tiny super-fast test."""
+    def test_tiny(self):
+        """Tiny super-fast test."""
 
-    #    self.perform_test("tiny")
+        self.perform_test("tiny")
 
-    def test_rotatestars(self):
-        """Test with rotating collection of stars between images."""
+    # def test_rotatestars(self):
+    #    """Test with rotating collection of stars between images."""
 
-        self.perform_test("rotatestars")
+    #    self.perform_test("rotatestars")
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(levelname)s %(asctime)s %(name)s: %(message)s | "
+        "%(pathname)s.%(funcName)s:%(lineno)d",
+    )
     unittest.main(failfast=False)
