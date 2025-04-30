@@ -56,7 +56,7 @@ class TestMphotrefCollector(FloatTestCase):
                         for stat in [
                             "count",
                             "rcount",
-                            "mag",
+                            "med",
                             "meddev",
                             "medmeddev",
                         ]
@@ -74,21 +74,27 @@ class TestMphotrefCollector(FloatTestCase):
             stat_data["expected"], stat_data["test"], "MasterPhotrefCollector"
         )
 
+    @staticmethod
+    def _get_fits_df(fits_fname, hdu_index):
+        return (
+            Table.read(fits_fname, hdu=hdu_index)
+            .to_pandas()
+            .set_index("source_id")
+            .sort_index()
+        )
+
     def _assertMaster(self, test_master_fname, test_case):
         """Assert that the generated master references matches the expected."""
 
-        def get_fits_df(fits_fname):
-            return (
-                Table.read(fits_fname)
-                .to_pandas()
-                .set_index("source_id")
-                .sort_index()
+        self.set_tolerance(10.0, 1e-15)
+        for hdu_index in range(1, 1 + self._dimensions["tiny"]["photometries"]):
+            self.assertApproxPandas(
+                self._get_fits_df(
+                    path.join(test_data_dir, f"{test_case}_mphotref.fits"),
+                    hdu_index,
+                ),
+                self._get_fits_df(test_master_fname, hdu_index),
             )
-
-        self.assertApproxPandas(
-            get_fits_df(path.join(test_data_dir, f"{test_case}_mphotref.fits")),
-            get_fits_df(test_master_fname),
-        )
 
     # pylint: enable=invalid-name
 

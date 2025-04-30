@@ -390,9 +390,23 @@ class MasterPhotrefCollector:
             )[0]
             if coefficients is None:
                 return None
-            residuals[:, phot_ind] = statistics[scatter_quantity][
-                :, phot_ind
-            ] - numpy.dot(coefficients, predictors)
+            self._logger.debug(
+                "Calcualting residual for scatter (%s):\n%s\n"
+                "Fit scatter (%s):\n%s\n"
+                "Predictors (%s):\n%s\n"
+                "Coefficients (%s):\n%s",
+                statistics[scatter_quantity][:, phot_ind].shape,
+                repr(statistics[scatter_quantity][:, phot_ind]),
+                numpy.dot(coefficients, predictors).shape,
+                repr(numpy.dot(coefficients, predictors)),
+                predictors.shape,
+                repr(predictors),
+                coefficients.shape,
+                repr(coefficients),
+            )
+            residuals[:, phot_ind] = numpy.log10(
+                statistics[scatter_quantity][:, phot_ind]
+            ) - numpy.dot(coefficients, predictors)
         return residuals
 
     # pylint: enable=too-many-locals
