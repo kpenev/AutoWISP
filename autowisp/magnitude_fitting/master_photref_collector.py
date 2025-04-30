@@ -70,12 +70,12 @@ class MasterPhotrefCollector:
             med = numpy.median([float(l.split()[count_col]) for l in stat_file])
         return med
 
-    def _read_statistics(self, catalogue, parse_source_id):
+    def _read_statistics(self, catalog, parse_source_id):
         """
         Read the magnitude & scatter for each source for each photometry.
 
         Args:
-            catalogue(dict):    See ``master_catalogue`` argument to
+            catalog(dict):    See ``master_catalog`` argument to
                 MagnitudeFit.__init__().
 
             parse_source_id(callable):    See same name argument to
@@ -88,7 +88,7 @@ class MasterPhotrefCollector:
                     source_id: The ID of the source.
 
                     xi, eta: The projected angular coordinates of the source
-                        from the catalogue.
+                        from the catalog.
 
                     full_count: The full number of measurements available for
                         the sources
@@ -121,11 +121,11 @@ class MasterPhotrefCollector:
                 self._statistics_fname, dtype=None, names=column_names
             )
 
-        def create_result(num_sources, catalogue_columns):
+        def create_result(num_sources, catalog_columns):
             """Create an empty result to fill with data."""
 
             special_dtypes = {"phqual": "S3", "magsrcflag": "S9"}
-            example_source_id = next(iter(catalogue.keys()))
+            example_source_id = next(iter(catalog.keys()))
             if isinstance(example_source_id, tuple):
                 source_id_size = (len(example_source_id),)
             else:
@@ -139,7 +139,7 @@ class MasterPhotrefCollector:
                 ("medianmeddev", numpy.float64, (self._num_photometries,)),
             ] + [
                 (colname, special_dtypes.get(colname, numpy.float64))
-                for colname in catalogue_columns
+                for colname in catalog_columns
             ]
             self._logger.debug("Stat result dtype: %s", repr(dtype))
             return numpy.empty(num_sources, dtype=dtype)
@@ -170,23 +170,23 @@ class MasterPhotrefCollector:
                         "r" + statistic + f"_mag_{phot_index:d}"
                     ]
 
-        def add_catalogue_info(catalogue_columns, result):
-            """Add the catalogue data for each source to the result."""
+        def add_catalog_info(catalog_columns, result):
+            """Add the catalog data for each source to the result."""
 
             for source_index, source_id in enumerate(result["source_id"]):
-                catalogue_source = catalogue[
+                catalog_source = catalog[
                     source_id if source_id.shape == () else tuple(source_id)
                 ]
-                for colname in catalogue_columns:
-                    result[colname][source_index] = catalogue_source[colname]
+                for colname in catalog_columns:
+                    result[colname][source_index] = catalog_source[colname]
 
-        catalogue_columns = next(iter(catalogue.values())).dtype.names
+        catalog_columns = next(iter(catalog.values())).dtype.names
         stat_data = get_stat_data()
         self._logger.debug("Stat data:\n%s", repr(stat_data))
-        result = create_result(stat_data.size, catalogue_columns)
+        result = create_result(stat_data.size, catalog_columns)
         add_stat_data(stat_data, result)
         self._logger.debug("Result without catalog:\n%s", repr(result))
-        add_catalogue_info(catalogue_columns, result)
+        add_catalog_info(catalog_columns, result)
 
         return result
 
@@ -553,7 +553,7 @@ class MasterPhotrefCollector:
         self,
         *,
         master_reference_fname,
-        catalogue,
+        catalog,
         fit_terms_expression,
         parse_source_id,
         min_nobs_median_fraction=0.5,
@@ -569,14 +569,14 @@ class MasterPhotrefCollector:
             master_reference_fname(str):   The file name to use for the newly
                 created master photometric reference.
 
-            catalogue:     See ``master_catalogue`` argument to
+            catalog:     See ``master_catalog`` argument to
                 MagnitudeFit.__init__().
 
             fit_terms_expression(str):    An expression expanding to the terms
-                to include in the scatter fit. May use any catalogue column.
+                to include in the scatter fit. May use any catalog column.
 
             parse_source_id(callable):    Should convert a string source ID into
-                the source ID format expected by the catalogue.
+                the source ID format expected by the catalog.
 
             min_nobs_median_fraction(float):    The minimum fraction of the
                 median number of observations a source must have to be inclruded
@@ -604,7 +604,7 @@ class MasterPhotrefCollector:
         """
 
         self._calculate_statistics()
-        statistics = self._read_statistics(catalogue, parse_source_id)
+        statistics = self._read_statistics(catalog, parse_source_id)
         min_counts = min_nobs_median_fraction * self._get_med_count()
         residual_scatter = self._fit_scatter(
             statistics,

@@ -27,7 +27,9 @@ class MasterPhotrefCollector:
         _grcollect:    The running ``grcollect`` process responsible for
             generating the statistics.
 
-        _num_photometries:    How many photometry measurements being fit.
+        _dimensions:    How many photometry measurements are being fit based on
+            how many images, and what is the total number of coluns included in
+            the statistics (usually twice the number of photometries).
 
         _source_name_format:    A %-substitution string for turning a source ID
             tuple to as string in the statistics file.
@@ -138,7 +140,9 @@ class MasterPhotrefCollector:
                 (
                     statistics["mediandev"][res_slice, :],
                     statistics["medianmeddev"][res_slice, :],
-                ) = average_dev
+                ) = average_dev * numpy.sqrt(
+                    statistics["rejected_count"][res_slice, :] - 1
+                )
             else:
                 assert self._config["rejection_units"] == "medmeddev"
                 (
@@ -180,13 +184,12 @@ class MasterPhotrefCollector:
                             phot_quantity=phot_quantity,
                             phot_i=phot_i,
                         )
-                    ] = statistics[stat_quantity][quantity_column]
+                    ] = statistics[stat_quantity][:, quantity_column]
                 quantity_column += 1
 
         numpy.savetxt(self._statistics_fname, save_stat, fmt=save_fmt)
-        with open(self._statistics_fname, 'r') as stat_file:
-            self._logger.debug('Statistics file:\n%s', stat_file.read())
-
+        with open(self._statistics_fname, "r") as stat_file:
+            self._logger.debug("Statistics file:\n%s", stat_file.read())
 
     def _add_catalog_info(self, catalog, statistics, catalog_columns):
         """Add the catalog data for each source to the statistics."""
@@ -198,16 +201,19 @@ class MasterPhotrefCollector:
             for colname in catalog_columns:
                 statistics[colname][source_index] = catalog_source[colname]
 
-    def _get_med_count(self):
+    def _get_enough_count_flags(self, statistics, min_nobs_median_fraction):
         """Return median number of observations per source in the stat. file."""
 
-        if "rcount" in self._stat_quantities:
-            count_col = self._stat_quantities.index("rcount")
-        else:
-            count_col = self._stat_quantities.index("count")
-        with open(self._statistics_fname, "r", encoding="ascii") as stat_file:
-            med = numpy.median([float(l.split()[count_col]) for l in stat_file])
-        return med
+        count_col = (
+            "rejected_count"
+            if "rejected_count" in self._stat_quantities
+            else "full_count"
+        )
+        min_counts = (
+            numpy.median(statistics[count_col], axis=0)
+            * min_nobs_median_fraction
+        )
+        return statistics[count_col] > min_counts[None, :]
 
     def _read_statistics(self, catalog, parse_source_id):
         """
@@ -319,12 +325,12 @@ class MasterPhotrefCollector:
 
     # Can't simplify further
     # pylint: disable=too-many-locals
-    @staticmethod
     def _fit_scatter(
+        self,
         statistics,
         fit_terms_expression,
         *,
-        min_counts,
+        enough_counts_flags,
         outlier_average,
         outlier_threshold,
         max_rej_iter,
@@ -361,15 +367,15 @@ class MasterPhotrefCollector:
         """
 
         predictors = FitTermsInterface(fit_terms_expression)(statistics)
-        num_photometries = statistics["full_count"][0].size
-        residuals = numpy.empty((statistics.size, num_photometries))
-        for phot_ind in range(num_photometries):
-            enough_counts = (
-                statistics["rejected_count"][:, phot_ind] >= min_counts
-            )
-            phot_predictors = predictors[:, enough_counts]
+        residuals = numpy.empty(
+            (statistics.size, self._dimensions["photometries"])
+        )
+        for phot_ind in range(self._dimensions["photometries"]):
+            phot_predictors = predictors[:, enough_counts_flags[:, phot_ind]]
             target_values = numpy.log10(
-                statistics[scatter_quantity][enough_counts, phot_ind]
+                statistics[scatter_quantity][
+                    enough_counts_flags[:, phot_ind], phot_ind
+                ]
             )
             coefficients = iterative_fit(
                 phot_predictors,
@@ -396,7 +402,7 @@ class MasterPhotrefCollector:
         statistics,
         residual_scatter,
         *,
-        min_counts,
+        enough_counts_flags,
         outlier_average,
         outlier_threshold,
         reference_fname,
@@ -410,8 +416,9 @@ class MasterPhotrefCollector:
 
             residual_scatter:    The return value of _fit_scatter().
 
-            min_counts(int):    The smallest number of observations to require
-                for a source to be included in the refreence.
+            enough_counts_flags(bool array):    Flag for each photometry for
+                each star indicating whether sufficient number of points
+                remained after rejection to use in the master.
 
             outlier_average:    See ``fit_outlier_average`` argument to
                 generate_master().
@@ -444,9 +451,11 @@ class MasterPhotrefCollector:
                 * outlier_threshold
             )
             self._logger.debug("Max sctter allowed: %s", repr(max_scatter))
-            self._logger.debug("Min # observations allowed: %d", min_counts)
+            self._logger.debug(
+                "Sufficient observations flags: %s", enough_counts_flags
+            )
             include_source = numpy.logical_and(
-                statistics["rejected_count"][:, phot_ind] >= min_counts,
+                enough_counts_flags[:, phot_ind],
                 residual_scatter[:, phot_ind] <= max_scatter,
             )
 
@@ -507,11 +516,10 @@ class MasterPhotrefCollector:
             ]
             return reference_data
 
-        num_photometries = statistics["full_count"][0].size
         primary_hdu = fits.PrimaryHDU(header=primary_header)
         master_hdus = [
             fits.BinTableHDU(get_phot_reference_data(phot_ind))
-            for phot_ind in range(num_photometries)
+            for phot_ind in range(self._dimensions["photometries"])
         ]
         fits.HDUList([primary_hdu] + master_hdus).writeto(reference_fname)
 
@@ -756,11 +764,13 @@ class MasterPhotrefCollector:
         self._add_catalog_info(catalog, statistics, catalog_columns)
         self._save_statistics(statistics)
 
-        min_counts = min_nobs_median_fraction * self._get_med_count()
+        enough_counts_flags = self._get_enough_count_flags(
+            statistics, min_nobs_median_fraction
+        )
         residual_scatter = self._fit_scatter(
             statistics,
             fit_terms_expression,
-            min_counts=min_counts,
+            enough_counts_flags=enough_counts_flags,
             outlier_average=fit_outlier_average,
             outlier_threshold=fit_outlier_threshold,
             max_rej_iter=fit_max_rej_iter,
@@ -781,7 +791,7 @@ class MasterPhotrefCollector:
         self._create_reference(
             statistics=statistics,
             residual_scatter=residual_scatter,
-            min_counts=min_counts,
+            enough_counts_flags=enough_counts_flags,
             outlier_average=fit_outlier_average,
             outlier_threshold=fit_outlier_threshold,
             reference_fname=master_reference_fname,

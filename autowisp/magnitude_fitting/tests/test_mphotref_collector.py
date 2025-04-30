@@ -25,7 +25,7 @@ class TestMphotrefCollector(FloatTestCase):
     _logger = logging.getLogger(__name__)
 
     _dimensions = {
-        "tiny": {"stars": 10, "images": 20, "photometries": 5, "mfit_iter": 1},
+        "tiny": {"stars": 10, "images": 20, "photometries": 3, "mfit_iter": 1},
         "rotatestars": {
             "stars": 15,
             "images": 20,
@@ -62,16 +62,13 @@ class TestMphotrefCollector(FloatTestCase):
                         ]
                     ]
                 ),
-            )
+                index_col="src_id",
+            ).sort_index()
             for key, fname in [
                 ("test", test_stat_fname),
                 ("expected", expected_stat_fname),
             ]
         }
-        self._logger.debug(
-            "Expected statistics:\n%s", repr(stat_data["expected"])
-        )
-        self._logger.debug("Got statistics:\n%s", repr(stat_data["test"]))
 
         self.assertApproxPandas(
             stat_data["expected"], stat_data["test"], "MasterPhotrefCollector"
@@ -80,11 +77,17 @@ class TestMphotrefCollector(FloatTestCase):
     def _assertMaster(self, test_master_fname, test_case):
         """Assert that the generated master references matches the expected."""
 
+        def get_fits_df(fits_fname):
+            return (
+                Table.read(fits_fname)
+                .to_pandas()
+                .set_index("source_id")
+                .sort_index()
+            )
+
         self.assertApproxPandas(
-            Table.read(
-                path.join(test_data_dir, f"{test_case}_mphotref.fits")
-            ).to_pandas(),
-            Table.read(test_master_fname).to_pandas(),
+            get_fits_df(path.join(test_data_dir, f"{test_case}_mphotref.fits")),
+            get_fits_df(test_master_fname),
         )
 
     # pylint: enable=invalid-name
