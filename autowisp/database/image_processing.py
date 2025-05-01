@@ -1203,7 +1203,7 @@ class ImageProcessingManager(ProcessingManager):
             image_type=processing_progress.image_type.name,
             **self._processing_config,
         )
-        print("Main fnames: " + repr(main_fnames))
+        logging.info("Main fnames: " + repr(main_fnames))
         assert len(main_fnames[0]) == len(main_fnames[1]) == 1
 
         return (
@@ -1342,7 +1342,7 @@ def parse_command_line():
         action="store_true",
         help="Indicates that the script is running as a detached process.",
     )
-    print(f"Parsed arguments: {parser.parse_args()}")
+    logging.info(f"Parsed arguments: {parser.parse_args()}")
     return parser.parse_args()
 
 
