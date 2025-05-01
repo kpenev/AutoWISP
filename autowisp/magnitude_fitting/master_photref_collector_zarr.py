@@ -3,11 +3,13 @@
 """Define class for collecting statistics and making a master photref."""
 
 import os
-from subprocess import Popen, PIPE
 import logging
+from itertools import chain
 
 import numpy
 from astropy.io import fits
+import zarr
+from rechunker import rechunk
 
 from autowisp.fit_expression import Interface as FitTermsInterface
 from autowisp.fit_expression import iterative_fit
@@ -25,7 +27,9 @@ class MasterPhotrefCollector:
         _grcollect:    The running ``grcollect`` process responsible for
             generating the statistics.
 
-        _num_photometries:    How many photometry measurements being fit.
+        _dimensions:    How many photometry measurements are being fit based on
+            how many images, and what is the total number of coluns included in
+            the statistics (usually twice the number of photometries).
 
         _source_name_format:    A %-substitution string for turning a source ID
             tuple to as string in the statistics file.
@@ -35,40 +39,184 @@ class MasterPhotrefCollector:
     """
 
     _logger = logging.getLogger(__name__)
+    _default_config = {
+        "outlier_threshold": 5.0,
+        "max_rejection_iterations": 10,
+        "rejection_center": "median",
+        "rejection_units": "medmeddev",
+        "max_memory": "2g",
+        "source_name_format": "{0:d}",
+    }
+    _stat_quantities = [
+        "full_count",
+        "rejected_count",
+        "median",
+        "mediandev",
+        "medianmeddev",
+    ]
 
-    def _report_grcollect_crash(self, grcollect_outerr=None):
-        """Raise an error providing information on why grcollect crashed."""
+    def _get_stat_dtype(self, catalog_columns):
+        """Return the dtype to use for statistics."""
 
-        if grcollect_outerr is None:
-            grcollect_outerr = self._grcollect.communicate()
-        raise ChildProcessError(
-            "grcollect command failed! "
-            + f"Return code: {self._grcollect.returncode:d}."
-            + "\nOutput:\n"
-            + grcollect_outerr[0].decode()
-            + "\nError:\n"
-            + grcollect_outerr[1].decode()
+        special_dtypes = {"phqual": "S3", "magsrcflag": "S9"}
+        return (
+            [
+                ("source_id", numpy.uint64),
+            ]
+            + [
+                (
+                    stat_quantity,
+                    (
+                        numpy.intc
+                        if stat_quantity.endswith("count")
+                        else numpy.float64
+                    ),
+                    (self._dimensions["columns"],),
+                )
+                for stat_quantity in self._stat_quantities
+            ]
+            + [
+                (colname, special_dtypes.get(colname, numpy.float64))
+                for colname in catalog_columns
+            ]
         )
 
-    def _calculate_statistics(self):
-        """Creating the statics file from all input collected so far."""
+    def _calculate_statistics(self, statistics):
+        """Calculate and fill in the statics from all input collected so far."""
 
-        if self._grcollect.poll() is not None:
-            self._report_grcollect_crash()
-        grcollect_outerr = self._grcollect.communicate()
-        if self._grcollect.returncode:
-            self._report_grcollect_crash(grcollect_outerr)
+        self._logger.debug("Planning the rechunking.")
+        rechunked_store = zarr.TempStore()
+        chunk_stars = self._config["max_memory"] // (
+            self._dimensions["images"]
+            * self._dimensions["columns"]
+            * self._magfit_data.dtype.itemsize
+        )
+        chunk_stars = min(chunk_stars, self._sources.size)
+        rechunk_plan = rechunk(
+            self._magfit_data,
+            (
+                chunk_stars,
+                self._dimensions["images"],
+                self._dimensions["columns"],
+            ),
+            self._config["max_memory"],
+            rechunked_store,
+            temp_store=zarr.TempStore(),
+        )
+        self._logger.debug("Rechunking")
+        rechunked_data = rechunk_plan.execute()
+        self._logger.debug(
+            "Calculating statistics for %d chunks of %d stars.",
+            rechunked_data.cdata_shape[0],
+            chunk_stars,
+        )
 
-    def _get_med_count(self):
+        statistics["source_id"] = self._sources
+        for block in range(rechunked_data.cdata_shape[0]):
+            res_slice = slice(block * chunk_stars, (block + 1) * chunk_stars)
+            statistics["full_count"][res_slice, :] = numpy.isfinite(
+                rechunked_data.blocks[block][
+                    :, :, : self._dimensions["columns"]
+                ]
+            ).sum(axis=1)
+            (
+                statistics["median"][res_slice, :],
+                average_dev,
+                statistics["rejected_count"][res_slice, :],
+            ) = iterative_rejection_average(
+                rechunked_data.blocks[block],
+                self._config["outlier_threshold"],
+                axis=1,
+                average_func=getattr(
+                    numpy, f"nan{self._config['rejection_center']}"
+                ),
+                deviation_average=(
+                    (numpy.nanmean, numpy.nanmedian)
+                    if self._config["rejection_units"] == "meddev"
+                    else (numpy.nanmedian, numpy.nanmean)
+                ),
+            )
+            if self._config["rejection_units"] == "meddev":
+                (
+                    statistics["mediandev"][res_slice, :],
+                    statistics["medianmeddev"][res_slice, :],
+                ) = average_dev
+            else:
+                assert self._config["rejection_units"] == "medmeddev"
+                (
+                    statistics["medianmeddev"][res_slice, :],
+                    statistics["mediandev"][res_slice, :],
+                ) = average_dev
+
+            for column in ["mediandev", "medianmeddev"]:
+                statistics[column] *= numpy.sqrt(
+                    statistics["rejected_count"][res_slice, :] - 1
+                )
+
+    def _save_statistics(self, statistics):
+        """Save the given statistics as a master statistics file."""
+
+        save_column_fmt = "{stat_quantity}_{phot_quantity}_{phot_i:d}"
+        save_dtype = [("source_id", numpy.dtype("u8"))] + [
+            (
+                save_column_fmt.format(
+                    stat_quantity=stat_quantity,
+                    phot_quantity=phot_quantity,
+                    phot_i=phot_i,
+                ),
+                (int if stat_quantity.endswith("count") else float),
+            )
+            for phot_quantity in ["mag", "mag_err"]
+            for phot_i in range(self._dimensions["photometries"])
+            for stat_quantity in self._stat_quantities
+        ]
+        self._logger.debug("Dtype for saving: %s", repr(save_dtype))
+        save_stat = numpy.empty(statistics.shape, dtype=save_dtype)
+        save_fmt = (
+            "%25d "
+            + "%10d %10d %25.16e %25.16e %25.16e" * self._dimensions["columns"]
+        )
+        save_stat["source_id"] = statistics["source_id"]
+        quantity_column = 0
+        for phot_quantity in ["mag", "mag_err"]:
+            for phot_i in range(self._dimensions["photometries"]):
+                for stat_quantity in self._stat_quantities:
+                    save_stat[
+                        save_column_fmt.format(
+                            stat_quantity=stat_quantity,
+                            phot_quantity=phot_quantity,
+                            phot_i=phot_i,
+                        )
+                    ] = statistics[stat_quantity][:, quantity_column]
+                quantity_column += 1
+
+        numpy.savetxt(self._statistics_fname, save_stat, fmt=save_fmt)
+        with open(self._statistics_fname, "r") as stat_file:
+            self._logger.debug("Statistics file:\n%s", stat_file.read())
+
+    def _add_catalog_info(self, catalog, statistics, catalog_columns):
+        """Add the catalog data for each source to the statistics."""
+
+        for source_index, source_id in enumerate(statistics["source_id"]):
+            catalog_source = catalog[
+                source_id if source_id.shape == () else tuple(source_id)
+            ]
+            for colname in catalog_columns:
+                statistics[colname][source_index] = catalog_source[colname]
+
+    def _get_enough_count_flags(self, statistics, min_nobs_median_fraction):
         """Return median number of observations per source in the stat. file."""
 
-        if "rcount" in self._stat_quantities:
-            count_col = self._stat_quantities.index("rcount")
-        else:
-            count_col = self._stat_quantities.index("count")
-        with open(self._statistics_fname, "r", encoding="ascii") as stat_file:
-            med = numpy.median([float(l.split()[count_col]) for l in stat_file])
-        return med
+        count_col = (
+            "rejected_count"
+            if "rejected_count" in self._stat_quantities
+            else "full_count"
+        )
+        min_counts = (
+            numpy.median(statistics[count_col], axis=0)
+            * min_nobs_median_fraction
+        )
+        return statistics[count_col] > min_counts[None, :]
 
     def _read_statistics(self, catalog, parse_source_id):
         """
@@ -110,7 +258,7 @@ class MasterPhotrefCollector:
 
             column_names = ["source_id"]
             for phot_quantity in ["mag", "mag_err"]:
-                for phot_ind in range(self._num_photometries):
+                for phot_ind in range(self._dimensions["photometries"]):
                     column_names.extend(
                         [
                             f"{stat_quantity}_{phot_quantity}_{phot_ind:d}"
@@ -131,7 +279,7 @@ class MasterPhotrefCollector:
             else:
                 source_id_size = 1
             dtype = [
-                ("source_id", numpy.uint64),
+                ("source_id", numpy.uint64, source_id_size),
                 ("full_count", numpy.intc, (self._num_photometries,)),
                 ("rejected_count", numpy.intc, (self._num_photometries,)),
                 ("median", numpy.float64, (self._num_photometries,)),
@@ -141,7 +289,6 @@ class MasterPhotrefCollector:
                 (colname, special_dtypes.get(colname, numpy.float64))
                 for colname in catalog_columns
             ]
-            self._logger.debug("Stat result dtype: %s", repr(dtype))
             return numpy.empty(num_sources, dtype=dtype)
 
         def add_stat_data(stat_data, result):
@@ -170,34 +317,23 @@ class MasterPhotrefCollector:
                         "r" + statistic + f"_mag_{phot_index:d}"
                     ]
 
-        def add_catalog_info(catalog_columns, result):
-            """Add the catalog data for each source to the result."""
-
-            for source_index, source_id in enumerate(result["source_id"]):
-                catalog_source = catalog[
-                    source_id if source_id.shape == () else tuple(source_id)
-                ]
-                for colname in catalog_columns:
-                    result[colname][source_index] = catalog_source[colname]
-
         catalog_columns = next(iter(catalog.values())).dtype.names
         stat_data = get_stat_data()
-        self._logger.debug("Stat data:\n%s", repr(stat_data))
+
         result = create_result(stat_data.size, catalog_columns)
         add_stat_data(stat_data, result)
-        self._logger.debug("Result without catalog:\n%s", repr(result))
         add_catalog_info(catalog_columns, result)
 
         return result
 
     # Can't simplify further
     # pylint: disable=too-many-locals
-    @staticmethod
     def _fit_scatter(
+        self,
         statistics,
         fit_terms_expression,
         *,
-        min_counts,
+        enough_counts_flags,
         outlier_average,
         outlier_threshold,
         max_rej_iter,
@@ -234,15 +370,15 @@ class MasterPhotrefCollector:
         """
 
         predictors = FitTermsInterface(fit_terms_expression)(statistics)
-        num_photometries = statistics["full_count"][0].size
-        residuals = numpy.empty((statistics.size, num_photometries))
-        for phot_ind in range(num_photometries):
-            enough_counts = (
-                statistics["rejected_count"][:, phot_ind] >= min_counts
-            )
-            phot_predictors = predictors[:, enough_counts]
+        residuals = numpy.empty(
+            (statistics.size, self._dimensions["photometries"])
+        )
+        for phot_ind in range(self._dimensions["photometries"]):
+            phot_predictors = predictors[:, enough_counts_flags[:, phot_ind]]
             target_values = numpy.log10(
-                statistics[scatter_quantity][enough_counts, phot_ind]
+                statistics[scatter_quantity][
+                    enough_counts_flags[:, phot_ind], phot_ind
+                ]
             )
             coefficients = iterative_fit(
                 phot_predictors,
@@ -257,6 +393,20 @@ class MasterPhotrefCollector:
             )[0]
             if coefficients is None:
                 return None
+            self._logger.debug(
+                "Calcualting residual for scatter (%s):\n%s\n"
+                "Fit scatter (%s):\n%s\n"
+                "Predictors (%s):\n%s\n"
+                "Coefficients (%s):\n%s",
+                statistics[scatter_quantity][:, phot_ind].shape,
+                repr(statistics[scatter_quantity][:, phot_ind]),
+                numpy.dot(coefficients, predictors).shape,
+                repr(numpy.dot(coefficients, predictors)),
+                predictors.shape,
+                repr(predictors),
+                coefficients.shape,
+                repr(coefficients),
+            )
             residuals[:, phot_ind] = numpy.log10(
                 statistics[scatter_quantity][:, phot_ind]
             ) - numpy.dot(coefficients, predictors)
@@ -269,7 +419,7 @@ class MasterPhotrefCollector:
         statistics,
         residual_scatter,
         *,
-        min_counts,
+        enough_counts_flags,
         outlier_average,
         outlier_threshold,
         reference_fname,
@@ -283,8 +433,9 @@ class MasterPhotrefCollector:
 
             residual_scatter:    The return value of _fit_scatter().
 
-            min_counts(int):    The smallest number of observations to require
-                for a source to be included in the refreence.
+            enough_counts_flags(bool array):    Flag for each photometry for
+                each star indicating whether sufficient number of points
+                remained after rejection to use in the master.
 
             outlier_average:    See ``fit_outlier_average`` argument to
                 generate_master().
@@ -317,9 +468,11 @@ class MasterPhotrefCollector:
                 * outlier_threshold
             )
             self._logger.debug("Max sctter allowed: %s", repr(max_scatter))
-            self._logger.debug("Min # observations allowed: %d", min_counts)
+            self._logger.debug(
+                "Sufficient observations flags: %s", enough_counts_flags
+            )
             include_source = numpy.logical_and(
-                statistics["rejected_count"][:, phot_ind] >= min_counts,
+                enough_counts_flags[:, phot_ind],
                 residual_scatter[:, phot_ind] <= max_scatter,
             )
 
@@ -380,28 +533,46 @@ class MasterPhotrefCollector:
             ]
             return reference_data
 
-        num_photometries = statistics["full_count"][0].size
         primary_hdu = fits.PrimaryHDU(header=primary_header)
         master_hdus = [
             fits.BinTableHDU(get_phot_reference_data(phot_ind))
-            for phot_ind in range(num_photometries)
+            for phot_ind in range(self._dimensions["photometries"])
         ]
         fits.HDUList([primary_hdu] + master_hdus).writeto(reference_fname)
 
-    # Could not refactor to simply.
-    # pylint: disable=too-many-locals
+    def _init_data(self, num_sources):
+        """Create the file-based array for holding magfit data."""
+
+        dtype = numpy.dtype(numpy.float64)
+        image_chunk = self._config["max_memory"] // (
+            num_sources * self._dimensions["columns"] * dtype.itemsize
+        )
+        self._logger.debug(
+            "Initializing zarr array with %d images per chunk.", image_chunk
+        )
+        self._magfit_data = zarr.create(
+            shape=(
+                num_sources,
+                self._dimensions["images"],
+                self._dimensions["columns"],
+            ),
+            chunks=(None, image_chunk, None),
+            dtype=dtype,
+            store=zarr.TempStore(),
+            fill_value=numpy.nan,
+        )
+        self._logger.debug(
+            "Zarr storage directory: %s",
+            repr(self._magfit_data.store.dir_path()),
+        )
+
     def __init__(
         self,
         statistics_fname,
         num_photometries,
+        num_frames,
         temp_directory,
-        *,
-        outlier_threshold=5.0,
-        max_rejection_iterations=10,
-        rejection_center="median",
-        rejection_units="meddev",
-        max_memory="2g",
-        source_name_format="{0:d}",
+        **config,
     ):
         """
         Prepare for collecting magfit results for master photref creation.
@@ -439,114 +610,112 @@ class MasterPhotrefCollector:
             None
         """
 
-        grcollect_cmd = ["grcollect", "-", "-V", "--stat"]
-        stat_columns = range(2, 2 * num_photometries + 2)
-        self._num_photometries = num_photometries
-        self._stat_quantities = [
-            "count",
-            "count",
-            "median",
-            "mediandev",
-            "medianmeddev",
-        ]
-        if outlier_threshold:
-            for i in range(1, len(self._stat_quantities)):
-                self._stat_quantities[i] = "r" + self._stat_quantities[i]
-            grcollect_cmd.append(",".join(self._stat_quantities))
-            for col in stat_columns:
-                grcollect_cmd.extend(
-                    [
-                        "--rejection",
-                        (
-                            f"column={col:d},iterations="
-                            f"{max_rejection_iterations:d},{rejection_center!s},"
-                            f"{rejection_units!s}={outlier_threshold:f}"
-                        ),
-                    ]
-                )
+        self._config = config
+        for param, value in self._default_config.items():
+            if param not in self._config:
+                self._config[param] = value
+
+        mem_unit = self._config["max_memory"][-1].lower()
+        if mem_unit == "g":
+            scale = 1024**3
+        elif mem_unit == "m":
+            scale = 1024**2
+        elif mem_unit == "k":
+            scale = 1024
         else:
-            grcollect_cmd.append(",".join(self._stat_quantities))
+            assert mem_unit == "b"
+            scale = 1
+        self._config["max_memory"] = (
+            int(self._config["max_memory"][:-1]) * scale
+        )
 
+        self._magfit_data = None
+        self._sources = None
+        self._dimensions = {
+            "photometries": num_photometries,
+            "columns": 2 * num_photometries,
+            "images": num_frames,
+        }
+        self._added_frames = 0
         self._statistics_fname = statistics_fname
-
-        grcollect_cmd.extend(
-            [
-                "--col-base",
-                "1",
-                "--col-stat",
-                ",".join([str(c) for c in stat_columns]),
-                "--max-memory",
-                max_memory,
-                "--tmpdir",
-                temp_directory,
-                "--output",
-                statistics_fname,
-            ]
-        )
-        if not os.path.exists(temp_directory):
-            os.makedirs(temp_directory)
-        print("Starting grcollect command: '" + "' '".join(grcollect_cmd) + "'")
-        # Needs to persist after function exits
-        # pylint: disable=consider-using-with
-        self._grcollect = Popen(
-            grcollect_cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE
-        )
-        # pylint: enable=consider-using-with
-
-        self._num_photometries = num_photometries
-        self._source_name_format = source_name_format
-        self._line_format = "%s" + (" %9.5f") * (2 * self._num_photometries)
-
-    # pylint: enable=too-many-locals
 
     def add_input(self, fit_results):
         """Ingest a fitted frame's photometry into the statistics."""
 
-        logger = logging.getLogger(__name__)
         for phot, fitted in fit_results:
-            if phot is None:
-                continue
-
-            logger.debug(
-                "Collecting %d magfit sources for master.",
-                len(phot["source_id"]),
-            )
-
-            logger.debug(
-                "Return code of grcollect: %s", repr(self._grcollect.poll())
-            )
-            assert self._grcollect.poll() is None
 
             formal_errors = phot["mag_err"][:, -1]
             phot_flags = phot["phot_flag"][:, -1]
 
-            src_count = formal_errors.shape[0]
-            assert self._num_photometries == formal_errors.shape[1]
-            assert formal_errors.shape == phot_flags.shape
-            assert fitted.shape == formal_errors.shape
+            finite = True
+            for column in chain(fitted.T, formal_errors.T):
+                finite = numpy.logical_and(finite, numpy.isfinite(column))
 
-            for source_ind in range(src_count):
-                print_args = (
-                    (
-                        self._source_name_format.format(
-                            phot["source_id"][source_ind]
-                        ),
-                    )
-                    + tuple(fitted[source_ind])
-                    + tuple(formal_errors[source_ind])
+            if phot is None or not finite.any():
+                continue
+
+            self._logger.debug(
+                "Removing rows with non-finite values from:\n%s", repr(phot)
+            )
+            self._logger.debug("Finite flags:\n%s", repr(finite))
+            phot = phot[finite]
+            formal_errors = formal_errors[finite]
+
+            source_sorter = numpy.argsort(phot["source_id"])
+            phot = phot[source_sorter]
+            fitted = fitted[source_sorter]
+
+            if self._magfit_data is None:
+                assert self._sources is None
+                self._sources = phot["source_id"]
+                self._init_data(self._sources.size)
+                source_indices = numpy.arange(self._sources.size)
+            else:
+                source_sorter = numpy.argsort(self._sources)
+                source_indices = numpy.searchsorted(
+                    self._sources, phot["source_id"], sorter=source_sorter
                 )
-
-                all_finite = True
-                for value in print_args[1:]:
-                    if numpy.isnan(value):
-                        all_finite = False
-                        break
-
-                if all_finite:
-                    self._grcollect.stdin.write(
-                        (self._line_format % print_args + "\n").encode("ascii")
+                source_indices[source_indices == self._sources.size] = (
+                    self._sources.size - 1
+                )
+                new_sources = numpy.nonzero(
+                    self._sources[source_sorter[source_indices]]
+                    != phot["source_id"]
+                )[0]
+                if new_sources.size:
+                    source_indices[new_sources] = numpy.arange(
+                        self._sources.size,
+                        self._sources.size + new_sources.size,
                     )
-            logger.debug("Finished sending fit data to grcollect")
+                    self._logger.debug("Photometry:\n%s", repr(phot))
+                    self._logger.debug(
+                        "Curent sources:\n%s", repr(self._sources)
+                    )
+                    self._logger.debug(
+                        "New source indices:\n%s", repr(new_sources)
+                    )
+                    self._sources = numpy.concatenate(
+                        (self._sources, phot["source_id"][new_sources])
+                    )
+                    self._magfit_data.resize(
+                        self._sources.size,
+                        self._dimensions["images"],
+                        self._dimensions["columns"],
+                    )
+
+            self._logger.debug(
+                "Adding %d magfit sources for master.", fitted.shape[0]
+            )
+
+            self._magfit_data[
+                source_indices, self._added_frames, : fitted.shape[1]
+            ] = fitted
+            self._magfit_data[
+                source_indices, self._added_frames, fitted.shape[1] :
+            ] = formal_errors
+            self._added_frames += 1
+
+            self._logger.debug("Finished adding fit data.")
 
     # TODO: Add support for scatter cut based on quantile of fit residuals.
     def generate_master(
@@ -603,13 +772,22 @@ class MasterPhotrefCollector:
             None
         """
 
-        self._calculate_statistics()
-        statistics = self._read_statistics(catalog, parse_source_id)
-        min_counts = min_nobs_median_fraction * self._get_med_count()
+        catalog_columns = next(iter(catalog.values())).dtype.names
+        statistics = numpy.empty(
+            self._sources.size, dtype=self._get_stat_dtype(catalog_columns)
+        )
+
+        self._calculate_statistics(statistics)
+        self._add_catalog_info(catalog, statistics, catalog_columns)
+        self._save_statistics(statistics)
+
+        enough_counts_flags = self._get_enough_count_flags(
+            statistics, min_nobs_median_fraction
+        )
         residual_scatter = self._fit_scatter(
             statistics,
             fit_terms_expression,
-            min_counts=min_counts,
+            enough_counts_flags=enough_counts_flags,
             outlier_average=fit_outlier_average,
             outlier_threshold=fit_outlier_threshold,
             max_rej_iter=fit_max_rej_iter,
@@ -630,88 +808,9 @@ class MasterPhotrefCollector:
         self._create_reference(
             statistics=statistics,
             residual_scatter=residual_scatter,
-            min_counts=min_counts,
+            enough_counts_flags=enough_counts_flags,
             outlier_average=fit_outlier_average,
             outlier_threshold=fit_outlier_threshold,
             reference_fname=master_reference_fname,
             primary_header=primary_header,
         )
-
-
-if __name__ == "__main__":
-    from time import time
-
-    import zarr
-    from rechunker import rechunk
-
-    nstars = 5000
-    nframes = 500
-    nphot = 50
-    max_mem = 2 * 1024**2
-    dtype = numpy.dtype(float)
-    star_chunk = int(max_mem / (nframes * nphot * dtype.itemsize))
-    frame_chunk = int(max_mem / (nstars * nphot * dtype.itemsize))
-    print(f"Using chunk size: frame: {frame_chunk}, star: {star_chunk}")
-    arr = zarr.empty(
-        (nstars, nframes, nphot),
-        chunks=(None, frame_chunk, None),
-        dtype=dtype,
-        store=zarr.TempStore(),
-    )
-    print(f"Stored at: {arr.store.dir_path()}")
-    print("Setting random values")
-    start = time()
-    for frame_i in range(nframes):
-        arr[:, frame_i, :] = numpy.random.rand(nstars, nphot)
-        if frame_i % 100 == 0:
-            print(f"Progress {frame_i + 1}/{nframes}")
-
-    print(f"Setting took {time() - start} sec")
-
-    print("Rechunking")
-    start = time()
-    rechunked_store = zarr.TempStore()
-    rechunk_plan = rechunk(
-        arr,
-        (star_chunk, nframes, nphot),
-        "2MB",
-        rechunked_store,
-        temp_store=zarr.TempStore(),
-    )
-    print(f"Rechunk plan: {rechunk_plan}")
-    arr = rechunk_plan.execute()
-    print(f"Rechunking took {time() - start} sec")
-
-    # for b in range(arr.cdata_shape[0]):
-    #    arr.blocks[b] = numpy.random.rand(
-    #        min(nstars - b * chunk_size, chunk_size),
-    #        nframes,
-    #        nphot
-    #    )
-
-    print("Calculating median")
-    start = time()
-    results = {
-        stat: numpy.empty(
-            (nstars, nphot), dtype=int if stat == "count" else float
-        )
-        for stat in ["med", "stddev", "count"]
-    }
-
-    for b in range(arr.cdata_shape[0]):
-
-        (
-            results["med"][
-                b * star_chunk : min(nstars, (b + 1) * star_chunk), :
-            ],
-            results["stddev"][
-                b * star_chunk : min(nstars, (b + 1) * star_chunk), :
-            ],
-            results["count"][
-                b * star_chunk : min(nstars, (b + 1) * star_chunk), :
-            ],
-        ) = iterative_rejection_average(arr.blocks[b], 3.0, axis=1)
-        print(f"Progress {b + 1}/{arr.cdata_shape[0]}")
-    print(f"Median took {time() - start} sec.")
-    for stat, values in results.items():
-        print(f"{stat}: {values!r}\n")

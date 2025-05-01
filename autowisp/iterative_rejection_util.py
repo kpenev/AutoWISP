@@ -8,20 +8,25 @@ from scipy.interpolate import UnivariateSpline
 
 from autowisp.pipeline_exceptions import ConvergenceError
 
-git_id = '$Id$'
+git_id = "$Id$"
 
-#Too many arguments indeed, but most would never be needed.
-#Breaking up into smaller pieces will decrease readability
-#pylint: disable=too-many-arguments
-#pylint: disable=too-many-locals
-def iterative_rejection_average(array,
-                                outlier_threshold,
-                                average_func=numpy.nanmedian,
-                                max_iter=numpy.inf,
-                                axis=0,
-                                require_convergence=False,
-                                mangle_input=False,
-                                keepdims=False):
+
+# Too many arguments indeed, but most would never be needed.
+# Breaking up into smaller pieces will decrease readability
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+def iterative_rejection_average(
+    array,
+    outlier_threshold,
+    *,
+    average_func=numpy.nanmedian,
+    deviation_average=numpy.nanmean,
+    max_iter=numpy.inf,
+    axis=0,
+    require_convergence=False,
+    mangle_input=False,
+    keepdims=False
+):
     r"""
     Avarage with iterative rejection of outliers along an axis.
 
@@ -40,6 +45,10 @@ def iterative_rejection_average(array,
         average_func:    A function which returns the average to compute (e.g.
             :func:`numpy.nanmean` or :func:`numpy.nanmedian`\ ), must ignore nan
             values.
+
+        deviation_average:    A function or iterable of functions to use for
+            computing the average deviation. If multiple, the first is used for
+            outlier rejection.
 
         max_iter:    The maximum number of rejection - re-fitting iterations
             to perform.
@@ -76,7 +85,14 @@ def iterative_rejection_average(array,
     """
 
     logger = logging.getLogger(__name__)
-    working_array = (array if mangle_input else numpy.copy(array))
+    working_array = array if mangle_input else numpy.copy(array)
+    logger.debug(
+        "Calculating iterative rejection average along axis %d of array with "
+        "shape %s:\n%s",
+        axis,
+        repr(working_array.shape),
+        repr(working_array),
+    )
 
     if isinstance(outlier_threshold, (float, int)):
         threshold_plus = outlier_threshold
@@ -94,71 +110,81 @@ def iterative_rejection_average(array,
             else:
                 threshold_minus, threshold_plus = outlier_threshold
 
+    if not hasattr(deviation_average, "__getitem__"):
+        deviation_average = (deviation_average,)
+
     iteration = 0
     found_outliers = True
     while found_outliers and iteration < max_iter:
-        logger.debug('Average iteration: %s', repr(iteration))
+        logger.debug("Average iteration: %s", repr(iteration))
         average = average_func(working_array, axis=axis, keepdims=True)
         difference = working_array - average
         rms = numpy.sqrt(
-            numpy.nanmean(
-                numpy.square(difference),
-                axis=axis,
-                keepdims=True
+            deviation_average[0](
+                numpy.square(difference), axis=axis, keepdims=True
             )
         )
-        outliers = numpy.logical_or(difference < threshold_minus * rms,
-                                    difference > threshold_plus * rms)
+        outliers = numpy.logical_or(
+            difference < threshold_minus * rms,
+            difference > threshold_plus * rms,
+        )
 
         found_outliers = numpy.any(outliers)
 
         if found_outliers:
             working_array[outliers] = numpy.nan
-        logger.debug('Found %d outliers.', found_outliers.sum())
+        logger.debug("Found %d outliers.", found_outliers.sum())
         iteration = iteration + 1
     logger.debug("Exited found_outliers while loop")
     if found_outliers and require_convergence:
         raise ConvergenceError(
-            'Computing '
-            +
-            average_func.__name__
-            +
-            ' with iterative rejection did not converge after '
-            +
-            str(iteration)
-            +
-            ' iterations!'
+            "Computing "
+            + average_func.__name__
+            + " with iterative rejection did not converge after "
+            + str(iteration)
+            + " iterations!"
         )
 
-    num_averaged = numpy.sum(numpy.logical_not(numpy.isnan(working_array)),
-                             axis=axis,
-                             keepdims=keepdims)
-    logger.debug("num_averaged computed: %s", num_averaged)
-    stdev = (
-        numpy.sqrt(
-            numpy.nanmean(numpy.square(working_array - average),
-                          axis=axis,
-                          keepdims=keepdims)
-            /
-            (num_averaged - 1)
-        )
+    num_averaged = numpy.sum(
+        numpy.logical_not(numpy.isnan(working_array)),
+        axis=axis,
+        keepdims=keepdims,
     )
+    logger.debug("num_averaged computed: %s", num_averaged)
+    average_dev = tuple(
+        numpy.sqrt(
+            avg_func(
+                numpy.square(working_array - average),
+                axis=axis,
+                keepdims=keepdims,
+            )
+            / (num_averaged - 1)
+        )
+        for avg_func in deviation_average
+    )
+    if len(average_dev) == 1:
+        average_dev = average_dev[0]
 
-    logger.debug("stdev nanmean and sqrt stuff computed")
+    logger.debug("Average deviation computed")
 
     if not keepdims:
         average = numpy.squeeze(average, axis)
 
     logger.debug("Finished average function!!!!")
-    return average, stdev, num_averaged
-#pylint: enable=too-many-arguments
-#pylint: enable=too-many-locals
+    return average, average_dev, num_averaged
 
-def iterative_rej_linear_leastsq(matrix,
-                                 rhs,
-                                 outlier_threshold,
-                                 max_iterations=numpy.inf,
-                                 return_predicted=False):
+
+# pylint: enable=too-many-arguments
+# pylint: enable=too-many-locals
+
+
+def iterative_rej_linear_leastsq(
+    matrix,
+    rhs,
+    outlier_threshold,
+    max_iterations=numpy.inf,
+    return_predicted=False,
+):
     """
     Perform linear leasts squares fit iteratively rejecting outliers.
 
@@ -202,9 +228,10 @@ def iterative_rej_linear_leastsq(matrix,
         residual /= num_surviving
         if iteration == max_iterations:
             break
-        outliers = (numpy.square(fit_rhs - fit_matrix.dot(fit_coef))
-                    >
-                    outlier_threshold**2 * residual)
+        outliers = (
+            numpy.square(fit_rhs - fit_matrix.dot(fit_coef))
+            > outlier_threshold**2 * residual
+        )
         num_surviving -= outliers.sum()
         fit_rhs[outliers] = 0
         fit_matrix[outliers, :] = 0
@@ -215,13 +242,10 @@ def iterative_rej_linear_leastsq(matrix,
         return fit_coef, numpy.sqrt(residual), matrix.dot(fit_coef)
     return fit_coef, numpy.sqrt(residual)
 
-#x and y are perfectly readable arguments for a fitting function.
-#pylint: disable=invalid-name
-def iterative_rej_polynomial_fit(x,
-                                 y,
-                                 order,
-                                 *leastsq_args,
-                                 **leastsq_kwargs):
+
+# x and y are perfectly readable arguments for a fitting function.
+# pylint: disable=invalid-name
+def iterative_rej_polynomial_fit(x, y, order, *leastsq_args, **leastsq_kwargs):
     r"""
     Fit for c_i in y = sum(c_i * x^i), iteratively rejecting outliers.
 
@@ -243,21 +267,19 @@ def iterative_rej_polynomial_fit(x,
         See :func:`iterative_rej_linear_leastsq`\ .
     """
 
-    matrix = numpy.empty((x.size, order+1))
+    matrix = numpy.empty((x.size, order + 1))
     matrix[:, 0] = 1.0
     for column in range(1, order + 1):
         matrix[:, column] = matrix[:, column - 1] * x
 
-    return iterative_rej_linear_leastsq(matrix,
-                                        y,
-                                        *leastsq_args,
-                                        **leastsq_kwargs)
+    return iterative_rej_linear_leastsq(
+        matrix, y, *leastsq_args, **leastsq_kwargs
+    )
 
-def iterative_rejection_smoothing_spline(x,
-                                         y,
-                                         outlier_threshold,
-                                         max_iterations=numpy.inf,
-                                         **spline_args):
+
+def iterative_rejection_smoothing_spline(
+    x, y, outlier_threshold, max_iterations=numpy.inf, **spline_args
+):
     r"""
     Use scipy's UnivariateSpline for iterative rejection smoothing.
 
@@ -289,24 +311,24 @@ def iterative_rejection_smoothing_spline(x,
     fit_points = numpy.logical_and(numpy.isfinite(x), numpy.isfinite(y))
     fit_x = x[fit_points]
     fit_y = y[fit_points]
-    if 'w' in spline_args:
-        fit_w = spline_args['w'][fit_points]
-        del spline_args['w']
+    if "w" in spline_args:
+        fit_w = spline_args["w"][fit_points]
+        del spline_args["w"]
     else:
         fit_w = None
     while found_outliers and iteration < max_iterations:
         smooth_func = UnivariateSpline(fit_x, fit_y, w=fit_w, **spline_args)
 
         square_residuals = numpy.square(smooth_func(fit_x) - fit_y)
-        logger.debug('Square res:\n%s', repr(square_residuals))
-        non_outliers = (square_residuals
-                        <
-                        outlier_threshold**2 * numpy.mean(square_residuals))
-        logger.debug('Non outliers: %s', repr(non_outliers))
+        logger.debug("Square res:\n%s", repr(square_residuals))
+        non_outliers = square_residuals < outlier_threshold**2 * numpy.mean(
+            square_residuals
+        )
+        logger.debug("Non outliers: %s", repr(non_outliers))
         logger.debug(
-            'Rejecting %d / %d points.',
+            "Rejecting %d / %d points.",
             len(non_outliers) - non_outliers.sum(),
-            len(non_outliers)
+            len(non_outliers),
         )
 
         fit_x = fit_x[non_outliers]
@@ -318,4 +340,5 @@ def iterative_rejection_smoothing_spline(x,
 
     return smooth_func
 
-#pylint: enable=invalid-name
+
+# pylint: enable=invalid-name
