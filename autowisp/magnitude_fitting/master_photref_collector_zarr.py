@@ -43,7 +43,7 @@ class MasterPhotrefCollector:
         "outlier_threshold": 5.0,
         "max_rejection_iterations": 10,
         "rejection_center": "median",
-        "rejection_units": "meddev",
+        "rejection_units": "medmeddev",
         "max_memory": "2g",
         "source_name_format": "{0:d}",
     }
@@ -140,15 +140,18 @@ class MasterPhotrefCollector:
                 (
                     statistics["mediandev"][res_slice, :],
                     statistics["medianmeddev"][res_slice, :],
-                ) = average_dev * numpy.sqrt(
-                    statistics["rejected_count"][res_slice, :] - 1
-                )
+                ) = average_dev
             else:
                 assert self._config["rejection_units"] == "medmeddev"
                 (
                     statistics["medianmeddev"][res_slice, :],
                     statistics["mediandev"][res_slice, :],
                 ) = average_dev
+
+            for column in ["mediandev", "medianmeddev"]:
+                statistics[column] *= numpy.sqrt(
+                    statistics["rejected_count"][res_slice, :] - 1
+                )
 
     def _save_statistics(self, statistics):
         """Save the given statistics as a master statistics file."""
@@ -692,7 +695,7 @@ class MasterPhotrefCollector:
                         "New source indices:\n%s", repr(new_sources)
                     )
                     self._sources = numpy.concatenate(
-                        self._sources, phot["source_id"][new_sources]
+                        (self._sources, phot["source_id"][new_sources])
                     )
                     self._magfit_data.resize(
                         self._sources.size,

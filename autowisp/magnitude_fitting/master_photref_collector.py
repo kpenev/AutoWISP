@@ -257,9 +257,9 @@ class MasterPhotrefCollector:
             )[0]
             if coefficients is None:
                 return None
-            residuals[:, phot_ind] = statistics[scatter_quantity][
-                :, phot_ind
-            ] - numpy.dot(coefficients, predictors)
+            residuals[:, phot_ind] = numpy.log10(
+                statistics[scatter_quantity][:, phot_ind]
+            ) - numpy.dot(coefficients, predictors)
         return residuals
 
     # pylint: enable=too-many-locals

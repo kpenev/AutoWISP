@@ -4,7 +4,7 @@ import logging
 from tempfile import TemporaryDirectory
 from os import path
 
-# from shutil import copy
+from shutil import copy
 
 import unittest
 import numpy
@@ -28,7 +28,7 @@ class TestMphotrefCollector(FloatTestCase):
         "tiny": {"stars": 10, "images": 20, "photometries": 3, "mfit_iter": 1},
         "rotatestars": {
             "stars": 15,
-            "images": 20,
+            "images": 19,
             "photometries": 5,
             "mfit_iter": 1,
         },
@@ -39,6 +39,7 @@ class TestMphotrefCollector(FloatTestCase):
     def _assertStat(self, test_stat_fname, test_case, nphot):
         """Assert that the generated statistics matches the expected."""
 
+        self.set_tolerance(0.0, 1e-7)
         expected_stat_fname = path.join(
             test_data_dir, f"{test_case}_mfit_stat.txt"
         )
@@ -266,6 +267,14 @@ class TestMphotrefCollector(FloatTestCase):
                 fit_terms_expression="O0{ra}",
                 parse_source_id=None,
             )
+            #copy(
+            #    stat_fname,
+            #    path.join(test_data_dir, "rotatestars_mfit_stat.txt"),
+            #)
+            #copy(
+            #    master_fname,
+            #    path.join(test_data_dir, "rotatestars_mphotref.fits")
+            #)
             self._assertStat(
                 stat_fname,
                 test_name,
@@ -273,15 +282,15 @@ class TestMphotrefCollector(FloatTestCase):
             )
             self._assertMaster(master_fname, test_name)
 
-    def test_tiny(self):
-        """Tiny super-fast test."""
+    # def test_tiny(self):
+    #    """Tiny super-fast test."""
 
-        self.perform_test("tiny")
+    #    self.perform_test("tiny")
 
-    # def test_rotatestars(self):
-    #    """Test with rotating collection of stars between images."""
+    def test_rotatestars(self):
+        """Test with rotating collection of stars between images."""
 
-    #    self.perform_test("rotatestars")
+        self.perform_test("rotatestars")
 
 
 if __name__ == "__main__":

@@ -91,7 +91,7 @@ def iterative_rejection_average(
         "shape %s:\n%s",
         axis,
         repr(working_array.shape),
-        repr(working_array)
+        repr(working_array),
     )
 
     if isinstance(outlier_threshold, (float, int)):
