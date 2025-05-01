@@ -218,114 +218,6 @@ class MasterPhotrefCollector:
         )
         return statistics[count_col] > min_counts[None, :]
 
-    def _read_statistics(self, catalog, parse_source_id):
-        """
-        Read the magnitude & scatter for each source for each photometry.
-
-        Args:
-            catalog(dict):    See ``master_catalog`` argument to
-                MagnitudeFit.__init__().
-
-            parse_source_id(callable):    See same name argument to
-                generate_master().
-
-        Returns:
-            numpy structured array:
-                The fields are as follows:
-
-                    source_id: The ID of the source.
-
-                    xi, eta: The projected angular coordinates of the source
-                        from the catalog.
-
-                    full_count: The full number of measurements available for
-                        the sources
-
-                    rejected_count: The number of measurements of the source
-                        after outlier rejection during statistics collection.
-
-                    mediandev: An estimate of the scatter for the source,
-                        as the deviation around the median, calculated during
-                        statistics collection.
-
-                    medianmeddev: An estimate of the scatter for the source as
-                        the median deviation around the median, calculated
-                        during statistics collection.
-        """
-
-        def get_stat_data():
-            """Read the statistics file."""
-
-            column_names = ["source_id"]
-            for phot_quantity in ["mag", "mag_err"]:
-                for phot_ind in range(self._dimensions["photometries"]):
-                    column_names.extend(
-                        [
-                            f"{stat_quantity}_{phot_quantity}_{phot_ind:d}"
-                            for stat_quantity in self._stat_quantities
-                        ]
-                    )
-            return numpy.genfromtxt(
-                self._statistics_fname, dtype=None, names=column_names
-            )
-
-        def create_result(num_sources, catalog_columns):
-            """Create an empty result to fill with data."""
-
-            special_dtypes = {"phqual": "S3", "magsrcflag": "S9"}
-            example_source_id = next(iter(catalog.keys()))
-            if isinstance(example_source_id, tuple):
-                source_id_size = (len(example_source_id),)
-            else:
-                source_id_size = 1
-            dtype = [
-                ("source_id", numpy.uint64, source_id_size),
-                ("full_count", numpy.intc, (self._num_photometries,)),
-                ("rejected_count", numpy.intc, (self._num_photometries,)),
-                ("median", numpy.float64, (self._num_photometries,)),
-                ("mediandev", numpy.float64, (self._num_photometries,)),
-                ("medianmeddev", numpy.float64, (self._num_photometries,)),
-            ] + [
-                (colname, special_dtypes.get(colname, numpy.float64))
-                for colname in catalog_columns
-            ]
-            return numpy.empty(num_sources, dtype=dtype)
-
-        def add_stat_data(stat_data, result):
-            """Add the information from get_stat_data() to result."""
-
-            print("Stat data columns: " + repr(stat_data.dtype.names))
-            if stat_data["source_id"][0].dtype.kind in "OSU":
-                for source_index, source_id in enumerate(
-                    stat_data["source_id"]
-                ):
-                    result["source_id"][source_index] = parse_source_id(
-                        source_id
-                    )
-            else:
-                result["source_id"] = stat_data["source_id"]
-
-            for phot_index in range(self._num_photometries):
-                result["full_count"][:, phot_index] = stat_data[
-                    f"count_mag_{phot_index:d}"
-                ]
-                result["rejected_count"][:, phot_index] = stat_data[
-                    f"rcount_mag_{phot_index:d}"
-                ]
-                for statistic in ["median", "mediandev", "medianmeddev"]:
-                    result[statistic][:, phot_index] = stat_data[
-                        "r" + statistic + f"_mag_{phot_index:d}"
-                    ]
-
-        catalog_columns = next(iter(catalog.values())).dtype.names
-        stat_data = get_stat_data()
-
-        result = create_result(stat_data.size, catalog_columns)
-        add_stat_data(stat_data, result)
-        add_catalog_info(catalog_columns, result)
-
-        return result
-
     # Can't simplify further
     # pylint: disable=too-many-locals
     def _fit_scatter(
@@ -508,8 +400,8 @@ class MasterPhotrefCollector:
 
             result_dtype.extend(
                 [
-                    ("full_count", numpy.float64),
-                    ("rejected_count", numpy.float64),
+                    ("full_count", numpy.uint64),
+                    ("rejected_count", numpy.uint64),
                     ("magnitude", numpy.float64),
                     ("mediandev", numpy.float64),
                     ("medianmeddev", numpy.float64),

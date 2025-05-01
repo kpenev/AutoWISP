@@ -33,6 +33,10 @@ class TestMphotrefCollector(FloatTestCase):
             "mfit_iter": 1,
         },
     }
+    _stars_in_image = {
+        "tiny": 10,
+        "rotatestars": 7,
+    }
 
     # Following standard unittest assert naming convections
     # pylint: disable=invalid-name
@@ -40,9 +44,17 @@ class TestMphotrefCollector(FloatTestCase):
         """Assert that the generated statistics matches the expected."""
 
         self.set_tolerance(0.0, 1e-7)
-        expected_stat_fname = path.join(
-            test_data_dir, f"{test_case}_mfit_stat.txt"
-        )
+        if not hasattr(self, f"_get_stat_{test_case}"):
+            expected_stat_fname = path.join(
+                test_data_dir, f"{test_case}_mfit_stat.txt"
+            )
+            read_stats = [
+                ("test", test_stat_fname),
+                ("expected", expected_stat_fname),
+            ]
+        else:
+            read_stats = [("test", test_stat_fname)]
+
         stat_data = {
             key: pandas.read_csv(
                 fname,
@@ -65,11 +77,10 @@ class TestMphotrefCollector(FloatTestCase):
                 ),
                 index_col="src_id",
             ).sort_index()
-            for key, fname in [
-                ("test", test_stat_fname),
-                ("expected", expected_stat_fname),
-            ]
+            for key, fname in read_stats
         }
+        if "expected" not in stat_data:
+            stat_data["expected"] = getattr(self, f"_get_stat_{test_case}")()
 
         self.assertApproxPandas(
             stat_data["expected"], stat_data["test"], "MasterPhotrefCollector"
@@ -87,12 +98,23 @@ class TestMphotrefCollector(FloatTestCase):
     def _assertMaster(self, test_master_fname, test_case):
         """Assert that the generated master references matches the expected."""
 
-        self.set_tolerance(10.0, 1e-15)
-        for hdu_index in range(1, 1 + self._dimensions["tiny"]["photometries"]):
+        self.set_tolerance(10.0, 1e-12)
+        if hasattr(self, f"_get_master_{test_case}"):
+            expected_master = getattr(self, f"_get_master_{test_case}")()
+        else:
+            expected_master = None
+
+        for hdu_index in range(
+            1, 1 + self._dimensions[test_case]["photometries"]
+        ):
             self.assertApproxPandas(
-                self._get_fits_df(
-                    path.join(test_data_dir, f"{test_case}_mphotref.fits"),
-                    hdu_index,
+                (
+                    self._get_fits_df(
+                        path.join(test_data_dir, f"{test_case}_mphotref.fits"),
+                        hdu_index,
+                    )
+                    if expected_master is None
+                    else expected_master[hdu_index - 1]
                 ),
                 self._get_fits_df(test_master_fname, hdu_index),
             )
@@ -187,7 +209,7 @@ class TestMphotrefCollector(FloatTestCase):
         stars_in_image = 7
 
         phot = numpy.empty(
-            stars_in_image,
+            self._stars_in_image["rotatestars"],
             dtype=[
                 ("source_id", int),
                 (
@@ -209,9 +231,12 @@ class TestMphotrefCollector(FloatTestCase):
             ],
         )
         fitted = numpy.empty(
-            (stars_in_image, self._dimensions["rotatestars"]["photometries"])
+            (
+                self._stars_in_image["rotatestars"],
+                self._dimensions["rotatestars"]["photometries"],
+            )
         )
-        for src_i in range(stars_in_image):
+        for src_i in range(self._stars_in_image["rotatestars"]):
             phot["source_id"][src_i] = (src_i + img_i) % self._dimensions[
                 "rotatestars"
             ]["stars"] + 1
@@ -243,6 +268,121 @@ class TestMphotrefCollector(FloatTestCase):
             ]
         return phot, fitted
 
+    def _get_stat_rotatestars(self):
+        """Return the expected statistics DataFrame for the rotatestars test."""
+
+        dimensions = self._dimensions["rotatestars"]
+        all_img_first_phot = numpy.arange(dimensions["images"]) * 0.01
+        result = pandas.DataFrame(
+            numpy.zeros(
+                dimensions["stars"],
+                dtype=(
+                    [
+                        ("source_id", numpy.uint64),
+                    ]
+                    + [
+                        (
+                            f"{q}_{stat}_{phot}",
+                            (int if stat.endswith("count") else float),
+                        )
+                        for q in ["mag", "err"]
+                        for phot in range(dimensions["photometries"])
+                        for stat in [
+                            "count",
+                            "rcount",
+                            "med",
+                            "meddev",
+                            "medmeddev",
+                        ]
+                    ]
+                ),
+            )
+        ).set_index("source_id")
+        result.index = numpy.arange(1, dimensions["stars"] + 1)
+
+        for src_i in range(dimensions["stars"]):
+            src_first_phot = numpy.copy(all_img_first_phot)
+            src_in_image = (
+                (src_i - numpy.arange(dimensions["images"]))
+                % dimensions["stars"]
+            ) < self._stars_in_image["rotatestars"]
+            src_first_phot[numpy.logical_not(src_in_image)] = numpy.nan
+            outliers = numpy.array([True])
+            med_phot = {}
+            diff_phot = {}
+            rms_phot = {}
+            while outliers.any():
+                med_phot = numpy.nanmedian(src_first_phot)
+                print(f"Med phot: {med_phot!r}")
+                for avg in ["mean", "median"]:
+                    diff_phot[avg] = src_first_phot - med_phot
+                    rms_phot[avg] = numpy.sqrt(
+                        getattr(numpy, f"nan{avg}")(
+                            numpy.square(diff_phot[avg])
+                        )
+                    )
+                    if src_i == 0:
+                        print(f"Diff {avg}: {diff_phot[avg]!r}")
+                        print(f"Rms {avg}: {rms_phot[avg]!r}")
+
+                outliers = (
+                    numpy.abs(diff_phot["median"]) > 5 * rms_phot["median"]
+                )
+                if src_i == 0:
+                    print(f"Outliers: {outliers!r}")
+                src_first_phot[outliers] = numpy.nan
+            for phot_i in range(dimensions["photometries"]):
+                result.at[src_i + 1, f"mag_count_{phot_i}"] = src_in_image.sum()
+                result.at[src_i + 1, f"mag_rcount_{phot_i}"] = numpy.isfinite(
+                    src_first_phot
+                ).sum()
+                result.at[src_i + 1, f"mag_med_{phot_i}"] = med_phot + phot_i**2
+                result.at[src_i + 1, f"mag_meddev_{phot_i}"] = rms_phot["mean"]
+                result.at[src_i + 1, f"mag_medmeddev_{phot_i}"] = rms_phot[
+                    "median"
+                ]
+        for phot_i in range(dimensions["photometries"]):
+            result[f"err_count_{phot_i}"] = result[f"mag_count_{phot_i}"]
+            result[f"err_rcount_{phot_i}"] = result[f"mag_count_{phot_i}"]
+            result[f"err_med_{phot_i}"] = 0.01 + 0.1 * phot_i
+        return result
+
+    def _get_master_rotatestars(self):
+        """Return the expected master DataFrame for the rotatestars test."""
+
+        statistics = self._get_stat_rotatestars()
+        dimensions = self._dimensions["rotatestars"]
+        result = []
+
+        for phot_i in range(dimensions["photometries"]):
+            master = pandas.DataFrame(
+                numpy.empty(
+                    dimensions["stars"],
+                    dtype=(
+                        [
+                            ("source_id", numpy.uint64),
+                            ("full_count", numpy.uint64),
+                            ("rejected_count", numpy.uint64),
+                            ("magnitude", numpy.float64),
+                            ("mediandev", numpy.float64),
+                            ("medianmeddev", numpy.float64),
+                            ("scatter_excess", numpy.float64),
+                        ]
+                    ),
+                )
+            ).set_index("source_id")
+            master.index = statistics.index
+            master["full_count"][:] = statistics[f"mag_count_{phot_i}"]
+            master["rejected_count"][:] = statistics[f"mag_rcount_{phot_i}"]
+            master["magnitude"][:] = statistics[f"mag_med_{phot_i}"]
+            master["mediandev"][:] = statistics[f"mag_meddev_{phot_i}"]
+            master["medianmeddev"][:] = statistics[f"mag_medmeddev_{phot_i}"]
+            master["scatter_excess"][:] = numpy.log10(
+                master["medianmeddev"]
+            ) - numpy.mean(numpy.log10(master["medianmeddev"]))
+            result.append(master)
+        return result
+
     def perform_test(self, test_name):
         """Run a single test."""
 
@@ -267,14 +407,14 @@ class TestMphotrefCollector(FloatTestCase):
                 fit_terms_expression="O0{ra}",
                 parse_source_id=None,
             )
-            #copy(
+            # copy(
             #    stat_fname,
             #    path.join(test_data_dir, "rotatestars_mfit_stat.txt"),
-            #)
-            #copy(
+            # )
+            # copy(
             #    master_fname,
             #    path.join(test_data_dir, "rotatestars_mphotref.fits")
-            #)
+            # )
             self._assertStat(
                 stat_fname,
                 test_name,
