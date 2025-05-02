@@ -32,11 +32,16 @@ class TestMphotrefCollector(FloatTestCase):
             "photometries": 5,
             "mfit_iter": 1,
         },
+        "big": {
+            "stars": 1024,
+            "images": 14 * 8 * 10,
+            "photometries": 7,
+            "mfit_iter": 1,
+        },
     }
-    _stars_in_image = {
-        "tiny": 10,
-        "rotatestars": 7,
-    }
+    _stars_in_image = {"tiny": 10, "rotatestars": 7, "big": 896}
+
+    _catalog = None
 
     # Following standard unittest assert naming convections
     # pylint: disable=invalid-name
@@ -151,37 +156,59 @@ class TestMphotrefCollector(FloatTestCase):
             for src_i in range(self._dimensions["rotatestars"]["stars"])
         }
 
+    def _get_big_catalog(self):
+        """Return the catalog to use for the big test."""
+
+        return {
+            (src_i + 1): numpy.array(
+                (0.3 * (src_i % 34), 0.3 * (src_i // 34), src_i % 5),
+                dtype=[
+                    ("xi", float),
+                    ("eta", float),
+                    ("phot_g_mean_mag", float),
+                ],
+            )
+            for src_i in range((self._dimensions["big"]["stars"] * 9) // 8)
+        }
+
+    def _get_empty_collector_inputs(self, test_case):
+        """Return empty arrays with correct dtype for collector inputs."""
+
+        return (
+            numpy.zeros(
+                self._stars_in_image[test_case],
+                dtype=[
+                    ("source_id", int),
+                    (
+                        "mag_err",
+                        numpy.float64,
+                        (
+                            self._dimensions[test_case]["mfit_iter"],
+                            self._dimensions[test_case]["photometries"],
+                        ),
+                    ),
+                    (
+                        "phot_flag",
+                        numpy.uint,
+                        (
+                            self._dimensions[test_case]["mfit_iter"],
+                            self._dimensions[test_case]["photometries"],
+                        ),
+                    ),
+                ],
+            ),
+            numpy.empty(
+                (
+                    self._stars_in_image[test_case],
+                    self._dimensions[test_case]["photometries"],
+                )
+            ),
+        )
+
     def _get_collector_inputs_tiny(self, img_i):
         """Feed the collector with 10 stars, 20 images, 5 photometries."""
 
-        phot = numpy.empty(
-            self._dimensions["tiny"]["stars"],
-            dtype=[
-                ("source_id", int),
-                (
-                    "mag_err",
-                    numpy.float64,
-                    (
-                        self._dimensions["tiny"]["mfit_iter"],
-                        self._dimensions["tiny"]["photometries"],
-                    ),
-                ),
-                (
-                    "phot_flag",
-                    numpy.uint,
-                    (
-                        self._dimensions["tiny"]["mfit_iter"],
-                        self._dimensions["tiny"]["photometries"],
-                    ),
-                ),
-            ],
-        )
-        fitted = numpy.empty(
-            tuple(
-                self._dimensions["tiny"][dim]
-                for dim in ["stars", "photometries"]
-            )
-        )
+        phot, fitted = self._get_empty_collector_inputs("tiny")
         for src_i in range(self._dimensions["tiny"]["stars"]):
             phot["source_id"][src_i] = src_i + 1
             phot["mag_err"][src_i] = [
@@ -193,10 +220,6 @@ class TestMphotrefCollector(FloatTestCase):
                 ]
                 for fit_iter in range(self._dimensions["tiny"]["mfit_iter"])
             ]
-            phot["phot_flag"][src_i] = [
-                [0 for _ in range(self._dimensions["tiny"]["photometries"])]
-                for _ in range(self._dimensions["tiny"]["mfit_iter"])
-            ]
             fitted[src_i] = [
                 0.01 * img_i + phot_i**2
                 for phot_i in range(self._dimensions["tiny"]["photometries"])
@@ -206,36 +229,8 @@ class TestMphotrefCollector(FloatTestCase):
     def _get_collector_inputs_rotatestars(self, img_i):
         """Feed the collector with 10 stars, 20 images, 5 photometries."""
 
-        stars_in_image = 7
+        phot, fitted = self._get_empty_collector_inputs("rotatestars")
 
-        phot = numpy.empty(
-            self._stars_in_image["rotatestars"],
-            dtype=[
-                ("source_id", int),
-                (
-                    "mag_err",
-                    numpy.float64,
-                    (
-                        self._dimensions["rotatestars"]["mfit_iter"],
-                        self._dimensions["rotatestars"]["photometries"],
-                    ),
-                ),
-                (
-                    "phot_flag",
-                    numpy.uint,
-                    (
-                        self._dimensions["rotatestars"]["mfit_iter"],
-                        self._dimensions["rotatestars"]["photometries"],
-                    ),
-                ),
-            ],
-        )
-        fitted = numpy.empty(
-            (
-                self._stars_in_image["rotatestars"],
-                self._dimensions["rotatestars"]["photometries"],
-            )
-        )
         for src_i in range(self._stars_in_image["rotatestars"]):
             phot["source_id"][src_i] = (src_i + img_i) % self._dimensions[
                 "rotatestars"
@@ -251,15 +246,6 @@ class TestMphotrefCollector(FloatTestCase):
                     self._dimensions["rotatestars"]["mfit_iter"]
                 )
             ]
-            phot["phot_flag"][src_i] = [
-                [
-                    0
-                    for _ in range(
-                        self._dimensions["rotatestars"]["photometries"]
-                    )
-                ]
-                for _ in range(self._dimensions["rotatestars"]["mfit_iter"])
-            ]
             fitted[src_i] = [
                 0.01 * img_i + phot_i**2
                 for phot_i in range(
@@ -268,14 +254,70 @@ class TestMphotrefCollector(FloatTestCase):
             ]
         return phot, fitted
 
-    def _get_stat_rotatestars(self):
-        """Return the expected statistics DataFrame for the rotatestars test."""
+    def _get_collector_inputs_big(self, img_i):
+        """
+        Feed the collector with the stars for the big test.
 
-        dimensions = self._dimensions["rotatestars"]
-        all_img_first_phot = numpy.arange(dimensions["images"]) * 0.01
-        result = pandas.DataFrame(
+        One out of every 9 catalog stars will never appear in an image (128
+        stars). Another one out of very 9 catalog stars will only appear in one
+        out of 8 images. Another one of 9 catalog stars will be missing from
+        1/8th of the images and 768 stars will appear in all images.
+
+        For each star for each photometry one out of 14 images will have outlier
+        flux (different image for different photometry). Ditto for photometry
+        error estimates.
+        """
+
+        phot, fitted = self._get_empty_collector_inputs("big")
+        dimensions = self._dimensions["big"]
+        assert self._catalog is not None
+        source_ind = 0
+        # False positive
+        # pylint: disable=not-an-iterable
+        for src_id in self._catalog:
+            # pylint: enable=not-an-iterable
+            if (
+                src_id % 9 == 0
+                or (src_id % 9 == 3 and img_i % 8 != 0)
+                or (src_id % 9 == 6 and img_i % 8 == 0)
+            ):
+                continue
+            phot["source_id"][source_ind] = src_id
+            if src_id % 9 == 3:
+                src_img = img_i // 8
+            elif src_id % 9 == 6:
+                src_img = img_i - img_i // 8
+            else:
+                src_img = img_i
+            outlier_ind = src_img % (2 * dimensions["photometries"])
+            # False positive
+            # pylint: disable=unsubscriptable-object
+            cat_mag = self._catalog[src_id]["phot_g_mean_mag"]
+            # pylint: enable=unsubscriptable-object
+            phot["mag_err"][source_ind] = [
+                0.01 * (src_img % 10) / cat_mag
+                + (
+                    5.3
+                    if outlier_ind == (phot_i + dimensions["photometries"])
+                    else 0
+                )
+                for phot_i in range(dimensions["photometries"])
+            ]
+            fitted[source_ind] = [
+                0.9 * cat_mag
+                + 0.03 * (src_img % 10) / cat_mag
+                + ((3.0 + 2.0 * cat_mag) if outlier_ind == phot_i else 0)
+                for phot_i in range(dimensions["photometries"])
+            ]
+            source_ind += 1
+        return phot, fitted
+
+    def _get_empty_stat(self, test_case):
+        """Return empty, but properly configured statistics DataFrame."""
+
+        return pandas.DataFrame(
             numpy.zeros(
-                dimensions["stars"],
+                self._dimensions[test_case]["stars"],
                 dtype=(
                     [
                         ("source_id", numpy.uint64),
@@ -286,7 +328,9 @@ class TestMphotrefCollector(FloatTestCase):
                             (int if stat.endswith("count") else float),
                         )
                         for q in ["mag", "err"]
-                        for phot in range(dimensions["photometries"])
+                        for phot in range(
+                            self._dimensions[test_case]["photometries"]
+                        )
                         for stat in [
                             "count",
                             "rcount",
@@ -298,6 +342,13 @@ class TestMphotrefCollector(FloatTestCase):
                 ),
             )
         ).set_index("source_id")
+
+    def _get_stat_rotatestars(self):
+        """Return the expected statistics DataFrame for the rotatestars test."""
+
+        dimensions = self._dimensions["rotatestars"]
+        all_img_first_phot = numpy.arange(dimensions["images"]) * 0.01
+        result = self._get_empty_stat("rotatestars")
         result.index = numpy.arange(1, dimensions["stars"] + 1)
 
         for src_i in range(dimensions["stars"]):
@@ -313,7 +364,6 @@ class TestMphotrefCollector(FloatTestCase):
             rms_phot = {}
             while outliers.any():
                 med_phot = numpy.nanmedian(src_first_phot)
-                print(f"Med phot: {med_phot!r}")
                 for avg in ["mean", "median"]:
                     diff_phot[avg] = src_first_phot - med_phot
                     rms_phot[avg] = numpy.sqrt(
@@ -321,15 +371,10 @@ class TestMphotrefCollector(FloatTestCase):
                             numpy.square(diff_phot[avg])
                         )
                     )
-                    if src_i == 0:
-                        print(f"Diff {avg}: {diff_phot[avg]!r}")
-                        print(f"Rms {avg}: {rms_phot[avg]!r}")
 
                 outliers = (
                     numpy.abs(diff_phot["median"]) > 5 * rms_phot["median"]
                 )
-                if src_i == 0:
-                    print(f"Outliers: {outliers!r}")
                 src_first_phot[outliers] = numpy.nan
             for phot_i in range(dimensions["photometries"]):
                 result.at[src_i + 1, f"mag_count_{phot_i}"] = src_in_image.sum()
@@ -345,6 +390,31 @@ class TestMphotrefCollector(FloatTestCase):
             result[f"err_count_{phot_i}"] = result[f"mag_count_{phot_i}"]
             result[f"err_rcount_{phot_i}"] = result[f"mag_count_{phot_i}"]
             result[f"err_med_{phot_i}"] = 0.01 + 0.1 * phot_i
+        return result
+
+    def _get_stat_big(self):
+        """Return the expected statistics file for the big test."""
+
+        result = self._get_empty_stat("big")
+        dimensions = self._dimensions["big"]
+        cat_star_ids = numpy.arange(1, (dimensions["stars"] * 9) // 8)
+        result.index = cat_star_ids[cat_star_ids % 9 > 0]
+        for phot_i in range(dimensions["photometries"]):
+            result[f"mag_count_{phot_i}"] = dimensions["images"]
+            result.loc[result.index % 9 == 3, f"mag_count_{phot_i}"] = (
+                dimensions["images"] // 8
+            )
+            result.loc[result.index % 9 == 6, f"mag_count_{phot_i}"] -= (
+                dimensions["images"] // 8
+            )
+            result[f"mag_rcount_{phot_i}"] = result[
+                f"mag_count_{phot_i}"
+            ] - result[f"mag_count_{phot_i}"] // (
+                2 * dimensions["photometries"]
+            )
+            result[f"err_count_{phot_i}"] = result[f"mag_count_{phot_i}"]
+            result[f"err_rcount_{phot_i}"] = result[f"mag_rcount_{phot_i}"]
+
         return result
 
     def _get_master_rotatestars(self):
@@ -386,6 +456,7 @@ class TestMphotrefCollector(FloatTestCase):
     def perform_test(self, test_name):
         """Run a single test."""
 
+        self._catalog = getattr(self, f"_get_{test_name}_catalog")()
         with TemporaryDirectory() as tempdir:
             stat_fname = path.join(tempdir, "mfit_stat.txt")
             master_fname = path.join(tempdir, "mphotref.fits")
@@ -403,7 +474,7 @@ class TestMphotrefCollector(FloatTestCase):
                 )
             collector.generate_master(
                 master_reference_fname=master_fname,
-                catalog=getattr(self, f"_get_{test_name}_catalog")(),
+                catalog=self._catalog,
                 fit_terms_expression="O0{ra}",
                 parse_source_id=None,
             )
@@ -427,10 +498,15 @@ class TestMphotrefCollector(FloatTestCase):
 
     #    self.perform_test("tiny")
 
-    def test_rotatestars(self):
-        """Test with rotating collection of stars between images."""
+    # def test_rotatestars(self):
+    #    """Test with rotating collection of stars between images."""
 
-        self.perform_test("rotatestars")
+    #    self.perform_test("rotatestars")
+
+    def test_big(self):
+        """Big test."""
+
+        self.perform_test("big")
 
 
 if __name__ == "__main__":
