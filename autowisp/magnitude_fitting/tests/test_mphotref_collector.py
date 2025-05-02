@@ -34,8 +34,8 @@ class TestMphotrefCollector(FloatTestCase):
         },
         "big": {
             "stars": 1024,
-            "images": 14 * 8 * 10,
-            "photometries": 7,
+            "images": 4 * 8 * 10,
+            "photometries": 2,
             "mfit_iter": 1,
         },
     }
@@ -133,8 +133,8 @@ class TestMphotrefCollector(FloatTestCase):
             (src_i + 1): numpy.array(
                 (src_i / 2, src_i / 3, src_i % 5),
                 dtype=[
-                    ("ra", float),
-                    ("dec", float),
+                    ("xi", float),
+                    ("eta", float),
                     ("phot_g_mean_mag", float),
                 ],
             )
@@ -148,8 +148,8 @@ class TestMphotrefCollector(FloatTestCase):
             (src_i + 1): numpy.array(
                 (src_i / 2, src_i / 3, src_i % 4),
                 dtype=[
-                    ("ra", float),
-                    ("dec", float),
+                    ("xi", float),
+                    ("eta", float),
                     ("phot_g_mean_mag", float),
                 ],
             )
@@ -161,7 +161,11 @@ class TestMphotrefCollector(FloatTestCase):
 
         return {
             (src_i + 1): numpy.array(
-                (0.3 * (src_i % 34), 0.3 * (src_i // 34), src_i % 5),
+                (
+                    0.3 * ((src_i + 1) % 34),
+                    0.3 * (src_i // 34),
+                    src_i % 5,
+                ),
                 dtype=[
                     ("xi", float),
                     ("eta", float),
@@ -295,7 +299,8 @@ class TestMphotrefCollector(FloatTestCase):
             cat_mag = self._catalog[src_id]["phot_g_mean_mag"]
             # pylint: enable=unsubscriptable-object
             phot["mag_err"][source_ind] = [
-                0.01 * (src_img % 10) / cat_mag
+                0.003
+                + 0.005 * (src_img % 10) * cat_mag
                 + (
                     5.3
                     if outlier_ind == (phot_i + dimensions["photometries"])
@@ -305,11 +310,17 @@ class TestMphotrefCollector(FloatTestCase):
             ]
             fitted[source_ind] = [
                 0.9 * cat_mag
-                + 0.03 * (src_img % 10) / cat_mag
+                + 0.01 * (src_img % 10) * cat_mag
                 + ((3.0 + 2.0 * cat_mag) if outlier_ind == phot_i else 0)
                 for phot_i in range(dimensions["photometries"])
             ]
+
             source_ind += 1
+        assert source_ind == self._stars_in_image["big"]
+        with numpy.printoptions(threshold=numpy.inf):
+            self._logger.debug(
+                "For image %d sources: %s", img_i, repr(phot["source_id"])
+            )
         return phot, fitted
 
     def _get_empty_stat(self, test_case):
@@ -397,8 +408,9 @@ class TestMphotrefCollector(FloatTestCase):
 
         result = self._get_empty_stat("big")
         dimensions = self._dimensions["big"]
-        cat_star_ids = numpy.arange(1, (dimensions["stars"] * 9) // 8)
+        cat_star_ids = numpy.arange(1, len(self._catalog) + 1)
         result.index = cat_star_ids[cat_star_ids % 9 > 0]
+
         for phot_i in range(dimensions["photometries"]):
             result[f"mag_count_{phot_i}"] = dimensions["images"]
             result.loc[result.index % 9 == 3, f"mag_count_{phot_i}"] = (
@@ -412,6 +424,48 @@ class TestMphotrefCollector(FloatTestCase):
             ] - result[f"mag_count_{phot_i}"] // (
                 2 * dimensions["photometries"]
             )
+
+            for src_id in result.index:
+                image_inds = numpy.arange(
+                    result.loc[src_id, f"mag_count_{phot_i}"]
+                )
+                image_inds = image_inds[
+                    image_inds % (2 * dimensions["photometries"]) != phot_i
+                ]
+
+                cat_mag = self._catalog[src_id]["phot_g_mean_mag"]
+                mags = (0.9 + 0.01 * (image_inds % 10)) * cat_mag
+                result.loc[src_id, f"mag_med_{phot_i}"] = numpy.median(mags)
+                squaredev = numpy.square(
+                    mags - result.loc[src_id, f"mag_med_{phot_i}"]
+                )
+                result.loc[src_id, f"mag_meddev_{phot_i}"] = (
+                    numpy.mean(squaredev) ** 0.5
+                )
+                result.loc[src_id, f"mag_medmeddev_{phot_i}"] = (
+                    numpy.median(squaredev) ** 0.5
+                )
+
+                image_inds = numpy.arange(
+                    result.loc[src_id, f"mag_count_{phot_i}"]
+                )
+                image_inds = image_inds[
+                    image_inds % (2 * dimensions["photometries"])
+                    != (dimensions["photometries"] + phot_i)
+                ]
+                errors = 0.003 + 0.005 * (image_inds % 10) * cat_mag
+                result.loc[src_id, f"err_med_{phot_i}"] = numpy.median(errors)
+                squaredev = numpy.square(
+                    errors - result.loc[src_id, f"err_med_{phot_i}"]
+                )
+                result.loc[src_id, f"err_meddev_{phot_i}"] = (
+                    numpy.mean(squaredev) ** 0.5
+                )
+                result.loc[src_id, f"err_medmeddev_{phot_i}"] = (
+                    numpy.median(squaredev) ** 0.5
+                )
+
+
             result[f"err_count_{phot_i}"] = result[f"mag_count_{phot_i}"]
             result[f"err_rcount_{phot_i}"] = result[f"mag_rcount_{phot_i}"]
 
@@ -456,6 +510,8 @@ class TestMphotrefCollector(FloatTestCase):
     def perform_test(self, test_name):
         """Run a single test."""
 
+        pandas.options.display.min_rows = 50
+        pandas.options.display.max_columns = 100
         self._catalog = getattr(self, f"_get_{test_name}_catalog")()
         with TemporaryDirectory() as tempdir:
             stat_fname = path.join(tempdir, "mfit_stat.txt")
@@ -475,7 +531,7 @@ class TestMphotrefCollector(FloatTestCase):
             collector.generate_master(
                 master_reference_fname=master_fname,
                 catalog=self._catalog,
-                fit_terms_expression="O0{ra}",
+                fit_terms_expression="O0{xi}",
                 parse_source_id=None,
             )
             # copy(

@@ -436,7 +436,7 @@ class MasterPhotrefCollector:
         """Create the file-based array for holding magfit data."""
 
         dtype = numpy.dtype(numpy.float64)
-        image_chunk = self._config["max_memory"] // (
+        image_chunk = min(self._config["max_memory"], 100 * 1024**2) // (
             num_sources * self._dimensions["columns"] * dtype.itemsize
         )
         self._logger.debug(
@@ -546,10 +546,6 @@ class MasterPhotrefCollector:
             if phot is None or not finite.any():
                 continue
 
-            self._logger.debug(
-                "Removing rows with non-finite values from:\n%s", repr(phot)
-            )
-            self._logger.debug("Finite flags:\n%s", repr(finite))
             phot = phot[finite]
             formal_errors = formal_errors[finite]
 
@@ -570,21 +566,15 @@ class MasterPhotrefCollector:
                 source_indices[source_indices == self._sources.size] = (
                     self._sources.size - 1
                 )
+                source_indices = source_sorter[source_indices]
                 new_sources = numpy.nonzero(
-                    self._sources[source_sorter[source_indices]]
+                    self._sources[source_indices]
                     != phot["source_id"]
                 )[0]
                 if new_sources.size:
                     source_indices[new_sources] = numpy.arange(
                         self._sources.size,
                         self._sources.size + new_sources.size,
-                    )
-                    self._logger.debug("Photometry:\n%s", repr(phot))
-                    self._logger.debug(
-                        "Curent sources:\n%s", repr(self._sources)
-                    )
-                    self._logger.debug(
-                        "New source indices:\n%s", repr(new_sources)
                     )
                     self._sources = numpy.concatenate(
                         (self._sources, phot["source_id"][new_sources])
