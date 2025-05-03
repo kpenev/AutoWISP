@@ -34,8 +34,8 @@ class TestMphotrefCollector(FloatTestCase):
         },
         "big": {
             "stars": 1024,
-            "images": 4 * 8 * 10,
-            "photometries": 2,
+            "images": 14 * 8 * 10,
+            "photometries": 7,
             "mfit_iter": 1,
         },
     }
@@ -311,6 +311,7 @@ class TestMphotrefCollector(FloatTestCase):
             fitted[source_ind] = [
                 0.9 * cat_mag
                 + 0.01 * (src_img % 10) * cat_mag
+                + (0.1 if src_id % 9 == 5 else 0.01) * (src_img % 7)
                 + ((3.0 + 2.0 * cat_mag) if outlier_ind == phot_i else 0)
                 for phot_i in range(dimensions["photometries"])
             ]
@@ -434,7 +435,9 @@ class TestMphotrefCollector(FloatTestCase):
                 ]
 
                 cat_mag = self._catalog[src_id]["phot_g_mean_mag"]
-                mags = (0.9 + 0.01 * (image_inds % 10)) * cat_mag
+                mags = (0.9 + 0.01 * (image_inds % 10)) * cat_mag + (
+                    0.1 if src_id % 9 == 5 else 0.01
+                ) * (image_inds % 7)
                 result.loc[src_id, f"mag_med_{phot_i}"] = numpy.median(mags)
                 squaredev = numpy.square(
                     mags - result.loc[src_id, f"mag_med_{phot_i}"]
@@ -465,23 +468,18 @@ class TestMphotrefCollector(FloatTestCase):
                     numpy.median(squaredev) ** 0.5
                 )
 
-
             result[f"err_count_{phot_i}"] = result[f"mag_count_{phot_i}"]
             result[f"err_rcount_{phot_i}"] = result[f"mag_rcount_{phot_i}"]
 
         return result
 
-    def _get_master_rotatestars(self):
-        """Return the expected master DataFrame for the rotatestars test."""
+    def _get_empty_masters(self, test_name):
+        """Return properly initalized masters with undefined entries."""
 
-        statistics = self._get_stat_rotatestars()
-        dimensions = self._dimensions["rotatestars"]
-        result = []
-
-        for phot_i in range(dimensions["photometries"]):
-            master = pandas.DataFrame(
+        return [
+            pandas.DataFrame(
                 numpy.empty(
-                    dimensions["stars"],
+                    self._dimensions[test_name]["stars"],
                     dtype=(
                         [
                             ("source_id", numpy.uint64),
@@ -495,6 +493,16 @@ class TestMphotrefCollector(FloatTestCase):
                     ),
                 )
             ).set_index("source_id")
+            for phot_i in range(self._dimensions[test_name]["photometries"])
+        ]
+
+    def _get_master_rotatestars(self):
+        """Return the expected master DataFrame for the rotatestars test."""
+
+        statistics = self._get_stat_rotatestars()
+        result = self._get_empty_masters("rotatestars")
+
+        for phot_i, master in enumerate(result):
             master.index = statistics.index
             master["full_count"][:] = statistics[f"mag_count_{phot_i}"]
             master["rejected_count"][:] = statistics[f"mag_rcount_{phot_i}"]
@@ -504,14 +512,52 @@ class TestMphotrefCollector(FloatTestCase):
             master["scatter_excess"][:] = numpy.log10(
                 master["medianmeddev"]
             ) - numpy.mean(numpy.log10(master["medianmeddev"]))
-            result.append(master)
+
+        return result
+
+    def _get_master_big(self):
+        """Return the expected master Data Frame for the big test."""
+
+        statistics = self._get_stat_big()
+        result = self._get_empty_masters("big")
+        for phot_i, master in enumerate(result):
+            master.index = statistics.index
+            master.index = statistics.index
+            master["full_count"][:] = statistics[f"mag_count_{phot_i}"]
+            master["rejected_count"][:] = statistics[f"mag_rcount_{phot_i}"]
+            master["magnitude"][:] = statistics[f"mag_med_{phot_i}"]
+            master["mediandev"][:] = statistics[f"mag_meddev_{phot_i}"]
+            master["medianmeddev"][:] = statistics[f"mag_medmeddev_{phot_i}"]
+
+            drop = statistics.index[
+                numpy.logical_or(
+                    statistics.index % 9 == 5,
+                    statistics["mag_count_0"]
+                    < 0.8 * self._dimensions["big"]["images"],
+                )
+            ]
+            master.drop(drop, inplace=True)
+            cat_mag = numpy.array(
+                [self._catalog[src]["phot_g_mean_mag"] for src in master.index]
+            )
+            log_dev = numpy.log10(master["medianmeddev"])
+            linear_coef = (
+                numpy.mean(log_dev * cat_mag)
+                - numpy.mean(log_dev) * numpy.mean(cat_mag)
+            ) / numpy.var(cat_mag)
+            offset = numpy.mean(log_dev) - linear_coef * numpy.mean(cat_mag)
+
+            master["scatter_excess"][:] = (
+                log_dev - linear_coef * cat_mag - offset
+            )
+
         return result
 
     def perform_test(self, test_name):
         """Run a single test."""
 
-        pandas.options.display.min_rows = 50
-        pandas.options.display.max_columns = 100
+        pandas.options.display.min_rows = 60
+        pandas.options.display.max_columns = 200
         self._catalog = getattr(self, f"_get_{test_name}_catalog")()
         with TemporaryDirectory() as tempdir:
             stat_fname = path.join(tempdir, "mfit_stat.txt")
@@ -531,17 +577,12 @@ class TestMphotrefCollector(FloatTestCase):
             collector.generate_master(
                 master_reference_fname=master_fname,
                 catalog=self._catalog,
-                fit_terms_expression="O0{xi}",
+                fit_terms_expression=(
+                    "O1{phot_g_mean_mag}" if test_name == "big" else "O0{xi}"
+                ),
+                fit_outlier_threshold=6.0,
                 parse_source_id=None,
             )
-            # copy(
-            #    stat_fname,
-            #    path.join(test_data_dir, "rotatestars_mfit_stat.txt"),
-            # )
-            # copy(
-            #    master_fname,
-            #    path.join(test_data_dir, "rotatestars_mphotref.fits")
-            # )
             self._assertStat(
                 stat_fname,
                 test_name,
@@ -549,15 +590,15 @@ class TestMphotrefCollector(FloatTestCase):
             )
             self._assertMaster(master_fname, test_name)
 
-    # def test_tiny(self):
-    #    """Tiny super-fast test."""
+    def test_tiny(self):
+       """Tiny super-fast test."""
 
-    #    self.perform_test("tiny")
+       self.perform_test("tiny")
 
-    # def test_rotatestars(self):
-    #    """Test with rotating collection of stars between images."""
+    def test_rotatestars(self):
+       """Test with rotating collection of stars between images."""
 
-    #    self.perform_test("rotatestars")
+       self.perform_test("rotatestars")
 
     def test_big(self):
         """Big test."""
