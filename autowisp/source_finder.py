@@ -4,7 +4,7 @@ import numpy
 from astropy.io import fits
 from scipy import spatial
 from numpy.lib import recfunctions
-from tempfile import gettempdir
+# from tempfile import gettempdir
 
 from astrowisp.utils.file_utilities import\
     prepare_file_output,\
@@ -141,8 +141,8 @@ class SourceFinder:
 
         start_extraction = getattr(source_finder_util,
                                    'start_' + configuration['tool'])
-        temp_dir = gettempdir()
-        with get_unpacked_fits(fits_fname, temp_dir=temp_dir) as unpacked_fname:
+        # temp_dir = gettempdir()
+        with get_unpacked_fits(fits_fname) as unpacked_fname:
             extraction_args = (unpacked_fname,
                                configuration['brightness_threshold'])
             if source_fname:
