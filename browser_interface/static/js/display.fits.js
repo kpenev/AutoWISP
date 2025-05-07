@@ -282,8 +282,7 @@ function addRegions(
                 elements[i].setAttribute("stroke", reg.color);
             }
             elements[i].setAttribute("fill-opacity", "0.0");
-            if ( reg_ind > 0 )
-                regionsElement.appendChild(elements[i]);
+            regionsElement.appendChild(elements[i]);
         }
     }
 }
