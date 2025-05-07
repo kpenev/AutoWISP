@@ -218,7 +218,7 @@ def iterative_refit(
         try:
             magfit_stat_collector.generate_master(
                 master_reference_fname=master_reference_fname,
-                catalogue=catalog,
+                catalog=catalog,
                 fit_terms_expression=configuration.mphotref_scatter_fit_terms,
                 parse_source_id=source_id_parser,
                 extra_header=common_header,
@@ -300,7 +300,7 @@ def iterative_refit(
 
     photref_fname = None
     common_header["IMAGETYP"] = "mphotref"
-    with TemporaryDirectory() as grcollect_tmp_dir:
+    with TemporaryDirectory() as mphotref_collect_tmp_dir:
         while (
             photref
             and path_substitutions["magfit_iteration"]
@@ -318,7 +318,8 @@ def iterative_refit(
             magfit_stat_collector = MasterPhotrefCollector(
                 stat_fname,
                 num_photometries,
-                grcollect_tmp_dir,
+                len(fit_dr_filenames),
+                mphotref_collect_tmp_dir,
                 source_name_format=configuration.source_name_format,
             )
 

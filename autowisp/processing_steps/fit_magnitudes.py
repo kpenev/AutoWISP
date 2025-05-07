@@ -8,7 +8,7 @@ import os
 import logging
 
 from general_purpose_python_modules.multiprocessing_util import setup_process
-from sqlalchemy import delete
+from sqlalchemy import func, select
 
 from autowisp import magnitude_fitting, DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
@@ -205,6 +205,31 @@ def get_path_substitutions(configuration, sphotref_header):
     return result
 
 
+def get_dr_fnames_and_catalog(
+    dr_collection, configuration, sphotref_header, mark_start, mark_end
+):
+    """Return the DR files to process and the catalog."""
+
+    dr_fnames = sorted(dr_collection)
+    catalog_sources, outliers, catalog_fname = ensure_catalog(
+        dr_files=dr_fnames,
+        configuration=get_catalog_config(configuration, "magfit"),
+        return_metadata=False,
+        skytoframe_version=configuration["skytoframe_version"],
+        header=sphotref_header,
+    )
+    for outlier_ind in reversed(outliers):
+        outlier_dr = dr_fnames.pop(outlier_ind)
+        _logger.warning(
+            "Data reduction file %s has outlier pointing. Discarding!",
+            outlier_dr,
+        )
+        mark_start(outlier_dr)
+        mark_end(outlier_dr, -2, final=True)
+
+    return dr_fnames, catalog_sources, catalog_fname
+
+
 def fit_magnitudes(
     dr_collection, start_status, configuration, mark_start, mark_end
 ):
@@ -215,26 +240,14 @@ def fit_magnitudes(
     else:
         assert start_status % 2 == 1
 
-    dr_fnames = sorted(dr_collection)
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r"
     ) as sphotref_dr_file:
         sphotref_header = sphotref_dr_file.get_frame_header()
-        catalog_sources, outliers, catalog_fname = ensure_catalog(
-            dr_files=dr_fnames,
-            configuration=get_catalog_config(configuration, "magfit"),
-            return_metadata=False,
-            skytoframe_version=configuration["skytoframe_version"],
-            header=sphotref_header,
-        )
-    for outlier_ind in reversed(outliers):
-        outlier_dr = dr_fnames.pop(outlier_ind)
-        _logger.warning(
-            "Data reduction file %s has outlier pointing. Discarding!",
-            outlier_dr,
-        )
-        mark_start(outlier_dr)
-        mark_end(outlier_dr, -2, final=True)
+
+    dr_fnames, catalog_sources, catalog_fname = get_dr_fnames_and_catalog(
+        dr_collection, configuration, sphotref_header, mark_start, mark_end
+    )
 
     kwargs = {
         "fit_dr_filenames": dr_fnames,
@@ -298,6 +311,22 @@ def fit_magnitudes(
 def delete_master(filename, master_type):
     """Delete the master from file system and database."""
 
+    # False positivie
+    # pylint: disable=no-member
+    with Session.begin() as db_session:
+        # pylint: enable=no-member
+        assert (
+            # False positive
+            # pylint: disable=not-callable
+            db_session.scalar(
+                select(func.count())
+                .select_from(MasterFile)
+                .filter_by(filename=filename)
+            )
+            == 0
+            # pylint: enable=not-callable
+        )
+
     if os.path.exists(filename):
         _logger.warning(
             "Removing potentially partial %s file '%s'!",
@@ -305,11 +334,6 @@ def delete_master(filename, master_type):
             filename,
         )
         os.remove(filename)
-    # False positivie
-    # pylint: disable=no-member
-    with Session.begin() as db_session:
-        # pylint: enable=no-member
-        db_session.execute(delete(MasterFile).filter_by(filename=filename))
 
 
 def check_no_master(filename, master_type):
@@ -349,8 +373,6 @@ def clean_dr(dr_fname, dr_substitutions):
 def cleanup_interrupted(interrupted, configuration):
     """Remove DR entries stats and magfit references for magfit_iteration."""
 
-    dr_substitutions = get_path_substitutions(configuration)
-
     min_status = min(interrupted, key=lambda x: x[1])[1]
     max_status = max(interrupted, key=lambda x: x[1])[1]
     _logger.info(
@@ -369,39 +391,41 @@ def cleanup_interrupted(interrupted, configuration):
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"
     ) as single_photref_dr:
-        fname_substitutions = dict(single_photref_dr.get_frame_header())
+        sphotref_header = single_photref_dr.get_frame_header()
+        fname_substitutions = dict(sphotref_header)
+        dr_substitutions = get_path_substitutions(
+            configuration, sphotref_header
+        )
         fname_substitutions.update(dr_substitutions)
 
-    for master_type in ["master_photref", "magfit_stat"]:
-        fname_substitutions["magfit_iteration"] = max_status // 2
-        delete_master(
-            configuration[master_type + "_fname_format"].format_map(
-                fname_substitutions
-            ),
-            master_type,
-        )
-
-        for iteration in range(0, max_status // 2):
-            fname_substitutions["magfit_iteration"] = iteration
-            check_fname = configuration[
-                master_type + "_fname_format"
-            ].format_map(fname_substitutions)
-            _logger.debug("Checking existence of %s", repr(check_fname))
-            assert os.path.exists(check_fname)
-        fname_substitutions["magfit_iteration"] = max_status // 2 + 1
-        check_no_master(
-            configuration[master_type + "_fname_format"].format_map(
-                fname_substitutions
-            ),
-            master_type,
-        )
-
-    for dr_fname, from_status in interrupted:
-        if from_status % 2:
-            continue
-
-        dr_substitutions["magfit_iteration"] = from_status // 2
+    dr_substitutions["magfit_iteration"] = max_status // 2
+    for dr_fname, _ in interrupted:
         clean_dr(dr_fname, dr_substitutions)
+
+    if configuration["master_photref_fname"] is None:
+        for master_type in ["master_photref", "magfit_stat"]:
+            fname_substitutions["magfit_iteration"] = max_status // 2
+            delete_master(
+                configuration[master_type + "_fname_format"].format_map(
+                    fname_substitutions
+                ),
+                master_type,
+            )
+
+            for iteration in range(0, max_status // 2):
+                fname_substitutions["magfit_iteration"] = iteration
+                check_fname = configuration[
+                    master_type + "_fname_format"
+                ].format_map(fname_substitutions)
+                _logger.debug("Checking existence of %s", repr(check_fname))
+                assert os.path.exists(check_fname)
+            fname_substitutions["magfit_iteration"] = max_status // 2 + 1
+            check_no_master(
+                configuration[master_type + "_fname_format"].format_map(
+                    fname_substitutions
+                ),
+                master_type,
+            )
 
     return max_status - 1 - max_status % 2
 

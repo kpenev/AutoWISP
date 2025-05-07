@@ -1203,7 +1203,7 @@ class ImageProcessingManager(ProcessingManager):
             image_type=processing_progress.image_type.name,
             **self._processing_config,
         )
-        logging.info("Main fnames: " + repr(main_fnames))
+        logging.info("Main fnames: %s", repr(main_fnames))
         assert len(main_fnames[0]) == len(main_fnames[1]) == 1
 
         return (
@@ -1342,7 +1342,7 @@ def parse_command_line():
         action="store_true",
         help="Indicates that the script is running as a detached process.",
     )
-    logging.info(f"Parsed arguments: {parser.parse_args()}")
+    logging.info("Parsed arguments: %s", parser.parse_args())
     return parser.parse_args()
 
 
@@ -1351,12 +1351,12 @@ def main(config):
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 
-    logging.debug(f"Config add_raw_images: {config.add_raw_images}")
-    logging.debug(f"Config steps: {config.steps}")
+    logging.debug("Config add_raw_images: %s", config.add_raw_images)
+    logging.debug("Config steps: %s", config.steps)
 
     processing = ImageProcessingManager()
     for img_to_add in config.add_raw_images:
-        logging.debug(f"Adding raw images from: {img_to_add}")
+        logging.debug("Adding raw images from: %s", img_to_add)
         processing.add_raw_images(find_fits_fnames(path.abspath(img_to_add)))
 
     logging.debug("Starting processing...")
@@ -1367,7 +1367,7 @@ def main(config):
 if __name__ == "__main__":
     if os.name == "posix":  # Linux/macOS
         from os import getpgid, setsid, fork
-        
+
         try:
             setsid()
         except OSError:
@@ -1398,7 +1398,7 @@ if __name__ == "__main__":
             except Exception as e:
                 sys.stderr.write(f"Failed to detach: {e}\n")
                 sys.exit(1)
-        else:            
+        else:
             try:
                 main(parse_command_line())
             except Exception as e:

@@ -142,7 +142,7 @@ class SourceFinder:
         start_extraction = getattr(source_finder_util,
                                    'start_' + configuration['tool'])
         temp_dir = gettempdir()
-        with get_unpacked_fits(fits_fname, temp_dir=temp_dir) as unpacked_fname:
+        with get_unpacked_fits(fits_fname) as unpacked_fname:
             extraction_args = (unpacked_fname,
                                configuration['brightness_threshold'])
             if source_fname:
