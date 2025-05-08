@@ -610,14 +610,22 @@ class LightCurveFile(HDF5FileDatabaseStructure):
         """
 
         path_substitutions["magfit_iteration"] = 0
+        dataset_key = photometry_mode + ".magfit.magnitude"
+        path_zero = (
+            self._file_structure[dataset_key].abspath % path_substitutions
+        )
         while True:
             path_substitutions["magfit_iteration"] += 1
+            if (
+                self._file_structure[dataset_key].abspath % path_substitutions
+                == path_zero
+            ):
+                return 0
             try:
                 if not numpy.isfinite(
-                    self.get_dataset(
-                        photometry_mode + ".magfit.magnitude",
-                        **path_substitutions,
-                    )[lc_points]
+                    self.get_dataset(dataset_key, **path_substitutions)[
+                        lc_points
+                    ]
                 ).any():
                     break
             except IOError:
