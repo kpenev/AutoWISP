@@ -1,8 +1,8 @@
 <table class="lcars-table">
     <tbody>
-        {% for axis in "XYT"|make_list %}
-        {% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title as value silent %}
-        {% cycle "X label" "Y label" "Title" as label silent %}
+        {% for axis in "XYTxXyY"|make_list %}
+        {% cycle plot_decorations.x_label plot_decorations.y_label plot_decorations.title plot_decorations.xmin plot_decorations.xmax plot_decorations.ymin plot_decorations.ymax as value silent %}
+        {% cycle "X label" "Y label" "Title" "Xmin" "Xmax" "Ymin" "Ymax" as label silent %}
         <tr>
             <td>
                 <label for="{{ label|slugify }}">{{ label }}:</label>

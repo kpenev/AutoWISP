@@ -291,6 +291,18 @@ function getPlottingConfig() {
     if (getPlottingConfig.mode == "subplot") {
         plotCurves.saveLoadSelection();
         subplotConfig["data_select"] = plotCurves.configuredCurves;
+
+        for (const decoration of [
+            "x-label", 
+            "y-label", 
+            "title", 
+            "xmin", 
+            "xmax",
+            "ymin", 
+            "ymax"
+        ])
+            subplotConfig[decoration.replace("-", "_")] = document.getElementById(decoration).value
+
         const selectedModel = document.getElementById("select-model").value;
         if (selectedModel) {
             subplotConfig["model"] = getModelParameters();

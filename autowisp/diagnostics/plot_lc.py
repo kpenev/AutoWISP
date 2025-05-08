@@ -255,8 +255,10 @@ def main():
                 "lc_substitutions": {},
                 "selection": None,
                 "find_best": {"aperture_index": range(46)},
-                "minimize": (f'nanmedian(abs({{mode}}.{detrend}.magnitude - '
-                             f'nanmedian({{mode}}.{detrend}.magnitude)))'),
+                "minimize": (
+                    f"nanmedian(abs({{mode}}.{detrend}.magnitude - "
+                    f"nanmedian({{mode}}.{detrend}.magnitude)))"
+                ),
                 #           "nanmedian(abs(model_diff))",
                 "photometry_modes": ["apphot"],
             },
@@ -275,7 +277,7 @@ def main():
         pyplot.figure(combined_figure_id)
         for combine_by, markersize, label in [
             ("frame", 2, "raw"),
-            #("bin5min", 10, "5 min bins"),
+            # ("bin5min", 10, "5 min bins"),
         ]:
             data_combined = calculate_combined(
                 data_by_sphotref, combine_by, numpy.nanmedian
@@ -289,7 +291,7 @@ def main():
                 markersize=markersize,
                 markeredgecolor="black" if markersize > 5 else "none",
             )
-        #pyplot.plot(
+        # pyplot.plot(
         #    data_combined["x"],
         #    data_combined["best_model"]
         #    + numpy.nanmedian(data_combined["y"] - data_combined["best_model"]),
@@ -298,7 +300,7 @@ def main():
         #    #                                  **transit_params),
         #    "-k",
         #    linewidth=3,
-        #)
+        # )
 
         pyplot.figure(individual_figures_id)
         for subfig_id, (sphotref_fname, single_data) in enumerate(
@@ -313,7 +315,7 @@ def main():
                 label=label,
                 markersize=1,
             )
-            #pyplot.plot(single_data["x"], single_data["best_model"], "-k")
+            # pyplot.plot(single_data["x"], single_data["best_model"], "-k")
             with DataReductionFile(sphotref_fname, "r") as dr_file:
                 pyplot.title(dr_file.get_frame_header()["CLRCHNL"])
             pyplot.legend()
