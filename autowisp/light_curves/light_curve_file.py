@@ -147,7 +147,7 @@ class LightCurveFile(HDF5FileDatabaseStructure):
 
         Args:
             source_ids(None or dict):    The known identifiers of this source in
-                catalogues. Must be set if te lightcurve file is being created.
+                catalogues. Must be set if the lightcurve file is being created.
                 If it already exists, identifiers already defined in the
                 lightcurve are checked against supplied values, and new
                 identifiers are added if the file is being opened for writing.

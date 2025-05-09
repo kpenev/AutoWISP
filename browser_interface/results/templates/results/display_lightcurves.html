@@ -57,9 +57,27 @@ Preview Lightcurves
 
 {% block main %}
 <div id="active-area" class="lcars-row fill-space">
-    <div id="figure-parent" class="fill-space lcars-row">
-        <div id="plot-split" class="lcars-bracket hollow"></div>
-        <div id="plot-highlight"></div>
+    <div class="fill-space lcars-column centered">
+        <div class="lcars-row centered">
+            <select name="star-id-type" 
+                    id="star-id-type"
+                    class="lcars-text-box lcars-gray-bg lcars-husk-color param lcars-u-2">
+                <option value="GDR3" selected>
+                    Gaia DR3
+                </option>
+                <option value="TIC">
+                    TIC ID
+                </option>
+                <option value="ExoArch">
+                    NASA Exoplanet Archive
+                </option>
+            </select>
+            <input type="text" id="star-id" class="param lcars-u-5" value="">
+        </div>
+        <div id="figure-parent" class="fill-space lcars-row">
+            <div id="plot-split" class="lcars-bracket hollow"></div>
+            <div id="plot-highlight"></div>
+        </div>
     </div>
     <div id="side-panel" 
          class="lcars-row lcars-u-5"

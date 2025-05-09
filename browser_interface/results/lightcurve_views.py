@@ -8,6 +8,8 @@ import json
 import matplotlib
 from matplotlib import pyplot, gridspec, rcParams
 import numpy
+from astroquery.mast import Catalogs
+from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -15,6 +17,7 @@ from django.http import JsonResponse
 from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
 from autowisp.diagnostics.plot_lc import get_plot_data, calculate_combined
+from autowisp.database.image_processing import ImageProcessingManager
 
 _custom_aggregators = {"len": len}
 
@@ -40,7 +43,10 @@ def _init_session(request):
 
     color_map = matplotlib.colormaps.get_cmap("tab10")
     request.session["lc_plotting"] = {
-        "target_fname": "/mnt/md1/EW/LC/GDR3_1316708918505350528.h5",
+        "lc_fname_template": ImageProcessingManager(
+            dummy=True
+        ).get_param_values({1}, ["lc-fname"])["lc-fname"],
+        "target_fname": "",
         "color_map": [hex_color(color_map(i)) for i in range(10)],
         "data_select": [
             {
@@ -416,8 +422,23 @@ def update_subplot(plotting_session, updates):
             if updates[decoration] and updates[decoration] != "None"
             else None
         )
-    # TODO: only do this if data selection has changed and the ideally only
-    # re-optimize if needed.
+    if updates["star_id_type"] == "GDR3":
+        gaia_id = updates["star_id"]
+    elif updates["star_id_type"] == "TIC":
+        gaia_id = Catalogs.query_criteria(
+            catalog="Tic", ID=int(updates["star_id"])
+        )["GAIA"]
+    else:
+        gaia_id = NasaExoplanetArchive.query_object(updates["star_id"])[
+            "gaia_id"
+        ]
+        gaia_id = numpy.unique(gaia_id)
+        assert len(gaia_id) == 1
+        gaia_id = gaia_id[0].split()[-1]
+
+    plotting_session["target_fname"] = plotting_session[
+        "lc_fname_template"
+    ].format(int(gaia_id))
     _add_lightcurve_to_session(
         plotting_session, plotting_session["target_fname"]
     )
@@ -460,20 +481,21 @@ def update_lightcurve_figure(request):
 
     figure = pyplot.figure(**request.session["lc_plotting"]["figure_config"])
     plotting_info = request.session["lc_plotting"]
-    _create_subplots(
-        {
-            "target_info": plotting_info[plotting_info["target_fname"]],
-            "plot_layout": plotting_info["plot_layout"],
-            "plot_config": [
-                data_select["plot_config"]
-                for data_select in plotting_info["data_select"]
-            ],
-            "plot_decorations": plotting_info["plot_decorations"],
-        },
-        *request.session["lc_plotting"]["plot_layout"],
-        None,
-        figure,
-    )
+    if plotting_info["target_fname"]:
+        _create_subplots(
+            {
+                "target_info": plotting_info[plotting_info["target_fname"]],
+                "plot_layout": plotting_info["plot_layout"],
+                "plot_config": [
+                    data_select["plot_config"]
+                    for data_select in plotting_info["data_select"]
+                ],
+                "plot_decorations": plotting_info["plot_decorations"],
+            },
+            *request.session["lc_plotting"]["plot_layout"],
+            None,
+            figure,
+        )
 
     with StringIO() as image_stream:
         pyplot.savefig(image_stream, bbox_inches="tight", format="svg")
@@ -561,10 +583,11 @@ def display_lightcurve(request):
         rcParams["figure.subplot.left"] = 0.0
         rcParams["figure.subplot.right"] = 1.0
         _init_session(request)
-        _add_lightcurve_to_session(
-            request.session["lc_plotting"],
-            request.session["lc_plotting"]["target_fname"],
-        )
+        if request.session["lc_plotting"]["target_fname"]:
+            _add_lightcurve_to_session(
+                request.session["lc_plotting"],
+                request.session["lc_plotting"]["target_fname"],
+            )
 
     return render(request, "results/display_lightcurves.html", {"config": None})
 

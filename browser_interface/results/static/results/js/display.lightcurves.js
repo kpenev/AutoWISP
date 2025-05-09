@@ -301,7 +301,13 @@ function getPlottingConfig() {
             "ymin", 
             "ymax"
         ])
-            subplotConfig[decoration.replace("-", "_")] = document.getElementById(decoration).value
+            subplotConfig[decoration.replaceAll("-", "_")] = document
+                .getElementById(decoration)
+                .value
+        for (const idComponent of ["star-id-type", "star-id"])
+            subplotConfig[idComponent.replaceAll("-", "_")] = document
+                .getElementById(idComponent)
+                .value
 
         const selectedModel = document.getElementById("select-model").value;
         if (selectedModel) {
