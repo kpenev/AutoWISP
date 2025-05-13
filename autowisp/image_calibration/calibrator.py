@@ -381,7 +381,7 @@ class Calibrator(Processor):
     #Triggers on doxygen commands.
     @staticmethod
     def _document_in_header(calibration_params, header):
-        """
+        r"""
         Return header(s) documenting how the calibration was done.
 
         The following keywords are added or overwritten::

@@ -402,7 +402,7 @@ def transform_dr_to_lc_path(pipeline_key, dr_path):
             ('/ProjectedToFrameMap', ''),
             ('/CatalogueSources', '/SkyToFrameTransformation'),
             (
-                '/MagnitudeFitting/Iteration%\(magfit_iteration\)03d',
+                r'/MagnitudeFitting/Iteration%\(magfit_iteration\)03d',
                 '/MagnitudeFitting',
             )
     ]:
