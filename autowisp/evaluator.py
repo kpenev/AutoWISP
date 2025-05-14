@@ -8,8 +8,11 @@ from astropy.io import fits
 from astropy import units
 import pandas
 
-from autowisp.fits_utilities import get_primary_header
-from autowisp.data_reduction import DataReductionFile
+try:
+    from autowisp.fits_utilities import get_primary_header
+    from autowisp.data_reduction import DataReductionFile
+except:
+    pass
 
 class Evaluator(asteval.Interpreter):
     """Evaluator for expressions involving fields of numpy array or headers."""

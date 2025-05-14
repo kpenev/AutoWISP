@@ -157,11 +157,10 @@ def get_detrending_performance_data(
         )
 
     if expected_scatter_columns is not None:
-        data.loc[expected_scatter == 0.0, expected_scatter_columns] = numpy.nan
-        data.insert(
-            len(data.columns),
-            "expected_scatter",
-            10.0 ** (numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0,
-        )
+        expected_scatter = data[expected_scatter_columns]
+        expected_scatter[expected_scatter == 0.0] = numpy.nan
+        data.insert(len(data.columns),
+                    'expected_scatter',
+                    10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0)
 
     return data
