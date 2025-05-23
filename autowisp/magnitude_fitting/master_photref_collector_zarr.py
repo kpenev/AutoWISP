@@ -266,11 +266,13 @@ class MasterPhotrefCollector:
             (statistics.size, self._dimensions["photometries"])
         )
         for phot_ind in range(self._dimensions["photometries"]):
-            phot_predictors = predictors[:, enough_counts_flags[:, phot_ind]]
+            usable = numpy.isfinite(statistics[scatter_quantity][:, phot_ind])
+            for column in predictors:
+                usable = numpy.logical_and(usable, numpy.isfinite(column))
+            usable = numpy.logical_and(enough_counts_flags[:, phot_ind], usable)
+            phot_predictors = predictors[:, usable]
             target_values = numpy.log10(
-                statistics[scatter_quantity][
-                    enough_counts_flags[:, phot_ind], phot_ind
-                ]
+                statistics[scatter_quantity][usable, phot_ind]
             )
             coefficients = iterative_fit(
                 phot_predictors,
@@ -286,7 +288,7 @@ class MasterPhotrefCollector:
             if coefficients is None:
                 return None
             self._logger.debug(
-                "Calcualting residual for scatter (%s):\n%s\n"
+                "Calculating residual for scatter (%s):\n%s\n"
                 "Fit scatter (%s):\n%s\n"
                 "Predictors (%s):\n%s\n"
                 "Coefficients (%s):\n%s",
@@ -354,7 +356,7 @@ class MasterPhotrefCollector:
                 "Generating master photometric reference for phot #%d", phot_ind
             )
             max_scatter = (
-                getattr(numpy, outlier_average)(
+                getattr(numpy, 'nan' + outlier_average)(
                     numpy.abs(residual_scatter[:, phot_ind])
                 )
                 * outlier_threshold
@@ -568,8 +570,7 @@ class MasterPhotrefCollector:
                 )
                 source_indices = source_sorter[source_indices]
                 new_sources = numpy.nonzero(
-                    self._sources[source_indices]
-                    != phot["source_id"]
+                    self._sources[source_indices] != phot["source_id"]
                 )[0]
                 if new_sources.size:
                     source_indices[new_sources] = numpy.arange(
