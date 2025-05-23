@@ -4,7 +4,7 @@ import logging
 
 import numpy
 import scipy.linalg
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import splrep, BSpline
 
 from autowisp.pipeline_exceptions import ConvergenceError
 
@@ -178,6 +178,24 @@ def iterative_rejection_average(
 # pylint: enable=too-many-locals
 
 
+def flag_outliers(residuals, threshold):
+    """Flag outlier residuals (see `iterative_rej_linear_leastsq`_)."""
+
+    try:
+        if len(threshold) == 1:
+            upper_threshold = lower_threshold = threshold[0]
+        upper_threshold, lower_threshold = float(threshold[0]), float(
+            threshold[1]
+        )
+    except TypeError:
+        upper_threshold = lower_threshold = float(threshold)
+
+    rms = numpy.sqrt(numpy.mean(residuals**2))
+    return numpy.logical_or(
+        residuals > upper_threshold * rms, residuals < -lower_threshold * rms
+    )
+
+
 def iterative_rej_linear_leastsq(
     matrix,
     rhs,
@@ -277,7 +295,7 @@ def iterative_rej_polynomial_fit(x, y, order, *leastsq_args, **leastsq_kwargs):
     )
 
 
-def iterative_rejection_smoothing_spline(
+def iterative_rej_smoothing_spline(
     x, y, outlier_threshold, max_iterations=numpy.inf, **spline_args
 ):
     r"""
@@ -289,13 +307,15 @@ def iterative_rejection_smoothing_spline(
         y:    The y (dependenc variable) in the dependence.
 
         outlier_threshold:    See same name argument of
-            :func:`iterative_rej_linear_leastsq`\ .
+            :func:`iterative_rej_linear_leastsq`\ . If two values are given, the
+            first indicates positive (i.e. rhs > matrix * coefficients) and the
+            second negative (rhs < matrix * coefficients) deviations.
 
         max_iterations:    See same name argument of
             :func:`iterative_rej_linear_leastsq`\ .
 
         spline_args:    Keyword arguments passed directly to
-            scipy.interpolate.UnivariateSpline.
+            :func:`scipy.interpolate.splrep`\ .
 
     Returns:
         scipy.interpolate.UnivariateSpline:
@@ -317,12 +337,12 @@ def iterative_rejection_smoothing_spline(
     else:
         fit_w = None
     while found_outliers and iteration < max_iterations:
-        smooth_func = UnivariateSpline(fit_x, fit_y, w=fit_w, **spline_args)
+        smooth_func = BSpline(*splrep(fit_x, fit_y, w=fit_w, **spline_args))
 
-        square_residuals = numpy.square(smooth_func(fit_x) - fit_y)
-        logger.debug("Square res:\n%s", repr(square_residuals))
-        non_outliers = square_residuals < outlier_threshold**2 * numpy.mean(
-            square_residuals
+        residuals = fit_y - smooth_func(fit_x)
+        logger.debug("Residuals:\n%s", repr(residuals))
+        non_outliers = numpy.logical_not(
+            flag_outliers(residuals, outlier_threshold)
         )
         logger.debug("Non outliers: %s", repr(non_outliers))
         logger.debug(
