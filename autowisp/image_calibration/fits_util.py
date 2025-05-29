@@ -81,13 +81,13 @@ def assemble_channels(filename, hdu, split_channels):
     logger = getLogger(__name__)
 
     if (
-        len(split_channels) == 1
-        or
         (
             isinstance(filename, str)
             and
             isinstance(hdu, int)
         )
+        or
+        len(split_channels) == 1
     ):
         if hdu == 'components':
             return read_image_components(filename, read_header=False)

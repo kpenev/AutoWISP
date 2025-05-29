@@ -320,7 +320,7 @@ if __name__ == '__main__':
             cmdline_config.pop('raw_images'),
             cmdline_config.pop('calibrate_only_if')
         ),
-        0,
+        None,
         cmdline_config,
         ignore_progress,
         ignore_progress
