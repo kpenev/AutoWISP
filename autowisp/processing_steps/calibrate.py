@@ -241,11 +241,10 @@ def parse_command_line(*args):
             default=None,
             action=ParseChannelDependentAction,
             help='The master ' + master + ' to apply. No ' + master +
-            ' correction is applied of not specified. If multiple channel '
-            'images are being processed each master filename should be '
-            'preceeded by ``<channel name>:`` identifying which channel it '
-            'applies to. All channels must have a masters specified and no '
-            'channel should have multpiple.'
+            ' correction is applied of not specified. Each master filename '
+            'should be preceeded by ``<channel name>:`` identifying which '
+            'channel it applies to. All channels must have a masters specified '
+            'and no channel should have multpiple.'
         )
     parser.add_argument(
         '--master-mask',

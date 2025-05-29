@@ -226,7 +226,7 @@ if __name__ == '__main__':
     cmdline_config = parse_command_line()
     setup_process(task='main', **cmdline_config)
     stack_to_master(
-        find_fits_fnames(cmdline_config['calibrated_images']),
+        list(find_fits_fnames(cmdline_config['calibrated_images'])),
         None,
         cmdline_config,
         ignore_progress,

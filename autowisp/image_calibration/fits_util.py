@@ -89,6 +89,8 @@ def assemble_channels(filename, hdu, split_channels):
         or
         len(split_channels) == 1
     ):
+        if isinstance(filename, dict):
+            filename = next(iter(filename.values()))
         if hdu == 'components':
             return read_image_components(filename, read_header=False)
         if hdu == 'masks':
