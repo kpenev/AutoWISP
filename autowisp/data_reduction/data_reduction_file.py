@@ -43,6 +43,7 @@ class DataReductionFile(HDF5FileDatabaseStructure):
     """
 
     _logger = logging.getLogger(__name__)
+    fname_template = None
 
     @classmethod
     def _product(cls):
