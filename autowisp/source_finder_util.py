@@ -1,6 +1,7 @@
 """Some general purpose low level tools for source extraction."""
 
 from subprocess import Popen, PIPE
+from astrowisp import fistar_path
 
 def start_hatphot(unpacked_fits_fname, threshold, stdout=PIPE):
     """Find sources in the given frame using hatphot."""
@@ -19,7 +20,7 @@ def start_fistar(unpacked_fits_fname, threshold, stdout=PIPE):
     """Find sources in the given frame using fistar."""
 
     command = [
-        'fistar', unpacked_fits_fname,
+        fistar_path, unpacked_fits_fname,
         '--sort', 'flux',
         '--format', ','.join(get_srcextract_columns('fistar')),
         '--algorithm', 'uplink',
