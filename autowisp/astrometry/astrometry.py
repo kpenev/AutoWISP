@@ -9,6 +9,7 @@ from traceback import format_exc
 import time
 from urllib.request import urlopen
 import shutil
+from urllib.error import URLError
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -330,8 +331,9 @@ def get_initial_corr_local(
     return "solve-field failed", 0
 
 
-def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range,
-                         api_key):
+def get_initial_corr_web(
+    header, xy_extracted, tweak_order_range, fov_range, api_key
+):
     """Get inital extracted to catalog source match using web astrometry.net."""
 
     config = {
@@ -353,7 +355,17 @@ def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range,
         "y": xy_extracted["y"],
     }
     client = AstrometryNetClient()
-    client.login(api_key)
+    while True:
+        try:
+            client.login(api_key)
+            break
+        except URLError as err:
+            _logger.error(
+                "Failed to connect to astrometry.net server: %s\nRetrying...",
+                err.reason,
+            )
+            time.sleep(20)
+
     for tweak_order in range(tweak_order_range[0], tweak_order_range[1] + 1):
         config["tweak_order"] = tweak_order
         upload_result = client.upload(**config)
@@ -416,7 +428,7 @@ def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range,
 
 
 def estimate_transformation(
-    *, dr_file, xy_extracted, config, header=None
+    *, dr_file, xy_extracted, config, header=None, web_lock=None
 ):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
 
@@ -434,11 +446,13 @@ def estimate_transformation(
         and os.path.exists(config["anet_indices"][1])
     ):
         field_corr, tweak_order = get_initial_corr_local(
-            *initial_corr_arg, config['anet_indices']
+            *initial_corr_arg, config["anet_indices"]
         )
     else:
-        field_corr, tweak_order = get_initial_corr_web(*initial_corr_arg,
-                                                       config['anet_api_key'])
+        with web_lock:
+            field_corr, tweak_order = get_initial_corr_web(
+                *initial_corr_arg, config["anet_api_key"]
+            )
 
     if tweak_order == 0:
         return None, None, field_corr

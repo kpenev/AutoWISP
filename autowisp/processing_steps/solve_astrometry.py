@@ -83,7 +83,7 @@ def parse_command_line(*args):
         "--frame-center-estimate",
         nargs=2,
         type=str,
-        default=("RA * units.deg", "DEC_MNT * units.deg"),
+        default=("RA * units.deg", "DEC * units.deg"),
         help="The approximate right ascention and declination of the center of "
         "the frame in degrees. Can be an expression involving header keywords. "
         "If not specified, the center of the catalog is used.",
@@ -355,7 +355,7 @@ def construct_transformation(transformation_info):
 
 
 def find_final_transformation(
-    header, transformation_estimate, xy_extracted, catalog_lock, configuration
+    header, transformation_estimate, xy_extracted, web_lock, configuration
 ):
     """Find the final transformation for a given image."""
 
@@ -371,7 +371,7 @@ def find_final_transformation(
             transformation=project_to_frame,
             header=header,
             configuration=get_catalog_config(configuration, "astrometry"),
-            lock=catalog_lock,
+            lock=web_lock,
         )[0]
 
         (
@@ -438,7 +438,7 @@ def solve_image(
     dr_fname,
     transformation_estimate=None,
     *,
-    catalog_lock,
+    web_lock,
     mark_start,
     mark_end,
     **configuration,
@@ -457,7 +457,7 @@ def solve_image(
             ``solve_field`` from astrometry.net is used to find iniitial
             estimates.
 
-        catalog_lock(multiprocessing.Lock):    A lock that is held hile a
+        web_lock(multiprocessing.Lock):    A lock that is held hile a
             catalog file is checked and/or created.
 
         mark_start(callable):    Called before anything is written to the DR
@@ -534,6 +534,7 @@ def solve_image(
                     **transformation_estimate,
                 },
                 header=header,
+                web_lock=web_lock,
             )
             if status != "success":
                 result["fail_reason"] = fail_reasons.get(
@@ -562,7 +563,7 @@ def solve_image(
                 header,
                 transformation_estimate,
                 xy_extracted,
-                catalog_lock,
+                web_lock,
                 configuration,
             )
         # pylint: disable=bare-except
@@ -639,7 +640,7 @@ def astrometry_process(
     result_queue,
     *,
     configuration,
-    catalog_lock,
+    web_lock,
     mark_start,
     mark_end,
 ):
@@ -652,7 +653,7 @@ def astrometry_process(
             solve_image(
                 dr_fname,
                 transformation_estimate,
-                catalog_lock=catalog_lock,
+                web_lock=web_lock,
                 mark_start=mark_start,
                 mark_end=mark_end,
                 **configuration,
@@ -777,7 +778,7 @@ def solve_astrometry(
     task_queue = Queue()
     result_queue = Queue()
 
-    catalog_lock = Lock()
+    web_lock = Lock()
     configuration["parent_pid"] = getpid()
     workers = [
         Process(
@@ -785,7 +786,7 @@ def solve_astrometry(
             args=(task_queue, result_queue),
             kwargs={
                 "configuration": configuration,
-                "catalog_lock": catalog_lock,
+                "web_lock": web_lock,
                 "mark_start": mark_start,
                 "mark_end": mark_end,
             },
@@ -861,7 +862,7 @@ if __name__ == "__main__":
                 cmdline_config.pop("astrometry_only_if"),
             )
         ),
-        0,
+        None,
         cmdline_config,
         ignore_progress,
         ignore_progress,

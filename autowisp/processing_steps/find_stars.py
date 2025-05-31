@@ -6,10 +6,7 @@ from functools import partial
 from multiprocessing import Pool
 from os import path, getpid
 
-from general_purpose_python_modules.multiprocessing_util import (
-    setup_process,
-    setup_process_map,
-)
+from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
@@ -17,7 +14,7 @@ from autowisp.processing_steps.manual_util import (
 )
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.fits_utilities import get_primary_header
-from autowisp import SourceFinder, DataReductionFile
+from autowisp import SourceFinder, DataReductionFile, init_dr_process
 
 input_type = "calibrated + dr"
 
@@ -87,13 +84,6 @@ def find_stars_single(
         mark_end(image_fname)
 
 
-def init_process(configuration):
-    """Initialize the process with the given configuration."""
-
-    DataReductionFile.fname_template = configuration["data_reduction_fname"]
-    setup_process_map(configuration)
-
-
 def find_stars(
     image_collection, start_status, configuration, mark_start, mark_end
 ):
@@ -121,7 +111,7 @@ def find_stars(
         configuration["parent_pid"] = getpid()
         with Pool(
             configuration["num_parallel_processes"],
-            initializer=init_process,
+            initializer=init_dr_process,
             initargs=(configuration,),
         ) as pool:
             pool.map(
