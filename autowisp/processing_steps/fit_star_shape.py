@@ -554,7 +554,7 @@ def create_source_list_creator(dr_fnames, configuration, catalog_lock):
     )[:2]
     if outliers:
         raise RuntimeError(
-            "Not all images in multi-image fit have consistent " "pointing!"
+            "Not all images in multi-image fit have consistent pointing!"
         )
 
     return SourceListCreator(
@@ -577,6 +577,15 @@ def create_source_list_creator(dr_fnames, configuration, catalog_lock):
     )
 
 
+def get_dr_substitutions(configuration):
+    """Return the substitutions to use for DR file paths."""
+
+    return {
+        version_name + "_version": configuration[version_name + "_version"]
+        for version_name in ["background", "shapefit", "srcproj", "skytoframe"]
+    }
+
+
 def get_shape_fitter_config(configuration):
     """Return a fully configured instance of FitStarShape."""
 
@@ -587,10 +596,7 @@ def get_shape_fitter_config(configuration):
         "bg_min_pix": configuration["shapefit_src_min_bg_pix"],
         "cover_grid": configuration["shapefit_src_cover_grid"],
         "src_max_count": configuration["shapefit_max_sources"],
-        "dr_path_substitutions": {
-            version_name + "_version": configuration[version_name + "_version"]
-            for version_name in ["background", "shapefit", "srcproj"]
-        },
+        "dr_path_substitutions": get_dr_substitutions(configuration),
     }
 
     if configuration["subpixmap"] is not None:
@@ -766,16 +772,12 @@ def cleanup_interrupted(interrupted, configuration):
     """Remove star shape fit datasets from the DR file of the given image."""
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
+    dr_path_substitutions = get_dr_substitutions(configuration)
     for image_fname, status in interrupted:
         assert status == 0
 
         fits_header = get_primary_header(image_fname)
         with DataReductionFile(header=fits_header, mode="r+") as dr_file:
-            dr_path_substitutions = {
-                version_name
-                + "_version": configuration[version_name + "_version"]
-                for version_name in ["background", "shapefit", "srcproj"]
-            }
             dr_file.delete_sources(
                 "srcproj.columns",
                 "srcproj_column_name",
@@ -786,17 +788,43 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
-if __name__ == "__main__":
-    cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+def has_astrometry(image_fname, substitutions):
+    """Check if the DR file contains a sky-to-frame transformation."""
+
+    with DataReductionFile(
+        header=get_primary_header(image_fname), mode="r"
+    ) as dr_file:
+        try:
+            dr_file.check_for_dataset(
+                "skytoframe.coefficients", **substitutions
+            )
+            return True
+        except IOError:
+            return False
+
+
+def manual(configuration):
+    """Run the step for fitting star shapes from the command line."""
+
+    setup_process(task="manage", **configuration)
+    DataReductionFile.fname_template = configuration["data_reduction_fname"]
+    dr_path_substitutions = get_dr_substitutions(configuration)
     fit_star_shape(
-        find_fits_with_dr_fnames(
-            cmdline_config.pop("calibrated_images"),
-            cmdline_config.pop("shapefit_only_if"),
-            dr_fname_format=cmdline_config["data_reduction_fname"],
-        ),
+        [
+            image_fname
+            for image_fname in find_fits_with_dr_fnames(
+                configuration.pop("calibrated_images"),
+                configuration.pop("shapefit_only_if"),
+                dr_fname_format=configuration["data_reduction_fname"],
+            )
+            if has_astrometry(image_fname, dr_path_substitutions)
+        ],
         None,
-        cmdline_config,
+        configuration,
         ignore_progress,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    manual(parse_command_line())
