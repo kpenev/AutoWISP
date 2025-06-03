@@ -9,4 +9,6 @@ python3 ../../../autowisp/database/initialize_database.py --drop-hdf5-structure-
 && python3 ../../../autowisp/processing_steps/calibrate.py -c test.cfg RAW/object/*.fits.fz --master-bias 'R:MASTERS/zero_R.fits.fz' --master-dark 'R:MASTERS/dark_R.fits.fz' --master-flat 'R:MASTERS/flat_R.fits.fz' \
 && python3 ../../../autowisp/processing_steps/find_stars.py -c test.cfg CAL/object \
 && python3 ../../../autowisp/processing_steps/solve_astrometry.py -c test.cfg DR \
-&& python3 ../../../autowisp/processing_steps/fit_star_shape.py -c test.cfg CAL/object
+&& python3 ../../../autowisp/processing_steps/fit_star_shape.py -c test.cfg CAL/object \
+&& python3 ../../../autowisp/processing_steps/measure_aperture_photometry.py -c test.cfg CAL/object \
+&& python3 ../../../autowisp/processing_steps/fit_source_extracted_psf_map.py -c test.cfg DR
