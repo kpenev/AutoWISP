@@ -300,6 +300,7 @@ def cleanup_interrupted(interrupted, configuration):
 
     return -1
 
+
 def has_astrometry(dr_fname, substitutions):
     """Check if the DR file contains a sky-to-frame transformation."""
 
@@ -311,7 +312,6 @@ def has_astrometry(dr_fname, substitutions):
             return True
         except IOError:
             return False
-
 
 
 def manual(configuration):

@@ -7,54 +7,51 @@ import logging
 import numpy
 
 from autowisp import fit_expression
-from autowisp.data_reduction.source_extracted_psf_map import\
-    SourceExtractedPSFMap
+from autowisp.data_reduction.source_extracted_psf_map import (
+    SourceExtractedPSFMap,
+)
 
 key_io_tree_to_dr = {
-    'projsrc.x': 'srcproj.x',
-    'projsrc.y': 'srcproj.y',
-    'bg.model': 'bg.cfg.model',
-    'bg.value': 'bg.value',
-    'bg.error': 'bg.error',
-    'psffit.min_bg_pix': 'shapefit.cfg.src.min_bg_pix',
-    'psffit.gain': 'shapefit.cfg.gain',
-    'psffit.magnitude_1adu': 'shapefit.cfg.magnitude_1adu',
-    'psffit.grid': 'shapefit.cfg.psf.bicubic.grid',
-    'psffit.initial_aperture': 'shapefit.cfg.psf.bicubic.initial_aperture',
-    'psffit.max_abs_amplitude_change':
-    'shapefit.cfg.psf.bicubic.max_abs_amplitude_change',
-    'psffit.max_rel_amplitude_change':
-    'shapefit.cfg.psf.bicubic.max_rel_amplitude_change',
-    'psffit.pixrej': 'shapefit.cfg.psf.bicubic.pixrej',
-    'psffit.smoothing': 'shapefit.cfg.psf.bicubic.smoothing',
-    'psffit.max_chi2': 'shapefit.cfg.psf.max-chi2',
-    'psffit.max_iterations': 'shapefit.cfg.psf.max_iterations',
-    'psffit.min_convergence_rate': 'shapefit.cfg.psf.min_convergence_rate',
-    'psffit.model': 'shapefit.cfg.psf.model',
-    'psffit.srcpix_cover_bicubic_grid':
-    'shapefit.cfg.src.cover_bicubic_grid',
-    'psffit.srcpix_max_aperture': 'shapefit.cfg.src.max_aperture',
-    #TODO: fix tree entry name to psffit.src_max_count
-    'psffit.srcpix_max_count': 'shapefit.cfg.src.max_count',
-    'psffit.srcpix_min_pix': 'shapefit.cfg.src.min_pix',
-    'psffit.srcpix_max_pix': 'shapefit.cfg.src.max_pix',
-    'psffit.srcpix_max_sat_frac': 'shapefit.cfg.src.max_sat_frac',
-    'psffit.srcpix_min_signal_to_noise':
-    'shapefit.cfg.src.min_signal_to_noise',
-    'psffit.mag': 'shapefit.magnitude',
-    'psffit.mag_err': 'shapefit.magnitude_error',
-    'psffit.chi2': 'shapefit.chi2',
-    'psffit.sigtonoise': 'shapefit.signal_to_noise',
-    'psffit.npix': 'shapefit.num_pixels',
-    'psffit.quality': 'shapefit.quality_flag',
-    'psffit.psfmap': 'shapefit.map_coef',
-    'apphot.const_error': 'apphot.cfg.error_floor',
-    'apphot.aperture': 'apphot.cfg.aperture',
-    'apphot.gain': 'apphot.cfg.gain',
-    'apphot.magnitude-1adu': 'apphot.cfg.magnitude_1adu',
-    'apphot.mag': 'apphot.magnitude',
-    'apphot.mag_err': 'apphot.magnitude_error',
-    'apphot.quality': 'apphot.quality_flag'
+    "projsrc.x": "srcproj.x",
+    "projsrc.y": "srcproj.y",
+    "bg.model": "bg.cfg.model",
+    "bg.value": "bg.value",
+    "bg.error": "bg.error",
+    "psffit.min_bg_pix": "shapefit.cfg.src.min_bg_pix",
+    "psffit.gain": "shapefit.cfg.gain",
+    "psffit.magnitude_1adu": "shapefit.cfg.magnitude_1adu",
+    "psffit.grid": "shapefit.cfg.psf.bicubic.grid",
+    "psffit.initial_aperture": "shapefit.cfg.psf.bicubic.initial_aperture",
+    "psffit.max_abs_amplitude_change": "shapefit.cfg.psf.bicubic.max_abs_amplitude_change",
+    "psffit.max_rel_amplitude_change": "shapefit.cfg.psf.bicubic.max_rel_amplitude_change",
+    "psffit.pixrej": "shapefit.cfg.psf.bicubic.pixrej",
+    "psffit.smoothing": "shapefit.cfg.psf.bicubic.smoothing",
+    "psffit.max_chi2": "shapefit.cfg.psf.max-chi2",
+    "psffit.max_iterations": "shapefit.cfg.psf.max_iterations",
+    "psffit.min_convergence_rate": "shapefit.cfg.psf.min_convergence_rate",
+    "psffit.model": "shapefit.cfg.psf.model",
+    "psffit.srcpix_cover_bicubic_grid": "shapefit.cfg.src.cover_bicubic_grid",
+    "psffit.srcpix_max_aperture": "shapefit.cfg.src.max_aperture",
+    # TODO: fix tree entry name to psffit.src_max_count
+    "psffit.srcpix_max_count": "shapefit.cfg.src.max_count",
+    "psffit.srcpix_min_pix": "shapefit.cfg.src.min_pix",
+    "psffit.srcpix_max_pix": "shapefit.cfg.src.max_pix",
+    "psffit.srcpix_max_sat_frac": "shapefit.cfg.src.max_sat_frac",
+    "psffit.srcpix_min_signal_to_noise": "shapefit.cfg.src.min_signal_to_noise",
+    "psffit.mag": "shapefit.magnitude",
+    "psffit.mag_err": "shapefit.magnitude_error",
+    "psffit.chi2": "shapefit.chi2",
+    "psffit.sigtonoise": "shapefit.signal_to_noise",
+    "psffit.npix": "shapefit.num_pixels",
+    "psffit.quality": "shapefit.quality_flag",
+    "psffit.psfmap": "shapefit.map_coef",
+    "apphot.const_error": "apphot.cfg.error_floor",
+    "apphot.aperture": "apphot.cfg.aperture",
+    "apphot.gain": "apphot.cfg.gain",
+    "apphot.magnitude-1adu": "apphot.cfg.magnitude_1adu",
+    "apphot.mag": "apphot.magnitude",
+    "apphot.mag_err": "apphot.magnitude_error",
+    "apphot.quality": "apphot.quality_flag",
 }
 
 _dtype_dr_to_io_tree = {
@@ -62,7 +59,7 @@ _dtype_dr_to_io_tree = {
     numpy.uint: c_uint,
     numpy.uint8: c_ubyte,
     numpy.int32: c_int,
-    numpy.float64: c_double
+    numpy.float64: c_double,
 }
 
 _logger = logging.getLogger(__name__)
@@ -72,8 +69,8 @@ def _parse_grid_str(grid_str):
     """Parse the grid string entry from the astrowisp.IOTree."""
 
     result = [
-        numpy.array([float(v) for v in sub_grid.split(',')])
-        for sub_grid in grid_str.split(';')
+        numpy.array([float(v) for v in sub_grid.split(",")])
+        for sub_grid in grid_str.split(";")
     ]
     if len(result) == 1:
         return [result, result]
@@ -82,10 +79,9 @@ def _parse_grid_str(grid_str):
     return result
 
 
-def _add_shapefit_map(dr_file,
-                      fit_terms_expression,
-                      shape_fit_result_tree,
-                      **path_substitutions):
+def _add_shapefit_map(
+    dr_file, fit_terms_expression, shape_fit_result_tree, **path_substitutions
+):
     """
     Add the coefficients defining the PSF/PRF map to DR file.
 
@@ -100,39 +96,42 @@ def _add_shapefit_map(dr_file,
         None
     """
 
-    grid = _parse_grid_str(shape_fit_result_tree.get('psffit.grid', str))
-    for direction, splits in zip(['x', 'y'], grid):
-        dr_file.add_attribute('shapefit.cfg.psf.bicubic.grid.' + direction,
-                           splits,
-                           if_exists='error',
-                           **path_substitutions)
-    dr_file.add_attribute('shapefit.cfg.psf.terms',
-                          fit_terms_expression,
-                          if_exists='error',
-                          **path_substitutions)
-
-    num_terms = fit_expression.Interface(
-        fit_terms_expression
-    ).number_terms()
-    coefficients = shape_fit_result_tree.get(
-        'psffit.psfmap',
-        shape=(4,
-               grid[0].size - 2,
-               grid[1].size - 2,
-               num_terms)
+    grid = _parse_grid_str(shape_fit_result_tree.get("psffit.grid", str))
+    for direction, splits in zip(["x", "y"], grid):
+        dr_file.add_attribute(
+            "shapefit.cfg.psf.bicubic.grid." + direction,
+            splits,
+            if_exists="error",
+            **path_substitutions
+        )
+    dr_file.add_attribute(
+        "shapefit.cfg.psf.terms",
+        fit_terms_expression,
+        if_exists="error",
+        **path_substitutions
     )
-    dr_file.add_dataset('shapefit.map_coef',
-                        coefficients,
-                        if_exists='error',
-                        **path_substitutions)
+
+    num_terms = fit_expression.Interface(fit_terms_expression).number_terms()
+    coefficients = shape_fit_result_tree.get(
+        "psffit.psfmap",
+        shape=(4, grid[0].size - 2, grid[1].size - 2, num_terms),
+    )
+    dr_file.add_dataset(
+        "shapefit.map_coef",
+        coefficients,
+        if_exists="error",
+        **path_substitutions
+    )
 
 
-def _auto_add_tree_quantities(dr_file,
-                              result_tree,
-                              num_sources,
-                              skip_quantities,
-                              image_index=0,
-                              **path_substitutions):
+def _auto_add_tree_quantities(
+    dr_file,
+    result_tree,
+    num_sources,
+    skip_quantities,
+    image_index=0,
+    **path_substitutions
+):
     """
     Best guess for how to add tree quantities to DR file.
 
@@ -154,25 +153,26 @@ def _auto_add_tree_quantities(dr_file,
         None
     """
 
-    indexed_rex = re.compile(r'.*\.(?P<image_index_str>[0-9]+)$')
-    apphot_indexed_rex = re.compile(r'|apphot\..*\.'
-                                    r'(?P<image_index_str>[0-9]+)\.'
-                                    r'(?P<ap_index_str>[0-9]+)$')
+    indexed_rex = re.compile(r".*\.(?P<image_index_str>[0-9]+)$")
+    apphot_indexed_rex = re.compile(
+        r"|apphot\..*\."
+        r"(?P<image_index_str>[0-9]+)\."
+        r"(?P<ap_index_str>[0-9]+)$"
+    )
     for quantity_name in result_tree.defined_quantity_names():
         indexed_match = apphot_indexed_rex.fullmatch(quantity_name)
         if indexed_match:
-            path_substitutions['aperture_index'] = int(
-                indexed_match['ap_index_str']
+            path_substitutions["aperture_index"] = int(
+                indexed_match["ap_index_str"]
             )
         else:
-            path_substitutions.pop('aperture_index', 0)
+            path_substitutions.pop("aperture_index", 0)
             indexed_match = indexed_rex.fullmatch(quantity_name)
 
         if indexed_match:
-            if int(indexed_match['image_index_str']) == image_index:
+            if int(indexed_match["image_index_str"]) == image_index:
                 key_quantity = quantity_name[
-                    :
-                    indexed_match.start('image_index_str')-1
+                    : indexed_match.start("image_index_str") - 1
                 ]
             else:
                 continue
@@ -181,55 +181,48 @@ def _auto_add_tree_quantities(dr_file,
 
         dr_key = key_io_tree_to_dr.get(key_quantity, key_quantity)
 
-        for element_type in ['dataset', 'attribute', 'link']:
+        for element_type in ["dataset", "attribute", "link"]:
             if (
-                    dr_key in dr_file.elements[element_type]
-                    and
-                    skip_quantities.match(key_quantity) is None
+                dr_key in dr_file.elements[element_type]
+                and skip_quantities.match(key_quantity) is None
             ):
                 value = result_tree.get(
                     quantity_name,
                     _dtype_dr_to_io_tree[dr_file.get_dtype(dr_key)],
-                    shape=(num_sources
-                           if element_type == 'dataset' else
-                           None)
+                    shape=(num_sources if element_type == "dataset" else None),
                 )
-                #TODO: add automatic detection for versions
-                getattr(dr_file, 'add_' + element_type)(dr_key,
-                                                     value,
-                                                     if_exists='error',
-                                                     **path_substitutions)
+                # TODO: add automatic detection for versions
+                getattr(dr_file, "add_" + element_type)(
+                    dr_key, value, if_exists="error", **path_substitutions
+                )
                 break
 
 
-def _auto_delete_tree_quantities(dr_file,
-                                 skip_quantities,
-                                 **path_substitutions):
+def _auto_delete_tree_quantities(
+    dr_file, skip_quantities, **path_substitutions
+):
     """Remove all elements from the DR file not matching skip_quantities rex."""
 
     for tree_key, dr_key in key_io_tree_to_dr.items():
         if skip_quantities.match(tree_key) is not None:
             continue
-        for element_type in ['dataset', 'attribute', 'link']:
+        for element_type in ["dataset", "attribute", "link"]:
             if dr_key in dr_file.elements[element_type]:
-                getattr(
-                    dr_file,
-                    'delete_' + element_type
-                )(
-                    dr_key,
-                    **path_substitutions
+                getattr(dr_file, "delete_" + element_type)(
+                    dr_key, **path_substitutions
                 )
-
 
 
 def _get_shapefit_map_grid(dr_file, **path_substitutions):
     """Return the grid used to represent star shape from this DR file."""
 
     return [
-        dr_file.get_attribute('shapefit.cfg.psf.bicubic.grid.x',
-                           **path_substitutions),
-        dr_file.get_attribute('shapefit.cfg.psf.bicubic.grid.y',
-                           **path_substitutions)
+        dr_file.get_attribute(
+            "shapefit.cfg.psf.bicubic.grid.x", **path_substitutions
+        ),
+        dr_file.get_attribute(
+            "shapefit.cfg.psf.bicubic.grid.y", **path_substitutions
+        ),
     ]
 
 
@@ -254,18 +247,20 @@ def _get_shapefit_map(dr_file, **path_substitutions):
     """
     return (
         _get_shapefit_map_grid(dr_file, **path_substitutions),
-        dr_file.get_dataset('shapefit.map_coef', **path_substitutions),
-        dr_file.get_attribute('shapefit.cfg.psf.terms', **path_substitutions)
+        dr_file.get_dataset("shapefit.map_coef", **path_substitutions),
+        dr_file.get_attribute("shapefit.cfg.psf.terms", **path_substitutions),
     )
 
 
-def add_star_shape_fit(dr_file,
-                       *,
-                       fit_terms_expression,
-                       shape_fit_result_tree,
-                       num_sources,
-                       image_index=0,
-                       **path_substitutions):
+def add_star_shape_fit(
+    dr_file,
+    *,
+    fit_terms_expression,
+    shape_fit_result_tree,
+    num_sources,
+    image_index=0,
+    **path_substitutions
+):
     """
     Add the results of a star shape fit to the DR file.
 
@@ -287,28 +282,28 @@ def add_star_shape_fit(dr_file,
         None
     """
 
-    _add_shapefit_map(dr_file,
-                      fit_terms_expression,
-                      shape_fit_result_tree,
-                      **path_substitutions)
-    dr_file.add_attribute(
-        key_io_tree_to_dr['psffit.srcpix_cover_bicubic_grid'],
-        (
-            shape_fit_result_tree.get(
-                'psffit.srcpix_cover_bicubic_grid',
-                str
-            ).lower()
-            ==
-            'true'
-        ),
-        if_exists='error',
+    _add_shapefit_map(
+        dr_file,
+        fit_terms_expression,
+        shape_fit_result_tree,
         **path_substitutions
     )
-    #TODO: set this from command line, use it in fitting and fix here!
     dr_file.add_attribute(
-        'shapefit.cfg.psf.ignore_dropped',
+        key_io_tree_to_dr["psffit.srcpix_cover_bicubic_grid"],
+        (
+            shape_fit_result_tree.get(
+                "psffit.srcpix_cover_bicubic_grid", str
+            ).lower()
+            == "true"
+        ),
+        if_exists="error",
+        **path_substitutions
+    )
+    # TODO: set this from command line, use it in fitting and fix here!
+    dr_file.add_attribute(
+        "shapefit.cfg.psf.ignore_dropped",
         False,
-        if_exists='error',
+        if_exists="error",
         **path_substitutions
     )
 
@@ -317,13 +312,17 @@ def add_star_shape_fit(dr_file,
         result_tree=shape_fit_result_tree,
         num_sources=num_sources,
         skip_quantities=re.compile(
-            '|'.join([r'^psffit\.variables$',
-                      r'^psffit\.grid$',
-                      r'^psffit\.terms$',
-                      r'^psffit\.psfmap$',
-                      r'^psffit.srcpix_cover_bicubic_grid$',
-                      r'^projsrc\.',
-                      r'^apphot\.'])
+            "|".join(
+                [
+                    r"^psffit\.variables$",
+                    r"^psffit\.grid$",
+                    r"^psffit\.terms$",
+                    r"^psffit\.psfmap$",
+                    r"^psffit.srcpix_cover_bicubic_grid$",
+                    r"^projsrc\.",
+                    r"^apphot\.",
+                ]
+            )
         ),
         image_index=image_index,
         **path_substitutions
@@ -333,19 +332,22 @@ def add_star_shape_fit(dr_file,
 def delete_star_shape_fit(dr_file, **path_substitutions):
     """Delete all DR elements added by `add_star_shape_fit()`."""
 
-    dr_file.delete_attribute('shapefit.cfg.psf.terms', **path_substitutions)
+    dr_file.delete_attribute("shapefit.cfg.psf.terms", **path_substitutions)
 
     dr_file.delete_attribute(
-        'shapefit.cfg.psf.ignore_dropped',
-        **path_substitutions
+        "shapefit.cfg.psf.ignore_dropped", **path_substitutions
     )
     _auto_delete_tree_quantities(
         dr_file,
         skip_quantities=re.compile(
-            '|'.join([r'^psffit\.variables$',
-                      r'^psffit\.terms$',
-                      r'^projsrc\.',
-                      r'^apphot\.'])
+            "|".join(
+                [
+                    r"^psffit\.variables$",
+                    r"^psffit\.terms$",
+                    r"^projsrc\.",
+                    r"^apphot\.",
+                ]
+            )
         ),
         **path_substitutions
     )
@@ -371,12 +373,12 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
     """
 
     _logger.debug(
-        'Getting apphot inputs from %s with path substitutions: %s',
+        "Getting apphot inputs from %s with path substitutions: %s",
         repr(dr_file.filename),
-        repr(path_substitutions)
+        repr(path_substitutions),
     )
     result = {}
-    result['source_data'] = dr_file.get_source_data(
+    result["source_data"] = dr_file.get_source_data(
         magfit_iterations=[0],
         shape_fit=True,
         apphot=False,
@@ -384,30 +386,28 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
         string_source_ids=True,
         **path_substitutions
     )
-    result['magnitude_1adu'] = dr_file.get_attribute(
-        'shapefit.cfg.magnitude_1adu',
-        **path_substitutions
+    result["magnitude_1adu"] = dr_file.get_attribute(
+        "shapefit.cfg.magnitude_1adu", **path_substitutions
     )
     (
-        result['star_shape_grid'],
-        result['star_shape_map_coefficients'],
-        shape_map_terms_expression
+        result["star_shape_grid"],
+        result["star_shape_map_coefficients"],
+        shape_map_terms_expression,
     ) = _get_shapefit_map(dr_file, **path_substitutions)
 
     if not isinstance(shape_map_terms_expression, str):
         shape_map_terms_expression = shape_map_terms_expression.decode()
 
-    result['star_shape_map_terms'] = fit_expression.Interface(
+    result["star_shape_map_terms"] = fit_expression.Interface(
         shape_map_terms_expression
-    )(result['source_data']).T
+    )(result["source_data"]).T
 
     return result, shape_map_terms_expression
 
-def fill_aperture_photometry_input_tree(dr_file,
-                                        tree,
-                                        shapefit_version=0,
-                                        srcproj_version=0,
-                                        background_version=0):
+
+def fill_aperture_photometry_input_tree(
+    dr_file, tree, shapefit_version=0, srcproj_version=0, background_version=0
+):
     """
     Fill a astrowisp.IOTree with shape fit info for aperture photometry.
 
@@ -434,26 +434,33 @@ def fill_aperture_photometry_input_tree(dr_file,
         dr_file,
         shapefit_version=shapefit_version,
         srcproj_version=srcproj_version,
-        background_version=background_version
+        background_version=background_version,
     )[0]
-    aperture_photometry_inputs['source_data'].rename(
-        columns={'shapefit_' + what + '_mfit000': what
-                 for what in ['mag', 'mag_err', 'phot_flag']},
-        inplace=True
+    aperture_photometry_inputs["source_data"].rename(
+        columns={
+            "shapefit_" + what + "_mfit000": what
+            for what in ["mag", "mag_err", "phot_flag"]
+        },
+        inplace=True,
     )
-    aperture_photometry_inputs['source_data'] = (
-        aperture_photometry_inputs['source_data'].to_records()
+    aperture_photometry_inputs["source_data"] = aperture_photometry_inputs[
+        "source_data"
+    ].to_records()
+    _logger.debug(
+        "Adding aperture photometry inputs to tree: %s",
+        repr(aperture_photometry_inputs),
     )
-    _logger.debug('Adding aperture photometry inputs to tree: %s',
-                  repr(aperture_photometry_inputs))
     tree.set_aperture_photometry_inputs(**aperture_photometry_inputs)
-    return aperture_photometry_inputs['source_data'].size
+    return aperture_photometry_inputs["source_data"].size
 
-def add_aperture_photometry(dr_file,
-                            apphot_result_tree,
-                            num_sources,
-                            num_apertures,
-                            **path_substitutions):
+
+def add_aperture_photometry(
+    dr_file,
+    apphot_result_tree,
+    num_sources,
+    num_apertures,
+    **path_substitutions
+):
     """
     Add the results of aperture photometry to the DR file.
 
@@ -475,21 +482,23 @@ def add_aperture_photometry(dr_file,
     """
 
     for aperture_index, aperture in enumerate(
-            apphot_result_tree.get('apphot.aperture',
-                                   c_double,
-                                   shape=(num_apertures,))
+        apphot_result_tree.get(
+            "apphot.aperture", c_double, shape=(num_apertures,)
+        )
     ):
-        dr_file.add_attribute('apphot.cfg.aperture',
-                              aperture,
-                              if_exists='error',
-                              apphot_version=0,
-                              aperture_index=aperture_index)
+        dr_file.add_attribute(
+            "apphot.cfg.aperture",
+            aperture,
+            if_exists="error",
+            apphot_version=0,
+            aperture_index=aperture_index,
+        )
 
     _auto_add_tree_quantities(
         dr_file,
         result_tree=apphot_result_tree,
         num_sources=num_sources,
-        skip_quantities=re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+        skip_quantities=re.compile(r"(?!apphot\.)|^apphot.aperture$"),
         **path_substitutions
     )
 
@@ -500,7 +509,7 @@ def delete_aperture_photometry(dr_file, num_apertures, **path_substitutions):
     for aperture_index in range(num_apertures):
         _auto_delete_tree_quantities(
             dr_file,
-            re.compile(r'(?!apphot\.)|^apphot.aperture$'),
+            re.compile(r"(?!apphot\.)|^apphot.aperture$"),
             aperture_index=aperture_index,
             **path_substitutions
         )
@@ -524,16 +533,13 @@ def get_source_extracted_psf_map(dr_file, **path_substitutions):
         psf_parameters=[
             param_name.decode()
             for param_name in dr_file.get_attribute(
-                'srcextract.psf_map.cfg.psf_params',
-                **path_substitutions
+                "srcextract.psf_map.cfg.psf_params", **path_substitutions
             )
         ],
         terms_expression=dr_file.get_attribute(
-            'srcextract.psf_map.cfg.terms',
-            **path_substitutions
+            "srcextract.psf_map.cfg.terms", **path_substitutions
         ),
         coefficients=dr_file.get_dataset(
-            'srcextract.psf_map',
-            **path_substitutions
-        )
+            "srcextract.psf_map", **path_substitutions
+        ),
     )

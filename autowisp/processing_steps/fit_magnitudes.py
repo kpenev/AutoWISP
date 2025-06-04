@@ -430,15 +430,46 @@ def cleanup_interrupted(interrupted, configuration):
     return max_status - 1 - max_status % 2
 
 
-if __name__ == "__main__":
-    cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+def has_apphot(dr_fname, substitutions):
+    """Check if the DR file contains a sky-to-frame transformation."""
+
+    with DataReductionFile(dr_fname, mode="r") as dr_file:
+        try:
+            dr_file.check_for_dataset("apphot.magnitude", **substitutions)
+            return True
+        except IOError:
+            return False
+
+
+def manual(configuration):
+    """Run the step from command line."""
+
+    setup_process(task="manage", **configuration)
+    with DataReductionFile(
+        configuration["single_photref_dr_fname"], "r+"
+    ) as single_photref_dr:
+        dr_substitutions = get_path_substitutions(
+            configuration, single_photref_dr.get_frame_header()
+        )
+        dr_substitutions["aperture_index"] = (
+            single_photref_dr.get_num_apertures(**dr_substitutions) - 1
+        )
+
     fit_magnitudes(
-        find_dr_fnames(
-            cmdline_config.pop("dr_files"), cmdline_config.pop("magfit_only_if")
-        ),
+        [
+            dr_fname
+            for dr_fname in find_dr_fnames(
+                configuration.pop("dr_files"),
+                configuration.pop("magfit_only_if"),
+            )
+            if has_apphot(dr_fname, dr_substitutions)
+        ],
         None,
-        cmdline_config,
+        configuration,
         ignore_progress,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    manual(parse_command_line())
