@@ -258,7 +258,6 @@ class MasterCatalog:
         )
         return self._master_cat_fname
 
-
     def is_new(self):
         """True iff the given master is newly created rather than extension."""
 
@@ -341,15 +340,55 @@ def cleanup_interrupted(interrupted, configuration):
     return 1
 
 
-if __name__ == "__main__":
-    cmdline_config = parse_command_line()
-    setup_process(task="manage", **cmdline_config)
+def has_magfit(dr_fname, substitutions):
+    """Check if the DR file contains a sky-to-frame transformation."""
+
+    with DataReductionFile(dr_fname, mode="r") as dr_file:
+        try:
+            dr_file.check_for_dataset(
+                "apphot.magfit.magnitude", **substitutions
+            )
+            return True
+        except IOError:
+            return False
+
+
+def manual(configuration):
+    """Run the light curve creation step from the command line."""
+
+    setup_process(task="manage", **configuration)
+    dr_path_substitutions = get_path_substitutions(configuration)
+    with DataReductionFile(
+        configuration["single_photref_dr_fname"], "r+"
+    ) as single_photref_dr:
+        dr_path_substitutions["aperture_index"] = (
+            single_photref_dr.get_num_apertures(**dr_path_substitutions) - 1
+        )
+        if configuration["num_magfit_iterations"] == 0:
+            dr_path_substitutions["magfit_iteration"] = (
+                single_photref_dr.get_num_magfit_iterations(
+                    **dr_path_substitutions
+                )
+                - 1
+            )
+        else:
+            dr_path_substitutions["magfit_iteration"] = (
+                configuration["num_magfit_iterations"] - 1
+            )
     create_lightcurves(
-        find_dr_fnames(
-            cmdline_config.pop("dr_files"), cmdline_config.pop("lc_only_if")
-        ),
+        [
+            dr_fname
+            for dr_fname in find_dr_fnames(
+                configuration.pop("dr_files"), configuration.pop("lc_only_if")
+            )
+            if has_magfit(dr_fname, dr_path_substitutions)
+        ],
         None,
-        cmdline_config,
+        configuration,
         ignore_progress,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    manual(parse_command_line())

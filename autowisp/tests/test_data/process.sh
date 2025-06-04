@@ -12,4 +12,5 @@ python3 ../../../autowisp/database/initialize_database.py --drop-hdf5-structure-
 && python3 ../../../autowisp/processing_steps/fit_star_shape.py -c test.cfg CAL/object \
 && python3 ../../../autowisp/processing_steps/measure_aperture_photometry.py -c test.cfg CAL/object \
 && python3 ../../../autowisp/processing_steps/fit_source_extracted_psf_map.py -c test.cfg DR \
-&& python3 ../../../autowisp/processing_steps/fit_magnitudes.py -c test.cfg DR
+&& python3 ../../../autowisp/processing_steps/fit_magnitudes.py -c test.cfg DR \
+&& python3 ../../../autowisp/processing_steps/create_lightcurves.py -c test.cfg DR
