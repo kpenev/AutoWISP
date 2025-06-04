@@ -1,4 +1,4 @@
-rm -rf logs CAL MASTERS DR
+rm -rf logs CAL MASTERS DR LC
 python3 ../../../autowisp/database/initialize_database.py --drop-hdf5-structure-tables \
 && python3 ../../../autowisp/processing_steps/calibrate.py -c test.cfg RAW/zero/*.fits.fz \
 && python3 ../../../autowisp/processing_steps/stack_to_master.py -c test.cfg CAL/zero/ \
@@ -13,4 +13,5 @@ python3 ../../../autowisp/database/initialize_database.py --drop-hdf5-structure-
 && python3 ../../../autowisp/processing_steps/measure_aperture_photometry.py -c test.cfg CAL/object \
 && python3 ../../../autowisp/processing_steps/fit_source_extracted_psf_map.py -c test.cfg DR \
 && python3 ../../../autowisp/processing_steps/fit_magnitudes.py -c test.cfg DR \
-&& python3 ../../../autowisp/processing_steps/create_lightcurves.py -c test.cfg DR
+&& python3 ../../../autowisp/processing_steps/create_lightcurves.py -c test.cfg DR \
+&& python3 ../../../autowisp/processing_steps/epd.py -c test.cfg LC
