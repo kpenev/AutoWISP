@@ -53,3 +53,13 @@ class TestStackToMaster(FITSTestCase):
         """Check if creating master bias works as expected."""
 
         self._test_stack_to_master("zero")
+
+    def test_stack_master_dark(self):
+        """Check if creating master bias works as expected."""
+
+        self._test_stack_to_master("dark")
+
+    def test_stack_master_flat(self):
+        """Check if creating master bias works as expected."""
+
+        self._test_stack_to_master("flat")

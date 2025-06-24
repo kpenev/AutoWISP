@@ -35,7 +35,6 @@ class FITSTestCase(TestCase):
             f"Test directory {self.test_directory} does not exist!",
         )
 
-
     def assert_fits_match(self, fname1, fname2):
         """Check if two headers match."""
 
@@ -54,17 +53,21 @@ class FITSTestCase(TestCase):
             == set(fits_components[1]["header"].keys()),
             f"Headers of {fname1} and {fname2} do not have the same keys!",
         )
+        original_files = [set(), set()]
         for key, value in fits_components[0]["header"].items():
             if key == "COMMENT" or key.strip() == "":
                 continue
-            if key in [
-                f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]
-            ] or key.startswith("ORIGF"):
+            if key in [f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]]:
                 self.assertEqual(
                     path.basename(fits_components[1]["header"][key]),
                     path.basename(value),
-                    f"Filename {key!r} does not match between {fname1} and "
-                    f"{fname2}.",
+                    f"Master {key[1:-3].lower()} does not match between "
+                    f"{fname1} and {fname2}.",
+                )
+            elif key.startswith("ORIGF"):
+                original_files[0].add(path.basename(value))
+                original_files[1].add(
+                    path.basename(fits_components[1]["header"][key])
                 )
             else:
                 self.assertEqual(
@@ -73,6 +76,11 @@ class FITSTestCase(TestCase):
                     f"Value for key {key!r} does not match between {fname1} and"
                     f" {fname2}.",
                 )
+
+        self.assertEqual(
+            *original_files,
+            f"Original input files in {fname1} and {fname2} do not match!",
+        )
 
         for component in ["image", "error"]:
             self.assertTrue(
