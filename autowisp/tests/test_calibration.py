@@ -32,21 +32,22 @@ class TestCalibration(FITSTestCase):
             f"Test directory {self._test_directory} does not exist!",
         )
 
-    def test_bias_calibration(self):
-        """Check if bias calibration works as expected."""
+    def _test_calibration(self, input_imtype, **masters):
+        """Perform a calibration step and test outputs match expectations."""
 
-        input_dir = path.join(self._test_directory, "RAW", "zero")
+        input_dir = path.join(self._test_directory, "RAW", input_imtype)
+        command = [
+            "python3",
+            path.join(autowisp_dir, "processing_steps", "calibrate.py"),
+            "-c",
+            path.join(self._processing_directory, "test.cfg"),
+            path.join(input_dir, "*.fits.fz"),
+            f"RAW/{input_imtype}",
+        ]
+        for master_type, master_fname in masters.items():
+            command.extend([f"--master-{master_type}", master_fname])
         calib_process = run(
-            [
-                "python3",
-                path.join(autowisp_dir, "processing_steps", "calibrate.py"),
-                "-c",
-                path.join(self._processing_directory, "test.cfg"),
-                path.join(input_dir, "*.fits.fz"),
-                "RAW/zero/*.fits.fz",
-            ],
-            cwd=self._processing_directory,
-            check=False,
+            command, cwd=self._processing_directory, check=False
         )
         self.assertTrue(
             calib_process.returncode == 0,
@@ -55,11 +56,17 @@ class TestCalibration(FITSTestCase):
 
         generated = sorted(
             glob(
-                path.join(self._processing_directory, "CAL", "zero", "*.fits*")
+                path.join(
+                    self._processing_directory, "CAL", input_imtype, "*.fits*"
+                )
             )
         )
         expected = sorted(
-            glob(path.join(self._test_directory, "CAL", "zero", "*.fits.fz"))
+            glob(
+                path.join(
+                    self._test_directory, "CAL", input_imtype, "*.fits.fz"
+                )
+            )
         )
         self.assertTrue(
             [path.basename(fname) for fname in generated]
@@ -68,3 +75,17 @@ class TestCalibration(FITSTestCase):
         )
         for gen_fname, exp_fname in zip(generated, expected):
             self.assert_fits_match(exp_fname, gen_fname)
+
+    def test_bias_calibration(self):
+        """Check if bias calibration works as expected."""
+
+        self._test_calibration("zero")
+
+    def test_dark_calibration(self):
+        """Check if dark calibration works as expected."""
+
+        self._test_calibration(
+            "dark",
+            bias="R:"
+            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+        )

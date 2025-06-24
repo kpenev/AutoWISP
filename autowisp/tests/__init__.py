@@ -34,11 +34,22 @@ class FITSTestCase(TestCase):
         for key, value in fits_components[0]["header"].items():
             if key == "COMMENT" or key.strip() == "":
                 continue
-            self.assertEqual(
-                fits_components[1]["header"][key],
-                value,
-                f"Value for key {key!r} does not match.",
-            )
+            if key in [
+                f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]
+            ]:
+                self.assertEqual(
+                    path.basename(fits_components[1]["header"][key]),
+                    path.basename(value),
+                    f"Master {key[1:-3].lower()} does not match between "
+                    f"{fname1} and {fname2}.",
+                )
+            else:
+                self.assertEqual(
+                    fits_components[1]["header"][key],
+                    value,
+                    f"Value for key {key!r} does not match between {fname1} and"
+                    f" {fname2}.",
+                )
 
         for component in ["image", "error"]:
             self.assertTrue(
