@@ -11,7 +11,8 @@ import unittest
 
 from autowisp.tests import autowisp_dir
 from autowisp.tests.get_test_data import get_test_data
-from autowisp.tests.test_calibration import TestCalibration
+from autowisp.tests.test_calibrate import TestCalibrate
+from autowisp.tests.test_stack_to_master import TestStackToMaster
 
 if __name__ == "__main__":
     #with TemporaryDirectory() as temp_dir:
@@ -43,5 +44,6 @@ if __name__ == "__main__":
                 cfg_template.read().replace("@@OUTDIR@@", processing_dir)
             )
         #get_test_data(temp_dir)
-        TestCalibration.set_test_directory(temp_dir, processing_dir)
+        TestCalibrate.set_test_directory(temp_dir, processing_dir)
+        TestStackToMaster.set_test_directory(temp_dir, processing_dir)
         unittest.main()

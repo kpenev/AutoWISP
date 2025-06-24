@@ -7,47 +7,25 @@ from subprocess import run, PIPE, STDOUT
 from autowisp.tests import autowisp_dir, FITSTestCase
 
 
-class TestCalibration(FITSTestCase):
-    """Test cases for bias image calibration."""
-
-    @classmethod
-    def set_test_directory(cls, test_dirname, processing_dirname):
-        """Set the directory where data to test against is located."""
-
-        cls._test_directory = test_dirname
-        cls._processing_directory = processing_dirname
-
-    def setUp(self):
-        """Make sure the data to compare against is defined."""
-
-        self.assertTrue(
-            hasattr(self, "_test_directory"), "No test data directory defined!"
-        )
-        self.assertTrue(
-            hasattr(self, "_processing_directory"),
-            "No processing directory defined!",
-        )
-        self.assertTrue(
-            path.exists(self._test_directory),
-            f"Test directory {self._test_directory} does not exist!",
-        )
+class TestCalibrate(FITSTestCase):
+    """Test cases for image calibration."""
 
     def _test_calibration(self, input_imtype, **masters):
         """Perform a calibration step and test outputs match expectations."""
 
-        input_dir = path.join(self._test_directory, "RAW", input_imtype)
+        input_dir = path.join(self.test_directory, "RAW", input_imtype)
         command = [
             "python3",
             path.join(autowisp_dir, "processing_steps", "calibrate.py"),
             "-c",
-            path.join(self._processing_directory, "test.cfg"),
+            path.join(self.processing_directory, "test.cfg"),
             path.join(input_dir, "*.fits.fz"),
         ]
         for master_type, master_fname in masters.items():
             command.extend([f"--master-{master_type}", master_fname])
         calib_process = run(
             command,
-            cwd=self._processing_directory,
+            cwd=self.processing_directory,
             check=False,
             stdout=PIPE,
             stderr=STDOUT,
@@ -61,14 +39,14 @@ class TestCalibration(FITSTestCase):
         generated = sorted(
             glob(
                 path.join(
-                    self._processing_directory, "CAL", input_imtype, "*.fits*"
+                    self.processing_directory, "CAL", input_imtype, "*.fits*"
                 )
             )
         )
         expected = sorted(
             glob(
                 path.join(
-                    self._test_directory, "CAL", input_imtype, "*.fits.fz"
+                    self.test_directory, "CAL", input_imtype, "*.fits.fz"
                 )
             )
         )
@@ -91,7 +69,7 @@ class TestCalibration(FITSTestCase):
         self._test_calibration(
             "dark",
             bias="R:"
-            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
         )
 
     def test_flat_calibration(self):
@@ -100,9 +78,9 @@ class TestCalibration(FITSTestCase):
         self._test_calibration(
             "flat",
             bias="R:"
-            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
             dark="R:"
-            + path.join(self._test_directory, "MASTERS", "dark_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "dark_R.fits.fz"),
         )
 
     def test_object_calibration(self):
@@ -111,9 +89,9 @@ class TestCalibration(FITSTestCase):
         self._test_calibration(
             "object",
             bias="R:"
-            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "zero_R.fits.fz"),
             dark="R:"
-            + path.join(self._test_directory, "MASTERS", "dark_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "dark_R.fits.fz"),
             flat="R:"
-            + path.join(self._test_directory, "MASTERS", "flat_R.fits.fz"),
+            + path.join(self.test_directory, "MASTERS", "flat_R.fits.fz"),
         )
