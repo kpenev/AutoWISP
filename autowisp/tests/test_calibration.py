@@ -89,3 +89,15 @@ class TestCalibration(FITSTestCase):
             bias="R:"
             + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
         )
+
+    def test_flat_calibration(self):
+        """Check if flat calibration works as expected."""
+
+        self._test_calibration(
+            "flat",
+            bias="R:"
+            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+            dark="R:"
+            + path.join(self._test_directory, "MASTERS", "dark_R.fits.fz"),
+        )
+
