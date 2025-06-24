@@ -2,7 +2,7 @@
 
 from os import path
 from glob import glob
-from subprocess import run
+from subprocess import run, PIPE, STDOUT
 
 from autowisp.tests import autowisp_dir, FITSTestCase
 
@@ -42,16 +42,20 @@ class TestCalibration(FITSTestCase):
             "-c",
             path.join(self._processing_directory, "test.cfg"),
             path.join(input_dir, "*.fits.fz"),
-            f"RAW/{input_imtype}",
         ]
         for master_type, master_fname in masters.items():
             command.extend([f"--master-{master_type}", master_fname])
         calib_process = run(
-            command, cwd=self._processing_directory, check=False
+            command,
+            cwd=self._processing_directory,
+            check=False,
+            stdout=PIPE,
+            stderr=STDOUT,
         )
         self.assertTrue(
             calib_process.returncode == 0,
-            f"Calibration processed failed in {self._processing_directory}!",
+            f"Calibration command:\n{command!r} "
+            f"failed:\n{calib_process.stdout.decode('utf-8')}",
         )
 
         generated = sorted(
@@ -101,3 +105,15 @@ class TestCalibration(FITSTestCase):
             + path.join(self._test_directory, "MASTERS", "dark_R.fits.fz"),
         )
 
+    def test_object_calibration(self):
+        """Check if flat calibration works as expected."""
+
+        self._test_calibration(
+            "object",
+            bias="R:"
+            + path.join(self._test_directory, "MASTERS", "zero_R.fits.fz"),
+            dark="R:"
+            + path.join(self._test_directory, "MASTERS", "dark_R.fits.fz"),
+            flat="R:"
+            + path.join(self._test_directory, "MASTERS", "flat_R.fits.fz"),
+        )
