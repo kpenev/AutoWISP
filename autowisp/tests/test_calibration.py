@@ -2,23 +2,13 @@
 
 from os import path
 from glob import glob
+from subprocess import run
 
-from astrowisp.tests.utilities import FloatTestCase
+from autowisp.tests import autowisp_dir, FITSTestCase
 
 
-class TestCalibration(FloatTestCase):
+class TestCalibration(FITSTestCase):
     """Test cases for bias image calibration."""
-
-    def assert_header_match(self, header1, header2):
-        """Check if two headers match."""
-
-        for key, value in header1.items():
-            self.assertIn(
-                key, header2, f"Key {key} not found in second header."
-            )
-            self.assertEqual(
-                header2[key], value, f"Value for key {key} does not match."
-            )
 
     @classmethod
     def set_test_directory(cls, test_dirname, processing_dirname):
@@ -37,18 +27,44 @@ class TestCalibration(FloatTestCase):
             hasattr(self, "_processing_directory"),
             "No processing directory defined!",
         )
+        self.assertTrue(
+            path.exists(self._test_directory),
+            f"Test directory {self._test_directory} does not exist!",
+        )
 
     def test_bias_calibration(self):
         """Check if bias calibration works as expected."""
 
         input_dir = path.join(self._test_directory, "RAW", "zero")
-        with open(
-            path.join(self._processing_directory, "test.cfg"),
-            "r",
-            encoding="utf-8",
-        ) as cfg:
-            print(
-                f"Processing {len(glob(path.join(input_dir, '*.fits*')))} bias "
-                f"frames using configuration:\n{cfg.read()}"
+        calib_process = run(
+            [
+                "python3",
+                path.join(autowisp_dir, "processing_steps", "calibrate.py"),
+                "-c",
+                path.join(self._processing_directory, "test.cfg"),
+                path.join(input_dir, "*.fits.fz"),
+                "RAW/zero/*.fits.fz",
+            ],
+            cwd=self._processing_directory,
+            check=False,
+        )
+        self.assertTrue(
+            calib_process.returncode == 0,
+            f"Calibration processed failed in {self._processing_directory}!",
+        )
+
+        generated = sorted(
+            glob(
+                path.join(self._processing_directory, "CAL", "zero", "*.fits*")
             )
-        self.assertTrue(True)
+        )
+        expected = sorted(
+            glob(path.join(self._test_directory, "CAL", "zero", "*.fits.fz"))
+        )
+        self.assertTrue(
+            [path.basename(fname) for fname in generated]
+            == [path.basename(fname) for fname in expected],
+            "Generated files do not match expected files!",
+        )
+        for gen_fname, exp_fname in zip(generated, expected):
+            self.assert_fits_match(exp_fname, gen_fname)

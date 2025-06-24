@@ -4,16 +4,34 @@
 
 from tempfile import TemporaryDirectory
 from os import path, makedirs
+from subprocess import run
+import contextlib
 
 import unittest
 
+from autowisp.tests import autowisp_dir
 from autowisp.tests.get_test_data import get_test_data
 from autowisp.tests.test_calibration import TestCalibration
 
 if __name__ == "__main__":
-    with TemporaryDirectory() as temp_dir:
+    #with TemporaryDirectory() as temp_dir:
+    with contextlib.suppress() as _:
+        temp_dir = path.join(autowisp_dir, "tests", "test_data")
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
+        run(
+            [
+                "python3",
+                path.join(
+                    autowisp_dir,
+                    "database",
+                    "initialize_database.py",
+                ),
+                "--drop-hdf5-structure-tables",
+            ],
+            cwd=processing_dir,
+            check=True,
+        )
         with open(
             path.join(path.dirname(__file__), "test_data", "test.cfg"),
             "r",
@@ -24,6 +42,6 @@ if __name__ == "__main__":
             cfg_file.write(
                 cfg_template.read().replace("@@OUTDIR@@", processing_dir)
             )
-        get_test_data(temp_dir)
+        #get_test_data(temp_dir)
         TestCalibration.set_test_directory(temp_dir, processing_dir)
         unittest.main()
