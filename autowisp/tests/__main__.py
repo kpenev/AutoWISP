@@ -5,7 +5,6 @@
 from tempfile import TemporaryDirectory
 from os import path, makedirs
 from subprocess import run
-import contextlib
 
 import unittest
 
@@ -14,11 +13,13 @@ from autowisp.tests.get_test_data import get_test_data
 from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
 from autowisp.tests.test_find_stars import TestFindStars
+from autowisp.tests.test_solve_astrometry import TestSolveAstrometry
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
-    #with contextlib.suppress() as _:
-        #temp_dir = path.join(autowisp_dir, "tests", "test_data")
+        #temp_dir = (
+        #    "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
+        #)
         get_test_data(temp_dir)
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
@@ -36,7 +37,7 @@ if __name__ == "__main__":
             check=True,
         )
         with open(
-            path.join(path.dirname(__file__), "test_data", "test.cfg"),
+            path.join(temp_dir, "test.cfg"),
             "r",
             encoding="utf-8",
         ) as cfg_template, open(
@@ -48,4 +49,5 @@ if __name__ == "__main__":
         TestCalibrate.set_test_directory(temp_dir, processing_dir)
         TestStackToMaster.set_test_directory(temp_dir, processing_dir)
         TestFindStars.set_test_directory(temp_dir, processing_dir)
+        TestSolveAstrometry.set_test_directory(temp_dir, processing_dir)
         unittest.main()
