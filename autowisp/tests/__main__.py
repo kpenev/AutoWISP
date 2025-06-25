@@ -13,11 +13,13 @@ from autowisp.tests import autowisp_dir
 from autowisp.tests.get_test_data import get_test_data
 from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
+from autowisp.tests.test_find_stars import TestFindStars
 
 if __name__ == "__main__":
-    #with TemporaryDirectory() as temp_dir:
-    with contextlib.suppress() as _:
-        temp_dir = path.join(autowisp_dir, "tests", "test_data")
+    with TemporaryDirectory() as temp_dir:
+    #with contextlib.suppress() as _:
+        #temp_dir = path.join(autowisp_dir, "tests", "test_data")
+        get_test_data(temp_dir)
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
         run(
@@ -43,7 +45,7 @@ if __name__ == "__main__":
             cfg_file.write(
                 cfg_template.read().replace("@@OUTDIR@@", processing_dir)
             )
-        #get_test_data(temp_dir)
         TestCalibrate.set_test_directory(temp_dir, processing_dir)
         TestStackToMaster.set_test_directory(temp_dir, processing_dir)
+        TestFindStars.set_test_directory(temp_dir, processing_dir)
         unittest.main()

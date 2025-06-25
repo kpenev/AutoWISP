@@ -4,7 +4,6 @@ import numpy
 import h5py
 
 from autowisp.tests import AutoWISPTestCase
-from autowisp import DataReductionFile
 
 
 class DRTestCase(AutoWISPTestCase):
@@ -16,10 +15,6 @@ class DRTestCase(AutoWISPTestCase):
         def assert_dset_match(dset1, dset2):
             """Assert that the two datasets contain the same data."""
 
-            print(
-                f"Comparing  {dr_fname1!r}/{dset1.name!r} to "
-                f"{dr_fname1!r}/{dset2.name!r}"
-            )
             if dset1.dtype.kind == "f":
                 self.assertTrue(
                     numpy.allclose(dset1[:], dset2[:], rtol=1e-8, atol=1e-8),
@@ -33,9 +28,7 @@ class DRTestCase(AutoWISPTestCase):
                     "{dr_fname2!r}/{dset2.name!r} do not match.",
                 )
 
-        with DataReductionFile(dr_fname1, "r") as dr1, DataReductionFile(
-            dr_fname2, "r"
-        ) as dr2:
+        with h5py.File(dr_fname1, "r") as dr1, h5py.File(dr_fname2, "r") as dr2:
             self.assertTrue(
                 group_name in dr1,
                 f"Group {group_name!r} not found in {dr_fname1}.",

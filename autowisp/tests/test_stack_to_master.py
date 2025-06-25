@@ -3,7 +3,7 @@
 from os import path
 from subprocess import run, PIPE, STDOUT
 
-from autowisp.tests import autowisp_dir
+from autowisp.tests import steps_dir
 from autowisp.tests.fits_test_case import FITSTestCase
 
 
@@ -14,32 +14,21 @@ class TestStackToMaster(FITSTestCase):
         """Perform a stacking step and test outputs match expectations."""
 
         input_dir = path.join(self.test_directory, "CAL", master_type)
-        command = [
-            "python3",
-            path.join(
-                autowisp_dir,
-                "processing_steps",
-                (
-                    "stack_to_master"
-                    + ("_flat" if master_type == "flat" else "")
-                    + ".py"
+        self.run_calib_step(
+            [
+                "python3",
+                path.join(
+                    steps_dir,
+                    (
+                        "stack_to_master"
+                        + ("_flat" if master_type == "flat" else "")
+                        + ".py"
+                    ),
                 ),
-            ),
-            "-c",
-            path.join(self.processing_directory, "test.cfg"),
-            input_dir,
-        ]
-        stack_process = run(
-            command,
-            cwd=self.processing_directory,
-            check=False,
-            stdout=PIPE,
-            stderr=STDOUT,
-        )
-        self.assertTrue(
-            stack_process.returncode == 0,
-            f"Master stacking command:\n{command!r} "
-            f"failed:\n{stack_process.stdout.decode('utf-8')}",
+                "-c",
+                path.join(self.processing_directory, "test.cfg"),
+                input_dir,
+            ]
         )
         self.assert_fits_match(
             path.join(
