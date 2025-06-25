@@ -14,6 +14,7 @@ from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
 from autowisp.tests.test_find_stars import TestFindStars
 from autowisp.tests.test_solve_astrometry import TestSolveAstrometry
+from autowisp.tests.test_fit_star_shape import TestFitStarShape
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
@@ -50,4 +51,5 @@ if __name__ == "__main__":
         TestStackToMaster.set_test_directory(temp_dir, processing_dir)
         TestFindStars.set_test_directory(temp_dir, processing_dir)
         TestSolveAstrometry.set_test_directory(temp_dir, processing_dir)
+        TestFitStarShape.set_test_directory(temp_dir, processing_dir)
         unittest.main()

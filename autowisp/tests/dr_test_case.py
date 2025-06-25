@@ -52,7 +52,6 @@ class DRTestCase(AutoWISPTestCase):
                 f"Group {group_name!r} not found in {dr_fname2}.",
             )
 
-
             def assert_obj_match(_, obj1):
                 """Assert the two datasets or groups contain the same data."""
 
@@ -99,14 +98,15 @@ class DRTestCase(AutoWISPTestCase):
         else:
             assert input_type == "DR"
             input_dir = path.join(self.processing_directory, "DR")
-            copytree(path.join(self.test_directory, "DR"), input_dir)
-            for fname in glob(path.join(self.processing_directory, "DR",
-                                        "*.h5")):
-                with h5py.File(fname, "a") as dr_file:
-                    for group in compare_groups:
-                        if group in dr_file:
-                            del dr_file[group]
-
+        copytree(
+            path.join(self.test_directory, "DR"),
+            path.join(self.processing_directory, "DR"),
+        )
+        for fname in glob(path.join(self.processing_directory, "DR", "*.h5")):
+            with h5py.File(fname, "a") as dr_file:
+                for group in compare_groups:
+                    if group in dr_file:
+                        del dr_file[group]
 
         self.run_calib_step(
             [
