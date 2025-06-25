@@ -10,7 +10,7 @@ try:
     from autowisp.source_finder import SourceFinder
     from autowisp.piecewise_bicubic_psf_map import PiecewiseBicubicPSFMap
     #pylint: disable=bare-except
-except None:
+except:
     #pylint: enable=bare-except
     pass
 

@@ -132,21 +132,24 @@ class Client(object):
 
         request = Request(url=url, headers=headers, data=data)
 
-        try:
-            f = urlopen(request)
-            self._logger.debug('Got reply HTTP status code: %s', f.status)
-            txt = f.read()
-            self._logger.debug('Got json: %s', txt)
-            result = json2python(txt)
-            self._logger.debug('Got result: %s', result)
-            stat = result.get('status')
-            self._logger.debug('Got status: %s', stat)
-            if stat == 'error':
-                errstr = result.get('errormessage', '(none)')
-                raise RequestError('server error message: ' + errstr)
-            return result
-        except HTTPError as e:
-            self._logger.critical('HTTPError: %s\n%s', e, e.read())
+        for _ in range(10):
+            try:
+                f = urlopen(request)
+                self._logger.debug('Got reply HTTP status code: %s', f.status)
+                txt = f.read()
+                self._logger.debug('Got json: %s', txt)
+                result = json2python(txt)
+                self._logger.debug('Got result: %s', result)
+                stat = result.get('status')
+                self._logger.debug('Got status: %s', stat)
+                if stat == 'error':
+                    errstr = result.get('errormessage', '(none)')
+                    raise RequestError('server error message: ' + errstr)
+                return result
+            except HTTPError as e:
+                self._logger.critical('HTTPError: %s\n%s', e, e.read())
+                self._logger.critical('Retrying...')
+                sleep(60)
 
     def login(self, apikey):
         args = { 'apikey' : apikey }

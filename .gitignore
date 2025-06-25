@@ -2,6 +2,7 @@
 *.outerr
 *.py-e
 *.autosave
+.DS_Store
 
 # Ignore vim swap files
 .*.swp
