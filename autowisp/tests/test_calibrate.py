@@ -4,7 +4,8 @@ from os import path
 from glob import glob
 from subprocess import run, PIPE, STDOUT
 
-from autowisp.tests import autowisp_dir, FITSTestCase
+from autowisp.tests import autowisp_dir
+from autowisp.tests.fits_test_case import FITSTestCase
 
 
 class TestCalibrate(FITSTestCase):

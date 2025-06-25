@@ -3,15 +3,10 @@
 from os import path
 from unittest import TestCase
 
-import numpy
-
-from autowisp.fits_utilities import read_image_components
-
 autowisp_dir = path.dirname(path.dirname(path.abspath(__file__)))
 
-
-class FITSTestCase(TestCase):
-    """Add assert for comparing AutoWISP generated FITS files."""
+class AutoWISPTestCase(TestCase):
+    """Base class for AutoWISP tests."""
 
     @classmethod
     def set_test_directory(cls, test_dirname, processing_dirname):
@@ -33,67 +28,4 @@ class FITSTestCase(TestCase):
         self.assertTrue(
             path.exists(self.test_directory),
             f"Test directory {self.test_directory} does not exist!",
-        )
-
-    def assert_fits_match(self, fname1, fname2):
-        """Check if two headers match."""
-
-        fits_components = [
-            dict(
-                zip(
-                    ["image", "error", "mask", "header"],
-                    read_image_components(fits_fname),
-                )
-            )
-            for fits_fname in [fname1, fname2]
-        ]
-
-        self.assertTrue(
-            set(fits_components[0]["header"].keys())
-            == set(fits_components[1]["header"].keys()),
-            f"Headers of {fname1} and {fname2} do not have the same keys!",
-        )
-        original_files = [set(), set()]
-        for key, value in fits_components[0]["header"].items():
-            if key == "COMMENT" or key.strip() == "":
-                continue
-            if key in [f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]]:
-                self.assertEqual(
-                    path.basename(fits_components[1]["header"][key]),
-                    path.basename(value),
-                    f"Master {key[1:-3].lower()} does not match between "
-                    f"{fname1} and {fname2}.",
-                )
-            elif key.startswith("ORIGF"):
-                original_files[0].add(path.basename(value))
-                original_files[1].add(
-                    path.basename(fits_components[1]["header"][key])
-                )
-            else:
-                self.assertEqual(
-                    fits_components[1]["header"][key],
-                    value,
-                    f"Value for key {key!r} does not match between {fname1} and"
-                    f" {fname2}.",
-                )
-
-        self.assertEqual(
-            *original_files,
-            f"Original input files in {fname1} and {fname2} do not match!",
-        )
-
-        for component in ["image", "error"]:
-            self.assertTrue(
-                numpy.isclose(
-                    fits_components[0][component],
-                    fits_components[1][component],
-                    rtol=1e-8,
-                    atol=1e-8,
-                ).all(),
-                f"{component.title()} pixels in {fname1} do not match "
-                f"{component} pixels in {fname2}!",
-            )
-        self.assertTrue(
-            (fits_components[0]["mask"] == fits_components[1]["mask"]).all(),
-            f"Pixel mask in {fname1} do not match pixel mask in {fname2}!",
         )
