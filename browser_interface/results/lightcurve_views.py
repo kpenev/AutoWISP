@@ -2,7 +2,7 @@
 
 from itertools import product
 from copy import deepcopy
-from io import StringIO
+from io import StringIO, BytesIO
 import json
 
 import matplotlib
@@ -12,7 +12,7 @@ from astroquery.mast import Catalogs
 from astroquery.ipac.nexsci.nasa_exoplanet_archive import NasaExoplanetArchive
 
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
@@ -616,4 +616,36 @@ def clear_lightcurve_buffer(request):
 
 
 def download_lightcurve_figure(request):
-    """Creates and send to the user the currently setup figure as a file."""
+    matplotlib.use("pdf")
+    pyplot.style.use("default")
+    plotting_info = request.session["lc_plotting"]
+    figure_config = dict(plotting_info["figure_config"])
+    figure_config["facecolor"] = "white"
+    figure = pyplot.figure(**figure_config)
+    if plotting_info["target_fname"]:
+        _create_subplots(
+            {
+                "target_info": plotting_info[plotting_info["target_fname"]],
+                "plot_layout": plotting_info["plot_layout"],
+                "plot_config": [
+                    data_select["plot_config"]
+                    for data_select in plotting_info["data_select"]
+                ],
+                "plot_decorations": plotting_info["plot_decorations"],
+            },
+            *plotting_info["plot_layout"],
+            None,
+            figure,
+        )
+    for ax in figure.get_axes():
+        ax.set_facecolor("white")
+    with BytesIO() as image_stream:
+        pyplot.savefig(image_stream, bbox_inches="tight", format="pdf", facecolor="white", edgecolor="white")
+        image_stream.seek(0)
+        return HttpResponse(
+            image_stream.read(),
+            content_type="application/pdf",
+            headers={
+                "Content-Disposition": 'attachment; filename="lightcurve.pdf"'
+            }
+        )
