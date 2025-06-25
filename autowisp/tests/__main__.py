@@ -15,12 +15,16 @@ from autowisp.tests.test_stack_to_master import TestStackToMaster
 from autowisp.tests.test_find_stars import TestFindStars
 from autowisp.tests.test_solve_astrometry import TestSolveAstrometry
 from autowisp.tests.test_fit_star_shape import TestFitStarShape
+from autowisp.tests.test_measure_aperture_photometry import (
+    TestMeasureAperturePhotometry,
+)
+
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
-        #temp_dir = (
+        # temp_dir = (
         #    "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
-        #)
+        # )
         get_test_data(temp_dir)
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
@@ -52,4 +56,7 @@ if __name__ == "__main__":
         TestFindStars.set_test_directory(temp_dir, processing_dir)
         TestSolveAstrometry.set_test_directory(temp_dir, processing_dir)
         TestFitStarShape.set_test_directory(temp_dir, processing_dir)
+        TestMeasureAperturePhotometry.set_test_directory(
+            temp_dir, processing_dir
+        )
         unittest.main()
