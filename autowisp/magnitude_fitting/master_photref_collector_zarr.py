@@ -190,8 +190,11 @@ class MasterPhotrefCollector:
                     ] = statistics[stat_quantity][:, quantity_column]
                 quantity_column += 1
 
+        destination_dir = os.path.dirname(self._statistics_fname)
+        if not os.path.exists(destination_dir):
+            os.makedirs(destination_dir)
         numpy.savetxt(self._statistics_fname, save_stat, fmt=save_fmt)
-        with open(self._statistics_fname, "r") as stat_file:
+        with open(self._statistics_fname, "r", encoding='utf-8') as stat_file:
             self._logger.debug("Statistics file:\n%s", stat_file.read())
 
     def _add_catalog_info(self, catalog, statistics, catalog_columns):
