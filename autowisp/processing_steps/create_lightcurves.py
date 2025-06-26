@@ -4,7 +4,7 @@
 
 from bisect import bisect
 import logging
-from os import path
+from os import path, makedirs
 
 from asteval import Interpreter
 import numpy
@@ -253,6 +253,9 @@ class MasterCatalog:
             for coord in ["RA", "Dec"]:
                 table_hdu.header[coord] = numpy.median(self._centers[coord])
 
+        cat_dir = path.dirname(self._master_cat_fname)
+        if not path.exists(cat_dir):
+            makedirs(cat_dir)
         fits.HDUList([fits.PrimaryHDU(), table_hdu]).writeto(
             self._master_cat_fname, overwrite=True
         )

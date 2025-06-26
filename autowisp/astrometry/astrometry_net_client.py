@@ -45,11 +45,11 @@ try:
     # py3
     from urllib.parse import urlencode, quote
     from urllib.request import urlopen, Request
-    from urllib.error import HTTPError
+    from urllib.error import HTTPError, URLError
 except ImportError:
     # py2
     from urllib import urlencode, quote
-    from urllib2 import urlopen, Request, HTTPError
+    from urllib2 import urlopen, Request, HTTPError, URLError
 
 #from exceptions import Exception
 from email.mime.base import MIMEBase
@@ -146,7 +146,7 @@ class Client(object):
                     errstr = result.get('errormessage', '(none)')
                     raise RequestError('server error message: ' + errstr)
                 return result
-            except HTTPError as e:
+            except (HTTPError, URLError) as e:
                 self._logger.critical('HTTPError: %s\n%s', e, e.read())
                 self._logger.critical('Retrying...')
                 sleep(60)
