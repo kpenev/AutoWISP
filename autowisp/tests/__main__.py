@@ -5,13 +5,15 @@
 from tempfile import TemporaryDirectory
 from os import path, makedirs
 from subprocess import run
+from shutil import copy
 
 import unittest
 
 from autowisp.tests import autowisp_dir, AutoWISPTestCase
 from autowisp.tests.get_test_data import get_test_data
-#Automatically used by pytest
-#pylint: disable=unused-import
+
+# Automatically used by pytest
+# pylint: disable=unused-import
 from autowisp.tests.test_calibrate import TestCalibrate
 from autowisp.tests.test_stack_to_master import TestStackToMaster
 from autowisp.tests.test_find_stars import TestFindStars
@@ -26,13 +28,14 @@ from autowisp.tests.test_fit_source_extracted_psf_map import (
 from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
-#pylint: enable=unused-import
+
+# pylint: enable=unused-import
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
-        #temp_dir = (
+        # temp_dir = (
         #   "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
-        #)
+        # )
         get_test_data(temp_dir)
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
@@ -49,17 +52,9 @@ if __name__ == "__main__":
             cwd=processing_dir,
             check=True,
         )
-        with open(
+        copy(
             path.join(temp_dir, "test.cfg"),
-            "r",
-            encoding="utf-8",
-        ) as cfg_template, open(
-            path.join(processing_dir, "test.cfg"), "w", encoding="utf-8"
-        ) as cfg_file:
-            cfg_file.write(
-                cfg_template.read().replace("@@OUTDIR@@", processing_dir)
-            )
-        AutoWISPTestCase.set_test_directory(
-            temp_dir, processing_dir
+            path.join(processing_dir, "test.cfg"),
         )
+        AutoWISPTestCase.set_test_directory(temp_dir, processing_dir)
         unittest.main()
