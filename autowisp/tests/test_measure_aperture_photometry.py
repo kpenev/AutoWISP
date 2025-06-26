@@ -1,9 +1,9 @@
 """Define test case for the fit_star_shape step."""
 
-from autowisp.tests.dr_test_case import DRTestCase
+from autowisp.tests.h5_test_case import H5TestCase
 
 
-class TestMeasureAperturePhotometry(DRTestCase):
+class TestMeasureAperturePhotometry(H5TestCase):
     """Tests of the fit_star_shape step."""
 
     @staticmethod
@@ -19,5 +19,5 @@ class TestMeasureAperturePhotometry(DRTestCase):
             "measure_aperture_photometry",
             "CAL",
             ["AperturePhotometry"],
-            self.is_magfit,
+            ignore=self.is_magfit,
         )

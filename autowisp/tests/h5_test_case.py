@@ -12,8 +12,8 @@ from autowisp.tests import steps_dir
 from autowisp.tests import AutoWISPTestCase
 
 
-class DRTestCase(AutoWISPTestCase):
-    """Add assert for comparing groups in DR files."""
+class H5TestCase(AutoWISPTestCase):
+    """Add assert for comparing groups in HDF5 files."""
 
     def assert_groups_match(self, dr_fname1, dr_fname2, group_name, ignore):
         """Check if two DR files have the same groups."""
@@ -35,7 +35,7 @@ class DRTestCase(AutoWISPTestCase):
                 )
             else:
                 self.assertTrue(
-                    numpy.array_equal(dset1[:], dset2[:], equal_nan=True),
+                    numpy.array_equal(dset1[:], dset2[:]),
                     f"Data in datasets {dr_fname1!r}/{dset1.name!r} and "
                     f"{dr_fname2!r}/{dset2.name!r} do not match.",
                 )
@@ -99,23 +99,28 @@ class DRTestCase(AutoWISPTestCase):
             else:
                 dr1[group_name].visititems(assert_obj_match)
 
-    def run_step_test(self, step_name, input_type, compare_groups, ignore=None):
+    # pylint: disable=too-many-arguments
+    def run_step_test(
+        self, step_name, input_type, compare, *, ignore=None, output_type="DR"
+    ):
         """Run a test of a single step that updates the DR files."""
 
         if input_type == "CAL":
             input_dir = path.join(self.test_directory, input_type, "object")
         else:
-            assert input_type == "DR"
-            input_dir = path.join(self.processing_directory, "DR")
-        copytree(
-            path.join(self.test_directory, "DR"),
-            path.join(self.processing_directory, "DR"),
-        )
-        for fname in glob(path.join(self.processing_directory, "DR", "*.h5")):
-            with h5py.File(fname, "a") as dr_file:
-                for group in compare_groups:
-                    if group in dr_file:
-                        del dr_file[group]
+            input_dir = path.join(self.processing_directory, input_type)
+        if input_type != "LC":
+            copytree(
+                path.join(self.test_directory, "DR"),
+                path.join(self.processing_directory, "DR"),
+            )
+            for fname in glob(
+                path.join(self.processing_directory, output_type, "*.h5")
+            ):
+                with h5py.File(fname, "a") as dr_file:
+                    for group in compare:
+                        if group in dr_file:
+                            del dr_file[group]
 
         self.run_calib_step(
             [
@@ -128,17 +133,21 @@ class DRTestCase(AutoWISPTestCase):
         )
 
         generated = sorted(
-            glob(path.join(self.processing_directory, "DR", "*.h5"))
+            glob(path.join(self.processing_directory, output_type, "*.h5"))
         )
-        expected = sorted(glob(path.join(self.test_directory, "DR", "*.h5")))
+        expected = sorted(
+            glob(path.join(self.test_directory, output_type, "*.h5"))
+        )
         self.assertTrue(
             [path.basename(fname) for fname in generated]
             == [path.basename(fname) for fname in expected],
             "Generated files do not match expected files!",
         )
         for gen_fname, exp_fname in zip(generated, expected):
-            for group in compare_groups:
+            for group in compare:
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
 
         rmtree(path.join(self.processing_directory, "DR"))
+
+    # pylint: enable=too-many-arguments
