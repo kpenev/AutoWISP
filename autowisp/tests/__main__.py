@@ -25,6 +25,7 @@ from autowisp.tests.test_fit_source_extracted_psf_map import (
 )
 from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
+from autowisp.tests.test_epd import TestEPD
 #pylint: enable=unused-import
 
 if __name__ == "__main__":

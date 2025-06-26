@@ -109,18 +109,18 @@ class H5TestCase(AutoWISPTestCase):
             input_dir = path.join(self.test_directory, input_type, "object")
         else:
             input_dir = path.join(self.processing_directory, input_type)
-        if input_type != "LC":
-            copytree(
-                path.join(self.test_directory, "DR"),
-                path.join(self.processing_directory, "DR"),
-            )
-            for fname in glob(
-                path.join(self.processing_directory, output_type, "*.h5")
-            ):
-                with h5py.File(fname, "a") as dr_file:
-                    for group in compare:
-                        if group in dr_file:
-                            del dr_file[group]
+        get_from_test = "LC" if input_type == "LC" else "DR"
+        copytree(
+            path.join(self.test_directory, get_from_test),
+            path.join(self.processing_directory, get_from_test),
+        )
+        for fname in glob(
+            path.join(self.processing_directory, output_type, "*.h5")
+        ):
+            with h5py.File(fname, "a") as dr_file:
+                for group in compare:
+                    if group in dr_file:
+                        del dr_file[group]
 
         self.run_calib_step(
             [
@@ -148,6 +148,8 @@ class H5TestCase(AutoWISPTestCase):
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
 
-        rmtree(path.join(self.processing_directory, "DR"))
+        rmtree(path.join(self.processing_directory, get_from_test))
+        if get_from_test != output_type:
+            rmtree(path.join(self.processing_directory, output_type))
 
     # pylint: enable=too-many-arguments
