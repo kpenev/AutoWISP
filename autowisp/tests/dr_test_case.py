@@ -15,7 +15,7 @@ from autowisp.tests import AutoWISPTestCase
 class DRTestCase(AutoWISPTestCase):
     """Add assert for comparing groups in DR files."""
 
-    def assert_groups_match(self, dr_fname1, dr_fname2, group_name):
+    def assert_groups_match(self, dr_fname1, dr_fname2, group_name, ignore):
         """Check if two DR files have the same groups."""
 
         def assert_dset_match(dset1, dset2):
@@ -55,6 +55,8 @@ class DRTestCase(AutoWISPTestCase):
             def assert_obj_match(_, obj1):
                 """Assert the two datasets or groups contain the same data."""
 
+                if ignore is not None and ignore(obj1.name):
+                    return
                 obj2 = dr2[obj1.name]
                 self.assertEqual(
                     set(obj1.attrs.keys()),
@@ -78,6 +80,10 @@ class DRTestCase(AutoWISPTestCase):
                             ),
                             msg,
                         )
+                    elif numpy.atleast_1d(value).size > 1:
+                        self.assertTrue(
+                            numpy.array_equal(obj2.attrs[key], value), msg
+                        )
                     else:
                         self.assertEqual(obj2.attrs[key], value, msg)
 
@@ -88,9 +94,12 @@ class DRTestCase(AutoWISPTestCase):
                     )
                     assert_dset_match(obj1, obj2)
 
-            dr1[group_name].visititems(assert_obj_match)
+            if isinstance(dr1[group_name], h5py.Dataset):
+                assert_obj_match(None, dr1[group_name])
+            else:
+                dr1[group_name].visititems(assert_obj_match)
 
-    def run_step_test(self, step_name, input_type, compare_groups):
+    def run_step_test(self, step_name, input_type, compare_groups, ignore=None):
         """Run a test of a single step that updates the DR files."""
 
         if input_type == "CAL":
@@ -129,5 +138,7 @@ class DRTestCase(AutoWISPTestCase):
         )
         for gen_fname, exp_fname in zip(generated, expected):
             for group in compare_groups:
-                self.assert_groups_match(gen_fname, exp_fname, group)
+                self.assert_groups_match(gen_fname, exp_fname, group, ignore)
+                self.assert_groups_match(exp_fname, gen_fname, group, ignore)
+
         rmtree(path.join(self.processing_directory, "DR"))

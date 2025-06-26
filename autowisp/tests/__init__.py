@@ -44,6 +44,7 @@ class AutoWISPTestCase(TestCase):
         )
         self.assertTrue(
             calib_process.returncode == 0,
-            f"AutoWISP step command:\n{command!r} "
+            f"AutoWISP step command:\n{command!r}\n"
+            f"Started from {self.processing_directory!r} "
             f"failed:\n{calib_process.stdout.decode('utf-8')}",
         )
