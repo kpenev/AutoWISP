@@ -15,4 +15,6 @@ python3 ../..//database/initialize_database.py --drop-hdf5-structure-tables \
 && python3 ../../processing_steps/fit_magnitudes.py -c test.cfg DR \
 && python3 ../../processing_steps/create_lightcurves.py -c test.cfg DR \
 && python3 ../../processing_steps/epd.py -c test.cfg LC \
-&& python3 ../../processing_steps/generate_epd_statistics.py -c test.cfg LC
+&& python3 ../../processing_steps/generate_epd_statistics.py -c test.cfg LC \
+&& python3 ../../processing_steps/tfa.py -c test.cfg LC \
+&& python3 ../../processing_steps/generate_tfa_statistics.py -c test.cfg LC
