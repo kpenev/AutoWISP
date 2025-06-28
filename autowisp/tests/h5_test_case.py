@@ -1,8 +1,7 @@
 """Define class to compare groups in DR files."""
 
-from os import path, makedirs
+from os import path
 from glob import glob
-from shutil import copytree, rmtree, copy
 
 import numpy
 import h5py
@@ -14,24 +13,6 @@ from autowisp.tests import AutoWISPTestCase
 
 class H5TestCase(AutoWISPTestCase):
     """Add assert for comparing groups in HDF5 files."""
-
-    def _get_inputs(self, inputs):
-        """Get the input files for the test step and return what to clean up."""
-
-        to_cleanup = set()
-        for product in inputs:
-            source = path.join(self.test_directory, product)
-            destination = path.join(self.processing_directory, product)
-            assert path.exists(source)
-            if path.isdir(source):
-                copytree(source, destination)
-            else:
-                assert path.isfile(source)
-                destination = path.dirname(destination)
-                makedirs(destination, exist_ok=True)
-                copy(source, destination)
-            to_cleanup.add(destination)
-        return to_cleanup
 
     def assert_groups_match(self, dr_fname1, dr_fname2, group_name, ignore):
         """Check if two DR files have the same groups."""
@@ -144,8 +125,7 @@ class H5TestCase(AutoWISPTestCase):
 
         if isinstance(inputs, str):
             inputs = [inputs]
-        to_cleanup = self._get_inputs(inputs)
-        to_cleanup.add(path.join(self.processing_directory, output_type))
+        self.get_inputs(inputs)
         for fname in glob(
             path.join(self.processing_directory, output_type, "*.h5")
         ):
@@ -180,7 +160,6 @@ class H5TestCase(AutoWISPTestCase):
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
 
-        for dirname in to_cleanup:
-            rmtree(dirname)
+        self.successful_test = True
 
     # pylint: enable=too-many-arguments

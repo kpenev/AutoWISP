@@ -51,6 +51,7 @@ class TestCalibrate(FITSTestCase):
         rmtree(
             path.join(self.processing_directory, "CAL", input_imtype)
         )
+        self.successful_test = True
 
     def test_bias_calibration(self):
         """Check if bias calibration works as expected."""

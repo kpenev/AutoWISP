@@ -1,7 +1,8 @@
 """Autowisp unit-test init."""
 
-from os import path
+from os import path, makedirs
 from subprocess import run, PIPE, STDOUT
+from shutil import copytree, copy, rmtree
 
 from astrowisp.tests.utilities import FloatTestCase
 
@@ -10,6 +11,24 @@ steps_dir = path.join(autowisp_dir, "processing_steps")
 
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
+
+    successful_test = False
+
+    def get_inputs(self, inputs):
+        """Get the input files for the test step and return what to clean up."""
+
+        for product in inputs:
+            source = path.join(self.test_directory, product)
+            destination = path.join(self.processing_directory, product)
+            assert path.exists(source)
+            if path.isdir(source):
+                copytree(source, destination)
+            else:
+                assert path.isfile(source)
+                destination = path.dirname(destination)
+                makedirs(destination, exist_ok=True)
+                copy(source, destination)
+
 
     @classmethod
     def set_test_directory(cls, test_dirname, processing_dirname):
@@ -32,6 +51,25 @@ class AutoWISPTestCase(FloatTestCase):
             path.exists(self.test_directory),
             f"Test directory {self.test_directory} does not exist!",
         )
+        makedirs(self.processing_directory, exist_ok=True)
+        copy(
+            path.join(self.test_directory, "test.cfg"),
+            path.join(self.processing_directory, "test.cfg"),
+        )
+        copy(
+            path.join(self.test_directory, "autowisp.db"),
+            path.join(self.processing_directory, "autowisp.db")
+        )
+
+        successful_test = False
+
+    def tearDown(self):
+        """Remove the processing directory."""
+
+        assert self.successful_test
+        if self.successful_test:
+            rmtree(self.processing_directory)
+
 
     def run_calib_step(self, command):
         """Run a calibration step and check the return code."""

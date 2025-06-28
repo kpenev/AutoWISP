@@ -40,6 +40,7 @@ class TestStackToMaster(FITSTestCase):
             generated_master,
         )
         remove(generated_master)
+        self.successful_test = True
 
     def test_stack_master_bias(self):
         """Check if creating master bias works as expected."""
