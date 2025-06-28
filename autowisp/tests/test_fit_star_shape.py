@@ -1,5 +1,7 @@
 """Define test case for the fit_star_shape step."""
 
+from os import path
+
 from autowisp.tests.h5_test_case import H5TestCase
 
 class TestFitStarShape(H5TestCase):
@@ -10,6 +12,6 @@ class TestFitStarShape(H5TestCase):
 
         self.run_step_test(
             "fit_star_shape",
-            "CAL",
+            [path.join("CAL", "object"), "DR"],
             ['Background', 'ProjectedSources', 'ShapeFit'],
         )

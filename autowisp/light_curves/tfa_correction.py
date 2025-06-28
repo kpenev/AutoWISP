@@ -1116,6 +1116,11 @@ class TFACorrection(Correction):
                 "Adding extra templates is not implemented yet."
             )
 
+        self._logger.debug(
+            "Applying TFA to light curve %s with %d datasets.",
+            repr(lc_fname),
+            len(self.fit_datasets),
+        )
         with LightCurveFile(lc_fname, "r+") as light_curve:
             result = numpy.empty(
                 1,

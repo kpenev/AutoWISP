@@ -1,5 +1,7 @@
 """Unit tests for the find_stars step."""
 
+from os import path
+
 from autowisp.tests.h5_test_case import H5TestCase
 
 
@@ -11,6 +13,6 @@ class TestFindStars(H5TestCase):
 
         self.run_step_test(
             "find_stars",
-            "CAL",
-            ["SourceExtraction/Version000/Sources"]
+            path.join("CAL", "object"),
+            ["SourceExtraction/Version000/Sources"],
         )

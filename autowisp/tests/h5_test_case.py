@@ -1,8 +1,8 @@
 """Define class to compare groups in DR files."""
 
-from os import path
+from os import path, makedirs
 from glob import glob
-from shutil import copytree, rmtree
+from shutil import copytree, rmtree, copy
 
 import numpy
 import h5py
@@ -14,6 +14,24 @@ from autowisp.tests import AutoWISPTestCase
 
 class H5TestCase(AutoWISPTestCase):
     """Add assert for comparing groups in HDF5 files."""
+
+    def _get_inputs(self, inputs):
+        """Get the input files for the test step and return what to clean up."""
+
+        to_cleanup = set()
+        for product in inputs:
+            source = path.join(self.test_directory, product)
+            destination = path.join(self.processing_directory, product)
+            assert path.exists(source)
+            if path.isdir(source):
+                copytree(source, destination)
+            else:
+                assert path.isfile(source)
+                destination = path.dirname(destination)
+                makedirs(destination, exist_ok=True)
+                copy(source, destination)
+            to_cleanup.add(destination)
+        return to_cleanup
 
     def assert_groups_match(self, dr_fname1, dr_fname2, group_name, ignore):
         """Check if two DR files have the same groups."""
@@ -101,26 +119,40 @@ class H5TestCase(AutoWISPTestCase):
 
     # pylint: disable=too-many-arguments
     def run_step_test(
-        self, step_name, input_type, compare, *, ignore=None, output_type="DR"
+        self, step_name, inputs, compare, *, ignore=None, output_type="DR"
     ):
-        """Run a test of a single step that updates the DR files."""
+        """
+        Run a test of a single step that updates the DR files.
 
-        if input_type == "CAL":
-            input_dir = path.join(self.test_directory, input_type, "object")
-        else:
-            input_dir = path.join(self.processing_directory, input_type)
-        get_from_test = "LC" if input_type == "LC" else "DR"
-        copytree(
-            path.join(self.test_directory, get_from_test),
-            path.join(self.processing_directory, get_from_test),
-        )
+        Args:
+            step_name(str):    The name of the step being tested
+
+            inputs([]):    List of the directories or files needed by the step.
+                The first entry (with full path added) is passed as input to the
+                step.
+
+            compare([]):    List of the HDF5 groups to compare in order to
+                ensure the step produced correct results,
+
+            ignore(callable):    Function that returns true on any dataset or
+                group in the HDF5 file that should not be compared when it is
+                under the groups specified in ``compare``
+
+            tput_type(str):    The type of output files produced by the step
+                (i.e. whic files should be compared),
+        """
+
+        if isinstance(inputs, str):
+            inputs = [inputs]
+        to_cleanup = self._get_inputs(inputs)
+        to_cleanup.add(path.join(self.processing_directory, output_type))
         for fname in glob(
             path.join(self.processing_directory, output_type, "*.h5")
         ):
-            with h5py.File(fname, "a") as dr_file:
+            with h5py.File(fname, "a") as h5_file:
                 for group in compare:
-                    if group in dr_file:
-                        del dr_file[group]
+                    if group in h5_file:
+                        del h5_file[group]
 
         self.run_calib_step(
             [
@@ -128,7 +160,7 @@ class H5TestCase(AutoWISPTestCase):
                 path.join(steps_dir, step_name + ".py"),
                 "-c",
                 "test.cfg",
-                input_dir,
+                path.join(self.processing_directory, inputs[0]),
             ]
         )
 
@@ -148,8 +180,7 @@ class H5TestCase(AutoWISPTestCase):
                 self.assert_groups_match(gen_fname, exp_fname, group, ignore)
                 self.assert_groups_match(exp_fname, gen_fname, group, ignore)
 
-        rmtree(path.join(self.processing_directory, get_from_test))
-        if get_from_test != output_type:
-            rmtree(path.join(self.processing_directory, output_type))
+        for dirname in to_cleanup:
+            rmtree(dirname)
 
     # pylint: enable=too-many-arguments

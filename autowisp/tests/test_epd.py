@@ -1,4 +1,4 @@
-"""Define test case for the create_lightcurves step."""
+"""Define test case for the epd step."""
 
 from autowisp.tests.h5_test_case import H5TestCase
 

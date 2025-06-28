@@ -28,15 +28,16 @@ from autowisp.tests.test_fit_source_extracted_psf_map import (
 from autowisp.tests.test_fit_magnitudes import TestFitMagnitudes
 from autowisp.tests.test_create_lightcurves import TestCreateLightcurves
 from autowisp.tests.test_epd import TestEPD
+from autowisp.tests.test_tfa import TestTFA
 
 # pylint: enable=unused-import
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
-        # temp_dir = (
-        #   "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
-        # )
         get_test_data(temp_dir)
+        #temp_dir = (
+        #  "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
+        #)
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir)
         run(
@@ -57,4 +58,4 @@ if __name__ == "__main__":
             path.join(processing_dir, "test.cfg"),
         )
         AutoWISPTestCase.set_test_directory(temp_dir, processing_dir)
-        unittest.main()
+        unittest.main(failfast=True)

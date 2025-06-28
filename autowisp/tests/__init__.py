@@ -2,12 +2,13 @@
 
 from os import path
 from subprocess import run, PIPE, STDOUT
-from unittest import TestCase
+
+from astrowisp.tests.utilities import FloatTestCase
 
 autowisp_dir = path.dirname(path.dirname(path.abspath(__file__)))
 steps_dir = path.join(autowisp_dir, "processing_steps")
 
-class AutoWISPTestCase(TestCase):
+class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
     @classmethod

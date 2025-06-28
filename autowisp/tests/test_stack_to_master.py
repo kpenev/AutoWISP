@@ -1,6 +1,6 @@
 """Test cases for master stacking."""
 
-from os import path
+from os import path, remove
 from subprocess import run, PIPE, STDOUT
 
 from autowisp.tests import steps_dir
@@ -30,14 +30,16 @@ class TestStackToMaster(FITSTestCase):
                 input_dir,
             ]
         )
+        generated_master = path.join(
+                self.processing_directory, "MASTERS", master_type + "_R.fits.fz"
+            )
         self.assert_fits_match(
             path.join(
                 self.test_directory, "MASTERS", master_type + "_R.fits.fz"
             ),
-            path.join(
-                self.processing_directory, "MASTERS", master_type + "_R.fits.fz"
-            ),
+            generated_master,
         )
+        remove(generated_master)
 
     def test_stack_master_bias(self):
         """Check if creating master bias works as expected."""
