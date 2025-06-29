@@ -14,7 +14,7 @@ class TestStackToMaster(FITSTestCase):
         """Perform a stacking step and test outputs match expectations."""
 
         input_dir = path.join(self.test_directory, "CAL", master_type)
-        self.run_calib_step(
+        self.run_step(
             [
                 "python3",
                 path.join(

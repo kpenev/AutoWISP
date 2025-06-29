@@ -7,8 +7,7 @@ import numpy
 import h5py
 
 
-from autowisp.tests import steps_dir
-from autowisp.tests import AutoWISPTestCase
+from autowisp.tests import AutoWISPTestCase, steps_dir
 
 
 class H5TestCase(AutoWISPTestCase):
@@ -134,7 +133,7 @@ class H5TestCase(AutoWISPTestCase):
                     if group in h5_file:
                         del h5_file[group]
 
-        self.run_calib_step(
+        self.run_step(
             [
                 "python3",
                 path.join(steps_dir, step_name + ".py"),

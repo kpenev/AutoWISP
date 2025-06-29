@@ -3,6 +3,7 @@
 from os import path, makedirs
 from subprocess import run, PIPE, STDOUT
 from shutil import copytree, copy, rmtree
+from glob import glob
 
 from astrowisp.tests.utilities import FloatTestCase
 
@@ -18,16 +19,19 @@ class AutoWISPTestCase(FloatTestCase):
         """Get the input files for the test step and return what to clean up."""
 
         for product in inputs:
-            source = path.join(self.test_directory, product)
-            destination = path.join(self.processing_directory, product)
-            assert path.exists(source)
-            if path.isdir(source):
-                copytree(source, destination)
-            else:
-                assert path.isfile(source)
-                destination = path.dirname(destination)
-                makedirs(destination, exist_ok=True)
-                copy(source, destination)
+            for source in glob(path.join(self.test_directory, product)):
+                destination = source.replace(
+                    self.test_directory,
+                    self.processing_directory,
+                )
+                assert path.exists(source)
+                if path.isdir(source):
+                    copytree(source, destination)
+                else:
+                    assert path.isfile(source)
+                    destination = path.dirname(destination)
+                    makedirs(destination, exist_ok=True)
+                    copy(source, destination)
 
 
     @classmethod
@@ -61,7 +65,7 @@ class AutoWISPTestCase(FloatTestCase):
             path.join(self.processing_directory, "autowisp.db")
         )
 
-        successful_test = False
+        self.successful_test = False
 
     def tearDown(self):
         """Remove the processing directory."""
@@ -71,7 +75,7 @@ class AutoWISPTestCase(FloatTestCase):
             rmtree(self.processing_directory)
 
 
-    def run_calib_step(self, command):
+    def run_step(self, command):
         """Run a calibration step and check the return code."""
 
         calib_process = run(

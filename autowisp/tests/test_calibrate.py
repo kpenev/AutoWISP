@@ -25,7 +25,7 @@ class TestCalibrate(FITSTestCase):
         ]
         for master_type, master_fname in masters.items():
             command.extend([f"--master-{master_type}", master_fname])
-        self.run_calib_step(command)
+        self.run_step(command)
 
         generated = sorted(
             glob(
