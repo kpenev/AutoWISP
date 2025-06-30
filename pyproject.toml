@@ -1,0 +1,83 @@
+#Control file for cibuildwheel (generate PIP wheels using github actions)
+
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
+
+[project]
+name = 'autowisp'
+
+authors = [
+    { name = 'Kaloyan Penev', email = 'Kaloyan.Penev@utdallas.edu' },
+    { name = 'Angel Romero', email = 'Angel.Romero@utdallas.edu' },
+    { name = 'Ashkan Jafarzadeh', email = 'ashkan.jafarzadeh@utdallas.edu' },
+]
+
+maintainers = [
+    { name = 'Kaloyan Penev', email = 'Kaloyan.Penev@utdallas.edu' },
+    { name = 'Angel Romero', email = 'Angel.Romero@utdallas.edu' },
+    { name = 'Ashkan Jafarzadeh', email = 'ashkan.jafarzadeh@utdallas.edu' }
+]
+
+license = { file = 'LICENSE' }
+
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Environment :: Console',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: MacOS',
+    'Operating System :: POSIX :: Linux',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: C++',
+    'Programming Language :: C',
+    'Programming Language :: Python :: 3',
+    'Topic :: Scientific/Engineering :: Image Processing',
+    'Topic :: Scientific/Engineering :: Astronomy',
+    'Topic :: Scientific/Engineering :: Physics'
+]
+
+dependencies = [
+    'numpy < 2',
+    'scipy',
+    'astropy',
+    'astrowisp > 1.3',
+    'asteval',
+    'pandas',
+    'configargparse',
+    'matplotlib','
+    'h5py',
+    'pillow',
+    'sqlalchemy',
+    'psutil',
+    'zarr',
+    'rechunker',
+    'requests',
+    'antlr4-python3-runtime',
+    'pytransit',
+]
+
+description = 'Pipeline for extracting photometry from wide-field night sky images'
+
+readme = 'README.rst'
+
+requires-python = '>3.7'
+
+dynamic = ['version']
+
+[project.urls]
+source = 'https://github.com/kpenev/AutoWISP'
+documentation = 'https://kpenev.github.io/AutoWISP/'
+
+[project.optional-dependencies]
+test = []
+
+browser_interface = [
+    'Django'
+]
+
+[tool.black]
+line-length = 80
+
+
