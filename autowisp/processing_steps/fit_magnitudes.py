@@ -441,9 +441,10 @@ def has_apphot(dr_fname, substitutions):
             return False
 
 
-def manual(configuration):
+def main():
     """Run the step from command line."""
 
+    configuration = parse_command_line()
     setup_process(task="manage", **configuration)
     with DataReductionFile(
         configuration["single_photref_dr_fname"], "r+"
@@ -472,4 +473,4 @@ def manual(configuration):
 
 
 if __name__ == "__main__":
-    manual(parse_command_line())
+    main()

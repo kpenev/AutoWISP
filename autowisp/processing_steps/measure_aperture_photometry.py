@@ -234,7 +234,9 @@ def has_psf_model(image_fname, shapefit_version):
             return False
 
 
-if __name__ == "__main__":
+def main():
+    """Run the step from the command line."""
+
     cmdline_config = parse_command_line()
     DataReductionFile.fname_template = cmdline_config["data_reduction_fname"]
     cmdline_config["task"] = "manage"
@@ -254,3 +256,7 @@ if __name__ == "__main__":
         ignore_progress,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    main()

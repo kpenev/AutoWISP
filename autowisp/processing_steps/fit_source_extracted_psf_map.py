@@ -314,9 +314,10 @@ def has_astrometry(dr_fname, substitutions):
             return False
 
 
-def manual(configuration):
+def main():
     """Run the step from the command line."""
 
+    configuration = parse_command_line()
     setup_process(task="main", **configuration)
     dr_substitutions = get_dr_substitutions(configuration)
     fit_source_extracted_psf_map(
@@ -336,4 +337,4 @@ def manual(configuration):
 
 
 if __name__ == "__main__":
-    manual(parse_command_line())
+    main()

@@ -48,7 +48,9 @@ def epd(lc_collection, start_status, configuration, mark_progress):
     )
 
 
-if __name__ == "__main__":
+def main():
+    """Run the step from the command line."""
+
     cmdline_config = parse_command_line()
     setup_process(task="manage", **cmdline_config)
     epd(
@@ -57,3 +59,7 @@ if __name__ == "__main__":
         cmdline_config,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    main()

@@ -32,7 +32,9 @@ generate_tfa_statistics = partial(
 )
 
 
-if __name__ == "__main__":
+def main():
+    """Run the step from the command line."""
+
     cmdline_config = parse_command_line()
     setup_process(task="manage", **cmdline_config)
     generate_tfa_statistics(
@@ -41,3 +43,7 @@ if __name__ == "__main__":
         cmdline_config,
         ignore_progress,
     )
+
+
+if __name__ == "__main__":
+    main()

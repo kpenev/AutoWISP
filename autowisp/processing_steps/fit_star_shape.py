@@ -803,9 +803,10 @@ def has_astrometry(image_fname, substitutions):
             return False
 
 
-def manual(configuration):
+def main():
     """Run the step for fitting star shapes from the command line."""
 
+    configuration = parse_command_line()
     setup_process(task="manage", **configuration)
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     dr_path_substitutions = get_dr_substitutions(configuration)
@@ -827,4 +828,4 @@ def manual(configuration):
 
 
 if __name__ == "__main__":
-    manual(parse_command_line())
+    main()

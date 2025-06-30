@@ -356,9 +356,10 @@ def has_magfit(dr_fname, substitutions):
             return False
 
 
-def manual(configuration):
+def main():
     """Run the light curve creation step from the command line."""
 
+    configuration = parse_command_line()
     setup_process(task="manage", **configuration)
     dr_path_substitutions = get_path_substitutions(configuration)
     with DataReductionFile(
@@ -394,4 +395,4 @@ def manual(configuration):
 
 
 if __name__ == "__main__":
-    manual(parse_command_line())
+    main()

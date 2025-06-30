@@ -147,7 +147,9 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
-if __name__ == "__main__":
+def main():
+    """Run the step from the command line."""
+
     cmdline_config = parse_command_line()
     setup_process(task="manage", **cmdline_config)
     find_stars(
@@ -160,3 +162,6 @@ if __name__ == "__main__":
         ignore_progress,
         ignore_progress,
     )
+
+if __name__ == "__main__":
+    main()

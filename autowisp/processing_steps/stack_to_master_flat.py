@@ -499,7 +499,9 @@ def cleanup_interrupted(interrupted, configuration):
     return -1
 
 
-if __name__ == "__main__":
+def main():
+    """Run the step from the command line."""
+
     cmdline_config = parse_command_line()
     setup_process(task="main", **cmdline_config)
     stack_to_master_flat(
@@ -509,3 +511,6 @@ if __name__ == "__main__":
         ignore_progress,
         ignore_progress,
     )
+
+if __name__ == "__main__":
+    main()
