@@ -591,14 +591,14 @@ class TestMphotrefCollector(FloatTestCase):
             self._assertMaster(master_fname, test_name)
 
     def test_tiny(self):
-       """Tiny super-fast test."""
+        """Tiny super-fast test."""
 
-       self.perform_test("tiny")
+        self.perform_test("tiny")
 
     def test_rotatestars(self):
-       """Test with rotating collection of stars between images."""
+        """Test with rotating collection of stars between images."""
 
-       self.perform_test("rotatestars")
+        self.perform_test("rotatestars")
 
     def test_big(self):
         """Big test."""

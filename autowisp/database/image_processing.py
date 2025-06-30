@@ -962,7 +962,7 @@ class ImageProcessingManager(ProcessingManager):
             select(
                 ProcessedImages.image_id,
                 ProcessedImages.channel,
-                sql.func.max(ProcessedImages.status).label('status'),
+                sql.func.max(ProcessedImages.status).label("status"),
             )
             .join(ImageProcessingProgress)
             .where(ProcessedImages.status > 0)
@@ -1005,7 +1005,6 @@ class ImageProcessingManager(ProcessingManager):
                 .where(ProcessedImages.final)
             )
 
-
             status_subquery = (
                 status_select.where(ImageProcessingProgress.step_id == step.id)
                 .where(ImageProcessingProgress.image_type_id == image_type.id)
@@ -1015,7 +1014,6 @@ class ImageProcessingManager(ProcessingManager):
                 )
                 .subquery()
             )
-
 
             if invert:
                 processed_subquery = processed_subquery.where(
@@ -1389,10 +1387,15 @@ if __name__ == "__main__":
             try:
                 with open("detached_process.log", "w") as log_file:
                     subprocess.Popen(
-                        [sys.executable, os.path.abspath(sys.argv[0]), "--detached"] + sys.argv[1:],  # Relaunch with --detached
+                        [
+                            sys.executable,
+                            os.path.abspath(sys.argv[0]),
+                            "--detached",
+                        ]
+                        + sys.argv[1:],  # Relaunch with --detached
                         creationflags=DETACHED_PROCESS,
                         stdout=log_file,
-                        stderr=log_file
+                        stderr=log_file,
                     )
                 sys.exit(0)  # Exit parent process
             except Exception as e:

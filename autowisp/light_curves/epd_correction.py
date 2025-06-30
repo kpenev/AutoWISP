@@ -8,17 +8,19 @@ import numpy
 from numpy.lib import recfunctions
 
 from autowisp.evaluator import Evaluator
-from autowisp.fit_expression import\
-    Interface as FitTermsInterface,\
-    iterative_fit
+from autowisp.fit_expression import (
+    Interface as FitTermsInterface,
+    iterative_fit,
+)
 
 from .light_curve_file import LightCurveFile
 from .correction import Correction
 
-#Attempts to re-organize reduced readability
-#pylint: disable=too-many-instance-attributes
-#Using a class is justified.
-#pylint: disable=too-few-public-methods
+
+# Attempts to re-organize reduced readability
+# pylint: disable=too-many-instance-attributes
+# Using a class is justified.
+# pylint: disable=too-few-public-methods
 class EPDCorrection(Correction):
     """
     Class for deriving and applying EPD corrections to lightcurves.
@@ -41,75 +43,79 @@ class EPDCorrection(Correction):
 
     _logger = logging.getLogger(__name__)
 
-
     def _get_fit_configurations(self, fit_terms_expression):
         """Return the current fitting configurations (see self._fit_config)."""
 
         def format_substitutions(substitutions):
             """Return a string of `var=value` containing the given subs dict."""
 
-            return '; '.join(f'{item[0]} = {item[1]}'
-                             for item in substitutions.items())
+            return "; ".join(
+                f"{item[0]} = {item[1]}" for item in substitutions.items()
+            )
 
-        fit_variables_str = '; '.join([
-            (
-                f'{var_name} = {dataset_key} '
-                f'({format_substitutions(substitutions)})'
-            ) for var_name, (dataset_key,
-                             substitutions) in self.used_variables.items()
-        ])
+        fit_variables_str = "; ".join(
+            [
+                (
+                    f"{var_name} = {dataset_key} "
+                    f"({format_substitutions(substitutions)})"
+                )
+                for var_name, (
+                    dataset_key,
+                    substitutions,
+                ) in self.used_variables.items()
+            ]
+        )
         result = []
         for fit_target, fit_weights in zip(
-                self.fit_datasets,
-                (
-                    repeat(self.fit_weights or '') if (
-                        self.fit_weights is None
-                        or
-                        isinstance(self.fit_weights, str)
-                    ) else self.fit_weights
+            self.fit_datasets,
+            (
+                repeat(self.fit_weights or "")
+                if (
+                    self.fit_weights is None
+                    or isinstance(self.fit_weights, str)
                 )
+                else self.fit_weights
+            ),
         ):
 
             pipeline_key_prefix = self._get_config_key_prefix(fit_target)
 
             if self.fit_points_filter_expression is None:
-                point_filter = b''
+                point_filter = b""
             else:
-                point_filter = self.fit_points_filter_expression.encode('ascii')
+                point_filter = self.fit_points_filter_expression.encode("ascii")
 
             result.append(
                 [
                     (
-                        pipeline_key_prefix + 'variables',
-                        fit_variables_str.encode('ascii')
+                        pipeline_key_prefix + "variables",
+                        fit_variables_str.encode("ascii"),
+                    ),
+                    (pipeline_key_prefix + "fit_filter", point_filter),
+                    (
+                        pipeline_key_prefix + "fit_terms",
+                        fit_terms_expression.encode("ascii"),
                     ),
                     (
-                        pipeline_key_prefix + 'fit_filter',
-                        point_filter
+                        pipeline_key_prefix + "fit_weights",
+                        fit_weights.encode("ascii"),
                     ),
-                    (
-                        pipeline_key_prefix + 'fit_terms',
-                        fit_terms_expression.encode('ascii')
-                    ),
-                    (
-                        pipeline_key_prefix + 'fit_weights',
-                        fit_weights.encode('ascii')
-                    )
                 ]
-                +
-                self._get_io_iterative_fit_config(pipeline_key_prefix)
+                + self._get_io_iterative_fit_config(pipeline_key_prefix)
             )
 
         return result
 
-    def __init__(self,
-                 *,
-                 used_variables,
-                 fit_points_filter_expression,
-                 fit_terms_expression,
-                 fit_datasets,
-                 fit_weights=None,
-                 **iterative_fit_config):
+    def __init__(
+        self,
+        *,
+        used_variables,
+        fit_points_filter_expression,
+        fit_terms_expression,
+        fit_datasets,
+        fit_weights=None,
+        **iterative_fit_config,
+    ):
         """
         Configure the fitting.
 
@@ -154,13 +160,15 @@ class EPDCorrection(Correction):
         self.fit_weights = fit_weights
         self._io_fit_config = self._get_fit_configurations(fit_terms_expression)
 
-    #Re-factored as much as I could (KP)
-    #pylint: disable=too-many-locals
-    def __call__(self,
-                 lc_fname,
-                 get_fit_dataset=LightCurveFile.get_dataset,
-                 extra_predictors=None,
-                 save=True):
+    # Re-factored as much as I could (KP)
+    # pylint: disable=too-many-locals
+    def __call__(
+        self,
+        lc_fname,
+        get_fit_dataset=LightCurveFile.get_dataset,
+        extra_predictors=None,
+        save=True,
+    ):
         """
         Fit and correct the given lightcurve.
 
@@ -207,12 +215,13 @@ class EPDCorrection(Correction):
             """Return predictors, weights, and array flagging points to fit."""
 
             lc_variables = light_curve.read_data_array(self.used_variables)
-            self._logger.debug('Creating evaluator from:\n%s',
-                               repr(lc_variables))
+            self._logger.debug(
+                "Creating evaluator from:\n%s", repr(lc_variables)
+            )
             evaluate = Evaluator(lc_variables)
 
             predictors = FitTermsInterface(self.fit_terms_expression)(evaluate)
-            self._logger.debug('Predictors:\n%s', repr(predictors))
+            self._logger.debug("Predictors:\n%s", repr(predictors))
 
             if extra_predictors:
                 predictors = recfunctions.append_fields(
@@ -222,18 +231,20 @@ class EPDCorrection(Correction):
                         extra_predictors[predictor]
                         for predictor in extra_predictor_order
                     ],
-                    usemask=False
+                    usemask=False,
                 )
 
             fit_points = (
                 evaluate(self.fit_points_filter_expression)
-                if self.fit_points_filter_expression is not None else
-                numpy.ones(predictors.shape[1], dtype=bool)
+                if self.fit_points_filter_expression is not None
+                else numpy.ones(predictors.shape[1], dtype=bool)
             )
-            self._logger.debug('Fit points (%s): %d\n%s',
-                               self.fit_points_filter_expression,
-                               fit_points.sum(),
-                               repr(fit_points))
+            self._logger.debug(
+                "Fit points (%s): %d\n%s",
+                self.fit_points_filter_expression,
+                fit_points.sum(),
+                repr(fit_points),
+            )
             predictors = predictors[:, fit_points]
 
             if self.fit_weights is None:
@@ -248,16 +259,18 @@ class EPDCorrection(Correction):
                 ]
             return predictors, fit_weights, fit_points
 
-        #<++> Move out
-        def correct_one_dataset(light_curve,
-                                *,
-                                predictors,
-                                fit_points,
-                                fit_target,
-                                weights,
-                                fit_index,
-                                result,
-                                num_extra_predictors):
+        # <++> Move out
+        def correct_one_dataset(
+            light_curve,
+            *,
+            predictors,
+            fit_points,
+            fit_target,
+            weights,
+            fit_index,
+            result,
+            num_extra_predictors,
+        ):
             """
             Calculate and apply EPD correction to a single dataset.
 
@@ -287,35 +300,34 @@ class EPDCorrection(Correction):
                 None
             """
 
-            raw_values = self._get_fit_data(light_curve,
-                                            get_fit_dataset,
-                                            fit_target,
-                                            fit_points)
+            raw_values = self._get_fit_data(
+                light_curve, get_fit_dataset, fit_target, fit_points
+            )
             if isinstance(raw_values, tuple):
                 raw_values, fit_data = raw_values
             else:
                 fit_data = raw_values
 
             self._logger.debug(
-                'Fit data contains %d NaNs, %d non finites, and %d negatives',
+                "Fit data contains %d NaNs, %d non finites, and %d negatives",
                 numpy.isnan(fit_data).sum(),
                 numpy.logical_not(numpy.isfinite(fit_data)).sum(),
-                (fit_data < 0).sum()
+                (fit_data < 0).sum(),
             )
 
             raw_values = raw_values[fit_points]
             fit_data = fit_data[fit_points]
             fit_data -= numpy.nanmedian(fit_data)
 
-            #Those should come from self.iteritave_fit_config.
-            #pylint: disable=missing-kwoa
+            # Those should come from self.iteritave_fit_config.
+            # pylint: disable=missing-kwoa
             fit_results = iterative_fit(
                 predictors=predictors,
                 target_values=fit_data,
                 weights=weights,
-                **self.iterative_fit_config
+                **self.iterative_fit_config,
             )
-            #pylint: enable=missing-kwoa
+            # pylint: enable=missing-kwoa
 
             fit_results = self._process_fit(
                 fit_results=fit_results,
@@ -323,7 +335,7 @@ class EPDCorrection(Correction):
                 predictors=predictors,
                 fit_index=fit_index,
                 result=result,
-                num_extra_predictors=num_extra_predictors
+                num_extra_predictors=num_extra_predictors,
             )
             if save:
                 self._save_result(
@@ -341,22 +353,24 @@ class EPDCorrection(Correction):
         else:
             num_extra_predictors = len(extra_predictors.dtype.names)
 
-        with LightCurveFile(lc_fname, 'r+') as light_curve:
+        with LightCurveFile(lc_fname, "r+") as light_curve:
 
             result = numpy.full(
                 shape=1,
                 fill_value=numpy.nan,
-                dtype=self.get_result_dtype(len(self.fit_datasets),
-                                            extra_predictors)
+                dtype=self.get_result_dtype(
+                    len(self.fit_datasets), extra_predictors
+                ),
             )
 
             predictors, fit_weights, fit_points = prepare_fit(
-                result.dtype.names[-num_extra_predictors:] if extra_predictors
+                result.dtype.names[-num_extra_predictors:]
+                if extra_predictors
                 else []
             )
             if fit_points.any():
                 for fit_index, to_fit in enumerate(
-                        zip(self.fit_datasets, fit_weights)
+                    zip(self.fit_datasets, fit_weights)
                 ):
                     try:
                         correct_one_dataset(
@@ -367,30 +381,38 @@ class EPDCorrection(Correction):
                             weights=to_fit[1],
                             fit_index=fit_index,
                             result=result,
-                            num_extra_predictors=num_extra_predictors
+                            num_extra_predictors=num_extra_predictors,
                         )
                     except:
-                        error_message = '\n'.join([
-                            f'EPD failed for {to_fit[0]!r} dataset of '
-                            f'{lc_fname!r}'
-                            f'Predictors:\n{predictors!r}'
-                            f'fit_points:\n{fit_points!r}'
-                            f'fit_weights:\n{to_fit[1]!r}'
-                            f'fit_index: {fit_index:d}'
-                            f'num_extra_predictors: {num_extra_predictors:d}\n'
-                        ]) + format_exc()
+                        error_message = (
+                            "\n".join(
+                                [
+                                    f"EPD failed for {to_fit[0]!r} dataset of "
+                                    f"{lc_fname!r}"
+                                    f"Predictors:\n{predictors!r}"
+                                    f"fit_points:\n{fit_points!r}"
+                                    f"fit_weights:\n{to_fit[1]!r}"
+                                    f"fit_index: {fit_index:d}"
+                                    f"num_extra_predictors: {num_extra_predictors:d}\n"
+                                ]
+                            )
+                            + format_exc()
+                        )
                         self._logger.critical(error_message)
 
-                        #The point is to avoid pickling error when some
-                        #exceptions cannot travel back from Pool
-                        #pylint: disable=raise-missing-from
+                        # The point is to avoid pickling error when some
+                        # exceptions cannot travel back from Pool
+                        # pylint: disable=raise-missing-from
                         raise RuntimeError(error_message)
-                        #pylint: enable=raise-missing-from
+                        # pylint: enable=raise-missing-from
             else:
-                self._logger.info('No points to fit in %s', repr(lc_fname))
+                self._logger.info("No points to fit in %s", repr(lc_fname))
 
-            self.mark_progress(int(light_curve['Identifiers'][0][1]))
+            self.mark_progress(int(light_curve["Identifiers"][0][1]))
         return result
-    #pylint: enable=too-many-locals
-#pylint: enable=too-many-instance-attributes
-#pylint: enable=too-few-public-methods
+
+    # pylint: enable=too-many-locals
+
+
+# pylint: enable=too-many-instance-attributes
+# pylint: enable=too-few-public-methods

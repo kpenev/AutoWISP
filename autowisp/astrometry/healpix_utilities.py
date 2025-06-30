@@ -5,6 +5,7 @@ import numpy
 from astropy.wcs import WCS
 import healpy
 
+
 def square_query_vertices(center, size, rotation=0.0):
     """
     Vertices defining a rectangular query to pass to healpy.query_polygon.
@@ -54,5 +55,5 @@ def square_query_vertices(center, size, rotation=0.0):
     wcs.wcs.ctype = ["RA---TAN", "DEC--TAN"]
 
     ra_dec_corners = wcs.wcs_pix2world(xi_eta_corners, 1)
-    print('RA, Dec of corners:\n' + repr(ra_dec_corners))
+    print("RA, Dec of corners:\n" + repr(ra_dec_corners))
     return healpy.pixelfunc.ang2vec(*ra_dec_corners.transpose(), lonlat=True)

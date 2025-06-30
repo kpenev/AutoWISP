@@ -36,9 +36,7 @@ class TestCalibrate(FITSTestCase):
         )
         expected = sorted(
             glob(
-                path.join(
-                    self.test_directory, "CAL", input_imtype, "*.fits.fz"
-                )
+                path.join(self.test_directory, "CAL", input_imtype, "*.fits.fz")
             )
         )
         self.assertTrue(
@@ -48,9 +46,7 @@ class TestCalibrate(FITSTestCase):
         )
         for gen_fname, exp_fname in zip(generated, expected):
             self.assert_fits_match(exp_fname, gen_fname)
-        rmtree(
-            path.join(self.processing_directory, "CAL", input_imtype)
-        )
+        rmtree(path.join(self.processing_directory, "CAL", input_imtype))
         self.successful_test = True
 
     def test_bias_calibration(self):

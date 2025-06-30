@@ -1,5 +1,5 @@
-#Only a single class is defined so hardly makes sense to split.
-#pylint: disable=too-many-lines
+# Only a single class is defined so hardly makes sense to split.
+# pylint: disable=too-many-lines
 """Define a class for working with HDF5 files."""
 
 from abc import ABC, abstractmethod
@@ -7,7 +7,8 @@ from io import BytesIO
 import os
 import os.path
 from sys import exc_info
-#from ast import literal_eval
+
+# from ast import literal_eval
 from traceback import format_exception
 import logging
 
@@ -18,11 +19,12 @@ from astropy.io import fits
 
 from autowisp.pipeline_exceptions import HDF5LayoutError
 
-git_id = '$Id$'
+git_id = "$Id$"
 
-#This is a h5py issue not an issue with this module
-#pylint: disable=too-many-ancestors
-#pylint: disable=too-many-public-methods
+
+# This is a h5py issue not an issue with this module
+# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-public-methods
 class HDF5File(ABC, h5py.File):
     """
     Base class for HDF5 pipeline products.
@@ -61,7 +63,7 @@ class HDF5File(ABC, h5py.File):
         Return path, name of attribute in the file holding the layout version.
         """
 
-        return '/', 'LayoutVersion'
+        return "/", "LayoutVersion"
 
     @property
     @abstractmethod
@@ -121,18 +123,18 @@ class HDF5File(ABC, h5py.File):
         attribute parent is a group.
         """
 
-        dataset_paths = [self._file_structure[dataset_key].abspath
-                         for dataset_key in self.elements['dataset']]
+        dataset_paths = [
+            self._file_structure[dataset_key].abspath
+            for dataset_key in self.elements["dataset"]
+        ]
 
-        for attribute_key in self.elements['attribute']:
+        for attribute_key in self.elements["attribute"]:
             attribute = self._file_structure[attribute_key]
             attribute.parent_must_exist = attribute.parent in dataset_paths
 
-    def _write_text_to_dataset(self,
-                               dataset_key,
-                               text,
-                               if_exists='overwrite',
-                               **substitutions):
+    def _write_text_to_dataset(
+        self, dataset_key, text, if_exists="overwrite", **substitutions
+    ):
         r"""
         Adds ASCII text/file as a dateset to an HDF5 file.
 
@@ -153,21 +155,17 @@ class HDF5File(ABC, h5py.File):
         """
 
         if isinstance(text, bytes):
-            data = numpy.frombuffer(text, dtype='i1')
-        elif isinstance(text, numpy.ndarray) and text.dtype == 'i1':
+            data = numpy.frombuffer(text, dtype="i1")
+        elif isinstance(text, numpy.ndarray) and text.dtype == "i1":
             data = text
         else:
-            data = numpy.fromfile(text, dtype='i1')
+            data = numpy.fromfile(text, dtype="i1")
 
-        self.add_dataset(dataset_key,
-                         data,
-                         if_exists=if_exists,
-                         **substitutions)
+        self.add_dataset(
+            dataset_key, data, if_exists=if_exists, **substitutions
+        )
 
-    def write_fitsheader_to_dataset(self,
-                                    dataset_key,
-                                    fitsheader,
-                                    **kwargs):
+    def write_fitsheader_to_dataset(self, dataset_key, fitsheader, **kwargs):
         r"""
         Adds a FITS header to an HDF5 file as a dataset.
 
@@ -184,19 +182,19 @@ class HDF5File(ABC, h5py.File):
         """
 
         if isinstance(fitsheader, str):
-            #pylint false positive
-            #pylint: disable=no-member
-            with fits.open(fitsheader, 'readonly') as fitsfile:
+            # pylint false positive
+            # pylint: disable=no-member
+            with fits.open(fitsheader, "readonly") as fitsfile:
                 header = fitsfile[0].header
-                if header['NAXIS'] == 0:
+                if header["NAXIS"] == 0:
                     header = fitsfile[1].header
-                fitsheader_string = b''.join(map(bytes, header.cards))
-            #pylint: enable=no-member
+                fitsheader_string = b"".join(map(bytes, header.cards))
+            # pylint: enable=no-member
         else:
-            fitsheader_string = b''.join(
-                card.image.encode('ascii') for card in fitsheader.cards
+            fitsheader_string = b"".join(
+                card.image.encode("ascii") for card in fitsheader.cards
             )
-        fitsheader_array = numpy.frombuffer(fitsheader_string, dtype='i1')
+        fitsheader_array = numpy.frombuffer(fitsheader_string, dtype="i1")
         self._write_text_to_dataset(dataset_key, fitsheader_array, **kwargs)
 
     def read_fitsheader_from_dataset(self, dataset_key, **substitutions):
@@ -214,9 +212,9 @@ class HDF5File(ABC, h5py.File):
         """
 
         fitsheader_array = self.get_dataset(dataset_key, **substitutions)
-        return fits.Header.fromfile(BytesIO(fitsheader_array.data),
-                                    endcard=False,
-                                    padding=False)
+        return fits.Header.fromfile(
+            BytesIO(fitsheader_array.data), endcard=False, padding=False
+        )
 
     def check_for_dataset(self, dataset_key, must_exist=True, **substitutions):
         """
@@ -251,9 +249,8 @@ class HDF5File(ABC, h5py.File):
             )
 
         if (
-                dataset_key not in self.elements['dataset']
-                and
-                dataset_key not in self.elements['link']
+            dataset_key not in self.elements["dataset"]
+            and dataset_key not in self.elements["link"]
         ):
             raise KeyError(
                 f"The key '{dataset_key!s}' does not identify a dataset or "
@@ -261,9 +258,9 @@ class HDF5File(ABC, h5py.File):
             )
 
         if must_exist:
-            dataset_path = (self._file_structure[dataset_key].abspath
-                            %
-                            substitutions)
+            dataset_path = (
+                self._file_structure[dataset_key].abspath % substitutions
+            )
             if dataset_path not in self:
                 raise IOError(
                     f"Requried dataset ('{dataset_key}') '{dataset_path}' does "
@@ -284,14 +281,14 @@ class HDF5File(ABC, h5py.File):
                 One of: 'group', 'dataset', 'attribute', 'link'.
         """
 
-        #All implementations of _elemnts are required to make them dict-like.
-        #pylint: disable=no-member
-        for (element_type, recognized) in cls.elements.items():
-            if element_id.rstrip('.') in recognized:
+        # All implementations of _elemnts are required to make them dict-like.
+        # pylint: disable=no-member
+        for element_type, recognized in cls.elements.items():
+            if element_id.rstrip(".") in recognized:
                 return element_type
-        #pylint: enable=no-member
+        # pylint: enable=no-member
 
-        raise KeyError('Unrecognized element: ' + repr(element_id))
+        raise KeyError("Unrecognized element: " + repr(element_id))
 
     def get_element_path(self, element_id, **substitutions):
         """
@@ -306,15 +303,13 @@ class HDF5File(ABC, h5py.File):
                 A string giving the path the element does/will have in the file.
         """
 
-        for (element_type, recognized) in self.elements.items():
-            if element_id.rstrip('.') in recognized:
-                if element_type == 'attribute':
+        for element_type, recognized in self.elements.items():
+            if element_id.rstrip(".") in recognized:
+                if element_type == "attribute":
                     attribute_config = self._file_structure[element_id]
-                    path_template = (attribute_config.parent
-                                     +
-                                     '.'
-                                     +
-                                     attribute_config.name)
+                    path_template = (
+                        attribute_config.parent + "." + attribute_config.name
+                    )
                 else:
                     path_template = self._file_structure[element_id].abspath
 
@@ -325,9 +320,13 @@ class HDF5File(ABC, h5py.File):
     def layout_to_xml(self):
         """Create an etree.Element decsribing the currently defined layout."""
 
-        root = etree.Element('group',
-                             {'name': self._get_root_tag_name(),
-                              'version': self._file_structure_version})
+        root = etree.Element(
+            "group",
+            {
+                "name": self._get_root_tag_name(),
+                "version": self._file_structure_version,
+            },
+        )
 
         def require_parent(path, must_be_group):
             """
@@ -351,41 +350,31 @@ class HDF5File(ABC, h5py.File):
             """
 
             parent = root
-            if len(path) == 1 and path[0] == '':
+            if len(path) == 1 and path[0] == "":
                 return parent
-            current_path = ''
+            current_path = ""
             for group_name in path:
                 found = False
-                current_path += '/' + group_name
-                for element in parent.iterfind('./*'):
-                    if element.attrib['name'] == group_name:
-                        if (
-                                element.tag != 'group'
-                                and
-                                (must_be_group or element.tag != 'dataset')
+                current_path += "/" + group_name
+                for element in parent.iterfind("./*"):
+                    if element.attrib["name"] == group_name:
+                        if element.tag != "group" and (
+                            must_be_group or element.tag != "dataset"
                         ):
                             raise TypeError(
-                                'Element '
-                                +
-                                repr(current_path)
-                                +
-                                ' exists, but is of type '
-                                +
-                                element.tag
-                                +
-                                ', expected group'
-                                +
-                                ('' if must_be_group else ' or dataset')
-                                +
-                                '!'
+                                "Element "
+                                + repr(current_path)
+                                + " exists, but is of type "
+                                + element.tag
+                                + ", expected group"
+                                + ("" if must_be_group else " or dataset")
+                                + "!"
                             )
                         parent = element
                         found = True
                         break
                 if not found:
-                    parent = etree.SubElement(parent,
-                                              'group',
-                                              name=group_name)
+                    parent = etree.SubElement(parent, "group", name=group_name)
             return parent
 
         def add_dataset(parent, dataset):
@@ -402,19 +391,19 @@ class HDF5File(ABC, h5py.File):
 
             etree.SubElement(
                 parent,
-                'dataset',
-                name=dataset.abspath.rsplit('/', 1)[1],
+                "dataset",
+                name=dataset.abspath.rsplit("/", 1)[1],
                 key=dataset.pipeline_key,
                 dtype=dataset.dtype,
-                compression=((dataset.compression or '')
-                             +
-                             ':'
-                             +
-                             (dataset.compression_options or '')),
+                compression=(
+                    (dataset.compression or "")
+                    + ":"
+                    + (dataset.compression_options or "")
+                ),
                 scaleoffset=str(dataset.scaleoffset),
                 shuffle=str(dataset.shuffle),
                 fill=repr(dataset.replace_nonfinite),
-                description=dataset.description
+                description=dataset.description,
             )
 
         def add_attribute(parent, attribute):
@@ -422,11 +411,11 @@ class HDF5File(ABC, h5py.File):
 
             etree.SubElement(
                 parent,
-                'attribute',
+                "attribute",
                 name=attribute.name,
                 key=attribute.pipeline_key,
                 dtype=dataset.dtype,
-                description=attribute.description
+                description=attribute.description,
             )
 
         def add_link(parent, link):
@@ -434,26 +423,26 @@ class HDF5File(ABC, h5py.File):
 
             etree.SubElement(
                 parent,
-                'link',
-                name=link.abspath.rsplit('/', 1)[1],
+                "link",
+                name=link.abspath.rsplit("/", 1)[1],
                 key=link.pipeline_key,
                 target=link.target,
-                description=link.description
+                description=link.description,
             )
 
-        for dataset_key in self.elements['dataset']:
+        for dataset_key in self.elements["dataset"]:
             dataset = self._file_structure[dataset_key]
-            path = dataset.abspath.lstrip('/').split('/')[:-1]
+            path = dataset.abspath.lstrip("/").split("/")[:-1]
             add_dataset(require_parent(path, True), dataset)
 
-        for attribute_key in self.elements['attribute']:
+        for attribute_key in self.elements["attribute"]:
             attribute = self._file_structure[attribute_key]
-            path = attribute.parent.lstrip('/').split('/')
+            path = attribute.parent.lstrip("/").split("/")
             add_attribute(require_parent(path, False), attribute)
 
-        for link_key in self.elements['link']:
+        for link_key in self.elements["link"]:
             link = self._file_structure[link_key]
-            path = link.abspath.lstrip('/').split('/')[:-1]
+            path = link.abspath.lstrip("/").split("/")[:-1]
             add_link(require_parent(path, True), link)
 
         return root
@@ -463,23 +452,23 @@ class HDF5File(ABC, h5py.File):
 
         result = self._file_structure[element_key].dtype
 
-        if result == 'manual':
+        if result == "manual":
             return None
 
-        #Used only on input defined by us.
-        #pylint: disable=eval-used
+        # Used only on input defined by us.
+        # pylint: disable=eval-used
         result = eval(result)
-        #pylint: enable=eval-used
+        # pylint: enable=eval-used
 
         if isinstance(result, str):
             result = numpy.dtype(result)
 
         return result
 
-    #The path_substitutions arg is used by overloading functions.
-    #pylint: disable=unused-argument
-    #The point of this function is to handle many cases
-    #pylint: disable=too-many-branches
+    # The path_substitutions arg is used by overloading functions.
+    # pylint: disable=unused-argument
+    # The point of this function is to handle many cases
+    # pylint: disable=too-many-branches
     def get_dataset_creation_args(self, dataset_key, **path_substitutions):
         """
         Return all arguments to pass to create_dataset() except the content.
@@ -499,93 +488,106 @@ class HDF5File(ABC, h5py.File):
         self.check_for_dataset(dataset_key, False)
 
         dataset_config = self._file_structure[dataset_key]
-        result = {'shuffle': dataset_config.shuffle}
+        result = {"shuffle": dataset_config.shuffle}
 
         dtype = self.get_dtype(dataset_key)
         if dtype is not None:
-            result['dtype'] = dtype
+            result["dtype"] = dtype
 
         if dataset_config.compression is not None:
-            result['compression'] = dataset_config.compression
+            result["compression"] = dataset_config.compression
             if (
-                    dataset_config.compression == 'gzip'
-                    and
-                    dataset_config.compression_options is not None
+                dataset_config.compression == "gzip"
+                and dataset_config.compression_options is not None
             ):
-                result['compression_opts'] = int(
+                result["compression_opts"] = int(
                     dataset_config.compression_options
                 )
 
         if dataset_config.scaleoffset is not None:
-            result['scaleoffset'] = dataset_config.scaleoffset
+            result["scaleoffset"] = dataset_config.scaleoffset
 
         if dataset_config.replace_nonfinite is not None:
-            result['fillvalue'] = dataset_config.replace_nonfinite
+            result["fillvalue"] = dataset_config.replace_nonfinite
 
-        if dataset_key in ['catalogue.columns', 'srcproj.columns']:
-            column = path_substitutions[dataset_key.split('.')[0]
-                                        +
-                                        '_column_name']
-            if column in ['hat_id_prefix',
-                          'hat_id_field',
-                          'hat_id_source',
-                          'objtype',
-                          'doublestar',
-                          'sigRA',
-                          'sigDec',
-                          'phqual',
-                          'magsrcflag',
-                          'enabled',
-                          'DESIGNATION',
-                          'phot_variable_flag',
-                          'datalink_url',
-                          'epoch_photometry_url',
-                          'libname_gspphot',
-                          'pmra',
-                          'pmdec',
-                          'phot_bp_mean_mag',
-                          'phot_rp_mean_mag',
-                          'phot_bp_mean_flux',
-                          'phot_rp_mean_flux',
-                          'phot_bp_mean_flux_error',
-                          'phot_rp_mean_flux_error',
-                          'phot_bp_rp_excess_factor']:
-                result['compression'] = 'gzip'
-                result['compression_opts'] = 9
-                result['shuffle'] = True
-            elif column in ['RA', 'Dec', 'RA_orig', 'Dec_orig']:
-                del result['compression']
-                result['scaleoffset'] = 7
-            elif column in ['xi', 'eta', 'x', 'y']:
-                del result['compression']
-                result['scaleoffset'] = 6
-            elif (
-                column in ['J', 'H', 'K',
-                           'B', 'V', 'R', 'I',
-                           'u', 'g', 'r', 'i', 'z']
-                or
-                column.endswith('mag')
-            ):
-                del result['compression']
-                result['scaleoffset'] = 3
-            elif column in ['dist',
-                            'epochRA', 'epochDec',
-                            'sigucacmag',
-                            'errJ', 'errH', 'errK']:
-                del result['compression']
-                result['scaleoffset'] = 2
-            elif column in 'source_id' or column.endswith('_n_obs'):
-                del result['compression']
-                result['dtype'] = numpy.dtype('uint64')
-                result['scaleoffset'] = 0
+        if dataset_key in ["catalogue.columns", "srcproj.columns"]:
+            column = path_substitutions[
+                dataset_key.split(".")[0] + "_column_name"
+            ]
+            if column in [
+                "hat_id_prefix",
+                "hat_id_field",
+                "hat_id_source",
+                "objtype",
+                "doublestar",
+                "sigRA",
+                "sigDec",
+                "phqual",
+                "magsrcflag",
+                "enabled",
+                "DESIGNATION",
+                "phot_variable_flag",
+                "datalink_url",
+                "epoch_photometry_url",
+                "libname_gspphot",
+                "pmra",
+                "pmdec",
+                "phot_bp_mean_mag",
+                "phot_rp_mean_mag",
+                "phot_bp_mean_flux",
+                "phot_rp_mean_flux",
+                "phot_bp_mean_flux_error",
+                "phot_rp_mean_flux_error",
+                "phot_bp_rp_excess_factor",
+            ]:
+                result["compression"] = "gzip"
+                result["compression_opts"] = 9
+                result["shuffle"] = True
+            elif column in ["RA", "Dec", "RA_orig", "Dec_orig"]:
+                del result["compression"]
+                result["scaleoffset"] = 7
+            elif column in ["xi", "eta", "x", "y"]:
+                del result["compression"]
+                result["scaleoffset"] = 6
+            elif column in [
+                "J",
+                "H",
+                "K",
+                "B",
+                "V",
+                "R",
+                "I",
+                "u",
+                "g",
+                "r",
+                "i",
+                "z",
+            ] or column.endswith("mag"):
+                del result["compression"]
+                result["scaleoffset"] = 3
+            elif column in [
+                "dist",
+                "epochRA",
+                "epochDec",
+                "sigucacmag",
+                "errJ",
+                "errH",
+                "errK",
+            ]:
+                del result["compression"]
+                result["scaleoffset"] = 2
+            elif column in "source_id" or column.endswith("_n_obs"):
+                del result["compression"]
+                result["dtype"] = numpy.dtype("uint64")
+                result["scaleoffset"] = 0
             else:
-                del result['compression']
-                result['scaleoffset'] = 1
+                del result["compression"]
+                result["scaleoffset"] = 1
 
         return result
-    #pylint: enable=unused-argument
-    #pylint: enable=too-many-branches
 
+    # pylint: enable=unused-argument
+    # pylint: enable=too-many-branches
 
     @staticmethod
     def hdf5_class_string(hdf5_class):
@@ -602,15 +604,17 @@ class HDF5File(ABC, h5py.File):
         if issubclass(hdf5_class, h5py.ExternalLink):
             return "external link"
         raise ValueError(
-            'Argument to hdf5_class_string does not appear to be a class or'
-            ' a child of a class defined by h5py!'
+            "Argument to hdf5_class_string does not appear to be a class or"
+            " a child of a class defined by h5py!"
         )
 
-    def add_attribute(self,
-                      attribute_key,
-                      attribute_value,
-                      if_exists='overwrite',
-                      **substitutions):
+    def add_attribute(
+        self,
+        attribute_key,
+        attribute_value,
+        if_exists="overwrite",
+        **substitutions,
+    ):
         """
         Adds a single attribute to a dateset or a group.
 
@@ -646,12 +650,10 @@ class HDF5File(ABC, h5py.File):
         if attribute_key not in self._file_structure:
             return None
 
-        assert attribute_key in self.elements['attribute']
+        assert attribute_key in self.elements["attribute"]
 
         attribute_config = self._file_structure[attribute_key]
-        parent_path = (attribute_config.parent
-                       %
-                       substitutions)
+        parent_path = attribute_config.parent % substitutions
         if parent_path not in self:
             parent = self.create_group(parent_path)
         else:
@@ -659,47 +661,46 @@ class HDF5File(ABC, h5py.File):
 
         attribute_name = attribute_config.name % substitutions
         if attribute_name in parent.attrs:
-            #TODO: handle  multi-valued attributes correctly.
+            # TODO: handle  multi-valued attributes correctly.
             if (
-                    if_exists == 'ignore'
-                    or
-                    (
-                        parent.attrs[attribute_name]
-                        ==
-                        numpy.asarray(attribute_value)
-                    ).all()
+                if_exists == "ignore"
+                or (
+                    parent.attrs[attribute_name]
+                    == numpy.asarray(attribute_value)
+                ).all()
             ):
                 return parent.attrs[attribute_name]
-            if if_exists == 'error':
+            if if_exists == "error":
                 raise HDF5LayoutError(
                     "Attribute "
                     f"'{self.filename}/{parent_path}.{attribute_name}' "
                     "already exists!"
                 )
-            assert if_exists == 'overwrite'
+            assert if_exists == "overwrite"
 
         if isinstance(attribute_value, (str, bytes, numpy.string_)):
-            parent.attrs.create(attribute_name,
-                                (
-                                    attribute_value.encode('ascii')
-                                    if isinstance(attribute_value, str)
-                                    else attribute_value
-                                ))
+            parent.attrs.create(
+                attribute_name,
+                (
+                    attribute_value.encode("ascii")
+                    if isinstance(attribute_value, str)
+                    else attribute_value
+                ),
+            )
         else:
-            parent.attrs.create(attribute_name,
-                                attribute_value,
-                                dtype=self.get_dtype(attribute_key))
+            parent.attrs.create(
+                attribute_name,
+                attribute_value,
+                dtype=self.get_dtype(attribute_key),
+            )
 
         return parent.attrs[attribute_name]
-
 
     def delete_attribute(self, attribute_key, **substitutions):
         """Delete the given attribute."""
 
         attribute_config = self._file_structure[attribute_key]
-        parent_path = (attribute_config.parent
-                       %
-                       substitutions)
+        parent_path = attribute_config.parent % substitutions
         if parent_path in self:
             parent = self[parent_path]
             attribute_name = attribute_config.name % substitutions
@@ -708,8 +709,7 @@ class HDF5File(ABC, h5py.File):
             except KeyError:
                 pass
 
-
-    def add_link(self, link_key, if_exists='overwrite', **substitutions):
+    def add_link(self, link_key, if_exists="overwrite", **substitutions):
         """
         Adds a soft link to the HDF5 file.
 
@@ -737,7 +737,7 @@ class HDF5File(ABC, h5py.File):
         if link_key not in self._file_structure:
             return None
 
-        assert link_key in self.elements['link']
+        assert link_key in self.elements["link"]
 
         link_config = self._file_structure[link_key]
 
@@ -748,11 +748,7 @@ class HDF5File(ABC, h5py.File):
             existing_class = self.get(link_path, getclass=True, getlink=True)
             if issubclass(existing_class, h5py.SoftLink):
                 existing_target_path = self[link_path].path
-                if (
-                        if_exists == 'ignore'
-                        or
-                        existing_target_path == target_path
-                ):
+                if if_exists == "ignore" or existing_target_path == target_path:
                     return existing_target_path
 
                 raise IOError(
@@ -769,7 +765,6 @@ class HDF5File(ABC, h5py.File):
         self[link_path] = h5py.SoftLink(target_path)
         return target_path
 
-
     def delete_link(self, link_key, **substitutions):
         """Delete the link corresponding to the given key."""
 
@@ -777,34 +772,31 @@ class HDF5File(ABC, h5py.File):
         if link_path in self:
             del self[link_path]
 
-
     def _add_repack_dataset(self, dataset_path):
         """Add the given dataset to the list of datasets to repack."""
 
-        if 'repack' not in self._file_structure:
+        if "repack" not in self._file_structure:
             return
-        repack_attribute_config = self._file_structure['repack']
+        repack_attribute_config = self._file_structure["repack"]
         if repack_attribute_config.parent not in self:
             self.create_group(repack_attribute_config.parent)
         repack_parent = self[repack_attribute_config.parent]
         self._logger.debug(
-            'Adding %s to repack datasets (dtype: %s) of %s.',
-            repr(dataset_path.encode('ascii')),
-            repr(self.get_dtype('repack')),
-            self.filename
+            "Adding %s to repack datasets (dtype: %s) of %s.",
+            repr(dataset_path.encode("ascii")),
+            repr(self.get_dtype("repack")),
+            self.filename,
         )
         if repack_attribute_config.name in repack_parent.attrs:
             repack_parent.attrs[repack_attribute_config.name] = (
                 repack_parent.attrs[repack_attribute_config.name]
-                +
-                ','
-                +
-                dataset_path
-            ).encode('ascii')
+                + ","
+                + dataset_path
+            ).encode("ascii")
         else:
-            repack_parent.attrs.create(repack_attribute_config.name,
-                                       dataset_path.encode('ascii'))
-
+            repack_parent.attrs.create(
+                repack_attribute_config.name, dataset_path.encode("ascii")
+            )
 
     def delete_dataset(self, dataset_key, **substitutions):
         """
@@ -838,11 +830,9 @@ class HDF5File(ABC, h5py.File):
 
         return False
 
-    def dump_file_or_text(self,
-                          dataset_key,
-                          file_contents,
-                          if_exists='overwrite',
-                          **substitutions):
+    def dump_file_or_text(
+        self, dataset_key, file_contents, if_exists="overwrite", **substitutions
+    ):
         """
         Adds a byte-by-byte dump of a file-like object to self.
 
@@ -866,20 +856,22 @@ class HDF5File(ABC, h5py.File):
             dataset_key=dataset_key,
             text=(
                 file_contents
-                if file_contents is not None else
-                numpy.empty((0,), dtype='i1')
+                if file_contents is not None
+                else numpy.empty((0,), dtype="i1")
             ),
             if_exists=if_exists,
-            **substitutions
+            **substitutions,
         )
         return True
 
-    def add_file_dump(self,
-                      dataset_key,
-                      fname,
-                      if_exists='overwrite',
-                      delete_original=True,
-                      **substitutions):
+    def add_file_dump(
+        self,
+        dataset_key,
+        fname,
+        if_exists="overwrite",
+        delete_original=True,
+        **substitutions,
+    ):
         """
         Adds a byte by byte dump of a file to self.
 
@@ -900,15 +892,14 @@ class HDF5File(ABC, h5py.File):
             None.
         """
 
-
         created_dataset = self.dump_file_or_text(
             dataset_key,
-            #Switching to if would result in unnecessarily complicated code
-            #pylint: disable=consider-using-with
-            (open(fname, 'rb') if os.path.exists(fname) else None),
-            #pylint: enable=consider-using-with
+            # Switching to if would result in unnecessarily complicated code
+            # pylint: disable=consider-using-with
+            (open(fname, "rb") if os.path.exists(fname) else None),
+            # pylint: enable=consider-using-with
             if_exists,
-            **substitutions
+            **substitutions,
         )
         if delete_original and os.path.exists(fname):
             if created_dataset:
@@ -920,10 +911,7 @@ class HDF5File(ABC, h5py.File):
                     "was requested!"
                 )
 
-    def get_attribute(self,
-                      attribute_key,
-                      default_value=None,
-                      **substitutions):
+    def get_attribute(self, attribute_key, default_value=None, **substitutions):
         """
         Returns the attribute identified by the given key.
 
@@ -956,7 +944,7 @@ class HDF5File(ABC, h5py.File):
                 f"The key '{attribute_key}' does not exist in the list of "
                 "configured HDF5 file structure."
             )
-        if attribute_key not in self.elements['attribute']:
+        if attribute_key not in self.elements["attribute"]:
             raise KeyError(
                 f"The key '{attribute_key}' does not correspond to an attribute"
                 " in the configured HDF5 file structure."
@@ -984,11 +972,13 @@ class HDF5File(ABC, h5py.File):
             )
         return parent.attrs[attribute_name]
 
-    def get_dataset(self,
-                    dataset_key,
-                    expected_shape=None,
-                    default_value=None,
-                    **substitutions):
+    def get_dataset(
+        self,
+        dataset_key,
+        expected_shape=None,
+        default_value=None,
+        **substitutions,
+    ):
         """
         Return a dataset as a numpy float or int array.
 
@@ -1020,9 +1010,9 @@ class HDF5File(ABC, h5py.File):
                 specified
         """
 
-        self.check_for_dataset(dataset_key,
-                                default_value is None,
-                                **substitutions)
+        self.check_for_dataset(
+            dataset_key, default_value is None, **substitutions
+        )
 
         dataset_config = self._file_structure[dataset_key]
         dataset_path = dataset_config.abspath % substitutions
@@ -1032,27 +1022,27 @@ class HDF5File(ABC, h5py.File):
 
         dataset = self[dataset_path]
         variable_length_dtype = h5py.check_dtype(vlen=dataset.dtype)
-#        if variable_length_dtype is not None:
-#            result_dtype = variable_length_dtype
+        #        if variable_length_dtype is not None:
+        #            result_dtype = variable_length_dtype
 
         if dataset.size == 0:
             result = numpy.full(
-                shape=(dataset.shape
-                       if expected_shape is None else
-                       expected_shape),
-                fill_value=numpy.nan
+                shape=(
+                    dataset.shape if expected_shape is None else expected_shape
+                ),
+                fill_value=numpy.nan,
             )
         elif variable_length_dtype is not None:
             return dataset[:]
         else:
-            result = numpy.empty(shape=dataset.shape,
-                                 dtype=self.get_dtype(dataset_key))
+            result = numpy.empty(
+                shape=dataset.shape, dtype=self.get_dtype(dataset_key)
+            )
             dataset.read_direct(result)
 
         if (
-                dataset_config.replace_nonfinite is not None
-                and
-                result.dtype.kind == 'f'
+            dataset_config.replace_nonfinite is not None
+            and result.dtype.kind == "f"
         ):
             result[result == dataset.fillvalue] = numpy.nan
 
@@ -1068,35 +1058,26 @@ class HDF5File(ABC, h5py.File):
 
         return self[dataset_path].shape
 
-
     @staticmethod
     def _replace_nonfinite(data, expected_dtype, replace_nonfinite):
         """Return (copy of) data with non-finite values replaced."""
 
         if (
-                (
-                    data.dtype.kind == 'S'
-                    or
-                    data.dtype == numpy.string_
-                    or
-                    data.dtype == numpy.bytes_
-                )
-                and
-                (
-                    (
-                        expected_dtype is not None
-                        and
-                        numpy.dtype(expected_dtype).kind == 'f'
-                    )
-                    or
-                    numpy.atleast_1d(numpy.atleast_1d(data) == b'NaN').all()
-                )
+            data.dtype.kind == "S"
+            or data.dtype == numpy.string_
+            or data.dtype == numpy.bytes_
+        ) and (
+            (
+                expected_dtype is not None
+                and numpy.dtype(expected_dtype).kind == "f"
+            )
+            or numpy.atleast_1d(numpy.atleast_1d(data) == b"NaN").all()
         ):
-            assert (data == b'NaN').all() or (data == b'None').all()
+            assert (data == b"NaN").all() or (data == b"None").all()
             return numpy.full(
                 fill_value=(replace_nonfinite or numpy.nan),
                 dtype=numpy.float64,
-                shape=data.shape
+                shape=data.shape,
             )
 
         if replace_nonfinite is None:
@@ -1109,15 +1090,17 @@ class HDF5File(ABC, h5py.File):
         data_copy[numpy.logical_not(finite)] = replace_nonfinite
         return data_copy
 
-    def add_dataset(self,
-                    dataset_key,
-                    data,
-                    *,
-                    if_exists='overwrite',
-                    unlimited=False,
-                    shape=None,
-                    dtype=None,
-                    **substitutions):
+    def add_dataset(
+        self,
+        dataset_key,
+        data,
+        *,
+        if_exists="overwrite",
+        unlimited=False,
+        shape=None,
+        dtype=None,
+        **substitutions,
+    ):
         """
         Adds a single dataset to self.
 
@@ -1158,28 +1141,29 @@ class HDF5File(ABC, h5py.File):
 
         if dataset_path in self:
             print(
-                f'Dataset {dataset_path!r} already existis in '
+                f"Dataset {dataset_path!r} already existis in "
                 f'{self.filename!r}: {if_exists.rstrip("e")}ing!'
             )
-            if if_exists == 'ignore':
+            if if_exists == "ignore":
                 return
-            if if_exists == 'error':
+            if if_exists == "error":
                 raise IOError(
                     f"Dataset ('{dataset_key}') '{dataset_path}' already exists"
                     f" in '{self.filename}' and overwriting is not allowed!"
                 )
             self.delete_dataset(dataset_key, **substitutions)
 
-        creation_args = self.get_dataset_creation_args(dataset_key,
-                                                       **substitutions)
+        creation_args = self.get_dataset_creation_args(
+            dataset_key, **substitutions
+        )
 
         if data is None:
             data_copy = None
         else:
             data_copy = self._replace_nonfinite(
                 data,
-                creation_args.get('dtype'),
-                dataset_config.replace_nonfinite
+                creation_args.get("dtype"),
+                dataset_config.replace_nonfinite,
             )
 
         if data is not None:
@@ -1191,39 +1175,31 @@ class HDF5File(ABC, h5py.File):
         if unlimited:
             shape_tail = shape[1:]
 
-            if hasattr(self, '_chunk_size'):
-                #pylint: disable=no-member
-                creation_args['chunks'] = (self._chunk_size,) + shape_tail
-                #pylint: enable=no-member
+            if hasattr(self, "_chunk_size"):
+                # pylint: disable=no-member
+                creation_args["chunks"] = (self._chunk_size,) + shape_tail
+                # pylint: enable=no-member
             else:
-                creation_args['chunks'] = True
+                creation_args["chunks"] = True
 
-            creation_args['maxshape'] = (None,) + shape_tail
+            creation_args["maxshape"] = (None,) + shape_tail
 
         if (
-            creation_args.get('dtype', dtype) == numpy.string_
-            or
-            dtype.kind == 'S'
+            creation_args.get("dtype", dtype) == numpy.string_
+            or dtype.kind == "S"
         ):
-            assert creation_args.get('dtype', numpy.bytes_) == numpy.bytes_
-            creation_args['dtype'] = h5py.special_dtype(vlen=bytes)
+            assert creation_args.get("dtype", numpy.bytes_) == numpy.bytes_
+            creation_args["dtype"] = h5py.special_dtype(vlen=bytes)
 
-        if 'scaleoffset' in creation_args:
+        if "scaleoffset" in creation_args:
             assert data is None or numpy.isfinite(data_copy).all()
 
         self.create_dataset(
-            dataset_path,
-            data=data_copy,
-            shape=shape,
-            **creation_args
+            dataset_path, data=data_copy, shape=shape, **creation_args
         )
         return dataset_path
 
-    def __init__(self,
-                 fname=None,
-                 mode=None,
-                 layout_version=None,
-                 **kwargs):
+    def __init__(self, fname=None, mode=None, layout_version=None, **kwargs):
         """
         Opens the given HDF5 file in the given mode.
 
@@ -1245,13 +1221,12 @@ class HDF5File(ABC, h5py.File):
         self._logger = logging.getLogger(__name__)
         if fname is None:
             assert mode is None
-            super().__init__('memory_only',
-                             mode='w',
-                             driver='core',
-                             backing_store=False)
+            super().__init__(
+                "memory_only", mode="w", driver="core", backing_store=False
+            )
         else:
             old_file = os.path.exists(fname)
-            if mode[0] != 'r':
+            if mode[0] != "r":
                 path = os.path.dirname(fname)
                 if path:
                     try:
@@ -1264,39 +1239,32 @@ class HDF5File(ABC, h5py.File):
                 super().__init__(fname, mode, **kwargs)
             except IOError as details:
                 raise HDF5LayoutError(
-                    f'Problem opening {fname:s} in mode={mode:s}'
-                    +
-                    ''.join(format_exception(*exc_info()))
+                    f"Problem opening {fname:s} in mode={mode:s}"
+                    + "".join(format_exception(*exc_info()))
                 ) from details
 
         layout_version_path, layout_version_attr = (
             self._layout_version_attribute
         )
 
-
         if fname is not None and old_file:
-            layout_version = (
-                self[layout_version_path].attrs[layout_version_attr]
-            )
+            layout_version = self[layout_version_path].attrs[
+                layout_version_attr
+            ]
 
         (
             self._defined_elements,
             self._file_structure,
-            self._file_structure_version
+            self._file_structure_version,
         ) = self.get_file_structure(layout_version)
 
         if fname is not None and not old_file:
-            self[layout_version_path].attrs[layout_version_attr] = (
-                self._file_structure_version
-            )
-
+            self[layout_version_path].attrs[
+                layout_version_attr
+            ] = self._file_structure_version
 
     @staticmethod
-    def collect_columns(destination,
-                        name_head,
-                        name_tail,
-                        dset_name,
-                        values):
+    def collect_columns(destination, name_head, name_tail, dset_name, values):
         """
         If dataset is 1D and name starts and ends as given, add to destination.
 
@@ -1324,54 +1292,47 @@ class HDF5File(ABC, h5py.File):
         """
 
         if (
-                isinstance(values, h5py.Dataset)
-                and
-                dset_name.startswith(name_head)
-                and
-                dset_name.endswith(name_tail)
-                and
-                len(values.shape) == 1
+            isinstance(values, h5py.Dataset)
+            and dset_name.startswith(name_head)
+            and dset_name.endswith(name_tail)
+            and len(values.shape) == 1
         ):
-            column_name = dset_name[len(name_head):]
+            column_name = dset_name[len(name_head) :]
             if name_tail:
-                column_name = column_name[:-len(name_tail)]
+                column_name = column_name[: -len(name_tail)]
             enum_transform = h5py.check_enum_dtype(values.dtype)
             if enum_transform is None:
                 insert_values = values
             else:
                 insert_values = numpy.empty(
                     values.shape,
-                    dtype='S' + str(max(map(len, enum_transform.keys())))
+                    dtype="S" + str(max(map(len, enum_transform.keys()))),
                 )
                 for new, old in enum_transform.items():
-                    insert_values[values[:] == old] = new.encode('ascii')
-            destination.insert(len(destination.columns),
-                               column_name,
-                               insert_values)
+                    insert_values[values[:] == old] = new.encode("ascii")
+            destination.insert(
+                len(destination.columns), column_name, insert_values
+            )
 
-
-    def delete_columns(self,
-                       parent,
-                       name_head,
-                       name_tail,
-                       dset_name):
+    def delete_columns(self, parent, name_head, name_tail, dset_name):
         """Delete 1D datasets under parent if name starts and ends as given."""
 
         if (
-                isinstance(parent[dset_name], h5py.Dataset)
-                and
-                dset_name.startswith(name_head)
-                and
-                dset_name.endswith(name_tail)
-                and
-                len(parent[dset_name].shape) == 1
+            isinstance(parent[dset_name], h5py.Dataset)
+            and dset_name.startswith(name_head)
+            and dset_name.endswith(name_tail)
+            and len(parent[dset_name].shape) == 1
         ):
             if dset_name in parent:
-                self._logger.debug('Deleting %s from %s in %s',
-                                   repr(dset_name),
-                                   repr(parent.name),
-                                   repr(self.filename))
+                self._logger.debug(
+                    "Deleting %s from %s in %s",
+                    repr(dset_name),
+                    repr(parent.name),
+                    repr(self.filename),
+                )
                 self._add_repack_dataset(parent[dset_name].name)
                 del parent[dset_name]
-#pylint: enable=too-many-ancestors
-#pylint: enable=too-many-public-methods
+
+
+# pylint: enable=too-many-ancestors
+# pylint: enable=too-many-public-methods

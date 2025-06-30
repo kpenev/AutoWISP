@@ -2,13 +2,14 @@
 
 import numpy
 
-git_id = '$Id$'
+git_id = "$Id$"
 
-#TODO: dead pixels and/or columns
-#(currently can partially be emulated be setting zero flat field)
-#TODO: cosmic ray hits
-#TODO: charge overflow: partial (i.e. anti-blooming gates) or full
-#TODO: non-linearity
+
+# TODO: dead pixels and/or columns
+# (currently can partially be emulated be setting zero flat field)
+# TODO: cosmic ray hits
+# TODO: charge overflow: partial (i.e. anti-blooming gates) or full
+# TODO: non-linearity
 class FakeRawImage:
     """
     Create fake raw images with all bells and whistles.
@@ -88,16 +89,18 @@ class FakeRawImage:
                 poisson noise.
         """
 
-        self._pixels = numpy.zeros((full_resolution['y'], full_resolution['x']))
-        self._image_offset = {'x': image_area['xmin'], 'y': image_area['ymin']}
-        self._image = self._pixels[image_area['ymin'] : image_area['ymax'],
-                                   image_area['xmin'] : image_area['xmax']]
+        self._pixels = numpy.zeros((full_resolution["y"], full_resolution["x"]))
+        self._image_offset = {"x": image_area["xmin"], "y": image_area["ymin"]}
+        self._image = self._pixels[
+            image_area["ymin"] : image_area["ymax"],
+            image_area["xmin"] : image_area["xmax"],
+        ]
         self._gain = gain
         self._dark_rate = 0.0
         self._flat = 1.0
         self._sky = 0.0
 
-    def add_bias(self, bias, units='ADU'):
+    def add_bias(self, bias, units="ADU"):
         """
         Add a bias level to the full image.
 
@@ -114,11 +117,11 @@ class FakeRawImage:
             None
         """
 
-        assert units in ['ADU', 'electrons']
+        assert units in ["ADU", "electrons"]
 
-        self._pixels += bias * (1.0 if units == 'ADU' else 1.0 / self._gain)
+        self._pixels += bias * (1.0 if units == "ADU" else 1.0 / self._gain)
 
-    def set_dark(self, rate, areas, units='ADU'):
+    def set_dark(self, rate, areas, units="ADU"):
         """
         Define the rate at which dark current accumulates.
 
@@ -138,25 +141,22 @@ class FakeRawImage:
             None
         """
 
-
-        dark_rate_multiplier = (1.0 if units == 'ADU' else 1.0 / self._gain)
+        dark_rate_multiplier = 1.0 if units == "ADU" else 1.0 / self._gain
 
         self._dark_rate = numpy.zeros(self._pixels.shape)
         image_y_res, image_x_res = self._image.shape
         self._dark_rate[
-            self._image_offset['y'] : self._image_offset['y'] + image_y_res,
-            self._image_offset['x'] : self._image_offset['x'] + image_x_res,
+            self._image_offset["y"] : self._image_offset["y"] + image_y_res,
+            self._image_offset["x"] : self._image_offset["x"] + image_x_res,
         ] = dark_rate_multiplier
 
         for dark_area in areas:
             self._dark_rate[
-                dark_area['ymin'] : dark_area['ymax'],
-                dark_area['xmin'] : dark_area['xmax']
+                dark_area["ymin"] : dark_area["ymax"],
+                dark_area["xmin"] : dark_area["xmax"],
             ] = dark_rate_multiplier
 
         self._dark_rate *= rate
-
-
 
     def set_flat_field(self, flat):
         """
@@ -174,7 +174,7 @@ class FakeRawImage:
         assert flat.shape == self._image.shape
         self._flat = flat
 
-    def set_sky(self, sky_flux, units='ADU'):
+    def set_sky(self, sky_flux, units="ADU"):
         """
         Define the flux arriving from the sky (with or without stars).
 
@@ -190,7 +190,7 @@ class FakeRawImage:
         """
 
         assert sky_flux.shape == self._image.shape
-        self._sky = sky_flux * (1.0 if units == 'ADU' else 1.0 / self._gain)
+        self._sky = sky_flux * (1.0 if units == "ADU" else 1.0 / self._gain)
 
     def __call__(self, exposure):
         """
@@ -209,14 +209,17 @@ class FakeRawImage:
         image = self._pixels + self._dark_rate * exposure
 
         x_res, y_res = self._image.shape
-        image[self._image_offset['y'] : self._image_offset['y'] + y_res,
-              self._image_offset['x'] : self._image_offset['x'] + x_res] = (
-                  self._sky * self._flat * exposure
-              )
+        image[
+            self._image_offset["y"] : self._image_offset["y"] + y_res,
+            self._image_offset["x"] : self._image_offset["x"] + x_res,
+        ] = (
+            self._sky * self._flat * exposure
+        )
 
         if numpy.isfinite(self._gain):
-            image = (numpy.random.poisson(numpy.around(image * self._gain))
-                     /
-                     self._gain)
+            image = (
+                numpy.random.poisson(numpy.around(image * self._gain))
+                / self._gain
+            )
 
-        return numpy.around(image).astype('int')
+        return numpy.around(image).astype("int")

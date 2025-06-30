@@ -10,17 +10,19 @@ from PIL import Image
 import numpy
 import scipy.interpolate
 
-from astrowisp.utils.file_utilities import\
-    prepare_file_output,\
-    get_fname_pattern_substitutions
+from astrowisp.utils.file_utilities import (
+    prepare_file_output,
+    get_fname_pattern_substitutions,
+)
 from autowisp.pipeline_exceptions import BadImageError
 
 _logger = logging.getLogger(__name__)
 
-git_id = '$Id$'
+git_id = "$Id$"
 
-#pylint: disable=anomalous-backslash-in-string
-#Triggers on doxygen commands.
+
+# pylint: disable=anomalous-backslash-in-string
+# Triggers on doxygen commands.
 def zoom_image(image, zoom, interp_order):
     """
     Increase the resolution of an image using flux conserving interpolation.
@@ -70,16 +72,16 @@ def zoom_image(image, zoom, interp_order):
         return image
 
     y_res, x_res = image.shape
-    #False positive
-    #pylint: disable=no-member
+    # False positive
+    # pylint: disable=no-member
     cumulative_image = numpy.empty((y_res + 1, x_res + 1))
-    #pylint: enable=no-member
+    # pylint: enable=no-member
     cumulative_image[0, :] = 0
     cumulative_image[:, 0] = 0
-    #False positive
-    #pylint: disable=no-member
+    # False positive
+    # pylint: disable=no-member
     cumulative_image[1:, 1:] = numpy.cumsum(numpy.cumsum(image, axis=0), axis=1)
-    #pylint: enable=no-member
+    # pylint: enable=no-member
 
     try:
         spline_kx, spline_ky = interp_order
@@ -87,30 +89,33 @@ def zoom_image(image, zoom, interp_order):
         spline_kx = spline_ky = interp_order
 
     cumulative_flux = scipy.interpolate.RectBivariateSpline(
-        #False positive
-        #pylint: disable=no-member
+        # False positive
+        # pylint: disable=no-member
         numpy.arange(y_res + 1),
         numpy.arange(x_res + 1),
-        #pylint: enable=no-member
+        # pylint: enable=no-member
         cumulative_image,
         kx=spline_kx,
-        ky=spline_ky
+        ky=spline_ky,
     )
 
     cumulative_image = cumulative_flux(
-        #False positive
-        #pylint: disable=no-member
+        # False positive
+        # pylint: disable=no-member
         numpy.arange(y_res * y_zoom + 1) / y_zoom,
         numpy.arange(x_res * x_zoom + 1) / x_zoom,
-        #pylint: enable=no-member
-        grid=True
+        # pylint: enable=no-member
+        grid=True,
     )
 
-    #False positive
-    #pylint: disable=no-member
+    # False positive
+    # pylint: disable=no-member
     return numpy.diff(numpy.diff(cumulative_image, axis=0), axis=1)
-    #pylint: enable=no-member
-#pylint: enable=anomalous-backslash-in-string
+    # pylint: enable=no-member
+
+
+# pylint: enable=anomalous-backslash-in-string
+
 
 def bin_image(image, bin_factor):
     """
@@ -144,10 +149,19 @@ def bin_image(image, bin_factor):
     assert x_res % x_bin_factor == 0
     assert y_res % y_bin_factor == 0
 
-    return image.reshape((y_res // y_bin_factor,
-                          y_bin_factor,
-                          x_res // x_bin_factor,
-                          x_bin_factor)).sum(-1).sum(1)
+    return (
+        image.reshape(
+            (
+                y_res // y_bin_factor,
+                y_bin_factor,
+                x_res // x_bin_factor,
+                x_bin_factor,
+            )
+        )
+        .sum(-1)
+        .sum(1)
+    )
+
 
 def get_pointing_from_header(frame):
     """
@@ -185,17 +199,16 @@ def get_pointing_from_header(frame):
         for hdu in frame:
             if hdu.data is not None:
                 return get_pointing_from_header(hdu.header)
-        raise BadImageError('FITS file '
-                            +
-                            repr(frame.filename)
-                            +
-                            ' contains only trivial HDUs')
+        raise BadImageError(
+            "FITS file " + repr(frame.filename) + " contains only trivial HDUs"
+        )
 
-    if hasattr(frame, 'header'):
+    if hasattr(frame, "header"):
         return get_pointing_from_header(frame.header)
 
     assert isinstance(frame, fits.Header)
-    return SkyCoord(ra=frame['ra'] * 15.0, dec=frame['dec'], unit='deg')
+    return SkyCoord(ra=frame["ra"] * 15.0, dec=frame["dec"], unit="deg")
+
 
 def zscale_image(image_data):
     """Return the given image ZScaled to 8 bits."""
@@ -204,33 +217,31 @@ def zscale_image(image_data):
 
     return (
         255
-        *
-        (
-            #False positive
-            #pylint: disable=no-member
+        * (
+            # False positive
+            # pylint: disable=no-member
             numpy.minimum(numpy.maximum(zscale_min, image_data), zscale_max)
-            #pylint: enable=no-member
-            -
-            zscale_min
-        ) / (
-            zscale_max
-            -
-            zscale_min
+            # pylint: enable=no-member
+            - zscale_min
         )
+        / (zscale_max - zscale_min)
     ).astype(
-        #False positive
-        #pylint: disable=no-member
+        # False positive
+        # pylint: disable=no-member
         numpy.uint8
-        #pylint: enable=no-member
+        # pylint: enable=no-member
     )
 
-def create_snapshot(fits_fname,
-                    snapshot_fname_pattern,
-                    *,
-                    image_index=0,
-                    overwrite=False,
-                    skip_existing=False,
-                    create_directories=True):
+
+def create_snapshot(
+    fits_fname,
+    snapshot_fname_pattern,
+    *,
+    image_index=0,
+    overwrite=False,
+    skip_existing=False,
+    create_directories=True,
+):
     """
     Create a snapshot (e.g. JPEG image) from a fits file in zscale.
 
@@ -263,31 +274,32 @@ def create_snapshot(fits_fname,
         None
     """
 
-    with fits.open(fits_fname, 'readonly') as fits_image:
-        #False positive
-        #pylint: disable=no-member
-        fits_hdu = fits_image[image_index if fits_image[0].header['NAXIS']
-                              else image_index + 1]
-        #pylint: enable=no-member
+    with fits.open(fits_fname, "readonly") as fits_image:
+        # False positive
+        # pylint: disable=no-member
+        fits_hdu = fits_image[
+            image_index if fits_image[0].header["NAXIS"] else image_index + 1
+        ]
+        # pylint: enable=no-member
         snapshot_fname = (
             snapshot_fname_pattern
-            %
-            get_fname_pattern_substitutions(fits_fname, fits_hdu.header)
+            % get_fname_pattern_substitutions(fits_fname, fits_hdu.header)
         )
 
         snapshot_exists = prepare_file_output(
             snapshot_fname,
             allow_existing=overwrite,
             allow_dir_creation=create_directories,
-            delete_existing=overwrite
+            delete_existing=overwrite,
         )
 
         if snapshot_exists and skip_existing:
-            _logger.info('Snapshot %s already exists, skipping!',
-                         repr(snapshot_fname))
+            _logger.info(
+                "Snapshot %s already exists, skipping!", repr(snapshot_fname)
+            )
             return
 
         scaled_data = zscale_image(fits_hdu.data)
 
-        Image.fromarray(scaled_data[::-1, :], 'L').save(snapshot_fname)
-        _logger.debug('Creating snapshot: %s', repr(snapshot_fname))
+        Image.fromarray(scaled_data[::-1, :], "L").save(snapshot_fname)
+        _logger.debug("Creating snapshot: %s", repr(snapshot_fname))

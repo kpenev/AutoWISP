@@ -9,10 +9,8 @@ lightcurve format.
 
 import numpy
 
-def magnitude_change(light_curve,
-                     transit_model,
-                     *model_args,
-                     **model_kwargs):
+
+def magnitude_change(light_curve, transit_model, *model_args, **model_kwargs):
     """
     Evaluate the given model at the exposure times contained in the lightcurve.
 
@@ -35,13 +33,8 @@ def magnitude_change(light_curve,
     """
 
     transit_model.set_data(
-        light_curve.read_data_array(
-            {'BJD': ('skypos.BJD', {})}
-        )['BJD']
+        light_curve.read_data_array({"BJD": ("skypos.BJD", {})})["BJD"]
     )
     return -2.5 * numpy.log10(
-        transit_model.evaluate(
-            *model_args,
-            **model_kwargs
-        )
+        transit_model.evaluate(*model_args, **model_kwargs)
     )

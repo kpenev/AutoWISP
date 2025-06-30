@@ -13,10 +13,11 @@ from autowisp import DataReductionFile
 from autowisp.evaluator import Evaluator
 from autowisp.magnitude_fitting.util import get_magfit_sources
 
-#Could not think of a sensible way to reduce number of attributes
-#pylint: disable=too-many-instance-attributes
-#Still makes sense es a class.
-#pylint: disable=too-few-public-methods
+
+# Could not think of a sensible way to reduce number of attributes
+# pylint: disable=too-many-instance-attributes
+# Still makes sense es a class.
+# pylint: disable=too-few-public-methods
 class MagnitudeFit(ABC):
     """
     A base class for all classes doing magnitude fitting.
@@ -42,7 +43,7 @@ class MagnitudeFit(ABC):
         _source_name_format:    See `source_name_format` argument to __init__().
     """
 
-    #TODO: revive once database design is complete
+    # TODO: revive once database design is complete
     def _add_fit_to_db(self, coefficients, **fit_diagnostics):
         """
         Record the given best fit coefficient and diagnostics in the database.
@@ -148,31 +149,34 @@ class MagnitudeFit(ABC):
                 The magnitude fit corrected magnitudes.
         """
 
-    def _solved(self,
-                *,
-                data_reduction,
-                deleted_phot_indices,
-                num_phot,
-                num_sources,
-                dr_path_substitutions):
+    def _solved(
+        self,
+        *,
+        data_reduction,
+        deleted_phot_indices,
+        num_phot,
+        num_sources,
+        dr_path_substitutions,
+    ):
         """Return fitted mags if fit is already in DR, None otherwise."""
 
         try:
             fitted = numpy.empty((num_sources, num_phot), dtype=float)
             phot_ind = 0
-            if data_reduction.has_shape_fit(accept_zeropsf=False,
-                                            **dr_path_substitutions):
+            if data_reduction.has_shape_fit(
+                accept_zeropsf=False, **dr_path_substitutions
+            ):
                 fitted[:, 0] = data_reduction.get_dataset(
-                    'shapefit.magfit.magnitude',
+                    "shapefit.magfit.magnitude",
                     expected_shape=(num_sources,),
-                    **dr_path_substitutions
+                    **dr_path_substitutions,
                 )
                 phot_ind += 1
             while phot_ind < num_phot:
                 fitted[:, phot_ind] = data_reduction.get_dataset(
-                    'apphot.magfit.magnitude',
+                    "apphot.magfit.magnitude",
                     expected_shape=(num_sources,),
-                    **dr_path_substitutions
+                    **dr_path_substitutions,
                 )
                 phot_ind += 1
                 numpy.delete(fitted, deleted_phot_indices, axis=0)
@@ -180,21 +184,20 @@ class MagnitudeFit(ABC):
         except (KeyError, IOError):
             return None
 
-
     def _set_group(self, evaluator, result):
         """Set the fit_group column in result per grouping configuration."""
 
-        self.logger.debug('Grouping expression: %s', repr(self.config.grouping))
+        self.logger.debug("Grouping expression: %s", repr(self.config.grouping))
         conditions = evaluator(self.config.grouping)
-        self.logger.debug('Grouping conditions: %s', repr(conditions))
+        self.logger.debug("Grouping conditions: %s", repr(conditions))
         groups = numpy.unique(conditions)
-        self.logger.debug('Groups: %s', repr(groups))
+        self.logger.debug("Groups: %s", repr(groups))
         for group_id, group_condition in enumerate(groups):
             in_group = conditions == group_condition
-            self.logger.debug('Group %d contains %d entries',
-                              group_id,
-                              in_group.sum())
-            result['fit_group'][in_group] = group_id
+            self.logger.debug(
+                "Group %d contains %d entries", group_id, in_group.sum()
+            )
+            result["fit_group"][in_group] = group_id
 
     def _get_fit_indices(self, phot, evaluator, no_catalogue):
         """
@@ -229,10 +232,10 @@ class MagnitudeFit(ABC):
 
         result = include_flag.nonzero()[0]
 
-        num_skipped = len(phot['source_id']) - result.size
+        num_skipped = len(phot["source_id"]) - result.size
         if num_skipped:
             first_skipped = numpy.logical_not(include_flag).nonzero()[0][0]
-            skipped_example = phot['source_id'][first_skipped]
+            skipped_example = phot["source_id"][first_skipped]
         else:
             skipped_example = None
 
@@ -263,34 +266,36 @@ class MagnitudeFit(ABC):
         def initialize_result():
             """Return an empty result structure."""
 
-            dtype = [(field[0], field[1][0])
-                     for field in phot.dtype.fields.items()]
+            dtype = [
+                (field[0], field[1][0]) for field in phot.dtype.fields.items()
+            ]
             if self.config.reference_subpix:
-                dtype.extend([('x_ref', numpy.float64),
-                              ('y_ref', numpy.float64)])
-            dtype.extend([
-                ('ref_mag', numpy.float64, phot['mag'][0].shape),
-                ('ref_mag_err', numpy.float64, phot['mag_err'][0].shape)
-            ])
-            print('Result dtype: ' + repr(dtype))
+                dtype.extend(
+                    [("x_ref", numpy.float64), ("y_ref", numpy.float64)]
+                )
+            dtype.extend(
+                [
+                    ("ref_mag", numpy.float64, phot["mag"][0].shape),
+                    ("ref_mag_err", numpy.float64, phot["mag_err"][0].shape),
+                ]
+            )
+            print("Result dtype: " + repr(dtype))
             return numpy.empty(phot.shape, dtype=dtype)
 
         result = initialize_result()
         not_in_ref = [0, None]
         fit_indices, num_skipped, skipped_example = self._get_fit_indices(
-            phot,
-            evaluator,
-            no_catalogue
+            phot, evaluator, no_catalogue
         )
         result_ind = 0
         for phot_ind in fit_indices:
-            source_id = phot['source_id'][phot_ind]
+            source_id = phot["source_id"][phot_ind]
             if source_id.shape != ():
                 source_id = tuple(source_id)
             ref_info = self._reference.get(source_id)
             if ref_info is None:
                 if not_in_ref[0] == 0:
-                    not_in_ref[1] = result['source_id'][result_ind]
+                    not_in_ref[1] = result["source_id"][result_ind]
                 not_in_ref[0] += 1
                 continue
 
@@ -298,40 +303,40 @@ class MagnitudeFit(ABC):
                 result[colname][result_ind] = phot[colname][phot_ind]
 
             if self.config.reference_subpix:
-                result['x_ref'][result_ind] = ref_info['x']
-                result['y_ref'][result_ind] = ref_info['y']
-            result['ref_mag'][result_ind] = ref_info['mag']
-            result['ref_mag_err'][result_ind] = ref_info['mag_err']
+                result["x_ref"][result_ind] = ref_info["x"]
+                result["y_ref"][result_ind] = ref_info["y"]
+            result["ref_mag"][result_ind] = ref_info["mag"]
+            result["ref_mag_err"][result_ind] = ref_info["mag_err"]
             result_ind += 1
 
         if result_ind == 0:
             print(repr(not_in_ref[1]))
             self.logger.error(
                 (
-                    'All %d sources discarded from %s: %d skipped '
-                    '(example %s), %d not in the %d sources of the reference '
-                    '(example %s.), fit source condition: %s'
+                    "All %d sources discarded from %s: %d skipped "
+                    "(example %s), %d not in the %d sources of the reference "
+                    "(example %s.), fit source condition: %s"
                 ),
-                len(phot['source_id']),
+                len(phot["source_id"]),
                 self._dr_fname,
                 num_skipped,
                 (
                     self._source_name_format.format(skipped_example)
-                    if skipped_example is not None else
-                    '-'
+                    if skipped_example is not None
+                    else "-"
                 ),
                 not_in_ref[0],
                 len(self._reference.keys()),
                 (
                     self._source_name_format.format(not_in_ref[1])
-                    if not_in_ref[1] is not None else
-                    '-'
+                    if not_in_ref[1] is not None
+                    else "-"
                 ),
-                self.config.fit_source_condition
+                self.config.fit_source_condition,
             )
         return result[:result_ind], fit_indices
 
-    #TODO: revive once database design is complete
+    # TODO: revive once database design is complete
     def _update_calib_status(self):
         """
         Record in the database that the current header has been magfitted.
@@ -353,7 +358,7 @@ class MagnitudeFit(ABC):
         )
         """
 
-    #TODO: Is this necessary?
+    # TODO: Is this necessary?
     def _downgrade_calib_status(self):
         """
         Deal with bad photometry for a frame.
@@ -382,7 +387,6 @@ class MagnitudeFit(ABC):
         os.remove(self._fit_file)
         """
 
-
     @staticmethod
     def _combine_fit_statistics(fit_results):
         """
@@ -404,30 +408,33 @@ class MagnitudeFit(ABC):
 
         num_photometries = len(fit_results)
         result = {
-            'residual': numpy.empty(num_photometries, numpy.float64),
-            'initial_src_count': numpy.zeros(num_photometries, numpy.int_),
-            'final_src_count': numpy.zeros(num_photometries, numpy.int_),
+            "residual": numpy.empty(num_photometries, numpy.float64),
+            "initial_src_count": numpy.zeros(num_photometries, numpy.int_),
+            "final_src_count": numpy.zeros(num_photometries, numpy.int_),
         }
 
         for phot_ind, phot_result in enumerate(fit_results):
             for group_result in phot_result:
-                for key in ['initial_src_count', 'final_src_count']:
+                for key in ["initial_src_count", "final_src_count"]:
                     result[key][phot_ind] += group_result[key]
-            result['residual'][phot_ind] = numpy.nanmedian([
-                group_result['residual'] or numpy.nan
-                for group_result in phot_result
-            ])
+            result["residual"][phot_ind] = numpy.nanmedian(
+                [
+                    group_result["residual"] or numpy.nan
+                    for group_result in phot_result
+                ]
+            )
 
         return result
 
-
-    def __init__(self,
-                 *,
-                 reference,
-#                 master_catalogue,
-                 config,
-                 magfit_collector=None,
-                 source_name_format):
+    def __init__(
+        self,
+        *,
+        reference,
+        #                 master_catalogue,
+        config,
+        magfit_collector=None,
+        source_name_format,
+    ):
         """
         Initializes a magnditude fitting object.
 
@@ -471,10 +478,9 @@ class MagnitudeFit(ABC):
         self._dr_fname = None
         self._magfit_collector = magfit_collector
         self._reference = reference
-#        self._catalogue = master_catalogue
+        #        self._catalogue = master_catalogue
         self._source_name_format = source_name_format
         self.logger = None
-
 
     def __call__(self, dr_fname, mark_start, mark_end, **dr_path_substitutions):
         """
@@ -497,66 +503,69 @@ class MagnitudeFit(ABC):
         self.logger = logging.getLogger(__name__)
 
         try:
-            self.logger.debug('Process %d fitting: %s.',
-                              current_process().pid,
-                              dr_fname)
-            with DataReductionFile(dr_fname, mode='r+') as data_reduction:
+            self.logger.debug(
+                "Process %d fitting: %s.", current_process().pid, dr_fname
+            )
+            with DataReductionFile(dr_fname, mode="r+") as data_reduction:
                 self._dr_fname = dr_fname
-                phot = get_magfit_sources(data_reduction,
-                                          magfit_iterations=[-1],
-                                          **dr_path_substitutions)
-                self.logger.debug('Starting photometry: %s', repr(phot))
+                phot = get_magfit_sources(
+                    data_reduction,
+                    magfit_iterations=[-1],
+                    **dr_path_substitutions,
+                )
+                self.logger.debug("Starting photometry: %s", repr(phot))
 
-                self.logger.debug('Starting photometry columns: %s',
-                                  repr(phot.dtype.names))
+                self.logger.debug(
+                    "Starting photometry columns: %s", repr(phot.dtype.names)
+                )
 
                 if not phot.size:
-                    self.logger.warning('Downgrading calib status.')
+                    self.logger.warning("Downgrading calib status.")
                     self._downgrade_calib_status()
                     return None, None
-                #TODO: revive filtering by catalogue
+                # TODO: revive filtering by catalogue
                 no_catalogue, deleted_phot_indices = [], []
-                if getattr(self.config, 'grouping', None) is not None:
-                    phot = recfunctions.append_fields(phot,
-                                                      ['fit_group'],
-                                                      [[]],
-                                                      usemask=False)
+                if getattr(self.config, "grouping", None) is not None:
+                    phot = recfunctions.append_fields(
+                        phot, ["fit_group"], [[]], usemask=False
+                    )
 
-                self.logger.debug('Photometry columns: %s',
-                                  repr(phot.dtype.names))
+                self.logger.debug(
+                    "Photometry columns: %s", repr(phot.dtype.names)
+                )
                 evaluator = Evaluator(phot)
                 if self.config.grouping is not None:
                     self._set_group(evaluator, phot)
 
-                self.logger.debug('Checking for existing solution.')
+                self.logger.debug("Checking for existing solution.")
                 fitted = self._solved(
                     data_reduction=data_reduction,
                     deleted_phot_indices=deleted_phot_indices,
-                    num_phot=phot['mag'].shape[2],
-                    num_sources=phot['mag'].shape[0],
-                    dr_path_substitutions=dr_path_substitutions
+                    num_phot=phot["mag"].shape[2],
+                    num_sources=phot["mag"].shape[0],
+                    dr_path_substitutions=dr_path_substitutions,
                 )
 
-                self.logger.debug('Matching to reference.')
+                self.logger.debug("Matching to reference.")
                 fit_base, fit_indices = self._match_to_reference(
-                    phot,
-                    no_catalogue,
-                    evaluator
+                    phot, no_catalogue, evaluator
                 )
 
                 if fitted:
                     return phot[fit_indices], fitted[fit_indices]
 
                 if fit_base.size > 0:
-                    self.logger.debug('Performing linear fit.')
+                    self.logger.debug("Performing linear fit.")
                     fit_results = self._fit(fit_base)
 
                 if fit_results:
-                    self.logger.debug('Post-processing fit.')
+                    self.logger.debug("Post-processing fit.")
                     fitted = self._apply_fit(phot, fit_results)
-                    assert fitted.shape == (phot['mag'].shape[0],
-                                            phot['mag'].shape[2])
-                    self.logger.debug('Adding to DR file.')
+                    assert fitted.shape == (
+                        phot["mag"].shape[0],
+                        phot["mag"].shape[2],
+                    )
+                    self.logger.debug("Adding to DR file.")
                     mark_start(dr_fname)
                     data_reduction.add_magnitude_fitting(
                         fitted_magnitudes=fitted,
@@ -565,25 +574,25 @@ class MagnitudeFit(ABC):
                         ),
                         magfit_configuration=self.config,
                         missing_indices=deleted_phot_indices,
-                        **dr_path_substitutions
+                        **dr_path_substitutions,
                     )
                     mark_end(dr_fname)
-                    self.logger.debug('Updating calibration status.')
+                    self.logger.debug("Updating calibration status.")
                     return phot[fit_indices], fitted[fit_indices]
                 return None, None
         except Exception as ex:
-            #Does not make sense to avoid building message.
-            #pylint: disable=logging-not-lazy
-            self.logger.critical(str(ex)
-                                 +
-                                 "\n"
-                                 +
-                                 "".join(format_exception(*sys.exc_info()))
-                                 +
-                                 "\nBad DR:"
-                                 +
-                                 dr_fname)
-            #pylint: enable=logging-not-lazy
+            # Does not make sense to avoid building message.
+            # pylint: disable=logging-not-lazy
+            self.logger.critical(
+                str(ex)
+                + "\n"
+                + "".join(format_exception(*sys.exc_info()))
+                + "\nBad DR:"
+                + dr_fname
+            )
+            # pylint: enable=logging-not-lazy
             raise
-#pylint: enable=too-many-instance-attributes
-#pylint: enable=too-few-public-methods
+
+
+# pylint: enable=too-many-instance-attributes
+# pylint: enable=too-few-public-methods

@@ -25,7 +25,7 @@ def iterative_rejection_average(
     axis=0,
     require_convergence=False,
     mangle_input=False,
-    keepdims=False
+    keepdims=False,
 ):
     r"""
     Avarage with iterative rejection of outliers along an axis.

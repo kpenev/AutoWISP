@@ -2,6 +2,7 @@
 
 import numpy
 
+
 class UsedVarFinder:
     """Record the names of all keys not in default symtable ever requested."""
 
@@ -9,7 +10,6 @@ class UsedVarFinder:
         """Is the given key in either the default symtable or data dtype."""
 
         return True
-
 
     def __getitem__(self, key):
         """1.0 if key is one of the data otherwise default symtable entry"""
@@ -20,13 +20,11 @@ class UsedVarFinder:
         self._used.add(key)
         return numpy.array([1.0])
 
-
     def __init__(self, default_symtable):
         """Set the symtable before data is given and dtype to track usage of."""
 
         self._default_symtable = default_symtable
         self._used = set()
-
 
     def get_used_vars(self):
         """Return the names of the variables used so far."""

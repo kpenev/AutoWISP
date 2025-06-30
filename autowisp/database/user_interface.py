@@ -8,80 +8,75 @@ from sqlalchemy import sql, select, delete, func, and_
 
 from autowisp.database.interface import Session
 from autowisp.data_reduction import DataReductionFile
-#False positive
-#pylint: disable=no-name-in-module
-from autowisp.database.data_model.provenance import\
-    Camera,\
-    CameraType,\
-    CameraChannel
 
-from autowisp.database.data_model import\
-    Condition,\
-    ConditionExpression,\
-    Configuration,\
-    Image,\
-    ImageProcessingProgress,\
-    ImageType,\
-    LightCurveProcessingProgress,\
-    MasterFile,\
-    MasterType,\
-    ObservingSession,\
-    Parameter,\
-    ProcessedImages,\
-    ProcessingSequence,\
-    Step,\
-    step_param_association
-#pylint: enable=no-name-in-module
+# False positive
+# pylint: disable=no-name-in-module
+from autowisp.database.data_model.provenance import (
+    Camera,
+    CameraType,
+    CameraChannel,
+)
 
-def get_db_configuration(version,
-                         db_session,
-                         step_id=None,
-                         max_version_only=False):
+from autowisp.database.data_model import (
+    Condition,
+    ConditionExpression,
+    Configuration,
+    Image,
+    ImageProcessingProgress,
+    ImageType,
+    LightCurveProcessingProgress,
+    MasterFile,
+    MasterType,
+    ObservingSession,
+    Parameter,
+    ProcessedImages,
+    ProcessingSequence,
+    Step,
+    step_param_association,
+)
+
+# pylint: enable=no-name-in-module
+
+
+def get_db_configuration(
+    version, db_session, step_id=None, max_version_only=False
+):
     """Return list of Configuration instances given version."""
 
-    #False positives:
-    #pylint: disable=no-member
-    param_version_subq = select(
-        Configuration.parameter_id,
-        #False positivie
-        #pylint: disable=not-callable
-        sql.func.max(Configuration.version).label('version'),
-        #pylint: enable=not-callable
-    ).filter(
-        Configuration.version <= version
-    ).group_by(
-        Configuration.parameter_id
-    ).subquery()
+    # False positives:
+    # pylint: disable=no-member
+    param_version_subq = (
+        select(
+            Configuration.parameter_id,
+            # False positivie
+            # pylint: disable=not-callable
+            sql.func.max(Configuration.version).label("version"),
+            # pylint: enable=not-callable
+        )
+        .filter(Configuration.version <= version)
+        .group_by(Configuration.parameter_id)
+        .subquery()
+    )
 
     config_select = select(
         func.max(Configuration.version) if max_version_only else Configuration
     ).join(
         param_version_subq,
         sql.expression.and_(
-            (
-                Configuration.parameter_id
-                ==
-                param_version_subq.c.parameter_id
-            ),
-            (
-                Configuration.version
-                ==
-                param_version_subq.c.version
-            )
-        )
+            (Configuration.parameter_id == param_version_subq.c.parameter_id),
+            (Configuration.version == param_version_subq.c.version),
+        ),
     )
     if step_id is not None:
         config_select = config_select.join(
             step_param_association,
-            Configuration.parameter_id == step_param_association.c.param_id
-        ).where(
-            step_param_association.c.step_id == step_id
-        )
+            Configuration.parameter_id == step_param_association.c.param_id,
+        ).where(step_param_association.c.step_id == step_id)
 
     if max_version_only:
         return db_session.scalars(config_select).one()
     return db_session.scalars(config_select).all()
-    #pylint: enable=no-member
+    # pylint: enable=no-member
 
 
 def get_processing_sequence(db_session):
@@ -92,18 +87,11 @@ def get_processing_sequence(db_session):
     for lightcurves it will just be a sequence of steps.
     """
 
-
-    select_seq = select(
-        Step,
-        ImageType
-    ).select_from(
-        ProcessingSequence
-    ).join(
-        Step,
-        ProcessingSequence.step_id == Step.id
-    ).join(
-        ImageType,
-        ProcessingSequence.image_type_id == ImageType.id
+    select_seq = (
+        select(Step, ImageType)
+        .select_from(ProcessingSequence)
+        .join(Step, ProcessingSequence.step_id == Step.id)
+        .join(ImageType, ProcessingSequence.image_type_id == ImageType.id)
     )
 
     return db_session.execute(select_seq).all()
@@ -144,10 +132,9 @@ def get_progress_images(step_id, image_type_id, config_version, db_session):
             flagged as in final state for the given step.
     """
 
-    step_version = get_db_configuration(config_version,
-                                        db_session,
-                                        step_id,
-                                        max_version_only=True)
+    step_version = get_db_configuration(
+        config_version, db_session, step_id, max_version_only=True
+    )
 
     def complete_processed_select(_select):
         """Return the given select joined and filtered to given processed."""
@@ -158,136 +145,126 @@ def get_progress_images(step_id, image_type_id, config_version, db_session):
         ).where(
             ImageProcessingProgress.step_id == step_id,
             ImageProcessingProgress.configuration_version == step_version,
-            ImageProcessingProgress.image_type_id == image_type_id
+            ImageProcessingProgress.image_type_id == image_type_id,
         )
 
-    select_image_channel = select(
-        CameraChannel.name,
-        #False poisitive
-        #pylint: disable=not-callable
-        #pylint: disable=no-member
-        func.count(Image.id)
-        #pylint: enable=not-callable
-        #pylint: enable=no-member
-    ).join(
-        ObservingSession,
-    ).join(
-        Camera
-    ).join(
-        CameraType
-    ).join(
-        CameraChannel
+    select_image_channel = (
+        select(
+            CameraChannel.name,
+            # False poisitive
+            # pylint: disable=not-callable
+            # pylint: disable=no-member
+            func.count(Image.id),
+            # pylint: enable=not-callable
+            # pylint: enable=no-member
+        )
+        .join(
+            ObservingSession,
+        )
+        .join(Camera)
+        .join(CameraType)
+        .join(CameraChannel)
     )
 
     processed_select = complete_processed_select(
         select(
             ProcessedImages.channel,
             ProcessedImages.status,
-            #False poisitive
-            #pylint: disable=not-callable
-            func.count(ProcessedImages.image_id)
-            #pylint: enable=not-callable
-        ).join(
-            Image
-        ).join(
-            ImageType
+            # False poisitive
+            # pylint: disable=not-callable
+            func.count(ProcessedImages.image_id),
+            # pylint: enable=not-callable
         )
-    ).where(
-        ImageType.id == image_type_id
-    )
+        .join(Image)
+        .join(ImageType)
+    ).where(ImageType.id == image_type_id)
     final = db_session.execute(
-        processed_select.where(
-            ProcessedImages.final
-        ).group_by(
+        processed_select.where(ProcessedImages.final).group_by(
             ProcessedImages.status > 0,
             ProcessedImages.channel,
         )
     ).all()
     by_status = db_session.execute(
-        processed_select.where(
-            ~ProcessedImages.final
-        ).group_by(
-            ProcessedImages.status,
-            ProcessedImages.channel
+        processed_select.where(~ProcessedImages.final).group_by(
+            ProcessedImages.status, ProcessedImages.channel
         )
     ).all()
-    processed_subquery = complete_processed_select(
-        select(
-            ProcessedImages.image_id,
-            ProcessedImages.channel
+    processed_subquery = (
+        complete_processed_select(
+            select(ProcessedImages.image_id, ProcessedImages.channel)
         )
-    ).where(
-        ProcessedImages.final
-    ).subquery()
+        .where(ProcessedImages.final)
+        .subquery()
+    )
 
     pending = db_session.execute(
         select_image_channel.outerjoin(
             processed_subquery,
-            #False positive
-            #pylint: disable=no-member
-            and_(Image.id == processed_subquery.c.image_id,
-                 CameraChannel.name == processed_subquery.c.channel),
-            #pylint: enable=no-member
-        ).where(
-            #This is how NULL comparison is done in SQLAlchemy
-            #pylint: disable=singleton-comparison
-            #pylint: disable=no-member
-            processed_subquery.c.image_id == None
-            #pylint: enable=singleton-comparison
-            #pylint: enable=no-member
-        ).where(
-            #pylint: disable=no-member
-            Image.image_type_id == image_type_id
-            #pylint: enable=no-member
-        ).group_by(
-            CameraChannel.name
+            # False positive
+            # pylint: disable=no-member
+            and_(
+                Image.id == processed_subquery.c.image_id,
+                CameraChannel.name == processed_subquery.c.channel,
+            ),
+            # pylint: enable=no-member
         )
+        .where(
+            # This is how NULL comparison is done in SQLAlchemy
+            # pylint: disable=singleton-comparison
+            # pylint: disable=no-member
+            processed_subquery.c.image_id
+            == None
+            # pylint: enable=singleton-comparison
+            # pylint: enable=no-member
+        )
+        .where(
+            # pylint: disable=no-member
+            Image.image_type_id
+            == image_type_id
+            # pylint: enable=no-member
+        )
+        .group_by(CameraChannel.name)
     ).all()
     return final, pending, by_status
 
 
-def get_progress_lightcurves(step_id,
-                             image_type_id,
-                             config_version,
-                             db_session):
+def get_progress_lightcurves(
+    step_id, image_type_id, config_version, db_session
+):
     """Same as `get_progress_images()` but for lightcurve steps."""
 
-    step_version = get_db_configuration(config_version,
-                                        db_session,
-                                        step_id,
-                                        max_version_only=True)
+    step_version = get_db_configuration(
+        config_version, db_session, step_id, max_version_only=True
+    )
 
     final = {}
     pending = {}
     for db_sphotref in db_session.scalars(
-        select(
-            MasterFile
-        ).join(
-            MasterType
-        ).where(
-            MasterType.name == 'single_photref'
-        )
+        select(MasterFile)
+        .join(MasterType)
+        .where(MasterType.name == "single_photref")
     ).all():
         for _ in range(10):
             try:
-                with DataReductionFile(db_sphotref.filename,
-                                       'r') as sphotref_dr:
+                with DataReductionFile(
+                    db_sphotref.filename, "r"
+                ) as sphotref_dr:
                     header = sphotref_dr.get_frame_header()
-                    if not db_session.scalar(
-                        select(
-                            ImageType.id
-                        ).select_from(
-                            Image
-                        ).join(
-                            ImageType
-                        ).where(
-                            Image.raw_fname.contains(header['RAWFNAME']
-                                                     +
-                                                     '.fits')
+                    if (
+                        not db_session.scalar(
+                            select(ImageType.id)
+                            .select_from(Image)
+                            .join(ImageType)
+                            .where(
+                                Image.raw_fname.contains(
+                                    header["RAWFNAME"] + ".fits"
+                                )
+                            )
                         )
-                    ) == image_type_id:
+                        == image_type_id
+                    ):
                         continue
-                    channel = header['CLRCHNL']
+                    channel = header["CLRCHNL"]
                     if channel not in final:
                         final[channel] = 0
                     if channel not in pending:
@@ -299,46 +276,48 @@ def get_progress_lightcurves(step_id,
                         ).filter_by(
                             step_id=step_id,
                             single_photref_id=db_sphotref.id,
-                            configuration_version=step_version
+                            configuration_version=step_version,
                         )
                     ):
                         final[channel] += 1
                     else:
                         pending[channel] += 1
                 break
-            #h5py refuses to provide public interface to exceptions
-            #pylint: disable=bare-except
+            # h5py refuses to provide public interface to exceptions
+            # pylint: disable=bare-except
             except:
                 sleep(10)
-            #pylint: enable=bare-except
+            # pylint: enable=bare-except
 
     return (
         [(channel, 1, count) for channel, count in final.items()],
         list(pending.items()),
-        []
+        [],
     )
 
 
 def get_progress(step, *args, **kwargs):
     """Return info about completed work ona given step."""
 
-    if step.name in ['epd',
-                     'tfa',
-                     'generate_epd_statistics',
-                     'generate_tfa_statistics']:
+    if step.name in [
+        "epd",
+        "tfa",
+        "generate_epd_statistics",
+        "generate_tfa_statistics",
+    ]:
         return get_progress_lightcurves(step.id, *args, **kwargs)
 
     return get_progress_images(step.id, *args, **kwargs)
 
 
-def _get_config_info(version, step='All'):
+def _get_config_info(version, step="All"):
     """Return info for displaying the configuration with given version."""
 
-    #False positive:
-    #pylint: disable=no-member
+    # False positive:
+    # pylint: disable=no-member
     with Session.begin() as db_session:
-    #pylint: enable=no-member
-        if step != 'All':
+        # pylint: enable=no-member
+        if step != "All":
             restrict_param_ids = set(
                 param.id
                 for param in db_session.scalar(
@@ -346,40 +325,34 @@ def _get_config_info(version, step='All'):
                 ).parameters
             )
 
-
         config_list = get_db_configuration(version, db_session)
         config_info = {}
         for config in config_list:
-            if (
-                step != 'All'
-                and
-                config.parameter.id not in restrict_param_ids
-            ):
+            if step != "All" and config.parameter.id not in restrict_param_ids:
                 continue
             if config.parameter.name not in config_info:
                 config_info[config.parameter.name] = {
-                    'values': {},
-                    'expression_counts': {},
-                    'description': config.parameter.description
+                    "values": {},
+                    "expression_counts": {},
+                    "description": config.parameter.description,
                 }
             param_info = config_info[config.parameter.name]
-            param_info['values'][config.value] = set(
-                expr.expression for expr in config.condition_expressions
-                if expr.expression != 'True'
+            param_info["values"][config.value] = set(
+                expr.expression
+                for expr in config.condition_expressions
+                if expr.expression != "True"
             )
             for expression in config.condition_expressions:
-                param_info['expression_counts'][expression.expression] = (
-                    param_info['expression_counts'].get(
-                        expression.expression,
-                        0
+                param_info["expression_counts"][expression.expression] = (
+                    param_info["expression_counts"].get(
+                        expression.expression, 0
                     )
-                    +
-                    1
+                    + 1
                 )
     return config_info
 
 
-def get_json_config(version=0, step='All', **dump_kwargs):
+def get_json_config(version=0, step="All", **dump_kwargs):
     """Return the configuration as a JSON object."""
 
     def get_children(values, expression_order):
@@ -390,53 +363,50 @@ def get_json_config(version=0, step='All', **dump_kwargs):
         sibling_values = {}
         for value, val_expressions in values.items():
             if not val_expressions:
-                result.append(
-                    {
-                        'name': value,
-                        'type': 'value',
-                        'children': []
-                    }
-                )
+                result.append({"name": value, "type": "value", "children": []})
             elif expression_order[0] in val_expressions:
-                child_values[value] = (val_expressions
-                                       -
-                                       set([expression_order[0]]))
+                child_values[value] = val_expressions - set(
+                    [expression_order[0]]
+                )
             else:
                 sibling_values[value] = val_expressions
 
         if child_values:
             result.append(
                 {
-                    'name': expression_order[0],
-                    'type': 'condition',
-                    'children': get_children(child_values, expression_order[1:])
+                    "name": expression_order[0],
+                    "type": "condition",
+                    "children": get_children(
+                        child_values, expression_order[1:]
+                    ),
                 }
             )
         if sibling_values:
             result.extend(get_children(sibling_values, expression_order[1:]))
         return result
 
-
     config_data = {
-        'name': 'All' if step == 'All' else step,
-        'type': 'step',
-        'children': []
+        "name": "All" if step == "All" else step,
+        "type": "step",
+        "children": [],
     }
     for param, param_info in _get_config_info(version, step).items():
         expression_order = [
             expr_count[0]
             for expr_count in sorted(
-                param_info['expression_counts'].items(),
+                param_info["expression_counts"].items(),
                 key=lambda expr_count: expr_count[1],
-                reverse=True
+                reverse=True,
             )
         ]
-        config_data['children'].append(
+        config_data["children"].append(
             {
-                'name': param,
-                'type': 'parameter',
-                'description': param_info['description'],
-                'children': get_children(param_info['values'], expression_order)
+                "name": param,
+                "type": "parameter",
+                "description": param_info["description"],
+                "children": get_children(
+                    param_info["values"], expression_order
+                ),
             }
         )
     return json.dumps(config_data, **dump_kwargs)
@@ -468,43 +438,49 @@ def _parse_json_config(json_config):
 
     result = {}
     expression_list = []
+
     def walk_json(sub_tree, parameter=None, expression_ids=None):
         """Recursively walk the JSON configuration tree adding to results."""
 
-        if sub_tree['type'] == 'parameter':
+        if sub_tree["type"] == "parameter":
             assert parameter is None
-            assert sub_tree['name'] not in result
+            assert sub_tree["name"] not in result
             assert expression_ids is None
-            assert sub_tree['children']
-            for child in sub_tree['children']:
-                walk_json(child, sub_tree['name'], ())
-        elif sub_tree['type'] == 'value':
-            assert not sub_tree['children']
+            assert sub_tree["children"]
+            for child in sub_tree["children"]:
+                walk_json(child, sub_tree["name"], ())
+        elif sub_tree["type"] == "value":
+            assert not sub_tree["children"]
             assert parameter
             assert expression_ids is not None
             if parameter not in result:
                 result[parameter] = []
-            print('Adding to parsed: ' + repr(set(expression_ids)) + ' -> '
-                  +
-                  repr(sub_tree['name']))
-            result[parameter].append({'expressions': set(expression_ids),
-                                      'value': sub_tree['name']})
-        elif sub_tree['type'] == 'condition':
-            assert sub_tree['children']
+            print(
+                "Adding to parsed: "
+                + repr(set(expression_ids))
+                + " -> "
+                + repr(sub_tree["name"])
+            )
+            result[parameter].append(
+                {"expressions": set(expression_ids), "value": sub_tree["name"]}
+            )
+        elif sub_tree["type"] == "condition":
+            assert sub_tree["children"]
             assert parameter
             try:
-                condition_id = expression_list.index(sub_tree['name'])
+                condition_id = expression_list.index(sub_tree["name"])
             except ValueError:
                 condition_id = len(expression_list)
-                expression_list.append(sub_tree['name'])
-            for child in sub_tree['children']:
+                expression_list.append(sub_tree["name"])
+            for child in sub_tree["children"]:
                 walk_json(child, parameter, expression_ids + (condition_id,))
         else:
-            raise ValueError(f'Unexpected node type: {sub_tree["type"]} in JSON'
-                             ' configuration')
+            raise ValueError(
+                f'Unexpected node type: {sub_tree["type"]} in JSON'
+                " configuration"
+            )
 
-
-    for child in json_config['children']:
+    for child in json_config["children"]:
         walk_json(child)
 
     return result, expression_list
@@ -515,16 +491,14 @@ def _get_db_conditions(db_session):
 
     result = {}
     for condition_id, expression_id in db_session.execute(
-            #False positive
-            #pylint: disable=no-member
-            select(Condition.id, Condition.expression_id)
-            #pylint: enable=no-member
+        # False positive
+        # pylint: disable=no-member
+        select(Condition.id, Condition.expression_id)
+        # pylint: enable=no-member
     ).all():
         if condition_id not in result:
             result[condition_id] = set()
-        result[condition_id].add(
-            expression_id
-        )
+        result[condition_id].add(expression_id)
     return result
 
 
@@ -534,10 +508,8 @@ def _save_expressions(expressions, db_session):
     expression_db_ids = [None for _ in expressions]
     for expr_ind, expression_str in enumerate(expressions):
         expression = db_session.execute(
-            select(
-                ConditionExpression
-            ).where(
-                ConditionExpression.expression == (expression_str or 'True')
+            select(ConditionExpression).where(
+                ConditionExpression.expression == (expression_str or "True")
             )
         ).scalar_one_or_none()
         if expression is None:
@@ -553,54 +525,61 @@ def _save_conditions(configuration, expression_db_ids, db_session):
 
     db_conditions = _get_db_conditions(db_session)
     print(
-        'DB conditions:\n\t'
-        +
-        '\n\t'.join(f'{k}: {v!r}' for k, v in db_conditions.items())
+        "DB conditions:\n\t"
+        + "\n\t".join(f"{k}: {v!r}" for k, v in db_conditions.items())
     )
-    print('DB condition values: ' + repr(db_conditions.values()))
+    print("DB condition values: " + repr(db_conditions.values()))
 
     new_condition_id = db_session.scalar(
-        #False positive
-        #pylint: disable=no-member
+        # False positive
+        # pylint: disable=no-member
         select(sql.functions.max(Condition.id) + 1)
-        #pylint: enable=no-member
+        # pylint: enable=no-member
     )
-    default_expression_set = set([db_session.scalar(
-        select(ConditionExpression.id).where(
-            ConditionExpression.expression == 'True'
-        )
-    )])
-    default_condition_id = [k for k, v in db_conditions.items()
-                            if v == default_expression_set][0]
+    default_expression_set = set(
+        [
+            db_session.scalar(
+                select(ConditionExpression.id).where(
+                    ConditionExpression.expression == "True"
+                )
+            )
+        ]
+    )
+    default_condition_id = [
+        k for k, v in db_conditions.items() if v == default_expression_set
+    ][0]
 
     for param_info in configuration.values():
         for param_condition in param_info:
-            condition_expression_ids = set(
-                expression_db_ids[expr_id]
-                for expr_id in param_condition['expressions']
-            ) - default_expression_set
-            param_condition['expressions'] = condition_expression_ids
+            condition_expression_ids = (
+                set(
+                    expression_db_ids[expr_id]
+                    for expr_id in param_condition["expressions"]
+                )
+                - default_expression_set
+            )
+            param_condition["expressions"] = condition_expression_ids
             if not condition_expression_ids:
-                param_condition['condition_id'] = default_condition_id
+                param_condition["condition_id"] = default_condition_id
             else:
                 matching_condition = [
-                    k for k, v in db_conditions.items()
+                    k
+                    for k, v in db_conditions.items()
                     if v == condition_expression_ids
                 ]
                 if matching_condition:
-                    param_condition['condition_id'] = matching_condition[0]
+                    param_condition["condition_id"] = matching_condition[0]
                 else:
                     db_session.add_all(
-                        #False positive
-                        #pylint: disable=not-callable
+                        # False positive
+                        # pylint: disable=not-callable
                         Condition(
-                            id=new_condition_id,
-                            expression_id=expression_id
+                            id=new_condition_id, expression_id=expression_id
                         )
-                        #pylint: enable=not-callable
+                        # pylint: enable=not-callable
                         for expression_id in condition_expression_ids
                     )
-                    param_condition['condition_id'] = new_condition_id
+                    param_condition["condition_id"] = new_condition_id
                     new_condition_id += 1
 
 
@@ -608,18 +587,18 @@ def save_json_config(json_config, version):
     """Save configuration provided in JSON format to the database."""
 
     configuration, expressions = _parse_json_config(
-        json.loads(json_config.decode('ascii'))
+        json.loads(json_config.decode("ascii"))
     )
-    #False positive:
-    #pylint: disable=no-member
+    # False positive:
+    # pylint: disable=no-member
     with Session.begin() as db_session:
-    #pylint: enable=no-member
+        # pylint: enable=no-member
         compare_config = get_db_configuration(version, db_session)
 
         _save_conditions(
             configuration,
             _save_expressions(expressions, db_session),
-            db_session
+            db_session,
         )
         params_to_save = {}
         for param_name, param_info in configuration.items():
@@ -631,14 +610,11 @@ def save_json_config(json_config, version):
                 for old_config in compare_config:
                     if (
                         old_config.parameter_id == param_id
-                        and
-                        (
+                        and (
                             old_config.condition_id
-                            ==
-                            condition_info['condition_id']
+                            == condition_info["condition_id"]
                         )
-                        and
-                        old_config.value == condition_info['value']
+                        and old_config.value == condition_info["value"]
                     ):
                         found = True
                         compare_config.remove(old_config)
@@ -648,33 +624,29 @@ def save_json_config(json_config, version):
         for old_config in compare_config:
             if old_config.parameter.name not in configuration:
                 continue
-            params_to_save[old_config.parameter.name] = (
-                old_config.parameter_id
-            )
+            params_to_save[old_config.parameter.name] = old_config.parameter_id
         for param_name, param_info in configuration.items():
             if param_name in params_to_save:
                 parameter_id = params_to_save[param_name]
-                #False positive
-                #pylint: disable=no-member
-                delete_statement = delete(
-                    Configuration
-                ).where(
-                    Configuration.parameter_id == parameter_id
-                ).where(
-                    Configuration.version == version
+                # False positive
+                # pylint: disable=no-member
+                delete_statement = (
+                    delete(Configuration)
+                    .where(Configuration.parameter_id == parameter_id)
+                    .where(Configuration.version == version)
                 )
-                #pylint: enable=no-member
+                # pylint: enable=no-member
                 db_session.execute(delete_statement)
                 db_session.add_all(
-                    #False positive
-                    #pylint: disable=not-callable
+                    # False positive
+                    # pylint: disable=not-callable
                     Configuration(
                         parameter_id=parameter_id,
-                        condition_id=condition_info['condition_id'],
-                        value=condition_info['value'],
-                        version=version
+                        condition_id=condition_info["condition_id"],
+                        value=condition_info["value"],
+                        version=version,
                     )
-                    #pylint: enable=not-callable
+                    # pylint: enable=not-callable
                     for condition_info in param_info
                 )
 
@@ -682,13 +654,11 @@ def save_json_config(json_config, version):
 def list_steps():
     """List the pipeline steps."""
 
-    #False positive:
-    #pylint: disable=no-member
+    # False positive:
+    # pylint: disable=no-member
     with Session.begin() as db_session:
-    #pylint: enable=no-member
-        return db_session.scalars(
-            select(Step.name)
-        ).all()
+        # pylint: enable=no-member
+        return db_session.scalars(select(Step.name)).all()
 
 
 def main():
@@ -696,12 +666,13 @@ def main():
 
     logging.basicConfig(level=logging.DEBUG)
     logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
-    #False positive:
-    #pylint: disable=no-member
+    # False positive:
+    # pylint: disable=no-member
     with Session.begin() as db_session:
-    #pylint: enable=no-member
-        print('Channels: ' + repr(list_channels(db_session)))
+        # pylint: enable=no-member
+        print("Channels: " + repr(list_channels(db_session)))
         print(get_progress(8, 4, 0, db_session))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -9,15 +9,15 @@ import numpy
 from astropy.io import fits
 
 from autowisp.fits_utilities import read_image_components, update_stack_header
-from autowisp.iterative_rejection_util import\
-    iterative_rejection_average
+from autowisp.iterative_rejection_util import iterative_rejection_average
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.image_calibration.fits_util import create_result
 
 from autowisp import Processor
 
-#pylint does not count __call__ but should.
-#pylint: disable=too-few-public-methods
+
+# pylint does not count __call__ but should.
+# pylint: disable=too-few-public-methods
 class MasterMaker(Processor):
     """
     Implement the simplest & fully generalizable procedure for making a master.
@@ -49,21 +49,22 @@ class MasterMaker(Processor):
         >>> )
     """
 
-    _logger  = logging.getLogger(__name__)
+    _logger = logging.getLogger(__name__)
 
-    default_exclude_mask = ('BAD',)
+    default_exclude_mask = ("BAD",)
 
-
-    def __init__(self,
-                 *,
-                 outlier_threshold=5.0,
-                 average_func=numpy.nanmedian,
-                 min_valid_frames=10,
-                 min_valid_values=5,
-                 max_iter=numpy.inf,
-                 exclude_mask=default_exclude_mask,
-                 compress=16,
-                 add_averaged_keywords=()):
+    def __init__(
+        self,
+        *,
+        outlier_threshold=5.0,
+        average_func=numpy.nanmedian,
+        min_valid_frames=10,
+        min_valid_values=5,
+        max_iter=numpy.inf,
+        exclude_mask=default_exclude_mask,
+        compress=16,
+        add_averaged_keywords=(),
+    ):
         """
         Create a master maker with the given default stacking configuration.
 
@@ -81,13 +82,13 @@ class MasterMaker(Processor):
 
         super().__init__()
         self.stacking_options = {
-            'outlier_threshold': outlier_threshold,
-            'average_func': average_func,
-            'min_valid_frames': min_valid_frames,
-            'min_valid_values': min_valid_values,
-            'max_iter': max_iter,
-            'exclude_mask': exclude_mask,
-            'add_averaged_keywords': add_averaged_keywords
+            "outlier_threshold": outlier_threshold,
+            "average_func": average_func,
+            "min_valid_frames": min_valid_frames,
+            "min_valid_values": min_valid_values,
+            "max_iter": max_iter,
+            "exclude_mask": exclude_mask,
+            "add_averaged_keywords": add_averaged_keywords,
         }
         self.compress = compress
 
@@ -106,21 +107,23 @@ class MasterMaker(Processor):
 
         return image
 
-    #Re-factoring to reduce locals will make things less readable.
-    #pylint: disable=too-many-locals
-    def stack(self,
-              frame_list,
-              *,
-              min_valid_frames,
-              outlier_threshold,
-              average_func,
-              min_valid_values,
-              max_iter,
-              exclude_mask,
-              add_averaged_keywords,
-              custom_header=None):
-        #No way to avoid
-        #pylint: disable=line-too-long
+    # Re-factoring to reduce locals will make things less readable.
+    # pylint: disable=too-many-locals
+    def stack(
+        self,
+        frame_list,
+        *,
+        min_valid_frames,
+        outlier_threshold,
+        average_func,
+        min_valid_values,
+        max_iter,
+        exclude_mask,
+        add_averaged_keywords,
+        custom_header=None,
+    ):
+        # No way to avoid
+        # pylint: disable=line-too-long
         """
         Create a master by stacking a list of frames.
 
@@ -182,8 +185,7 @@ class MasterMaker(Processor):
                     List of the frames that were excluded by
                     self.prepare_for_stacking().
         """
-        #pylint: enable=line-too-long
-
+        # pylint: enable=line-too-long
 
         def document_in_header(header):
             """
@@ -218,35 +220,38 @@ class MasterMaker(Processor):
                 None
             """
 
-            header['NUMFCOMB'] = (len(frame_list),
-                                  'Number frames combined in master')
+            header["NUMFCOMB"] = (
+                len(frame_list),
+                "Number frames combined in master",
+            )
             for index, fname in enumerate(frame_list):
-                header[f'ORIGF{index:03d}'] = (
+                header[f"ORIGF{index:03d}"] = (
                     fname,
-                    'Original frame contributing to master'
+                    "Original frame contributing to master",
                 )
-            header['OUTLTHRS'] = (
+            header["OUTLTHRS"] = (
                 repr(outlier_threshold),
-                'The threshold for discarding outlier pixels'
+                "The threshold for discarding outlier pixels",
             )
-            header['AVRGFUNC'] = (
+            header["AVRGFUNC"] = (
                 average_func.__name__,
-                'The averaging function used used for stacking'
+                "The averaging function used used for stacking",
             )
-            header['MINAVGPX'] = (
+            header["MINAVGPX"] = (
                 min_valid_values,
-                'The minimum number of valid pixels required.'
+                "The minimum number of valid pixels required.",
             )
-            header['MAXREJIT'] = (
+            header["MAXREJIT"] = (
                 max_iter if numpy.isfinite(max_iter) else str(max_iter),
-                'Max number of rejection/averaging iterations'
+                "Max number of rejection/averaging iterations",
             )
-            header['XCLUDMSK'] = (
-                ','.join(exclude_mask),
-                'Pixels matching any of this mask were excluded'
+            header["XCLUDMSK"] = (
+                ",".join(exclude_mask),
+                "Pixels matching any of this mask were excluded",
             )
-            header['IMAGETYP'] = 'master' + header['IMAGETYP']
-        #pylint: enable=anomalous-backslash-in-string
+            header["IMAGETYP"] = "master" + header["IMAGETYP"]
+
+        # pylint: enable=anomalous-backslash-in-string
 
         if custom_header is None:
             custom_header = {}
@@ -262,28 +267,26 @@ class MasterMaker(Processor):
         first_frame = True
         exclude_mask_bits = reduce(
             lambda bits, pix_condition: numpy.bitwise_or(
-                bits,
-                mask_flags[pix_condition]
+                bits, mask_flags[pix_condition]
             ),
             exclude_mask,
-            0
+            0,
         )
         for frame_fname in frame_list:
-            #False positive
-            #pylint: disable=unbalanced-tuple-unpacking
-            image, mask, header = read_image_components(frame_fname,
-                                                        read_error=False,
-                                                        read_header=True)
-            #pylint: enable=unbalanced-tuple-unpacking
+            # False positive
+            # pylint: disable=unbalanced-tuple-unpacking
+            image, mask, header = read_image_components(
+                frame_fname, read_error=False, read_header=True
+            )
+            # pylint: enable=unbalanced-tuple-unpacking
 
             stack_image = self.prepare_for_stacking(image)
             if stack_image is None:
                 discarded_frames.append(frame_fname)
             else:
-                update_stack_header(master_header,
-                                    header,
-                                    frame_fname,
-                                    first_frame)
+                update_stack_header(
+                    master_header, header, frame_fname, first_frame
+                )
                 first_frame = False
 
                 if pixel_values is None:
@@ -294,20 +297,21 @@ class MasterMaker(Processor):
                     )
 
                 pixel_values[frame_index] = stack_image
-                exclude_pix = numpy.bitwise_and(
-                    mask,
-                    exclude_mask_bits
-                ).astype(bool)
+                exclude_pix = numpy.bitwise_and(mask, exclude_mask_bits).astype(
+                    bool
+                )
                 if exclude_pix.any():
                     pixel_values[frame_index][exclude_pix] = numpy.nan
-                    self._logger.warning('Excluding %d masked pixels from %s',
-                                         exclude_pix.sum(),
-                                         frame_fname)
+                    self._logger.warning(
+                        "Excluding %d masked pixels from %s",
+                        exclude_pix.sum(),
+                        frame_fname,
+                    )
                 for kw_index, keyword in enumerate(add_averaged_keywords):
-                    #False positive
-                    #pylint: disable=unsubscriptable-object
+                    # False positive
+                    # pylint: disable=unsubscriptable-object
                     header_values[frame_index, kw_index] = header[keyword]
-                    #pylint: enable=unsubscriptable-object
+                    # pylint: enable=unsubscriptable-object
                 frame_index += 1
 
         if frame_index < min_valid_frames:
@@ -316,13 +320,15 @@ class MasterMaker(Processor):
         pixel_values = pixel_values[:frame_index]
 
         master_values, master_stdev, master_num_averaged = (
-            iterative_rejection_average(pixel_values,
-                                        outlier_threshold=outlier_threshold,
-                                        average_func=average_func,
-                                        max_iter=max_iter,
-                                        axis=0,
-                                        mangle_input=True,
-                                        keepdims=False)
+            iterative_rejection_average(
+                pixel_values,
+                outlier_threshold=outlier_threshold,
+                average_func=average_func,
+                max_iter=max_iter,
+                axis=0,
+                mangle_input=True,
+                keepdims=False,
+            )
         )
         averaged_header, _, _ = iterative_rejection_average(
             header_values,
@@ -331,35 +337,39 @@ class MasterMaker(Processor):
             max_iter=max_iter,
             axis=0,
             mangle_input=True,
-            keepdims=False
+            keepdims=False,
         )
 
-        master_mask = numpy.full(pixel_values[0].shape,
-                                 mask_flags['CLEAR'],
-                                 dtype='int8')
-        master_mask[master_num_averaged < min_valid_values] = mask_flags['BAD']
+        master_mask = numpy.full(
+            pixel_values[0].shape, mask_flags["CLEAR"], dtype="int8"
+        )
+        master_mask[master_num_averaged < min_valid_values] = mask_flags["BAD"]
 
         document_in_header(master_header)
         for keyword, value in zip(add_averaged_keywords, averaged_header):
             assert keyword not in master_header
             master_header[keyword] = value
 
-        return (master_values,
-                master_stdev,
-                master_mask,
-                master_header,
-                discarded_frames)
-    #pylint: enable=too-many-locals
+        return (
+            master_values,
+            master_stdev,
+            master_mask,
+            master_header,
+            discarded_frames,
+        )
 
+    # pylint: enable=too-many-locals
 
-    def __call__(self,
-                 frame_list,
-                 output_fname,
-                 *,
-                 allow_overwrite=False,
-                 custom_header=None,
-                 compress=None,
-                 **stacking_options):
+    def __call__(
+        self,
+        frame_list,
+        output_fname,
+        *,
+        allow_overwrite=False,
+        custom_header=None,
+        compress=None,
+        **stacking_options,
+    ):
         """
         Create a master by stacking the given frames.
 
@@ -400,30 +410,32 @@ class MasterMaker(Processor):
             if option_name not in stacking_options:
                 stacking_options[option_name] = default_value
 
-        #pylint false positive
-        #pylint: disable=missing-kwoa
+        # pylint false positive
+        # pylint: disable=missing-kwoa
         values, stdev, mask, header, discarded_frames = self.stack(
-            frame_list,
-            custom_header=custom_header,
-            **stacking_options
+            frame_list, custom_header=custom_header, **stacking_options
         )
-        #pylint: enable=missing-kwoa
+        # pylint: enable=missing-kwoa
 
         if values is None:
-            self._logger.error('Failed to create master %s!',
-                               repr(output_fname))
+            self._logger.error(
+                "Failed to create master %s!", repr(output_fname)
+            )
         else:
-            create_result(image_list=[values, stdev, mask],
-                          header=header,
-                          result_fname=output_fname,
-                          compress=compress or self.compress,
-                          allow_overwrite=allow_overwrite)
+            create_result(
+                image_list=[values, stdev, mask],
+                header=header,
+                result_fname=output_fname,
+                compress=compress or self.compress,
+                allow_overwrite=allow_overwrite,
+            )
             assert exists(output_fname)
 
-
         return values is not None, discarded_frames
-#pylint: enable=too-few-public-methods
 
-if __name__ == '__main__':
+
+# pylint: enable=too-few-public-methods
+
+if __name__ == "__main__":
     make_master = MasterMaker()
     print(repr(make_master.__dict__))

@@ -50,7 +50,7 @@ def single_iteration(
     path_substitutions,
     mark_start,
     mark_end,
-    magfit_stat_collector=None
+    magfit_stat_collector=None,
 ):
     """Do a single magfit iteration using parallel processes."""
 
@@ -81,7 +81,7 @@ def single_iteration(
             status=2 * path_substitutions["magfit_iteration"] + 1,
             final=configuration.master_photref_fname is not None,
         ),
-        **path_substitutions
+        **path_substitutions,
     )
 
     if configuration.num_parallel_processes > 1:
@@ -118,7 +118,7 @@ def iterative_refit(
     configuration,
     mark_start,
     mark_end,
-    path_substitutions
+    path_substitutions,
 ):
     """
     Iteratively performa magnitude fitting/generating master until convergence.
@@ -189,7 +189,7 @@ def iterative_refit(
         source_id_parser,
         num_photometries,
         fname_substitutions,
-        common_header
+        common_header,
     ):
         """
         Return the next iteration photometric reference or None if converged.

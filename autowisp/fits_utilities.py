@@ -6,21 +6,20 @@ import logging
 from numpy import nan
 from astropy.io import fits
 
-from autowisp.pipeline_exceptions import\
-    BadImageError,\
-    ImageMismatchError
-from autowisp.data_reduction.data_reduction_file import\
-    DataReductionFile
+from autowisp.pipeline_exceptions import BadImageError, ImageMismatchError
+from autowisp.data_reduction.data_reduction_file import DataReductionFile
 
-_logger  = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
-def read_image_components(fits_fname,
-                          *,
-                          read_image=True,
-                          read_error=True,
-                          read_mask=True,
-                          read_header=True):
+def read_image_components(
+    fits_fname,
+    *,
+    read_image=True,
+    read_error=True,
+    read_mask=True,
+    read_header=True,
+):
     """
     Read image, its error estimate, mask and header from pipeline FITS file.
 
@@ -55,43 +54,38 @@ def read_image_components(fits_fname,
 
             astropy.io.fits.Header:
                 The header of the image HDU in the file. This is omitted from
-                the output if ``read_header == False``.  """
+                the output if ``read_header == False``."""
 
     image = error = mask = header = None
-    with fits.open(fits_fname, mode='readonly') as input_file:
+    with fits.open(fits_fname, mode="readonly") as input_file:
         for hdu_index, hdu in enumerate(input_file):
-            if hdu.header['NAXIS'] == 0:
+            if hdu.header["NAXIS"] == 0:
                 continue
             if image is None:
                 image = hdu.data if read_image else True
                 if read_header:
                     header = hdu.header
             else:
-                if hdu.header['IMAGETYP'] == 'error':
+                if hdu.header["IMAGETYP"] == "error":
                     error = hdu.data
-                elif hdu.header['IMAGETYP'] == 'mask':
+                elif hdu.header["IMAGETYP"] == "mask":
                     mask = hdu.data
                     if mask.dtype.itemsize != 1:
                         raise BadImageError(
-                            f'Mask image (hdu #{hdu_index:d}) of {fits_fname} '
-                            f'had data type {mask.dtype!s} (not int8).'
+                            f"Mask image (hdu #{hdu_index:d}) of {fits_fname} "
+                            f"had data type {mask.dtype!s} (not int8)."
                         )
             if (
-                    image is not None
-                    and
-                    (error is not None or not read_error)
-                    and
-                    (mask is not None or not read_mask)
+                image is not None
+                and (error is not None or not read_error)
+                and (mask is not None or not read_mask)
             ):
                 break
     return (
         ((image,) if read_image else ())
-        +
-        ((error,) if read_error else ())
-        +
-        ((mask,) if read_mask else ())
-        +
-        ((header,) if read_header else ())
+        + ((error,) if read_error else ())
+        + ((mask,) if read_mask else ())
+        + ((header,) if read_header else ())
     )
 
 
@@ -113,34 +107,27 @@ def get_primary_header(fits_image, add_filename_keywords=False):
 
     if not isinstance(fits_image, fits.HDUList):
         try:
-            with fits.open(fits_image, 'readonly') as opened_fits:
+            with fits.open(fits_image, "readonly") as opened_fits:
                 return get_primary_header(opened_fits, add_filename_keywords)
         except OSError:
-            with DataReductionFile(fits_image, 'r') as dr_file:
+            with DataReductionFile(fits_image, "r") as dr_file:
                 return dr_file.get_frame_header()
     for hdu in fits_image:
-        if (
-            hdu.header['NAXIS'] != 0
-            or
-            hdu.header.get('IMAGETYP') == 'mphotref'
-        ):
+        if hdu.header["NAXIS"] != 0 or hdu.header.get("IMAGETYP") == "mphotref":
             result = hdu.header
             if add_filename_keywords:
                 result = result.copy()
-                base_fname = path.basename(fits_image.fileinfo(0)['filename'])
-                for ext in ['.fz', '.fits']:
+                base_fname = path.basename(fits_image.fileinfo(0)["filename"])
+                for ext in [".fz", ".fits"]:
                     if base_fname.endswith(ext):
-                        base_fname = base_fname[:-len(ext)]
+                        base_fname = base_fname[: -len(ext)]
 
-                result['RAWFNAME'] = base_fname
+                result["RAWFNAME"] = base_fname
             return result
-    raise IOError(f'No valid HDU found in {fits_image!r}!')
+    raise IOError(f"No valid HDU found in {fits_image!r}!")
 
 
-def update_stack_header(master_header,
-                        frame_header,
-                        filename,
-                        first_time):
+def update_stack_header(master_header, frame_header, filename, first_time):
     """
     Update the master header per header from one of the individual frames.
 
@@ -172,29 +159,28 @@ def update_stack_header(master_header,
 
     if first_time:
         master_header.extend(
-            filter(lambda c: tuple(c) != ('', '', ''), frame_header.cards)
+            filter(lambda c: tuple(c) != ("", "", ""), frame_header.cards)
         )
     else:
-        _logger.debug('Checking master header against %s', filename)
+        _logger.debug("Checking master header against %s", filename)
 
         mismatch_keys = {
-            k for k in master_header
+            k
+            for k in master_header
             if master_header[k] != frame_header.get(k, nan)
         } | (set(master_header) - set(frame_header))
 
-        if 'IMAGEYP' in mismatch_keys:
+        if "IMAGEYP" in mismatch_keys:
             raise ImageMismatchError(
-                'Attempting to combine images with '
+                "Attempting to combine images with "
                 f"IMAGETYP = {master_header['IMAGETYP']} and "
                 f"IMAGETYP={frame_header['IMAGETYP']} "
-                'into a master!'
+                "into a master!"
             )
 
-        _logger.debug('Deleting:\n%s',
-                      '\n'.join(mismatch_keys))
+        _logger.debug("Deleting:\n%s", "\n".join(mismatch_keys))
 
-        _logger.debug('Starting with %d cards',
-                           len(master_header.cards))
+        _logger.debug("Starting with %d cards", len(master_header.cards))
         for key in mismatch_keys:
             master_header.remove(key, remove_all=True)
-        _logger.debug('%d cards remain', len(master_header.cards))
+        _logger.debug("%d cards remain", len(master_header.cards))

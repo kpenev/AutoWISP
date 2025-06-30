@@ -106,7 +106,7 @@ def photometer_frame(frame_fname, configuration, mark_start, mark_end):
 
     _logger.debug("Photometering %s", frame_fname)
     photometer = get_photometer(configuration)
-    _logger.debug('Created photometer.')
+    _logger.debug("Created photometer.")
     header = get_primary_header(frame_fname)
     header["FITGROUP"] = configuration["shapefit_group"]
 
@@ -212,7 +212,7 @@ def cleanup_interrupted(interrupted, configuration):
             delete_aperture_photometry(
                 dr_file,
                 len(configuration["apertures"]),
-                **dr_path_substitutions
+                **dr_path_substitutions,
             )
 
     return -1

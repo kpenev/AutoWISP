@@ -51,7 +51,7 @@ def collect_light_curves(
     dr_fname_parser=parse_fname_keywords,
     optional_header=None,
     observatory=None,
-    **path_substitutions
+    **path_substitutions,
 ):
     """
     Add the data from a collection of DR files to LCs, creating LCs if needed.
@@ -116,7 +116,7 @@ def collect_light_curves(
             dr_fname_parser=dr_fname_parser,
             optional_header=optional_header,
             observatory=observatory,
-            **path_substitutions
+            **path_substitutions,
         )
     frame_chunk = data_io.max_dimension_size["frame"]
     logger.debug(

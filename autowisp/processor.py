@@ -1,7 +1,8 @@
 """Define base class for all pipeline processing steps enforcing conventions."""
 
-#TODO: add recovery and logging.
-#pylint: disable=too-few-public-methods
+
+# TODO: add recovery and logging.
+# pylint: disable=too-few-public-methods
 class Processor:
     """
     Providing and enforcing uniform interface for config, recovery, and logging.
@@ -15,7 +16,6 @@ class Processor:
         self.configuration = dict(self.default_configuration)
         self.configuration.update(configuration)
 
-
     def __call__(self, **configuration):
         """Add/overwrite any configuration parameters at time of processing."""
 
@@ -24,4 +24,5 @@ class Processor:
                 configuration[key] = value
         return configuration
 
-#pylint: enable=too-few-public-methods
+
+# pylint: enable=too-few-public-methods

@@ -10,9 +10,10 @@ from autowisp.fits_utilities import get_primary_header
 
 _logger = getLogger(__name__)
 
-def get_data_filenames(data_collection,
-                       include_condition='True',
-                       recursive=True):
+
+def get_data_filenames(
+    data_collection, include_condition="True", recursive=True
+):
     """
     Select FITS images or DR files that match a specified header condition.
 
@@ -30,21 +31,21 @@ def get_data_filenames(data_collection,
 
     for entry in data_collection:
         for fname in iglob(entry, recursive=recursive):
-            _logger.debug('fname before pass: %s', repr(fname))
-            if (
-                    include_condition == 'True'
-                    or
-                    Evaluator(fname)(include_condition)
+            _logger.debug("fname before pass: %s", repr(fname))
+            if include_condition == "True" or Evaluator(fname)(
+                include_condition
             ):
-                _logger.debug('fname passed: %s', repr(fname))
+                _logger.debug("fname passed: %s", repr(fname))
                 yield fname
 
 
-def find_data_fnames(image_collection,
-                     include_condition='True',
-                     *,
-                     recursive=False,
-                     search_wildcards=('*.fits', '*.fits.fz')):
+def find_data_fnames(
+    image_collection,
+    include_condition="True",
+    *,
+    recursive=False,
+    search_wildcards=("*.fits", "*.fits.fz"),
+):
     """
     Select FITS images matching a header condition.
 
@@ -70,15 +71,15 @@ def find_data_fnames(image_collection,
     if isinstance(image_collection, str):
         image_collection = [image_collection]
     if recursive:
-        search_wildcards = ['**/' + wildcard for wildcard in search_wildcards]
+        search_wildcards = ["**/" + wildcard for wildcard in search_wildcards]
     for entry in image_collection:
         if os.path.isdir(entry):
             for result in get_data_filenames(
-                    [
-                        os.path.join(entry, wildcard)
-                        for wildcard in search_wildcards
-                    ],
-                    include_condition
+                [
+                    os.path.join(entry, wildcard)
+                    for wildcard in search_wildcards
+                ],
+                include_condition,
             ):
                 yield result
         else:
@@ -86,28 +87,25 @@ def find_data_fnames(image_collection,
                 yield result
 
 
-def find_fits_with_dr_fnames(image_collection,
-                             include_condition='True',
-                             *,
-                             dr_fname_format,
-                             **kwargs):
+def find_fits_with_dr_fnames(
+    image_collection, include_condition="True", *, dr_fname_format, **kwargs
+):
     """Same as find_data_fnames() but eliminates those without DR files."""
 
     def has_dr(fits_fname):
         """Check if a FITS file has a corresponding DR file."""
 
         header = get_primary_header(fits_fname)
-        _logger.debug('looking for: %s',
-                      repr(dr_fname_format.format_map(header)))
+        _logger.debug(
+            "looking for: %s", repr(dr_fname_format.format_map(header))
+        )
         return os.path.exists(dr_fname_format.format_map(header))
 
-
     return filter(
-        has_dr,
-        find_data_fnames(image_collection, include_condition, **kwargs)
+        has_dr, find_data_fnames(image_collection, include_condition, **kwargs)
     )
 
 
 find_fits_fnames = find_data_fnames
-find_dr_fnames = partial(find_data_fnames, search_wildcards=('*.h5','*.hdf5'))
+find_dr_fnames = partial(find_data_fnames, search_wildcards=("*.h5", "*.hdf5"))
 find_lc_fnames = find_dr_fnames

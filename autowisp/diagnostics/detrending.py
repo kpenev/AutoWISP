@@ -117,7 +117,7 @@ def get_detrending_performance_data(
     *,
     min_unrejected_fraction,
     magnitude_expression,
-    skip_first_stat
+    skip_first_stat,
 ):
     """Return all data required for magnitude fitting performance plots."""
 
@@ -159,8 +159,10 @@ def get_detrending_performance_data(
     if expected_scatter_columns is not None:
         expected_scatter = data[expected_scatter_columns]
         expected_scatter[expected_scatter == 0.0] = numpy.nan
-        data.insert(len(data.columns),
-                    'expected_scatter',
-                    10.0**(numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0)
+        data.insert(
+            len(data.columns),
+            "expected_scatter",
+            10.0 ** (numpy.nanmin(expected_scatter, 1) / 2.5) - 1.0,
+        )
 
     return data

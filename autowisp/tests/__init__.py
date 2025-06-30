@@ -10,6 +10,7 @@ from astrowisp.tests.utilities import FloatTestCase
 autowisp_dir = path.dirname(path.dirname(path.abspath(__file__)))
 steps_dir = path.join(autowisp_dir, "processing_steps")
 
+
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
@@ -32,7 +33,6 @@ class AutoWISPTestCase(FloatTestCase):
                     destination = path.dirname(destination)
                     makedirs(destination, exist_ok=True)
                     copy(source, destination)
-
 
     @classmethod
     def set_test_directory(cls, test_dirname, processing_dirname):
@@ -62,7 +62,7 @@ class AutoWISPTestCase(FloatTestCase):
         )
         copy(
             path.join(self.test_directory, "autowisp.db"),
-            path.join(self.processing_directory, "autowisp.db")
+            path.join(self.processing_directory, "autowisp.db"),
         )
 
         self.successful_test = False
@@ -73,7 +73,6 @@ class AutoWISPTestCase(FloatTestCase):
         assert self.successful_test
         if self.successful_test:
             rmtree(self.processing_directory)
-
 
     def run_step(self, command):
         """Run a calibration step and check the return code."""

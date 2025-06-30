@@ -6,11 +6,11 @@ import numpy
 import scipy.linalg
 import scipy.interpolate
 
-from autowisp.iterative_rejection_util import\
-    iterative_rej_linear_leastsq
+from autowisp.iterative_rejection_util import iterative_rej_linear_leastsq
 from autowisp.image_utilities import zoom_image, bin_image
 
-git_id = '$Id$'
+git_id = "$Id$"
+
 
 class ImageSmoother(ABC):
     r"""
@@ -51,17 +51,19 @@ class ImageSmoother(ABC):
             None
         """
 
-        self.bin_factor = kwargs.get('bin_factor', None)
-        self.zoom_interp_order = kwargs.get('zoom_interp_order', None)
-        self.padding_mode = kwargs.get('padding_mode', None)
+        self.bin_factor = kwargs.get("bin_factor", None)
+        self.zoom_interp_order = kwargs.get("zoom_interp_order", None)
+        self.padding_mode = kwargs.get("padding_mode", None)
 
-    def smooth(self,
-               image,
-               *,
-               bin_factor=None,
-               zoom_interp_order=None,
-               padding_mode='reflect',
-               **kwargs):
+    def smooth(
+        self,
+        image,
+        *,
+        bin_factor=None,
+        zoom_interp_order=None,
+        padding_mode="reflect",
+        **kwargs,
+    ):
         """
         Sandwich smoothing between initial binning and final zoom.
 
@@ -106,31 +108,34 @@ class ImageSmoother(ABC):
             x_padding = int(numpy.ceil(x_res / bin_factor)) * bin_factor - x_res
             left_padding = x_padding // 2
             bottom_padding = y_padding // 2
-            image = numpy.pad(image,
-                              ((bottom_padding, y_padding - bottom_padding),
-                               (left_padding, x_padding - left_padding)),
-                              mode=(padding_mode or self.padding_mode))
+            image = numpy.pad(
+                image,
+                (
+                    (bottom_padding, y_padding - bottom_padding),
+                    (left_padding, x_padding - left_padding),
+                ),
+                mode=(padding_mode or self.padding_mode),
+            )
 
         smooth_image = zoom_image(
-            self._apply_smoothing(
-                bin_image(image, bin_factor),
-                **kwargs
-            ),
+            self._apply_smoothing(bin_image(image, bin_factor), **kwargs),
             bin_factor,
-            zoom_interp_order
+            zoom_interp_order,
         )
         if x_res % bin_factor == 0 and y_res % bin_factor == 0:
             return smooth_image
 
-
-        return smooth_image[bottom_padding : bottom_padding + y_res,
-                            left_padding : left_padding + x_res]
+        return smooth_image[
+            bottom_padding : bottom_padding + y_res,
+            left_padding : left_padding + x_res,
+        ]
 
     def detrend(self, image, **kwargs):
         """De-trend the input image by its smooth version (see smooth)."""
 
         smooth_image = self.smooth(image, **kwargs)
         return image / smooth_image * numpy.mean(smooth_image)
+
 
 class SeparableLinearImageSmoother(ImageSmoother):
     """
@@ -171,11 +176,9 @@ class SeparableLinearImageSmoother(ImageSmoother):
     def get_y_pixel_integrals(self, param_ind, y_resolution):
         """See get_x_pixel_integrals."""
 
-    def _get_smoothing_matrix(self,
-                              num_x_terms,
-                              num_y_terms,
-                              y_resolution,
-                              x_resolution):
+    def _get_smoothing_matrix(
+        self, num_x_terms, num_y_terms, y_resolution, x_resolution
+    ):
         r"""
         Return matrix giving flattened smooth image when applied to fit params.
 
@@ -197,27 +200,30 @@ class SeparableLinearImageSmoother(ImageSmoother):
                 each image pixel per the smoothing function.
         """
 
-        matrix = numpy.empty((x_resolution * y_resolution,
-                              num_x_terms * num_y_terms))
+        matrix = numpy.empty(
+            (x_resolution * y_resolution, num_x_terms * num_y_terms)
+        )
         for x_term_index in range(num_x_terms):
             x_integrals = self.get_x_pixel_integrals(x_term_index, x_resolution)
             for y_term_index in range(num_y_terms):
-                y_integrals = self.get_y_pixel_integrals(y_term_index,
-                                                         y_resolution)
-                matrix[
-                    :,
-                    x_term_index + y_term_index * num_x_terms
-                ] = numpy.outer(y_integrals, x_integrals).flatten()
+                y_integrals = self.get_y_pixel_integrals(
+                    y_term_index, y_resolution
+                )
+                matrix[:, x_term_index + y_term_index * num_x_terms] = (
+                    numpy.outer(y_integrals, x_integrals).flatten()
+                )
 
         return matrix
 
-    def __init__(self,
-                 *,
-                 num_x_terms=None,
-                 num_y_terms=None,
-                 outlier_threshold=None,
-                 max_iterations=None,
-                 **kwargs):
+    def __init__(
+        self,
+        *,
+        num_x_terms=None,
+        num_y_terms=None,
+        outlier_threshold=None,
+        max_iterations=None,
+        **kwargs,
+    ):
         r"""
         Define the default smoothing configuration (overwritable on use).
 
@@ -246,17 +252,19 @@ class SeparableLinearImageSmoother(ImageSmoother):
         self.outlier_threshold = outlier_threshold
         self.max_iterations = max_iterations
 
-    #The abstract method was deliberately defined wit flexible arguments
-    #pylint: disable=arguments-differ
-    def _apply_smoothing(self,
-                         image,
-                         *,
-                         num_x_terms=None,
-                         num_y_terms=None,
-                         outlier_threshold=None,
-                         max_iterations=None):
-        #unavoidable
-        #pylint: disable=line-too-long
+    # The abstract method was deliberately defined wit flexible arguments
+    # pylint: disable=arguments-differ
+    def _apply_smoothing(
+        self,
+        image,
+        *,
+        num_x_terms=None,
+        num_y_terms=None,
+        outlier_threshold=None,
+        max_iterations=None,
+    ):
+        # unavoidable
+        # pylint: disable=line-too-long
         """
         Return a smooth version of the given image.
 
@@ -292,7 +300,7 @@ class SeparableLinearImageSmoother(ImageSmoother):
                     :func:`autowisp.iterative_rejection_util.iterative_rej_linear_leastsq`
                     .
         """
-        #pylint: enable=line-too-long
+        # pylint: enable=line-too-long
 
         if outlier_threshold is None:
             outlier_threshold = self.outlier_threshold
@@ -303,19 +311,21 @@ class SeparableLinearImageSmoother(ImageSmoother):
         if num_y_terms is None:
             num_y_terms = self.num_y_terms
 
-        matrix = self._get_smoothing_matrix(num_x_terms,
-                                            num_y_terms,
-                                            *image.shape)
+        matrix = self._get_smoothing_matrix(
+            num_x_terms, num_y_terms, *image.shape
+        )
 
         fit_coef = iterative_rej_linear_leastsq(
             matrix,
             image.flatten(),
             outlier_threshold=outlier_threshold,
-            max_iterations=max_iterations
+            max_iterations=max_iterations,
         )[0]
         smooth_image = matrix.dot(fit_coef).reshape(image.shape)
         return smooth_image
-    #pylint: enable=arguments-differ
+
+    # pylint: enable=arguments-differ
+
 
 class PolynomialImageSmoother(SeparableLinearImageSmoother):
     """
@@ -342,22 +352,21 @@ class PolynomialImageSmoother(SeparableLinearImageSmoother):
 
         pix_left = numpy.arange(resolution)
         return (
-            (2.0 * (pix_left + 1) / resolution - 1)**(power + 1)
-            -
-            (2.0 * pix_left / resolution - 1)**(power + 1)
+            (2.0 * (pix_left + 1) / resolution - 1) ** (power + 1)
+            - (2.0 * pix_left / resolution - 1) ** (power + 1)
         ) / (power + 1)
 
     get_x_pixel_integrals = _get_powerlaw_pixel_integrals
     get_y_pixel_integrals = _get_powerlaw_pixel_integrals
 
+
 class SplineImageSmoother(SeparableLinearImageSmoother):
     """Smooth image is modeled as a product of cubic splines in x and y."""
 
     @staticmethod
-    def get_spline_pixel_integrals(node_index,
-                                   resolution,
-                                   num_nodes,
-                                   spline_degree):
+    def get_spline_pixel_integrals(
+        node_index, resolution, num_nodes, spline_degree
+    ):
         """
         Return the integrals over one pixel dimension of a basis spline.
 
@@ -387,13 +396,11 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         interp_y = numpy.zeros(num_nodes)
         interp_y[node_index] = 1.0
         integrate = scipy.interpolate.InterpolatedUnivariateSpline(
-            numpy.arange(num_nodes),
-            interp_y,
-            k=spline_degree
+            numpy.arange(num_nodes), interp_y, k=spline_degree
         ).antiderivative()
-        cumulative_integrals = integrate(numpy.arange(resolution + 1)
-                                         *
-                                         ((num_nodes  - 1) / resolution))
+        cumulative_integrals = integrate(
+            numpy.arange(resolution + 1) * ((num_nodes - 1) / resolution)
+        )
         return cumulative_integrals[1:] - cumulative_integrals[:-1]
 
     def get_x_pixel_integrals(self, param_ind, x_resolution):
@@ -408,10 +415,9 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
             See :meth:`SeparableLinearImageSmoother.get_x_pixel_integrals`\ .
         """
 
-        return self.get_spline_pixel_integrals(param_ind,
-                                               x_resolution,
-                                               self.num_x_nodes,
-                                               self.spline_degree)
+        return self.get_spline_pixel_integrals(
+            param_ind, x_resolution, self.num_x_nodes, self.spline_degree
+        )
 
     def get_y_pixel_integrals(self, param_ind, y_resolution):
         r"""
@@ -425,17 +431,13 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
             See :meth:`SeparableLinearImageSmoother.get_y_pixel_integrals`\ .
         """
 
-        return self.get_spline_pixel_integrals(param_ind,
-                                               y_resolution,
-                                               self.num_y_nodes,
-                                               self.spline_degree)
+        return self.get_spline_pixel_integrals(
+            param_ind, y_resolution, self.num_y_nodes, self.spline_degree
+        )
 
-    def __init__(self,
-                 *,
-                 num_x_nodes=None,
-                 num_y_nodes=None,
-                 spline_degree=3,
-                 **kwargs):
+    def __init__(
+        self, *, num_x_nodes=None, num_y_nodes=None, spline_degree=3, **kwargs
+    ):
         r"""
         Set-up spline interpolation with the given number of nodes.
 
@@ -453,21 +455,18 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
             None
         """
 
-        super().__init__(num_x_terms=num_x_nodes,
-                         num_y_terms=num_y_nodes,
-                         **kwargs)
+        super().__init__(
+            num_x_terms=num_x_nodes, num_y_terms=num_y_nodes, **kwargs
+        )
         self.num_x_nodes = num_x_nodes
         self.num_y_nodes = num_y_nodes
         self.spline_degree = spline_degree
 
-    #Different parameters are deliberate
-    #pylint: disable=arguments-differ
-    def _apply_smoothing(self,
-                         image,
-                         *,
-                         num_x_nodes=None,
-                         num_y_nodes=None,
-                         **kwargs):
+    # Different parameters are deliberate
+    # pylint: disable=arguments-differ
+    def _apply_smoothing(
+        self, image, *, num_x_nodes=None, num_y_nodes=None, **kwargs
+    ):
         """
         Handle change in interpolation nodes needed by integrals functions.
 
@@ -486,21 +485,24 @@ class SplineImageSmoother(SeparableLinearImageSmoother):
         if num_y_nodes is not None:
             self.num_y_nodes = num_y_nodes
 
-        return super()._apply_smoothing(image,
-                                        num_x_terms=num_x_nodes,
-                                        num_y_terms=num_y_nodes,
-                                        **kwargs)
-    #pylint: enable=arguments-differ
+        return super()._apply_smoothing(
+            image, num_x_terms=num_x_nodes, num_y_terms=num_y_nodes, **kwargs
+        )
+
+    # pylint: enable=arguments-differ
+
 
 class WrapFilterAsSmoother(ImageSmoother):
     """Wrap one of the numpy or astropy image filters in a smoother."""
 
-    def __init__(self,
-                 smoothing_filter,
-                 *,
-                 bin_factor=None,
-                 zoom_interp_order=None,
-                 **filter_config):
+    def __init__(
+        self,
+        smoothing_filter,
+        *,
+        bin_factor=None,
+        zoom_interp_order=None,
+        **filter_config,
+    ):
         r"""
         Apply the given filter through the ImageSmoother interface.
 
@@ -519,8 +521,9 @@ class WrapFilterAsSmoother(ImageSmoother):
             None
         """
 
-        super().__init__(bin_factor=bin_factor,
-                         zoom_interp_order=zoom_interp_order)
+        super().__init__(
+            bin_factor=bin_factor, zoom_interp_order=zoom_interp_order
+        )
         self.filter_config = filter_config
         self.filter = smoothing_filter
 
@@ -538,6 +541,7 @@ class WrapFilterAsSmoother(ImageSmoother):
         filter_kwargs = self.filter_config
         filter_kwargs.update(kwargs)
         return self.filter(image, **filter_kwargs)
+
 
 class ChainSmoother(ImageSmoother):
     """
@@ -561,7 +565,6 @@ class ChainSmoother(ImageSmoother):
 
             kwargs:    Any arguments to pass to parent constructor.
         """
-
 
         super().__init__(**kwargs)
         self.smoothing_chain = []
@@ -614,8 +617,8 @@ class ChainSmoother(ImageSmoother):
 
         self.smoothing_chain[position] = smoother
 
-    #It makes no sense to take configuration argumens.
-    #pylint: disable=arguments-differ
+    # It makes no sense to take configuration argumens.
+    # pylint: disable=arguments-differ
     def _apply_smoothing(self, image):
         """Smooth the given image using the current chain of smoothers."""
 
@@ -623,4 +626,5 @@ class ChainSmoother(ImageSmoother):
         for smoother in self.smoothing_chain:
             smooth_image = smoother.smooth(smooth_image)
         return smooth_image
-    #pylint: enable=arguments-differ
+
+    # pylint: enable=arguments-differ

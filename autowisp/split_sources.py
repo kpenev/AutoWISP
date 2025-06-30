@@ -3,8 +3,9 @@
 from math import inf
 import numpy
 
-#Pylint does not count __init__ and __call__, but should.
-#pylint: disable=too-few-public-methods
+
+# Pylint does not count __init__ and __call__, but should.
+# pylint: disable=too-few-public-methods
 class SplitSources:
     """
     Split sources in groups based on user-defined conditions.
@@ -32,31 +33,29 @@ class SplitSources:
 
         return (
             [-inf]
-            +
-            [
+            + [
                 (
                     sorted_magnitudes[split_index - 1]
-                    +
-                    sorted_magnitudes[split_index]
+                    + sorted_magnitudes[split_index]
                 )
-                /
-                2.0
+                / 2.0
                 for split_index in range(
                     self.mag_split_min_sources,
                     len(sorted_magnitudes) - self.mag_split_min_sources + 1,
-                    self.mag_split_min_sources
+                    self.mag_split_min_sources,
                 )
             ]
-            +
-            [inf]
+            + [inf]
         )
 
-    def __init__(self,
-                 magnitude_column,
-                 *,
-                 radius_splits=(),
-                 manual_mag_splits=(),
-                 mag_split_by_source_count=None):
+    def __init__(
+        self,
+        magnitude_column,
+        *,
+        radius_splits=(),
+        manual_mag_splits=(),
+        mag_split_by_source_count=None,
+    ):
         """
         Set-up the splitting.
 
@@ -82,9 +81,7 @@ class SplitSources:
         """
 
         self.magnitude_column = magnitude_column
-        self.radius_splits = sorted(
-            set([0] + list(radius_splits) + [inf])
-        )
+        self.radius_splits = sorted(set([0] + list(radius_splits) + [inf]))
 
         if manual_mag_splits:
             assert mag_split_by_source_count is None
@@ -97,9 +94,8 @@ class SplitSources:
         self.mag_split_min_sources = mag_split_by_source_count
         assert self.radius_splits[0] == 0
 
-
-    #TODO: See if it can be simplified
-    #pylint: disable=too-many-locals
+    # TODO: See if it can be simplified
+    # pylint: disable=too-many-locals
     def __call__(self, sources, image_resolution):
         """
         Return an array of integers grouping PRF fitting sources as specified.
@@ -124,51 +120,51 @@ class SplitSources:
                 whether it's center lies inside the frame or not.
         """
 
-        print(f'Splitting {len(sources):d} sources')
+        print(f"Splitting {len(sources):d} sources")
 
         in_frame = numpy.logical_and(
             numpy.logical_and(
-                sources['x'] > 0,
-                sources['x'] < image_resolution[1],
+                sources["x"] > 0,
+                sources["x"] < image_resolution[1],
             ),
             numpy.logical_and(
-                sources['y'] > 0,
-                sources['y'] < image_resolution[0],
-            )
+                sources["y"] > 0,
+                sources["y"] < image_resolution[0],
+            ),
         )
 
         good_sources = in_frame
-        for column_name, value in [('phqual', 'AAA'),
-                                   ('objtype', 0),
-                                   ('doublestar', 0)]:
+        for column_name, value in [
+            ("phqual", "AAA"),
+            ("objtype", 0),
+            ("doublestar", 0),
+        ]:
             try:
                 good_sources = numpy.logical_and(
-                    good_sources,
-                    sources[column_name] == value
+                    good_sources, sources[column_name] == value
                 )
             except KeyError:
                 pass
 
-        square_radius = (
-            numpy.square(sources['x'] - image_resolution[1] / 2.0)
-            +
-            numpy.square(sources['y'] - image_resolution[0] / 2.0)
-        )
+        square_radius = numpy.square(
+            sources["x"] - image_resolution[1] / 2.0
+        ) + numpy.square(sources["y"] - image_resolution[0] / 2.0)
 
         grouping = numpy.empty(len(sources), dtype=numpy.int32)
         grouping[numpy.logical_not(good_sources)] = -1
 
         group_id = 0
 
-        for min_radius, max_radius in zip(self.radius_splits,
-                                          self.radius_splits[1:]):
+        for min_radius, max_radius in zip(
+            self.radius_splits, self.radius_splits[1:]
+        ):
 
             radius_group_sources = numpy.logical_and(
                 numpy.logical_and(
                     square_radius >= min_radius**2,
-                    square_radius < max_radius**2
+                    square_radius < max_radius**2,
                 ),
-                good_sources
+                good_sources,
             )
 
             if self.mag_split_min_sources is None:
@@ -180,20 +176,22 @@ class SplitSources:
                     )
                 )
 
-            for min_magnitude, max_magnitude in zip(magnitude_splits,
-                                                    magnitude_splits[1:]):
+            for min_magnitude, max_magnitude in zip(
+                magnitude_splits, magnitude_splits[1:]
+            ):
                 group_sources = numpy.logical_and(
                     numpy.logical_and(
                         sources[self.magnitude_column] >= min_magnitude,
-                        sources[self.magnitude_column] < max_magnitude
+                        sources[self.magnitude_column] < max_magnitude,
                     ),
-                    radius_group_sources
+                    radius_group_sources,
                 )
                 grouping[group_sources] = group_id
                 group_id += 1
 
         return grouping, in_frame
-    #pylint: enable=too-many-locals
+
+    # pylint: enable=too-many-locals
 
 
-#pylint: enable=too-few-public-methods
+# pylint: enable=too-few-public-methods

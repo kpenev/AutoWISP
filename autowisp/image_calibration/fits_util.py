@@ -7,18 +7,16 @@ from astropy.io import fits
 from astropy.time import Time, TimeISO
 import numpy
 
-from autowisp.fits_utilities import\
-    read_image_components,\
-    get_primary_header
+from autowisp.fits_utilities import read_image_components, get_primary_header
 from autowisp import Evaluator
-from autowisp.image_calibration.mask_utilities import\
-    combine_masks
+from autowisp.image_calibration.mask_utilities import combine_masks
 
 
 class TimeISOTNoSep(TimeISO):
     """
     A class to parse ISO times without any separators.
     """
+
     name = "isotnosep"
     subfmts = (
         (
@@ -34,20 +32,19 @@ class TimeISOTNoSep(TimeISO):
         ("date", "%Y-%m-%d", "{year:d}{mon:02d}{day:02d}"),
     )
 
-
     # See TimeISO for explanation
     fast_parser_pars = {
-        'delims': (0, 0, 0, ord('T'), 0, 0, 0, 0),
-        'starts': (0, 4, 6, 8, 11, 13, 15),
-        'stops': (3, 5, 7, 10, 12, 14, -1),
+        "delims": (0, 0, 0, ord("T"), 0, 0, 0, 0),
+        "starts": (0, 4, 6, 8, 11, 13, 15),
+        "stops": (3, 5, 7, 10, 12, 14, -1),
         # Break allowed *before*
         #                 y  m  d  h  m  s  f
-        'break_allowed': (0, 0, 0, 0, 0, 0, 0),
-        'has_day_of_year': 0
+        "break_allowed": (0, 0, 0, 0, 0, 0, 0),
+        "has_day_of_year": 0,
     }
 
 
-#pylint: disable=too-many-branches
+# pylint: disable=too-many-branches
 def assemble_channels(filename, hdu, split_channels):
     """
     Assemble the channels in the pattern they have in raw frames.
@@ -80,47 +77,41 @@ def assemble_channels(filename, hdu, split_channels):
 
     logger = getLogger(__name__)
 
-    if (
-        (
-            isinstance(filename, str)
-            and
-            isinstance(hdu, int)
-        )
-        or
-        len(split_channels) == 1
-    ):
+    if (isinstance(filename, str) and isinstance(hdu, int)) or len(
+        split_channels
+    ) == 1:
         if isinstance(filename, dict):
             filename = next(iter(filename.values()))
-        if hdu == 'components':
+        if hdu == "components":
             return read_image_components(filename, read_header=False)
-        if hdu == 'masks':
-            return read_image_components(filename,
-                                         read_image=False,
-                                         read_error=False,
-                                         read_header=False)[0]
-        with fits.open(filename, 'readonly') as image:
-            return image[hdu].data.astype('float64')
+        if hdu == "masks":
+            return read_image_components(
+                filename, read_image=False, read_error=False, read_header=False
+            )[0]
+        with fits.open(filename, "readonly") as image:
+            return image[hdu].data.astype("float64")
 
     assert len(split_channels) > 1
 
     logger.debug(
-        'Assumbling multi-channel image from %s with HDUs: %s, split_channels: '
-        '%s.',
+        "Assumbling multi-channel image from %s with HDUs: %s, split_channels: "
+        "%s.",
         repr(filename),
         repr(hdu),
-        repr(split_channels)
+        repr(split_channels),
     )
 
     shape = (0, 0)
     for channel_name, channel_slice in split_channels.items():
         with fits.open(
             (
-                filename[channel_name] if isinstance(filename, dict)
+                filename[channel_name]
+                if isinstance(filename, dict)
                 else filename
             ),
-            'readonly'
+            "readonly",
         ) as image:
-            if hdu in ['components', 'masks']:
+            if hdu in ["components", "masks"]:
                 data_hdu = 1
             elif isinstance(hdu, dict):
                 data_hdu = hdu[channel_name]
@@ -130,100 +121,88 @@ def assemble_channels(filename, hdu, split_channels):
                 max(
                     shape[i],
                     (channel_slice[i].start or 0)
-                    +
-                    (image[data_hdu].shape[i] - 1) * channel_slice[i].step
-                    +
-                    1
+                    + (image[data_hdu].shape[i] - 1) * channel_slice[i].step
+                    + 1,
                 )
                 for i in range(2)
             )
 
-    if hdu == 'masks':
+    if hdu == "masks":
         assert isinstance(filename, dict)
-        result = numpy.empty(
-            shape=shape,
-            dtype=numpy.uint8
-        )
+        result = numpy.empty(shape=shape, dtype=numpy.uint8)
         for channel_name, channel_slice in split_channels:
-            result[channel_slice] = combine_masks(
-                filename[channel_name]
-            )
+            result[channel_slice] = combine_masks(filename[channel_name])
         return result
 
-
-    if hdu == 'components':
+    if hdu == "components":
         assert isinstance(filename, dict)
         result = (
             numpy.empty(shape, dtype=numpy.float64),
             numpy.empty(shape, dtype=numpy.float64),
-            numpy.empty(shape, dtype=numpy.uint8)
+            numpy.empty(shape, dtype=numpy.uint8),
         )
     else:
         result = numpy.empty(shape, dtype=numpy.float64)
 
     for channel_name, channel_slice in split_channels.items():
-        if hdu == 'components':
-            #False positive
-            #pylint: disable=unbalanced-tuple-unpacking
+        if hdu == "components":
+            # False positive
+            # pylint: disable=unbalanced-tuple-unpacking
             (
                 result[0][channel_slice],
                 result[1][channel_slice],
-                result[2][channel_slice]
-            ) = read_image_components(filename[channel_name],
-                                      read_header=False)
-            #pylint: enable=unbalanced-tuple-unpacking
+                result[2][channel_slice],
+            ) = read_image_components(filename[channel_name], read_header=False)
+            # pylint: enable=unbalanced-tuple-unpacking
         else:
             with fits.open(
-                    (
-                        filename[channel_name] if isinstance(filename, dict)
-                        else filename
-                    ),
-                    'readonly'
+                (
+                    filename[channel_name]
+                    if isinstance(filename, dict)
+                    else filename
+                ),
+                "readonly",
             ) as image:
                 result[channel_slice] = image[
                     hdu[channel_name] if isinstance(hdu, dict) else hdu
                 ].data
     return result
-#pylint: enable=too-many-branches
+
+
+# pylint: enable=too-many-branches
 
 
 def add_required_keywords(header, calibration_params, for_eval=False):
     """Add keywords required by the pipeline to the given header."""
 
-    jd_keyword = 'JD_OBS' if for_eval else 'JD-OBS'
+    jd_keyword = "JD_OBS" if for_eval else "JD-OBS"
     header_eval = Evaluator(header)
-    if calibration_params.get('exposure_start_utc'):
+    if calibration_params.get("exposure_start_utc"):
         header[jd_keyword] = Time(
-            header_eval(calibration_params['exposure_start_utc'])
+            header_eval(calibration_params["exposure_start_utc"])
         ).jd
     else:
-        assert calibration_params.get('exposure_start_jd')
+        assert calibration_params.get("exposure_start_jd")
         header[jd_keyword] = Time(
-            header_eval(calibration_params['exposure_start_jd']),
-            format='jd'
+            header_eval(calibration_params["exposure_start_jd"]), format="jd"
         ).jd
 
-    header[jd_keyword] += (
-        header_eval(calibration_params['exposure_seconds'])
-        /
-        (2.0 * 24.0 * 3600.0)
-    )
+    header[jd_keyword] += header_eval(
+        calibration_params["exposure_seconds"]
+    ) / (2.0 * 24.0 * 3600.0)
 
-    header['FNUM'] = Evaluator(header)(calibration_params['fnum'])
+    header["FNUM"] = Evaluator(header)(calibration_params["fnum"])
 
 
 def get_raw_header(raw_image, calibration_params):
     """Return the raw header to base the calibrated frame header on."""
 
-    result = get_primary_header(
-        raw_image,
-        add_filename_keywords=True
-    )
-    if calibration_params.get('combine_headers'):
+    result = get_primary_header(raw_image, add_filename_keywords=True)
+    if calibration_params.get("combine_headers"):
         for raw_hdu in (
-                calibration_params['raw_hdu'].values()
-                if isinstance(calibration_params['raw_hdu'], dict) else
-                [calibration_params['raw_hdu']]
+            calibration_params["raw_hdu"].values()
+            if isinstance(calibration_params["raw_hdu"], dict)
+            else [calibration_params["raw_hdu"]]
         ):
             result.update(raw_image[raw_hdu].header)
     add_required_keywords(result, calibration_params)
@@ -234,29 +213,31 @@ def add_channel_keywords(header, channel_name, channel_slice):
     """Add the extra keywords describing channel to header."""
 
     if channel_name is not None:
-        header['CLRCHNL'] = channel_name
-        #False positive
-        #pylint: disable=unsubscriptable-object
-        header['CHNLXOFF'] = channel_slice[1].start
-        header['CHNLXSTP'] = channel_slice[1].step
-        header['CHNLYOFF'] = channel_slice[0].start
-        header['CHNLYSTP'] = channel_slice[0].step
-        #pylint: enable=unsubscriptable-object
+        header["CLRCHNL"] = channel_name
+        # False positive
+        # pylint: disable=unsubscriptable-object
+        header["CHNLXOFF"] = channel_slice[1].start
+        header["CHNLXSTP"] = channel_slice[1].step
+        header["CHNLYOFF"] = channel_slice[0].start
+        header["CHNLYSTP"] = channel_slice[0].step
+        # pylint: enable=unsubscriptable-object
     else:
-        header['CHNLXOFF'] = 0
-        header['CHNLXSTP'] = 1
-        header['CHNLYOFF'] = 0
-        header['CHNLYSTP'] = 1
+        header["CHNLXOFF"] = 0
+        header["CHNLXSTP"] = 1
+        header["CHNLYOFF"] = 0
+        header["CHNLYSTP"] = 1
 
 
-def create_result(image_list,
-                  header,
-                  result_fname,
-                  compress,
-                  *,
-                  split_channels=False,
-                  allow_overwrite=False,
-                  **fname_substitutions):
+def create_result(
+    image_list,
+    header,
+    result_fname,
+    compress,
+    *,
+    split_channels=False,
+    allow_overwrite=False,
+    **fname_substitutions,
+):
     """
     Create a 3-extension FITS file out of 3 numpy images and header.
 
@@ -310,46 +291,44 @@ def create_result(image_list,
         header_list = [
             header if channel_name is None else header[channel_name],
             fits.Header(),
-            fits.Header()
+            fits.Header(),
         ]
-        header_list[1]['IMAGETYP'] = 'error'
-        header_list[2]['IMAGETYP'] = 'mask'
+        header_list[1]["IMAGETYP"] = "error"
+        header_list[2]["IMAGETYP"] = "mask"
 
-        header_list[0]['BITPIX'] = header_list[1]['BITPIX'] = -32
-        header_list[2]['BITPIX'] = 8
+        header_list[0]["BITPIX"] = header_list[1]["BITPIX"] = -32
+        header_list[2]["BITPIX"] = 8
 
+        logger.debug(
+            "Slice for %s channel: %s", channel_name, repr(channel_slice)
+        )
 
-        logger.debug('Slice for %s channel: %s',
-                     channel_name,
-                     repr(channel_slice))
-
-        hdu_list = fits.HDUList([
-            fits.PrimaryHDU(
-                numpy.array(image_list[0][channel_slice]),
-                header_list[0]
-            ),
-            fits.ImageHDU(
-                numpy.array(image_list[1][channel_slice]),
-                header_list[1]
-            ),
-            fits.ImageHDU(
-                numpy.array(image_list[2][channel_slice]).astype('uint8'),
-                header_list[2]
-            )
-        ])
+        hdu_list = fits.HDUList(
+            [
+                fits.PrimaryHDU(
+                    numpy.array(image_list[0][channel_slice]), header_list[0]
+                ),
+                fits.ImageHDU(
+                    numpy.array(image_list[1][channel_slice]), header_list[1]
+                ),
+                fits.ImageHDU(
+                    numpy.array(image_list[2][channel_slice]).astype("uint8"),
+                    header_list[2],
+                ),
+            ]
+        )
         for hdu in hdu_list:
             hdu.update_header()
 
-        logger.debug('Compression level: %s', repr(compress))
+        logger.debug("Compression level: %s", repr(compress))
         if compress:
-            logger.debug('Creating compressed HDU')
+            logger.debug("Creating compressed HDU")
             hdu_list = fits.HDUList(
                 [fits.PrimaryHDU()]
-                +
-                [
-                    fits.CompImageHDU(hdu.data,
-                                      hdu.header,
-                                      quantize_level=compress)
+                + [
+                    fits.CompImageHDU(
+                        hdu.data, hdu.header, quantize_level=compress
+                    )
                     for hdu in hdu_list
                 ]
             )
@@ -359,4 +338,3 @@ def create_result(image_list,
         if not path.exists(path.dirname(output_fname)):
             makedirs(path.dirname(output_fname))
         hdu_list.writeto(output_fname, overwrite=allow_overwrite)
-

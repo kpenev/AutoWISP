@@ -23,11 +23,13 @@ git_id = "$Id$"
 
 # TODO: Add missed attributes: bg.cfg.annulus, bg.cfg.zero.
 
+
 def init_dr_process(configuration):
     """Initialize the process with the given configuration."""
 
     DataReductionFile.fname_template = configuration["data_reduction_fname"]
     setup_process_map(configuration)
+
 
 # The class has to satisfy many needs, hence many public methods.
 # pylint: disable=too-many-public-methods

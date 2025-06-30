@@ -23,11 +23,13 @@ def download_zip(destination):
         download.write(req.content)
     return result
 
+
 def get_test_data(destination):
     """Uncompress the zip file to the specified destination."""
 
     with ZipFile(download_zip(destination), "r") as zip_ref:
         zip_ref.extractall(destination)
+
 
 if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:

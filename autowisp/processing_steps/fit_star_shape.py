@@ -340,7 +340,7 @@ class SourceListCreator:
 
         Transformation(
             DataReductionFile.get_fname_from_header(header),
-            **self._dr_path_substitutions
+            **self._dr_path_substitutions,
         )(self._sources, True, True)
         eval_var = Evaluator(header, self._sources)
         for var_name, var_expression in self._fit_variables:
@@ -394,7 +394,7 @@ class SourceListCreator:
         grouping_frame=None,
         discard_faint=False,
         remove_group_id=None,
-        **dr_path_substitutions
+        **dr_path_substitutions,
     ):
         """
         Set up to create source lists for PSF/PRF fitting.
@@ -573,7 +573,7 @@ def create_source_list_creator(dr_fnames, configuration, catalog_lock):
                 "remove_group_id",
                 "skytoframe_version",
             ]
-        }
+        },
     )
 
 
@@ -704,7 +704,7 @@ def fit_frame_set(
                 sources[fit_group].to_records() for sources in fit_sources
             ],
             output_dr_fnames=dr_fnames,
-            **shape_fitter_config
+            **shape_fitter_config,
         )
         logger.debug("Done fitting")
     for fname in frame_filenames:
@@ -781,7 +781,7 @@ def cleanup_interrupted(interrupted, configuration):
             dr_file.delete_sources(
                 "srcproj.columns",
                 "srcproj_column_name",
-                **dr_path_substitutions
+                **dr_path_substitutions,
             )
             delete_star_shape_fit(dr_file, **dr_path_substitutions)
 

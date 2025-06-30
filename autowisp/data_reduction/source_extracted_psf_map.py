@@ -5,8 +5,9 @@ import numpy
 
 from autowisp.fit_expression import Interface as FitTermsInterface
 
-#Instances are intended to work as functions, so no methods other than __call__
-#pylint: disable=too-few-public-methods
+
+# Instances are intended to work as functions, so no methods other than __call__
+# pylint: disable=too-few-public-methods
 class SourceExtractedPSFMap:
     """Evaluate smoothed PSF maps based on sorce extraction."""
 
@@ -47,20 +48,26 @@ class SourceExtractedPSFMap:
                 The fields will have the names of the PSF parameters.
         """
 
-        print('Source data: ' + repr(source_data))
+        print("Source data: " + repr(source_data))
         assert (
             isinstance(source_data, pandas.DataFrame)
-            or
-            len(source_data.shape) == 1
+            or len(source_data.shape) == 1
         )
-        result = numpy.empty(len(source_data),
-                             dtype=[(param_name, numpy.float64)
-                                    for param_name in self._psf_parameters])
+        result = numpy.empty(
+            len(source_data),
+            dtype=[
+                (param_name, numpy.float64)
+                for param_name in self._psf_parameters
+            ],
+        )
 
         predictors = self._get_predictors(source_data)
-        for coefficients, param_name in zip(self._coefficients,
-                                            self._psf_parameters):
+        for coefficients, param_name in zip(
+            self._coefficients, self._psf_parameters
+        ):
             result[param_name] = numpy.dot(coefficients, predictors)
 
         return result
-#pylint: enable=too-few-public-methods
+
+
+# pylint: enable=too-few-public-methods

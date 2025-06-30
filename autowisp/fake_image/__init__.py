@@ -2,4 +2,4 @@
 
 from autowisp.fake_image.raw import FakeRawImage
 
-__all__ = ['FakeRawImage']
+__all__ = ["FakeRawImage"]

@@ -194,7 +194,7 @@ class MasterPhotrefCollector:
         if not os.path.exists(destination_dir):
             os.makedirs(destination_dir)
         numpy.savetxt(self._statistics_fname, save_stat, fmt=save_fmt)
-        with open(self._statistics_fname, "r", encoding='utf-8') as stat_file:
+        with open(self._statistics_fname, "r", encoding="utf-8") as stat_file:
             self._logger.debug("Statistics file:\n%s", stat_file.read())
 
     def _add_catalog_info(self, catalog, statistics, catalog_columns):
@@ -359,7 +359,7 @@ class MasterPhotrefCollector:
                 "Generating master photometric reference for phot #%d", phot_ind
             )
             max_scatter = (
-                getattr(numpy, 'nan' + outlier_average)(
+                getattr(numpy, "nan" + outlier_average)(
                     numpy.abs(residual_scatter[:, phot_ind])
                 )
                 * outlier_threshold

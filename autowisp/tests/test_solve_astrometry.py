@@ -12,5 +12,5 @@ class TestSolveAstrometry(H5TestCase):
         self.run_step_test(
             "solve_astrometry",
             "DR",
-            ['CatalogueSources', 'SkyToFrameTransformation'],
+            ["CatalogueSources", "SkyToFrameTransformation"],
         )

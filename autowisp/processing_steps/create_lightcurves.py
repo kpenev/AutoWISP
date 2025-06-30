@@ -296,7 +296,7 @@ def create_lightcurves(
                 dr_fname_parser=dummy_fname_parser,
                 optional_header="all",
                 observatory={"SITELAT": lat, "SITELONG": lon, "SITEALT": alt},
-                **path_substitutions
+                **path_substitutions,
             )
         )
 
@@ -327,7 +327,7 @@ def cleanup_interrupted(interrupted, configuration):
 
     dr_sources = get_combined_sources(
         map(lambda x: x[0], interrupted),
-        **get_path_substitutions(configuration)
+        **get_path_substitutions(configuration),
     )
 
     srcid_formatter = DecodingStringFormatter()

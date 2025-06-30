@@ -5,8 +5,8 @@ from abc import ABC, abstractmethod
 from scipy.special import binom
 
 from autowisp.fit_expression.FitTermsParser import FitTermsParser
-from autowisp.fit_expression.FitTermsParserVisitor import \
-    FitTermsParserVisitor
+from autowisp.fit_expression.FitTermsParserVisitor import FitTermsParserVisitor
+
 
 class ProcessTermsVisitor(FitTermsParserVisitor, ABC):
     """
@@ -141,8 +141,7 @@ class ProcessTermsVisitor(FitTermsParserVisitor, ABC):
         max_order = int(ctx.order.text)
         terms_list = self.visit(ctx.fit_terms_list())
         self._start_polynomial_expansion(
-            int(binom(len(terms_list) + max_order, max_order)),
-            terms_list
+            int(binom(len(terms_list) + max_order, max_order)), terms_list
         )
         term_powers = [0 for term in terms_list]
         for total_order in range(max_order):
@@ -155,8 +154,7 @@ class ProcessTermsVisitor(FitTermsParserVisitor, ABC):
 
     # Visit a parse tree produced by FitTermsParser#fit_terms_set_cross_product.
     def visitFit_terms_set_cross_product(
-            self,
-            ctx: FitTermsParser.Fit_terms_set_cross_productContext
+        self, ctx: FitTermsParser.Fit_terms_set_cross_productContext
     ):
         """Return all possible terms combining one term from each input set."""
 
@@ -165,10 +163,12 @@ class ProcessTermsVisitor(FitTermsParserVisitor, ABC):
         term_indices = [0 for s in term_sets]
         more_terms = True
         while more_terms:
-            self._process_cross_product_term([
-                term_sets[set_ind][term_indices[set_ind]]
-                for set_ind in range(len(term_sets))
-            ])
+            self._process_cross_product_term(
+                [
+                    term_sets[set_ind][term_indices[set_ind]]
+                    for set_ind in range(len(term_sets))
+                ]
+            )
             more_terms = False
             for set_ind, term_ind in enumerate(term_indices):
                 if term_ind < len(term_sets[set_ind]) - 1:

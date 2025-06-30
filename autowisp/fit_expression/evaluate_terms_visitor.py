@@ -8,6 +8,7 @@ from autowisp.evaluator import Evaluator
 from .FitTermsParser import FitTermsParser
 from .process_terms_visitor import ProcessTermsVisitor
 
+
 class EvaluateTermsVisitor(ProcessTermsVisitor):
     """Visitor to parsed fit terms expression evaluating all terms."""
 
@@ -17,8 +18,7 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
         assert self._current_expansion_terms is None
         assert self._expansion_term_index is None
         self._current_expansion_terms = numpy.empty(
-            shape=(num_output_terms, term_length),
-            dtype=dtype
+            shape=(num_output_terms, term_length), dtype=dtype
         )
 
     def _process_term_product(self, input_terms, term_powers=None):
@@ -29,9 +29,9 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
             pwr = 1 if term_powers is None else term_powers[term_index]
             if pwr == 0:
                 continue
-            self._current_expansion_terms[
-                self._expansion_term_index
-            ] *= (term if pwr == 1 else term**pwr)
+            self._current_expansion_terms[self._expansion_term_index] *= (
+                term if pwr == 1 else term**pwr
+            )
         self._expansion_term_index += 1
 
     def _end_expansion(self):
@@ -42,12 +42,13 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
         self._expansion_term_index = None
         return result
 
-
     def _start_polynomial_expansion(self, num_output_terms, input_terms_list):
 
-        self._start_expansion(num_output_terms,
-                              input_terms_list[0].size,
-                              input_terms_list[0].dtype)
+        self._start_expansion(
+            num_output_terms,
+            input_terms_list[0].size,
+            input_terms_list[0].dtype,
+        )
         self._current_expansion_terms[0] = 1.0
         self._expansion_term_index = 1
 
@@ -64,9 +65,11 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
         num_output_terms = 1
         for term_set in input_term_sets:
             num_output_terms *= len(term_set)
-        self._start_expansion(num_output_terms,
-                              input_term_sets[0][0].size,
-                              input_term_sets[0][0].dtype)
+        self._start_expansion(
+            num_output_terms,
+            input_term_sets[0][0].size,
+            input_term_sets[0][0].dtype,
+        )
         self._expansion_term_index = 0
 
     def _process_cross_product_term(self, sub_terms):
@@ -106,8 +109,7 @@ class EvaluateTermsVisitor(ProcessTermsVisitor):
 
     # Visit a parse tree produced by FitTermsParser#fit_terms_expression.
     def visitFit_terms_expression(
-            self,
-            ctx: FitTermsParser.Fit_terms_expressionContext
+        self, ctx: FitTermsParser.Fit_terms_expressionContext
     ):
         """Return all terms defined by the term expression."""
 

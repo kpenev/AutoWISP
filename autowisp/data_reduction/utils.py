@@ -102,13 +102,13 @@ def _add_shapefit_map(
             "shapefit.cfg.psf.bicubic.grid." + direction,
             splits,
             if_exists="error",
-            **path_substitutions
+            **path_substitutions,
         )
     dr_file.add_attribute(
         "shapefit.cfg.psf.terms",
         fit_terms_expression,
         if_exists="error",
-        **path_substitutions
+        **path_substitutions,
     )
 
     num_terms = fit_expression.Interface(fit_terms_expression).number_terms()
@@ -120,7 +120,7 @@ def _add_shapefit_map(
         "shapefit.map_coef",
         coefficients,
         if_exists="error",
-        **path_substitutions
+        **path_substitutions,
     )
 
 
@@ -130,7 +130,7 @@ def _auto_add_tree_quantities(
     num_sources,
     skip_quantities,
     image_index=0,
-    **path_substitutions
+    **path_substitutions,
 ):
     """
     Best guess for how to add tree quantities to DR file.
@@ -259,7 +259,7 @@ def add_star_shape_fit(
     shape_fit_result_tree,
     num_sources,
     image_index=0,
-    **path_substitutions
+    **path_substitutions,
 ):
     """
     Add the results of a star shape fit to the DR file.
@@ -286,7 +286,7 @@ def add_star_shape_fit(
         dr_file,
         fit_terms_expression,
         shape_fit_result_tree,
-        **path_substitutions
+        **path_substitutions,
     )
     dr_file.add_attribute(
         key_io_tree_to_dr["psffit.srcpix_cover_bicubic_grid"],
@@ -297,14 +297,14 @@ def add_star_shape_fit(
             == "true"
         ),
         if_exists="error",
-        **path_substitutions
+        **path_substitutions,
     )
     # TODO: set this from command line, use it in fitting and fix here!
     dr_file.add_attribute(
         "shapefit.cfg.psf.ignore_dropped",
         False,
         if_exists="error",
-        **path_substitutions
+        **path_substitutions,
     )
 
     _auto_add_tree_quantities(
@@ -325,7 +325,7 @@ def add_star_shape_fit(
             )
         ),
         image_index=image_index,
-        **path_substitutions
+        **path_substitutions,
     )
 
 
@@ -349,7 +349,7 @@ def delete_star_shape_fit(dr_file, **path_substitutions):
                 ]
             )
         ),
-        **path_substitutions
+        **path_substitutions,
     )
 
 
@@ -384,7 +384,7 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
         apphot=False,
         shape_map_variables=True,
         string_source_ids=True,
-        **path_substitutions
+        **path_substitutions,
     )
     result["magnitude_1adu"] = dr_file.get_attribute(
         "shapefit.cfg.magnitude_1adu", **path_substitutions
@@ -459,7 +459,7 @@ def add_aperture_photometry(
     apphot_result_tree,
     num_sources,
     num_apertures,
-    **path_substitutions
+    **path_substitutions,
 ):
     """
     Add the results of aperture photometry to the DR file.
@@ -499,7 +499,7 @@ def add_aperture_photometry(
         result_tree=apphot_result_tree,
         num_sources=num_sources,
         skip_quantities=re.compile(r"(?!apphot\.)|^apphot.aperture$"),
-        **path_substitutions
+        **path_substitutions,
     )
 
 
@@ -511,7 +511,7 @@ def delete_aperture_photometry(dr_file, num_apertures, **path_substitutions):
             dr_file,
             re.compile(r"(?!apphot\.)|^apphot.aperture$"),
             aperture_index=aperture_index,
-            **path_substitutions
+            **path_substitutions,
         )
 
 

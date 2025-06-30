@@ -7,10 +7,12 @@ from functools import partial
 from general_purpose_python_modules.multiprocessing_util import setup_process
 
 from autowisp.file_utilities import find_lc_fnames
-from autowisp.processing_steps.lc_detrending_argument_parser import\
-    LCDetrendingArgumentParser
-from autowisp.processing_steps.lc_detrending import\
-    calculate_detrending_performance
+from autowisp.processing_steps.lc_detrending_argument_parser import (
+    LCDetrendingArgumentParser,
+)
+from autowisp.processing_steps.lc_detrending import (
+    calculate_detrending_performance,
+)
 from autowisp.processing_steps.manual_util import ignore_progress
 
 
@@ -18,21 +20,24 @@ def parse_command_line(*args):
     """Parse the commandline optinos to a dictionary."""
 
     return LCDetrendingArgumentParser(
-        mode='EPDstat',
+        mode="EPDstat",
         description=__doc__,
         add_reconstructive=False,
-        input_type=('' if args else 'lc')
+        input_type=("" if args else "lc"),
     ).parse_args(*args)
 
 
-generate_epd_statistics = partial(calculate_detrending_performance,
-                                  detrending_mode='epd')
+generate_epd_statistics = partial(
+    calculate_detrending_performance, detrending_mode="epd"
+)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cmdline_config = parse_command_line()
-    setup_process(task='manage', **cmdline_config)
-    generate_epd_statistics(find_lc_fnames(cmdline_config.pop('lc_files')),
-                            0,
-                            cmdline_config,
-                            ignore_progress)
+    setup_process(task="manage", **cmdline_config)
+    generate_epd_statistics(
+        find_lc_fnames(cmdline_config.pop("lc_files")),
+        0,
+        cmdline_config,
+        ignore_progress,
+    )

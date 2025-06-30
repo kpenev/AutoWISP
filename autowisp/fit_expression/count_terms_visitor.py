@@ -3,8 +3,8 @@
 from scipy.special import binom
 
 from autowisp.fit_expression.FitTermsParser import FitTermsParser
-from autowisp.fit_expression.FitTermsParserVisitor import \
-    FitTermsParserVisitor
+from autowisp.fit_expression.FitTermsParserVisitor import FitTermsParserVisitor
+
 
 class CountTermsVisitor(FitTermsParserVisitor):
     """Visitor to parsed fit terms expressions counting the expanded terms."""
@@ -31,8 +31,7 @@ class CountTermsVisitor(FitTermsParserVisitor):
 
     # Visit a parse tree produced by FitTermsParser#fit_terms_set_cross_product.
     def visitFit_terms_set_cross_product(
-            self,
-            ctx: FitTermsParser.Fit_terms_set_cross_productContext
+        self, ctx: FitTermsParser.Fit_terms_set_cross_productContext
     ):
         """Return the number of terms combining one term from each input set."""
 
@@ -45,8 +44,7 @@ class CountTermsVisitor(FitTermsParserVisitor):
         return num_terms, num_one_terms
 
     def visitFit_terms_expression(
-            self,
-            ctx: FitTermsParser.Fit_terms_expressionContext
+        self, ctx: FitTermsParser.Fit_terms_expressionContext
     ):
         """Return the total number of terms the term expression expands to."""
 

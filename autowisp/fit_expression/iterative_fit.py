@@ -6,18 +6,21 @@ from traceback import format_exc
 import numpy
 import scipy.linalg
 
-#pylint: disable=too-many-locals
-def iterative_fit_qr(weighted_predictors,
-                     weighted_qrp,
-                     weighted_target,
-                     *,
-                     weights=None,
-                     max_downdates=20,
-                     error_avg,
-                     rej_level,
-                     max_rej_iter,
-                     fit_identifier,
-                     pre_reject=False):
+
+# pylint: disable=too-many-locals
+def iterative_fit_qr(
+    weighted_predictors,
+    weighted_qrp,
+    weighted_target,
+    *,
+    weights=None,
+    max_downdates=20,
+    error_avg,
+    rej_level,
+    max_rej_iter,
+    fit_identifier,
+    pre_reject=False,
+):
     """
     Same as iterative_fit() but using the QR decomposition of predictors.
 
@@ -55,54 +58,47 @@ def iterative_fit_qr(weighted_predictors,
     def rejected_indices(weighted_fit_diff, weights):
         """Return indices of outlier sources and squared fit residual."""
 
-        logger.debug('Weigthed difference: %s', repr(weighted_fit_diff))
-        logger.debug('Weigths: %s', repr(weights))
+        logger.debug("Weigthed difference: %s", repr(weighted_fit_diff))
+        logger.debug("Weigths: %s", repr(weights))
 
         assert weights is None or (weights > 0).all()
         assert numpy.isfinite(weighted_fit_diff).all()
 
         fit_diff2 = pow(
-            weighted_fit_diff/(1.0 if weights is None else weights),
-            2
+            weighted_fit_diff / (1.0 if weights is None else weights), 2
         )
-        logger.debug('Square difference: %s', repr(fit_diff2))
-        if error_avg == 'weightedmean':
+        logger.debug("Square difference: %s", repr(fit_diff2))
+        if error_avg == "weightedmean":
             res2 = numpy.mean(pow(weighted_fit_diff, 2))
             if weights is not None:
                 res2 /= numpy.mean(pow(weights, 2))
         else:
             res2 = getattr(numpy, error_avg)(fit_diff2)
-        max_diff2 = rej_level**2*res2
-        logger.debug('max square difference: %s', repr(max_diff2))
+        max_diff2 = rej_level**2 * res2
+        logger.debug("max square difference: %s", repr(max_diff2))
         if res2 < 0:
             logger.debug(
-                '%s',
-                '\n'.join([
-                    repr(fit_identifier),
-                    '\tNegative square residual: ' + repr(res2),
-                    (
-                        '\tWeights (min, max): ('
-                        +
-                        repr(1.0 if weights is None else min(weights))
-                        +
-                        ', '
-                        +
-                        repr(1.0 if weights is None else max(weights))
-                        +
-                        ')'
-                    ),
-                    (
-                        '\tweighted_fit_diff (min, max): ('
-                        +
-                        repr(min(weighted_fit_diff))
-                        +
-                        ', '
-                        +
-                        repr(max(weighted_fit_diff))
-                        +
-                        ')'
-                    )
-                ])
+                "%s",
+                "\n".join(
+                    [
+                        repr(fit_identifier),
+                        "\tNegative square residual: " + repr(res2),
+                        (
+                            "\tWeights (min, max): ("
+                            + repr(1.0 if weights is None else min(weights))
+                            + ", "
+                            + repr(1.0 if weights is None else max(weights))
+                            + ")"
+                        ),
+                        (
+                            "\tweighted_fit_diff (min, max): ("
+                            + repr(min(weighted_fit_diff))
+                            + ", "
+                            + repr(max(weighted_fit_diff))
+                            + ")"
+                        ),
+                    ]
+                ),
             )
         return (fit_diff2 > max_diff2).nonzero()[0], res2
 
@@ -122,80 +118,91 @@ def iterative_fit_qr(weighted_predictors,
         weighted_target = numpy.delete(weighted_target, bad_ind)
         if len(weighted_target) < num_free_coef:
             logger.critical(
-                'Iteration %d has too few sources: %d to fit for %d '
-                'coefficients.\n',
+                "Iteration %d has too few sources: %d to fit for %d "
+                "coefficients.\n",
                 rej_iter,
                 len(weighted_target),
-                num_free_coef
+                num_free_coef,
             )
             return None, None, 0
 
         weighted_predictors = numpy.delete(weighted_predictors, bad_ind, 1)
         if weights is not None:
             weights = numpy.delete(weights, bad_ind)
-        logger.debug('Iteration %d, %d sources, %d coefficients\n',
-                     rej_iter,
-                     len(weighted_target),
-                     num_free_coef)
+        logger.debug(
+            "Iteration %d, %d sources, %d coefficients\n",
+            rej_iter,
+            len(weighted_target),
+            num_free_coef,
+        )
         if bad_ind.size > max_downdates:
-            logger.debug('Rederiving QR-Decomposition')
-            #False positive
-            #pylint: disable=unexpected-keyword-arg
-            weighted_qrp = scipy.linalg.qr(weighted_predictors.T,
-                                           mode='economic',
-                                           pivoting=True)
+            logger.debug("Rederiving QR-Decomposition")
+            # False positive
+            # pylint: disable=unexpected-keyword-arg
+            weighted_qrp = scipy.linalg.qr(
+                weighted_predictors.T, mode="economic", pivoting=True
+            )
             permutation = numpy.argsort(weighted_qrp[2])
-            #pylint: enable=unexpected-keyword-arg
+            # pylint: enable=unexpected-keyword-arg
         else:
-            logger.debug('Downdating QR-Decomposition')
+            logger.debug("Downdating QR-Decomposition")
             for i in numpy.flip(bad_ind):
                 weighted_qrp = (
-                    #False positive
-                    #pylint: disable=no-member
+                    # False positive
+                    # pylint: disable=no-member
                     *scipy.linalg.qr_delete(*weighted_qrp[:2], i),
-                    #pylint: enable=no-member
-                    weighted_qrp[2]
+                    # pylint: enable=no-member
+                    weighted_qrp[2],
                 )
-
 
         if rej_iter < 0:
             best_fit_coef = numpy.zeros(num_free_coef)
         else:
             try:
-                #False positive
-                #pylint: disable=no-member
+                # False positive
+                # pylint: disable=no-member
                 best_fit_coef = scipy.linalg.solve_triangular(
                     weighted_qrp[1],
-                    numpy.dot(weighted_qrp[0].T, weighted_target)
+                    numpy.dot(weighted_qrp[0].T, weighted_target),
                 )[permutation]
-                #pylint: enable=no-member
+                # pylint: enable=no-member
             except scipy.linalg.LinAlgError:
-                logger.critical('Linear least squares fit failed:\n%s',
-                                format_exc())
+                logger.critical(
+                    "Linear least squares fit failed:\n%s", format_exc()
+                )
                 return None, None, 0
         bad_ind, fit_res2 = rejected_indices(
             numpy.dot(best_fit_coef, weighted_predictors) - weighted_target,
-            weights
+            weights,
         )
-        logger.debug('Fit: coef = %s, square residual = %s, %d rejected',
-                     repr(best_fit_coef), repr(fit_res2), bad_ind.size)
+        logger.debug(
+            "Fit: coef = %s, square residual = %s, %d rejected",
+            repr(best_fit_coef),
+            repr(fit_res2),
+            bad_ind.size,
+        )
 
         if bad_ind.size == 0 and rej_iter >= 0:
             return best_fit_coef, fit_res2, len(weighted_target)
 
     return best_fit_coef, fit_res2, len(weighted_target)
-#pylint: enable=too-many-locals
 
-def iterative_fit(predictors,
-                  target_values,
-                  *,
-                  max_downdates=20,
-                  weights=None,
-                  error_avg,
-                  rej_level,
-                  max_rej_iter,
-                  fit_identifier,
-                  pre_reject=False):
+
+# pylint: enable=too-many-locals
+
+
+def iterative_fit(
+    predictors,
+    target_values,
+    *,
+    max_downdates=20,
+    weights=None,
+    error_avg,
+    rej_level,
+    max_rej_iter,
+    fit_identifier,
+    pre_reject=False,
+):
     """
     Find least squares coefficients reproducing target_values using predictors.
 
@@ -255,21 +262,23 @@ def iterative_fit(predictors,
         target_values = numpy.multiply(target_values, weights)
 
     logging.getLogger(__name__).debug(
-        'Performing QR decomposition for predictors of shape: %s',
-        repr(predictors.shape)
+        "Performing QR decomposition for predictors of shape: %s",
+        repr(predictors.shape),
     )
-    #False positive
-    #pylint: disable=unexpected-keyword-arg
-    qrp = scipy.linalg.qr(predictors.T, mode='economic', pivoting=True)
-    #pylint: enable=unexpected-keyword-arg
+    # False positive
+    # pylint: disable=unexpected-keyword-arg
+    qrp = scipy.linalg.qr(predictors.T, mode="economic", pivoting=True)
+    # pylint: enable=unexpected-keyword-arg
 
-    return iterative_fit_qr(predictors,
-                            qrp,
-                            target_values,
-                            weights=weights,
-                            max_downdates=max_downdates,
-                            error_avg=error_avg,
-                            rej_level=rej_level,
-                            max_rej_iter=max_rej_iter,
-                            fit_identifier=fit_identifier,
-                            pre_reject=pre_reject)
+    return iterative_fit_qr(
+        predictors,
+        qrp,
+        target_values,
+        weights=weights,
+        max_downdates=max_downdates,
+        error_avg=error_avg,
+        rej_level=rej_level,
+        max_rej_iter=max_rej_iter,
+        fit_identifier=fit_identifier,
+        pre_reject=pre_reject,
+    )

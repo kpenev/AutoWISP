@@ -13,7 +13,7 @@ class TestDetrendingStat(AutoWISPTestCase):
     def run_test(self, mode):
         """Run the test for the given detrending mode ("epd" or "tfa")."""
 
-        self.get_inputs(["LC", 'MASTERS/lc_catalog*.fits', 'DR'])
+        self.get_inputs(["LC", "MASTERS/lc_catalog*.fits", "DR"])
         self.run_step(
             [
                 "python3",
@@ -44,7 +44,6 @@ class TestDetrendingStat(AutoWISPTestCase):
         """Test the generation of EPD statistics."""
 
         self.run_test("epd")
-
 
     def test_generate_tfa_statistics(self):
         """Test the generation of TFA statistics."""

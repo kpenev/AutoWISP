@@ -3,6 +3,7 @@
 from hashlib import sha1
 import numpy
 
+
 class HashableArray:
     """
     Hashable wrapper for ndarray objects
@@ -37,16 +38,14 @@ class HashableArray:
         self._hash = int(sha1(wrapped.view(numpy.uint8)).hexdigest(), 16)
         self.dtype = wrapped.dtype
 
-    #Other is expected to be of the same class.
+    # Other is expected to be of the same class.
     def __eq__(self, other):
 
-        #pylint:disable=protected-access
-        return (
-            isinstance(other, HashableArray)
-            and
-            all(self._wrapped == other._wrapped)
+        # pylint:disable=protected-access
+        return isinstance(other, HashableArray) and all(
+            self._wrapped == other._wrapped
         )
-        #pylint:enable=protected-access
+        # pylint:enable=protected-access
 
     def __hash__(self):
         return self._hash

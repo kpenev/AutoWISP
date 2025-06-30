@@ -3,6 +3,7 @@
 from .transit_model import magnitude_change
 from .light_curve_file import LightCurveFile
 
+
 class ReconstructiveCorrectionTransit:
     """
     Class for corrections that protect known or suspected transit signals.
@@ -16,11 +17,13 @@ class ReconstructiveCorrectionTransit:
             pass to the transit model's evaluate() method.
     """
 
-    def __init__(self,
-                 transit_model,
-                 correction,
-                 fit_amplitude=True,
-                 transit_parameters=None):
+    def __init__(
+        self,
+        transit_model,
+        correction,
+        fit_amplitude=True,
+        transit_parameters=None,
+    ):
         """
         Configure the fitting.
 
@@ -57,24 +60,23 @@ class ReconstructiveCorrectionTransit:
         if self.transit_model is None or self.fit_amplitude:
             return raw_magnitudes
 
-        fit_magnitudes = (
-            raw_magnitudes
-            -
-            magnitude_change(light_curve,
-                             self.transit_model,
-                             *self.transit_parameters[0],
-                             **self.transit_parameters[1])
+        fit_magnitudes = raw_magnitudes - magnitude_change(
+            light_curve,
+            self.transit_model,
+            *self.transit_parameters[0],
+            **self.transit_parameters[1],
         )
         return raw_magnitudes, fit_magnitudes
 
-
-    #The call signature is deliberately different than the underlying class.
-    #pylint: disable=arguments-differ
-    def __call__(self,
-                 lc_fname,
-                 *transit_parameters_pos,
-                 save=True,
-                 **transit_parameters_kw):
+    # The call signature is deliberately different than the underlying class.
+    # pylint: disable=arguments-differ
+    def __call__(
+        self,
+        lc_fname,
+        *transit_parameters_pos,
+        save=True,
+        **transit_parameters_kw,
+    ):
         """
         Perform reconstructive EPD on a light curve, given transit parameters.
 
@@ -94,20 +96,24 @@ class ReconstructiveCorrectionTransit:
         """
 
         if self.fit_amplitude:
-            with LightCurveFile(lc_fname, 'r') as light_curve:
+            with LightCurveFile(lc_fname, "r") as light_curve:
                 extra_predictors = {
-                    'transit': magnitude_change(light_curve,
-                                                self.transit_model,
-                                                *transit_parameters_pos,
-                                                **transit_parameters_kw)
+                    "transit": magnitude_change(
+                        light_curve,
+                        self.transit_model,
+                        *transit_parameters_pos,
+                        **transit_parameters_kw,
+                    )
                 }
         else:
-            self.transit_parameters = (transit_parameters_pos,
-                                       transit_parameters_kw)
+            self.transit_parameters = (
+                transit_parameters_pos,
+                transit_parameters_kw,
+            )
             extra_predictors = None
 
-        return self.correction(lc_fname,
-                               self.get_fit_data,
-                               extra_predictors,
-                               save)
-    #pylint: enable=arguments-differ
+        return self.correction(
+            lc_fname, self.get_fit_data, extra_predictors, save
+        )
+
+    # pylint: enable=arguments-differ

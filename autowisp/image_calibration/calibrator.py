@@ -6,31 +6,33 @@ import logging
 from astropy.io import fits
 import numpy
 
-from autowisp.image_calibration.mask_utilities import\
-    get_saturation_mask,\
-    mask_flags
-from autowisp.image_calibration.fits_util import\
-    assemble_channels,\
-    add_channel_keywords,\
-    create_result
+from autowisp.image_calibration.mask_utilities import (
+    get_saturation_mask,
+    mask_flags,
+)
+from autowisp.image_calibration.fits_util import (
+    assemble_channels,
+    add_channel_keywords,
+    create_result,
+)
 
-from autowisp.pipeline_exceptions import\
-    OutsideImageError,\
-    ImageMismatchError
+from autowisp.pipeline_exceptions import OutsideImageError, ImageMismatchError
 from autowisp import Processor
 
-from autowisp.image_calibration.mask_utilities import\
-    git_id as mask_utilities_git_id
-from autowisp.image_calibration.overscan_methods import\
-    git_id as overscan_methods_git_id
+from autowisp.image_calibration.mask_utilities import (
+    git_id as mask_utilities_git_id,
+)
+from autowisp.image_calibration.overscan_methods import (
+    git_id as overscan_methods_git_id,
+)
 from autowisp.image_calibration.fits_util import get_raw_header
 
-git_id = '$Id$'
+git_id = "$Id$"
 
 
 class Calibrator(Processor):
-    #pylint: disable=anomalous-backslash-in-string
-    #Triggers on doxygen commands.
+    # pylint: disable=anomalous-backslash-in-string
+    # Triggers on doxygen commands.
     """
     Provide basic calibration operations (bias/dark/flat) fully tracking noise.
 
@@ -169,23 +171,24 @@ class Calibrator(Processor):
         >>>           gain=8.0,
         >>>           overscans=None)
     """
-    #pylint: enable=anomalous-backslash-in-string
+    # pylint: enable=anomalous-backslash-in-string
 
-    module_git_ids = {'calibrator': git_id,
-                      'overscan_methods': overscan_methods_git_id,
-                      'mask_utilities': mask_utilities_git_id}
-
-    default_configuration = {
-        'overscans': {'areas': None, 'method': None},
-        'image_area': None,
-        'bias_level_adu': 0.0,
-        'gain': 1.0,
-        'leak_directions': [],
-        'split_channels': False,
-        'compress_calibrated': 16,
-        'allow_overwrite': False
+    module_git_ids = {
+        "calibrator": git_id,
+        "overscan_methods": overscan_methods_git_id,
+        "mask_utilities": mask_utilities_git_id,
     }
 
+    default_configuration = {
+        "overscans": {"areas": None, "method": None},
+        "image_area": None,
+        "bias_level_adu": 0.0,
+        "gain": 1.0,
+        "leak_directions": [],
+        "split_channels": False,
+        "compress_calibrated": 16,
+        "allow_overwrite": False,
+    }
 
     @staticmethod
     def check_calib_params(raw_image, calib_params):
@@ -232,31 +235,44 @@ class Calibrator(Processor):
             Returns: None
             """
 
-            for direction, resolution in zip(['y', 'x'], raw_image.shape):
-                area_min = area[direction + 'min']
-                area_max = area[direction + 'max']
+            for direction, resolution in zip(["y", "x"], raw_image.shape):
+                area_min = area[direction + "min"]
+                area_max = area[direction + "max"]
 
                 if area_min > area_max:
                     raise ValueError(
-                        area_name + ' area has '
-                        +
-                        direction + 'min(' + str(area_min) + ') > '
-                        +
-                        direction + 'max (' + str(area_max) + ')'
+                        area_name
+                        + " area has "
+                        + direction
+                        + "min("
+                        + str(area_min)
+                        + ") > "
+                        + direction
+                        + "max ("
+                        + str(area_max)
+                        + ")"
                     )
                 if area_min < 0:
                     raise OutsideImageError(
-                        area_name + ' area (' + str(area) + ') '
-                        +
-                        'extends below ' + direction + ' = 0'
+                        area_name
+                        + " area ("
+                        + str(area)
+                        + ") "
+                        + "extends below "
+                        + direction
+                        + " = 0"
                     )
                 if area_max > resolution:
                     raise OutsideImageError(
-                        area_name + ' area (' + str(area) + ') '
-                        +
-                        'extends beyond the image ' + direction + ' resolution '
-                        +
-                        'of ' + str(resolution)
+                        area_name
+                        + " area ("
+                        + str(area)
+                        + ") "
+                        + "extends beyond the image "
+                        + direction
+                        + " resolution "
+                        + "of "
+                        + str(resolution)
                     )
 
         def check_master_resolution():
@@ -270,83 +286,74 @@ class Calibrator(Processor):
                 None
             """
 
-            for channel_name in calib_params['split_channels']:
+            for channel_name in calib_params["split_channels"]:
                 expected_master_shape = (
                     (
-                        calib_params['image_area']['ymax']
-                        -
-                        calib_params['image_area']['ymin']
+                        calib_params["image_area"]["ymax"]
+                        - calib_params["image_area"]["ymin"]
                     ),
                     (
-                        calib_params['image_area']['xmax']
-                        -
-                        calib_params['image_area']['xmin']
-                    )
+                        calib_params["image_area"]["xmax"]
+                        - calib_params["image_area"]["xmin"]
+                    ),
                 )
-                for master_type in ['bias', 'dark', 'flat']:
+                for master_type in ["bias", "dark", "flat"]:
                     if calib_params[master_type] is None:
                         continue
-                    for master_component in ['correction', 'variance', 'mask']:
-                        master_shape = calib_params[
-                            master_type
-                        ][
+                    for master_component in ["correction", "variance", "mask"]:
+                        master_shape = calib_params[master_type][
                             master_component
                         ].shape
 
                         if master_shape != expected_master_shape:
                             raise ImageMismatchError(
-                                f'Master {master_type}  {master_component} '
-                                f' for channel {channel_name} shape '
-                                f'({master_shape[0]:d}x{master_shape[1]:d}) '
-                                'does not match the image area specified during'
-                                ' calibration '
+                                f"Master {master_type}  {master_component} "
+                                f" for channel {channel_name} shape "
+                                f"({master_shape[0]:d}x{master_shape[1]:d}) "
+                                "does not match the image area specified during"
+                                " calibration "
                                 f"({calib_params['image_area']['xmin']:d} "
-                                '< x < '
+                                "< x < "
                                 f"{calib_params['image_area']['xmax']:d}, "
                                 f"{calib_params['image_area']['ymin']:d} "
-                                '< y < '
+                                "< y < "
                                 f"{calib_params['image_area']['ymax']:d})."
                             )
 
-
-        if calib_params['image_area'] is None:
-            calib_params['image_area'] = {
-                'xmin': 0,
-                'ymin': 0,
-                'xmax': raw_image.shape[1],
-                'ymax': raw_image.shape[0]
+        if calib_params["image_area"] is None:
+            calib_params["image_area"] = {
+                "xmin": 0,
+                "ymin": 0,
+                "xmax": raw_image.shape[1],
+                "ymax": raw_image.shape[0],
             }
         else:
-            check_area(calib_params['image_area'], 'image_area')
-        if calib_params['overscans']['areas'] is not None:
-            for overscan_area in calib_params['overscans']['areas']:
-                check_area(overscan_area, 'overscan')
+            check_area(calib_params["image_area"], "image_area")
+        if calib_params["overscans"]["areas"] is not None:
+            for overscan_area in calib_params["overscans"]["areas"]:
+                check_area(overscan_area, "overscan")
 
         check_master_resolution()
-        if (
-                calib_params['gain'] <= 0
-                or
-                not numpy.isfinite(calib_params['gain'])
+        if calib_params["gain"] <= 0 or not numpy.isfinite(
+            calib_params["gain"]
         ):
-            raise ValueError('Invalid gain specified during calibration: '
-                             +
-                             repr(calib_params['gain']))
+            raise ValueError(
+                "Invalid gain specified during calibration: "
+                + repr(calib_params["gain"])
+            )
 
         try:
-            for x_offset, y_offset in calib_params['leak_directions']:
-                if (
-                        not isinstance(x_offset, int)
-                        or
-                        not isinstance(y_offset, int)
+            for x_offset, y_offset in calib_params["leak_directions"]:
+                if not isinstance(x_offset, int) or not isinstance(
+                    y_offset, int
                 ):
                     raise ValueError(
-                        f'Invalid leak direction: ({x_offset:s}, {y_offset:s})'
+                        f"Invalid leak direction: ({x_offset:s}, {y_offset:s})"
                     )
         except Exception as leak_problem:
             raise ValueError(
-                'Malformatted list of leak directions: '
-                +
-                repr(calib_params['leak_directions'])
+                "Malformatted list of leak directions: "
+                + repr(calib_params["leak_directions"])
             ) from leak_problem
 
     @staticmethod
@@ -363,22 +370,17 @@ class Calibrator(Processor):
             None
         """
 
-        for flag in ['OVERSATURATED', 'LEAKED']:
-            match_flag = numpy.bitwise_and(
-                mask,
-                mask_flags[flag]
-            ).astype(bool)
+        for flag in ["OVERSATURATED", "LEAKED"]:
+            match_flag = numpy.bitwise_and(mask, mask_flags[flag]).astype(bool)
             mask[match_flag] = numpy.bitwise_and(
-                mask[match_flag],
-                numpy.bitwise_not(mask_flags[flag])
+                mask[match_flag], numpy.bitwise_not(mask_flags[flag])
             )
             mask[match_flag] = numpy.bitwise_or(
-                mask[match_flag],
-                mask_flags['FAULT']
+                mask[match_flag], mask_flags["FAULT"]
             )
 
-    #pylint: disable=anomalous-backslash-in-string
-    #Triggers on doxygen commands.
+    # pylint: disable=anomalous-backslash-in-string
+    # Triggers on doxygen commands.
     @staticmethod
     def _document_in_header(calibration_params, header):
         r"""
@@ -430,142 +432,131 @@ class Calibrator(Processor):
 
         result = {
             channel: fits.Header(header, copy=True)
-            for channel in calibration_params['split_channels']
+            for channel in calibration_params["split_channels"]
         }
-        for (
-            channel_name,
-            channel_slice
-        ) in calibration_params['split_channels'].items():
+        for channel_name, channel_slice in calibration_params[
+            "split_channels"
+        ].items():
             channel_header = result[channel_name]
             add_channel_keywords(channel_header, channel_name, channel_slice)
-            for master_type in 'bias', 'dark', 'flat':
+            for master_type in "bias", "dark", "flat":
                 if calibration_params[master_type] is not None:
-                    master_fname = calibration_params[
-                        master_type
-                    ][
-                        'filename'
-                    ][
+                    master_fname = calibration_params[master_type]["filename"][
                         channel_name
                     ]
-                    channel_header['M' + master_type.upper() + 'FNM'] = (
+                    channel_header["M" + master_type.upper() + "FNM"] = (
                         master_fname,
-                        'Master ' + master_type + ' frame applied'
+                        "Master " + master_type + " frame applied",
                     )
-                    with open(master_fname, 'rb') as master:
+                    with open(master_fname, "rb") as master:
                         hasher = sha1()
                         hasher.update(master.read())
-                        channel_header['M' + master_type.upper() + 'SHA'] = (
+                        channel_header["M" + master_type.upper() + "SHA"] = (
                             hasher.hexdigest(),
-                            'SHA-1 checksum of the master ' + master_type
+                            "SHA-1 checksum of the master " + master_type,
                         )
 
-            area_pattern = '%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d'
+            area_pattern = "%(xmin)d < x < %(xmax)d, %(ymin)d < y < %(ymax)d"
 
             if (
-                    calibration_params['overscans']['method'] is not None
-                    and
-                    calibration_params['overscans']['areas'] is not None
+                calibration_params["overscans"]["method"] is not None
+                and calibration_params["overscans"]["areas"] is not None
             ):
-                for overscan_id, overscan_area in \
-                        enumerate(calibration_params['overscans']['areas']):
-                    channel_header[f'OVRSCN{overscan_id:02d}'] = (
+                for overscan_id, overscan_area in enumerate(
+                    calibration_params["overscans"]["areas"]
+                ):
+                    channel_header[f"OVRSCN{overscan_id:02d}"] = (
                         area_pattern % overscan_area,
-                        'Overscan area #' + str(overscan_id)
+                        "Overscan area #" + str(overscan_id),
                     )
-                calibration_params[
-                    'overscans'
-                ][
-                    'method'
-                ].document_in_fits_header(
-                    channel_header
-                )
+                calibration_params["overscans"][
+                    "method"
+                ].document_in_fits_header(channel_header)
 
-            channel_header['IMAGAREA'] = (
-                area_pattern % calibration_params['image_area'],
-                'Image region in raw frame'
+            channel_header["IMAGAREA"] = (
+                area_pattern % calibration_params["image_area"],
+                "Image region in raw frame",
             )
 
-            channel_header['CALBGAIN'] = (calibration_params['gain'],
-                                          'Electrons/ADU assumed during calib')
+            channel_header["CALBGAIN"] = (
+                calibration_params["gain"],
+                "Electrons/ADU assumed during calib",
+            )
 
             for module_name, module_git_id in Calibrator.module_git_ids.items():
-                assert module_git_id[:4] == '$Id:'
-                assert module_git_id[-1] == '$'
-                channel_header['CALGITID'] = (
-                    module_name + ':' + module_git_id[4:-1].strip(),
-                    'Git ID of calib module.'
+                assert module_git_id[:4] == "$Id:"
+                assert module_git_id[-1] == "$"
+                channel_header["CALGITID"] = (
+                    module_name + ":" + module_git_id[4:-1].strip(),
+                    "Git ID of calib module.",
                 )
         return result
-    #pylint: enable=anomalous-backslash-in-string
 
+    # pylint: enable=anomalous-backslash-in-string
 
     def _get_calibration_params(self, overwrite_params, raw_image):
         """Set all calibration parameters following overwrite rules."""
 
         calibration_params = super().__call__(**overwrite_params)
-        calibration_params['combine_headers'] = (
-            calibration_params['raw_hdu'] is not None
+        calibration_params["combine_headers"] = (
+            calibration_params["raw_hdu"] is not None
         )
         raw_hdu = (
-            None if calibration_params['raw_hdu'] is None
+            None
+            if calibration_params["raw_hdu"] is None
             else (
-                calibration_params['raw_hdu']
-                if isinstance(calibration_params['raw_hdu'], int) else
-                min(calibration_params['raw_hdu'].values())
+                calibration_params["raw_hdu"]
+                if isinstance(calibration_params["raw_hdu"], int)
+                else min(calibration_params["raw_hdu"].values())
             )
         )
-        if calibration_params['raw_hdu'] is None:
-            calibration_params['raw_hdu'] = (
-                1 if raw_image[0].header['NAXIS'] == 0 else 0
+        if calibration_params["raw_hdu"] is None:
+            calibration_params["raw_hdu"] = (
+                1 if raw_image[0].header["NAXIS"] == 0 else 0
             )
 
-        if calibration_params['gain'] is None:
-            calibration_params['gain'] = float(
-                raw_image[raw_hdu].header['GAIN']
+        if calibration_params["gain"] is None:
+            calibration_params["gain"] = float(
+                raw_image[raw_hdu].header["GAIN"]
             )
 
-        for master_type in ['bias', 'dark', 'flat']:
+        for master_type in ["bias", "dark", "flat"]:
             if master_type in calibration_params:
                 calibration_params[master_type] = {
-                    'filename': calibration_params[master_type]
+                    "filename": calibration_params[master_type]
                 }
                 (
-                    calibration_params['correction'],
-                    calibration_params['variance'],
-                    calibration_params['mask']
+                    calibration_params["correction"],
+                    calibration_params["variance"],
+                    calibration_params["mask"],
                 ) = assemble_channels(
                     calibration_params[master_type],
-                    'components',
-                    calibration_params['split_channels']
+                    "components",
+                    calibration_params["split_channels"],
                 )
                 self._calib_mask_from_master(
-                    calibration_params[master_type]['mask']
+                    calibration_params[master_type]["mask"]
                 )
-                calibration_params[master_type]['variance'] **= 2
+                calibration_params[master_type]["variance"] **= 2
             else:
                 calibration_params[master_type] = getattr(
-                    self,
-                    'master_' + master_type
+                    self, "master_" + master_type
                 )
 
-        if 'masks' in calibration_params:
-            calibration_params['masks'] = {
-                'filenames': calibration_params['masks'],
-                'image': assemble_channels(
-                    calibration_params['masks'],
-                    'masks',
-                    calibration_params['split_channels']
-                )
+        if "masks" in calibration_params:
+            calibration_params["masks"] = {
+                "filenames": calibration_params["masks"],
+                "image": assemble_channels(
+                    calibration_params["masks"],
+                    "masks",
+                    calibration_params["split_channels"],
+                ),
             }
         else:
-            calibration_params['masks'] = self.masks
+            calibration_params["masks"] = self.masks
         return calibration_params
 
-
-    def __init__(self,
-                 *,
-                 saturation_threshold,
-                 **configuration):
+    def __init__(self, *, saturation_threshold, **configuration):
         """
         Create a calibrator and define some default calibration parameters.
 
@@ -580,13 +571,14 @@ class Calibrator(Processor):
         """
 
         self._logger = logging.getLogger(__name__)
-        configuration['saturation_threshold'] = saturation_threshold
+        configuration["saturation_threshold"] = saturation_threshold
         super().__init__(**configuration)
         self.set_masters(
-            **{master_type: configuration.pop('master_' + master_type, None)
-               for master_type in ['bias', 'dark', 'flat']}
+            **{
+                master_type: configuration.pop("master_" + master_type, None)
+                for master_type in ["bias", "dark", "flat"]
+            }
         )
-
 
     def set_masters(self, *, bias=None, dark=None, flat=None, masks=None):
         """
@@ -611,54 +603,51 @@ class Calibrator(Processor):
         """
 
         self._logger.debug(
-            'Setting masters: bias(%s), dark(%s), flat(%s), masks(%s).',
+            "Setting masters: bias(%s), dark(%s), flat(%s), masks(%s).",
             repr(bias),
             repr(dark),
             repr(flat),
-            repr(masks)
+            repr(masks),
         )
         if masks is not None:
             self.masks = {
-                'filenames': masks,
-                'image': assemble_channels(
-                    masks,
-                    'masks',
-                    self.configuration['split_channels']
-                )
+                "filenames": masks,
+                "image": assemble_channels(
+                    masks, "masks", self.configuration["split_channels"]
+                ),
             }
         else:
             self.masks = None
 
-        for master_type, master_fname in [('bias', bias),
-                                          ('dark', dark),
-                                          ('flat', flat)]:
+        for master_type, master_fname in [
+            ("bias", bias),
+            ("dark", dark),
+            ("flat", flat),
+        ]:
             if master_fname is not None:
                 setattr(
                     self,
-                    'master_' + master_type,
+                    "master_" + master_type,
                     {
-                        'filename': master_fname,
-                    }
+                        "filename": master_fname,
+                    },
                 )
-                master_attr = getattr(self, 'master_' + master_type)
+                master_attr = getattr(self, "master_" + master_type)
                 (
-                    master_attr['correction'],
-                    master_attr['variance'],
-                    master_attr['mask']
+                    master_attr["correction"],
+                    master_attr["variance"],
+                    master_attr["mask"],
                 ) = assemble_channels(
                     master_fname,
-                    'components',
-                    self.configuration['split_channels']
+                    "components",
+                    self.configuration["split_channels"],
                 )
-                master_attr['variance'] **= 2
-                self._calib_mask_from_master(master_attr['mask'])
+                master_attr["variance"] **= 2
+                self._calib_mask_from_master(master_attr["mask"])
             else:
-                setattr(self, 'master_' + master_type, None)
+                setattr(self, "master_" + master_type, None)
 
-
-    def __call__(self,
-                 raw,
-                 **calibration_params):
+    def __call__(self, raw, **calibration_params):
         r"""
         Calibrate the raw frame, save result to calibrated.
 
@@ -672,8 +661,7 @@ class Calibrator(Processor):
             None
         """
 
-        def apply_subtractive_correction(correction,
-                                         calibrated_images):
+        def apply_subtractive_correction(correction, calibrated_images):
             """
             Subtract correction from calibrated_image & update variance & mask.
 
@@ -688,14 +676,14 @@ class Calibrator(Processor):
                 None
             """
 
-            calibrated_images[0] -= correction['correction']
-            calibrated_images[1] += correction['variance']
-            if correction.get('mask') is not None:
-                calibrated_images[2] = numpy.bitwise_or(calibrated_images[2],
-                                                        correction['mask'])
+            calibrated_images[0] -= correction["correction"]
+            calibrated_images[1] += correction["variance"]
+            if correction.get("mask") is not None:
+                calibrated_images[2] = numpy.bitwise_or(
+                    calibrated_images[2], correction["mask"]
+                )
 
-        def apply_flat_correction(master_flat,
-                                  calibrated_images):
+        def apply_flat_correction(master_flat, calibrated_images):
             """
             Apply flat-field correction to calibrated image and update variance.
 
@@ -710,110 +698,100 @@ class Calibrator(Processor):
                 None
             """
 
-            calibrated_images[0] /= master_flat['correction']
+            calibrated_images[0] /= master_flat["correction"]
             calibrated_images[1] = (
-                calibrated_images[1]
-                /
-                master_flat['correction']**2
-                +
-                master_flat['variance']
-                *
-                calibrated_images[0]**2
-                /
-                master_flat['correction']**4
+                calibrated_images[1] / master_flat["correction"] ** 2
+                + master_flat["variance"]
+                * calibrated_images[0] ** 2
+                / master_flat["correction"] ** 4
             )
-            calibrated_images[2] = numpy.bitwise_or(calibrated_images[2],
-                                                    master_flat['mask'])
+            calibrated_images[2] = numpy.bitwise_or(
+                calibrated_images[2], master_flat["mask"]
+            )
 
-        with fits.open(raw, 'readonly') as raw_image:
+        with fits.open(raw, "readonly") as raw_image:
             calibration_params = self._get_calibration_params(
-                calibration_params,
-                raw_image
+                calibration_params, raw_image
             )
             raw_pixels = assemble_channels(
                 raw,
-                calibration_params['raw_hdu'],
-                calibration_params['split_channels']
+                calibration_params["raw_hdu"],
+                calibration_params["split_channels"],
             )
             self.check_calib_params(raw_pixels, calibration_params)
 
         self._logger.debug(
-            'Calibrating raw image %s with configuration:\n%s',
+            "Calibrating raw image %s with configuration:\n%s",
             repr(raw),
-            repr(calibration_params)
+            repr(calibration_params),
         )
 
         trimmed_image = (
             raw_pixels[
-                calibration_params['image_area']['ymin']
-                :
-                calibration_params['image_area']['ymax'],
-                calibration_params['image_area']['xmin']
-                :
-                calibration_params['image_area']['xmax']
+                calibration_params["image_area"]["ymin"] : calibration_params[
+                    "image_area"
+                ]["ymax"],
+                calibration_params["image_area"]["xmin"] : calibration_params[
+                    "image_area"
+                ]["xmax"],
             ]
-            -
-            calibration_params['bias_level_adu']
+            - calibration_params["bias_level_adu"]
         )
         calibrated_images = [
             trimmed_image,
             numpy.zeros(shape=trimmed_image.shape),
-            get_saturation_mask(trimmed_image,
-                                calibration_params['saturation_threshold'],
-                                calibration_params['leak_directions'])
+            get_saturation_mask(
+                trimmed_image,
+                calibration_params["saturation_threshold"],
+                calibration_params["leak_directions"],
+            ),
         ]
 
         if (
-                calibration_params['overscans']['method'] is not None
-                and
-                calibration_params['overscans']['areas'] is not None
+            calibration_params["overscans"]["method"] is not None
+            and calibration_params["overscans"]["areas"] is not None
         ):
             apply_subtractive_correction(
-                calibration_params['overscans']['method'](
+                calibration_params["overscans"]["method"](
                     raw_fname=raw,
-                    raw_hdu=calibration_params['raw_hdu'],
-                    overscans=calibration_params['overscans']['areas'],
-                    image_area=calibration_params['image_area'],
-                    gain=calibration_params['gain'],
-                    split_channels=calibration_params['split_channels']
+                    raw_hdu=calibration_params["raw_hdu"],
+                    overscans=calibration_params["overscans"]["areas"],
+                    image_area=calibration_params["image_area"],
+                    gain=calibration_params["gain"],
+                    split_channels=calibration_params["split_channels"],
                 ),
-                calibrated_images
+                calibrated_images,
             )
 
-        for master_type in ['bias', 'dark']:
+        for master_type in ["bias", "dark"]:
             if calibration_params[master_type] is not None:
                 apply_subtractive_correction(
-                    calibration_params[master_type],
-                    calibrated_images
+                    calibration_params[master_type], calibrated_images
                 )
-            if master_type == 'bias':
+            if master_type == "bias":
                 calibrated_images[1] += (
-                    numpy.abs(calibrated_images[0])
-                    /
-                    calibration_params['gain']
-                    +
-                    (
-                        calibration_params['read_noise_electrons']
-                        /
-                        calibration_params['gain']
-                    )**2
-
+                    numpy.abs(calibrated_images[0]) / calibration_params["gain"]
+                    + (
+                        calibration_params["read_noise_electrons"]
+                        / calibration_params["gain"]
+                    )
+                    ** 2
                 )
 
-        if calibration_params['flat'] is not None:
-            apply_flat_correction(calibration_params['flat'],
-                                  calibrated_images)
+        if calibration_params["flat"] is not None:
+            apply_flat_correction(calibration_params["flat"], calibrated_images)
 
-        with fits.open(raw, 'readonly') as raw_image:
+        with fits.open(raw, "readonly") as raw_image:
             raw_header = get_raw_header(raw_image, calibration_params)
-            raw_header.update(calibration_params.get('extra_header', {}))
+            raw_header.update(calibration_params.get("extra_header", {}))
 
             calibrated_images[1] = numpy.sqrt(calibrated_images[1])
 
-            create_result(image_list=calibrated_images,
-                          header=self._document_in_header(calibration_params,
-                                                          raw_header),
-                          result_fname=calibration_params['calibrated_fname'],
-                          split_channels=calibration_params['split_channels'],
-                          compress=calibration_params['compress_calibrated'],
-                          allow_overwrite=calibration_params['allow_overwrite'])
+            create_result(
+                image_list=calibrated_images,
+                header=self._document_in_header(calibration_params, raw_header),
+                result_fname=calibration_params["calibrated_fname"],
+                split_channels=calibration_params["split_channels"],
+                compress=calibration_params["compress_calibrated"],
+                allow_overwrite=calibration_params["allow_overwrite"],
+            )

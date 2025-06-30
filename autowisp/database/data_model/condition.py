@@ -1,16 +1,11 @@
 """Define the Conditions table for the pipeline"""
 
-from sqlalchemy import \
-    Column,\
-    Integer,\
-    String,\
-    PrimaryKeyConstraint,\
-    ForeignKey
+from sqlalchemy import Column, Integer, String, PrimaryKeyConstraint, ForeignKey
 from sqlalchemy.orm import relationship
 
 from autowisp.database.data_model.base import DataModelBase
 
-__all__ = ['Condition']
+__all__ = ["Condition"]
 
 
 class Condition(DataModelBase):
@@ -21,25 +16,23 @@ class Condition(DataModelBase):
     satisfied simultaneously for the condition to be considered satisfied.
     """
 
-    __tablename__ = 'condition'
+    __tablename__ = "condition"
 
     expression_id = Column(
         Integer,
-        ForeignKey('condition_expression.id',
-                   onupdate='CASCADE',
-                   ondelete='RESTRICT'),
+        ForeignKey(
+            "condition_expression.id", onupdate="CASCADE", ondelete="RESTRICT"
+        ),
         primary_key=True,
-        doc='The id of the condition expression that is part of this condition.'
+        doc="The id of the condition expression that is part of this condition.",
     )
     notes = Column(
         String(1000),
         nullable=True,
-        doc='Any user supplied notes describing the condition.'
+        doc="Any user supplied notes describing the condition.",
     )
 
-    __table_args__ = (
-        PrimaryKeyConstraint('id', 'expression_id'),
-    )
+    __table_args__ = (PrimaryKeyConstraint("id", "expression_id"),)
 
     expression = relationship("ConditionExpression")
 

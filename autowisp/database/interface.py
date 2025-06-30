@@ -9,14 +9,14 @@ db_engine = create_engine(
     #'SuperPhotPipeline',
     #'mysql+pymysql://kpenev:shakakaa@kartof.utdallas.edu/sandbox_automation',
     #'mysql+pymysql://superphot:kartof@kartof.utdallas.edu/SuperPhot',
-    'sqlite:///autowisp.db?timeout=100&uri=true',
+    "sqlite:///autowisp.db?timeout=100&uri=true",
     echo=True,
     pool_pre_ping=True,
     pool_recycle=3600,
-    poolclass=NullPool
+    poolclass=NullPool,
 )
 
-#pylint false positive - Session is actually a class name.
-#pylint: disable=invalid-name
+# pylint false positive - Session is actually a class name.
+# pylint: disable=invalid-name
 Session = sessionmaker(db_engine, expire_on_commit=False)
-#pylint: enable=invalid-name
+# pylint: enable=invalid-name

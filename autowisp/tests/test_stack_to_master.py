@@ -31,8 +31,8 @@ class TestStackToMaster(FITSTestCase):
             ]
         )
         generated_master = path.join(
-                self.processing_directory, "MASTERS", master_type + "_R.fits.fz"
-            )
+            self.processing_directory, "MASTERS", master_type + "_R.fits.fz"
+        )
         self.assert_fits_match(
             path.join(
                 self.test_directory, "MASTERS", master_type + "_R.fits.fz"

@@ -7,6 +7,7 @@ import numpy
 from autowisp.fits_utilities import read_image_components
 from autowisp.tests import AutoWISPTestCase
 
+
 class FITSTestCase(AutoWISPTestCase):
     """Add assert for comparing AutoWISP generated FITS files."""
 

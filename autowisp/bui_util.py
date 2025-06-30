@@ -47,70 +47,52 @@ def _sinh_transform(pixel_values):
     return numpy.sinh(3.0 * pixel_values) / 10.0
 
 
-def encode_fits(fits_fname,
-                values_range,
-                values_transform):
+def encode_fits(fits_fname, values_range, values_transform):
     """Display transformed & scaled FITS image to user."""
 
     if not exists(fits_fname):
         raise RuntimeError(
-            f'Requested FITS file ({fits_fname}) does not exist!'
+            f"Requested FITS file ({fits_fname}) does not exist!"
         )
     png_stream = BytesIO()
-    with fits.open(fits_fname, 'readonly') as frame:
-        if values_range == 'zscale':
+    with fits.open(fits_fname, "readonly") as frame:
+        if values_range == "zscale":
             limits = ZScaleInterval().get_limits(frame[1].data)
-        elif values_range == 'minmax':
+        elif values_range == "minmax":
             limits = frame[1].data.min(), frame[1].data.max()
         else:
-            limits = tuple(int(lim.strip())
-                           for lim in values_range.split(','))
-        pixel_values = colors.Normalize(
-            *limits,
-            True
-        )(frame[1].data)
-        if values_transform is not None and values_transform != 'None':
-            transform_args = values_transform.split('-')
-            transform = globals()['_' + transform_args.pop(0) + '_transform']
+            limits = tuple(int(lim.strip()) for lim in values_range.split(","))
+        pixel_values = colors.Normalize(*limits, True)(frame[1].data)
+        if values_transform is not None and values_transform != "None":
+            transform_args = values_transform.split("-")
+            transform = globals()["_" + transform_args.pop(0) + "_transform"]
             transform_args = [float(arg) for arg in transform_args]
             pixel_values = transform(pixel_values, *transform_args)
-        scaled_pixels = (
-            pixel_values
-            *
-            255
-        ).astype('uint8')
+        scaled_pixels = (pixel_values * 255).astype("uint8")
         image = Image.fromarray(scaled_pixels)
-        #apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
-        #image.transform(
+        # apply_zoom = AffineTransform((1.0/zoom, 0, 0, 0, 1.0/zoom, 0.0))
+        # image.transform(
         #    size=(int(image.size[0] * zoom), int(image.size[1] * zoom)),
         #    method=apply_zoom
-        #).save(
+        # ).save(
         #    png_stream,
         #    'png'
-        #)
-        image.save(png_stream, 'png')
+        # )
+        image.save(png_stream, "png")
 
     return {
-        'image': b64encode(png_stream.getvalue()).decode('utf-8'),
-        'transform_list': [
-            entry[1:].split('_', 1)[0]
+        "image": b64encode(png_stream.getvalue()).decode("utf-8"),
+        "transform_list": [
+            entry[1:].split("_", 1)[0]
             for entry in globals()
-            if(
-                entry[0] == '_'
-                and
-                entry.endswith('_transform')
-            )
-        ]
+            if (entry[0] == "_" and entry.endswith("_transform"))
+        ],
     }
+
 
 def hex_color(color_tuple):
     """Return string of hex color give tuple of 0-1 float values."""
 
-    return (
-        '#'
-        +
-        ''.join([
-            f'{int(numpy.round(c * 255)):02x}'
-            for c in color_tuple[:3]
-        ])
+    return "#" + "".join(
+        [f"{int(numpy.round(c * 255)):02x}" for c in color_tuple[:3]]
     )

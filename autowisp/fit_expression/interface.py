@@ -5,15 +5,13 @@ from asteval import asteval
 from antlr4 import InputStream, CommonTokenStream
 from autowisp.fit_expression.FitTermsLexer import FitTermsLexer
 from autowisp.fit_expression.FitTermsParser import FitTermsParser
-from autowisp.fit_expression.list_terms_visitor import\
-    ListTermsVisitor
-from autowisp.fit_expression.count_terms_visitor import\
-    CountTermsVisitor
-from autowisp.fit_expression.evaluate_terms_visitor import\
-    EvaluateTermsVisitor
+from autowisp.fit_expression.list_terms_visitor import ListTermsVisitor
+from autowisp.fit_expression.count_terms_visitor import CountTermsVisitor
+from autowisp.fit_expression.evaluate_terms_visitor import EvaluateTermsVisitor
 from autowisp.fit_expression.used_var_finder import UsedVarFinder
 
-#TODO: add detailed description of the expansion terms language
+
+# TODO: add detailed description of the expansion terms language
 class Interface:
     """
     Interface class for working with fit terms expressions.
@@ -52,11 +50,7 @@ class Interface:
         if self._var_names is None:
             interpreter = asteval.Interpreter()
             interpreter.symtable = UsedVarFinder(interpreter.symtable)
-            EvaluateTermsVisitor(
-                interpreter
-            ).visit(
-                self._tree
-            )
+            EvaluateTermsVisitor(interpreter).visit(self._tree)
             self._var_names = interpreter.symtable.get_used_vars()
 
         return self._var_names
@@ -67,9 +61,9 @@ class Interface:
         return EvaluateTermsVisitor(*data).visit(self._tree)
 
 
-if __name__ == '__main__':
-    istream = InputStream('{x**2}')
+if __name__ == "__main__":
+    istream = InputStream("{x**2}")
     from multiprocessing import Pool
 
     with Pool(3) as p:
-        p.map(istream, [{'x': 1}, {'x': 2}, {'x': 3}])
+        p.map(istream, [{"x": 1}, {"x": 2}, {"x": 3}])
