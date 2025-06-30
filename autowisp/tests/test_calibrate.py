@@ -2,10 +2,8 @@
 
 from os import path
 from glob import glob
-from subprocess import run, PIPE, STDOUT
 from shutil import rmtree
 
-from autowisp.tests import steps_dir
 from autowisp.tests.fits_test_case import FITSTestCase
 
 
@@ -17,8 +15,7 @@ class TestCalibrate(FITSTestCase):
 
         input_dir = path.join(self.test_directory, "RAW", input_imtype)
         command = [
-            "python3",
-            path.join(steps_dir, "calibrate.py"),
+            "wisp-calibrate",
             "-c",
             path.join(self.processing_directory, "test.cfg"),
             path.join(input_dir, "*.fits.fz"),

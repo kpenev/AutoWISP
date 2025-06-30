@@ -480,8 +480,13 @@ class ManualStepArgumentParser(ArgumentParser):
 
         result = super().parse_args(*args, **kwargs)
         result.processing_step = path.basename(argv[0])
-        assert result.processing_step.endswith(".py")
-        result.processing_step = result.processing_step[:-3]
+        if result.processing_step.endswith(".py"):
+            result.processing_step = result.processing_step[:-3]
+        else:
+            assert result.processing_step.startswith("wisp-")
+            result.processing_step = result.processing_step[5:].replace(
+                "-", "_"
+            )
 
         try:
             logging_level = getattr(logging, result.verbose.upper())

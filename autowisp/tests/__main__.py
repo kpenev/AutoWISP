@@ -4,12 +4,11 @@
 
 from tempfile import TemporaryDirectory
 from os import path, makedirs
-from subprocess import run
 from shutil import copy
 
 import unittest
 
-from autowisp.tests import autowisp_dir, AutoWISPTestCase
+from autowisp.tests import AutoWISPTestCase
 from autowisp.tests.get_test_data import get_test_data
 
 # Automatically used by pytest
@@ -41,19 +40,6 @@ if __name__ == "__main__":
         # )
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir, exist_ok=False)
-        run(
-            [
-                "python3",
-                path.join(
-                    autowisp_dir,
-                    "database",
-                    "initialize_database.py",
-                ),
-                "--drop-hdf5-structure-tables",
-            ],
-            cwd=processing_dir,
-            check=True,
-        )
         copy(
             path.join(temp_dir, "test.cfg"),
             path.join(processing_dir, "test.cfg"),

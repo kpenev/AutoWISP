@@ -1,9 +1,7 @@
 """Test cases for master stacking."""
 
 from os import path, remove
-from subprocess import run, PIPE, STDOUT
 
-from autowisp.tests import steps_dir
 from autowisp.tests.fits_test_case import FITSTestCase
 
 
@@ -16,15 +14,8 @@ class TestStackToMaster(FITSTestCase):
         input_dir = path.join(self.test_directory, "CAL", master_type)
         self.run_step(
             [
-                "python3",
-                path.join(
-                    steps_dir,
-                    (
-                        "stack_to_master"
-                        + ("_flat" if master_type == "flat" else "")
-                        + ".py"
-                    ),
-                ),
+                "wisp-stack-to-master"
+                + ("-flat" if master_type == "flat" else ""),
                 "-c",
                 path.join(self.processing_directory, "test.cfg"),
                 input_dir,

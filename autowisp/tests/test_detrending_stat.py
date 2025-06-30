@@ -4,7 +4,7 @@ from os import path
 
 import pandas
 
-from autowisp.tests import AutoWISPTestCase, steps_dir
+from autowisp.tests import AutoWISPTestCase
 
 
 class TestDetrendingStat(AutoWISPTestCase):
@@ -16,8 +16,7 @@ class TestDetrendingStat(AutoWISPTestCase):
         self.get_inputs(["LC", "MASTERS/lc_catalog*.fits", "DR"])
         self.run_step(
             [
-                "python3",
-                path.join(steps_dir, f"generate_{mode}_statistics.py"),
+                f"wisp-generate-{mode}-statistics",
                 "-c",
                 "test.cfg",
                 "LC",

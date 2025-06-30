@@ -7,7 +7,7 @@ import numpy
 import h5py
 
 
-from autowisp.tests import AutoWISPTestCase, steps_dir
+from autowisp.tests import AutoWISPTestCase
 
 
 class H5TestCase(AutoWISPTestCase):
@@ -135,8 +135,7 @@ class H5TestCase(AutoWISPTestCase):
 
         self.run_step(
             [
-                "python3",
-                path.join(steps_dir, step_name + ".py"),
+                f"wisp-{step_name.replace('_', '-')}",
                 "-c",
                 "test.cfg",
                 path.join(self.processing_directory, inputs[0]),

@@ -10,6 +10,7 @@ py_src = [
   'manually_fill_tables.py',
   'processing.py',
   'user_interface.py',
+  'autowisp.db',
 ]
 
 py.install_sources(
