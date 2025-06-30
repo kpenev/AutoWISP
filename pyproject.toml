@@ -80,4 +80,18 @@ browser_interface = [
 [tool.black]
 line-length = 80
 
-
+[project.scripts]
+wisp-calibrate = 'autowisp.processing_steps.calibrate:main'
+wisp-stack-to-master = 'autowisp.processing_steps.stack_to_master:main'
+wisp-stack-to-master-flat = 'autowisp.processing_steps.stack_to_master_flat:main'
+wisp-find-stars = 'autowisp.processing_steps.find_stars:main'
+wisp-solve-astrometry = 'autowisp.processing_steps.solve_astrometry:main'
+wisp-fit-star-shape = 'autowisp.processing_steps.fit_star_shape:main'
+wisp-measure-aperture-photometry = 'autowisp.processing_steps.measure_aperture_photometry:main'
+wisp-fit-source-extracted-psf-map = 'autowisp.processing_steps.fit_source_extracted_psf_map:main'
+wisp-fit-magnitudes = 'autowisp.processing_steps.fit_magnitudes:main'
+wisp-create-lightcurves = 'autowisp.processing_steps.create_lightcurves:main'
+wisp-epd = 'autowisp.processing_steps.epd:main'
+wisp-generate-epd-statistics = 'autowisp.processing_steps.generate_epd_statistics:main'
+wisp-tf = 'autowisp.processing_steps.tfa:main'
+wisp-generate-tfa-statistics = 'autowisp.processing_steps.generate_tfa_statistics:main'
