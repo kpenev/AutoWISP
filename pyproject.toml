@@ -46,7 +46,7 @@ dependencies = [
     'asteval',
     'pandas',
     'configargparse',
-    'matplotlib','
+    'matplotlib',
     'h5py',
     'pillow',
     'sqlalchemy',
