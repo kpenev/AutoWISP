@@ -8,8 +8,8 @@ import os
 from traceback import format_exc
 import time
 from urllib.request import urlopen
-import shutil
 from urllib.error import URLError
+import shutil
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -29,6 +29,7 @@ from autowisp.astrometry.astrometry_net_client import (
 )
 
 _logger = logging.getLogger(__name__)
+
 
 # pylint:disable=R0913
 # pylint:disable=R0914
@@ -107,9 +108,7 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
 
     assert trans_x.size == trans_y.size
     astrometry_order = (numpy.sqrt(1.0 + 8.0 * trans_x.size) - 3.0) / 2.0
-    assert numpy.allclose(
-        astrometry_order, numpy.round(astrometry_order), atol=1e-10
-    )
+    assert numpy.allclose(astrometry_order, numpy.round(astrometry_order), atol=1e-10)
     astrometry_order = numpy.rint(astrometry_order).astype(int)
 
     def equations(xieta_cent):
@@ -198,83 +197,30 @@ def estimate_transformation_from_corr(
 
     return trans_x[numpy.newaxis].T, trans_y[numpy.newaxis].T
 
+
 class TempAstrometryFiles:
-    """
-    Manages the lifecycle of temporary files for astrometry with a robust,
-    manual cleanup method to handle multiprocessing race conditions.
-    """
+    """Context manager for the temporary files needed for astrometry."""
 
     def __init__(self, file_types=("sources", "corr", "axy", "config")):
-        """
-        Creates a temporary directory to hold all required temporary files.
-        """
+        """Create all required temporary files."""
         self._temp_dir_obj = TemporaryDirectory()
         self.temp_dir_path = self._temp_dir_obj.name
         self._file_types = file_types
-        self.is_cleaned_up = False
 
         for file_type in self._file_types:
             full_path = os.path.join(self.temp_dir_path, file_type)
             setattr(self, file_type + "_fname", full_path)
 
-    def get_filenames_as_tuple(self):
-        """
-        Returns the full paths of the managed temporary files as a tuple.
-        """
+    def __enter__(self):
+        """Return the filenames of the temporary files."""
         return tuple(
-            getattr(self, file_type + "_fname")
-            for file_type in self._file_types
+            getattr(self, file_type + "_fname") for file_type in self._file_types
         )
 
-    def cleanup(self):
-        """
-        Cleans up the temporary directory by calling the underlying object's
-        cleanup method with retries to handle file locks on Windows.
-        This method is safe to call multiple times.
-        """
-        if self.is_cleaned_up:
-            return
+    def __exit__(self, *ignored_args, **ignored_kwargs):
+        """Close and delete the temporary files."""
+        self._temp_dir_obj.cleanup()
 
-        retries = 5
-        delay = 0.2  # Start with a slightly longer delay
-
-        for i in range(retries):
-            try:
-                # Use the TemporaryDirectory object's own cleanup method
-                self._temp_dir_obj.cleanup()
-                self.is_cleaned_up = True
-                _logger.debug("Successfully cleaned up temp directory: %s", self.temp_dir_path)
-                return  # Success, exit the method
-            except PermissionError:
-                if i < retries - 1:
-                    _logger.warning(
-                        "Cleanup attempt %d/%d failed on %s due to PermissionError. Retrying in %.2fs...",
-                        i + 1, retries, self.temp_dir_path, delay
-                    )
-                    time.sleep(delay)
-                    delay *= 2  # Exponential backoff
-                else:
-                    # The final attempt failed, log and give up without crashing
-                    _logger.error(
-                        "Could not clean up temporary directory %s after %d attempts. It may be orphaned.",
-                        self.temp_dir_path, retries
-                    )
-            except Exception as e:
-                # Handle other potential errors during cleanup
-                _logger.error("An unexpected error occurred during cleanup of %s: %s", self.temp_dir_path, e)
-                self.is_cleaned_up = True # Mark as "cleaned" to prevent __del__ from retrying
-                return
-
-    def __del__(self):
-        """
-        Fallback destructor to attempt cleanup if the user forgets to call it explicitly.
-        """
-        if not self.is_cleaned_up:
-            _logger.warning(
-                "TempAstrometryFiles object was garbage collected without explicit .cleanup() call "
-                "for directory: %s. Attempting fallback cleanup.", self.temp_dir_path
-            )
-            self.cleanup()
 
 def create_sources_file(xy_extracted, sources_fname):
     """Create a FITS BinTable file with the given name containing
@@ -311,15 +257,12 @@ def get_initial_corr_local(
 ):
     """Get inital extracted to catalog source match using ``solve-field``."""
 
-    #Create temp file manager
-    temp_files_manager = TempAstrometryFiles()
-    (
+    with TempAstrometryFiles() as (
         sources_fname,
         corr_fname,
         axy_fname,
         config_fname,
-    ) = temp_files_manager.get_filenames_as_tuple()
-    try:
+    ):
         xy_extracted = create_sources_file(xy_extracted, sources_fname)
         create_config_file(config_fname, fov_range, anet_indices)
         for tweak in range(tweak_order_range[0], tweak_order_range[1] + 1):
@@ -362,9 +305,7 @@ def get_initial_corr_local(
             try:
                 subprocess.run(solve_field_command, check=True)
             except subprocess.SubprocessError:
-                _logger.critical(
-                    "solve-field failed with error:\n%s", format_exc()
-                )
+                _logger.critical("solve-field failed with error:\n%s", format_exc())
                 continue
 
             if not os.path.isfile(corr_fname):
@@ -374,20 +315,14 @@ def get_initial_corr_local(
                 return "solve-field failed", 0
 
             with fits.open(corr_fname, mode="readonly") as corr:
-                result = corr[1].data[:]
-                if result.size > ((tweak + 1) * (tweak + 2)) // 2:
-                    return temp_files_manager, result, tweak
-    except Exception as e:
-        _logger.error("An error occurred during local solve-field: %s", e)
-            # Clean up immediately on error and return
-        temp_files_manager.cleanup()
-        return None, "solve-field failed with exception", 0
-    return None, "solve-field failed", 0
+                result = numpy.copy(corr[1].data[:])
+            if result.size > ((tweak + 1) * (tweak + 2)) // 2:
+                return result, tweak
+
+    return "solve-field failed", 0
 
 
-def get_initial_corr_web(
-    header, xy_extracted, tweak_order_range, fov_range, api_key
-):
+def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range, api_key):
     """Get initial extracted to catalog source match using web astrometry.net."""
 
     config = {
@@ -431,12 +366,8 @@ def get_initial_corr_web(
         solved_job_id = None
         while solved_job_id is None:
             time.sleep(5)
-            submission_status = client.sub_status(
-                upload_result["subid"], justdict=True
-            )
-            _logger.debug(
-                "Astrometry.net submission status: %s", submission_status
-            )
+            submission_status = client.sub_status(upload_result["subid"], justdict=True)
+            _logger.debug("Astrometry.net submission status: %s", submission_status)
             jobs = submission_status.get("jobs", [])
             job_id = None
             if len(jobs):
@@ -458,89 +389,67 @@ def get_initial_corr_web(
 
         if job_status == "failure":
             return "web solve failed", 0
+        corr_url = client.apiurl.replace("/api/", f"/corr_file/{solved_job_id:d}")
 
-        corr_url = client.apiurl.replace(
-            "/api/", f"/corr_file/{solved_job_id:d}"
-        )
-
-        temp_files_manager = TempAstrometryFiles(("corr",))
-        corr_fname, = temp_files_manager.get_filenames_as_tuple()
-        try:
+        with TempAstrometryFiles(("corr",)) as (corr_fname,):
             _logger.debug("Retrieving file from '%s' to '%s'", corr_url, corr_fname)
             with urlopen(corr_url) as remote_corr, open(corr_fname, "wb") as local_corr:
                 shutil.copyfileobj(remote_corr, local_corr)
-            _logger.debug("Correspondence file '%s' successfully created.", corr_fname)
-            result = None
-            # Open the file and read the data
             with fits.open(corr_fname, mode="readonly") as corr:
-                result = corr[1].data[:]
+                result = numpy.copy(corr[1].data[:])
+            if result.size > (tweak_order + 1) * (tweak_order + 2) // 2:
+                return result, tweak_order
 
-            # Check the result
-            if result.size > ((tweak_order + 1) * (tweak_order + 2)) // 2:
-                #Return the manager object along with the data if successful
-                return temp_files_manager, result, tweak_order
+    return "web solve failed", 0
 
-        except Exception as e:
-            _logger.error("An error occurred during web correlation: %s", e)
-            # Clean up immediately on error before returning
-            temp_files_manager.cleanup()
-            return None, "web solve failed with exception", 0
-    return None , "web solve failed", 0
 
 def estimate_transformation(
     *, dr_file, xy_extracted, config, header=None, web_lock=None
 ):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
-    temp_manager = None
-    try:
-        if header is None:
-            header = dr_file.get_frame_header()
-        initial_corr_arg = (
-            header,
-            xy_extracted,
-            config["tweak_order_range"],
-            config["fov_range"],
+
+    if header is None:
+        header = dr_file.get_frame_header()
+    initial_corr_arg = (
+        header,
+        xy_extracted,
+        config["tweak_order_range"],
+        config["fov_range"],
+    )
+    if (
+        "anet_indices" in config
+        and os.path.exists(config["anet_indices"][0])
+        and os.path.exists(config["anet_indices"][1])
+    ):
+        field_corr, tweak_order = get_initial_corr_local(
+            *initial_corr_arg, config["anet_indices"]
         )
-        if (
-            "anet_indices" in config
-            and os.path.exists(config["anet_indices"][0])
-            and os.path.exists(config["anet_indices"][1])
-        ):
-            temp_manager, field_corr, tweak_order = get_initial_corr_local(
-                *initial_corr_arg, config["anet_indices"]
+    else:
+        with web_lock:
+            field_corr, tweak_order = get_initial_corr_web(
+                *initial_corr_arg, config["anet_api_key"]
             )
-        else:
-            with web_lock:
-                temp_manager, field_corr, tweak_order = get_initial_corr_web(
-                    *initial_corr_arg, config["anet_api_key"]
-                )
 
-        if tweak_order == 0:
-            return None, None, field_corr
+    if tweak_order == 0:
+        return None, None, field_corr
 
-        initial_corr = numpy.zeros(
-            field_corr["field_x"].shape,
-            dtype=[("x", ">f8"), ("y", ">f8"), ("RA", ">f8"), ("Dec", ">f8")],
-        )
+    initial_corr = numpy.zeros(
+        (field_corr["field_x"].shape),
+        dtype=[("x", ">f8"), ("y", ">f8"), ("RA", ">f8"), ("Dec", ">f8")],
+    )
 
-        initial_corr["x"] = field_corr["field_x"]
-        initial_corr["y"] = field_corr["field_y"]
-        initial_corr["RA"] = field_corr["index_ra"]
-        initial_corr["Dec"] = field_corr["index_dec"]
+    initial_corr["x"] = field_corr["field_x"]
+    initial_corr["y"] = field_corr["field_y"]
+    initial_corr["RA"] = field_corr["index_ra"]
+    initial_corr["Dec"] = field_corr["index_dec"]
 
-        return estimate_transformation_from_corr(
-            initial_corr=initial_corr,
-            tweak_order=tweak_order,
-            astrometry_order=config["astrometry_order"],
-            ra_cent=config["ra_cent"],
-            dec_cent=config["dec_cent"],
-        ) + ("success",)
-    finally:
-        # 4. The 'finally' block GUARANTEES cleanup happens after all processing,
-        # but only if a manager object was successfully created and returned.
-        if temp_manager:
-            _logger.debug("Cleaning up temporary files from astrometry estimation.")
-            temp_manager.cleanup()
+    return estimate_transformation_from_corr(
+        initial_corr=initial_corr,
+        tweak_order=tweak_order,
+        astrometry_order=config["astrometry_order"],
+        ra_cent=config["ra_cent"],
+        dec_cent=config["dec_cent"],
+    ) + ("success",)
 
 
 def refine_transformation(
@@ -634,9 +543,7 @@ def refine_transformation(
             # pylint:enable=used-before-assignment
         radec_cent = {"RA": ra_cent, "Dec": dec_cent}
 
-        projected = numpy.empty(
-            catalog.shape[0], dtype=[("xi", float), ("eta", float)]
-        )
+        projected = numpy.empty(catalog.shape[0], dtype=[("xi", float), ("eta", float)])
         gnomonic_projection(catalog, projected, **radec_cent)
 
         xi = projected["xi"].reshape(-1, 1)  # Reshape to (n, 1)
@@ -681,9 +588,7 @@ def refine_transformation(
 
             # pylint:enable=used-before-assignment
         xy_transformed = numpy.block([x_transformed, y_transformed])
-        d, ix = kdtree.query(
-            xy_transformed, distance_upper_bound=max_srcmatch_distance
-        )
+        d, ix = kdtree.query(xy_transformed, distance_upper_bound=max_srcmatch_distance)
 
         result, count = numpy.unique(ix, return_counts=True)
 
@@ -739,9 +644,7 @@ def refine_transformation(
         )
         print(trans_matrix.shape)
 
-        if trans_matrix.shape[0] <= (
-            min_source_safety_factor * trans_matrix.shape[1]
-        ):
+        if trans_matrix.shape[0] <= (min_source_safety_factor * trans_matrix.shape[1]):
             raise ValueError(
                 "The number of equations is "
                 "insufficient to solve transformation "
