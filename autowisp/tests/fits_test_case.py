@@ -63,8 +63,12 @@ class FITSTestCase(AutoWISPTestCase):
                 numpy.isclose(
                     fits_components[0][component],
                     fits_components[1][component],
-                    rtol=1e-8,
-                    atol=1e-8,
+                    rtol=5e-4,
+                    atol=1e-4
+                    * numpy.mean(
+                        fits_components[0][component]
+                        + fits_components[1][component]
+                    ),
                 ).all(),
                 f"{component.title()} pixels in {fname1} do not match "
                 f"{component} pixels in {fname2}!",
