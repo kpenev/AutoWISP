@@ -39,23 +39,24 @@ classifiers = [
 ]
 
 dependencies = [
-    'numpy < 2',
-    'scipy',
+    'antlr4-python3-runtime',
+    'asteval',
     'astropy',
     'astrowisp > 1.3',
-    'asteval',
-    'pandas',
     'configargparse',
-    'matplotlib',
     'h5py',
+    'lxml',
+    'matplotlib',
+    'numpy < 2',
+    'pandas',
     'pillow',
-    'sqlalchemy',
     'psutil',
-    'zarr',
+    'pytransit',
     'rechunker',
     'requests',
-    'antlr4-python3-runtime',
-    'pytransit',
+    'scipy',
+    'sqlalchemy',
+    'zarr',
 ]
 
 description = 'Pipeline for extracting photometry from wide-field night sky images'
