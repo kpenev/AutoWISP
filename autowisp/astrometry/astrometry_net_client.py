@@ -150,7 +150,7 @@ class Client(object):
 
         request = Request(url=url, headers=headers, data=data)
 
-        for _ in range(10):
+        for _ in range(20):
             try:
                 f = urlopen(request)
                 self._logger.debug("Got reply HTTP status code: %s", f.status)

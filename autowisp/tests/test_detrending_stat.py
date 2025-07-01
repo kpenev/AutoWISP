@@ -25,7 +25,7 @@ class TestDetrendingStat(AutoWISPTestCase):
         generated, expected = (
             pandas.read_csv(
                 path.join(dirname, "MASTERS", f"{mode}_statistics.txt"),
-                delim_whitespace=True,
+                sep='\s+',
                 index_col="ID",
             ).sort_values(by="ID")
             for dirname in [
