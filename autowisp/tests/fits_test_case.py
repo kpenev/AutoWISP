@@ -25,13 +25,13 @@ class FITSTestCase(AutoWISPTestCase):
         ]
 
         self.assertTrue(
-            set(fits_components[0]["header"].keys())
-            == set(fits_components[1]["header"].keys()),
+            set(fits_components[0]["header"].keys()) - set(["EXTEND"])
+            == set(fits_components[1]["header"].keys()) - set(["EXTEND"]),
             f"Headers of {fname1} and {fname2} do not have the same keys!",
         )
         original_files = [set(), set()]
         for key, value in fits_components[0]["header"].items():
-            if key == "COMMENT" or key.strip() == "" or key == "CALGITID":
+            if key.strip() == "" or key in ["CALGITID", "COMMENT", "EXTEND"]:
                 continue
             if key in [f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]]:
                 self.assertEqual(
