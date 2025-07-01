@@ -95,7 +95,7 @@ class ParseChannelDependentAction(_StoreAction):
 
         result = {}
         for entry in values:
-            channel_name, channel_value = entry.split(":")
+            channel_name, channel_value = entry.split(":", 1)
             if channel_name in result:
                 if isinstance(result[channel_name], list):
                     result[channel_name].append(channel_value)
