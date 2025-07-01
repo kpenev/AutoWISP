@@ -5,6 +5,7 @@
 from tempfile import TemporaryDirectory
 from os import path, makedirs
 from shutil import copy
+from sys import argv
 
 import unittest
 
@@ -44,5 +45,7 @@ if __name__ == "__main__":
             path.join(temp_dir, "test.cfg"),
             path.join(processing_dir, "test.cfg"),
         )
-        AutoWISPTestCase.set_test_directory(temp_dir, processing_dir)
+        AutoWISPTestCase.set_test_directory(temp_dir,
+                                            processing_dir,
+                                            argv[1])
         unittest.main(failfast=True)

@@ -7,6 +7,7 @@ from glob import glob
 
 from astrowisp.tests.utilities import FloatTestCase
 
+
 class AutoWISPTestCase(FloatTestCase):
     """Base class for AutoWISP tests."""
 
@@ -31,11 +32,14 @@ class AutoWISPTestCase(FloatTestCase):
                     copy(source, destination)
 
     @classmethod
-    def set_test_directory(cls, test_dirname, processing_dirname):
+    def set_test_directory(
+        cls, test_dirname, processing_dirname, failed_test_dirname
+    ):
         """Set the directory where data to test against is located."""
 
         cls.test_directory = test_dirname
         cls.processing_directory = processing_dirname
+        cls.failed_test_directory = failed_test_dirname
 
     def setUp(self):
         """Make sure the data to compare against is defined."""
@@ -66,9 +70,11 @@ class AutoWISPTestCase(FloatTestCase):
     def tearDown(self):
         """Remove the processing directory."""
 
-        assert self.successful_test
         if self.successful_test:
             rmtree(self.processing_directory)
+        else:
+            rmtree(self.failed_test_directory, ignore_errors=True)
+            copytree(self.processing_directory, self.failed_test_directory)
 
     def run_step(self, command):
         """Run a calibration step and check the return code."""
