@@ -11,7 +11,7 @@ def download_zip(destination):
     """Download the test data zip file from Zenodo."""
 
     req = requests.get(
-        "https://zenodo.org/records/15758817/files/test_data.zip",
+        "https://zenodo.org/records/15786531/files/test_data.zip",
         timeout=60,
     )
     if not req.ok:

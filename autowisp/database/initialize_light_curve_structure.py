@@ -258,13 +258,6 @@ def _get_frame_datasets():
                 "ID of station that took this observation.",
             ),
             (
-                "CMPOS",
-                "CameraPosition",
-                "numpy.uint",
-                None,
-                "ID of the position of the camera on the mount.",
-            ),
-            (
                 "CLRCHNL",
                 "ColorChannel",
                 "numpy.string_",

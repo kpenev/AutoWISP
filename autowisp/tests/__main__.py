@@ -37,7 +37,7 @@ if __name__ == "__main__":
     with TemporaryDirectory() as temp_dir:
         get_test_data(temp_dir)
         # temp_dir = (
-        #  "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
+        # "/Users/kpenev/projects/git/AutoWISP/autowisp/tests/test_data"
         # )
         processing_dir = path.join(temp_dir, "processing")
         makedirs(processing_dir, exist_ok=False)
@@ -45,7 +45,7 @@ if __name__ == "__main__":
             path.join(temp_dir, "test.cfg"),
             path.join(processing_dir, "test.cfg"),
         )
-        AutoWISPTestCase.set_test_directory(temp_dir,
-                                            processing_dir,
-                                            argv.pop(1))
+        AutoWISPTestCase.set_test_directory(
+            temp_dir, processing_dir, argv.pop(1)
+        )
         unittest.main(failfast=True)
