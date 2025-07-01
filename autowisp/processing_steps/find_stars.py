@@ -6,8 +6,7 @@ from functools import partial
 from multiprocessing import Pool
 from os import path, getpid
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,

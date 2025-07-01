@@ -5,6 +5,7 @@ import os
 
 if os.name == "posix":
     from os import getpgid, setsid, fork
+#pylint: disable=wrong-import-position
 from os import path, getpid
 
 import logging
@@ -14,8 +15,7 @@ import subprocess
 from sqlalchemy import select, and_, literal, update, sql, delete
 import numpy
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import Session
@@ -40,6 +40,7 @@ from autowisp.database.data_model import (
 )
 
 # pylint: enable=no-name-in-module
+#pylint: enable=wrong-import-position
 
 
 class LightCurveProcessingManager(ProcessingManager):

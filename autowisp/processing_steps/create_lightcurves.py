@@ -11,8 +11,7 @@ import numpy
 from astropy.io import fits
 from astropy.table import Table
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp import LightCurveFile

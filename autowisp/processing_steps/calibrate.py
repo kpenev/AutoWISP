@@ -8,8 +8,8 @@ import os
 from argparse import _StoreAction
 
 from configargparse import Action
-from general_purpose_python_modules.multiprocessing_util import setup_process
 
+from autowisp.multiprocessing_util import setup_process
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.image_calibration import Calibrator, overscan_methods
 from autowisp.processing_steps.manual_util import (

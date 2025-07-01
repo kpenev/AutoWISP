@@ -11,8 +11,7 @@ from psutil import pid_exists, Process
 from sqlalchemy import sql, select
 from numpy import inf as infinity
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp.database.interface import Session
 from autowisp import Evaluator
 from autowisp.fits_utilities import get_primary_header

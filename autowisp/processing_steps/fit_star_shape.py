@@ -11,8 +11,7 @@ from contextlib import nullcontext
 import numpy
 import pandas
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp import (
     Evaluator,
     PiecewiseBicubicPSFMap,

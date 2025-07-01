@@ -9,8 +9,7 @@ from os.path import exists
 import numpy
 from scipy import ndimage
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp.image_calibration.mask_utilities import mask_flags
 from autowisp.processing_steps.manual_util import ignore_progress
 from autowisp.processing_steps.stack_to_master import (

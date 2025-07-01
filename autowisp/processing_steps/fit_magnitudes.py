@@ -7,9 +7,9 @@ from itertools import count
 import os
 import logging
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
 from sqlalchemy import func, select
 
+from autowisp.multiprocessing_util import setup_process
 from autowisp import magnitude_fitting, DataReductionFile
 from autowisp.file_utilities import find_dr_fnames
 from autowisp.catalog import ensure_catalog

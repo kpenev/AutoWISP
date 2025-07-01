@@ -7,8 +7,7 @@ from collections import namedtuple
 
 import numpy
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp.file_utilities import find_dr_fnames
 from autowisp import DataReductionFile
 from autowisp.fit_expression import (

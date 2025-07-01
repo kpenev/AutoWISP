@@ -9,6 +9,7 @@ py_src = [
   'image_utilities.py',
   'iterative_rejection_util.py',
   'miscellaneous.py',
+  'multiprocessing_util.py',
   'piecewise_bicubic_psf_map.py',
   'pipeline_exceptions.py',
   'processor.py',

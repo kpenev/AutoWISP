@@ -9,10 +9,7 @@ from os import getpid
 import numpy
 from astropy.io import fits
 
-from general_purpose_python_modules.multiprocessing_util import (
-    setup_process_map,
-)
-
+from autowisp.multiprocessing_util import setup_process_map
 from autowisp import DataReductionFile
 from autowisp.fits_utilities import update_stack_header
 from autowisp.magnitude_fitting import (

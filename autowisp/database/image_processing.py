@@ -14,11 +14,10 @@ import subprocess
 from sqlalchemy import sql, select, update, and_, or_
 from configargparse import ArgumentParser, DefaultsFormatter
 
-from general_purpose_python_modules.multiprocessing_util import (
+from autowisp.multiprocessing_util import (
     setup_process,
     get_log_outerr_filenames,
 )
-
 from autowisp.database.processing import ProcessingManager
 from autowisp.database.interface import Session
 from autowisp.file_utilities import find_fits_fnames

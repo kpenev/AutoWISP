@@ -8,8 +8,8 @@ import logging
 from astropy import units
 from astropy.time import Time
 from astropy.coordinates import EarthLocation, SkyCoord
-from general_purpose_python_modules.multiprocessing_util import setup_process
 
+from autowisp.multiprocessing_util import setup_process
 from autowisp import Evaluator
 from autowisp.file_utilities import find_fits_fnames
 from autowisp.processing_steps.manual_util import ManualStepArgumentParser

@@ -9,8 +9,8 @@ from traceback import format_exc
 from os import getpid
 
 import numpy
-from general_purpose_python_modules.multiprocessing_util import setup_process
 
+from autowisp.multiprocessing_util import setup_process
 from autowisp.processing_steps.manual_util import (
     ManualStepArgumentParser,
     ignore_progress,

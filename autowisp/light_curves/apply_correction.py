@@ -7,8 +7,7 @@ import numpy
 from scipy.optimize import minimize
 import pandas
 
-from general_purpose_python_modules.multiprocessing_util import setup_process
-
+from autowisp.multiprocessing_util import setup_process
 from autowisp import DataReductionFile, LightCurveFile
 from autowisp.catalog import read_catalog_file
 from autowisp.database.interface import db_engine
