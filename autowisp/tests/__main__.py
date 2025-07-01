@@ -47,5 +47,5 @@ if __name__ == "__main__":
         )
         AutoWISPTestCase.set_test_directory(temp_dir,
                                             processing_dir,
-                                            argv[1])
+                                            argv.pop(1))
         unittest.main(failfast=True)
