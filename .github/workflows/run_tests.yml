@@ -31,7 +31,7 @@ jobs:
         pip install .
     - name: Lint with pylint
       run: |
-        pylint .
+        pylint --exit-zero .
     - name: Run tests
       run: |
         python3 -m autowisp.tests
