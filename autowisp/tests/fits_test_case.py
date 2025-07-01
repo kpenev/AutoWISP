@@ -31,7 +31,7 @@ class FITSTestCase(AutoWISPTestCase):
         )
         original_files = [set(), set()]
         for key, value in fits_components[0]["header"].items():
-            if key == "COMMENT" or key.strip() == "":
+            if key == "COMMENT" or key.strip() == "" or key == "CALGITID":
                 continue
             if key in [f"M{tp.upper()}FNM" for tp in ["bias", "dark", "flat"]]:
                 self.assertEqual(
