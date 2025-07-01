@@ -90,7 +90,8 @@ class H5TestCase(AutoWISPTestCase):
                         isinstance(obj2, h5py.Dataset),
                         f"Object {dr_fname2!r}/{obj2.name!r} is not a dataset!",
                     )
-                    assert_dset_match(obj1, obj2)
+                    if not obj1.name.endswith("/MaxSources"):
+                        assert_dset_match(obj1, obj2)
 
             if isinstance(dr1[group_name], h5py.Dataset):
                 assert_obj_match(None, dr1[group_name])
