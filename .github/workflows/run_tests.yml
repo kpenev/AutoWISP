@@ -3,6 +3,7 @@
 
 name: Test pipeline steps
 
+on: workflow_dispatch
 # on:
 #   push:
 #     branches: [ "master" ]
