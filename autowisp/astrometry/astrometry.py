@@ -2,14 +2,14 @@
 
 """Fit for a transformation between sky and image coordinates."""
 import logging
-from tempfile import mkstemp
+from tempfile import TemporaryDirectory
 import subprocess
 import os
 from traceback import format_exc
 import time
 from urllib.request import urlopen
-import shutil
 from urllib.error import URLError
+import shutil
 
 import numpy
 from numpy.lib.recfunctions import structured_to_unstructured
@@ -29,6 +29,7 @@ from autowisp.astrometry.astrometry_net_client import (
 )
 
 _logger = logging.getLogger(__name__)
+
 
 # pylint:disable=R0913
 # pylint:disable=R0914
@@ -107,9 +108,7 @@ def find_ra_dec(xieta_guess, trans_x, trans_y, radec_cent, frame_x, frame_y):
 
     assert trans_x.size == trans_y.size
     astrometry_order = (numpy.sqrt(1.0 + 8.0 * trans_x.size) - 3.0) / 2.0
-    assert numpy.allclose(
-        astrometry_order, numpy.round(astrometry_order), atol=1e-10
-    )
+    assert numpy.allclose(astrometry_order, numpy.round(astrometry_order), atol=1e-10)
     astrometry_order = numpy.rint(astrometry_order).astype(int)
 
     def equations(xieta_cent):
@@ -204,29 +203,23 @@ class TempAstrometryFiles:
 
     def __init__(self, file_types=("sources", "corr", "axy", "config")):
         """Create all required temporary files."""
-
+        self._temp_dir_obj = TemporaryDirectory()
+        self.temp_dir_path = self._temp_dir_obj.name
         self._file_types = file_types
+
         for file_type in self._file_types:
-            handle, fname = mkstemp()
-            setattr(self, "_" + file_type, handle)
-            setattr(self, file_type + "_fname", fname)
+            full_path = os.path.join(self.temp_dir_path, file_type)
+            setattr(self, file_type + "_fname", full_path)
 
     def __enter__(self):
         """Return the filenames of the temporary files."""
-
         return tuple(
-            getattr(self, file_type + "_fname")
-            for file_type in self._file_types
+            getattr(self, file_type + "_fname") for file_type in self._file_types
         )
 
     def __exit__(self, *ignored_args, **ignored_kwargs):
         """Close and delete the temporary files."""
-
-        for file_type in self._file_types:
-            os.close(getattr(self, "_" + file_type))
-            fname = getattr(self, file_type + "_fname")
-            if os.path.exists(fname):
-                os.remove(fname)
+        self._temp_dir_obj.cleanup()
 
 
 def create_sources_file(xy_extracted, sources_fname):
@@ -312,9 +305,7 @@ def get_initial_corr_local(
             try:
                 subprocess.run(solve_field_command, check=True)
             except subprocess.SubprocessError:
-                _logger.critical(
-                    "solve-field failed with error:\n%s", format_exc()
-                )
+                _logger.critical("solve-field failed with error:\n%s", format_exc())
                 continue
 
             if not os.path.isfile(corr_fname):
@@ -324,17 +315,15 @@ def get_initial_corr_local(
                 return "solve-field failed", 0
 
             with fits.open(corr_fname, mode="readonly") as corr:
-                result = corr[1].data[:]
-                if result.size > ((tweak + 1) * (tweak + 2)) // 2:
-                    return result, tweak
+                result = numpy.copy(corr[1].data[:])
+            if result.size > ((tweak + 1) * (tweak + 2)) // 2:
+                return result, tweak
 
     return "solve-field failed", 0
 
 
-def get_initial_corr_web(
-    header, xy_extracted, tweak_order_range, fov_range, api_key
-):
-    """Get inital extracted to catalog source match using web astrometry.net."""
+def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range, api_key):
+    """Get initial extracted to catalog source match using web astrometry.net."""
 
     config = {
         "allow_commercial_use": "n",
@@ -377,12 +366,8 @@ def get_initial_corr_web(
         solved_job_id = None
         while solved_job_id is None:
             time.sleep(5)
-            submission_status = client.sub_status(
-                upload_result["subid"], justdict=True
-            )
-            _logger.debug(
-                "Astrometry.net submission status: %s", submission_status
-            )
+            submission_status = client.sub_status(upload_result["subid"], justdict=True)
+            _logger.debug("Astrometry.net submission status: %s", submission_status)
             jobs = submission_status.get("jobs", [])
             job_id = None
             if len(jobs):
@@ -404,25 +389,16 @@ def get_initial_corr_web(
 
         if job_status == "failure":
             return "web solve failed", 0
-        corr_url = client.apiurl.replace(
-            "/api/", f"/corr_file/{solved_job_id:d}"
-        )
+        corr_url = client.apiurl.replace("/api/", f"/corr_file/{solved_job_id:d}")
 
         with TempAstrometryFiles(("corr",)) as (corr_fname,):
-            _logger.debug(
-                "Retrieving file from '%s' to '%s'", corr_url, corr_fname
-            )
-            with urlopen(corr_url) as remote_corr, open(
-                corr_fname, "wb"
-            ) as local_corr:
+            _logger.debug("Retrieving file from '%s' to '%s'", corr_url, corr_fname)
+            with urlopen(corr_url) as remote_corr, open(corr_fname, "wb") as local_corr:
                 shutil.copyfileobj(remote_corr, local_corr)
-            _logger.debug(
-                "Correspnodence file '%s' successfully created.", corr_fname
-            )
             with fits.open(corr_fname, mode="readonly") as corr:
-                result = corr[1].data[:]
-                if result.size > (tweak_order + 1) * (tweak_order + 2) // 2:
-                    return result, tweak_order
+                result = numpy.copy(corr[1].data[:])
+            if result.size > (tweak_order + 1) * (tweak_order + 2) // 2:
+                return result, tweak_order
 
     return "web solve failed", 0
 
@@ -567,9 +543,7 @@ def refine_transformation(
             # pylint:enable=used-before-assignment
         radec_cent = {"RA": ra_cent, "Dec": dec_cent}
 
-        projected = numpy.empty(
-            catalog.shape[0], dtype=[("xi", float), ("eta", float)]
-        )
+        projected = numpy.empty(catalog.shape[0], dtype=[("xi", float), ("eta", float)])
         gnomonic_projection(catalog, projected, **radec_cent)
 
         xi = projected["xi"].reshape(-1, 1)  # Reshape to (n, 1)
@@ -614,9 +588,7 @@ def refine_transformation(
 
             # pylint:enable=used-before-assignment
         xy_transformed = numpy.block([x_transformed, y_transformed])
-        d, ix = kdtree.query(
-            xy_transformed, distance_upper_bound=max_srcmatch_distance
-        )
+        d, ix = kdtree.query(xy_transformed, distance_upper_bound=max_srcmatch_distance)
 
         result, count = numpy.unique(ix, return_counts=True)
 
@@ -672,9 +644,7 @@ def refine_transformation(
         )
         print(trans_matrix.shape)
 
-        if trans_matrix.shape[0] <= (
-            min_source_safety_factor * trans_matrix.shape[1]
-        ):
+        if trans_matrix.shape[0] <= (min_source_safety_factor * trans_matrix.shape[1]):
             raise ValueError(
                 "The number of equations is "
                 "insufficient to solve transformation "
