@@ -15,7 +15,7 @@ from autowisp.database.data_model.steps_and_parameters import (
 
 __all__ = []
 
-
+#TODO merge this function with AutoWISP/autowisp/database/data_model/provenance/__init__.py
 def import_table_definitions():
     """Import all table definitions directly to data_model."""
 
