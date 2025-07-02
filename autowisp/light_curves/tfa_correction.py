@@ -1067,11 +1067,12 @@ class TFACorrection(Correction):
                     permutted_index,
                     repr(self._template_qrp[fit_index]),
                 )
-                apply_qrp = scipy.linalg.qr_delete(
-                    *self._template_qrp[fit_index][:2],
-                    permutted_index,
-                    which="col",
-                ) + (
+                apply_qrp = (
+                    *scipy.linalg.qr_delete(
+                        *self._template_qrp[fit_index][:2],
+                        permutted_index,
+                        which="col",
+                    ),
                     numpy.delete(
                         self._template_qrp[fit_index][2], exclude_template_index
                     ),

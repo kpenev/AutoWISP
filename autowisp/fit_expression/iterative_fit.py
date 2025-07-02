@@ -152,7 +152,8 @@ def iterative_fit_qr(
             for i in numpy.flip(bad_ind):
                 # False positive
                 # pylint: disable=no-member
-                weighted_qrp = scipy.linalg.qr_delete(*weighted_qrp[:2], i) + (
+                weighted_qrp = (
+                    *scipy.linalg.qr_delete(*weighted_qrp[:2], i),
                     weighted_qrp[2],
                 )
                 # pylint: enable=no-member
