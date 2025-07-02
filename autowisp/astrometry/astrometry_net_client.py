@@ -40,6 +40,7 @@ import time
 import base64
 import shutil
 import logging
+from traceback import print_exc
 
 try:
     # py3
@@ -165,7 +166,7 @@ class Client(object):
                     raise RequestError("server error message: " + errstr)
                 return result
             except (HTTPError, URLError) as e:
-                self._logger.critical("HTTPError: %s\n%s", e, e.read())
+                self._logger.critical("HTTPError:\n%s", print_exc())
                 self._logger.critical("Retrying...")
                 sleep(60)
 
