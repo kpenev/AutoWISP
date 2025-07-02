@@ -14,7 +14,7 @@
 
 ## Table of Contents
 - [About](#-about)
-- [How to Install](#-how-to-build)
+- [How to Install](#-how-to-install)
 - [Documentation](#-documentation)
 - [Feedback and Contributions](#-feedback-and-contributions)
 - [License](#-license)
