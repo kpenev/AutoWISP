@@ -57,7 +57,7 @@ We appreciate your support and look forward to making our pipeline even better w
 
 ## 📃 License
 
-This package is distributed under the MIT License. You can review the full license agreement at the following link: [MIT]([https://choosealicense.com/licenses/mit/](https://github.com/kpenev/AstroWISP/blob/master/LICENSE)).
+This package is distributed under the MIT License. You can review the full license agreement at the following link: [MIT](https://github.com/kpenev/AstroWISP/blob/master/LICENSE).
 
 This package is available for free!
 
