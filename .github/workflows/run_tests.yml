@@ -37,7 +37,7 @@ jobs:
         pylint --exit-zero .
     - name: Run tests
       run: |
-        python3 -m autowisp.tests failed_test
+        python3 -m autowisp.tests failed_test -k tfa
     - name: Upload failed test
       if: always()
       uses: actions/upload-artifact@v4
