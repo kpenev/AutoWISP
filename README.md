@@ -88,13 +88,13 @@ We've made every effort to implement all the main aspects of AutoWISP in the bes
 
 Please feel free to contribute by [submitting an issue](https://github.com/kpenev/AutoWISP/issues) or [joining the discussions](https://github.com/kpenev/AutoWISP/discussions). Each contribution helps us grow and improve.
 
-We appreciate your support and look forward to making our product even better with your help!
+We appreciate your support and look forward to making our pipeline even better with your help!
 
 ## 📃 License
 
-This product is distributed under the MIT License. You can review the full license agreement at the following link: [MIT](https://choosealicense.com/licenses/mit/).
+This package is distributed under the MIT License. You can review the full license agreement at the following link: [MIT](https://choosealicense.com/licenses/mit/).
 
-For non-commercial use, this product is available for free.
+For non-commercial use, this package is available for free.
 
 ## 🗨️ Contacts
 
