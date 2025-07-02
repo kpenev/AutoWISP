@@ -66,7 +66,7 @@ These will disappear once we have a proper package manager installation.
 |        pytransit        |  2.6.14   |
 |        rechunker        |   0.5.4   |
 
-For general_purpose_python_modules:
+* For general_purpose_python_modules:
 
 |         Package          |  Version  |
 |:------------------------:|:---------:|
