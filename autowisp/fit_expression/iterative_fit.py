@@ -114,6 +114,8 @@ def iterative_fit_qr(
 
     permutation = numpy.argsort(weighted_qrp[2])
 
+    logger.debug("Original QRP = %s", repr(weighted_qrp))
+
     for rej_iter in range(-1 if pre_reject else 0, max_rej_iter + 1):
         weighted_target = numpy.delete(weighted_target, bad_ind)
         if len(weighted_target) < num_free_coef:
@@ -135,6 +137,7 @@ def iterative_fit_qr(
             len(weighted_target),
             num_free_coef,
         )
+
         if bad_ind.size > max_downdates:
             logger.debug("Rederiving QR-Decomposition")
             # False positive
@@ -147,12 +150,14 @@ def iterative_fit_qr(
         else:
             logger.debug("Downdating QR-Decomposition")
             for i in numpy.flip(bad_ind):
-                weighted_qrp = (
-                    # False positive
-                    # pylint: disable=no-member
-                    *scipy.linalg.qr_delete(*weighted_qrp[:2], i),
-                    # pylint: enable=no-member
+                # False positive
+                # pylint: disable=no-member
+                weighted_qrp = scipy.linalg.qr_delete(*weighted_qrp[:2], i) + (
                     weighted_qrp[2],
+                )
+                # pylint: enable=no-member
+                logger.debug(
+                    "After deleting row %d, QRP = %s", i, repr(weighted_qrp)
                 )
 
         if rej_iter < 0:
