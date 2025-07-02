@@ -47,7 +47,6 @@ def import_table_definitions():
         table_class_name = list(
             filter(is_table, getattr(module, "__all__", []))
         )
-        print(f"({module_name}) Table class name: {table_class_name!r}")
         assert len(table_class_name) == 1
         table_class_name = table_class_name[0]
         setattr(
