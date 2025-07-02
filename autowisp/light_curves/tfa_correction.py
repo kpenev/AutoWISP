@@ -1067,12 +1067,16 @@ class TFACorrection(Correction):
                     permutted_index,
                     repr(self._template_qrp[fit_index]),
                 )
+                downdated_qrp = scipy.linalg.qr_delete(
+                    self._template_qrp[fit_index][0],
+                    self._template_qrp[fit_index][1],
+                    permutted_index,
+                    which="col",
+                )
+                self._logger.debug("Downdated QRP: %s", repr(downdated_qrp))
                 apply_qrp = (
-                    *scipy.linalg.qr_delete(
-                        *self._template_qrp[fit_index][:2],
-                        permutted_index,
-                        which="col",
-                    ),
+                    downdated_qrp[0],
+                    downdated_qrp[1],
                     numpy.delete(
                         self._template_qrp[fit_index][2], exclude_template_index
                     ),
