@@ -44,7 +44,6 @@ def import_table_definitions():
         table_class_names = list(
             filter(is_table, getattr(module, "__all__", []))
         )
-        print(f"({module_name!r}) Table class names: {table_class_names!r}")
 
         update_timestamp_mysql = """
             CREATE TRIGGER update_{table}_timestamp
