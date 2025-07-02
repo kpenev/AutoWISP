@@ -1061,16 +1061,16 @@ class TFACorrection(Correction):
                     self._template_qrp[fit_index][2] == exclude_template_index
                 )[0]
                 self._logger.debug(
-                    "Excluding template with index %d (permuted index %d) from "
+                    "Excluding template with index %d (permuted index %s) from "
                     "QRP: %s",
                     exclude_template_index,
-                    permutted_index,
+                    repr(permutted_index),
                     repr(self._template_qrp[fit_index]),
                 )
                 downdated_qrp = scipy.linalg.qr_delete(
                     self._template_qrp[fit_index][0],
                     self._template_qrp[fit_index][1],
-                    permutted_index,
+                    int(permutted_index),
                     which="col",
                 )
                 self._logger.debug("Downdated QRP: %s", repr(downdated_qrp))
