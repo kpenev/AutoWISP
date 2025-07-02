@@ -1,5 +1,4 @@
 <a name="top"></a>
-# AutoWISP
 [![AutoWISP](https://github.com/kpenev/AutoWISP/blob/master/AutoWISP.png)](https://github.com/kpenev/AutoWISP)
 [![language](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)](https://www.python.org/about/)
 [![OS](https://img.shields.io/badge/OS-linux%2C%20windows%2C%20macOS-0078D4)](https://github.com/kpenev/AutoWISP/tree/master/documentation)
