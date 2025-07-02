@@ -1061,16 +1061,17 @@ class TFACorrection(Correction):
                     self._template_qrp[fit_index][2] == exclude_template_index
                 )[0]
                 self._logger.debug(
-                    "Excluding template with index %d (permuted index %d)",
+                    "Excluding template with index %d (permuted index %d) from "
+                    "QRP: %s",
                     exclude_template_index,
                     permutted_index,
+                    repr(self._template_qrp[fit_index]),
                 )
-                apply_qrp = (
-                    *scipy.linalg.qr_delete(
-                        *self._template_qrp[fit_index][:2],
-                        permutted_index,
-                        which="col",
-                    ),
+                apply_qrp = scipy.linalg.qr_delete(
+                    *self._template_qrp[fit_index][:2],
+                    permutted_index,
+                    which="col",
+                ) + (
                     numpy.delete(
                         self._template_qrp[fit_index][2], exclude_template_index
                     ),
@@ -1084,6 +1085,11 @@ class TFACorrection(Correction):
                 exclude_template_index = None
                 apply_qrp = self._template_qrp[fit_index]
                 fit_templates = self.template_measurements[fit_index]
+
+            self._logger.debug(
+                "Fitting using QRP: %s",
+                repr(apply_qrp),
+            )
 
             # Error average specified through iterative_fit_config
             # pylint: disable=missing-kwoa
