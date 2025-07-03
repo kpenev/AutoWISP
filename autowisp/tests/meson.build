@@ -20,5 +20,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/tests'
+    subdir: 'autowisp/tests',
+    pure: true,
 )

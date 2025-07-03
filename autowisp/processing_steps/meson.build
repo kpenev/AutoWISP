@@ -23,5 +23,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/processing_steps'
+    subdir: 'autowisp/processing_steps',
+    pure: true,
 )

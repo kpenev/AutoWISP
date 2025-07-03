@@ -16,5 +16,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/database/data_model/provenance'
+    subdir: 'autowisp/database/data_model/provenance',
+    pure: true,
 )

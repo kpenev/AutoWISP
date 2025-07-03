@@ -15,7 +15,8 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/database'
+    subdir: 'autowisp/database',
+    pure: true,
 )
 
 subdir('data_model')

@@ -15,5 +15,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/fit_expression'
+    subdir: 'autowisp/fit_expression',
+    pure: true,
 )

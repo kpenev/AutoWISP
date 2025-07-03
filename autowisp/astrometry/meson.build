@@ -10,5 +10,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/astrometry'
+    subdir: 'autowisp/astrometry',
+    pure: true,
 )

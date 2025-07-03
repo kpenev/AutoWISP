@@ -15,5 +15,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/light_curves'
+    subdir: 'autowisp/light_curves',
+    pure: true,
 )

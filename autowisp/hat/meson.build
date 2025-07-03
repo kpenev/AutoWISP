@@ -5,5 +5,6 @@ py_src = [
 
 py.install_sources(
     py_src,
-    subdir: 'autowisp/hat'
+    subdir: 'autowisp/hat',
+    pure: true,
 )
