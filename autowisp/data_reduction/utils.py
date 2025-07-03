@@ -186,11 +186,23 @@ def _auto_add_tree_quantities(
                 dr_key in dr_file.elements[element_type]
                 and skip_quantities.match(key_quantity) is None
             ):
+                _logger.debug(
+                    "Getting %s (dtype = %s, tree dtype = %s) from tree",
+                    repr(quantity_name),
+                    repr(dr_file.get_dtype(dr_key)),
+                    repr(_dtype_dr_to_io_tree[dr_file.get_dtype(dr_key)]),
+                )
                 value = result_tree.get(
                     quantity_name,
                     _dtype_dr_to_io_tree[dr_file.get_dtype(dr_key)],
                     shape=(num_sources if element_type == "dataset" else None),
                 )
+                _logger.debug(
+                    "Saving %s to DR file %s",
+                    repr(quantity_name),
+                    dr_file.filename,
+                )
+
                 # TODO: add automatic detection for versions
                 getattr(dr_file, "add_" + element_type)(
                     dr_key, value, if_exists="error", **path_substitutions
