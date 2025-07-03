@@ -29,8 +29,6 @@
 
 ## 📝 How to Install
 
-To build the packages, follow these steps:
-
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install AutoWISP.
 
     pip install autowisp
@@ -46,38 +44,6 @@ In this guide, you will go step by step in the pipeline, producing the correspon
 To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
 There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
 
-### Imports
-
-These will disappear once we have a proper package manager installation.
-
-* For AutoWISP:
-
-|         Package         |  Version  |
-|:-----------------------:|:---------:|
-|     configargparse      |    1.4    |
-|          Numpy          |  1.26.4   |
-|          lxml           |   5.3.0   |
-|         astropy         |   6.1.3   |
-|         asteval         |   1.0.6   |
-| antlr4-python3-runtime  |    1.4    |
-|        astrowisp        |    1.3    |
-|          zarr           |  2.18.7   |
-|        pytransit        |  2.6.14   |
-|        rechunker        |   0.5.4   |
-
-* For general_purpose_python_modules:
-
-|         Package          |  Version  |
-|:------------------------:|:---------:|
-|        gitpython         |  3.1.43   |
-|          scipy           |  1.15.3   |
-|        matplotlib        |  3.10.0   |
-
-<br>
-Ensure AutoWISP is in Python path. If using Anaconda (recommended), can put
-a .pth file in "C:\Users\**USER**\anaconda3\envs\**USER_ENV**\Lib\site-packages"
-with the following directory for AutoWISP, AstroWISP, and general_purpose_python_modules.
-
 ## 🤝 Feedback and Contributions
 
 We've made every effort to implement all the main aspects of AutoWISP in the best possible way. However, the development journey doesn't end here, and your input is crucial for our continuous integration and development.
@@ -91,9 +57,9 @@ We appreciate your support and look forward to making our pipeline even better w
 
 ## 📃 License
 
-This package is distributed under the MIT License. You can review the full license agreement at the following link: [MIT](https://choosealicense.com/licenses/mit/).
+This package is distributed under the MIT License. You can review the full license agreement at the following link: [MIT](https://github.com/kpenev/AutoWISP/blob/master/LICENSE).
 
-For non-commercial use, this package is available for free.
+This package is available for free!
 
 ## 🗨️ Contacts
 
