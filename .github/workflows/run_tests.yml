@@ -32,12 +32,12 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade pylint
         pip install .
-    - name: Lint with pylint
-      run: |
-        pylint --exit-zero .
+    #- name: Lint with pylint
+    #  run: |
+    #    pylint --exit-zero .
     - name: Run tests
       run: |
-        python3 -m autowisp.tests failed_test
+        python3 -m autowisp.tests failed_test -v -v -v -v
     - name: Upload failed test
       if: always()
       uses: actions/upload-artifact@v4
