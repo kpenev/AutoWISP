@@ -85,7 +85,7 @@ class AutoWISPTestCase(FloatTestCase):
             check=False,
             stdout=PIPE,
             stderr=STDOUT,
-            timeout=3600,
+            timeout=600,
         )
         self.assertTrue(
             calib_process.returncode == 0,
