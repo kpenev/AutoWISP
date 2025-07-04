@@ -112,11 +112,14 @@ function startEditPlot(event)
 function scrollConfig(event)
 {
     const markerDropdowns = document.getElementsByClassName("dropdown-content");
-    for ( const entry of markerDropdowns ) {
-        entry.style.top = entry.
-            parentNode.
-            getElementsByClassName("dropbtn selected-marker")[0].
-            getBoundingClientRect().bottom + "px";
+    for (const entry of markerDropdowns) {
+        const button = entry.parentNode.getElementsByClassName("dropbtn")[0];
+        const rect = button.getBoundingClientRect();
+
+        entry.style.position = "fixed";
+        entry.style.top = `${rect.bottom}px`;
+        entry.style.left = `${rect.left}px`;
+        entry.style.zIndex = "1000";
     }
 }
 
