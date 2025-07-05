@@ -139,7 +139,6 @@ class H5TestCase(AutoWISPTestCase):
                 f"wisp-{step_name.replace('_', '-')}",
                 "-c",
                 "test.cfg",
-                '--num-parallel-processes', '1',
                 path.join(self.processing_directory, inputs[0]),
             ]
         )
