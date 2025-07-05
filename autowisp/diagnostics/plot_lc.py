@@ -3,11 +3,13 @@
 
 from itertools import product
 from functools import partial
+import sys
 
 from matplotlib import pyplot
 import numpy
 import pandas
 from pytransit import RoadRunnerModel
+from configargparse import ArgumentParser, DefaultsFormatter
 
 from autowisp import LightCurveFile, DataReductionFile
 from autowisp.evaluator import LightCurveEvaluator
@@ -149,7 +151,7 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
                 (minimize_value, sphotref_result["best_model"]) = (
                     optimize_substitutions(
                         lc_eval,
-                        find_best=configuration["find_best"].items(),
+                        find_best=configuration["find_best"],
                         minimize=configuration["minimize"],
                         y_expression=(
                             None
@@ -219,23 +221,188 @@ def transit_model(times, **params):
     return mag_change
 
 
+def format_lc_quantities():
+    """Return a dict of available lightcurve quantities with discriptions."""
+
+    lc_structure = LightCurveFile.get_file_structure()
+    dummy_parser = ArgumentParser()
+    for lc_key in sorted(lc_structure[0]["dataset"]):
+        dummy_parser.add_argument(
+            lc_key,
+            help=lc_structure[1][lc_key].description.replace("%", "%%"),
+        )
+    dummy_help = dummy_parser.format_help()
+    return dummy_help[
+        dummy_help.find("positional arguments:")
+        + len("positional arguments:") : dummy_help.find("options:")
+    ].strip("\n")
+
+
+def parse_command_line():
+    """Return the command line configuration."""
+
+    def parse_range(range_str):
+        """Parse optimize option value."""
+
+        key, range_str = range_str.split(":")
+        start, stop = map(int, range_str.split(".."))
+        return key, range(start, stop + 1)
+
+    def parse_format(format_str):
+        """Parse the format string for output."""
+
+        formatter = f"{{{format_str}}}"
+        print('Formatter: ', formatter)
+        return formatter.format
+
+    parser = ArgumentParser(
+        description="Extract information from a lightcurve for plotting or "
+        "other analysis.",
+        default_config_files=[],
+        formatter_class=DefaultsFormatter,
+        ignore_unknown_config_file_keys=True,
+    )
+    parser.add_argument(
+        "lc_fname",
+        type=str,
+        nargs="?",
+        help="Path to the lightcurve file to plot.",
+    )
+    parser.add_argument(
+        "--config-file",
+        "--config",
+        "-c",
+        is_config_file=True,
+        help="Path to configuration file.",
+    )
+    parser.add_argument(
+        "--list-lc-quantities",
+        action="store_true",
+        help="List all available lightcurve quantities and exit.",
+    )
+    parser.add_argument(
+        "--expression",
+        "-e",
+        type=str,
+        action="append",
+        default=[],
+        help="Add another expression of lightcurve quantities to save. Use "
+        "``--list-lc-quantities`` to see available quantities and brief "
+        "descriptions. Should be formatted as <expression_name>=<expression>.",
+    )
+    parser.add_argument(
+        "--photometry-modes",
+        nargs="+",
+        default=["apphot"],
+        help="The photometry modes to search for best lightcurve.",
+    )
+    parser.add_argument(
+        "--find-best",
+        nargs="+",
+        default=[("aperture_index", range(8))],
+        type=parse_range,
+        help="Lightcurve substitutions to optimize to find the smallest value "
+        "of the expression specified in ``--minimize-expression``. The format "
+        "is ``substitution_key:<min>..<max>``. If multiple keys are given all "
+        "possible combinations are tested.",
+    )
+    parser.add_argument(
+        "--minimize",
+        default=(
+            "nanmedian(abs({mode}.magfit.magnitude - "
+            "nanmedian({mode}.magfit.magnitude)))"
+        ),
+        help="The expression to minimize by iterating over all possibilities "
+        "specified by ``--optimize``.",
+    )
+    parser.add_argument(
+        "--bin",
+        default=None,
+        nargs=2,
+        help="Binning to apply. Should be an expression of lightcurve "
+        "quantities followed by a binning function. Some examples include:\n"
+        "\t* ``fitsheader.rawfname`` ``nanmedian`` to plot the color "
+        "median of the measurements in different channels of an each image.\n"
+        "\t* ``(skypos.BJD * 24 * 12).astype(int)`` ``nanmedian`` to bin in 5 "
+        "min increments. By default no binning is applied.",
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        default=None,
+        help="The filename under which to save the extracted light curve data.",
+    )
+    parser.add_argument(
+        "--na-rep",
+        default="",
+        help="The string to use for representing NaN values in the output.",
+    )
+    parser.add_argument(
+        "--sep",
+        default=",",
+        help="The separator to use in the output file.",
+    )
+    parser.add_argument(
+        "--float-format",
+        type=parse_format,
+        default=None,
+        help="The format to use for floating point numbers in the output.",
+    )
+
+    result = parser.parse_args()
+    if result.list_lc_quantities:
+        print(format_lc_quantities())
+        sys.exit(0)
+    if not getattr(result, "lc_fname", False):
+        print("No lightcurve file specified.")
+        parser.print_usage()
+        sys.exit(1)
+    return result
+
+
 def main():
     """Avoid polluting global scope."""
 
-    combined_figure_id = pyplot.figure(0, dpi=300).number
-    individual_figures_id = pyplot.figure(1, dpi=300).number
-    transit_params = {
-        "k": 0.1215,  # the planet-star radius ratio
-        "ldc": [0.79272802, 0.72786169],  # limb darkening coeff
-        "t0": 2455787.553228,  # the zero epoch,
-        "p": 3.94150468,  # the orbital period,
-        "a": 11.04,  # the orbital semi-major divided by R*,
-        "i": 1.5500269086961642,  # the orbital inclination in rad,
-        # e: the orbital eccentricity (optional, can be left out if assuming
-        #   circular a orbit), and
-        # w: the argument of periastron in radians (also optional, can be left
-        #   out if assuming circular a orbit).
-    }
+    configuration = vars(parse_command_line())
+    out_fname = configuration.pop("output")
+    if out_fname:
+        configuration["lc_substitutions"] = {}
+        configuration["selection"] = None
+        expressions = dict(
+            expression.split("=", 1)
+            for expression in configuration.pop("expression")
+        )
+        data_by_sphotref = get_plot_data(
+            configuration.pop("lc_fname"),
+            expressions=expressions,
+            configuration=configuration,
+            model=None,
+        )[0]
+        data_by_sphotref = next(iter(data_by_sphotref.values()))
+        data_by_sphotref.pop("best_model")
+        data_by_sphotref = pandas.DataFrame.from_dict(data_by_sphotref)
+        data_by_sphotref.to_csv(
+            out_fname,
+            na_rep=configuration["na_rep"],
+            sep=configuration["sep"],
+            float_format=configuration["float_format"],
+        )
+    return
+
+    # combined_figure_id = pyplot.figure(0, dpi=300).number
+    # individual_figures_id = pyplot.figure(1, dpi=300).number
+    # transit_params = {
+    #    "k": 0.1215,  # the planet-star radius ratio
+    #    "ldc": [0.79272802, 0.72786169],  # limb darkening coeff
+    #    "t0": 2455787.553228,  # the zero epoch,
+    #    "p": 3.94150468,  # the orbital period,
+    #    "a": 11.04,  # the orbital semi-major divided by R*,
+    #    "i": 1.5500269086961642,  # the orbital inclination in rad,
+    #    # e: the orbital eccentricity (optional, can be left out if assuming
+    #    #   circular a orbit), and
+    #    # w: the argument of periastron in radians (also optional, can be left
+    #    #   out if assuming circular a orbit).
+    # }
 
     for detrend, fmt in [("magfit", "ob")]:  # ,
         # ('epd', 'or'),
@@ -254,7 +421,7 @@ def main():
             configuration={
                 "lc_substitutions": {},
                 "selection": None,
-                "find_best": {"aperture_index": range(46)},
+                "find_best": [("aperture_index", range(46))],
                 "minimize": (
                     f"nanmedian(abs({{mode}}.{detrend}.magnitude - "
                     f"nanmedian({{mode}}.{detrend}.magnitude)))"

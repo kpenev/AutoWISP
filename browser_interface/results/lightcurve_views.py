@@ -158,17 +158,24 @@ def _convert_plot_data_json(plot_data, reverse):
 def _parse_optimizables(optimizables):
     """Convert user shorthands to lists of allowed values for ``find_best``."""
 
-    result = {}
+    result = []
     for substitution, user_value in optimizables.items():
         if ".." in user_value:
-            result[substitution] = list(
-                range(*map(int, user_value.split("..")))
+            result.append(
+                (substitution, list(range(*map(int, user_value.split("..")))))
             )
         else:
-            result[substitution] = [
-                int(s)
-                for s in user_value.split("," if "," in user_value else None)
-            ]
+            result.append(
+                (
+                    substitution,
+                    [
+                        int(s)
+                        for s in user_value.split(
+                            "," if "," in user_value else None
+                        )
+                    ],
+                )
+            )
     return result
 
 
@@ -640,12 +647,18 @@ def download_lightcurve_figure(request):
     for ax in figure.get_axes():
         ax.set_facecolor("white")
     with BytesIO() as image_stream:
-        pyplot.savefig(image_stream, bbox_inches="tight", format="pdf", facecolor="white", edgecolor="white")
+        pyplot.savefig(
+            image_stream,
+            bbox_inches="tight",
+            format="pdf",
+            facecolor="white",
+            edgecolor="white",
+        )
         image_stream.seek(0)
         return HttpResponse(
             image_stream.read(),
             content_type="application/pdf",
             headers={
                 "Content-Disposition": 'attachment; filename="lightcurve.pdf"'
-            }
+            },
         )
