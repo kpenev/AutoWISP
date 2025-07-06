@@ -1,6 +1,6 @@
 py_src = [
   'detrending.py',
-  'plot_lc.py',
+  'get_from_lc.py',
 ]
 
 py.install_sources(

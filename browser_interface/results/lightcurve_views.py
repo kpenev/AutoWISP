@@ -16,7 +16,7 @@ from django.http import JsonResponse, HttpResponse
 
 from autowisp.bui_util import hex_color
 from autowisp.evaluator import Evaluator
-from autowisp.diagnostics.plot_lc import get_plot_data, calculate_combined
+from autowisp.diagnostics.get_from_lc import get_plot_data, calculate_combined
 from autowisp.database.image_processing import ImageProcessingManager
 
 _custom_aggregators = {"len": len}
@@ -186,7 +186,7 @@ def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
 
     for data_select in plotting_info["data_select"]:
         print("Data select pre getting data: " + repr(data_select))
-        plot_data, best_substitutions = get_plot_data(
+        plot_data = get_plot_data(
             lightcurve_fname,
             data_select["expressions"],
             {
@@ -208,10 +208,7 @@ def _add_lightcurve_to_session(plotting_info, lightcurve_fname, select=True):
         print("Data select post getting data: " + repr(data_select))
 
         plotting_info[lightcurve_fname].append(
-            {
-                "plot_data": _convert_plot_data_json(plot_data, False),
-                "best_substitutions": best_substitutions,
-            }
+            {"plot_data": _convert_plot_data_json(plot_data, False)}
         )
     if select:
         plotting_info["target_fname"] = lightcurve_fname

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Utilities for plotting individual lightcurves."""
 
-from itertools import product
-from functools import partial
+from itertools import product, count
 import sys
 
 from matplotlib import pyplot
@@ -36,6 +35,7 @@ def evaluate_model(model, lc_eval, expression_params, shift_to=None):
     return model_values
 
 
+# pylint: disable=too-many-arguments
 def optimize_substitutions(
     lc_eval, *, find_best, minimize, y_expression, model, expression_params
 ):
@@ -65,6 +65,7 @@ def optimize_substitutions(
     key_order = [key for key, _ in find_best]
     best_combination = None
     best_found = None
+    best_model = None
     for combination in product(*(values for _, values in find_best)):
         lc_eval.update_substitutions(zip(key_order, combination))
         if model is not None:
@@ -80,11 +81,136 @@ def optimize_substitutions(
         if best_found is None or minimize_val < best_found:
             best_found = minimize_val
             best_combination = combination
-            best_model = None if model is None else model_values
+            if model is not None:
+                best_model = model_values
     print(f"Best substitutions: {dict(zip(key_order, best_combination))!r}")
     print(f"Best value: {best_found!r}")
-    lc_eval.lc_substitutions.update(zip(key_order, best_combination))
+    lc_eval.update_substitutions(zip(key_order, best_combination))
     return best_found, best_model
+
+
+# pylint: enable=too-many-arguments
+
+
+def set_substitutions(
+    lc_eval, configuration, lightcurve, photometry_mode, **optimize_kwargs
+):
+    """Set the LC path substitutions ``lc_eval`` should use."""
+
+    if configuration["lc_substitutions"].get("magfit_iteration", 0) < 0:
+        lc_eval.update_substitutions(
+            {
+                "magfit_iteration": configuration["lc_substitutions"][
+                    "magfit_iteration"
+                ]
+                + lightcurve.get_num_magfit_iterations(
+                    photometry_mode,
+                    lc_eval.lc_points_selection,
+                    **lc_eval.lc_substitutions,
+                )
+            }
+        )
+    if configuration["find_best"]:
+        (minimize_value, best_model) = optimize_substitutions(
+            lc_eval,
+            find_best=configuration["find_best"],
+            minimize=configuration["minimize"],
+            **optimize_kwargs,
+        )
+        lc_eval.symtable["best_model"] = best_model
+    else:
+        minimize_value = None
+
+    return minimize_value
+
+
+def evaluate_expressions(expressions, lc_eval, photometry_mode):
+    """Evaluate the required expressions for the current lightcurve."""
+
+    result = {}
+    aperture_indices = lc_eval.lc_substitutions.get("aperture_index", None)
+    print('Aperture indices: ', aperture_indices)
+    if aperture_indices is None:
+        aperture_indices = count()
+    else:
+        aperture_indices = [aperture_indices]
+    for ap_ind in aperture_indices:
+        lc_eval.update_substitutions({'aperture_index': ap_ind})
+        try:
+            for var_name, var_expr in expressions.items():
+                print(f"Evaluating {var_expr!r} for aperture {ap_ind}")
+                result[var_name.format(aperture_index=ap_ind)] = lc_eval(
+                    var_expr.format(mode=photometry_mode),
+                    raise_errors=True,
+                )
+        except OSError:
+            if isinstance(aperture_indices, list):
+                raise
+            break
+
+    return result
+
+
+# pylint: disable=too-many-arguments
+def get_sphotref_result(
+    *,
+    single_photref_fname,
+    lightcurve,
+    expressions,
+    configuration,
+    model,
+    lc_eval,
+):
+    """Get the plot data for a single photometric reference."""
+
+    print(f"Single photref: {single_photref_fname!r}")
+    best_minimize = None
+    sphotref_result = {}
+    for photometry_mode in configuration["photometry_modes"]:
+        sphotref_dset_key = photometry_mode + ".magfit.cfg.single_photref"
+
+        lc_eval.lc_points_selection = None
+
+
+        lc_eval.update_substitutions({"aperture_index": 0})
+        lc_points_selection = lc_eval(
+            sphotref_dset_key + " == " + repr(single_photref_fname),
+            raise_errors=True,
+        )
+        del lc_eval.lc_substitutions["aperture_index"]
+        if configuration["selection"] is not None:
+            lc_points_selection = numpy.logical_and(
+                lc_eval(
+                    configuration["selection"] or "True",
+                    raise_errors=True,
+                ),
+                lc_points_selection,
+            )
+
+        lc_eval.lc_points_selection = lc_points_selection
+        minimize_value = set_substitutions(
+            lc_eval,
+            configuration,
+            lightcurve,
+            photometry_mode,
+            y_expression=(
+                None if model is None else expressions[model["quantity"]]
+            ),
+            model=model,
+            expression_params={"mode": photometry_mode},
+        )
+        if minimize_value is not None:
+            sphotref_result["best_model"] = lc_eval.symtable["best_model"]
+        if best_minimize is None or minimize_value < best_minimize:
+            best_minimize = minimize_value
+            sphotref_result.update(
+                evaluate_expressions(expressions, lc_eval, photometry_mode)
+            )
+
+    return sphotref_result
+
+
+# pylint: enable=too-many-arguments
 
 
 def get_plot_data(lc_fname, expressions, configuration, model=None):
@@ -97,7 +223,6 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
         lc_eval = LightCurveEvaluator(
             lightcurve, **configuration["lc_substitutions"]
         )
-        lc_eval.update_substitutions({"aperture_index": 0})
         all_sphotref_fnames = set()
         for photometry_mode in configuration["photometry_modes"]:
             all_sphotref_fnames |= set(
@@ -108,73 +233,16 @@ def get_plot_data(lc_fname, expressions, configuration, model=None):
             )
 
         for single_photref_fname in all_sphotref_fnames:
-            print(f"Single photref: {single_photref_fname!r}")
-            best_minimize = None
-            sphotref_result = {}
-            for photometry_mode in configuration["photometry_modes"]:
-                sphotref_dset_key = (
-                    photometry_mode + ".magfit.cfg.single_photref"
-                )
+            result[single_photref_fname.decode()] = get_sphotref_result(
+                single_photref_fname=single_photref_fname,
+                lightcurve=lightcurve,
+                expressions=expressions,
+                configuration=configuration,
+                model=model,
+                lc_eval=lc_eval,
+            )
 
-                lc_eval.lc_points_selection = None
-
-                lc_points_selection = lc_eval(
-                    sphotref_dset_key + " == " + repr(single_photref_fname),
-                    raise_errors=True,
-                )
-                if configuration["selection"] is not None:
-                    lc_points_selection = numpy.logical_and(
-                        lc_eval(
-                            configuration["selection"] or "True",
-                            raise_errors=True,
-                        ),
-                        lc_points_selection,
-                    )
-
-                lc_eval.lc_points_selection = lc_points_selection
-                if (
-                    configuration["lc_substitutions"].get("magfit_iteration", 0)
-                    < 0
-                ):
-                    lc_eval.update_substitutions(
-                        {
-                            "magfit_iteration": configuration[
-                                "lc_substitutions"
-                            ]["magfit_iteration"]
-                            + lightcurve.get_num_magfit_iterations(
-                                photometry_mode,
-                                lc_eval.lc_points_selection,
-                                **lc_eval.lc_substitutions,
-                            )
-                        }
-                    )
-                (minimize_value, sphotref_result["best_model"]) = (
-                    optimize_substitutions(
-                        lc_eval,
-                        find_best=configuration["find_best"],
-                        minimize=configuration["minimize"],
-                        y_expression=(
-                            None
-                            if model is None
-                            else expressions[model["quantity"]]
-                        ),
-                        model=model,
-                        expression_params={"mode": photometry_mode},
-                    )
-                )
-                lc_eval.symtable["best_model"] = sphotref_result["best_model"]
-                if best_minimize is None or minimize_value < best_minimize:
-                    best_minimize = minimize_value
-                    for var_name, var_expr in expressions.items():
-                        sphotref_result[var_name] = lc_eval(
-                            var_expr.format(mode=photometry_mode),
-                            raise_errors=True,
-                        )
-                    best_substitutions = lc_eval.lc_substitutions
-
-            result[single_photref_fname.decode()] = sphotref_result
-
-    return result, best_substitutions
+    return result
 
 
 def calculate_combined(plot_data, match_id_key, aggregation_function):
@@ -252,7 +320,7 @@ def parse_command_line():
         """Parse the format string for output."""
 
         formatter = f"{{{format_str}}}"
-        print('Formatter: ', formatter)
+        print("Formatter: ", formatter)
         return formatter.format
 
     parser = ArgumentParser(
@@ -288,7 +356,11 @@ def parse_command_line():
         default=[],
         help="Add another expression of lightcurve quantities to save. Use "
         "``--list-lc-quantities`` to see available quantities and brief "
-        "descriptions. Should be formatted as <expression_name>=<expression>.",
+        "descriptions. Should be formatted as <expression_name>=<expression>. "
+        "If the quantity is aperture dependent, and ``--find-best`` is "
+        "not specified, the expression name should contain {aperture_index} "
+        "substitution to allow the value for all apertures to be saved. "
+        "Otherwise, only one of the apertures will be saved.",
     )
     parser.add_argument(
         "--photometry-modes",
@@ -298,7 +370,7 @@ def parse_command_line():
     )
     parser.add_argument(
         "--find-best",
-        nargs="+",
+        nargs="*",
         default=[("aperture_index", range(8))],
         type=parse_range,
         help="Lightcurve substitutions to optimize to find the smallest value "
@@ -377,17 +449,21 @@ def main():
             expressions=expressions,
             configuration=configuration,
             model=None,
-        )[0]
+        )
         data_by_sphotref = next(iter(data_by_sphotref.values()))
-        data_by_sphotref.pop("best_model")
+        data_by_sphotref.pop("best_model", None)
         data_by_sphotref = pandas.DataFrame.from_dict(data_by_sphotref)
         data_by_sphotref.to_csv(
             out_fname,
             na_rep=configuration["na_rep"],
             sep=configuration["sep"],
             float_format=configuration["float_format"],
+            index=False,
         )
-    return
+
+
+def old_main():
+    """Plot the lightcurve of WASP-33."""
 
     # combined_figure_id = pyplot.figure(0, dpi=300).number
     # individual_figures_id = pyplot.figure(1, dpi=300).number
@@ -407,7 +483,7 @@ def main():
     for detrend, fmt in [("magfit", "ob")]:  # ,
         # ('epd', 'or'),
         # ('tfa', 'ob')]:
-        data_by_sphotref, _ = get_plot_data(
+        data_by_sphotref = get_plot_data(
             "/mnt/md1/DSLR_DATA/PANOPTES/LC/GDR3_2876391245114999040.h5",
             expressions={
                 "y": (
