@@ -48,7 +48,7 @@ This interactive notebook provides a practical demonstration of the AutoWISP pip
 
 To better understand the **AutoWISP** pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site. There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
 
-Briefly, the pipeline is shown in the following diagram:
+Briefly, the image processing pipeline steps and their products are shown. The arrows indicate the products of each step and where they will be used.:
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/PhotometryPipeline.png">
