@@ -65,7 +65,7 @@ Here are example dark, flat, bias, object frames (in order as listed) gathered f
 
 The overall calibration for object frames is given by $C(I)= \frac{I - O(I) - B_0 - (\frac{\tau[I]}{\tau[D_0]})D_0}{F_0/||F_0||}$.
 
-Where $I$, $O(I)$, and $C(I)$ represent the image, over-scan region, and calibrated image respectively; $B_0$, $D_0$, and $F_0$ represents masters calibration images of bias, dark, and flat respectively; $\tau[I]$ and $\tau[D_0]$ are the exposure times of the image and dark frame respectively \citep{Pal_09}. These master frames are stacks of individually calibrated bias, dark, and flat frames. As a result, their signal-to-noise ratio is significantly increased compared to individual unstacked frames, allowing for much better calibration
+Where $I$, $O(I)$, and $C(I)$ represent the image, over-scan region, and calibrated image respectively; $B_0$, $D_0$, and $F_0$ represents masters calibration images of bias, dark, and flat respectively; $\tau[I]$ and $\tau[D_0]$ are the exposure times of the image and dark frame respectively. These master frames are stacks of individually calibrated bias, dark, and flat frames. As a result, their signal-to-noise ratio is significantly increased compared to individual unstacked frames, allowing for much better calibration
 
 ### Source Extraction 
 
@@ -83,7 +83,7 @@ Shown is the source extraction versus catalogue projections of our astrometry st
 
 ### Photometry
 
-AutoWISP takes into account the response of the pixels due to the fact that the same amount of light falling on one part of the pixel is likely to produce a different response in a different part of the pixel, this is what we call sub-pixel sensitivity. Non-uniform sensitivity on a sub-pixel level affects the PRF in an image, and the effect depends on where within a pixel the center of the source lies. Thus, it is necessary to correct for the sub-pixel sensitivity variations when deriving PSFs for a given image. For example, for DSLR or color images, we can consider the Bayer mask, which is a filter that is superimposed on the detector with arrangement of pixels sensitive to different colors in super-pixels. Since each color accounts for 1/4th of the super-pixel, the Bayer mask is an extreme version of the varying amount of the sub-pixel sensitivity. When processing a singular color channel, 3/4th of the pixel area can be considered completely insensitive to light.
+**AutoWISP** takes into account the response of the pixels due to the fact that the same amount of light falling on one part of the pixel is likely to produce a different response in a different part of the pixel, this is what we call sub-pixel sensitivity. Non-uniform sensitivity on a sub-pixel level affects the PRF in an image, and the effect depends on where within a pixel the center of the source lies. Thus, it is necessary to correct for the sub-pixel sensitivity variations when deriving PSFs for a given image. For example, for DSLR or color images, we can consider the Bayer mask, which is a filter that is superimposed on the detector with arrangement of pixels sensitive to different colors in super-pixels. Since each color accounts for 1/4th of the super-pixel, the Bayer mask is an extreme version of the varying amount of the sub-pixel sensitivity. When processing a singular color channel, 3/4th of the pixel area can be considered completely insensitive to light.
 
 There are many flavors of photometry. This pipeline supports: point spread function (PSF) or pixel response function (PRF) fitting (where the PRF is the PSF convolved with the sub-pixel sensitivity), and aperture photometry, with aperture photometry requiring PSF fitting.
 
@@ -129,7 +129,7 @@ For a hands-on example, you can explore our Jupyter Notebook which processes a t
 
 [View the interactive Processing Example on GitHub](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
 
-This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
+This interactive notebook provides a practical demonstration of the **AutoWISP** pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
 > [!IMPORTANT]
 > All the following images were created using tools in this repository.
@@ -149,14 +149,14 @@ This is the resulting phase-folded lightcurve for WASP-33 b exoplanet transit, o
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/mad_plot.png">
 </p>
 
-The scatter (median absolute deviation from the median) of the individual channel lightcurves of PANOPTES observations of a $10\times15$ degree field centered on FU Orionis, with each of their corresponding image colors (RGGB). We see that AutoWISP enables a few parts per thousand photometric precision per exposure even from images with Bayer masks, significantly outperforming prior efforts. Even individual color channels result in better than 1% photometry per 2 min exposure.
+The scatter (median absolute deviation from the median) of the individual channel lightcurves of PANOPTES observations of a $10\times15$ degree field centered on FU Orionis, with each of their corresponding image colors (RGGB). We see that **AutoWISP** enables a few parts per thousand photometric precision per exposure even from images with Bayer masks, significantly outperforming prior efforts. Even individual color channels result in better than 1% photometry per 2 min exposure.
 
 ## 🤝 Feedback and Contributions
 
-We've made every effort to implement all the main aspects of AutoWISP in the best possible way. However, the development journey doesn't end here, and your input is crucial for our continuous integration and development.
+We've made every effort to implement all the main aspects of **AutoWISP** in the best possible way. However, the development journey doesn't end here, and your input is crucial for our continuous integration and development.
 
 > [!IMPORTANT]
-> Whether you have feedback on features, have encountered any bugs, or have suggestions for enhancements, we're eager to hear from you. Your insights help us make the AutoWISP package more robust and user-friendly.
+> Whether you have feedback on features, have encountered any bugs, or have suggestions for enhancements, we're eager to hear from you. Your insights help us make the **AutoWISP** package more robust and user-friendly.
 
 Please feel free to contribute by [submitting an issue](https://github.com/kpenev/AutoWISP/issues) or [joining the discussions](https://github.com/kpenev/AutoWISP/discussions). Each contribution helps us grow and improve.
 
@@ -170,10 +170,10 @@ This package is available for free!
 
 ## 🗨️ Contacts
 
-For more details about our usages, services, or any general information regarding the AutoWISP pipeline, feel free to reach out to us. We are here to provide support and answer any questions you may have. Below are the best ways to contact our team:
+For more details about our usages, services, or any general information regarding the **AutoWISP** pipeline, feel free to reach out to us. We are here to provide support and answer any questions you may have. Below are the best ways to contact our team:
 
 - **Email**: Send us your inquiries or support requests at [support_autowisp@gmail.com](mailto:support_autowisp@gmail.com).
 
-We look forward to assisting you and ensuring your experience with AutoWISP is successful and enjoyable!
+We look forward to assisting you and ensuring your experience with **AutoWISP** is successful and enjoyable!
 
 [Back to top](#top)
