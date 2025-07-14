@@ -109,7 +109,7 @@ After extracting flux measurements, we perform ensemble magnitude fitting. The p
 
 ### Light Curve Generation
 
-Next, we create light curves. This is a transpose operation, collecting the photometry of each star from all images and putting them in a single file (the light curve)
+Next, we create light curves. This is a transpose operation, collecting the photometry of each star from all images and putting them in a single file (the light curve) (see [Demonstration](#%EF%B8%8F-demonstration) for an example light curve)
 
  ### Post Processing
 
