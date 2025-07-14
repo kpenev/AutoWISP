@@ -38,14 +38,6 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install **AutoW
     pip install autowisp
 
 ## 📚 Documentation
-
-### Getting Started
-For a hands-on example, you can explore our Jupyter Notebook which processes a test dataset from start to finish.
-
-[View the interactive Processing Example on GitHub](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
-
-This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
-
 To better understand the **AutoWISP** pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site. There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
 
 Briefly, the image processing pipeline steps and their products are shown. The arrows indicate the products of each step and where they will be used.:
@@ -53,6 +45,13 @@ Briefly, the image processing pipeline steps and their products are shown. The a
 <p align="center">
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/PhotometryPipeline.png">
 </p>
+
+## 🛠️ Demonstration
+For a hands-on example, you can explore our Jupyter Notebook which processes a test dataset from start to finish.
+
+[View the interactive Processing Example on GitHub](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
+
+This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
 > [!IMPORTANT]
 > All the following images were created using tools in this repository.
