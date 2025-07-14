@@ -36,11 +36,23 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install AutoWIS
 ## 📚 Documentation
 
 ### Getting Started
-Explore the [Getting Started Guide](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
+For a hands-on example, you can explore our Jupyter Notebook which processes a sample dataset from start to finish.
+
+This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action.
+
+Explore the [View the interactive Processing Example Documentation](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/main/autowisp/tests/test_data/test_data.ipynb).
+
 In this guide, you will go step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
 To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
 There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
+
+Ultimately, you can achieve light curves like the following:
+
+![WASP-33 b with TESS](https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/wasp33_with_tess.png)
+
+This is the resulting phase-folded lightcurve for WASP-33 b exoplanet transit, observed by Project PANOPTES (blue points and circles), TESS (red points), and theoretical light curve based on best known system parameters (green curve). The raw PANOPTES-DSLR measurements, originating from the 4 color channels of 4 cameras in Hawaii (Mauna Loa observatory) and California (Mt Wilson) are shown as blue points. The blue points are binned in time to create the blue circles and corresponding error bars. Note that the scatter in TESS points is not instrumental, but rather it is intrinsic variability in the host star, which is a member of the delta-Scuti class of variable stars.
+
 
 ## 🤝 Feedback and Contributions
 
