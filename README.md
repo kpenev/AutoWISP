@@ -36,13 +36,11 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install AutoWIS
 ## 📚 Documentation
 
 ### Getting Started
-For a hands-on example, you can explore our Jupyter Notebook which processes a sample dataset from start to finish.
+For a hands-on example, you can explore our Jupyter Notebook which processes a test dataset from start to finish.
 
-This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action.
+[View the interactive Processing Example Documentation](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
 
-Explore the [View the interactive Processing Example Documentation](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb) or [View the interactive Processing Example on nbviewer](https://nbviewer.org/github/kpenev/AutoWISP/blob/main/autowisp/tests/test_data/test_data.ipynb).
-
-In this guide, you will go step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
+This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
 To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
 There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
