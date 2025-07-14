@@ -53,6 +53,10 @@ Ultimately, you can achieve light curves like the following:
 
 This is the resulting phase-folded lightcurve for WASP-33 b exoplanet transit, observed by Project PANOPTES (blue points and circles), TESS (red points), and theoretical light curve based on best known system parameters (green curve). The raw PANOPTES-DSLR measurements, originating from the 4 color channels of 4 cameras in Hawaii (Mauna Loa observatory) and California (Mt Wilson) are shown as blue points. The blue points are binned in time to create the blue circles and corresponding error bars. Note that the scatter in TESS points is not instrumental, but rather it is intrinsic variability in the host star, which is a member of the delta-Scuti class of variable stars.
 
+The following image shows the photometric precision of AutoWISP:
+![MAD Plot](https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/mad_plot.png)
+
+The scatter (median absolute deviation from the median) of the individual channel lightcurves of PANOPTES observations of a $10\times15$ degree field centered on FU Orionis, with each of their corresponding image colors (RGGB). We see that AutoWISP enables a few parts per thousand photometric precision per exposure even from images with Bayer masks, significantly outperforming prior efforts. Even individual color channels result in better than 1% photometry per 2 min exposure.
 
 ## 🤝 Feedback and Contributions
 
