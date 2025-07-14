@@ -54,10 +54,6 @@ The general procedures are as follows:
 
 Users input their raw fits images (flat, dark, bias, or object image types as specified from their fits headers). These images are then pre-processed, where master calibration frames are generated, then frames are calibrated with these masters. This is a similar implementation as used by the HATNet, HATSouth, and HATPI projects.
 
-### Source Extraction 
-
-After the pre-processing, we extract the source (star) positions from the images and perform astrometry (plate-solving) to find a transformation that allows us to map sky coordinates (RA, Dec) into image coordinates. This allows the use of external catalogue data for more precise positions of the sources than can be extracted from survey images and the use of auxiliary data provided in the catalogue about each source in the subsequent processing steps of the pipeline.
-
 Here are example dark, flat, bias, object frames (in order as listed) gathered from a Sony-α7R DSLR Camera:
 
 <p align="center">
@@ -67,9 +63,27 @@ Here are example dark, flat, bias, object frames (in order as listed) gathered f
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_object.png">
 </p>
 
+The overall calibration for object frames is given by
+
+\begin{equation}
+    C(I)= \frac{I - O(I) - B_0 - (\frac{\tau[I]}{\tau[D_0]})D_0}{F_0/||F_0||}
+\end{equation}
+
+Where $I$, $O(I)$, and $C(I)$ represent the image, over-scan region, and calibrated image respectively; $B_0$, $D_0$, and $F_0$ represents masters calibration images of bias, dark, and flat respectively; $\tau[I]$ and $\tau[D_0]$ are the exposure times of the image and dark frame respectively \citep{Pal_09}. These master frames are stacks of individually calibrated bias, dark, and flat frames. As a result, their signal-to-noise ratio is significantly increased compared to individual unstacked frames, allowing for much better calibration
+
+### Source Extraction 
+
+After the pre-processing, we extract the source (star) positions from the images and perform astrometry (plate-solving) to find a transformation that allows us to map sky coordinates (RA, Dec) into image coordinates. This allows the use of external catalogue data for more precise positions of the sources than can be extracted from survey images and the use of auxiliary data provided in the catalogue about each source in the subsequent processing steps of the pipeline.
+
 ### Astrometry
 
 Next, for each calibrated object frame, we extract flux measurements, background level, and uncertainties for the catalogue sources found in the image, which map to some position within the frame using the astrometric transformation derived in the previous step. This step is performed using AstroWISP, and we refer the reader to that article for a detailed description. We briefly summarize the process here for completeness. 
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_regions_boxes_square.png">
+</p>
+
+Shown is the source extraction versus catalogue projections of our astrometry step placed on top of the corresponding FITS image, where blue squares are the catalogues projected sources and red squares are the extracted sources from our astrometry
 
 ### Photometry
 
