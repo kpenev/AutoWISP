@@ -47,6 +47,41 @@ Briefly, the image processing pipeline steps and their products are shown. The a
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/PhotometryPipeline.png">
 </p>
 
+The general procedures are as follows:
+
+### Calibration
+Users input their raw fits images (flat, dark, bias, or object image types as specified from their fits headers). These images are then pre-processed, where master calibration frames are generated, then frames are calibrated with these masters. This is a similar implementation as used by the HATNet, HATSouth, and HATPI projects.
+
+### Source Extraction 
+After the pre-processing, we extract the source (star) positions from the images and perform astrometry (plate-solving) to find a transformation that allows us to map sky coordinates (RA, Dec) into image coordinates. This allows the use of external catalogue data for more precise positions of the sources than can be extracted from survey images and the use of auxiliary data provided in the catalogue about each source in the subsequent processing steps of the pipeline.
+
+### Astrometry
+Next, for each calibrated object frame, we extract flux measurements, background level, and uncertainties for the catalogue sources found in the image, which map to some position within the frame using the astrometric transformation derived in the previous step. This step is performed using AstroWISP, and we refer the reader to that article for a detailed description. We briefly summarize the process here for completeness. 
+
+### Photometry
+AutoWISP takes into account the response of the pixels due to the fact that the same amount of light falling on one part of the pixel is likely to produce a different response in a different part of the pixel, this is what we call sub-pixel sensitivity. Non-uniform sensitivity on a sub-pixel level affects the PRF in an image, and the effect depends on where within a pixel the center of the source lies. Thus, it is necessary to correct for the sub-pixel sensitivity variations when deriving PSFs for a given image. For example, for DSLR or color images, we can consider the Bayer mask, which is a filter that is superimposed on the detector with arrangement of pixels sensitive to different colors in super-pixels. Since each color accounts for 1/4th of the super-pixel, the Bayer mask is an extreme version of the varying amount of the sub-pixel sensitivity. When processing a singular color channel, 3/4th of the pixel area can be considered completely insensitive to light.
+
+There are many flavors of photometry. This pipeline supports: point spread function (PSF) or pixel response function (PRF) fitting (where the PRF is the PSF convolved with the sub-pixel sensitivity), and aperture photometry, with aperture photometry requiring PSF fitting.
+
+#### PSF Fitting
+For each point source, we first measure the distribution of light on the detector (the PSF). The idea of PSF fitting is to model that distribution as some smooth parametric function centered on the projected source position with an integral equal to 1. The flux of the source is then found from a least squares scaling between the predicted and observed pixel values. While the flux will differ for each star, the shape parameters are assumed to vary smoothly as a function of source properties and position within the image. In principle, smooth changes can also be imposed across images, though that requires a highly stable observing platform in practice. For our implementation, we also take the sub-pixel sensitivity into account due to the non-uniform sensitivity of the sub-pixel level as previously described. Lastly, we store the PSF information for later use during aperture photometry. 
+
+#### PRF Fitting  
+Similar to the PSF, we can perform PRF fitting. The PRF can be thought of as a super-resolution image of the light of a star falling on the individual pixels, where it is represented as a continuous piecewise polynomial function of sub-pixel position on each pixel (i.e., the PSF convolved with the sub-pixel sensitivity).
+
+#### Aperture Photometry
+After PSF fitting, we perform aperture photometry, a photometry method that sums the flux within a circular aperture centered on each source. For aperture photometry, we correct for non–uniform pixels by using the sub-pixel sensitivity information/map and adequately integrate the PSF model to determine the fractional contributions of pixels straddling the aperture boundary.
+
+### Magnitude Fitting
+After extracting flux measurements, we perform ensemble magnitude fitting. The photometry of individual frames is calibrated to the photometry of a reference frame by applying a correction as a smooth function of image position, brightness, color, and other user-specified parameters. This procedure excludes stars showing significantly larger variability than other similarly bright stars and is repeated multiple times, where the reference frame is replaced with a stack of many frames corrected in the previous iteration.
+
+### Light Curve Generation
+Next, we create light curves. This is a transpose operation, collecting the photometry of each star from all images and putting them in a single file (the light curve)
+
+ ### Post Processing
+Finally, after producing light curves, we perform post-processing using external parameter decorrelation (EPD) and trend filtering algorithm (TFA) to correct effects not corrected during magnitude fitting, further improving photometric precision.
+
+
 ## 🛠️ Demonstration
 For a hands-on example, you can explore our Jupyter Notebook which processes a test dataset from start to finish.
 
