@@ -47,9 +47,9 @@ In this guide, you will go step by step in the pipeline, producing the correspon
 To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
 There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
 
-> [!DISCLAIMER]
+> [!IMPORTANT]
 > All the following images were created using tools in this repository.
-
+> 
 ### Example Light Curves
 
 ![WASP-33 b with TESS](https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/wasp33_with_tess.png)
