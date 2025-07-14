@@ -58,6 +58,15 @@ Users input their raw fits images (flat, dark, bias, or object image types as sp
 
 After the pre-processing, we extract the source (star) positions from the images and perform astrometry (plate-solving) to find a transformation that allows us to map sky coordinates (RA, Dec) into image coordinates. This allows the use of external catalogue data for more precise positions of the sources than can be extracted from survey images and the use of auxiliary data provided in the catalogue about each source in the subsequent processing steps of the pipeline.
 
+Here are example dark, flat, bias, object frames (in order as listed) gathered from a Sony-α7R DSLR Camera:
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_dark.png">
+    <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_flat.png">
+    <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_bias.png">
+    <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_object.png">
+</p>
+
 ### Astrometry
 
 Next, for each calibrated object frame, we extract flux measurements, background level, and uncertainties for the catalogue sources found in the image, which map to some position within the frame using the astrometric transformation derived in the previous step. This step is performed using AstroWISP, and we refer the reader to that article for a detailed description. We briefly summarize the process here for completeness. 
