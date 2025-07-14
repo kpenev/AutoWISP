@@ -1,12 +1,12 @@
 <a name="top"></a>
-[![AutoWISP](https://github.com/kpenev/AutoWISP/blob/master/AutoWISP.png)](https://github.com/kpenev/AutoWISP)
+[![AutoWISP](https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/AutoWISP.png)](https://github.com/kpenev/AutoWISP)
 [![language](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)](https://www.python.org/about/)
 [![OS](https://img.shields.io/badge/OS-linux%2C%20windows%2C%20macOS-0078D4)](https://github.com/kpenev/AutoWISP/tree/master/documentation)
 [![CPU](https://img.shields.io/badge/CPU-x86%2C%20x64%2C%20ARM%2C%20ARM64-FF8C00)](https://github.com/kpenev/AutoWISP/tree/master/documentation)
 [![GitHub release](https://img.shields.io/github/v/release/kpenev/AutoWISP)](#)
 [![GitHub release date](https://img.shields.io/github/release-date/kpenev/AutoWISP)](#)
 [![GitHub last commit](https://img.shields.io/github/last-commit/kpenev/AutoWISP)](#)
-[![getting started](https://img.shields.io/badge/getting_started-guide-1D76DB)](https://github.com/kpenev/AutoWISP/tree/master/documentation)
+[![getting started](https://img.shields.io/badge/getting_started-guide-1D76DB)](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb)
 [![Free](https://img.shields.io/badge/free_for_non_commercial_use-brightgreen)](#-license)
 
 ⭐ Star us on GitHub — it motivates us a lot!
