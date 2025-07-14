@@ -63,13 +63,13 @@ AutoWISP takes into account the response of the pixels due to the fact that the 
 
 There are many flavors of photometry. This pipeline supports: point spread function (PSF) or pixel response function (PRF) fitting (where the PRF is the PSF convolved with the sub-pixel sensitivity), and aperture photometry, with aperture photometry requiring PSF fitting.
 
-#### PSF Fitting
+#### PSF Fitting:
 For each point source, we first measure the distribution of light on the detector (the PSF). The idea of PSF fitting is to model that distribution as some smooth parametric function centered on the projected source position with an integral equal to 1. The flux of the source is then found from a least squares scaling between the predicted and observed pixel values. While the flux will differ for each star, the shape parameters are assumed to vary smoothly as a function of source properties and position within the image. In principle, smooth changes can also be imposed across images, though that requires a highly stable observing platform in practice. For our implementation, we also take the sub-pixel sensitivity into account due to the non-uniform sensitivity of the sub-pixel level as previously described. Lastly, we store the PSF information for later use during aperture photometry. 
 
-#### PRF Fitting  
+#### PRF Fitting:
 Similar to the PSF, we can perform PRF fitting. The PRF can be thought of as a super-resolution image of the light of a star falling on the individual pixels, where it is represented as a continuous piecewise polynomial function of sub-pixel position on each pixel (i.e., the PSF convolved with the sub-pixel sensitivity).
 
-#### Aperture Photometry
+#### Aperture Photometry:
 After PSF fitting, we perform aperture photometry, a photometry method that sums the flux within a circular aperture centered on each source. For aperture photometry, we correct for non–uniform pixels by using the sub-pixel sensitivity information/map and adequately integrate the PSF model to determine the fractional contributions of pixels straddling the aperture boundary.
 
 ### Magnitude Fitting
