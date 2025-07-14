@@ -112,6 +112,7 @@ Next, we create light curves. This is a transpose operation, collecting the phot
 Finally, after producing light curves, we perform post-processing using external parameter decorrelation (EPD) and trend filtering algorithm (TFA) to correct effects not corrected during magnitude fitting, further improving photometric precision.
 
 Here we show the overall improvement from our post-processing steps for the Sony-α7R DSLR Camera dataset used:
+
 The scatter (median absolute deviation from the median (MAD)) of the individual channel light curves vs. GAIA G magnitude before EPD (only magnitude-fitting) (indicated by yellow points), after EPD but before TFA (indicated by purple points), and after TFA (indicated by their corresponding channel color (B (blue), G1 (green), G2 (green), R (red)) points).
 
 <p align="center">
