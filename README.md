@@ -63,9 +63,7 @@ Here are example dark, flat, bias, object frames (in order as listed) gathered f
     <img src="https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/ds9_object.png">
 </p>
 
-The overall calibration for object frames is given by
-
-$C(I)= \frac{I - O(I) - B_0 - (\frac{\tau[I]}{\tau[D_0]})D_0}{F_0/||F_0||}$
+The overall calibration for object frames is given by $C(I)= \frac{I - O(I) - B_0 - (\frac{\tau[I]}{\tau[D_0]})D_0}{F_0/||F_0||}$.
 
 Where $I$, $O(I)$, and $C(I)$ represent the image, over-scan region, and calibrated image respectively; $B_0$, $D_0$, and $F_0$ represents masters calibration images of bias, dark, and flat respectively; $\tau[I]$ and $\tau[D_0]$ are the exposure times of the image and dark frame respectively \citep{Pal_09}. These master frames are stacks of individually calibrated bias, dark, and flat frames. As a result, their signal-to-noise ratio is significantly increased compared to individual unstacked frames, allowing for much better calibration
 
