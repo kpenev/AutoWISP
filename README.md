@@ -92,7 +92,8 @@ Next, we create light curves. This is a transpose operation, collecting the phot
 
 Finally, after producing light curves, we perform post-processing using external parameter decorrelation (EPD) and trend filtering algorithm (TFA) to correct effects not corrected during magnitude fitting, further improving photometric precision.
 
-## 🛠️ Demonstration
+## ⚙️ Demonstration
+
 
 For a hands-on example, you can explore our Jupyter Notebook which processes a test dataset from start to finish.
 
