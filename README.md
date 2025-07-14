@@ -21,7 +21,9 @@
 
 ## 🚀 About
 
-**AutoWISP** is a Python package designed to allow users to automatically create and de-trend light curves from their astronomical data. It adheres to high standards of flexibility, reusability, and reliability, utilizing well-known software design patterns, including modular and hexagonal architectures. These patterns ensure the following benefits:
+**AutoWISP** is a software pipeline for extracting high-precision photometry from astronomical observations, with special features designed for consumer-grade color cameras (e.g., DSLRs). Developed to empower citizen scientists, **AutoWISP** provides a complete, automated workflow from raw images to science-ready light curves, enabling transformative contributions to time-domain astronomy.  
+
+It adheres to high standards of flexibility, reusability, and reliability, utilizing well-known software design patterns, including modular and hexagonal architectures. These patterns ensure the following benefits:
 
 - **Modularity**: Different parts of the package can function independently, enhancing the package's modularity and allowing for easier maintenance and updates.
 - **Testability**: Improved separation of concerns makes the code more testable.
@@ -29,7 +31,9 @@
 
 ## 📝 How to Install
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install AutoWISP.
+**AutoWISP** is a Python 3 package. The core AstroWISP components are pre-compiled for all major operating systems (Windows, macOS, Linux) and included in the distribution.
+
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install **AutoWISP**.
 
     pip install autowisp
 
@@ -42,8 +46,11 @@ For a hands-on example, you can explore our Jupyter Notebook which processes a t
 
 This interactive notebook provides a practical demonstration of the AutoWISP pipeline in action, going step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
-To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
-There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
+To better understand the **AutoWISP** pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site. There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
+
+Briefly, the pipeline is shown in the following diagram:
+![Pipeline](https://raw.githubusercontent.com/kpenev/AutoWISP/master/.github/images/PhotometryPipeline.png)
+
 
 > [!IMPORTANT]
 > All the following images were created using tools in this repository.
