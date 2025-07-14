@@ -15,7 +15,7 @@
 - [About](#-about)
 - [How to Install](#-how-to-install)
 - [Documentation](#-documentation)
-- [Demonstration](#-demonstration)
+- [Demonstration](#%EF%B8%8F-demonstration)
 - [Feedback and Contributions](#-feedback-and-contributions)
 - [License](#-license)
 - [Contacts](#%EF%B8%8F-contacts)
