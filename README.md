@@ -36,10 +36,8 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install AutoWIS
 ## 📚 Documentation
 
 ### Getting Started
-Explore the [Getting Started Guide](https://github.com/kpenev/AutoWISP/tree/master/documentation).
-In this guide, you will go step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves.
-
-** See below for usage of each step, included is a configuration file to perform the tests.
+Explore the [Getting Started Guide](https://github.com/kpenev/AutoWISP/blob/master/autowisp/tests/test_data/test_data.ipynb).
+In this guide, you will go step by step in the pipeline, producing the corresponding files needed for each step and ultimately creating light curves using a test dataset we provide.
 
 To better understand the AutoWISP pipeline, we recommend visiting our [Documentation](https://github.com/kpenev/AutoWISP/tree/master/documentation) site.
 There, you will find useful information about the individual steps, database, and/or browser-user-interface (currently under development).
