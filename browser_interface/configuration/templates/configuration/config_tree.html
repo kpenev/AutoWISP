@@ -170,49 +170,6 @@
             }
 
         </script>
-        <script>
-            let hasUnsavedChanges = false;
-          
-            window.addEventListener('DOMContentLoaded', () => 
-            {
-                //watch for changes, if it is detected mark as unsaved
-              document.querySelectorAll('input, textarea, select').forEach((el) => 
-              {
-                el.addEventListener('input', () => 
-                {
-                  hasUnsavedChanges = true;
-                });
-              });
-              // if save button is clicked, mark as saved
-              const saveBtn = document.querySelector('button, input[type="submit"]');
-              if (saveBtn) 
-              {
-                saveBtn.addEventListener('click', () => 
-                {
-                  hasUnsavedChanges = false;
-                });
-              }
-              //if any link is clicked, check for unsaved changes
-              document.querySelectorAll('a').forEach((link) => 
-              {
-                link.addEventListener('click', function (e) 
-                {
-                  if (hasUnsavedChanges && !confirm("You have unsaved changes. Are you sure you want to leave?")) {
-                    e.preventDefault();
-                  }
-                });
-              });
-            });
-            //warning before leaving the page through other means
-            window.addEventListener('beforeunload', function (e) 
-            {
-              if (!hasUnsavedChanges) return;
-              const msg = 'You have unsaved changes. Are you sure you want to leave?';
-              e.preventDefault();
-              e.returnValue = msg;
-              return msg;
-            });
-          </script>
           
     </body>
 </html>

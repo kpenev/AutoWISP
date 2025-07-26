@@ -251,6 +251,69 @@ class configTree {
 
     async save(saveURL)
     {
+        hasUnsavedChanges = false;
         postJson(saveURL, this.data).then(function() {location.reload();});
     }
+
 }
+
+// track unsaved changes
+let hasUnsavedChanges = false;
+
+// mark form as changed 
+function trackFormChanges() 
+{
+    document.querySelectorAll('input, textarea, select').forEach((el) => {
+        el.addEventListener('input', () => { hasUnsavedChanges = true; });
+        el.addEventListener('change', () => { hasUnsavedChanges = true; });
+});
+}
+
+// reset when save configuration is clicked
+function registerSaveButtonHandler() 
+{
+    const saveBtn = document.querySelector('button, input[type="submit"]');
+    if (saveBtn) 
+    {
+        saveBtn.addEventListener('click', () => 
+        {
+            hasUnsavedChanges = false;
+        });
+    }
+}
+
+// show confirm when trying to leave the page
+function handleLinkNavigation(e) 
+{
+    if (hasUnsavedChanges && !confirm("You have unsaved changes. Are you sure you want to leave?")) 
+    {
+        e.preventDefault();
+    }
+}
+
+// show confirm when doing anything else 
+function handleBeforeUnload(e) 
+{
+    if (!hasUnsavedChanges) return;
+    const message = 'You have unsaved changes. Are you sure you want to leave?';
+    e.preventDefault();
+    e.returnValue = message;
+    return message;
+}
+
+
+function initUnsavedChangesWarning() 
+{
+    trackFormChanges();
+    registerSaveButtonHandler();
+
+    document.querySelectorAll('a').forEach((link) => 
+    {
+        link.addEventListener('click', handleLinkNavigation);
+    });
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+}
+
+
+window.addEventListener('DOMContentLoaded', initUnsavedChangesWarning);
