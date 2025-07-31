@@ -423,11 +423,11 @@ def get_initial_corr(
         return get_initial_corr_local(
             *initial_corr_arg, config["anet_indices"]
         )
-    else:
-        with web_lock:
-            return get_initial_corr_web(
-                *initial_corr_arg, config["anet_api_key"]
-            )
+
+    with web_lock:
+        return get_initial_corr_web(
+            *initial_corr_arg, config["anet_api_key"]
+        )
 
 def estimate_transformation(
     *, config, **initial_corr_kwarg
