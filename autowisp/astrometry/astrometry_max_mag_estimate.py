@@ -3,13 +3,14 @@
 """Find the appropriate astrometry-catalog-max-magnitude based on the
 flux threshold"""
 
-import contextlib
+# import contextlib
 import pandas as pd
 import numpy as np
 from configargparse import ArgumentParser, DefaultsFormatter
 
 from astropy.coordinates import SkyCoord
 from astropy import units
+from asteval import Interpreter
 from scipy.spatial import cKDTree
 
 from autowisp import DataReductionFile
@@ -19,14 +20,6 @@ from autowisp.processing_steps.solve_astrometry import (
     prepare_configuration,
 )
 from autowisp.catalog import create_catalog_file, read_catalog_file
-
-###########################
-# 1. why shouldn't we grab the fov estimate directly from solved ast.net?
-# instead of setting it up in the config manually while the value from
-# astrometry.net is a good one?
-# if so, how can we get it from local astrometry.net?
-# (online version gives it in the response page)
-###########################
 
 
 def parse_command_line():
@@ -51,6 +44,17 @@ def parse_command_line():
         required=True,
         help="Flux threshold for matching",
     )
+    parser.add_argument(
+        "--image_margin",
+        "-m",
+        type=float,
+        default=1.1,
+        help="Image margin for finding the magnitude of the faintest star" \
+        "of the brightest stars that fits in the image. It is a safety" \
+        "margin to account for: some extracted sources are fake, and not all" \
+        "real sources are extracted." \
+        "(default: 1.1)",
+    )
 
     add_anet_cmdline_args(parser)
 
@@ -72,16 +76,13 @@ def read_dr_file(dr_path, cmdline_args):
         the DR file.
     """
 
-    #### Had to use this to discard the web lock ###
-    #### Need fixing ###############################
     if not isinstance(cmdline_args, dict):
         config = vars(cmdline_args)
     else:
         config = cmdline_args
 
-    web_lock = contextlib.nullcontext()
+    # web_lock = contextlib.nullcontext()
 
-    #### Similar to what we do in the beginning of the solve_image function ##
     with DataReductionFile(dr_path, "r") as dr_file:
 
         dr_header = dr_file.get_frame_header()
@@ -115,7 +116,7 @@ def read_dr_file(dr_path, cmdline_args):
             xy_extracted=xy_extracted_struct,
             config=config,
             header=None,
-            web_lock=web_lock,
+            # web_lock=web_lock,
         )
         print(type(field_corr))
         print(field_corr)
@@ -162,7 +163,7 @@ def match_sources(field_corr, dr_df):
     n_extracted = dr_df.shape[0]
 
     print(
-        f"Out of {n_extracted} extracted sources, "
+        f"\nOut of {n_extracted} extracted sources, "
         f"corr_matched is found as: \n {corr_matched} "
     )
 
@@ -171,7 +172,11 @@ def match_sources(field_corr, dr_df):
 
 # pylint: disable=too-many-locals
 def query_gaia(
-    corr_matched, n_extracted, image_scale_factor, frame_fov_estimate=None
+    corr_matched,
+    n_extracted,
+    image_scale_factor,
+    frame_fov_estimate=None,
+    image_margin=1.1
 ):
     """
     Query Gaia DR3 catalog for sources matching the extracted sources.
@@ -194,8 +199,8 @@ def query_gaia(
     ra_center = np.mean(corr_matched["field_ra"])
     dec_center = np.mean(corr_matched["field_dec"])
 
-    height = float(frame_fov_estimate[0])
-    width = float(frame_fov_estimate[1])
+    height = Interpreter({'units': units})(frame_fov_estimate[0])
+    width = Interpreter({'units': units})(frame_fov_estimate[1])
 
     create_catalog_file(
         "cat.fits",
@@ -231,12 +236,12 @@ def query_gaia(
     match_mask = d2d < 5.0 * units.arcsec
     print(f"Matched {np.sum(match_mask)} sources out of {len(corr_matched)}")
 
-    ##### Probably change the 10% to a cmdline argument?
     g_mag_10_percent = round(
-        gaia_results.iloc[int(n_extracted * 1.1)]["phot_g_mean_mag"], 2
+        gaia_results.iloc[int(n_extracted * image_margin)]["phot_g_mean_mag"], 2
     )
     print(
-        f"Gaia G magnitude of the 10% brightest sources:" f"{g_mag_10_percent}"
+        f"Gaia G mag of the faintest star among {n_extracted} * {image_margin} "
+        f"brightest sources in the FOV: {g_mag_10_percent} "
     )
 
     # Assign Gaia G magnitude to sources
@@ -268,6 +273,7 @@ def main():
             n_extracted,
             image_scale_factor,
             cmdline_args.frame_fov_estimate,
+            cmdline_args.image_margin,
         )
         corr_matched_sorted["cum_median"] = (
             (
@@ -280,7 +286,9 @@ def main():
         y0 = corr_matched_sorted["cum_median"].iloc[3]  # top 3 faintest sources
         mags.append(-2.5 * np.log10(flux_threshold) + y0 + 0.2)
 
-    print(f"max_mag_astrometry ~ {np.array(mags).mean():.2f}")
+    print(f"Suggested max_mag_astrometry based on "
+          f"matching flux and mag ~ {np.array(mags).mean():.2f}")
+
 
 
 if __name__ == "__main__":
