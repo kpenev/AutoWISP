@@ -16,23 +16,25 @@
 
                 <!-- ELBOW -->
                 <div class="lcars-elbow left-bottom lcars-golden-tanoi-bg"></div>
-                {% for dpath, dname in parent_dir_list %}
-                <div class="lcars-bar horizontal left-end lcars-melrose-bg"></div>
-                <a href={% url 'processing:select_raw_images' dirname=dpath %}>
-                    <div class="lcars-bar 
-                                horizontal 
-                                lcars-u-2 
-                                lcars-melrose-bg">
-                        {{dname}} 
-                    </div>
-                </a>
-                {% if forloop.last %}
-                <input type="hidden" 
-                       form="update_img_selector" 
-                       name="currentdir" 
-                       value="{{dpath}}"/>
-                {% endif %}
-                {% endfor %}
+                <!-- scrollable path added  -->
+                <div class="scrollable-path" style="overflow-x: auto; white-space: nowrap;"> 
+                    {% for dpath, dname in parent_dir_list %}
+                    <a href={% url 'processing:select_raw_images' dirname=dpath %} class="scrollable-item">
+                        <div class="lcars-bar 
+                                    horizontal 
+                                    lcars-u-2 
+                                    lcars-melrose-bg">
+                            {{dname}} 
+                        </div>
+                    </a>
+                    {% if forloop.last %}
+                    <input type="hidden" 
+                           form="update_img_selector" 
+                           name="currentdir" 
+                           value="{{dpath}}"/>
+                    {% endif %}
+                    {% endfor %}
+                </div>
 
                 <div class="lcars-bar horizontal">
                     <div class="lcars-title right">ADDING RAW IMAGES</div>

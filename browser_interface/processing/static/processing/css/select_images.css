@@ -26,3 +26,33 @@ body {
     font-size: 200%;
     background-color: #388e3c;
 }
+
+/* Scrollable Path styling */
+.scrollable-path {
+    display: flex;
+    flex-wrap: nowrap; 
+    overflow-x: auto; 
+    white-space: nowrap;
+    align-items: center; 
+    height: auto;
+    padding: 0; 
+    margin: 0;
+    scrollbar-width: thin;
+}
+
+.scrollable-item {
+    flex-shrink: 0; 
+    margin-right: 2px; 
+}
+
+.scrollable-path::-webkit-scrollbar {
+    height: 3px; 
+}
+
+.scrollable-path::-webkit-scrollbar-thumb {
+    background-color: #81d4fa;
+    border-radius: 4px;
+}
+
+
+

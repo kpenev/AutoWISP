@@ -108,9 +108,9 @@ class SelectRawImages(View):
 
         dir_name = request.POST['currentdir']
         image_list = []
-        selected = request.POST['selected']
-        if isinstance(selected, str):
-            selected = [selected]
+        # changed this line to use getList to handle multiple selections
+        selected = request.POST.getlist('selected')
+        
         for item_name in selected:
             full_path = path.join(dir_name, item_name)
             if path.isdir(full_path):
@@ -121,15 +121,16 @@ class SelectRawImages(View):
                 assert path.isfile(full_path)
                 image_list.append(full_path)
 
-            try:
-                ImageProcessingManager().add_raw_images(image_list)
-            except OSError:
-                logger.error("OSError occurred while adding raw images",
-                             exc_info=True
-                )
-                return HttpResponseRedirect(
-                    reverse('processing:select_raw_images')
-                )
+        # moved this try block outside the loop so it adds it after it builds the full list to prevent duplicates    
+        try:
+            ImageProcessingManager().add_raw_images(image_list)
+        except OSError:
+            logger.error("OSError occurred while adding raw images",
+                            exc_info=True
+            )
+            return HttpResponseRedirect(
+                reverse('processing:select_raw_images')
+            )
 
 
         return HttpResponseRedirect(
