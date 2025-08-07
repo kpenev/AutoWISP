@@ -151,6 +151,12 @@ class Client(object):
 
         request = Request(url=url, headers=headers, data=data)
 
+        # Add session cookie if available
+        if self.session is not None:
+            request.add_header('Cookie', f'session={self.session}')
+        # Optionally add Referer header as well
+        request.add_header('Referer', 'https://nova.astrometry.net/api/login')
+        
         for _ in range(20):
             try:
                 f = urlopen(request)
