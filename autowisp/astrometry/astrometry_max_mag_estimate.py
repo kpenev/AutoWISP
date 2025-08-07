@@ -3,7 +3,7 @@
 """Find the appropriate astrometry-catalog-max-magnitude based on the
 flux threshold"""
 
-# import contextlib
+import contextlib
 import pandas as pd
 import numpy as np
 from configargparse import ArgumentParser, DefaultsFormatter
@@ -30,7 +30,7 @@ def parse_command_line():
         formatter_class=DefaultsFormatter,
     )
     parser.add_argument(
-        "--dr_paths",
+        "--dr-paths",
         "-d",
         nargs="+",
         type=str,
@@ -38,21 +38,21 @@ def parse_command_line():
         help="Path to the DR source extract file(s)",
     )
     parser.add_argument(
-        "--flux_threshold",
+        "--flux-threshold",
         "-f",
         type=float,
         required=True,
         help="Flux threshold for matching",
     )
     parser.add_argument(
-        "--image_margin",
+        "--image-margin",
         "-m",
         type=float,
         default=1.1,
-        help="Image margin for finding the magnitude of the faintest star" \
-        "of the brightest stars that fits in the image. It is a safety" \
-        "margin to account for: some extracted sources are fake, and not all" \
-        "real sources are extracted." \
+        help="Image margin for finding the magnitude of the faintest star"
+        "of the brightest stars that fits in the image. It is a safety"
+        "margin to account for: some extracted sources are fake, and not all"
+        "real sources are extracted."
         "(default: 1.1)",
     )
 
@@ -81,7 +81,7 @@ def read_dr_file(dr_path, cmdline_args):
     else:
         config = cmdline_args
 
-    # web_lock = contextlib.nullcontext()
+    web_lock = contextlib.nullcontext()
 
     with DataReductionFile(dr_path, "r") as dr_file:
 
@@ -116,9 +116,8 @@ def read_dr_file(dr_path, cmdline_args):
             xy_extracted=xy_extracted_struct,
             config=config,
             header=None,
-            # web_lock=web_lock,
+            web_lock=web_lock,
         )
-        print(type(field_corr))
         print(field_corr)
 
     return field_corr, dr_df
@@ -288,7 +287,6 @@ def main():
 
     print(f"Suggested max_mag_astrometry based on "
           f"matching flux and mag ~ {np.array(mags).mean():.2f}")
-
 
 
 if __name__ == "__main__":
