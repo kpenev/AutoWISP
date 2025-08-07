@@ -39,32 +39,9 @@ fail_reasons = {
 }
 
 
-def parse_command_line(*args):
-    """Return the parsed command line arguments."""
-
-    parser = ManualStepArgumentParser(
-        description=__doc__,
-        input_type=("" if args else input_type),
-        inputs_help_extra="The DR files must already contain extracted sources",
-        add_catalog={"prefix": "astrometry"},
-        add_component_versions=("srcextract", "catalogue", "skytoframe"),
-        allow_parallel_processing=True,
-    )
-    parser.add_argument(
-        "--reuse-transformation-key",
-        default="RAWFNAME",
-        help="Expression involving  header keywords that results in unique "
-        "value for each group of frames representing separate channels of the "
-        "same raw image.",
-    )
-    parser.add_argument(
-        "--astrometry-only-if",
-        default="True",
-        help="Expression involving the header of the input images that "
-        "evaluates to True/False if a particular image from the specified "
-        "image collection should/should not be processed.",
-    )
-
+def add_anet_cmdline_args(parser):
+    """Add to parser all command line arguments needed to run astrometry.net."""
+   
     parser.add_argument(
         "--anet-indices",
         nargs=2,
@@ -99,6 +76,46 @@ def parse_command_line(*args):
         "view of the catalog divided by ``--image-scale-factor`` is used.",
     )
     parser.add_argument(
+        "--tweak-order",
+        type=int,
+        nargs=2,
+        default=(2, 5),
+        help="Range of tweak arguments to solve-field to try.",
+    )
+    parser.add_argument(
+        "--image-scale-factor",
+        type=float,
+        default=1.3,
+        help="Astrometry.net solution is searched with scale ranging from "
+        "fov/image_scale_factor to fov * image_scale_factor.",
+    )
+
+def parse_command_line(*args):
+    """Return the parsed command line arguments."""
+
+    parser = ManualStepArgumentParser(
+        description=__doc__,
+        input_type=("" if args else input_type),
+        inputs_help_extra="The DR files must already contain extracted sources",
+        add_catalog={"prefix": "astrometry"},
+        add_component_versions=("srcextract", "catalogue", "skytoframe"),
+        allow_parallel_processing=True,
+    )
+    parser.add_argument(
+        "--reuse-transformation-key",
+        default="RAWFNAME",
+        help="Expression involving  header keywords that results in unique "
+        "value for each group of frames representing separate channels of the "
+        "same raw image.",
+    )
+    parser.add_argument(
+        "--astrometry-only-if",
+        default="True",
+        help="Expression involving the header of the input images that "
+        "evaluates to True/False if a particular image from the specified "
+        "image collection should/should not be processed.",
+    )
+    parser.add_argument(
         "--max-srcmatch-distance",
         type=float,
         default=1.0,
@@ -124,13 +141,6 @@ def parse_command_line(*args):
         "this factor.",
     )
     parser.add_argument(
-        "--tweak-order",
-        type=int,
-        nargs=2,
-        default=(2, 5),
-        help="Range of tweak arguments to solve-field to try.",
-    )
-    parser.add_argument(
         "--trans-threshold",
         type=float,
         default=0.005,
@@ -143,13 +153,6 @@ def parse_command_line(*args):
         default=20,
         help="The maximum number of iterations the astrometry solution can "
         "pass.",
-    )
-    parser.add_argument(
-        "--image-scale-factor",
-        type=float,
-        default=1.3,
-        help="Astrometry.net solution is searched with scale ranging from "
-        "fov/image_scale_factor to fov * image_scale_factor.",
     )
     parser.add_argument(
         "--min-match-fraction",
@@ -165,7 +168,7 @@ def parse_command_line(*args):
         help="The maximum RMS distance between projected and extracted "
         "positions for the astrometry solution to be considered valid.",
     )
-
+    add_anet_cmdline_args(parser)
     result = parser.parse_args(*args)
     if result["astrometry_catalog_filter"] is not None:
         result["astrometry_catalog_filter"] = dict(

@@ -402,8 +402,7 @@ def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range, api
 
     return "web solve failed", 0
 
-
-def estimate_transformation(
+def get_initial_corr(
     *, dr_file, xy_extracted, config, header=None, web_lock=None
 ):
     """Attempt to estimate the sky-to-frame transformation for given DR file."""
@@ -421,14 +420,23 @@ def estimate_transformation(
         and os.path.exists(config["anet_indices"][0])
         and os.path.exists(config["anet_indices"][1])
     ):
-        field_corr, tweak_order = get_initial_corr_local(
+        return get_initial_corr_local(
             *initial_corr_arg, config["anet_indices"]
         )
-    else:
-        with web_lock:
-            field_corr, tweak_order = get_initial_corr_web(
-                *initial_corr_arg, config["anet_api_key"]
-            )
+
+    with web_lock:
+        return get_initial_corr_web(
+            *initial_corr_arg, config["anet_api_key"]
+        )
+
+def estimate_transformation(
+    *, config, **initial_corr_kwarg
+):
+    """Attempt to estimate the sky-to-frame transformation for given DR file."""
+
+    field_corr, tweak_order = get_initial_corr(
+        config=config, **initial_corr_kwarg
+    )
 
     if tweak_order == 0:
         return None, None, field_corr
