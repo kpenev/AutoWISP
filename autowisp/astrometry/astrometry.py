@@ -7,7 +7,7 @@ import subprocess
 import os
 from traceback import format_exc
 import time
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 from urllib.error import URLError
 import shutil
 
@@ -393,7 +393,12 @@ def get_initial_corr_web(header, xy_extracted, tweak_order_range, fov_range, api
 
         with TempAstrometryFiles(("corr",)) as (corr_fname,):
             _logger.debug("Retrieving file from '%s' to '%s'", corr_url, corr_fname)
-            with urlopen(corr_url) as remote_corr, open(corr_fname, "wb") as local_corr:
+            headers = {
+                "Referer": "https://nova.astrometry.net/api/login",
+                "Cookie": f"session={client.session}",
+            }
+            req = Request(corr_url, headers=headers)
+            with urlopen(req) as remote_corr, open(corr_fname, "wb") as local_corr:
                 shutil.copyfileobj(remote_corr, local_corr)
             with fits.open(corr_fname, mode="readonly") as corr:
                 result = numpy.copy(corr[1].data[:])
