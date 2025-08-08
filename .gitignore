@@ -118,4 +118,6 @@ ENV/
 
 # AppleDouble
 .AppleDouble
+
+# Ignore database file
 autowisp/database/autowisp.db
