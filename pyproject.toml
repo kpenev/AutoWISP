@@ -62,7 +62,7 @@ dependencies = [
 
 description = 'Pipeline for extracting photometry from wide-field night sky images'
 
-readme = 'README.rst'
+readme = 'README.md'
 
 requires-python = '>3.7'
 

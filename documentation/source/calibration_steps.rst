@@ -13,15 +13,16 @@ is:
         input.
 
     calibrate raw dark images using the master bias
-        ``wisp-calibrate`` with the ``--master-bias`` option set to the master
-        bias file generated in the step above.
+        ``wisp-calibrate`` with the :option:`master-bias` option set to the
+        master bias file generated in the step above.
 
     generate master dark image
         Just like generating master bias but using the calibrated dark images.
 
     calibrate the raw flat images
-        ``wisp-calibrate`` with the ``--master-bias`` option set to the master
-        bias file and the ``--master-dark`` option set to the master dark.
+        ``wisp-calibrate`` with the :option:`master-bias` option set to the
+        master bias file and the :option:`master-dark` option set to the master
+        dark.
 
     generate master flat image(s)
         ``wisp-stack-to-master-flat`` command. This is different from how master
@@ -30,8 +31,8 @@ is:
         uniformly bright. 
 
     calibrate raw object images
-        ``wisp-calibrate`` with ``--master-bias``, ``--master-dark``, and 
-        ``--master-flat`` all specified.
+        ``wisp-calibrate`` with :option:`master-bias`,
+        :option:`master-dark`, and :option:`master-flat` all specified.
 
 In case calibration data is not available, only the last of these steps needs to
 be performed, with no masters specified (see below). Even though in this case
@@ -63,7 +64,7 @@ scheme, the master frames are used only to capture the pixel to pixel
 differences in bias and dark current. We refer to these areas as "overscan",
 although that term really means only one type of such area.
 
-Overscan area(s) can be specified using the ``--overscans`` option of the
+Overscan area(s) can be specified using the :option:`overscans` option of the
 ``wisp-calibrate`` command.
 
 Important parameters
@@ -71,18 +72,18 @@ Important parameters
 
 The most important parameters to set for the calibration are:
 
-* :wisp-option:`exposure-start-utc` or :wisp-option:`exposure-start-jd``
+* :option:`exposure-start-utc` or :option:`exposure-start-jd`
 
-* :wisp-option:`exposure-seconds`
+* :option:`exposure-seconds`
 
-* :wisp-option:`saturation-threshold`
+* :option:`saturation-threshold`
 
-* :wisp-option:`fnum`
+* :option:`fnum`
 
-* :wisp-option:`image-area`: If your camera generates images with overscan or
+* :option:`image-area`: If your camera generates images with overscan or
   other areas that are not part of the image.
 
-* :wisp-option:`split-channels` or :wisp-option:`raw-hdu`: If using a color
+* :option:`split-channels` or :option:`raw-hdu`: If using a color
   detector
 
-* :wisp-option:`gain`: If known. Used for accurate error estimates.
+* :option:`gain`: If known. Used for accurate error estimates.
