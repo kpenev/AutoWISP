@@ -378,7 +378,7 @@ def get_aperture_photometry_inputs(dr_file, **path_substitutions):
         dict:
             All parameters required by
             astrowisp.IOTree.set_aperture_photometry_inputs() directly
-            passable to that method using **.
+            passable to that method through dict unpacking.
 
         str:
             The expression defining which terms the PSF/PRF depends on.

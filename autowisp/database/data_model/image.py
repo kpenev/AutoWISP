@@ -55,7 +55,7 @@ class ProcessedImages(DataModelBase):
         Boolean,
         nullable=False,
         doc="Is this the final processing status? The only case where "
-        "`status`=1 is not final is for magnitude fitting, where there may be "
+        "``status=1`` is not final is for magnitude fitting, where there may be "
         "additional iterations needed.",
     )
 

@@ -427,9 +427,13 @@ def _parse_json_config(json_config):
             parameter name: [
                 {
                     'expressions': set(expression ID index in below list),
+
                     'value': value of parameter if all expressions are satisfied
+
                 },
+
                 ...
+
             ]
 
         [str]:

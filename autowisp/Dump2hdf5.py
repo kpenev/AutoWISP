@@ -141,13 +141,14 @@ class DataReduction(HDF5FileDatabaseStructure):
         return "Data Reduction"
 
 
-if os.path.exists("fname5"):
-    os.remove("fname5")
-# A1=DataReduction('fname5','a')
-# A1.add_fistar('10-465009_2_G2.fistar')
-# A1.close()
-A1 = DataReduction("fname5", "a")
-A1.add_match(
-    "10-465258_2_R1.fistar.match", "test.ucac4", "10-465258_2_R1.fistar"
-)
-A1.close()
+if __name__ == "__main__":
+    if os.path.exists("fname5"):
+        os.remove("fname5")
+    # A1=DataReduction('fname5','a')
+    # A1.add_fistar('10-465009_2_G2.fistar')
+    # A1.close()
+    A1 = DataReduction("fname5", "a")
+    A1.add_match(
+        "10-465258_2_R1.fistar.match", "test.ucac4", "10-465258_2_R1.fistar"
+    )
+    A1.close()
