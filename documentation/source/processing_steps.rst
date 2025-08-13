@@ -5,143 +5,40 @@ Pipeline Steps
 The pipeline operations can be broken down into 5 big steps each of which is
 further broken down into multiple smaller steps:
 
-1. Image calibration: 
-=====================
+1 Split raw frames by type:
+=============================
 
-Take the raw data and calibrate it for various instrumental effects.
+Before you begin processing the images you have accumulated, a bit of
+preparation is needed. It is very convenient and helps avoid mistakes if you
+split your images inte separate directories by type:
 
-See :doc:`PythonModules/image_calibration` for implementation
-documentation.
 
-1.1 Split raw frames by type:
------------------------------
+    bias
+        Images with near-zero exposure intended to measure the behavior of the
+        analog-to-digital converter(s) of your camera. This shows up in the
+        final image as a value that each pixel starts at, even if there is no
+        signal.
 
-    * Calibration frames:
+    dark
+        Images with no light falling on the detector, but exposure similar
+        (ideally equal) to the exposure used for science images. These are
+        intended to measure the rate of accumulation of charge in the detector
+        pixels in the absence of light.
 
-        * bias: Frames with zero exposure intended to measure the behavior of
-          the A-to-D converter.
+    flat 
+        Images of something with uniform brightness (or as close to it as one
+        can manage). There are intended to measure the sensitivity to light of
+        the system coming from different directions. 
 
-        * dark: Frames with no light falling on the detector intended to measure
-          the rate of accumulation of charge in the detector pixels in the
-          absence of light.
+    object 
+        Images of the night sky from which photometry is to be extracted. Those
+        can further be split into sub-groups from which independent lightcurves
+        need to be generated. For example if several different exposure times
+        were used, or there could be a number of filters or other chages in the
+        optical system between frames which may produce better results if
+        processed independently.
 
-        * flat: Frames with uniform illumination falling on the detector
-          intended to measure the sensitivity to light of the system coming from
-          different directions. 
-
-    * Object frames: Images of the night sky from which photometry is to be
-      extracted. Those can further be split into sub-groups from which
-      independent lightcurves need to be generated. For example if several
-      different exposure times were used, or there could be a number of filters
-      or other chages in the optical system between frames which may produce
-      better results if processed independently.
-
-1.2 Image Calibration
----------------------
-
-Before raw images are used, they need to be calibrated. The sequence of steps
-is: 
-
-    * calibrate raw bias frames
-
-    * generate master bias frames
-
-    * calibrate raw dark frames using the master biases
-
-    * generate master dark frames
-
-    * calibrate raw flat frames using the master biases and master darks
-
-    * generate master flat frames
-
-    * calibrate raw object frames
-
-1.2.1 Create mask
-^^^^^^^^^^^^^^^^^
-
-Create a mask image noting pixels which are saturated (i.e. near the full-well
-capacity). Also marks pixels neighboring saturatied pixels in the leak direction
-as recipients of leaked charge. Also transfers any masks in the masters used,
-including taking separate mask-only files.
-
-1.2.1 Overscan corrections
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In many instances, the imaging device provides extra areas that attempt to
-measure bias level and dark current, e.g. by continuing to read pixels past the
-physical number of pixels in the device, thus measuring the bias or by having an
-area of pixels which are somehow shielded from light, thus measuring the dark
-level in real time. Such corrections are supierior to the master frames in that
-they measure the instantaneous bias and dark level, which may vary over time due
-to for example the temperature of the detector varying. However, bias level and
-dark current in particular can vary from pixel to pixel, which is not captured
-by these real-time areas. Hence, the best strategy is a combination of both, and
-is different for different detectors.
-
-The pipeline allows (but does not require) such areas to be used to estimate
-some smooth function of image position to subtract from each raw image, and then
-the masters are applied to the result. This works mathematically, because the
-masters will also have their values corrected for the bias and dark measured by
-these areas from the individual frames that were used to construct them. In this
-scheme, the master frames are used only to capture the pixel to pixel
-differences in bias and dark current. We refer to these areas as "overscan",
-although that term really means only one type of such area.
-
-While overscan corrections are applied to all raw frames,
-
-1.2.2. Bias level and dark current is subtracted
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This step simply subtracts the master bias and the master dark from the target
-image.
-
-The master bias is not subtracted from raw bias frames (since the reason for
-calibrating those is to generate the master bias), and for raw dark frames,
-master bias corrections are applied, but master dark are not. All other image
-types get the full set of corrections.
-
-1.2.2. Flat field corrections are applied
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This is a very simple step which simply takes the ratio of the bias and dark
-corrected frame and the master flat, pixel by pixel.
-
-This step is skipped for raw bias, dark and flat frames, and applied to all
-object frames.
-
-1.2.3. The image is trimmed to only the image area
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This step removes overscan, dark and other areas that are used during the
-calibration process, but lose their meaning afterwards.
-
-This step is apllied to all raw frames.
-
-1.2.4. Individual pixel errors are calculated
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In the original image, the error in the value of each pixel is simply given by
-(pixel value / gain)\ :sup:`0.5`. However, once the above corrections are
-applied this is no longer true. The de-biasing and de-darking adds the (small)
-noise in the master frames (and the overscan corrections), the scaling by the
-flat introduces the error in the master flat, but also changes the "gain"
-differently for ecah pixel. In order to properly handle all those, calibrating
-raw frames in the pipeline produces two images: the calibrated image and an
-error estimate image giving the so called 1-sigma error estimate (in 68% of the
-cases the true amount of light that fell on the detector deviates no more than
-the given amount from the reported value).
-
-This is done for all raw frames.
-
-1.3 Generate master frames:
----------------------------
-
-Master frames are stacks of individual calibrated calibration frames. As a
-result their signal to noise ratio is greatly increased, compared to individual
-un-stacked frames, allowing for much better calibration. In each case, the
-frames are split into groups in which the effect being measured is not expected
-to var and the individual frames are stacked, with suspicious (outlier in some
-way) frames are discarded.
+.. include:: calibration_steps.rst
 
 2. Astrometry:
 ==============
