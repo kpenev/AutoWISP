@@ -6,11 +6,11 @@ Use the `pip package manager <https://pip.pypa.io/en/stable/>`_ to install
 
     pip install autowisp
 
-Run the Tests
-=============
+Run the Tests (optional)
+------------------------
 
 Autowisp comes with a set of tests that apply all processing steps to a small
-set images and check that the results are as expected. To run the tests:
+set images and check that the results are as expected. To run the tests::
 
     python3 -m autowisp.tests failed_test -vvvv
 
