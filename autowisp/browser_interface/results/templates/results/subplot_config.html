@@ -40,11 +40,13 @@
             <td>
                 <label for="minimize">Minimize:</label>
             </td>
-            <td>
+            <td style="display: flex; align-items: center; gap: 0.5rem;">
                 <input type="text" 
                        id="minimize"
                        class="param"
                        value="{{ data_select.0.minimize }}">
+                <button type="button" id="btn-magfit-minimize" class="lcars-element button lcars-melrose-bg" style="padding: 0 0.5rem;">magfit</button>
+                <button type="button" id="btn-tfa-minimize" class="lcars-element button lcars-melrose-bg" style="padding: 0 0.5rem;">tfa</button>
             </td>
         </tr>
         <tr>
@@ -138,6 +140,12 @@
 
 <div class="lcars-bar horizontal config-row" style="width: 100%">
     Plot Quantities
+    <button type="button" id="btn-magfit-magnitude" class="lcars-element button lcars-melrose-bg" style="margin-left: 1rem; padding: 0 0.5rem;">magfit</button>
+    <button type="button" id="btn-tfa-magnitude" class="lcars-element button lcars-melrose-bg" style="padding: 0 0.5rem;">tfa</button>
 </div>
 
 {% include "results/param_table.html" with param_group="lc-expression" col1="Name" col2="Expression" data=data_select.0.expressions can_add=1 %}
+
+<script type="text/javascript">
+// Move magfit/tfa switch logic to display.lightcurves.js
+</script>
