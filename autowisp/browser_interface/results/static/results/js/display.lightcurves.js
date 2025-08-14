@@ -793,10 +793,341 @@ function initLightcurveDisplay(urls) {
     updateFigure.getParam = getPlottingConfig;
     changeModel.stashed = {};
     getPlottingConfig.unappliedSplits = {};
-    document.getElementById("rcParams").onclick = () =>
-        showConfig(urls.rcParams, "config-parent", () => {
-            getPlottingConfig.mode = "rcParams";
-        });
-    document.getElementById("apply").onclick = updateFigure;
-    updateFigure();
+
+
+    /**
+ * Initialize the lightcurve display with config URLs.
+ * 
+ * Sets up figure updating, subplot configuration, curve editing,
+ * persistence, and control buttons. It also hides the config panel by default
+ * and adds an "Open Config" toggle button next to the Apply and Figure Config buttons.
+ *
+ * @param {Object} urls - A mapping of configuration endpoints.
+ *   Must include `update`, and may include `subplot`, `rcParams`, `editModel`, etc.
+ */
+    var lcDataScript = document.getElementById('lc-data-select');
+    var lcDataSelect = lcDataScript ? JSON.parse(lcDataScript.textContent) : [{
+        lc_substitutions: { magfit_iteration: -1 },
+        find_best: { aperture_index: "0..40" },
+        minimize: "nanmedian(abs({mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)))",
+        photometry_modes: ["apphot"],
+        selection: "",
+        model: null,
+        expressions: {
+            magnitude: "{mode}.tfa.magnitude - nanmedian({mode}.tfa.magnitude)",
+            bjd: "skypos.BJD - skypos.BJD.min()",
+            rawfname: "fitsheader.rawfname"
+        },
+        plot_config: [{
+            sphotref_selector: "*",
+            x_aggregate: "nanmedian",
+            y_aggregate: "nanmedian",
+            x: "bjd",
+            y: "magnitude",
+            match_by: "rawfname",
+            curve_label: "tfa",
+            plot_kwargs: {
+                marker: "o",
+                markersize: 3,
+                markeredgecolor: "none",
+                markerfacecolor: "#1f77b4",
+                linestyle: "none",
+                linewidth: 0,
+                color: "#ffffff"
+            }
+        }]
+    }];
+    showConfig(configURLs.subplot.slice(0, -1) + "0", "config-parent", function() {
+        var configParent = document.getElementById("config-parent");
+        configParent.style.display = "none";
+        if (configParent.parentNode) {
+            configParent.parentNode.style.display = "none";
+        }
+        plotCurves = new plotCurvesType(lcDataSelect);
+        getPlottingConfig.mode = "subplot";
+        getPlottingConfig.plotId = 0;
+        // --- Add Open Config button next to Apply and Figure Config ---
+        var applyBtn = document.getElementById("apply");
+        var figConfigBtn = document.getElementById("rcParams");
+        if (applyBtn && figConfigBtn) {
+            var openConfigBtn = document.createElement("button");
+            openConfigBtn.id = "open-config";
+            openConfigBtn.textContent = "Open Config";
+            openConfigBtn.style.marginLeft = "4px";
+            openConfigBtn.style.height = figConfigBtn.style.height;
+            openConfigBtn.style.fontSize = figConfigBtn.style.fontSize;
+            openConfigBtn.className = figConfigBtn.className;
+            figConfigBtn.parentNode.insertBefore(openConfigBtn, figConfigBtn.nextSibling);
+            openConfigBtn.onclick = function() {
+                var configParent = document.getElementById("config-parent");
+                var parentContainer = configParent.parentNode;
+                if (configParent.style.display === "none" || configParent.style.display === "") {
+                    configParent.style.display = "inline";
+                    parentContainer.style.display = "inline-flex";
+                } else {
+                    configParent.style.display = "none";
+                    parentContainer.style.display = "none";
+                }
+            };
+        }
+        document.getElementById("rcParams").onclick = () =>
+            showConfig(urls.rcParams, "config-parent", () => {
+                getPlottingConfig.mode = "rcParams";
+            });
+        document.getElementById("apply").onclick = updateFigure;
+        updateFigure();
+    });
+    
 }
+
+/**
+* Function to persist the "star-id" input across reloads.
+* Works both for initial page load and dynamically added DOM elements.
+*/
+
+(function () {
+    /**
+    * save the value of a given input field to localStorage and restore on load.
+    * @param {string} id - DOM element ID of the input field.
+    * @param {string} key - Key in localStorage to save.
+    */
+    function persistInput(id, key) {
+        const input = document.getElementById(id);
+        if (!input || input[`_persisted_${key}`]) return;
+        const saved = localStorage.getItem(key);
+        if (saved !== null) input.value = saved;
+        input.addEventListener("input", () => localStorage.setItem(key, input.value));
+        input[`_persisted_${key}`] = true;
+    }
+
+    /**
+    * Observe DOM for the target input element and persist once it appears.
+    */
+    function observeInput(id, key) {
+        new MutationObserver(() => persistInput(id, key)).observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => persistInput("star-id", "savedStarId"));
+    observeInput("star-id", "savedStarId");
+})();
+
+/**
+* Replace occurrences of `{mode}.{from}.` in a string with `{mode}.{to}.`.
+* @param {string} str - The string to modify.
+* @param {string} from - Mode to replace.
+* @param {string} to - Mode to insert.
+* @returns {string} Updated string.
+*/
+function switchModeInString(str, from, to) {
+    return str.replace(new RegExp(`\\{mode\\}\\.${from}\\.`, "g"), `{mode}.${to}.`);
+}
+
+
+
+/**
+ * Set the minimize expression mode and persist to localStorage.
+ * @param {string} mode - Mode to set ("magfit" or "tfa").
+ */
+function setMinimizeMode(mode) {
+    const input = document.getElementById("minimize");
+    if (!input) return;
+    const current = input.value;
+    if (current.includes(`{mode}.${mode}.`)) return;
+    input.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+    localStorage.setItem("persistedMinimize", input.value);
+}
+
+
+
+/**
+ * Set the magnitude expression mode in the LC expressions table and persist.
+ * @param {string} mode - Mode to set ("magfit" or "tfa").
+ */
+function setMagnitudeMode(mode) {
+    const table = document.getElementById("lc-expressions");
+    if (!table) return;
+    for (const row of table.querySelectorAll("tr")) {
+        const nameInput = row.querySelector("input[id^='lc-expression-key']");
+        const valueInput = row.querySelector("input[id^='lc-expression-value']");
+        if (nameInput?.value.trim() === "magnitude" && valueInput) {
+            const current = valueInput.value;
+            if (current.includes(`{mode}.${mode}.`)) return;
+            valueInput.value = switchModeInString(current, mode === "magfit" ? "tfa" : "magfit", mode);
+            localStorage.setItem("persistedMagnitude", valueInput.value);
+        }
+    }
+}
+
+
+
+/**
+ * Restore persisted minimize and magnitude values from localStorage into the UI.
+ */
+function restorePersistedConfig() {
+    const min = localStorage.getItem("persistedMinimize");
+    const mag = localStorage.getItem("persistedMagnitude");
+    const minInput = document.getElementById("minimize");
+    if (min && minInput) minInput.value = min;
+    const table = document.getElementById("lc-expressions");
+    if (mag && table) {
+        for (const row of table.querySelectorAll("tr")) {
+            const nameInput = row.querySelector("input[id^='lc-expression-key']");
+            const valueInput = row.querySelector("input[id^='lc-expression-value']");
+            if (nameInput?.value.trim() === "magnitude" && valueInput) {
+                valueInput.value = mag;
+            }
+        }
+    }
+}
+
+
+
+
+/**
+ * Attach click handlers for magfit/tfa mode buttons and restore persisted config.
+ */
+
+function setupMagfitTfaButtons() {
+    restorePersistedConfig();
+    const buttons = {
+        "btn-magfit-minimize": () => setMinimizeMode("magfit"),
+        "btn-tfa-minimize": () => setMinimizeMode("tfa"),
+        "btn-magfit-magnitude": () => setMagnitudeMode("magfit"),
+        "btn-tfa-magnitude": () => setMagnitudeMode("tfa")
+    };
+    for (const [id, handler] of Object.entries(buttons)) {
+        const btn = document.getElementById(id);
+        if (btn) btn.onclick = handler;
+    }
+}
+// Ensure setupMagfitTfaButtons only runs once.
+if (!window.setupMagfitTfaButtonsLoaded) {
+    window.setupMagfitTfaButtonsLoaded = true;
+    document.addEventListener("DOMContentLoaded", setupMagfitTfaButtons);
+}
+
+
+/**
+ * Monkey-patch `showConfig` to call `setupMagfitTfaButtons` after loading config.
+ */
+if (typeof window.showConfig === "function") {
+    const origShowConfig = window.showConfig;
+    window.showConfig = function (url, parentId, onSuccess) {
+        origShowConfig(url, parentId, () => {
+            setupMagfitTfaButtons();
+            if (typeof onSuccess === "function") onSuccess();
+        });
+    };
+}
+
+
+/**
+ * IIFE to persist minimize and magnitude inputs dynamically as they appear.
+ * Uses MutationObservers for dynamic updates.
+ */
+
+(function () {
+    function persistMinimize() {
+        const input = document.getElementById("minimize");
+        if (!input || input._persisted_minimize) return;
+        const saved = localStorage.getItem("persistedMinimize");
+        if (saved !== null) input.value = saved;
+        input.addEventListener("input", () => localStorage.setItem("persistedMinimize", input.value));
+        input._persisted_minimize = true;
+    }
+
+    function persistMagnitude() {
+        const table = document.getElementById("lc-expressions");
+        if (!table) return;
+        for (const row of table.querySelectorAll("tr")) {
+            const nameInput = row.querySelector("input[id^='lc-expression-key']");
+            const valueInput = row.querySelector("input[id^='lc-expression-value']");
+            if (nameInput?.value.trim() === "magnitude" && valueInput && !valueInput._persisted_magnitude) {
+                const saved = localStorage.getItem("persistedMagnitude");
+                if (saved !== null) valueInput.value = saved;
+                valueInput.addEventListener("input", () => localStorage.setItem("persistedMagnitude", valueInput.value));
+                valueInput._persisted_magnitude = true;
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        persistMinimize();
+        persistMagnitude();
+    });
+
+    new MutationObserver(persistMinimize).observe(document.body, { childList: true, subtree: true });
+    new MutationObserver(persistMagnitude).observe(document.body, { childList: true, subtree: true });
+})();
+
+
+// Function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+/**
+ * Send a POST request to update the figure based on current plotting config.
+ * Parses JSON and calls `updateFigure.callback` if available.
+ * Suppresses alerts for HTML responses (indicating a non-JSON backend response).
+ */
+function updateFigure() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", updateFigure.url);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    
+    // Add CSRF token to the request
+    var csrftoken = getCookie('csrftoken');
+    if (csrftoken) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    }
+    
+    xhr.onload = function () {
+        var responseText = xhr.responseText || "";
+        var trimmed = responseText.trim();
+
+        // Check if the response is HTML (more comprehensive check)
+        var isHTML = trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || 
+                     trimmed.startsWith("<HTML") || trimmed.startsWith("<head") || 
+                     trimmed.startsWith("<HEAD") || trimmed.startsWith("<body") || 
+                     trimmed.startsWith("<BODY") || (trimmed.startsWith("<") && trimmed.length > 0);
+
+        if (isHTML) {
+            console.warn("Plot update response was HTML, not JSON. Suppressing alert.");
+            return; // Don't try to parse or alert
+        }
+
+        try {
+            var data = JSON.parse(trimmed);
+            if (typeof updateFigure.callback === "function") {
+                updateFigure.callback(data);
+            }
+        } catch (e) {
+            console.error("Failed to parse plot update JSON:", e, responseText);
+            // Only show alert if it's not an HTML response
+            if (!trimmed.startsWith("<")) {
+                alert("Updating plot failed: " + e);
+            } else {
+                console.warn("Plot update failed to parse JSON, but response was HTML. Suppressing alert.");
+            }
+        }
+    };
+    xhr.onerror = function () {
+        alert("Network error while updating plot.");
+    };
+    xhr.send(JSON.stringify(updateFigure.getParam()));
+}
+
+
