@@ -121,3 +121,5 @@ ENV/
 
 # Ignore database file
 autowisp/database/autowisp.db
+
+/envWisp
